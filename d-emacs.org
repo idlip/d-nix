@@ -1185,6 +1185,27 @@ Managing frames and their buffers handy way. Gets rid of using tab-bar or window
   (add-to-list 'consult-buffer-sources 'beframe--consult-source))
 
 #+end_src
+** Start Page
+Inspired by DistroTube video, I think using self edited org mode file is a better dashboard/startpage to see. You can change it however you want, and you will learn more org stuffs!
+#+begin_src emacs-lisp
+  (setq initial-buffer-choice "~/.SETUP/d-startpage.org")
+
+  (define-minor-mode startpage-mode
+    "Provide functions for custom start page."
+    :lighter " start"
+    (local-set-key (kbd "1") '(lambda () (interactive) (find-file "~/.SETUP/d-emacs.org")))
+    (local-set-key (kbd "2") '(lambda () (interactive) (find-file "~/.SETUP/d-setup.org")))
+    (local-set-key (kbd "3") '(lambda () (interactive) (find-file "~/.SETUP/README.org")))
+    (local-set-key (kbd "4") '(lambda () (interactive) (find-file "~/.local/bin/d/")))
+    (local-set-key (kbd "5") '(lambda () (interactive) (find-file "~/sync/org/good-reads.org")))
+    (setq org-image-actual-width nil)
+    (hl-line-mode -1)
+    )
+
+  (add-hook 'startpage-mode-hook 'read-only-mode)
+  (provide 'startpage-mode)
+
+#+end_src
 * Language - IDE maybe? 💻
 I'm not a programmer, maybe will be expanded in future..
 #+begin_src emacs-lisp

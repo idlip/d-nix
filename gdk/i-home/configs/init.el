@@ -1073,7 +1073,7 @@
 (defun config-reload ()
   "Uncle dev created a function to reload Emacs config."
   (interactive)
-  (load-file (expand-file-name "~/.emacs.d/init.el")))
+  (load-file (expand-file-name "~/.config/emacs/init.el")))
 
 (defvar d/buffer-url-regexp
   (concat
@@ -1469,16 +1469,3 @@
                   (set-font-faces))))
     (set-font-faces))
 (put 'narrow-to-region 'disabled nil)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(keepass-mode vterm undo-tree flycheck no-littering vertico-posframe rainbow-delimiters rainbow-mode orderless marginalia olivetti org-modern cape markdown-mode nix-mode all-the-icons-dired dired-hide-dotfiles dired-single reddigg mingus pdf-tools which-key org-mime catppuccin-theme corfu-terminal sdcv elfeed-org link-hint general powerthesaurus doom-modeline org-auto-tangle howdoyou wikinforg 0x0 embark-consult le-thesaurus beframe denote gruvbox-theme)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

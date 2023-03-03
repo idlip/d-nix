@@ -17,7 +17,7 @@
   + package management becomes easy with just ~nixos-rebuild~
   + You get vterm, which wont build that easily in normal emacs config
 **** Planning 😴
-- [ ] Dont use Dashboard (as its useful), Instead make use of Org file as dashboard. Refer DT video
+- [ ] Dont use Dashboard (as its useless), Instead make use of Org file as dashboard. Refer DT video
 - [ ] Add daily quotes for ~initial-scratch-message~ 
 - [ ] Make README.org or improve this Config.org so it is informational to all
 - [ ] Learn more stuffs from Experienced and Master Users, like Purcell, bbsatov and others
@@ -411,8 +411,8 @@ But if you like clicks, tacks and ticks of you mouse, then go with it. (Mouse is
 
 * Minad - The Messiah 😇
     Daniel Mendler minad  is a great guy, It is one of the reason why I love Emacs and Moved to Emacs and use it everywhere as much as Possible.
-    Just see his git repo issues, he has it all solved, and he will explain and converse with clear and good explanation, I wondered how could a man be so dedicated to Emacs so well with very positive approach. Considering trying his packages and if possible, do Donate to him.
-    Just Awesome, if it were not for his packages, I probably would never tried Emacs. Now I hate vim/neovim, Idk why.
+    Just see his git repo issues, he has it all solved, and he will explain and converse with clear and good explanation, I wondered how could a man be so dedicated to Emacs so well with very positive approach. Consider trying his packages and if possible, do Donate to him.
+    Just Awesome, if it wasn't for his packages, I probably would never have tried Emacs. Now I hate vim/neovim, Idk why.
 
 ** Vertico - The first ❤️
 Just check the [[https://github.com/minad/vertico][Vertico github]] repo, you will find great Readme file with rich information and some basic usage codes which is more than enough.
@@ -723,7 +723,7 @@ Cape for Rescue! Feel the power of Emacs Extensibility
       (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
 
 #+end_src
-** Moderinze - Organize
+** Modernize - Organize
 You will see org just below this, this package helps make Org-Mode looks eye-candy and how it reached average audience.
 #+begin_src emacs-lisp
   (use-package org-modern)
@@ -1114,7 +1114,7 @@ TODO : Learn more on this
 #+end_src
 * Eye Candy Looks 🍭
 ** Olive Etiquette 🫒
-All texts from left is not intuitive, Spoils GUI end of emacs, feels like you are on Terminal all time. Also, you space on right side will be wasted, unless you use split window vertically. Centering content helps focus and make things looks tidy.
+All texts from left is not intuitive, Spoils GUI end of emacs, feels like you are on Terminal all time. Also, the space on right side will be wasted, unless you use split window vertically. Centering content helps focus and make things look tidy.
 #+begin_src emacs-lisp
 (use-package olivetti
   :hook ((text-mode         . olivetti-mode)
@@ -1138,7 +1138,7 @@ All texts from left is not intuitive, Spoils GUI end of emacs, feels like you ar
 #+end_src
 ** Catppuccin 😻
 Ofcourse, what not without a really good colourscheme, should i say pastel?
-I was using doom=themes actually, but they are not that goodi tho I like doom-gruvbox alot. Catppuccin is also well made, dedicatingly for emacs.
+I was using doom=themes actually, but they are not that good, tho I like doom-gruvbox alot. Catppuccin is also well made, dedicatingly for emacs.
 + Works very well with eww browser too, url bar looks fine.
   I like  modus-vivendi too (Built-in)
   Its subjective to you!
@@ -1218,7 +1218,7 @@ Not that intuitive to use as file manager, once you get a hand of emacs. You wil
 #+end_src
 
 * Cool Stuffs 🧊
-Some small codes for good source.
+Some small codes from good source.
 #+begin_src emacs-lisp
   (use-package reddigg
     :config
@@ -1309,7 +1309,7 @@ Some more functions copied and adapted well to my flow. You will also find it we
 (defun config-reload ()
   "Uncle dev created a function to reload Emacs config."
   (interactive)
-  (load-file (expand-file-name "~/.emacs.d/init.el")))
+  (load-file (expand-file-name "~/.config/emacs/init.el")))
 
 (defvar d/buffer-url-regexp
   (concat
@@ -1394,7 +1394,7 @@ Some more functions copied and adapted well to my flow. You will also find it we
 #+end_src
 
 * Rss - Better Web 📰
-Use RSS, just switch to it, and save your time for other productive things. If you wanna follow lazy people and hit that 'like button and share and subscribe' go on.
+Use RSS, just switch to it, and save your time for other productive things. If you wanna follow lazy people and hit that 'like, share and subscribe button, and /ding/ the bell icon' and what not, go on.
 #+begin_src emacs-lisp
   (use-package elfeed
     :defer t

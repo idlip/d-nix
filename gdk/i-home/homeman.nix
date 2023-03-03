@@ -443,7 +443,7 @@ xdg.configFile."hypr/hyprland.conf" = { source = config.lib.file.mkOutOfStoreSym
 
 home.file.".config/emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.SETUP/gdk/i-home/configs/early-init.el";
 home.file.".config/emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.SETUP/gdk/i-home/configs/init.el";
-home.file.".config/emacs/elfeed.org".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.SETUP/gdk/i-home/configs/elfeed.org";
+home.file.".config/emacs/elfeed.org".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.SETUP/d-rss.org";
 
 programs.emacs = {
   enable = true;

@@ -1,0 +1,93 @@
+* Feeds :elfeed:
+** Youtube-Linux :linux:
+*** [[https://vid.puffyan.us/feed/channel/UCld68syR8Wi-GY_n4CaoJGA][Brodie Robertson]]           
+*** [[https://vid.puffyan.us/feed/channel/UCngn7SVujlvskHRvRKc1cTw][BugsWriter]]
+*** [[https://vid.puffyan.us/feed/channel/UCVls1GmFKf6WlTraIb_IaJg][DistroTube]]
+*** [[https://vid.puffyan.us/feed/channel/UC7YOGHUfC1Tb6E4pudI9STA][Mental Outlaw]]
+*** [[https://yewtu.be/feed/channel/UC2eYFnH61tmytImy1mTYvhA][Luke]]
+*** [[https://yewtu.be/feed/channel/UCriRR_CzOny-akXyk1R-oDQ][Napoleon]]
+*** [[https://vid.puffyan.us/feed/channel/UCX_WM2O-X96URC5n66G-hvw][EF - Linux Made Simple]]
+*** [[https://vid.puffyan.us/feed/channel/UC5UAwBUum7CPN5buc-_N1Fw][The Linux Experiment]]
+*** [[https://vid.puffyan.us/feed/channel/UCjSEJkpGbcZhvo0lr-44X_w][TechHut]]
+** Animalogy :animalogy:animal:zoo:
+*** [[https://vid.puffyan.us/feed/channel/UCwmZiChSryoWQCZMIQezgTg][BBC Earth]]
+*** [[https://vid.puffyan.us/feed/channel/UCwg6_F2hDHYrqbNSGjmar4w][Animalogic]]
+*** [[https://vid.puffyan.us/feed/channel/UCG5_BraUMNcluZPZ__oOeKg][Natural World Facts]]
+*** [[https://vid.puffyan.us/feed/channel/UCBbnbBWJtwsf0jLGUwX5Q3g][Journey to the Microcosmos]]
+*** [[https://vid.puffyan.us/feed/channel/UCDSzwZqgtJEnUzacq3ddoOQ][Ben G Thomas]]
+*** [[https://yewtu.be/feed/channel/UC176GAQozKKjhz62H8u9vQQ][Real Science]]
+*** [[https://yewtu.be/feed/channel/UCpVm7bg6pXKo1Pr6k5kxG9A][Nat Geo]]
+** Docs :docs:doc:
+*** [[https://yewtu.be/feed/channel/UC_g32e3JeECjEuRbk-loywg][HQ Docs]]
+*** [[https://yewtu.be/feed/channel/UCixD9UbKvDxzGNiPC_fgHyA][Tokyo]]
+** Geeks :blogs:read:
+*** [[https://www.psychologytoday.com/intl/front/feed][Psychology Today: The Latest]] :psych:psy:
+*** [[https://www.beebom.com/feed/][Beebom]]
+*** [[https://www.wionews.com/feeds/india-news/rss.xml][WION - india news News Releases]]
+*** [[https://syndication.howstuffworks.com/rss/HSW][HowStuffWorks]] :stuffs:how:
+** News :news:
+*** [[https://www.thehindu.com/feeder/default.rss][The Hindu - Home]]            
+** Youtube-Time :youtube:yt:
+*** [[https://vid.puffyan.us/feed/channel/UCUdettijNYvLAm4AixZv4RA][SciShow Psych]]
+*** [[https://vid.puffyan.us/feed/channel/UC2-_WWPT_124iN6jiym4fOw][Asian Boss]]
+*** [[https://vid.puffyan.us/feed/channel/UCMlGmHokrQRp-RaNO7aq4Uw][TopThink]]
+*** [[https://vid.puffyan.us/feed/channel/UCHL9bfHTxCMi-7vfxQ-AYtg][Abroad in Japan]]
+*** [[https://vid.puffyan.us/feed/channel/UCZYTClx2T1of7BRZ86-8fow][SciShow]]
+*** [[https://vid.puffyan.us/feed/channel/UCzWQYUVCpZqtN93H8RR44Qw][Seeker]]
+*** [[https://vid.puffyan.us/feed/channel/UC4Tklxku1yPcRIH0VVCKoeA][Quantum Tech HD]]
+*** [[https://vid.puffyan.us/feed/channel/UCfdNM3NAhaBOXCafH7krzrA][The Infographics Show]]
+*** [[https://vid.puffyan.us/feed/channel/UC1xNraQytCPsaoO5N7_YABw][Koranos]]
+*** [[https://vid.puffyan.us/feed/channel/UC3CBOpT2-NRvoc2ecFMDCsA][Crime Pays But Botany Doesn't]]
+*** [[https://vid.puffyan.us/feed/channel/UCOh5Ht3eB4914hMUfJkKa9g][Moth Light Media]]
+*** [[https://vid.puffyan.us/feed/channel/UCHsRtomD4twRf5WVHHk-cMw][TierZoo]]
+*** [[https://vid.puffyan.us/feed/channel/UCVpankR4HtoAVtYnFDUieYA][zefrank1]]
+*** [[https://vid.puffyan.us/feed/channel/UCH4BNI0-FOK2dMXoFtViWHw][Be Smart]]
+*** [[https://vid.puffyan.us/feed/channel/UCb2GCoLSBXjmI_Qj1vk-44g][Amoeba Sisters]]
+*** [[https://vid.puffyan.us/feed/channel/UCEik-U3T6u6JA0XiHLbNbOw][Bozeman Science]]
+*** [[https://vid.puffyan.us/feed/channel/UC-3SbfTPJsL8fJAPKiVqBLg][Deep Look]]
+*** [[https://vid.puffyan.us/feed/channel/UCsXVk37bltHxD1rDPwtNM8Q][Kurzgesagt – In a Nutshell]]
+*** [[https://vid.puffyan.us/feed/channel/UCzR-rom72PHN9Zg7RML9EbA][PBS Eons]]
+*** [[https://vid.puffyan.us/feed/channel/UCqYPhGiB9tkShZorfgcL2lA][What I've Learned]]
+*** [[https://vid.puffyan.us/feed/channel/UCL8w_A8p8P1HWI3k6PR5Z6w][Two Cents]]
+** Podcasts :podcasts:pod:
+*** [[https://bearbrook.feed.nhpr.org/][Bear Brook]]
+*** [[https://www.blogtalkradio.com/beatyourgenes/podcast][Beat Your Genes Podcast]]
+*** [[https://feeds.megaphone.fm/HSW1226123619][BrainStuff]]
+*** [[https://omny.fm/shows/great-big-story/playlists/podcast.rss][Great Big Story]]
+*** [[https://rss.art19.com/myths-and-legends][Myths and Legends]]
+*** [[https://sopapa.libsyn.com/rss][Speaking of Psychology]]
+*** [[https://www.omnycontent.com/d/playlist/aaea4e69-af51-495e-afc9-a9760146922b/d4aa39f3-0022-4bb5-9e40-ab5001839873/bc8dd672-8410-4833-a0a9-ab5001839881/podcast.rss][Curiosity Daily]] :daily:
+*** [[http://feeds.feedburner.com/TEDxSHORTS][TEDx SHORTS]]
+*** [[https://audioboom.com/channels/4971888.rss][The Big Story]]
+*** [[https://uncannyjapan.libsyn.com/rss][Uncanny Japan - Japanese Folklore, Folktales, Myths and Language]]
+*** [[https://escapepod.org/feed/atom/][Escape Pod]]
+*** [[http://podcasts.files.bbci.co.uk/p02pc9tn.rss][6 Minute English]]
+*** [[https://www.theguardian.com/science/series/science/podcast.xml][Science Weekly]]
+** Anime :anime:nyaa:
+*** https://feed.animetosho.org/atom?q=neohevc Anime
+*** https://feed.animetosho.org/atom?q=batch Anime
+** Bio Data :bio:inf:
+*** https://journals.plos.org/plosbiology/feed/atom Bio
+*** http://blogs.biomedcentral.com/feed/ Bio
+*** https://rupress.org/rss/site_1000001/LatestArticles_1000003.xml Bio
+*** https://journals.biologists.com/rss/site_1000009/1000007.xml Bio
+*** https://www.biologycorner.com/feed/ Bio
+*** https://www.onlinebiologynotes.com/feed/ Bio
+*** https://bitesizebio.com/feed/ Bio
+*** http://feeds.feedburner.com/BiologyExams4U Bio
+*** https://journals.biologists.com/rss/site_1000001/1000003.xml Bio
+*** https://www.sciencedaily.com/rss/top/science.xml Sci
+*** https://www.sciencedaily.com/rss/most_popular.xml Sci
+** Reddit :reddit:
+** Comics :comic:
+*** [[https://xkcd.com/atom.xml][xkcd.com]]
+
+** Jokes :jokes:
+** Emacs                                                              :emacs:
+*** [[https://sachachua.com/blog/category/emacs/feed][Sachi]]                                                             :sachi:
+*** [[https://planet.emacslife.com/atom.xml][Planet-Emacs]]
+*** [[https://protesilaos.com/feeds/][Prot Blogs]] :prot:
+** Music                                                              :music:
+*** [[https://www.reddit.com/r/listentothis/search.rss?q=jazz&restrict_sr=on&sort=new&t=all/.rss][Jazz]] :jazz:
+*** [[https://www.reddit.com/r/listentothis/search.rss?q=classical&restrict_sr=on&sort=new&t=all/.rss][Classical]] :classical:
+*** [[https://www.reddit.com/r/listentothis/search.rss?q=instrument&restrict_sr=on&sort=new&t=all/.rss][Instrumental]] :intrumental:

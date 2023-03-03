@@ -1,3 +1,4 @@
+#+STARTUP: inlineimages
 #+ATTR_ORG: :width 350
 [[file:assets/emacs.webp]] 
 
@@ -27,5 +28,5 @@
 
 
 ;; Local Variables:
-;; eval: (startpage-mode)
+;; eval: (startpage-mode) (setq org-image-actual-width nil)
 ;; End:

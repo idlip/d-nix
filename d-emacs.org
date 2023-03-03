@@ -6,7 +6,7 @@
 ** Todo Stuffs (Feel free to say/add something. I will be glad!)
 **** Finally Done.. Ooof 😄
 - [X] Ditch evil-mode, go pure Emacs way!
-- [X] No need modeline, go zen-mode with minimal distraction
+- [X] No need modeline nor dashboard, go zen-mode with minimal distraction
     PS : Used ~olivetti-mode~ and ~(setq-default mode-line-format nil)~
 - [X] Clean and minimise unnecessary package/bloat
 - [X] No need doom-themes too, use one theme (Either vivendi or Catppuccin)
@@ -15,9 +15,8 @@
   PS : Just managing packages in nix style. Init file is good enough as such.
     Benefits are :
   + package management becomes easy with just ~nixos-rebuild~
-  + You get vterm, which wont build that easily in normal emacs config
+  + You get vterm, which wont build that easily in normal emacs config under nixos
 **** Planning 😴
-- [ ] Dont use Dashboard (as its useless), Instead make use of Org file as dashboard. Refer DT video
 - [ ] Add daily quotes for ~initial-scratch-message~ 
 - [ ] Make README.org or improve this Config.org so it is informational to all
 - [ ] Learn more stuffs from Experienced and Master Users, like Purcell, bbsatov and others
@@ -815,7 +814,7 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
   (defun org-mode-setup ()
     (org-indent-mode)
     (org-modern-mode 1)
-    (org-display-inline-images)
+    (org-display-inline-images 1)
     (variable-pitch-mode 1)
     (flyspell-mode 1)
     (setq
@@ -1183,27 +1182,6 @@ Managing frames and their buffers handy way. Gets rid of using tab-bar or window
        :state    ,#'consult--buffer-state))
 
   (add-to-list 'consult-buffer-sources 'beframe--consult-source))
-
-#+end_src
-** Start Page
-Inspired by DistroTube video, I think using self edited org mode file is a better dashboard/startpage to see. You can change it however you want, and you will learn more org stuffs!
-#+begin_src emacs-lisp
-  (setq initial-buffer-choice "~/.SETUP/d-startpage.org")
-
-  (define-minor-mode startpage-mode
-    "Provide functions for custom start page."
-    :lighter " start"
-    (local-set-key (kbd "1") '(lambda () (interactive) (find-file "~/.SETUP/d-emacs.org")))
-    (local-set-key (kbd "2") '(lambda () (interactive) (find-file "~/.SETUP/d-setup.org")))
-    (local-set-key (kbd "3") '(lambda () (interactive) (find-file "~/.SETUP/README.org")))
-    (local-set-key (kbd "4") '(lambda () (interactive) (find-file "~/.local/bin/d/")))
-    (local-set-key (kbd "5") '(lambda () (interactive) (find-file "~/sync/org/good-reads.org")))
-    (setq org-image-actual-width nil)
-    (hl-line-mode -1)
-    )
-
-  (add-hook 'startpage-mode-hook 'read-only-mode)
-  (provide 'startpage-mode)
 
 #+end_src
 * Language - IDE maybe? 💻

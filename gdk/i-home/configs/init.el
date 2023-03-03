@@ -627,7 +627,7 @@
 (defun org-mode-setup ()
   (org-indent-mode)
   (org-modern-mode 1)
-  (org-display-inline-images)
+  (org-display-inline-images 1)
   (variable-pitch-mode 1)
   (flyspell-mode 1)
   (setq
@@ -967,23 +967,6 @@
        :state    ,#'consult--buffer-state))
 
   (add-to-list 'consult-buffer-sources 'beframe--consult-source))
-
-(setq initial-buffer-choice "~/.SETUP/d-startpage.org")
-
-(define-minor-mode startpage-mode
-  "Provide functions for custom start page."
-  :lighter " start"
-  (local-set-key (kbd "1") '(lambda () (interactive) (find-file "~/.SETUP/d-emacs.org")))
-  (local-set-key (kbd "2") '(lambda () (interactive) (find-file "~/.SETUP/d-setup.org")))
-  (local-set-key (kbd "3") '(lambda () (interactive) (find-file "~/.SETUP/README.org")))
-  (local-set-key (kbd "4") '(lambda () (interactive) (find-file "~/.local/bin/d/")))
-  (local-set-key (kbd "5") '(lambda () (interactive) (find-file "~/sync/org/good-reads.org")))
-  (setq org-image-actual-width nil)
-  (hl-line-mode -1)
-  )
-
-(add-hook 'startpage-mode-hook 'read-only-mode)
-(provide 'startpage-mode)
 
 ;;; Markdown support
 (unless (package-installed-p 'markdown-mode)

@@ -1,0 +1,15 @@
+width=35%
+height=50%
+allow_images=true
+hide_scroll=true
+matching=multi-contains
+insensitive=true
+location=center
+#halign=center
+image_size=45
+key_forward=Control_L-n
+key_backward=Control_R-p
+key_paste=Control_L-y
+dynamic_lines=true
+allow_markup=true
+prompt=  Apps

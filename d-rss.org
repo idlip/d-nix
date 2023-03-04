@@ -49,20 +49,6 @@
 *** [[https://vid.puffyan.us/feed/channel/UCzR-rom72PHN9Zg7RML9EbA][PBS Eons]]
 *** [[https://vid.puffyan.us/feed/channel/UCqYPhGiB9tkShZorfgcL2lA][What I've Learned]]
 *** [[https://vid.puffyan.us/feed/channel/UCL8w_A8p8P1HWI3k6PR5Z6w][Two Cents]]
-** Podcasts :podcasts:pod:
-*** [[https://bearbrook.feed.nhpr.org/][Bear Brook]]
-*** [[https://www.blogtalkradio.com/beatyourgenes/podcast][Beat Your Genes Podcast]]
-*** [[https://feeds.megaphone.fm/HSW1226123619][BrainStuff]]
-*** [[https://omny.fm/shows/great-big-story/playlists/podcast.rss][Great Big Story]]
-*** [[https://rss.art19.com/myths-and-legends][Myths and Legends]]
-*** [[https://sopapa.libsyn.com/rss][Speaking of Psychology]]
-*** [[https://www.omnycontent.com/d/playlist/aaea4e69-af51-495e-afc9-a9760146922b/d4aa39f3-0022-4bb5-9e40-ab5001839873/bc8dd672-8410-4833-a0a9-ab5001839881/podcast.rss][Curiosity Daily]] :daily:
-*** [[http://feeds.feedburner.com/TEDxSHORTS][TEDx SHORTS]]
-*** [[https://audioboom.com/channels/4971888.rss][The Big Story]]
-*** [[https://uncannyjapan.libsyn.com/rss][Uncanny Japan - Japanese Folklore, Folktales, Myths and Language]]
-*** [[https://escapepod.org/feed/atom/][Escape Pod]]
-*** [[http://podcasts.files.bbci.co.uk/p02pc9tn.rss][6 Minute English]]
-*** [[https://www.theguardian.com/science/series/science/podcast.xml][Science Weekly]]
 ** Anime :anime:nyaa:
 *** https://feed.animetosho.org/atom?q=neohevc Anime
 *** https://feed.animetosho.org/atom?q=batch Anime
@@ -86,7 +72,6 @@
 ** Emacs                                                              :emacs:
 *** [[https://sachachua.com/blog/category/emacs/feed][Sachi]]                                                             :sachi:
 *** [[https://planet.emacslife.com/atom.xml][Planet-Emacs]]
-*** [[https://protesilaos.com/feeds/][Prot Blogs]] :prot:
 ** Music                                                              :music:
 *** [[https://www.reddit.com/r/listentothis/search.rss?q=jazz&restrict_sr=on&sort=new&t=all/.rss][Jazz]] :jazz:
 *** [[https://www.reddit.com/r/listentothis/search.rss?q=classical&restrict_sr=on&sort=new&t=all/.rss][Classical]] :classical:

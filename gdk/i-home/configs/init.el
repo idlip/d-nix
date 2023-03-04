@@ -310,6 +310,7 @@
 (define-key vertico-map "?" #'minibuffer-completion-help)
 (define-key vertico-map (kbd "M-RET") #'minibuffer-force-complete-and-exit)
 (define-key vertico-map (kbd "M-TAB") #'minibuffer-complete)
+(define-key vertico-map (kbd "DEL") 'vertico-directory-delete-char)
 (setq completion-styles '(substring orderless basic))
 (setq read-file-name-completion-ignore-case t
       read-buffer-completion-ignore-case t

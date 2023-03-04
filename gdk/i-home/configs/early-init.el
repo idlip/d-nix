@@ -33,7 +33,7 @@
 (setq
  load-prefer-newer nil
  default-input-method nil
- initial-major-mode 'fundamental-mode
+ initial-major-mode 'org-mode
  inhibit-default-init t
  inhibit-startup-screen t 			 ; Do not show the startup message.
  inhibit-startup-buffer-menu t       ; stop `list-buffers' from showing when opening multiple files.
@@ -66,5 +66,5 @@
 (setq comp-deferred-compilation nil)
 
 (provide 'early-init)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; early-init.el ends here
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;; early-init.el ends here

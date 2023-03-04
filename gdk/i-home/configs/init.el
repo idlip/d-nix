@@ -251,6 +251,17 @@
   (which-key-mode)
   (setq which-key-idle-delay 1))
 
+(use-package helpful
+  :custom
+  (global-set-key (kbd "C-h f") #'helpful-callable)
+
+  (global-set-key (kbd "C-h v") #'helpful-variable)
+  (global-set-key (kbd "C-h k") #'helpful-key)
+  (global-set-key (kbd "C-h x") #'helpful-command)
+  (global-set-key (kbd "C-c C-d") #'helpful-at-point)
+  (global-set-key (kbd "C-h F") #'helpful-function)
+  )
+
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
 (use-package rainbow-mode
@@ -816,9 +827,8 @@
   :defer t)
 
 (use-package denote)
-;; Remember to check the doc strings of those variables.
-(setq denote-directory (expand-file-name "~/Documents/notes/"))
-(setq denote-known-keywords '("emacs" "philosophy" "politics" "economics"))
+(setq denote-directory (expand-file-name "~/sync/denote"))
+(setq denote-known-keywords '("emacs" "blogs" "article"))
 (setq denote-infer-keywords t)
 (setq denote-sort-keywords t)
 (setq denote-file-type nil) ; Org is the default, set others here
@@ -826,46 +836,22 @@
 (setq denote-excluded-directories-regexp nil)
 (setq denote-excluded-keywords-regexp nil)
 
-;; Pick dates, where relevant, with Org's advanced interface:
 (setq denote-date-prompt-use-org-read-date t)
 
-
-;; Read this manual for how to specify `denote-templates'.  We do not
-;; include an example here to avoid potential confusion.
-
-
-;; We allow multi-word keywords by default.  The author's personal
-;; preference is for single-word keywords for a more rigid workflow.
 (setq denote-allow-multi-word-keywords t)
-
 (setq denote-date-format nil) ; read doc string
 
-;; By default, we do not show the context of links.  We just display
-;; file names.  This provides a more informative view.
 (setq denote-backlinks-show-context t)
 
-;; Also see `denote-link-backlinks-display-buffer-action' which is a bit
-;; advanced.
-
-;; If you use Markdown or plain text files (Org renders links as buttons
-;; right away)
 (add-hook 'find-file-hook #'denote-link-buttonize-buffer)
 
-;; We use different ways to specify a path for demo purposes.
 (setq denote-dired-directories
       (list denote-directory
             (thread-last denote-directory (expand-file-name "attachments"))
-            (expand-file-name "~/Documents/books")))
+            (expand-file-name "~/sync/org/books/")))
 
-;; Generic (great if you rename files Denote-style in lots of places):
-;; (add-hook 'dired-mode-hook #'denote-dired-mode)
-;;
-;; OR if only want it in `denote-dired-directories':
-(add-hook 'dired-mode-hook #'denote-dired-mode-in-directories)
+(add-hook 'dired-mode-hook #'denote-dired-mode)
 
-;; Here is a custom, user-level command from one of the examples we
-;; showed in this manual.  We define it here and add it to a key binding
-;; below.
 (defun my-denote-journal ()
   "Create an entry tagged 'journal', while prompting for a title."
   (interactive)
@@ -873,8 +859,6 @@
    (denote--title-prompt)
    '("journal")))
 
-;; Denote DOES NOT define any key bindings.  This is for the user to
-;; decide.  For example:
 (let ((map global-map))
   (define-key map (kbd "C-c n j") #'my-denote-journal) ; our custom command
   (define-key map (kbd "C-c n n") #'denote)
@@ -891,8 +875,6 @@
   (define-key map (kbd "C-c n b") #'denote-link-backlinks)
   (define-key map (kbd "C-c n f f") #'denote-link-find-file)
   (define-key map (kbd "C-c n f b") #'denote-link-find-backlink)
-  ;; Note that `denote-rename-file' can work from any context, not just
-  ;; Dired bufffers.  That is why we bind it here to the `global-map'.
   (define-key map (kbd "C-c n r") #'denote-rename-file)
   (define-key map (kbd "C-c n R") #'denote-rename-file-using-front-matter))
 
@@ -938,15 +920,10 @@
   (load-theme 'modus-vivendi t))
 
 (use-package beframe)
-    ;; This is the default value.  Write here the names of buffers that
-    ;; should not be beframed.
-    (setq beframe-global-buffers '("*scratch*" "*Messages*" "*Backtrace*"))
+    (setq beframe-global-buffers '("*scratch*"))
 
     (beframe-mode 1)
 
-    ;; This is just an example.  We do not define any key bindings.  You
-    ;; do not need this command if you enable `beframe-mode', as
-    ;; `switch-to-buffer' only shows a list of beframed buffers.
     (define-key global-map (kbd "C-x B") #'beframe-switch-buffer)
 
   (defvar consult-buffer-sources)

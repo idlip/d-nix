@@ -449,7 +449,7 @@ programs.emacs = {
   enable = true;
   package = pkgs.emacsPgtk;
   extraPackages = (epkgs: (with epkgs; [
-    vterm undo-tree flycheck
+    vterm undo-tree flycheck helpful
     no-littering  vertico-posframe rainbow-delimiters rainbow-mode vertico 
     orderless consult marginalia embark embark-consult org olivetti org-modern corfu
     cape markdown-mode nix-mode

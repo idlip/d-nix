@@ -23,6 +23,21 @@ Rest all other stuffs I do in Emacs, tbh I could do everything in Emacs lol.
 Feel free to open an issue and ask me doubts or some improvements you wanna inform! I will be glad.
 If you really wanna talk/discuss with me, open an issue so I will join on some media (Irc/matrix or telegram)
 
+
+***** Illustration
+
++ *Desktop Rice*
+
+  [[file:assets/desktop-unix.png]]
+
++ *RSS and Emacs*
+
+  [[file:assets/emacs-rss.png]]
+
++ *Org Edit and Pdf Reader*
+
+  [[file:assets/org-pdf.png]]
+
 * Organized Nix Flakes?
 
 I manage my whole system with single org file. Its easy and pretty handy. You can read that file here *↬* [[file:d-setup.org][d-setup.org]] , its both self documenting and has all source code blocks.
@@ -32,26 +47,8 @@ Another key feature in my setup is, every file i tangle in at *read-only mode*. 
 Also, I have made files to be *symlink*, so i can edit them without requiring to rebuild whole thing!
 
 ** Welcome to 'Will of D' flakes system
-*** My Linux Journey
 
-My linux journey was from Linux Mint > EndeavourOS > Arch Linux > and now NixOS.
-
-Tbh I loved LM and Arch alot, I was a devotee to Arch too, and I hated Nix when I tried, cause things were weird.
-+ You won't know where to start nor what to refer
-+ Flakes or home-manager, How to understand?
-+ Do nix-env or rebuild all the time?
-+ What files to edit to achieve same setup as my previous distro?
-
-  These were all the things that I hated and was frustrated about, there was still many things that felt hard.
-  I did leave Nix and install Arch few times back and forth, I was debating with myself and id my own research all over Internet.
-
-  That is when I thought nix lacked Documentation or good YouTuber to speak of, I really wish one of them could explain and make it their distro to explain timely on things.
-
-  Fine, somehow forced myself and came a long way of setting up Good working nixos config, now I'm on flake
-
-  Nix is great if it works as expected or if we make it work, but, if I get stuck or the issue goes for days that is when I really hate Nix, because it ain't easy to solve some unique issues. Most of these apply for HomeManager actually, it adds more trouble.
-
-  It is adviced to learn how Nix works or Nix as Functional Programming Language.
+/you can check out small write-up on my [[file:blogs/linux-journey.org][linux journey]]/
 
 *** Now if you get doubt of, "Should I try NixOS?"
 

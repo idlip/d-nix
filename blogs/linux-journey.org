@@ -1,0 +1,28 @@
+
+*Small info/log on my linux journey and my experience.*
+
+/If you are reading this, I encourage you to write blogs like this and have it in your git repo. Don't forget to tag or inform me, I'd be glad to read your journey too!/
+
+-----
+
+*** My Linux Journey
+
+My linux journey was from Linux Mint > EndeavourOS > Arch Linux > and now NixOS.
+
+Tbh I loved LM and Arch alot, I was a devotee to Arch too, and I hated Nix when I tried, cause things were weird.
++ You won't know where to start nor what to refer
++ Flakes or home-manager, How to understand?
++ Do nix-env or rebuild all the time?
++ What files to edit to achieve same setup as my previous distro?
+
+  These were all the things that I hated and was frustrated about, there was still many things that felt hard.
+  I did leave Nix and install Arch few times back and forth, I was debating with myself and id my own research all over Internet.
+
+  That is when I thought nix lacked Documentation or good YouTuber to speak of, I really wish one of them could explain and make it their distro to explain timely on things.
+
+  Fine, somehow forced myself and came a long way of setting up Good working nixos config, now I'm on flake
+
+  Nix is great if it works as expected or if we make it work, but, if I get stuck or the issue goes for days that is when I really hate Nix, because it ain't easy to solve some unique issues. Most of these apply for HomeManager actually, it adds more trouble.
+
+  It is adviced to learn how Nix works or Nix as Functional Programming Language.
+

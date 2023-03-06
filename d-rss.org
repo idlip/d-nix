@@ -8,7 +8,6 @@
 *** [[https://yewtu.be/feed/channel/UCriRR_CzOny-akXyk1R-oDQ][Napoleon]]
 *** [[https://vid.puffyan.us/feed/channel/UCX_WM2O-X96URC5n66G-hvw][EF - Linux Made Simple]]
 *** [[https://vid.puffyan.us/feed/channel/UC5UAwBUum7CPN5buc-_N1Fw][The Linux Experiment]]
-*** [[https://vid.puffyan.us/feed/channel/UCjSEJkpGbcZhvo0lr-44X_w][TechHut]]
 ** Animalogy :animalogy:animal:zoo:
 *** [[https://vid.puffyan.us/feed/channel/UCwmZiChSryoWQCZMIQezgTg][BBC Earth]]
 *** [[https://vid.puffyan.us/feed/channel/UCwg6_F2hDHYrqbNSGjmar4w][Animalogic]]
@@ -50,7 +49,6 @@
 *** [[https://vid.puffyan.us/feed/channel/UCqYPhGiB9tkShZorfgcL2lA][What I've Learned]]
 *** [[https://vid.puffyan.us/feed/channel/UCL8w_A8p8P1HWI3k6PR5Z6w][Two Cents]]
 ** Anime :anime:nyaa:
-*** https://feed.animetosho.org/atom?q=neohevc Anime
 *** https://feed.animetosho.org/atom?q=batch Anime
 ** Bio Data :bio:inf:
 *** https://journals.plos.org/plosbiology/feed/atom Bio

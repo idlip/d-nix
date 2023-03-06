@@ -204,6 +204,10 @@ services = {
         devices = [ "realme" ];
         ignorePerms = false; 
       };
+      "essentials" = {
+        path = "/home/i/d/Essentials";
+        devices = [ "realme" ];
+      };
     };
   };
 

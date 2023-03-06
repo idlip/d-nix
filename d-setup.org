@@ -275,6 +275,10 @@ Some security features which are good enough to have.
           devices = [ "realme" ];
           ignorePerms = false; 
         };
+        "essentials" = {
+          path = "/home/i/d/Essentials";
+          devices = [ "realme" ];
+        };
       };
     };
 

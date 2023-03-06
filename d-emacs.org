@@ -393,16 +393,15 @@ Many people know that emacs has lot of keychords, which aren't easy to remember,
 Helpful package to even elaborate on describe commands. Decreases many hassles.
 
 #+begin_src emacs-lisp
-  (use-package helpful
-    :custom
-    (global-set-key (kbd "C-h f") #'helpful-callable)
+  (use-package helpful)
 
+    (global-set-key (kbd "C-h f") #'helpful-callable)
     (global-set-key (kbd "C-h v") #'helpful-variable)
     (global-set-key (kbd "C-h k") #'helpful-key)
     (global-set-key (kbd "C-h x") #'helpful-command)
     (global-set-key (kbd "C-c C-d") #'helpful-at-point)
     (global-set-key (kbd "C-h F") #'helpful-function)
-    )
+
 #+end_src
 
 * Color-ify 🎨
@@ -1123,17 +1122,13 @@ All texts from left is not intuitive, Spoils GUI end of emacs, feels like you ar
   ; "Ⓐ" "⊗"
 
 #+end_src
-** Catppuccin 😻
-Ofcourse, what not without a really good colourscheme, should i say pastel?
-I was using doom=themes actually, but they are not that good, tho I like doom-gruvbox alot. Catppuccin is also well made, dedicatingly for emacs.
+** Theme 😻
+I was using doom=themes actually, but they are not that good, tho I like doom-gruvbox alot. modus-vivendi is also well made, dedicatingly for emacs.
 + Works very well with eww browser too, url bar looks fine.
-  I like  modus-vivendi too (Built-in)
   Its subjective to you!
   #+begin_src emacs-lisp
-(use-package catppuccin-theme
-  :config
-  (setq catppuccin-flavor 'mocha)
-  (load-theme 'modus-vivendi t))
+    (setq modus-themes-org-blocks 'gray-background)
+    (load-theme 'modus-vivendi t)
   #+end_src
 ** Beframe
 Managing frames and their buffers handy way. Gets rid of using tab-bar or windows

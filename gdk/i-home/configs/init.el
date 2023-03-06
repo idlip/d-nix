@@ -251,16 +251,14 @@
   (which-key-mode)
   (setq which-key-idle-delay 1))
 
-(use-package helpful
-  :custom
-  (global-set-key (kbd "C-h f") #'helpful-callable)
+(use-package helpful)
 
+  (global-set-key (kbd "C-h f") #'helpful-callable)
   (global-set-key (kbd "C-h v") #'helpful-variable)
   (global-set-key (kbd "C-h k") #'helpful-key)
   (global-set-key (kbd "C-h x") #'helpful-command)
   (global-set-key (kbd "C-c C-d") #'helpful-at-point)
   (global-set-key (kbd "C-h F") #'helpful-function)
-  )
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
@@ -914,10 +912,8 @@
   :delight " ⊛")
   ; "Ⓐ" "⊗"
 
-(use-package catppuccin-theme
-  :config
-  (setq catppuccin-flavor 'mocha)
-  (load-theme 'modus-vivendi t))
+(setq modus-themes-org-blocks 'gray-background)
+(load-theme 'modus-vivendi t)
 
 (use-package beframe)
     (setq beframe-global-buffers '("*scratch*"))

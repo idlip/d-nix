@@ -34,7 +34,6 @@
 *** [[https://vid.puffyan.us/feed/channel/UCZYTClx2T1of7BRZ86-8fow][SciShow]]
 *** [[https://vid.puffyan.us/feed/channel/UCzWQYUVCpZqtN93H8RR44Qw][Seeker]]
 *** [[https://vid.puffyan.us/feed/channel/UC4Tklxku1yPcRIH0VVCKoeA][Quantum Tech HD]]
-*** [[https://vid.puffyan.us/feed/channel/UCfdNM3NAhaBOXCafH7krzrA][The Infographics Show]]
 *** [[https://vid.puffyan.us/feed/channel/UC1xNraQytCPsaoO5N7_YABw][Koranos]]
 *** [[https://vid.puffyan.us/feed/channel/UC3CBOpT2-NRvoc2ecFMDCsA][Crime Pays But Botany Doesn't]]
 *** [[https://vid.puffyan.us/feed/channel/UCOh5Ht3eB4914hMUfJkKa9g][Moth Light Media]]
@@ -65,7 +64,6 @@
 ** Reddit :reddit:
 ** Comics :comic:
 *** [[https://xkcd.com/atom.xml][xkcd.com]]
-
 ** Jokes :jokes:
 ** Emacs                                                              :emacs:
 *** [[https://sachachua.com/blog/category/emacs/feed][Sachi]]                                                             :sachi:

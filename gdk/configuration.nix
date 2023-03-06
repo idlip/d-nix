@@ -135,6 +135,13 @@ networking = {
     unmanaged = ["docker0" "rndis0"];
     wifi.macAddress = "random";
   };
+  stevenBlackHosts = {
+    enable = true;
+    blockFakenews = true;
+    blockGambling = true;
+    blockPorn = true;
+    blockSocial = false;
+  };
   firewall = {
     enable = true;
     # For syncthing
@@ -306,7 +313,6 @@ environment = {
     QT_STYLE_OVERRIDE = "kvantum";
     MOZ_ENABLE_WAYLAND = "1";
     WLR_NO_HARDWARE_CURSORS = "1";
-    GTK_THEME = "Catppuccin-Mocha-Standard-Rosewater-Dark";
     WLR_DRM_DEVICES = "/dev/dri/card1:/dev/dri/card0";
 
   };

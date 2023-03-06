@@ -455,7 +455,7 @@ programs.emacs = {
     cape markdown-mode nix-mode
     all-the-icons all-the-icons-dired async dired-hide-dotfiles dired-single 
     reddigg mingus pdf-tools vterm which-key
-    org-mime catppuccin-theme corfu-terminal beframe denote
+    org-mime corfu-terminal beframe denote
     sdcv elfeed elfeed-org link-hint general powerthesaurus
     doom-modeline org-auto-tangle 
   ])

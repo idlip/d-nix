@@ -176,6 +176,13 @@ Configure the boot loader to use UEFI.
       unmanaged = ["docker0" "rndis0"];
       wifi.macAddress = "random";
     };
+    stevenBlackHosts = {
+      enable = true;
+      blockFakenews = true;
+      blockGambling = true;
+      blockPorn = true;
+      blockSocial = false;
+    };
     firewall = {
       enable = true;
       # For syncthing
@@ -187,31 +194,6 @@ Configure the boot loader to use UEFI.
   };
   # slows down boot time
   systemd.services.NetworkManager-wait-online.enable = false;
-#+end_src
-*** Ad-block
-Its a must these days, having block list in hosts gives a speedup.
-# #+begin_src nix
-  networking.extraHosts =
-    builtins.readFile (pkgs.fetchurl {
-      url = "https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling-porn/hosts";
-      sha256 = "2BqbU4G5VWLerdIc8C9Nkny6zZ68PqZ9oyL1VwdlREQ=";
-      # blocks fakenews, gambling and coomer sites
-    })
-    + builtins.readFile (pkgs.fetchurl {
-      url = "https://raw.githubusercontent.com/shreyasminocha/shady-hosts/main/hosts";
-      sha256 = "QrHTVcqfeoRi+hWWxkZZQTPNiFFF+7kiTI7jfvMU9h8=";
-      # blocks some shady fed sites
-    })
-    + builtins.readFile (pkgs.fetchurl {
-      # blocks crypto phishing scams
-      url = "https://raw.githubusercontent.com/MetaMask/eth-phishing-detect/master/src/hosts.txt";
-      sha256 = "b3HvaLxnUJZOANUL/p+XPNvu9Aod9YLHYYtCZT5Lan0=";
-    })
-    + builtins.readFile (pkgs.fetchurl {
-      # generic ads
-      url = "https://raw.githubusercontent.com/AdAway/adaway.github.io/master/hosts.txt";
-      sha256 = "mp0ka7T0H53rJ3f7yAep3ExXmY6ftpHpAcwWrRWzWYI=";
-    });
 #+end_src
 *** Secure core
 Some security features which are good enough to have.
@@ -392,7 +374,6 @@ Enables additional fonts system wide
       QT_STYLE_OVERRIDE = "kvantum";
       MOZ_ENABLE_WAYLAND = "1";
       WLR_NO_HARDWARE_CURSORS = "1";
-      GTK_THEME = "Catppuccin-Mocha-Standard-Rosewater-Dark";
       WLR_DRM_DEVICES = "/dev/dri/card1:/dev/dri/card0";
 
     };
@@ -451,18 +432,18 @@ My personal user configuration.
 :END:
 **** Default-nix
 #+begin_src nix :tangle ./gdk/i-home/default.nix :tangle-mode  (identity #o444) :mkdirp yes
-{
-  inputs, pkgs, config, lib, self, ...}:
+  {
+    inputs, pkgs, config, lib, self, ...}:
 
-{
-  config.home.stateVersion = "22.11";
-  config.home.extraOutputsToInstall = ["doc" "devdoc"];
-  imports = [
-    ./homeman.nix
-    inputs.hyprland.homeManagerModules.default
-    inputs.nur.nixosModules.nur
-  ];
-}
+  {
+    config.home.stateVersion = "22.11";
+    config.home.extraOutputsToInstall = ["doc" "devdoc"];
+    imports = [
+      ./homeman.nix
+      inputs.hyprland.homeManagerModules.default
+      inputs.nur.nixosModules.nur
+    ];
+  }
 
 #+end_src
 **** Preamble
@@ -1339,7 +1320,7 @@ Additional Setting for individual applications
       cape markdown-mode nix-mode
       all-the-icons all-the-icons-dired async dired-hide-dotfiles dired-single 
       reddigg mingus pdf-tools vterm which-key
-      org-mime catppuccin-theme corfu-terminal beframe denote
+      org-mime corfu-terminal beframe denote
       sdcv elfeed elfeed-org link-hint general powerthesaurus
       doom-modeline org-auto-tangle 
     ])

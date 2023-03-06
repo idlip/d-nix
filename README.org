@@ -24,7 +24,7 @@ Feel free to open an issue and ask me doubts or about some improvements, you wan
 If you really wanna talk/discuss with me, open an issue so I will join on some media (Irc/matrix or telegram)
 
 
-***** Illustration
+***** Illustration 🎆
 
 + *Desktop Rice*
 
@@ -38,6 +38,10 @@ If you really wanna talk/discuss with me, open an issue so I will join on some m
 
   [[file:assets/org-pdf.png]]
 
++ Emacs web browser (eww) and Firefox
+
+  [[file:assets/firefox-ewweb.png]]
+
 * Organized Nix Flakes? 🌲
 
 I manage my whole system with single org file. Its easy and pretty handy. You can read that file here *↬* [[file:d-setup.org][d-setup.org]] , its both self documenting and has all source code blocks.
@@ -46,11 +50,11 @@ Another key feature in my setup is, every file i tangle in at *read-only mode*. 
 
 Also, I have made files to be *symlink*, so i can edit them without requiring to rebuild whole thing!
 
-** Welcome to 'Will of D' flakes system 
+** Welcome to 'Will of D' flakes system ⚔️
 
 /you can check out small write-up on my [[file:blogs/linux-journey.org][linux journey]]/
 
-*** Now if you get doubt of, "Should I try NixOS?" 
+*** Now if you get doubt of, "Should I try NixOS?" ❄️
 
 Here is an answer from a non-programmer, who just browse and watches media.
 Just don't, if you are looking for small benefit. Don't!
@@ -61,10 +65,10 @@ But, if you have decided, go with it. According to me (non-programmer), these po
  + You want to declare stuffs and get same output, and forget what all you setup, cause its all declared in config.
  + You want an isolated environments (shell) to do some stuffs without involving whole system.
  + You want to stop troubleshooting and breaking update and are lazy to backup, and want to rollback with ease like with just a reboot.
- + You want to say Nix  Btw.
+ + You want to say I use *Nixos Btw*.
 
 
-** Pack your bags, lets go through our configuration! 🕶️
+** Pack your bags, lets go through our configuration! ✨
 Before that I believe you are a tinkerer, I have a motto which goes like this
 + /If you want to understand the whole, Understand its parts/. *[[https://www.verywellmind.com/what-is-gestalt-psychology-2795808][Gestalt Psychology]]*
   

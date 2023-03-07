@@ -1302,6 +1302,7 @@ Additional Setting for individual applications
   bind=SUPER,F12,exec,mpc next
 
   bind=SUPER,e,exec,d-emwhere
+  bind=SUPER,y,exec,ytfzf -Df
 
 #+end_src
 ****** Emacs

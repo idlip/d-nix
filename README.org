@@ -1,23 +1,24 @@
 *** Utilities that are Best! 🌟
 --------------
 
-|-------------------------+------------------------------|
-| Class                   | Name                         |
-|-------------------------+------------------------------|
-| Window Manager          | [[https://hyprland.org/][Hyprland]] 🌸                   |
-| Text Editor             | [[https://www.gnu.org/software/emacs/][Emacs]] 💮                      |
-| Gtk Theme               | [[https://github.com/Fausto-Korpsvart/Gruvbox-GTK-Theme][Gruvbox]] / [[https://github.com/vinceliuice/Orchis-theme][Orchis]] 🎨           |
-| Pdf Reader              | [[https://github.com/ahrm/sioyek][Sioyek]] 📔 (ditch zathura)     |
-| Media Player            | [[https://mpv.io][MPV!]] 🎬 (its MVP too)         |
-| RSS Reader              | [[https://github.com/skeeto/elfeed][Elfeed]] 📰 (Again, Emacs)      |
-| Music Player            | [[https://github.com/ncmpcpp/ncmpcpp][Ncmpcpp]] or [[https://github.com//mingus][Mingus in Emacs]] 🎶 |
-| Terminal                | [[https://codeberg.org/dnkl/foot][Foot]] via footclient ⚽        |
-| Menu/Launcher           | [[https://hg.sr.ht/~scoopta/wofi][wofi]] 🐶                       |
-| Notification            | [[https://github.com/dunst/dunst][Dunst]]  🛎️                     |
-| Shell                   | [[https://zsh.org][Zshell]] with [[https://starship.rs][Starship]] 🔰       |
-| Status Bar              | [[https://github.com/Alexays/Waybar][Waybar]]  🍥                    |
-| Favourite Color-Schemes | Modus-Vivendi + Gruvbox      |
-|-------------------------+------------------------------|
+|-------------------------+------------------------------------|
+| Class                   | Name                               |
+|-------------------------+------------------------------------|
+| Window Manager          | [[https://hyprland.org/][Hyprland]] 🌸                         |
+| Text Editor             | [[https://www.gnu.org/software/emacs/][Emacs]] 💮                            |
+| Gtk Theme               | [[https://github.com/Fausto-Korpsvart/Gruvbox-GTK-Theme][Gruvbox]] / [[https://github.com/vinceliuice/Orchis-theme][Orchis]] 🎨                 |
+| Font                    | [[https://tosche.net/fonts/comic-code][Comic Code]] / [[https://github.com/dtinth/comic-mono-font][Comic Mono]] / [[https//github.com/tonsky/FiraCode][Fira Code]] |
+| Pdf Reader              | [[https://github.com/ahrm/sioyek][Sioyek]] 📔 (ditch zathura)           |
+| Media Player            | [[https://mpv.io][MPV!]] 🎬 (its MVP too)               |
+| RSS Reader              | [[https://github.com/skeeto/elfeed][Elfeed]] 📰 (Again, Emacs)            |
+| Music Player            | [[https://github.com/ncmpcpp/ncmpcpp][Ncmpcpp]] or [[https://github.com//mingus][Mingus in Emacs]] 🎶       |
+| Terminal                | [[https://codeberg.org/dnkl/foot][Foot]] via footclient ⚽              |
+| Menu/Launcher           | [[https://hg.sr.ht/~scoopta/wofi][wofi]] 🐶                             |
+| Notification            | [[https://github.com/dunst/dunst][Dunst]]  🛎️                           |
+| Shell                   | [[https://zsh.org][Zshell]] with [[https://starship.rs][Starship]] 🔰             |
+| Status Bar              | [[https://github.com/Alexays/Waybar][Waybar]]  🍥                          |
+| Favourite Color-Schemes | Modus-Vivendi + Gruvbox            |
+|-------------------------+------------------------------------|
 Rest all other stuffs I do in Emacs, tbh I could do everything in Emacs lol.
 
 Feel free to open an issue and ask me doubts or about some improvements, you wanna inform! I will be glad.

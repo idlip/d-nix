@@ -4,7 +4,11 @@
 
 
 ** Todo Stuffs (Feel free to say/add something. I will be glad!)
-**** Finally Done.. Ooof 😄
+**** COMPLETED Finally Done.. Ooof 😄
+CLOSED: [2023-03-07 Tue 14:27]
+:LOGBOOK:
+- CLOSING NOTE [2023-03-07 Tue 14:27]
+:END:
 - [X] Ditch evil-mode, go pure Emacs way!
 - [X] No need modeline nor dashboard, go zen-mode with minimal distraction
     PS : Used ~olivetti-mode~ and ~(setq-default mode-line-format nil)~
@@ -16,12 +20,16 @@
     Benefits are :
   + package management becomes easy with just ~nixos-rebuild~
   + You get vterm, which wont build that easily in normal emacs config under nixos
-**** Planning 😴
-- [ ] Add daily quotes for ~initial-scratch-message~ 
-- [ ] Make README.org or improve this Config.org so it is informational to all
+- [X] Make README.org or improve this Config.org so it is informational to all
+- [X] Share some cool stuffs with others and explain it very crisp and clearly
+    
+**** PLAN Planning 😴 [0/4]
+- [ ] Check why tramp for root files isnt working.
+  + Although i don't use it.
+- [ ] Add daily quotes for ~initial-scratch-message~
 - [ ] Learn more stuffs from Experienced and Master Users, like Purcell, bbsatov and others
 - [ ] Learn elisp for enhancing some more stuffs
-- [ ] Share some cool stuffs with others and explain it very crisp and clearly
+
 
 ** TLDWR - Features 🌟
 /too long, don't wanna read/
@@ -1102,24 +1110,24 @@ TODO : Learn more on this
 ** Olive Etiquette 🫒
 All texts from left is not intuitive, Spoils GUI end of emacs, feels like you are on Terminal all time. Also, the space on right side will be wasted, unless you use split window vertically. Centering content helps focus and make things look tidy.
 #+begin_src emacs-lisp
-(use-package olivetti
-  :hook ((text-mode         . olivetti-mode)
-         (prog-mode         . olivetti-mode)
-         (Info-mode         . olivetti-mode)
-         (org-mode          . olivetti-mode)
-         (dashboard-mode    . olivetti-mode)
-	 (sdcv-mode         . olivetti-mode)
-         (eww-mode          . olivetti-mode)
-         (fundamental-mode  . olivetti-mode)
-         (nov-mode          . olivetti-mode)
-         (markdown-mode     . olivetti-mode)
-         (mu4e-view-mode    . olivetti-mode)
-         (elfeed-show-mode  . olivetti-mode)
-         (mu4e-compose-mode . olivetti-mode))
-  :custom
-  (olivetti-body-width 0.86)
-  :delight " ⊛")
-  ; "Ⓐ" "⊗"
+  (use-package olivetti
+    :hook ((text-mode         . olivetti-mode)
+           (prog-mode         . olivetti-mode)
+           (Info-mode         . olivetti-mode)
+           (org-mode          . olivetti-mode)
+           (dashboard-mode    . olivetti-mode)
+           (sdcv-mode         . olivetti-mode)
+           (eww-mode          . olivetti-mode)
+           (fundamental-mode  . olivetti-mode)
+           (nov-mode          . olivetti-mode)
+           (markdown-mode     . olivetti-mode)
+           (mu4e-view-mode    . olivetti-mode)
+           (elfeed-show-mode  . olivetti-mode)
+           (mu4e-compose-mode . olivetti-mode))
+    :custom
+    (olivetti-body-width 0.76)
+    :delight " ⊛")
+                                          ; "Ⓐ" "⊗"
 
 #+end_src
 ** Theme 😻

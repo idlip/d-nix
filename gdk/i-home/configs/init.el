@@ -899,7 +899,7 @@
          (Info-mode         . olivetti-mode)
          (org-mode          . olivetti-mode)
          (dashboard-mode    . olivetti-mode)
-	 (sdcv-mode         . olivetti-mode)
+         (sdcv-mode         . olivetti-mode)
          (eww-mode          . olivetti-mode)
          (fundamental-mode  . olivetti-mode)
          (nov-mode          . olivetti-mode)
@@ -908,9 +908,9 @@
          (elfeed-show-mode  . olivetti-mode)
          (mu4e-compose-mode . olivetti-mode))
   :custom
-  (olivetti-body-width 0.86)
+  (olivetti-body-width 0.76)
   :delight " ⊛")
-  ; "Ⓐ" "⊗"
+                                        ; "Ⓐ" "⊗"
 
 (setq modus-themes-org-blocks 'gray-background)
 (load-theme 'modus-vivendi t)

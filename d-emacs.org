@@ -161,13 +161,13 @@ Fonts are crucial to read.
 
   (defun set-font-faces ()
     (message "Setting faces!")
-    (set-face-attribute 'default nil :font "ComicCodeLigatures" :height default-font-size)
+    (set-face-attribute 'default nil :font "ComicCodeLigatures" :weight 'medium :height default-font-size)
 
     ;; Set the fixed pitch face
     (set-face-attribute 'fixed-pitch nil :font "ComicCodeLigatures" :height default-font-size)
 
     ;; Set the variable pitch face
-    (set-face-attribute 'variable-pitch nil :font "ComicCodeLigatures" :height default-variable-font-size :weight 'regular))
+    (set-face-attribute 'variable-pitch nil :font "ComicCodeLigatures" :height default-variable-font-size :weight 'medium))
 #+end_src
 
 * Cleanliness 📑
@@ -1141,7 +1141,7 @@ All texts from left is not intuitive, Spoils GUI end of emacs, feels like you ar
            (elfeed-show-mode  . olivetti-mode)
            (mu4e-compose-mode . olivetti-mode))
     :custom
-    (olivetti-body-width 0.76)
+    (olivetti-body-width 0.8)
     :delight " ⊛")
                                           ; "Ⓐ" "⊗"
 

@@ -496,6 +496,13 @@ Opening brace that contains the rest of the configuration file.
       };
     };
 
+    fish = {
+      enable = true;
+      shellInit = ''
+      starship init fish | source
+      '';
+    };
+    
     zsh = {
       enable = true;
       enableCompletion = true;
@@ -673,6 +680,7 @@ Installs packages for this user only.
 #+begin_src nix
   # cli tools
   cached-nix-shell pcmanfm yt-dlp fzf neovim btop
+     fishPlugins.autopair-fish
     unzip aspell aspellDicts.en
     ripgrep nitch libreoffice transmission
     rsync  ffmpeg sdcv imagemagick
@@ -696,6 +704,13 @@ Installs packages for this user only.
 #+begin_src nix
   # pioneer of web
   firefox librewolf brave ungoogled-chromium
+#+end_src
+****** LSP -IDE
+#+begin_src nix
+  nodePackages_latest.bash-language-server
+  nodePackages_latest.vscode-langservers-extracted
+  marksman nil 
+  tree-sitter-grammars.tree-sitter-bash
 #+end_src
 ****** Closing Statement
 #+begin_src nix
@@ -1315,7 +1330,7 @@ Additional Setting for individual applications
     enable = true;
     package = pkgs.emacsPgtk;
     extraPackages = (epkgs: (with epkgs; [
-      vterm undo-tree flycheck helpful
+      vterm undo-tree flycheck helpful ox-pandoc
       no-littering  vertico-posframe rainbow-delimiters rainbow-mode vertico 
       orderless consult marginalia embark embark-consult org olivetti org-modern corfu
       cape markdown-mode nix-mode

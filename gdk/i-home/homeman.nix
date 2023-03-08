@@ -35,6 +35,13 @@ programs = {
     };
   };
 
+  fish = {
+    enable = true;
+    shellInit = ''
+    starship init fish | source
+    '';
+  };
+
   zsh = {
     enable = true;
     enableCompletion = true;
@@ -201,6 +208,7 @@ mpc_cli playerctl pavucontrol pulsemixer imv
 
 # cli tools
 cached-nix-shell pcmanfm yt-dlp fzf neovim btop
+   fishPlugins.autopair-fish
   unzip aspell aspellDicts.en
   ripgrep nitch libreoffice transmission
   rsync  ffmpeg sdcv imagemagick
@@ -218,6 +226,11 @@ deluged yt-dlp jq ytfzf ani-cli
 
 # pioneer of web
 firefox librewolf brave ungoogled-chromium
+
+nodePackages_latest.bash-language-server
+nodePackages_latest.vscode-langservers-extracted
+marksman nil 
+tree-sitter-grammars.tree-sitter-bash
 
 ];
 
@@ -449,7 +462,7 @@ programs.emacs = {
   enable = true;
   package = pkgs.emacsPgtk;
   extraPackages = (epkgs: (with epkgs; [
-    vterm undo-tree flycheck helpful
+    vterm undo-tree flycheck helpful ox-pandoc
     no-littering  vertico-posframe rainbow-delimiters rainbow-mode vertico 
     orderless consult marginalia embark embark-consult org olivetti org-modern corfu
     cape markdown-mode nix-mode

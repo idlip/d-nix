@@ -1,9 +1,3 @@
-;; You will most likely need to adjust this font size for your system!
-(defvar default-font-size 190)
-(defvar default-variable-font-size 190)
-(setf use-default-font-for-symbols nil)
-(set-fontset-font t 'unicode "Noto Emoji" nil 'append)
-
 (defun display-startup-time ()
   (message "Emacs loaded in %s with %d garbage collections."
            (format "%.2f seconds"
@@ -31,6 +25,23 @@
 
 (require 'use-package)
 (setq use-package-always-ensure t)
+
+;; You will most likely need to adjust this font size for your system!
+(defvar default-font-size 190)
+(defvar default-variable-font-size 190)
+(setf use-default-font-for-symbols nil)
+(set-fontset-font t 'unicode "Noto Emoji" nil 'append)
+
+
+(defun set-font-faces ()
+  (message "Setting faces!")
+  (set-face-attribute 'default nil :font "ComicCodeLigatures" :height default-font-size)
+
+  ;; Set the fixed pitch face
+  (set-face-attribute 'fixed-pitch nil :font "ComicCodeLigatures" :height default-font-size)
+
+  ;; Set the variable pitch face
+  (set-face-attribute 'variable-pitch nil :font "ComicCodeLigatures" :height default-variable-font-size :weight 'regular))
 
 (use-package no-littering)
 
@@ -619,7 +630,7 @@
                   (org-level-6 . 1.1)
                   (org-level-7 . 1.1)
                   (org-level-8 . 1.1)))
-    (set-face-attribute (car face) nil :font "Comic Code Ligatures" :weight 'regular :height (cdr face)))
+    (set-face-attribute (car face) nil :font "FiraCode NF" :weight 'regular :height (cdr face)))
 
   ;; Ensure that anything that should be fixed-pitch in Org files appears that way
   (set-face-attribute 'org-block nil    :foreground nil :inherit 'fixed-pitch)
@@ -648,7 +659,7 @@
 (use-package org
   :pin org
   :commands (org-capture org-agenda)
-  :hook (org-mode . org-mode-setup)
+  ;; :hook (org-mode . org-mode-setup)
   :config
   (setq org-ellipsis " ▾")
 
@@ -942,9 +953,33 @@
 
   (add-to-list 'consult-buffer-sources 'beframe--consult-source))
 
-;;; Markdown support
-(unless (package-installed-p 'markdown-mode)
-  (package-install 'markdown-mode))
+(use-package nix-mode)
+
+(use-package markdown-mode
+  :mode "\\.md\\'"
+  :config
+  (defun d/set-markdown-header-font-sizes ()
+    (dolist (face '((markdown-header-face-1 . 1.3)
+                    (markdown-header-face-2 . 1.2)
+                    (markdown-header-face-3 . 1.15)
+                    (markdown-header-face-4 . 1.1)
+                    (markdown-header-face-5 . 1.0)))
+      (set-face-attribute (car face) nil :weight 'normal :font "Comic Mono" :height (cdr face))))
+
+  (defun d/markdown-mode-hook ()
+    (d/set-markdown-header-font-sizes))
+
+  (add-hook 'markdown-mode-hook 'd/markdown-mode-hook))
+
+(use-package eglot
+  :config
+  (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
+  (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
+  (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
+  :hook
+  (nix-mode . eglot-ensure)
+  (bash-ts-mode . eglot-ensure)
+  (markdown-mode-hook . marksman))
 
 (use-package dired
   :ensure nil
@@ -1424,15 +1459,6 @@
 
 (setq-default fill-column 80)
 
-(defun set-font-faces ()
-  (message "Setting faces!")
-  (set-face-attribute 'default nil :font "ComicCodeLigatures" :height default-font-size)
-
-  ;; Set the fixed pitch face
-  (set-face-attribute 'fixed-pitch nil :font "ComicCodeLigatures" :height default-font-size)
-
-  ;; Set the variable pitch face
-  (set-face-attribute 'variable-pitch nil :font "ComicCodeLigatures" :height default-variable-font-size :weight 'regular))
 (set-face-attribute 'corfu-border nil  :background "#bcd2ee")
 (setq doom-modeline-icon t)
 (if (daemonp)

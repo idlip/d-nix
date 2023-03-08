@@ -208,9 +208,9 @@ mpc_cli playerctl pavucontrol pulsemixer imv
 
 # cli tools
 cached-nix-shell pcmanfm yt-dlp fzf neovim btop
-   fishPlugins.autopair-fish
+   fishPlugins.autopair-fish 
   unzip aspell aspellDicts.en
-  ripgrep nitch libreoffice transmission
+  ripgrep nitch libreoffice transmission pandoc
   rsync  ffmpeg sdcv imagemagick
   fd ncdu mu isync ts  syncthing 
   jq keepassxc figlet keepassxc dconf gcc
@@ -309,7 +309,7 @@ programs.bottom = {
   };
 };
 
-home.file.".config/btop/btop.conf".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.SETUP/gdk/i-home/btop.conf";
+home.file.".config/btop/btop.conf".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.SETUP/gdk/i-home/configs/btop.conf";
 
 services.dunst = {
   enable = true;

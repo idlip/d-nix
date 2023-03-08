@@ -764,54 +764,54 @@ Cape for Rescue! Feel the power of Emacs Extensibility
 ** Modernize - Organize
 You will see org just below this, this package helps make Org-Mode looks eye-candy and how it reached average audience.
 #+begin_src emacs-lisp
-  (use-package org-modern)
-    (add-hook 'org-mode-hook #'org-modern-mode)
-    (add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
+    (use-package org-modern)
+      ;; (add-hook 'org-mode-hook #'org-modern-mode)
+      (add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
 
-    ;; Option 2: Globally
+      ;; Option 2: Globally
+      (global-org-modern-mode)
+      (menu-bar-mode -1)
+      (tool-bar-mode -1)
+      (scroll-bar-mode -1)
+
+      ;; Choose some fonts
+      ;; (set-face-attribute 'default nil :family "Iosevka")
+      ;; (set-face-attribute 'variable-pitch nil :family "Iosevka Aile")
+      ;; (set-face-attribute 'org-modern-symbol nil :family "Iosevka")
+
+      ;; Add frame borders and window dividers
+      (modify-all-frames-parameters
+       '((right-divider-width . 15)
+	 (internal-border-width . 15)))
+      (dolist (face '(window-divider
+		      window-divider-first-pixel
+		      window-divider-last-pixel))
+	(face-spec-reset-face face)
+	(set-face-foreground face (face-attribute 'default :background)))
+    (setq
+     ;; Edit settings
+     org-auto-align-tags nil
+     org-tags-column 0
+     org-catch-invisible-edits 'show-and-error
+     org-special-ctrl-a/e t
+     org-insert-heading-respect-content t
+
+     ;; Org styling, hide markup etc.
+     org-hide-emphasis-markers t
+     org-pretty-entities t
+  ;;   org-ellipsis "…"
+
+     ;; Agenda styling
+     org-agenda-tags-column 0
+     org-agenda-block-separator ?─
+     org-agenda-time-grid
+     '((daily today require-timed)
+       (800 1000 1200 1400 1600 1800 2000)
+       " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+     org-agenda-current-time-string
+     "⭠ now ─────────────────────────────────────────────────")
+
     (global-org-modern-mode)
-    (menu-bar-mode -1)
-    (tool-bar-mode -1)
-    (scroll-bar-mode -1)
-
-    ;; Choose some fonts
-    ;; (set-face-attribute 'default nil :family "Iosevka")
-    ;; (set-face-attribute 'variable-pitch nil :family "Iosevka Aile")
-    ;; (set-face-attribute 'org-modern-symbol nil :family "Iosevka")
-
-    ;; Add frame borders and window dividers
-    (modify-all-frames-parameters
-     '((right-divider-width . 15)
-       (internal-border-width . 15)))
-    (dolist (face '(window-divider
-                    window-divider-first-pixel
-                    window-divider-last-pixel))
-      (face-spec-reset-face face)
-      (set-face-foreground face (face-attribute 'default :background)))
-  (setq
-   ;; Edit settings
-   org-auto-align-tags nil
-   org-tags-column 0
-   org-catch-invisible-edits 'show-and-error
-   org-special-ctrl-a/e t
-   org-insert-heading-respect-content t
-
-   ;; Org styling, hide markup etc.
-   org-hide-emphasis-markers t
-   org-pretty-entities t
-;;   org-ellipsis "…"
-
-   ;; Agenda styling
-   org-agenda-tags-column 0
-   org-agenda-block-separator ?─
-   org-agenda-time-grid
-   '((daily today require-timed)
-     (800 1000 1200 1400 1600 1800 2000)
-     " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
-   org-agenda-current-time-string
-   "⭠ now ─────────────────────────────────────────────────")
-
-  (global-org-modern-mode)
 
 #+end_src
 * Organize Life 🗄️
@@ -835,7 +835,7 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
                     (org-level-6 . 1.1)
                     (org-level-7 . 1.1)
                     (org-level-8 . 1.1)))
-      (set-face-attribute (car face) nil :font "FiraCode NF" :weight 'regular :height (cdr face)))
+      (set-face-attribute (car face) nil :font "Comic Mono" :weight 'regular :height (cdr face)))
 
     ;; Ensure that anything that should be fixed-pitch in Org files appears that way
     (set-face-attribute 'org-block nil    :foreground nil :inherit 'fixed-pitch)
@@ -851,20 +851,22 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
     (set-face-attribute 'line-number-current-line nil :weight 'ultrabold :slant 'normal :inherit 'fixed-pitch ))
 
   (defun org-mode-setup ()
-    (org-indent-mode)
-    (org-modern-mode 1)
+    (org-indent-mode 1)
     (org-display-inline-images 1)
     (variable-pitch-mode 1)
+    (org-font-setup)
     (flyspell-mode 1)
     (setq
-     org-startup-indented t
+     org-startup-indented nil
      org-startup-folded t)
-    (visual-line-mode 1))
+      )
+
 
   (use-package org
     :pin org
     :commands (org-capture org-agenda)
-    ;; :hook (org-mode . org-mode-setup)
+    :hook (org-mode . org-mode-setup)
+    (org-mode . org-modern-mode)
     :config
     (setq org-ellipsis " ▾")
 
@@ -995,9 +997,8 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
              "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)))
 
     (define-key global-map (kbd "C-c j")
-                (lambda () (interactive) (org-capture nil "jj")))
+                (lambda () (interactive) (org-capture nil "jj"))))
 
-    (org-font-setup))
 
 #+end_src
 ** Handy Org
@@ -1608,7 +1609,7 @@ Idk why, but i guess these all should be the sane defaults.
   (scroll-bar-mode -1)        ; Disable visible scrollbar
   (tool-bar-mode -1)          ; Disable the toolbar
   (tooltip-mode -1)           ; Disable tooltips
-  ;; (set-fringe-mode 10)        ; Give some breathing room
+  (setq set-fringe-style "default")        ; Give some breathing room
 
   (menu-bar-mode -1)            ; Disable the menu bar
 

@@ -567,7 +567,7 @@
     (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
 
 (use-package org-modern)
-    (add-hook 'org-mode-hook #'org-modern-mode)
+    ;; (add-hook 'org-mode-hook #'org-modern-mode)
     (add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
 
     ;; Option 2: Globally
@@ -586,8 +586,8 @@
      '((right-divider-width . 15)
        (internal-border-width . 15)))
     (dolist (face '(window-divider
-                    window-divider-first-pixel
-                    window-divider-last-pixel))
+		    window-divider-first-pixel
+		    window-divider-last-pixel))
       (face-spec-reset-face face)
       (set-face-foreground face (face-attribute 'default :background)))
   (setq
@@ -630,7 +630,7 @@
                   (org-level-6 . 1.1)
                   (org-level-7 . 1.1)
                   (org-level-8 . 1.1)))
-    (set-face-attribute (car face) nil :font "FiraCode NF" :weight 'regular :height (cdr face)))
+    (set-face-attribute (car face) nil :font "Comic Mono" :weight 'regular :height (cdr face)))
 
   ;; Ensure that anything that should be fixed-pitch in Org files appears that way
   (set-face-attribute 'org-block nil    :foreground nil :inherit 'fixed-pitch)
@@ -646,20 +646,22 @@
   (set-face-attribute 'line-number-current-line nil :weight 'ultrabold :slant 'normal :inherit 'fixed-pitch ))
 
 (defun org-mode-setup ()
-  (org-indent-mode)
-  (org-modern-mode 1)
+  (org-indent-mode 1)
   (org-display-inline-images 1)
   (variable-pitch-mode 1)
+  (org-font-setup)
   (flyspell-mode 1)
   (setq
-   org-startup-indented t
+   org-startup-indented nil
    org-startup-folded t)
-  (visual-line-mode 1))
+    )
+
 
 (use-package org
   :pin org
   :commands (org-capture org-agenda)
-  ;; :hook (org-mode . org-mode-setup)
+  :hook (org-mode . org-mode-setup)
+  (org-mode . org-modern-mode)
   :config
   (setq org-ellipsis " ▾")
 
@@ -790,9 +792,7 @@
            "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)))
 
   (define-key global-map (kbd "C-c j")
-              (lambda () (interactive) (org-capture nil "jj")))
-
-  (org-font-setup))
+              (lambda () (interactive) (org-capture nil "jj"))))
 
 (with-eval-after-load 'org
   (org-babel-do-load-languages
@@ -1341,7 +1341,7 @@
 (scroll-bar-mode -1)        ; Disable visible scrollbar
 (tool-bar-mode -1)          ; Disable the toolbar
 (tooltip-mode -1)           ; Disable tooltips
-;; (set-fringe-mode 10)        ; Give some breathing room
+(setq set-fringe-style "default")        ; Give some breathing room
 
 (menu-bar-mode -1)            ; Disable the menu bar
 

@@ -680,9 +680,9 @@ Installs packages for this user only.
 #+begin_src nix
   # cli tools
   cached-nix-shell pcmanfm yt-dlp fzf neovim btop
-     fishPlugins.autopair-fish
+     fishPlugins.autopair-fish 
     unzip aspell aspellDicts.en
-    ripgrep nitch libreoffice transmission
+    ripgrep nitch libreoffice transmission pandoc
     rsync  ffmpeg sdcv imagemagick
     fd ncdu mu isync ts  syncthing 
     jq keepassxc figlet keepassxc dconf gcc
@@ -805,7 +805,7 @@ Additional Setting for individual applications
 #+end_src
 ****** Btop
 #+begin_src nix
-    home.file.".config/btop/btop.conf".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.SETUP/gdk/i-home/btop.conf";
+    home.file.".config/btop/btop.conf".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.SETUP/gdk/i-home/configs/btop.conf";
 #+end_src
 ******* btop-config
 #+begin_src nix :tangle ./gdk/i-home/configs/btop.conf

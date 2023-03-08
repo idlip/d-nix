@@ -40,10 +40,10 @@ programs = {
     shellInit = ''
     starship init fish | source
     '';
-    plugins = [
+    plugins = with pkgs; [
       {
         name = "autopair.fish";
-        src = pkgs.fishPlugins.autopair-fish;
+        src = fishPlugins.autopair-fish;
       }
     ];
   };
@@ -217,7 +217,8 @@ cached-nix-shell pcmanfm yt-dlp fzf neovim btop
 
   unzip aspell aspellDicts.en
   ripgrep nitch libreoffice transmission pandoc
-  rsync  ffmpeg sdcv imagemagick
+  rsync  ffmpeg sdcv imagemagick groff
+  texlive.combined.scheme-basic
   fd ncdu mu isync ts  syncthing 
   jq keepassxc figlet keepassxc dconf gcc
 
@@ -867,12 +868,12 @@ services.mpd = {
     port = 6600;
   };
   extraConfig = ''
-    audio_output {
-      type    "pipewire"
-      name    "pipewire"
-    }
-    auto_update "yes"
-  '';
+      audio_output {
+        type    "pipewire"
+        name    "pipewire"
+      }
+      auto_update "yes"
+    '';
 };
 
 programs.ncmpcpp = {
@@ -965,22 +966,23 @@ programs = {
       "K" = "cycle sub down";
     };
     config = {
-      profile = "gpu-hq";
-      hwdec = "auto-safe";
-      vo = "gpu";
-      force-window = true;
-      osc = false;
-      sub-border-size = "3.0";
-      sub-auto = "fuzzy";
-      msg-level = "all=warn";
-      ytdl-format = "[height<1080]";
-      save-position-on-quit = true;
-      slang = "eng,en,Eng,English";
-      alang = "jp,jpn,en,eng";
-      sub-font = "ComicCodeLigatures";
-      autofit = "50%";
-      sub-font-size = "38";
-
+      hwdec="vaapi";
+      gpu-hwdec-interop="vaapi";
+      vo="gpu";
+      profile="gpu-hq";
+      gpu-context="wayland";
+      force-window=true;
+      osc=false;
+      sub-border-size="3.0";
+      sub-auto="fuzzy";
+      msg-level="all=warn";
+      ytdl-format="[height<1080]";
+      save-position-on-quit=true;
+      slang="eng,en,Eng,English";
+      alang="jp,jpn,en,eng";
+      sub-font="ComicCodeLigatures";
+      autofit="50%";
+      sub-font-size="38";
     };
   };
 };

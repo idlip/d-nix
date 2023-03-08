@@ -266,6 +266,7 @@ fonts = {
   fonts = with pkgs; [
     emacs-all-the-icons-fonts
     material-icons
+    comic-mono
     material-design-icons
     noto-fonts-emoji
     weather-icons
@@ -307,6 +308,7 @@ environment = {
     SSH_AUTH_SOCK = "/run/user/1000/keyring/ssh";
     DISABLE_QT5_COMPAT = "0";
     ANKI_WAYLAND = "1";
+    LIBVA_DRIVER_NAME="iHD mpv ...";
     DIRENV_LOG_FORMAT = "";
     WLR_DRM_NO_ATOMIC = "1";
     QT_AUTO_SCREEN_SCALE_FACTOR = "1";

@@ -325,6 +325,7 @@ Enables additional fonts system wide
     fonts = with pkgs; [
       emacs-all-the-icons-fonts
       material-icons
+      comic-mono
       material-design-icons
       noto-fonts-emoji
       weather-icons
@@ -368,6 +369,7 @@ Enables additional fonts system wide
       SSH_AUTH_SOCK = "/run/user/1000/keyring/ssh";
       DISABLE_QT5_COMPAT = "0";
       ANKI_WAYLAND = "1";
+      LIBVA_DRIVER_NAME="iHD mpv ...";
       DIRENV_LOG_FORMAT = "";
       WLR_DRM_NO_ATOMIC = "1";
       QT_AUTO_SCREEN_SCALE_FACTOR = "1";
@@ -503,10 +505,10 @@ Opening brace that contains the rest of the configuration file.
       shellInit = ''
       starship init fish | source
       '';
-      plugins = [
+      plugins = with pkgs; [
         {
           name = "autopair.fish";
-          src = pkgs.fishPlugins.autopair-fish;
+          src = fishPlugins.autopair-fish;
         }
       ];
     };
@@ -686,14 +688,15 @@ Installs packages for this user only.
 #+end_src
 ****** Nameit
 #+begin_src nix
-  # cli tools
-  cached-nix-shell pcmanfm yt-dlp fzf neovim btop
+   # cli tools
+   cached-nix-shell pcmanfm yt-dlp fzf neovim btop
 
-    unzip aspell aspellDicts.en
-    ripgrep nitch libreoffice transmission pandoc
-    rsync  ffmpeg sdcv imagemagick
-    fd ncdu mu isync ts  syncthing 
-    jq keepassxc figlet keepassxc dconf gcc
+     unzip aspell aspellDicts.en
+     ripgrep nitch libreoffice transmission pandoc
+     rsync  ffmpeg sdcv imagemagick groff
+     texlive.combined.scheme-basic
+     fd ncdu mu isync ts  syncthing 
+     jq keepassxc figlet keepassxc dconf gcc
 #+end_src
 ****** Themes
 #+begin_src nix
@@ -1898,12 +1901,12 @@ https://www.youtube.com/feeds/videos.xml?channel_id=UCAiiOTio8Yu69c3XnR7nQBQ ema
       port = 6600;
     };
     extraConfig = ''
-      audio_output {
-        type    "pipewire"
-        name    "pipewire"
-      }
-      auto_update "yes"
-    '';
+        audio_output {
+          type    "pipewire"
+          name    "pipewire"
+        }
+        auto_update "yes"
+      '';
   };
 
   programs.ncmpcpp = {
@@ -1996,22 +1999,23 @@ https://www.youtube.com/feeds/videos.xml?channel_id=UCAiiOTio8Yu69c3XnR7nQBQ ema
         "K" = "cycle sub down";
       };
       config = {
-        profile = "gpu-hq";
-        hwdec = "auto-safe";
-        vo = "gpu";
-        force-window = true;
-        osc = false;
-        sub-border-size = "3.0";
-        sub-auto = "fuzzy";
-        msg-level = "all=warn";
-        ytdl-format = "[height<1080]";
-        save-position-on-quit = true;
-        slang = "eng,en,Eng,English";
-        alang = "jp,jpn,en,eng";
-        sub-font = "ComicCodeLigatures";
-        autofit = "50%";
-        sub-font-size = "38";
-
+        hwdec="vaapi";
+        gpu-hwdec-interop="vaapi";
+        vo="gpu";
+        profile="gpu-hq";
+        gpu-context="wayland";
+        force-window=true;
+        osc=false;
+        sub-border-size="3.0";
+        sub-auto="fuzzy";
+        msg-level="all=warn";
+        ytdl-format="[height<1080]";
+        save-position-on-quit=true;
+        slang="eng,en,Eng,English";
+        alang="jp,jpn,en,eng";
+        sub-font="ComicCodeLigatures";
+        autofit="50%";
+        sub-font-size="38";
       };
     };
   };

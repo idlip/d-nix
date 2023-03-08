@@ -66,7 +66,7 @@
 *** [[https://xkcd.com/atom.xml][xkcd.com]]
 ** Jokes :jokes:
 ** Emacs                                                              :emacs:
-*** [[https://sachachua.com/blog/category/emacs/feed][Sachi]]                                                             :sachi:
+*** [[https://sachachua.com/blog/category/emacs/feed][Sachi]] :sacha:
 *** [[https://planet.emacslife.com/atom.xml][Planet-Emacs]]
 ** Music                                                              :music:
 *** [[https://www.reddit.com/r/listentothis/search.rss?q=jazz&restrict_sr=on&sort=new&t=all/.rss][Jazz]] :jazz:

@@ -236,6 +236,8 @@ Some security features which are good enough to have.
     auto-cpufreq.enable = true;
     # blueman.enable = true;
 
+   gnome.at-spi2-core.enable = true;
+
     gvfs.enable = true;
     syncthing = {
       enable = true;
@@ -267,7 +269,7 @@ Some security features which are good enough to have.
     fstrim.enable = true;
     getty.autologinUser = "i" ;
     atd.enable = true;
-
+  
     pipewire = {
       enable = true;
       alsa = {
@@ -480,13 +482,13 @@ Opening brace that contains the rest of the configuration file.
           error_symbol = " [](#df5b61)";
           success_symbol = "[](#6791c9)";
           vicmd_symbol = "[](bold yellow)";
-                format = "[   $directory$all$character  ](bold)";
+          format = "[   $directory$all$character  ](bold)";
         };
         git_commit = {commit_hash_length = 4;};
         line_break.disabled = false;
         lua.symbol = "[](blue) ";
         python.symbol = "[](blue) ";
-              directory.read_only = " ";
+        directory.read_only = " ";
         nix_shell.symbol = " ";
         hostname = {
           ssh_only = true;
@@ -501,8 +503,14 @@ Opening brace that contains the rest of the configuration file.
       shellInit = ''
       starship init fish | source
       '';
+      plugins = [
+        {
+          name = "autopair.fish";
+          src = pkgs.fishPlugins.autopair-fish;
+        }
+      ];
     };
-    
+
     zsh = {
       enable = true;
       enableCompletion = true;
@@ -626,10 +634,10 @@ Opening brace that contains the rest of the configuration file.
           ytdl = "yt-dlp -f 22";
           e = "emacsclient -t";
           cp="cp -iv";
-                mv="mv -iv";
-                rm="rm -vI";
-                bc="bc -ql";
-                mkd="mkdir -pv";
+          mv="mv -iv";
+          rm="rm -vI";
+          bc="bc -ql";
+          mkd="mkdir -pv";
           ytfzf="ytfzf -Df";
           hyprcaps="hyprctl keyword input:kb_options caps:caps";
           gc = "git clone --depth=1";
@@ -655,7 +663,7 @@ Opening brace that contains the rest of the configuration file.
         }
       ];
     };
-    };
+  };
 
 #+end_src
 ***** User Packages
@@ -680,7 +688,7 @@ Installs packages for this user only.
 #+begin_src nix
   # cli tools
   cached-nix-shell pcmanfm yt-dlp fzf neovim btop
-     fishPlugins.autopair-fish 
+
     unzip aspell aspellDicts.en
     ripgrep nitch libreoffice transmission pandoc
     rsync  ffmpeg sdcv imagemagick

@@ -190,6 +190,8 @@ services = {
   auto-cpufreq.enable = true;
   # blueman.enable = true;
 
+ gnome.at-spi2-core.enable = true;
+
   gvfs.enable = true;
   syncthing = {
     enable = true;

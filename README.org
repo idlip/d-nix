@@ -1,9 +1,9 @@
 *** Utilities that are Best! 🌟
 --------------
 
-|-------------------------+------------------------------------|
-| Class                   | Name                               |
-|-------------------------+------------------------------------|
+|-------------------------+-------------------------------------|
+| Class                   | Name                                |
+|-------------------------+-------------------------------------|
 | Window Manager          | [[https://hyprland.org/][Hyprland]] 🌸                         |
 | Text Editor             | [[https://www.gnu.org/software/emacs/][Emacs]] 💮                            |
 | Gtk Theme               | [[https://github.com/Fausto-Korpsvart/Gruvbox-GTK-Theme][Gruvbox]] / [[https://github.com/vinceliuice/Orchis-theme][Orchis]] 🎨                 |
@@ -17,8 +17,8 @@
 | Notification            | [[https://github.com/dunst/dunst][Dunst]]  🛎️                           |
 | Shell                   | [[https://zsh.org][Zshell]] with [[https://starship.rs][Starship]] 🔰             |
 | Status Bar              | [[https://github.com/Alexays/Waybar][Waybar]]  🍥                          |
-| Favourite Color-Schemes | Modus-Vivendi + Gruvbox            |
-|-------------------------+------------------------------------|
+| Favourite Color-Schemes | Modus-Vivendi + Gruvbox             |
+|-------------------------+-------------------------------------|
 Rest all other stuffs I do in Emacs, tbh I could do everything in Emacs lol.
 
 Feel free to open an issue and ask me doubts or about some improvements, you wanna inform! I will be glad.

@@ -19,13 +19,13 @@ programs = {
         error_symbol = " [](#df5b61)";
         success_symbol = "[](#6791c9)";
         vicmd_symbol = "[](bold yellow)";
-              format = "[   $directory$all$character  ](bold)";
+        format = "[   $directory$all$character  ](bold)";
       };
       git_commit = {commit_hash_length = 4;};
       line_break.disabled = false;
       lua.symbol = "[](blue) ";
       python.symbol = "[](blue) ";
-            directory.read_only = " ";
+      directory.read_only = " ";
       nix_shell.symbol = " ";
       hostname = {
         ssh_only = true;
@@ -40,6 +40,12 @@ programs = {
     shellInit = ''
     starship init fish | source
     '';
+    plugins = [
+      {
+        name = "autopair.fish";
+        src = pkgs.fishPlugins.autopair-fish;
+      }
+    ];
   };
 
   zsh = {
@@ -165,10 +171,10 @@ export GRIM_DEFAULT_DIR="/home/i/pics/sshots/"
         ytdl = "yt-dlp -f 22";
         e = "emacsclient -t";
         cp="cp -iv";
-              mv="mv -iv";
-              rm="rm -vI";
-              bc="bc -ql";
-              mkd="mkdir -pv";
+        mv="mv -iv";
+        rm="rm -vI";
+        bc="bc -ql";
+        mkd="mkdir -pv";
         ytfzf="ytfzf -Df";
         hyprcaps="hyprctl keyword input:kb_options caps:caps";
         gc = "git clone --depth=1";
@@ -194,7 +200,7 @@ export GRIM_DEFAULT_DIR="/home/i/pics/sshots/"
       }
     ];
   };
-  };
+};
 
 home.packages = with pkgs; [
 
@@ -208,7 +214,7 @@ mpc_cli playerctl pavucontrol pulsemixer imv
 
 # cli tools
 cached-nix-shell pcmanfm yt-dlp fzf neovim btop
-   fishPlugins.autopair-fish 
+
   unzip aspell aspellDicts.en
   ripgrep nitch libreoffice transmission pandoc
   rsync  ffmpeg sdcv imagemagick

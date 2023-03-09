@@ -13,7 +13,7 @@
 | RSS Reader              | [[https://github.com/skeeto/elfeed][Elfeed]] 📰 (Again, Emacs)            |
 | Music Player            | [[https://github.com/ncmpcpp/ncmpcpp][Ncmpcpp]] or [[https://github.com//mingus][Mingus in Emacs]] 🎶       |
 | Terminal                | [[https://codeberg.org/dnkl/foot][Foot]] via footclient ⚽              |
-| Menu/Launcher           | [[https://hg.sr.ht/~scoopta/wofi][wofi]] 🐶                             |
+| Menu/Launcher           | [[https://github.com/Cloudef/bemenu][Bemenu]] 🚀                              |
 | Notification            | [[https://github.com/dunst/dunst][Dunst]]  🛎️                           |
 | Shell                   | [[https://zsh.org][Zshell]] with [[https://starship.rs][Starship]] 🔰             |
 | Status Bar              | [[https://github.com/Alexays/Waybar][Waybar]]  🍥                          |

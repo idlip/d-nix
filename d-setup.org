@@ -363,6 +363,7 @@ Enables additional fonts system wide
       NIXOS_OZONE_WL = "1";
       EDITOR = "nvim";
       BROWSER = "firefox";
+      BEMENU_OPTS="-i -l 10 -p '  Apps : ' -c -M 500 -B 2 --hp 15 --fn 'ComicCodeLigatures 20' --nb '#00000020' --ab '#00000020' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#fff0f5' --hf '#000000' --fb '#00000000' --ff '#fec43f' --tb '#00000000' --tf '#f5c2e7' ";
       __GL_GSYNC_ALLOWED = "0";
       __GL_VRR_ALLOWED = "0";
       _JAVA_AWT_WM_NONEREPARENTING = "1";
@@ -688,15 +689,15 @@ Installs packages for this user only.
 #+end_src
 ****** Nameit
 #+begin_src nix
-   # cli tools
-   cached-nix-shell pcmanfm yt-dlp fzf neovim btop
-
-     unzip aspell aspellDicts.en
-     ripgrep nitch libreoffice transmission pandoc
-     rsync  ffmpeg sdcv imagemagick groff
-     texlive.combined.scheme-basic
-     fd ncdu mu isync ts  syncthing 
-     jq keepassxc figlet keepassxc dconf gcc
+  # cli tools
+  cached-nix-shell pcmanfm yt-dlp fzf neovim btop
+    bemenu
+    unzip aspell aspellDicts.en
+    ripgrep nitch libreoffice transmission pandoc
+    rsync  ffmpeg sdcv imagemagick groff
+    # texlive.combined.scheme-full
+    fd ncdu mu isync ts  syncthing 
+    jq keepassxc figlet keepassxc dconf gcc
 #+end_src
 ****** Themes
 #+begin_src nix
@@ -720,6 +721,8 @@ Installs packages for this user only.
 #+begin_src nix
   nodePackages_latest.bash-language-server
   nodePackages_latest.vscode-langservers-extracted
+ # python39Packages.python-lsp-server
+  python3
   marksman nil 
   tree-sitter-grammars.tree-sitter-bash
 #+end_src
@@ -1165,6 +1168,7 @@ Additional Setting for individual applications
   #blurls=waybar
   blurls=wofi
   blurls=rofi
+  blurls=menu
   blurls=gtk-layer-shell
   blurls=notifications
 
@@ -1180,7 +1184,7 @@ Additional Setting for individual applications
   bind=SUPERCONTROL,Q,exit,
   bind=SUPER,F12,exec,uxterm
   bind=SUPER,SPACE,togglefloating,
-  bind=SUPER,d,exec,wofi -S drun
+  bind=SUPER,d,exec,bemenu-run
   bind=SUPER,b,exec,pkill -SIGUSR1 waybar
   bind=SUPER,P,pseudo,
   bind=SUPER,F,fullscreen,
@@ -1258,7 +1262,7 @@ Additional Setting for individual applications
   bind=,a,exec,d-vocab
   bind=,a,submap,reset
 
-  bind=,v,exec,wtype "$(cat ~/.local/share/dict/myglossary | wofi -d -W 85% -H 60% | awk '{print $1}')"
+  bind=,v,exec,wtype "$(cat ~/.local/share/dict/myglossary | bemenu -W 0.8 | awk '{print $1}')"
   bind=,v,submap,reset
 
   bind=,escape,submap,reset
@@ -1313,7 +1317,7 @@ Additional Setting for individual applications
   bind=SUPER,x,exec,d-power
   # bind=SUPER,period,exec,d-dict
   bind=SUPERSHIFT,b,exec,d-bookmark
-  bind=SUPER,m,exec,wtype "$(rg -v '^$' ~/sync/org/bookmarks.org | wofi -dib -W 75% -H 85% | rg -o '(http|https)://[a-zA-Z0-9./?=_%:-]*')"
+  bind=SUPER,m,exec,d-urls
   bind=SUPER,grave,exec,d-unicodes
   bind=SUPER,Delete,exec,pkill -INT wf-recorder
 
@@ -1346,7 +1350,7 @@ Additional Setting for individual applications
       orderless consult marginalia embark embark-consult org olivetti org-modern corfu
       cape markdown-mode nix-mode
       all-the-icons all-the-icons-dired async dired-hide-dotfiles dired-single 
-      reddigg mingus pdf-tools vterm which-key
+      reddigg mingus pdf-tools vterm which-key 
       org-mime corfu-terminal beframe denote
       sdcv elfeed elfeed-org link-hint general powerthesaurus
       doom-modeline org-auto-tangle 
@@ -2234,10 +2238,10 @@ https://www.youtube.com/feeds/videos.xml?channel_id=UCAiiOTio8Yu69c3XnR7nQBQ ema
                 "tooltip" = false;
               };
 
-        "custom/launcher" = with pkgs; {
+        "custom/launcher" = {
           format = " ";
           tooltip = false;
-          on-click = "wofi -S drun";
+          on-click = "bemenu-run";
         };
 
         "custom/power" = {
@@ -2524,8 +2528,8 @@ external_menu () {
     #use rofi instead of dmenu
 #    rofi -dmenu -i -theme-str '@import "menu.rasi" window {height:60%;width: 70%;}' -p "$1"
     # rofi -dmenu -i -config ~/.config/rofi/list.rasi -p "Search for :->"
-    wofi -dib -W 90% -H 80% 
-#      bemenu -i -l 20 --fn "ComicCodeLigatures Medium 20"
+    # wofi -dib -W 90% -H 80% 
+     bemenu -W 0.9
 #    dmenu -i -l 20
 }
 

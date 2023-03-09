@@ -302,6 +302,7 @@ environment = {
     NIXOS_OZONE_WL = "1";
     EDITOR = "nvim";
     BROWSER = "firefox";
+    BEMENU_OPTS="-i -l 10 -p '  Apps : ' -c -M 500 -B 2 --hp 15 --fn 'ComicCodeLigatures 20' --nb '#00000020' --ab '#00000020' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#fff0f5' --hf '#000000' --fb '#00000000' --ff '#fec43f' --tb '#00000000' --tf '#f5c2e7' ";
     __GL_GSYNC_ALLOWED = "0";
     __GL_VRR_ALLOWED = "0";
     _JAVA_AWT_WM_NONEREPARENTING = "1";

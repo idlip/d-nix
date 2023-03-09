@@ -9,8 +9,8 @@ external_menu () {
     #use rofi instead of dmenu
 #    rofi -dmenu -i -theme-str '@import "menu.rasi" window {height:60%;width: 70%;}' -p "$1"
     # rofi -dmenu -i -config ~/.config/rofi/list.rasi -p "Search for :->"
-    wofi -dib -W 90% -H 80% 
-#      bemenu -i -l 20 --fn "ComicCodeLigatures Medium 20"
+    # wofi -dib -W 90% -H 80% 
+     bemenu -W 0.9
 #    dmenu -i -l 20
 }
 

@@ -214,11 +214,11 @@ mpc_cli playerctl pavucontrol pulsemixer imv
 
 # cli tools
 cached-nix-shell pcmanfm yt-dlp fzf neovim btop
-
+  bemenu
   unzip aspell aspellDicts.en
   ripgrep nitch libreoffice transmission pandoc
   rsync  ffmpeg sdcv imagemagick groff
-  texlive.combined.scheme-basic
+  # texlive.combined.scheme-full
   fd ncdu mu isync ts  syncthing 
   jq keepassxc figlet keepassxc dconf gcc
 
@@ -235,9 +235,11 @@ deluged yt-dlp jq ytfzf ani-cli
 firefox librewolf brave ungoogled-chromium
 
 nodePackages_latest.bash-language-server
-nodePackages_latest.vscode-langservers-extracted
-marksman nil 
-tree-sitter-grammars.tree-sitter-bash
+ nodePackages_latest.vscode-langservers-extracted
+# python39Packages.python-lsp-server
+ python3
+ marksman nil 
+ tree-sitter-grammars.tree-sitter-bash
 
 ];
 
@@ -474,7 +476,7 @@ programs.emacs = {
     orderless consult marginalia embark embark-consult org olivetti org-modern corfu
     cape markdown-mode nix-mode
     all-the-icons all-the-icons-dired async dired-hide-dotfiles dired-single 
-    reddigg mingus pdf-tools vterm which-key
+    reddigg mingus pdf-tools vterm which-key 
     org-mime corfu-terminal beframe denote
     sdcv elfeed elfeed-org link-hint general powerthesaurus
     doom-modeline org-auto-tangle 
@@ -1195,10 +1197,10 @@ programs.waybar = {
               "tooltip" = false;
             };
 
-      "custom/launcher" = with pkgs; {
+      "custom/launcher" = {
         format = " ";
         tooltip = false;
-        on-click = "wofi -S drun";
+        on-click = "bemenu-run";
       };
 
       "custom/power" = {

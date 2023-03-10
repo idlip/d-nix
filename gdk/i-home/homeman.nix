@@ -58,7 +58,7 @@ programs = {
     sessionVariables = {
       LC_ALL = "en_US.UTF-8";
       ZSH_AUTOSUGGEST_USE_ASYNC = "true";
-      BEMENU_OPTS = "-i -l 10 -p '  Apps : ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures 20' --nb '#00000099' --ab '#00000099' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#fff0f5' --hf '#000000' --fb '#00000000' --ff '#a6e3a1' --tb '#00000000' --tf '#f9e2af' ";
+      BEMENU_OPTS = "-i -l 10 -p '  Apps : ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures 20' --nb '#00000099' --ab '#00000099' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#fff0f5' --hf '#000000' --fb '#00000099' --ff '#a6e3a1' --tb '#00000099' --tf '#f9e2af' ";
       NIXOS_OZONE_WL = "1";
       BROWSER = "librewolf";
       MOZ_ENABLE_WAYLAND = "1";
@@ -475,11 +475,11 @@ programs.emacs = {
   package = pkgs.emacsPgtk;
   extraPackages = (epkgs: (with epkgs; [
     vterm undo-tree flycheck helpful ox-pandoc
-    no-littering  vertico-posframe rainbow-delimiters rainbow-mode vertico 
+    no-littering rainbow-delimiters rainbow-mode vertico 
     orderless consult marginalia embark embark-consult org olivetti org-modern corfu
-    cape markdown-mode nix-mode
-    all-the-icons all-the-icons-dired async dired-hide-dotfiles dired-single 
-    reddigg mingus pdf-tools which-key magit
+    cape markdown-mode nix-mode rust-mode lua-mode
+    all-the-icons all-the-icons-dired async dired-hide-dotfiles dired-single
+    reddigg mingus pdf-tools which-key magit aria2
     org-mime corfu-terminal beframe denote
     sdcv elfeed elfeed-org link-hint general powerthesaurus
     doom-modeline org-auto-tangle 

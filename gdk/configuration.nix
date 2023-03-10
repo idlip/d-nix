@@ -169,8 +169,8 @@ security.doas = {
 
 services = {
   dbus = {
-  # packages = with pkgs; [dconf udisks2];
-  enable = true;
+    # packages = with pkgs; [dconf udisks2];
+    enable = true;
   };
   # udev.packages = with pkgs; [gnome.gnome-settings-daemon];
 
@@ -227,11 +227,9 @@ services = {
     enable = true;
     alsa = {
       enable = true;
-      support32Bit = true;
     };
     wireplumber.enable = true;
     pulse.enable = true;
-    jack.enable = true;
   };
 };
 

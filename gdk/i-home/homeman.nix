@@ -58,7 +58,10 @@ programs = {
     sessionVariables = {
       LC_ALL = "en_US.UTF-8";
       ZSH_AUTOSUGGEST_USE_ASYNC = "true";
-      SSH_AUTH_SOCK = "/run/user/1000/keyring/ssh";
+      BEMENU_OPTS = "-i -l 10 -p '  Apps : ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures 20' --nb '#00000099' --ab '#00000099' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#fff0f5' --hf '#000000' --fb '#00000000' --ff '#a6e3a1' --tb '#00000000' --tf '#f9e2af' ";
+      NIXOS_OZONE_WL = "1";
+      BROWSER = "librewolf";
+      MOZ_ENABLE_WAYLAND = "1";
     };
     completionInit = ''
       eval "$(starship init zsh)"
@@ -205,7 +208,7 @@ export GRIM_DEFAULT_DIR="/home/i/pics/sshots/"
 home.packages = with pkgs; [
 
 # wayland
-libnotify libsixel wofi
+libnotify libsixel wofi seatd bemenu
 wf-recorder brightnessctl pamixer slurp grim
 wl-clipboard rofi-wayland cliphist wtype swaybg swayidle gammastep
 
@@ -214,7 +217,7 @@ mpc_cli playerctl pavucontrol pulsemixer imv
 
 # cli tools
 cached-nix-shell pcmanfm yt-dlp fzf neovim btop
-  bemenu
+
   unzip aspell aspellDicts.en
   ripgrep nitch libreoffice transmission pandoc
   rsync  ffmpeg sdcv imagemagick groff
@@ -476,7 +479,7 @@ programs.emacs = {
     orderless consult marginalia embark embark-consult org olivetti org-modern corfu
     cape markdown-mode nix-mode
     all-the-icons all-the-icons-dired async dired-hide-dotfiles dired-single 
-    reddigg mingus pdf-tools vterm which-key 
+    reddigg mingus pdf-tools which-key magit
     org-mime corfu-terminal beframe denote
     sdcv elfeed elfeed-org link-hint general powerthesaurus
     doom-modeline org-auto-tangle 

@@ -10,7 +10,7 @@ external_menu () {
 #    rofi -dmenu -i -theme-str '@import "menu.rasi" window {height:60%;width: 70%;}' -p "$1"
     # rofi -dmenu -i -config ~/.config/rofi/list.rasi -p "Search for :->"
     # wofi -dib -W 90% -H 80% 
-     bemenu -W 0.9
+     bemenu -W 0.98
 #    dmenu -i -l 20
 }
 

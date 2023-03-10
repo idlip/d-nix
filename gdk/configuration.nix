@@ -168,10 +168,10 @@ security.doas = {
 };
 
 services = {
-  # dbus = {
+  dbus = {
   # packages = with pkgs; [dconf udisks2];
-  # enable = true;
-  # };
+  enable = true;
+  };
   # udev.packages = with pkgs; [gnome.gnome-settings-daemon];
 
   journald.extraConfig = ''
@@ -190,7 +190,6 @@ services = {
   auto-cpufreq.enable = true;
   # blueman.enable = true;
 
- gnome.at-spi2-core.enable = true;
 
   gvfs.enable = true;
   syncthing = {
@@ -302,23 +301,7 @@ environment = {
     NIXOS_OZONE_WL = "1";
     EDITOR = "nvim";
     BROWSER = "firefox";
-    BEMENU_OPTS="-i -l 10 -p '  Apps : ' -c -M 500 -B 2 --hp 15 --fn 'ComicCodeLigatures 20' --nb '#00000020' --ab '#00000020' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#fff0f5' --hf '#000000' --fb '#00000000' --ff '#fec43f' --tb '#00000000' --tf '#f5c2e7' ";
-    __GL_GSYNC_ALLOWED = "0";
-    __GL_VRR_ALLOWED = "0";
-    _JAVA_AWT_WM_NONEREPARENTING = "1";
-    SSH_AUTH_SOCK = "/run/user/1000/keyring/ssh";
-    DISABLE_QT5_COMPAT = "0";
-    ANKI_WAYLAND = "1";
-    LIBVA_DRIVER_NAME="iHD mpv ...";
-    DIRENV_LOG_FORMAT = "";
-    WLR_DRM_NO_ATOMIC = "1";
-    QT_AUTO_SCREEN_SCALE_FACTOR = "1";
-    QT_QPA_PLATFORM = "wayland";
-    QT_QPA_PLATFORMTHEME = "qt5ct";
-    QT_STYLE_OVERRIDE = "kvantum";
     MOZ_ENABLE_WAYLAND = "1";
-    WLR_NO_HARDWARE_CURSORS = "1";
-    WLR_DRM_DEVICES = "/dev/dri/card1:/dev/dri/card0";
 
   };
 

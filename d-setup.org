@@ -214,10 +214,10 @@ Some security features which are good enough to have.
 *** Services
 #+begin_src nix
   services = {
-    # dbus = {
+    dbus = {
     # packages = with pkgs; [dconf udisks2];
-    # enable = true;
-    # };
+    enable = true;
+    };
     # udev.packages = with pkgs; [gnome.gnome-settings-daemon];
 
     journald.extraConfig = ''
@@ -236,7 +236,6 @@ Some security features which are good enough to have.
     auto-cpufreq.enable = true;
     # blueman.enable = true;
 
-   gnome.at-spi2-core.enable = true;
 
     gvfs.enable = true;
     syncthing = {
@@ -269,7 +268,7 @@ Some security features which are good enough to have.
     fstrim.enable = true;
     getty.autologinUser = "i" ;
     atd.enable = true;
-  
+
     pipewire = {
       enable = true;
       alsa = {
@@ -363,23 +362,7 @@ Enables additional fonts system wide
       NIXOS_OZONE_WL = "1";
       EDITOR = "nvim";
       BROWSER = "firefox";
-      BEMENU_OPTS="-i -l 10 -p '  Apps : ' -c -M 500 -B 2 --hp 15 --fn 'ComicCodeLigatures 20' --nb '#00000020' --ab '#00000020' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#fff0f5' --hf '#000000' --fb '#00000000' --ff '#fec43f' --tb '#00000000' --tf '#f5c2e7' ";
-      __GL_GSYNC_ALLOWED = "0";
-      __GL_VRR_ALLOWED = "0";
-      _JAVA_AWT_WM_NONEREPARENTING = "1";
-      SSH_AUTH_SOCK = "/run/user/1000/keyring/ssh";
-      DISABLE_QT5_COMPAT = "0";
-      ANKI_WAYLAND = "1";
-      LIBVA_DRIVER_NAME="iHD mpv ...";
-      DIRENV_LOG_FORMAT = "";
-      WLR_DRM_NO_ATOMIC = "1";
-      QT_AUTO_SCREEN_SCALE_FACTOR = "1";
-      QT_QPA_PLATFORM = "wayland";
-      QT_QPA_PLATFORMTHEME = "qt5ct";
-      QT_STYLE_OVERRIDE = "kvantum";
       MOZ_ENABLE_WAYLAND = "1";
-      WLR_NO_HARDWARE_CURSORS = "1";
-      WLR_DRM_DEVICES = "/dev/dri/card1:/dev/dri/card0";
 
     };
 
@@ -524,7 +507,10 @@ Opening brace that contains the rest of the configuration file.
       sessionVariables = {
         LC_ALL = "en_US.UTF-8";
         ZSH_AUTOSUGGEST_USE_ASYNC = "true";
-        SSH_AUTH_SOCK = "/run/user/1000/keyring/ssh";
+        BEMENU_OPTS = "-i -l 10 -p '  Apps : ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures 20' --nb '#00000099' --ab '#00000099' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#fff0f5' --hf '#000000' --fb '#00000000' --ff '#a6e3a1' --tb '#00000000' --tf '#f9e2af' ";
+        NIXOS_OZONE_WL = "1";
+        BROWSER = "librewolf";
+        MOZ_ENABLE_WAYLAND = "1";
       };
       completionInit = ''
         eval "$(starship init zsh)"
@@ -678,7 +664,7 @@ Installs packages for this user only.
 ****** Wayland
 #+begin_src nix
   # wayland
-  libnotify libsixel wofi
+  libnotify libsixel wofi seatd bemenu
   wf-recorder brightnessctl pamixer slurp grim
   wl-clipboard rofi-wayland cliphist wtype swaybg swayidle gammastep
 #+end_src
@@ -691,7 +677,7 @@ Installs packages for this user only.
 #+begin_src nix
   # cli tools
   cached-nix-shell pcmanfm yt-dlp fzf neovim btop
-    bemenu
+
     unzip aspell aspellDicts.en
     ripgrep nitch libreoffice transmission pandoc
     rsync  ffmpeg sdcv imagemagick groff
@@ -1321,6 +1307,7 @@ Additional Setting for individual applications
   bind=SUPER,grave,exec,d-unicodes
   bind=SUPER,Delete,exec,pkill -INT wf-recorder
 
+  bind=CONTROL,F1,exec,hyprctl dispatch dpms on                               
   bind=SUPER,F1,exec,d-keys
   bind=SUPER,F2,exec,brightnessctl set 2%-
   bind=SUPER,F3,exec,brightnessctl set +2%
@@ -1350,7 +1337,7 @@ Additional Setting for individual applications
       orderless consult marginalia embark embark-consult org olivetti org-modern corfu
       cape markdown-mode nix-mode
       all-the-icons all-the-icons-dired async dired-hide-dotfiles dired-single 
-      reddigg mingus pdf-tools vterm which-key 
+      reddigg mingus pdf-tools which-key magit
       org-mime corfu-terminal beframe denote
       sdcv elfeed elfeed-org link-hint general powerthesaurus
       doom-modeline org-auto-tangle 
@@ -2529,7 +2516,7 @@ external_menu () {
 #    rofi -dmenu -i -theme-str '@import "menu.rasi" window {height:60%;width: 70%;}' -p "$1"
     # rofi -dmenu -i -config ~/.config/rofi/list.rasi -p "Search for :->"
     # wofi -dib -W 90% -H 80% 
-     bemenu -W 0.9
+     bemenu -W 0.98
 #    dmenu -i -l 20
 }
 

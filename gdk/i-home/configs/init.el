@@ -1,3 +1,5 @@
+;;; Personal configuration -*- lexical-binding: t -*-
+
 (defun display-startup-time ()
   (message "Emacs loaded in %s with %d garbage collections."
            (format "%.2f seconds"
@@ -45,16 +47,16 @@
 
 (use-package no-littering)
 
-  ;; no-littering doesn't set this by default so we must place
-  ;; auto save files in the same path as it uses for sessions
-  (setq auto-save-file-name-transforms
-        `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
+;; no-littering doesn't set this by default so we must place
+;; auto save files in the same path as it uses for sessions
+(setq auto-save-file-name-transforms
+      `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
 ;;  (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
-  (setq delete-old-versions -1)
-  (setq version-control t)
-  (setq vc-make-backup-files t)
+(setq delete-old-versions -1)
+(setq version-control t)
+(setq vc-make-backup-files t)
 
-  (use-package savehist
+(use-package savehist
   :init
   (savehist-mode)
   :custom
@@ -76,17 +78,17 @@
 
 (defun d/scroll-down ()
   "Trust me, make scrolling alot smoother. +1 Makes you fall in love with Emacs again!"
-       (interactive)
-       (pixel-scroll-precision-scroll-down 40))
+  (interactive)
+  (pixel-scroll-precision-scroll-down 40))
 
 (defun d/scroll-up ()
   "Trust me, adds a wonderfull smooth scroll. You can do this by trackpad too (laptop)"
-       (interactive)
-       (pixel-scroll-precision-scroll-up 40))
+  (interactive)
+  (pixel-scroll-precision-scroll-up 40))
 (defun d/refresh-buffer ()
-    "Revert buffer without confirmation."
-    (interactive)
-    (revert-buffer :ignore-auto :noconfirm))
+  "Revert buffer without confirmation."
+  (interactive)
+  (revert-buffer :ignore-auto :noconfirm))
 
 (defun window-focus-mode ()
   "Make the window focused, it can toggled in and out"
@@ -264,12 +266,12 @@
 
 (use-package helpful)
 
-  (global-set-key (kbd "C-h f") #'helpful-callable)
-  (global-set-key (kbd "C-h v") #'helpful-variable)
-  (global-set-key (kbd "C-h k") #'helpful-key)
-  (global-set-key (kbd "C-h x") #'helpful-command)
-  (global-set-key (kbd "C-c C-d") #'helpful-at-point)
-  (global-set-key (kbd "C-h F") #'helpful-function)
+(global-set-key (kbd "C-h f") #'helpful-callable)
+(global-set-key (kbd "C-h v") #'helpful-variable)
+(global-set-key (kbd "C-h k") #'helpful-key)
+(global-set-key (kbd "C-h x") #'helpful-command)
+(global-set-key (kbd "C-c C-d") #'helpful-at-point)
+(global-set-key (kbd "C-h F") #'helpful-function)
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
@@ -284,7 +286,7 @@
 (use-package vertico
   :init
   (vertico-mode)
-
+  ;; (vertico-flat-mode 1)
   ;; Different scroll margin
   (setq vertico-scroll-margin 1)
 
@@ -328,9 +330,11 @@
         completion-category-defaults nil
         completion-category-overrides '((file (styles partial-completion)))))
 (define-key vertico-map "?" #'minibuffer-completion-help)
+(define-key vertico-map (kbd "RET") #'vertico-directory-enter)
+(define-key vertico-map (kbd "DEL") #'vertico-directory-delete-word)
+(define-key vertico-map (kbd "M-d") #'vertico-directory-delete-char)
 (define-key vertico-map (kbd "M-RET") #'minibuffer-force-complete-and-exit)
 (define-key vertico-map (kbd "M-TAB") #'minibuffer-complete)
-(define-key vertico-map (kbd "DEL") 'vertico-directory-delete-char)
 (setq completion-styles '(substring orderless basic))
 (setq read-file-name-completion-ignore-case t
       read-buffer-completion-ignore-case t
@@ -508,112 +512,118 @@
   (corfu-terminal-mode +1))
 
 ;; Add extensions
-  (use-package cape
-    :bind (("C-c p p" . completion-at-point) ;; capf
-           ("C-c p t" . complete-tag)        ;; etags
-           ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
-           ("C-c p h" . cape-history)
-           ("C-c p f" . cape-file)
-           ("C-c p k" . cape-keyword)
-           ("C-c p s" . cape-symbol)
-           ("C-c p a" . cape-abbrev)
-           ("C-c p i" . cape-ispell)
-           ("C-c p l" . cape-line)
-           ("C-c p w" . cape-dict)
-           ("C-c p \\" . cape-tex)
-           ("C-c p _" . cape-tex)
-           ("C-c p ^" . cape-tex)
-           ("C-c p &" . cape-sgml)
-           ("C-c p r" . cape-rfc1345))
-    :init
-    (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-    (add-to-list 'completion-at-point-functions #'cape-file)
-    (add-to-list 'completion-at-point-functions #'cape-history)
-    (add-to-list 'completion-at-point-functions #'cape-keyword)
-    ;; (add-to-list 'completion-at-point-functions #'cape-tex)
-    ;; (add-to-list 'completion-at-point-functions #'cape-sgml)
-    ;; (add-to-list 'completion-at-point-functions #'cape-rfc1345)
-    (add-to-list 'completion-at-point-functions #'cape-abbrev)
-    (add-to-list 'completion-at-point-functions #'cape-ispell)
-    (add-to-list 'completion-at-point-functions #'cape-dict)
-    ;; (add-to-list 'completion-at-point-functions #'cape-symbol)
-    ;; (add-to-list 'completion-at-point-functions #'cape-line)
-    )
+(use-package cape
+  :bind (("C-c p p" . completion-at-point) ;; capf
+         ("C-c p t" . complete-tag)        ;; etags
+         ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
+         ("C-c p h" . cape-history)
+         ("C-c p f" . cape-file)
+         ("C-c p k" . cape-keyword)
+         ("C-c p s" . cape-symbol)
+         ("C-c p a" . cape-abbrev)
+         ("C-c p i" . cape-ispell)
+         ("C-c p l" . cape-line)
+         ("C-c p w" . cape-dict)
+         ("C-c p \\" . cape-tex)
+         ("C-c p _" . cape-tex)
+         ("C-c p ^" . cape-tex)
+         ("C-c p &" . cape-sgml)
+         ("C-c p r" . cape-rfc1345))
+  :init
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-history)
+  (add-to-list 'completion-at-point-functions #'cape-keyword)
+  ;; (add-to-list 'completion-at-point-functions #'cape-tex)
+  ;; (add-to-list 'completion-at-point-functions #'cape-sgml)
+  ;; (add-to-list 'completion-at-point-functions #'cape-rfc1345)
+  (add-to-list 'completion-at-point-functions #'cape-abbrev)
+  (add-to-list 'completion-at-point-functions #'cape-ispell)
+  (add-to-list 'completion-at-point-functions #'cape-dict)
+  ;; (add-to-list 'completion-at-point-functions #'cape-symbol)
+  ;; (add-to-list 'completion-at-point-functions #'cape-line)
+  )
 
 ;; Add your own file with all words
-    (defcustom cape-dict-file "~/.local/share/dict/vocab"
-      "Dictionary word list file."
-      :type 'string)
+(defcustom cape-dict-file "~/.local/share/dict/vocab"
+  "Dictionary word list file."
+  :type 'string)
 
 
+(setq-local corfu-auto t
+            corfu-auto-delay 1
+            corfu-auto-prefix 0
+            completion-category-defaults nil
+            completion-category-overrides '((file (styles partial-completion)))
+            completion-styles '(orderless basic))
+
+(defun corfu-enable-always-in-minibuffer ()
+  "Enable corfi in minibuffer, if vertico is not active"
+  (unless (or (bound-and-true-p mct--active)
+              (bound-and-true-p vertico--input)
+              (eq (current-local-map) read-passwd-map))
     (setq-local corfu-auto t
-                corfu-auto-delay 1
+                corfu-popupinfo-delay nil
+                corfu-auto-delay 0
                 corfu-auto-prefix 0
-                completion-category-defaults nil
-                completion-category-overrides '((file (styles partial-completion)))
                 completion-styles '(orderless basic))
-
-    (defun corfu-enable-always-in-minibuffer ()
-      "Enable corfi in minibuffer, if vertico is not active"
-      (unless (or (bound-and-true-p mct--active)
-                  (bound-and-true-p vertico--input)
-                  (eq (current-local-map) read-passwd-map))
-        (setq-local corfu-auto t
-                    corfu-popupinfo-delay nil
-                    corfu-auto-delay 0
-                    corfu-auto-prefix 0
-                    completion-styles '(orderless basic))
-        (corfu-mode 1)))
-    (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
+    (corfu-mode 1)))
+(add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
 
 (use-package org-modern)
-    ;; (add-hook 'org-mode-hook #'org-modern-mode)
-    (add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
+;; (add-hook 'org-mode-hook #'org-modern-mode)
+(add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
 
-    ;; Option 2: Globally
-    (global-org-modern-mode)
-    (menu-bar-mode -1)
-    (tool-bar-mode -1)
-    (scroll-bar-mode -1)
+;; Option 2: Globally
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
 
-    ;; Choose some fonts
-    ;; (set-face-attribute 'default nil :family "Iosevka")
-    ;; (set-face-attribute 'variable-pitch nil :family "Iosevka Aile")
-    ;; (set-face-attribute 'org-modern-symbol nil :family "Iosevka")
+;; Choose some fonts
+;; (set-face-attribute 'default nil :family "Iosevka")
+;; (set-face-attribute 'variable-pitch nil :family "Iosevka Aile")
+;; (set-face-attribute 'org-modern-symbol nil :family "Iosevka")
 
-    ;; Add frame borders and window dividers
-    (modify-all-frames-parameters
-     '((right-divider-width . 15)
-       (internal-border-width . 15)))
-    (dolist (face '(window-divider
-		    window-divider-first-pixel
-		    window-divider-last-pixel))
-      (face-spec-reset-face face)
-      (set-face-foreground face (face-attribute 'default :background)))
-  (setq
-   ;; Edit settings
-   org-auto-align-tags nil
-   org-tags-column 0
-   org-catch-invisible-edits 'show-and-error
-   org-special-ctrl-a/e t
-   org-insert-heading-respect-content t
+;; Add frame borders and window dividers
+(modify-all-frames-parameters
+ '((right-divider-width . 15)
+   (internal-border-width . 15)))
+(dolist (face '(window-divider
+                window-divider-first-pixel
+                window-divider-last-pixel))
+  (face-spec-reset-face face)
+  (set-face-foreground face (face-attribute 'default :background)))
+(setq
+ ;; Edit settings
+ org-auto-align-tags nil
+ org-tags-column 0
+ org-catch-invisible-edits 'show-and-error
+ org-special-ctrl-a/e t
+ org-insert-heading-respect-content t
 
-   ;; Org styling, hide markup etc.
-   org-hide-emphasis-markers t
-   org-pretty-entities t
-;;   org-ellipsis "…"
+ ;; Org styling, hide markup etc.
+ org-hide-emphasis-markers t
+ org-pretty-entities t
+ ;;   org-ellipsis "…"
 
-   ;; Agenda styling
-   org-agenda-tags-column 0
-   org-agenda-block-separator ?─
-   org-agenda-time-grid
-   '((daily today require-timed)
-     (800 1000 1200 1400 1600 1800 2000)
-     " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
-   org-agenda-current-time-string
-   "⭠ now ─────────────────────────────────────────────────")
+ org-modern-hide-stars nil
+ org-modern-table t
+org-modern-list 
+ '(;; (?- . "-")
+   (?* . "•")
+   (?+ . "🞂"))
 
-  (global-org-modern-mode)
+ ;; Agenda styling
+ org-agenda-tags-column 0
+ org-agenda-block-separator ?─
+ org-agenda-time-grid
+ '((daily today require-timed)
+   (800 1000 1200 1400 1600 1800 2000)
+   " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+ org-agenda-current-time-string
+ "⭠ now ─────────────────────────────────────────────────")
+
+(global-org-modern-mode)
 
 (defun org-font-setup ()
   ;; Replace list hyphen with dot
@@ -654,7 +664,7 @@
   (setq
    org-startup-indented nil
    org-startup-folded t)
-    )
+  )
 
 
 (use-package org
@@ -818,6 +828,10 @@
   (add-to-list 'org-structure-template-alist '("lx" . "src latex"))
   (add-to-list 'org-structure-template-alist '("cal" . "src calc")))
 
+(use-package org-auto-tangle
+  :defer t
+  :hook (org-mode . org-auto-tangle-mode))
+
 (use-package ispell
   :no-require t
   :config
@@ -906,7 +920,7 @@
 
 (use-package olivetti
   :hook ((text-mode         . olivetti-mode)
-         (prog-mode         . olivetti-mode)
+         ;; (prog-mode         . olivetti-mode)
          (Info-mode         . olivetti-mode)
          (eshell-mode         . olivetti-mode)
          (helpful-mode         . olivetti-mode)
@@ -931,13 +945,13 @@
 (load-theme 'modus-vivendi t)
 
 (use-package beframe)
-    (setq beframe-global-buffers '("*scratch*"))
+(setq beframe-global-buffers '("*scratch*"))
 
-    (beframe-mode 1)
+(beframe-mode 1)
 
-    (define-key global-map (kbd "C-x B") #'beframe-switch-buffer)
+(define-key global-map (kbd "C-x B") #'beframe-switch-buffer)
 
-  (defvar consult-buffer-sources)
+(defvar consult-buffer-sources)
 (declare-function consult--buffer-state "consult")
 
 (with-eval-after-load 'consult
@@ -958,6 +972,10 @@
   (add-to-list 'consult-buffer-sources 'beframe--consult-source))
 
 (use-package nix-mode)
+
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+(add-hook 'prog-mode-hook #'eglot-ensure)
+(add-hook 'prog-mode-hook #'flycheck-mode)
 
 (use-package markdown-mode
   :mode "\\.md\\'"
@@ -1013,8 +1031,8 @@
 ;; (use-package howdoyou)
 (use-package undo-tree
   :init (global-undo-tree-mode t))
-(use-package flycheck
-  :init (global-flycheck-mode))
+(use-package flycheck)
+;; :init (global-flycheck-mode))
 
 
 (use-package mingus
@@ -1034,6 +1052,7 @@
 (define-key sdcv-mode-map (kbd "n") 'sdcv-next-dictionary)
 (define-key sdcv-mode-map (kbd "p") 'sdcv-previous-dictionary)
 (define-key help-mode-map (kbd "q") #'kill-buffer-and-window)
+(define-key helpful-mode-map (kbd "q") #'kill-buffer-and-window)
 (define-key sdcv-mode-map (kbd "M-q") 'vterm-send-next-key)
 
 (use-package pdf-tools
@@ -1084,90 +1103,89 @@
                              (setq olivetti-body-width 0.45)))
 
 (defun config-reload ()
-   "Uncle dev created a function to reload Emacs config."
-   (interactive)
-   (load-file (expand-file-name "~/.config/emacs/init.el")))
+  "Uncle dev created a function to reload Emacs config."
+  (interactive)
+  (load-file (expand-file-name "~/.config/emacs/init.el")))
 
-(load-file "~/.config/emacs/aria2.el")
- (defvar d/buffer-url-regexp
-   (concat
-    "\\b\\(\\(www\\.\\|\\(s?https?\\|ftp\\|file\\|gopher\\|"
-    "nntp\\|news\\|telnet\\|wais\\|mailto\\|info\\):\\)"
-    "\\(//[-a-z0-9_.]+:[0-9]*\\)?"
-    (let ((chars "-a-z0-9_=#$@~%&*+\\/[:word:]")
-          (punct "!?:;.,"))
-      (concat
-       "\\(?:"
-       "[" chars punct "]+" "(" "[" chars punct "]+" ")"
-       "\\(?:" "[" chars punct "]+" "[" chars "]" "\\)?"
-       "\\|"
-       "[" chars punct "]+" "[" chars "]"
-       "\\)"))
-    "\\)")
-   "Regular expression that matches URLs.
-           Copy of variable `browse-url-button-regexp'.")
+(defvar d/buffer-url-regexp
+  (concat
+   "\\b\\(\\(www\\.\\|\\(s?https?\\|ftp\\|file\\|gopher\\|"
+   "nntp\\|news\\|telnet\\|wais\\|mailto\\|info\\):\\)"
+   "\\(//[-a-z0-9_.]+:[0-9]*\\)?"
+   (let ((chars "-a-z0-9_=#$@~%&*+\\/[:word:]")
+         (punct "!?:;.,"))
+     (concat
+      "\\(?:"
+      "[" chars punct "]+" "(" "[" chars punct "]+" ")"
+      "\\(?:" "[" chars punct "]+" "[" chars "]" "\\)?"
+      "\\|"
+      "[" chars punct "]+" "[" chars "]"
+      "\\)"))
+   "\\)")
+  "Regular expression that matches URLs.
+          Copy of variable `browse-url-button-regexp'.")
 
- (defun d/buffer-links (&optional use-generic-p)
-   "Point browser at a URL in the buffer using completion.
-           Which web browser to use depends on the value of the variable
-           `browse-url-browser-function'.
-         Also see `d/print-buffer-links'."
-   (interactive "P")
-   (let ((matches nil))
-     (save-excursion
-       (goto-char (point-min))
-       (while (search-forward-regexp d/buffer-url-regexp nil t)
-         (push (match-string-no-properties 0) matches)))
-     (let ((url (completing-read "Browse URL: " matches nil t)))
-       (if use-generic-p
-           (browse-url-generic url)
-         (browse-url url)))))
+(defun d/buffer-links (&optional use-generic-p)
+  "Point browser at a URL in the buffer using completion.
+          Which web browser to use depends on the value of the variable
+          `browse-url-browser-function'.
+        Also see `d/print-buffer-links'."
+  (interactive "P")
+  (let ((matches nil))
+    (save-excursion
+      (goto-char (point-min))
+      (while (search-forward-regexp d/buffer-url-regexp nil t)
+        (push (match-string-no-properties 0) matches)))
+    (let ((url (completing-read "Browse URL: " matches nil t)))
+      (if use-generic-p
+          (browse-url-generic url)
+        (browse-url url)))))
 
- (defun d/print-buffer-links ()
-   "Produce buttonised list of all URLs in the current buffer."
-   (interactive)
-   (add-hook 'occur-hook #'goto-address-mode)
-   (occur d/buffer-url-regexp "\\&")
-   (remove-hook 'occur-hook #'goto-address-mode)
-   (other-window 1))
+(defun d/print-buffer-links ()
+  "Produce buttonised list of all URLs in the current buffer."
+  (interactive)
+  (add-hook 'occur-hook #'goto-address-mode)
+  (occur d/buffer-url-regexp "\\&")
+  (remove-hook 'occur-hook #'goto-address-mode)
+  (other-window 1))
 
- ;; Bionic Reading
+;; Bionic Reading
 
- (defvar bionic-reading-face nil "a face for `d/bionic-region'.")
+(defvar bionic-reading-face nil "a face for `d/bionic-region'.")
 
- (setq bionic-reading-face 'bold)
- ;; try
- ;; 'bold
- ;; 'error
- ;; 'warning
- ;; 'highlight
- ;; or any value of M-x list-faces-display
+(setq bionic-reading-face 'bold)
+;; try
+;; 'bold
+;; 'error
+;; 'warning
+;; 'highlight
+;; or any value of M-x list-faces-display
 
- (defun d/bionic-read ()
-   "Bold the first few chars of every word in current buffer.
-       Version 2022-05-21"
-   (interactive)
-   (read-only-mode -1)
-   (d/bionic-region (point-min) (point-max))
-   (read-only-mode 1)
-   (beginning-of-buffer))
+(defun d/bionic-read ()
+  "Bold the first few chars of every word in current buffer.
+      Version 2022-05-21"
+  (interactive)
+  (read-only-mode -1)
+  (d/bionic-region (point-min) (point-max))
+  (read-only-mode 1)
+  (beginning-of-buffer))
 
- (defun d/bionic-region (Begin End)
-   "Bold the first few chars of every word in region.
-       Version 2022-05-21"
-   (interactive "r")
-   (let (xBounds xWordBegin xWordEnd  )
-     (save-restriction
-       (narrow-to-region Begin End)
-       (goto-char (point-min))
-       (while (forward-word)
-         ;; bold the first half of the word to the left of cursor
-         (setq xBounds (bounds-of-thing-at-point 'word))
-         (setq xWordBegin (car xBounds))
-         (setq xWordEnd (cdr xBounds))
-         (setq xBoldEndPos (+ xWordBegin (1+ (/ (- xWordEnd xWordBegin) 2))))
-         (put-text-property xWordBegin xBoldEndPos
-                            'font-lock-face bionic-reading-face)))))
+(defun d/bionic-region (Begin End)
+  "Bold the first few chars of every word in region.
+      Version 2022-05-21"
+  (interactive "r")
+  (let (xBounds xWordBegin xWordEnd  )
+    (save-restriction
+      (narrow-to-region Begin End)
+      (goto-char (point-min))
+      (while (forward-word)
+        ;; bold the first half of the word to the left of cursor
+        (setq xBounds (bounds-of-thing-at-point 'word))
+        (setq xWordBegin (car xBounds))
+        (setq xWordEnd (cdr xBounds))
+        (setq xBoldEndPos (+ xWordBegin (1+ (/ (- xWordEnd xWordBegin) 2))))
+        (put-text-property xWordBegin xBoldEndPos
+                           'font-lock-face bionic-reading-face)))))
 
 (use-package elfeed
   :defer t
@@ -1354,6 +1372,9 @@
 
 ;; (server-start)
 
+;; Display messages when idle, without prompting
+(setq help-at-pt-display-when-idle t)
+
 (setq use-dialog-box nil)
 (setq sentence-end-double-space nil)
 (setq inhibit-startup-screen t)
@@ -1374,7 +1395,7 @@
 (set-default-coding-systems 'utf-8)
 (set-keyboard-coding-system 'utf-8-unix)
 (set-terminal-coding-system 'utf-8-unix)
-(electric-pair-mode 1)
+(electric-pair-mode t)
 (setq recenter-positions '(top middle bottom))
 (global-display-line-numbers-mode t)
 (setq  display-line-numbers-type 'relative)
@@ -1384,7 +1405,7 @@
 (column-number-mode -1)
 (line-number-mode -1)
 (delete-selection-mode +1)
-(save-place-mode +1)
+(save-place-mode t)
 ;;(display-battery-mode t)
 ;;(setq display-time;5;9~-default-load-average nil)
 ;;(setq display-time-24hr-format t)
@@ -1422,18 +1443,18 @@
 (global-unset-key (kbd "C-x C-z"))
 (global-unset-key (kbd "C-z"))
 
-;;; Scrolling
+    ;;; Scrolling
 
 (setq hscroll-margin 2
       hscroll-step 1
-     scroll-conservatively 101
+      scroll-conservatively 101
       scroll-margin 0
       scroll-preserve-screen-position t
-     auto-window-vscroll nil
-     mouse-wheel-scroll-amount '(2 ((shift) . hscroll))
+      auto-window-vscroll nil
+      mouse-wheel-scroll-amount '(2 ((shift) . hscroll))
       mouse-wheel-scroll-amount-horizontal 2)
 
-;;; Cursor
+    ;;; Cursor
 (blink-cursor-mode -1)
 
 ;; Don't blink the paren matching the one at point, it's too distracting.
@@ -1451,6 +1472,9 @@
 ;; managers, where it can leave unseemly gaps.
 (setq frame-resize-pixelwise t)
 (setq pixel-dead-time 10000)
+(setq confirm-kill-emacs #'yes-or-no-p)
+(setq window-resize-pixelwise t)
+(setq frame-resize-pixelwise t)
 
 ;; But do not resize windows pixelwise, this can cause crashes in some cases
 ;; when resizing too many windows at once or rapidly.
@@ -1474,16 +1498,3 @@
                   (set-font-faces))))
     (set-font-faces))
 (put 'narrow-to-region 'disabled nil)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(solarized-theme vterm undo-tree flycheck helpful ox-pandoc no-littering vertico-posframe rainbow-delimiters rainbow-mode orderless marginalia olivetti org-modern cape markdown-mode nix-mode all-the-icons-dired dired-hide-dotfiles dired-single reddigg mingus pdf-tools which-key org-mime corfu-terminal beframe denote sdcv elfeed-org link-hint general powerthesaurus doom-modeline org-auto-tangle 0x0 embark-consult empv writeroom-mode aria2)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

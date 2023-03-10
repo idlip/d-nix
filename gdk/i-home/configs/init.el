@@ -1084,89 +1084,90 @@
                              (setq olivetti-body-width 0.45)))
 
 (defun config-reload ()
-  "Uncle dev created a function to reload Emacs config."
-  (interactive)
-  (load-file (expand-file-name "~/.config/emacs/init.el")))
+   "Uncle dev created a function to reload Emacs config."
+   (interactive)
+   (load-file (expand-file-name "~/.config/emacs/init.el")))
 
-(defvar d/buffer-url-regexp
-  (concat
-   "\\b\\(\\(www\\.\\|\\(s?https?\\|ftp\\|file\\|gopher\\|"
-   "nntp\\|news\\|telnet\\|wais\\|mailto\\|info\\):\\)"
-   "\\(//[-a-z0-9_.]+:[0-9]*\\)?"
-   (let ((chars "-a-z0-9_=#$@~%&*+\\/[:word:]")
-         (punct "!?:;.,"))
-     (concat
-      "\\(?:"
-      "[" chars punct "]+" "(" "[" chars punct "]+" ")"
-      "\\(?:" "[" chars punct "]+" "[" chars "]" "\\)?"
-      "\\|"
-      "[" chars punct "]+" "[" chars "]"
-      "\\)"))
-   "\\)")
-  "Regular expression that matches URLs.
-          Copy of variable `browse-url-button-regexp'.")
+(load-file "~/.config/emacs/aria2.el")
+ (defvar d/buffer-url-regexp
+   (concat
+    "\\b\\(\\(www\\.\\|\\(s?https?\\|ftp\\|file\\|gopher\\|"
+    "nntp\\|news\\|telnet\\|wais\\|mailto\\|info\\):\\)"
+    "\\(//[-a-z0-9_.]+:[0-9]*\\)?"
+    (let ((chars "-a-z0-9_=#$@~%&*+\\/[:word:]")
+          (punct "!?:;.,"))
+      (concat
+       "\\(?:"
+       "[" chars punct "]+" "(" "[" chars punct "]+" ")"
+       "\\(?:" "[" chars punct "]+" "[" chars "]" "\\)?"
+       "\\|"
+       "[" chars punct "]+" "[" chars "]"
+       "\\)"))
+    "\\)")
+   "Regular expression that matches URLs.
+           Copy of variable `browse-url-button-regexp'.")
 
-(defun d/buffer-links (&optional use-generic-p)
-  "Point browser at a URL in the buffer using completion.
-          Which web browser to use depends on the value of the variable
-          `browse-url-browser-function'.
-        Also see `d/print-buffer-links'."
-  (interactive "P")
-  (let ((matches nil))
-    (save-excursion
-      (goto-char (point-min))
-      (while (search-forward-regexp d/buffer-url-regexp nil t)
-        (push (match-string-no-properties 0) matches)))
-    (let ((url (completing-read "Browse URL: " matches nil t)))
-      (if use-generic-p
-          (browse-url-generic url)
-        (browse-url url)))))
+ (defun d/buffer-links (&optional use-generic-p)
+   "Point browser at a URL in the buffer using completion.
+           Which web browser to use depends on the value of the variable
+           `browse-url-browser-function'.
+         Also see `d/print-buffer-links'."
+   (interactive "P")
+   (let ((matches nil))
+     (save-excursion
+       (goto-char (point-min))
+       (while (search-forward-regexp d/buffer-url-regexp nil t)
+         (push (match-string-no-properties 0) matches)))
+     (let ((url (completing-read "Browse URL: " matches nil t)))
+       (if use-generic-p
+           (browse-url-generic url)
+         (browse-url url)))))
 
-(defun d/print-buffer-links ()
-  "Produce buttonised list of all URLs in the current buffer."
-  (interactive)
-  (add-hook 'occur-hook #'goto-address-mode)
-  (occur d/buffer-url-regexp "\\&")
-  (remove-hook 'occur-hook #'goto-address-mode)
-  (other-window 1))
+ (defun d/print-buffer-links ()
+   "Produce buttonised list of all URLs in the current buffer."
+   (interactive)
+   (add-hook 'occur-hook #'goto-address-mode)
+   (occur d/buffer-url-regexp "\\&")
+   (remove-hook 'occur-hook #'goto-address-mode)
+   (other-window 1))
 
-;; Bionic Reading
+ ;; Bionic Reading
 
-(defvar bionic-reading-face nil "a face for `d/bionic-region'.")
+ (defvar bionic-reading-face nil "a face for `d/bionic-region'.")
 
-(setq bionic-reading-face 'bold)
-;; try
-;; 'bold
-;; 'error
-;; 'warning
-;; 'highlight
-;; or any value of M-x list-faces-display
+ (setq bionic-reading-face 'bold)
+ ;; try
+ ;; 'bold
+ ;; 'error
+ ;; 'warning
+ ;; 'highlight
+ ;; or any value of M-x list-faces-display
 
-(defun d/bionic-read ()
-  "Bold the first few chars of every word in current buffer.
-      Version 2022-05-21"
-  (interactive)
-  (read-only-mode -1)
-  (d/bionic-region (point-min) (point-max))
-  (read-only-mode 1)
-  (beginning-of-buffer))
+ (defun d/bionic-read ()
+   "Bold the first few chars of every word in current buffer.
+       Version 2022-05-21"
+   (interactive)
+   (read-only-mode -1)
+   (d/bionic-region (point-min) (point-max))
+   (read-only-mode 1)
+   (beginning-of-buffer))
 
-(defun d/bionic-region (Begin End)
-  "Bold the first few chars of every word in region.
-      Version 2022-05-21"
-  (interactive "r")
-  (let (xBounds xWordBegin xWordEnd  )
-    (save-restriction
-      (narrow-to-region Begin End)
-      (goto-char (point-min))
-      (while (forward-word)
-        ;; bold the first half of the word to the left of cursor
-        (setq xBounds (bounds-of-thing-at-point 'word))
-        (setq xWordBegin (car xBounds))
-        (setq xWordEnd (cdr xBounds))
-        (setq xBoldEndPos (+ xWordBegin (1+ (/ (- xWordEnd xWordBegin) 2))))
-        (put-text-property xWordBegin xBoldEndPos
-                           'font-lock-face bionic-reading-face)))))
+ (defun d/bionic-region (Begin End)
+   "Bold the first few chars of every word in region.
+       Version 2022-05-21"
+   (interactive "r")
+   (let (xBounds xWordBegin xWordEnd  )
+     (save-restriction
+       (narrow-to-region Begin End)
+       (goto-char (point-min))
+       (while (forward-word)
+         ;; bold the first half of the word to the left of cursor
+         (setq xBounds (bounds-of-thing-at-point 'word))
+         (setq xWordBegin (car xBounds))
+         (setq xWordEnd (cdr xBounds))
+         (setq xBoldEndPos (+ xWordBegin (1+ (/ (- xWordEnd xWordBegin) 2))))
+         (put-text-property xWordBegin xBoldEndPos
+                            'font-lock-face bionic-reading-face)))))
 
 (use-package elfeed
   :defer t
@@ -1398,8 +1399,8 @@
  eww-search-prefix "https://lite.duckduckgo.com/lite/?q=")
 
 ;; Set frame transparency
-(set-frame-parameter (selected-frame) 'alpha-background 62)
-(add-to-list 'default-frame-alist `(alpha-background . 62))
+(set-frame-parameter (selected-frame) 'alpha-background 82)
+(add-to-list 'default-frame-alist `(alpha-background . 82))
 (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
@@ -1473,3 +1474,16 @@
                   (set-font-faces))))
     (set-font-faces))
 (put 'narrow-to-region 'disabled nil)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(solarized-theme vterm undo-tree flycheck helpful ox-pandoc no-littering vertico-posframe rainbow-delimiters rainbow-mode orderless marginalia olivetti org-modern cape markdown-mode nix-mode all-the-icons-dired dired-hide-dotfiles dired-single reddigg mingus pdf-tools which-key org-mime corfu-terminal beframe denote sdcv elfeed-org link-hint general powerthesaurus doom-modeline org-auto-tangle 0x0 embark-consult empv writeroom-mode aria2)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

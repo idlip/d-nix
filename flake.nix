@@ -13,7 +13,7 @@
 
     xdg-portal-hyprland.url = "github:hyprwm/xdg-desktop-portal-hyprland";
 
-    emacs-overlay = {                                                     # Emacs Overlays
+    emacs-overlay = {   
       url = "github:nix-community/emacs-overlay";
     };
     home-manager = {

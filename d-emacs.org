@@ -26,8 +26,6 @@ CLOSED: [2023-03-07 Tue 14:27]
 **** PLAN Planning 😴 [0/5]
 - [ ] add these stuffs.
   #+begin_src conf
-;; Show word-granularity differences within diff hunks
-(setq magit-diff-refine-hunk t)
 
 ;; Enable `diff-hl' support by default in programming buffers
 (add-hook 'prog-mode-hook #'diff-hl-mode)
@@ -1222,37 +1220,48 @@ Managing frames and their buffers handy way. Gets rid of using tab-bar or window
 * Language - IDE maybe? 💻
 I'm not a programmer, maybe will be expanded in future..
 #+begin_src emacs-lisp
-  (use-package nix-mode)
+      (use-package nix-mode)
 
-  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
-  (add-hook 'prog-mode-hook #'eglot-ensure)
-  (add-hook 'prog-mode-hook #'flycheck-mode)
+      (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+      (add-hook 'prog-mode-hook #'eglot-ensure)
+      (add-hook 'prog-mode-hook #'flycheck-mode)
 
-  (use-package markdown-mode
-    :mode "\\.md\\'"
+      (use-package markdown-mode
+        :mode "\\.md\\'"
+        :config
+        (defun d/set-markdown-header-font-sizes ()
+          (dolist (face '((markdown-header-face-1 . 1.3)
+                          (markdown-header-face-2 . 1.2)
+                          (markdown-header-face-3 . 1.15)
+                          (markdown-header-face-4 . 1.1)
+                          (markdown-header-face-5 . 1.0)))
+            (set-face-attribute (car face) nil :weight 'normal :font "Comic Mono" :height (cdr face))))
+
+        (defun d/markdown-mode-hook ()
+          (d/set-markdown-header-font-sizes))
+
+        (add-hook 'markdown-mode-hook 'd/markdown-mode-hook))
+
+      (use-package eglot
+        :config
+        (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
+        (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
+        (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
+        :hook
+        (nix-mode . eglot-ensure)
+        (bash-ts-mode . eglot-ensure)
+        (markdown-mode-hook . marksman)
+        :custom
+        (setq eglot-autoshutdown t))
+#+end_src
+* Git Controller 
+Magit the killer beast after org-mode.
+#+begin_src emacs-lisp
+  (use-package magit
     :config
-    (defun d/set-markdown-header-font-sizes ()
-      (dolist (face '((markdown-header-face-1 . 1.3)
-                      (markdown-header-face-2 . 1.2)
-                      (markdown-header-face-3 . 1.15)
-                      (markdown-header-face-4 . 1.1)
-                      (markdown-header-face-5 . 1.0)))
-        (set-face-attribute (car face) nil :weight 'normal :font "Comic Mono" :height (cdr face))))
-
-    (defun d/markdown-mode-hook ()
-      (d/set-markdown-header-font-sizes))
-
-    (add-hook 'markdown-mode-hook 'd/markdown-mode-hook))
-
-  (use-package eglot
-    :config
-    (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
-    (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
-    (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
-    :hook
-    (nix-mode . eglot-ensure)
-    (bash-ts-mode . eglot-ensure)
-    (markdown-mode-hook . marksman))
+    ;; Show word-granularity differences within diff hunks
+    (setq magit-diff-refine-hunk t)
+    )
 #+end_src
 * File Manager 📂
 Not that intuitive to use as file manager, once you get a hand of emacs. You will thank for this.

@@ -1001,7 +1001,15 @@ org-modern-list
   :hook
   (nix-mode . eglot-ensure)
   (bash-ts-mode . eglot-ensure)
-  (markdown-mode-hook . marksman))
+  (markdown-mode-hook . marksman)
+  :custom
+  (setq eglot-autoshutdown t))
+
+(use-package magit
+  :config
+  ;; Show word-granularity differences within diff hunks
+  (setq magit-diff-refine-hunk t)
+  )
 
 (use-package dired
   :ensure nil

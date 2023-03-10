@@ -47,7 +47,7 @@ If you really wanna talk/discuss with me, open an issue so I will join on some m
 
 I manage my whole system with single org file. Its easy and pretty handy. You can read that file here *↬* [[file:d-setup.org][d-setup.org]] , its both self documenting and has all source code blocks.
 
-Another key feature in my setup is, every file i tangle in at *read-only mode*. So generally we can avoid editing/touching them. Thus, every action has to be made in *d-setup.org* only.
+Another key feature in my setup is, every file i tangle is at *read-only mode*. So generally we can avoid editing/touching them. Thus, every action has to be made in *d-setup.org* only.
 
 Also, I have made files to be *symlink*, so i can edit them without requiring to rebuild whole thing!
 
@@ -57,7 +57,7 @@ Also, I have made files to be *symlink*, so i can edit them without requiring to
 
 *** Now if you get doubt of, "Should I try NixOS?" ❄️
 
-Here is an answer from a non-programmer, who just browse and watches media.
+Here is an answer from a non-programmer, who just browses and watches media.
 Just don't, if you are looking for small benefit. Don't!
 You will regret having hard time to figure out petty things, again forget about error, you cannot even search in web.
 

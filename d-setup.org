@@ -1629,7 +1629,7 @@ Moves the ToolBar to the bottom of the Frame
     #toolbar-menubar > .titlebar-buttonbox-container{ order: 1000 }
 
     /* Fix panels sizing */
-    .panel-viewstack{ max-height: unset !important; }
+#    .panel-viewstack{ max-height: unset !important; }
 
     /* Fullscreen mode support */
     #navigator-toolbox[inFullscreen]{ margin-top: 0 !important }
@@ -1645,7 +1645,7 @@ Moves the ToolBar to the bottom of the Frame
 
     /* Suppress Link Destination Overlay */
     #statuspanel[type="overLink"] {
-    display: none !important;
+#    display: none !important;
   }
 #+end_src
 ********* AutoHide ToolBars
@@ -2189,14 +2189,14 @@ https://www.youtube.com/feeds/videos.xml?channel_id=UCAiiOTio8Yu69c3XnR7nQBQ ema
         exclusive = true;
         modules-left = [
           "custom/launcher"
-                "wlr/workspaces"
+          "wlr/workspaces"
           "hyprland/window"
           "hyprland/submap"
         ];
         modules-center = [
           "clock"
         ];
-        modules-right = ["network" "memory" "pulseaudio" "custom/power"];
+        modules-right = ["network" "battery" "memory" "pulseaudio" "custom/power"];
         "wlr/workspaces" = {
           format = "{icon}";
           active-only = false;
@@ -2221,13 +2221,25 @@ https://www.youtube.com/feeds/videos.xml?channel_id=UCAiiOTio8Yu69c3XnR7nQBQ ema
         "hyprland/submap" = {
           "format" = " {}";
           "max-length" = 14;
-                "tooltip" = false;
-              };
+          "tooltip" = false;
+        };
 
         "custom/launcher" = {
           format = " ";
           tooltip = false;
           on-click = "bemenu-run";
+        };
+
+        "battery": {
+          "bat": "BAT0",
+          "interval": 30,
+          "states": {
+            "warning": 50,
+            "critical": 30
+          },
+          "format": "{capacity}% {icon}",
+          "format-icons": ["", "", "", "", ""],
+          "max-length": 25
         };
 
         "custom/power" = {
@@ -2265,7 +2277,7 @@ https://www.youtube.com/feeds/videos.xml?channel_id=UCAiiOTio8Yu69c3XnR7nQBQ ema
           "format" = "{icon} {volume: >3}%";
           "format-bluetooth" = "{icon} {volume: >3}%";
           "format-muted" =" muted";
-                "on-click" = "pamixer -t";
+          "on-click" = "pamixer -t";
           "format-icons" = {
             "headphones" = "";
             "handsfree" = "";
@@ -2283,125 +2295,130 @@ https://www.youtube.com/feeds/videos.xml?channel_id=UCAiiOTio8Yu69c3XnR7nQBQ ema
 #+end_src
 ******* Style.css
 #+begin_src css :tangle ./gdk/i-home/configs/style.css
- *{
-    color: #ffffff;
-    border: 0;
-    border-radius: 10px;
-    padding: 0 0;
-    font-family:ComicCodeLigatures Bold;
-    font-size: 24px;
-    margin-right: 5px;
-    margin-left: 5px;
-    padding-bottom:3px;
-    min-height: 45px;
-}
+  ,*{
+      color: #ffffff;
+      border: 0;
+      border-radius: 10px;
+      padding: 0 0;
+      font-family:ComicCodeLigatures Bold;
+      font-size: 24px;
+      margin-right: 5px;
+      margin-left: 5px;
+      padding-bottom:3px;
+      min-height: 45px;
+  }
 
-window#waybar {
-    background: transparent;
-    background: rgba(00, 00, 00, 0.0);
-}
+  window#waybar {
+      background: transparent;
+      background: rgba(00, 00, 00, 0.0);
+  }
 
-#workspaces button {
-    border-radius: 20px;
-    background-color: #11111b;
-    color: #ffff00;
+  #workspaces button {
+      border-radius: 20px;
+      background-color: #11111b;
+      color: #ffff00;
 
-}
+  }
 
-#workspaces button.active {
-    border-color: #89DCEB ;
-    padding-bottom:5px ;
-}
+  #workspaces button.active {
+      border-color: #89DCEB ;
+      padding-bottom:5px ;
+  }
 
-#mode {
-    color: #ebcb8b;
-}
+  #mode {
+      color: #ebcb8b;
+  }
 
-#mpd,#workspaces, #submap, #clock, #cpu, #memory,#network, #pulseaudio, #window,#custom-launcher,#custom-power{
-    padding: 0 3px;
-    border-bottom: 2px;
-    border-style: solid;
-    border-radius: 15px 15px 15px 15px;
-  background-color: #11111b;
-  margin-top: 3px;
-  padding-top: 1px;
-  padding-left: 13px;
-  padding-right: 3px;
-    opacity: 1.0;
-}
- 
-#window {
-    border-radius: 20px;
-    padding-left: 10px;
-    padding-right: 10px;
-    color:#ffd700;
-    margin-top:1px;
-    border-color:#ffd700;
-}
+  #battery, #mpd,#workspaces, #submap, #clock, #cpu, #memory,#network, #pulseaudio, #window,#custom-launcher,#custom-power{
+      padding: 0 3px;
+      border-bottom: 2px;
+      border-style: solid;
+      border-radius: 15px 15px 15px 15px;
+      background-color: #11111b;
+      margin-top: 3px;
+      padding-top: 1px;
+      padding-left: 13px;
+      padding-right: 3px;
+      opacity: 1.0;
+      font-size: 20px;
+  }
 
-#clock {
- color:#89b4fa;
-}
+  #window {
+      border-radius: 20px;
+      padding-left: 10px;
+      padding-right: 10px;
+      color:#ffd700;
+      margin-top:1px;
+      border-color:#ffd700;
+  }
 
-#mpd {
-  color: #cdd6f4;
-}
+  #clock {
+      color:#89b4fa;
+  }
 
-
-#cpu {
-  color:#a6e3a1;
-}
+  #mpd {
+      color: #cdd6f4;
+  }
 
 
-#memory {
-  color: #94e2d5;
-  color: #cba6f7;
-}
+  #cpu {
+      color:#a6e3a1;
+  }
 
-#network.disabled {
-    color:#bf616a;
-}
 
-#network{
-    color:#f9e2af;
-}
+  #memory {
+      color: #94e2d5;
+      color: #cba6f7;
+  }
 
-#network.disconnected {
-    color: #bf616a;
-}
+  #network.disabled {
+      color:#bf616a;
+  }
 
-#pulseaudio {
-  color: #a6e3a1;
-}
+  #network{
+      color:#f9e2af;
+  }
 
-#pulseaudio.muted {
-    color: #3b4252;
-}
+  #battery {
+      color:#ff6347;
+  }
 
-#custom-launcher {
-    font-family:Fira Code Nerd Font;
-    font-size:40px;
-    color:#000000;
-    border-color: #121212;
-    border-radius: 20px 20px 20px 20px;
-    background: linear-gradient(90deg, #bcd2ee 28%, #fff0f5 85%, #ffe4e1 100%);
+  #network.disconnected {
+      color: #bf616a;
+  }
 
-}
+  #pulseaudio {
+      color: #a6e3a1;
+  }
 
-#custom-power {
-  font-family: Fira Code Nerd Font;
-  font-size: 22px;
-  color:#f38ba8;
-  border-radius: 30px 30px 30px 30px;
+  #pulseaudio.muted {
+      color: #3b4252;
+  }
 
-}
+  #custom-launcher {
+      font-family:Fira Code Nerd Font;
+      font-size:40px;
+      color:#000000;
+      border-color: #121212;
+      border-radius: 20px 20px 20px 20px;
+      background: linear-gradient(90deg, #bcd2ee 28%, #fff0f5 85%, #ffe4e1 100%);
 
-#submap {
-  color:#eb9;
-}
-#mode{
-    margin-bottom:3px;
-}
+  }
+
+  #custom-power {
+      font-family: Fira Code Nerd Font;
+      font-size: 22px;
+      color:#f38ba8;
+      border-radius: 30px 30px 30px 30px;
+
+  }
+
+  #submap {
+      color:#eb9;
+  }
+  #mode{
+      margin-bottom:3px;
+  }
 
 
 #+end_src

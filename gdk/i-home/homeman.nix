@@ -699,74 +699,74 @@ margin-top: calc(0px - var(--uc-toolbar-height));
   #customization-panelWrapper > .panel-arrowbox > .panel-arrow{ margin-inline-end: initial !important; }
 
 /* Source file https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome/toolbars_below_content.css made available under Mozilla Public License v. 2.0
-See the above repository for updates as well as full license text. */
+  See the above repository for updates as well as full license text. */
 
-/* Moves tabs toolbar, bookmarks toolbar and main toolbar to the bottom of the window, and makes tabs be the bottom-most toolbar */
+  /* Moves tabs toolbar, bookmarks toolbar and main toolbar to the bottom of the window, and makes tabs be the bottom-most toolbar */
 
-/* By default, menubar will stay on top with two options to select it's behavior - see below */
+  /* By default, menubar will stay on top with two options to select it's behavior - see below */
 
-@-moz-document url(chrome://browser/content/browser.xhtml){
+  @-moz-document url(chrome://browser/content/browser.xhtml){
 
-  /* Dummy variable to support versions 94-96, can be removed when 96 lands */
-  :root{ --lwt-frame: var(--lwt-accent-color) }
+    /* Dummy variable to support versions 94-96, can be removed when 96 lands */
+    :root{ --lwt-frame: var(--lwt-accent-color) }
 
-    #titlebar{ -moz-appearance: none !important; }
+      #titlebar{ -moz-appearance: none !important; }
 
-    #navigator-toolbox > div{ display: contents }
-    .global-notificationbox,
-    #mainPopupSet,
-    #browser,
-    #customization-container,
-    #tab-notification-deck{
-    -moz-box-ordinal-group: 0
-}
+      #navigator-toolbox > div{ display: contents }
+      .global-notificationbox,
+      #mainPopupSet,
+      #browser,
+      #customization-container,
+      #tab-notification-deck{
+      -moz-box-ordinal-group: 0
+  }
 
-  /* Remove the next row if you want tabs to be the top-most row */
+    /* Remove the next row if you want tabs to be the top-most row */
 
-  #toolbar-menubar{
-  position: fixed;
-display: flex;
-width: 100vw;
-top: 0px;
--moz-window-dragging: drag;
-}
-/* Remove bottom border that won't do anything useful when at bottom of the window */
-#navigator-toolbox{ border-bottom: none !important; }
+    #toolbar-menubar{
+    position: fixed;
+  display: flex;
+  width: 100vw;
+  top: 0px;
+  -moz-window-dragging: drag;
+  }
+  /* Remove bottom border that won't do anything useful when at bottom of the window */
+  #navigator-toolbox{ border-bottom: none !important; }
 
-#toolbar-menubar > spacer{ flex-grow: 1 }
+  #toolbar-menubar > spacer{ flex-grow: 1 }
 
-#urlbar[breakout][breakout-extend]{
-display: flex !important;
-flex-direction: column-reverse;
-bottom: -2px !important; /* Change to 3-5 px if using compact_urlbar_megabar.css depending on toolbar density */
-top: auto !important;
-}
+  #urlbar[breakout][breakout-extend]{
+  display: flex !important;
+  flex-direction: column-reverse;
+  bottom: -2px !important; /* Change to 3-5 px if using compact_urlbar_megabar.css depending on toolbar density */
+  top: auto !important;
+  }
 
-.urlbarView-body-inner{ border-top-style: none !important; }
+  .urlbarView-body-inner{ border-top-style: none !important; }
 
-  /* Yeah, removes window controls. Likely not wanted on bottom row  */
-  #TabsToolbar > .titlebar-buttonbox-container{ display: none }
-  #toolbar-menubar > .titlebar-buttonbox-container{ order: 1000 }
+    /* Yeah, removes window controls. Likely not wanted on bottom row  */
+    #TabsToolbar > .titlebar-buttonbox-container{ display: none }
+    #toolbar-menubar > .titlebar-buttonbox-container{ order: 1000 }
 
-  /* Fix panels sizing */
-  .panel-viewstack{ max-height: unset !important; }
+    /* Fix panels sizing */
+#    .panel-viewstack{ max-height: unset !important; }
 
-  /* Fullscreen mode support */
-  #navigator-toolbox[inFullscreen]{ margin-top: 0 !important }
-  #navigator-toolbox[inFullscreen][style*="margin-top"]{ visibility: collapse }
-  #fullscr-toggler{ bottom: 0; top: unset !important; }
+    /* Fullscreen mode support */
+    #navigator-toolbox[inFullscreen]{ margin-top: 0 !important }
+    #navigator-toolbox[inFullscreen][style*="margin-top"]{ visibility: collapse }
+    #fullscr-toggler{ bottom: 0; top: unset !important; }
 
-  /* These three rules exist for compatibility with autohide_toolbox.css */
-  #navigator-toolbox{ bottom: 0px; transform-origin: bottom }
-  #main-window > body > box{ margin-top: 0 !important; }
-  #toolbar-menubar{ z-index: 1; background-color: var(--lwt-frame,black); }
+    /* These three rules exist for compatibility with autohide_toolbox.css */
+    #navigator-toolbox{ bottom: 0px; transform-origin: bottom }
+    #main-window > body > box{ margin-top: 0 !important; }
+    #toolbar-menubar{ z-index: 1; background-color: var(--lwt-frame,black); }
 
-  #titlebar{ -moz-box-direction: normal; }
+    #titlebar{ -moz-box-direction: normal; }
 
-  /* Suppress Link Destination Overlay */
-  #statuspanel[type="overLink"] {
-  display: none !important;
-}
+    /* Suppress Link Destination Overlay */
+    #statuspanel[type="overLink"] {
+#    display: none !important;
+  }
 
 /* Source file https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome/autohide_main_toolbar.css made available under Mozilla Public License v. 2.0
 See the above repository for updates as well as full license text. */
@@ -1165,14 +1165,14 @@ programs.waybar = {
       exclusive = true;
       modules-left = [
         "custom/launcher"
-              "wlr/workspaces"
+        "wlr/workspaces"
         "hyprland/window"
         "hyprland/submap"
       ];
       modules-center = [
         "clock"
       ];
-      modules-right = ["network" "memory" "pulseaudio" "custom/power"];
+      modules-right = ["network" "battery" "memory" "pulseaudio" "custom/power"];
       "wlr/workspaces" = {
         format = "{icon}";
         active-only = false;
@@ -1197,13 +1197,25 @@ programs.waybar = {
       "hyprland/submap" = {
         "format" = " {}";
         "max-length" = 14;
-              "tooltip" = false;
-            };
+        "tooltip" = false;
+      };
 
       "custom/launcher" = {
         format = " ";
         tooltip = false;
         on-click = "bemenu-run";
+      };
+
+      "battery": {
+        "bat": "BAT0",
+        "interval": 30,
+        "states": {
+          "warning": 50,
+          "critical": 30
+        },
+        "format": "{capacity}% {icon}",
+        "format-icons": ["", "", "", "", ""],
+        "max-length": 25
       };
 
       "custom/power" = {
@@ -1241,7 +1253,7 @@ programs.waybar = {
         "format" = "{icon} {volume: >3}%";
         "format-bluetooth" = "{icon} {volume: >3}%";
         "format-muted" =" muted";
-              "on-click" = "pamixer -t";
+        "on-click" = "pamixer -t";
         "format-icons" = {
           "headphones" = "";
           "handsfree" = "";

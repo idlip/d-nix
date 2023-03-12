@@ -32,19 +32,20 @@ window#waybar {
     color: #ebcb8b;
 }
 
-#mpd,#workspaces, #submap, #clock, #cpu, #memory,#network, #pulseaudio, #window,#custom-launcher,#custom-power{
+#battery, #mpd,#workspaces, #submap, #clock, #cpu, #memory,#network, #pulseaudio, #window,#custom-launcher,#custom-power{
     padding: 0 3px;
     border-bottom: 2px;
     border-style: solid;
     border-radius: 15px 15px 15px 15px;
-  background-color: #11111b;
-  margin-top: 3px;
-  padding-top: 1px;
-  padding-left: 13px;
-  padding-right: 3px;
+    background-color: #11111b;
+    margin-top: 3px;
+    padding-top: 1px;
+    padding-left: 13px;
+    padding-right: 3px;
     opacity: 1.0;
+    font-size: 20px;
 }
- 
+
 #window {
     border-radius: 20px;
     padding-left: 10px;
@@ -55,22 +56,22 @@ window#waybar {
 }
 
 #clock {
- color:#89b4fa;
+    color:#89b4fa;
 }
 
 #mpd {
-  color: #cdd6f4;
+    color: #cdd6f4;
 }
 
 
 #cpu {
-  color:#a6e3a1;
+    color:#a6e3a1;
 }
 
 
 #memory {
-  color: #94e2d5;
-  color: #cba6f7;
+    color: #94e2d5;
+    color: #cba6f7;
 }
 
 #network.disabled {
@@ -81,12 +82,16 @@ window#waybar {
     color:#f9e2af;
 }
 
+#battery {
+    color:#ff6347;
+}
+
 #network.disconnected {
     color: #bf616a;
 }
 
 #pulseaudio {
-  color: #a6e3a1;
+    color: #a6e3a1;
 }
 
 #pulseaudio.muted {
@@ -104,15 +109,15 @@ window#waybar {
 }
 
 #custom-power {
-  font-family: Fira Code Nerd Font;
-  font-size: 22px;
-  color:#f38ba8;
-  border-radius: 30px 30px 30px 30px;
+    font-family: Fira Code Nerd Font;
+    font-size: 22px;
+    color:#f38ba8;
+    border-radius: 30px 30px 30px 30px;
 
 }
 
 #submap {
-  color:#eb9;
+    color:#eb9;
 }
 #mode{
     margin-bottom:3px;

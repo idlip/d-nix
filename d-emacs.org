@@ -903,9 +903,7 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
           browse-url-generic-program "d-stuff")
 
     (setq org-agenda-files
-          '("~/sync/org/tasks.org"
-            "~/sync/org/mails.org"
-            "~/sync/org/one-time.org"))
+          '("~/sync/org/tasks.org"))
 
     ;; (require 'org-habit)
     ;; (add-to-list 'org-modules 'org-habit)
@@ -913,7 +911,7 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
 
     (setq org-todo-keywords
           '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
-            (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
+            (sequence  "PLAN(p)" "REVIEW(v)" "|" "COMPLETED(c)" "CANC(k@)")))
 
     (setq org-refile-targets
           '(("Archive.org" :maxlevel . 1)
@@ -1199,9 +1197,9 @@ After long  usage, you will realize that Modus-themes is a *masterpiece* made by
           modus-themes-org-blocks 'gray-background
 
           modus-themes-headings
-          '((1 . (variable-pitch 1.5))
-            (2 . (1.3))
-            (agenda-date . (1.3))
+          '((1 . (variable-pitch 1.1))
+            (2 . (1.1))
+            (agenda-date . (1.2))
             (agenda-structure . (variable-pitch light 1.8))
             (t . (1.1))))
     (load-theme 'modus-vivendi t)
@@ -1241,39 +1239,46 @@ Managing frames and their buffers handy way. Gets rid of using tab-bar or window
 * Language - IDE maybe? 💻
 I'm not a programmer, maybe will be expanded in future..
 #+begin_src emacs-lisp
-      (use-package nix-mode)
+  (use-package nix-mode)
 
-      (add-hook 'prog-mode-hook #'display-line-numbers-mode)
-      (add-hook 'prog-mode-hook #'eglot-ensure)
-      (add-hook 'prog-mode-hook #'flycheck-mode)
+  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+  (add-hook 'prog-mode-hook #'eglot-ensure)
+  (add-hook 'prog-mode-hook #'flycheck-mode)
 
-      (use-package markdown-mode
-        :mode "\\.md\\'"
-        :config
-        (defun d/set-markdown-header-font-sizes ()
-          (dolist (face '((markdown-header-face-1 . 1.3)
-                          (markdown-header-face-2 . 1.2)
-                          (markdown-header-face-3 . 1.15)
-                          (markdown-header-face-4 . 1.1)
-                          (markdown-header-face-5 . 1.0)))
-            (set-face-attribute (car face) nil :weight 'normal :font "Comic Mono" :height (cdr face))))
+  (use-package markdown-mode
+    :mode "\\.md\\'"
+    :config
+    (defun d/set-markdown-header-font-sizes ()
+      (dolist (face '((markdown-header-face-1 . 1.3)
+                      (markdown-header-face-2 . 1.2)
+                      (markdown-header-face-3 . 1.15)
+                      (markdown-header-face-4 . 1.1)
+                      (markdown-header-face-5 . 1.0)))
+        (set-face-attribute (car face) nil :weight 'normal :font "Comic Mono" :height (cdr face))))
 
-        (defun d/markdown-mode-hook ()
-          (d/set-markdown-header-font-sizes))
+    (defun d/markdown-mode-hook ()
+      (d/set-markdown-header-font-sizes))
 
-        (add-hook 'markdown-mode-hook 'd/markdown-mode-hook))
+    (add-hook 'markdown-mode-hook 'd/markdown-mode-hook))
 
-      (use-package eglot
-        :config
-        (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
-        (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
-        (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
-        :hook
-        (nix-mode . eglot-ensure)
-        (bash-ts-mode . eglot-ensure)
-        (markdown-mode-hook . marksman)
-        :custom
-        (setq eglot-autoshutdown t))
+  (use-package eglot
+    :init
+      (setq eglot-sync-connect 1
+        eglot-connect-timeout 10
+        eglot-autoshutdown t
+        eglot-send-changes-idle-time 0.5
+        ;; NOTE We disable eglot-auto-display-help-buffer because :select t in
+        ;;      its popup rule causes eglot to steal focus too often.
+        eglot-auto-display-help-buffer nil)
+    :config
+    (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
+    (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
+    (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
+    :hook
+    (nix-mode . eglot-ensure)
+    (bash-ts-mode . eglot-ensure)
+    (markdown-mode-hook . marksman))
+
 #+end_src
 * Git Controller 
 Magit the killer beast after org-mode.

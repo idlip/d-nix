@@ -687,9 +687,7 @@ org-modern-list
         browse-url-generic-program "d-stuff")
 
   (setq org-agenda-files
-        '("~/sync/org/tasks.org"
-          "~/sync/org/mails.org"
-          "~/sync/org/one-time.org"))
+        '("~/sync/org/tasks.org"))
 
   ;; (require 'org-habit)
   ;; (add-to-list 'org-modules 'org-habit)
@@ -697,7 +695,7 @@ org-modern-list
 
   (setq org-todo-keywords
         '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
-          (sequence "BACKLOG(b)" "PLAN(p)" "READY(r)" "ACTIVE(a)" "REVIEW(v)" "WAIT(w@/!)" "HOLD(h)" "|" "COMPLETED(c)" "CANC(k@)")))
+          (sequence  "PLAN(p)" "REVIEW(v)" "|" "COMPLETED(c)" "CANC(k@)")))
 
   (setq org-refile-targets
         '(("Archive.org" :maxlevel . 1)
@@ -956,9 +954,9 @@ org-modern-list
       modus-themes-org-blocks 'gray-background
 
       modus-themes-headings
-      '((1 . (variable-pitch 1.5))
-        (2 . (1.3))
-        (agenda-date . (1.3))
+      '((1 . (variable-pitch 1.1))
+        (2 . (1.1))
+        (agenda-date . (1.2))
         (agenda-structure . (variable-pitch light 1.8))
         (t . (1.1))))
 (load-theme 'modus-vivendi t)
@@ -1013,6 +1011,14 @@ org-modern-list
   (add-hook 'markdown-mode-hook 'd/markdown-mode-hook))
 
 (use-package eglot
+  :init
+    (setq eglot-sync-connect 1
+      eglot-connect-timeout 10
+      eglot-autoshutdown t
+      eglot-send-changes-idle-time 0.5
+      ;; NOTE We disable eglot-auto-display-help-buffer because :select t in
+      ;;      its popup rule causes eglot to steal focus too often.
+      eglot-auto-display-help-buffer nil)
   :config
   (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
   (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
@@ -1020,9 +1026,7 @@ org-modern-list
   :hook
   (nix-mode . eglot-ensure)
   (bash-ts-mode . eglot-ensure)
-  (markdown-mode-hook . marksman)
-  :custom
-  (setq eglot-autoshutdown t))
+  (markdown-mode-hook . marksman))
 
 (use-package magit
   :config

@@ -1206,16 +1206,16 @@ programs.waybar = {
         on-click = "bemenu-run";
       };
 
-      "battery": {
-        "bat": "BAT0",
-        "interval": 30,
-        "states": {
-          "warning": 50,
-          "critical": 30
-        },
-        "format": "{capacity}% {icon}",
-        "format-icons": ["", "", "", "", ""],
-        "max-length": 25
+      "battery" =  {
+        "bat" =  "BAT0";
+        "interval" =  30;
+        "states" =  {
+          "warning" =  50;
+          "critical" =  30;
+        };
+        "format" =  "{capacity}% {icon}";
+        "format-icons" =  ["" "" "" "" ""];
+        "max-length" =  25;
       };
 
       "custom/power" = {

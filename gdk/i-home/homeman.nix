@@ -479,7 +479,7 @@ programs.emacs = {
     orderless consult marginalia embark embark-consult org olivetti org-modern corfu
     cape markdown-mode nix-mode rust-mode lua-mode
     all-the-icons all-the-icons-dired async dired-hide-dotfiles dired-single
-    reddigg mingus pdf-tools which-key magit aria2
+    reddigg mingus pdf-tools which-key magit aria2 webpaste
     org-mime corfu-terminal beframe denote
     sdcv elfeed elfeed-org link-hint general powerthesaurus
     doom-modeline org-auto-tangle 

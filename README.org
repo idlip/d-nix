@@ -7,7 +7,7 @@
 | Window Manager          | [[https://hyprland.org/][Hyprland]] 🌸                         |
 | Text Editor             | [[https://www.gnu.org/software/emacs/][Emacs]] 💮                            |
 | Gtk Theme               | [[https://github.com/Fausto-Korpsvart/Gruvbox-GTK-Theme][Gruvbox]] / [[https://github.com/vinceliuice/Orchis-theme][Orchis]] 🎨                 |
-| Font                    | [[https://tosche.net/fonts/comic-code][Comic Code]] / [[https://github.com/dtinth/comic-mono-font][Comic Mono]] / [[https//github.com/tonsky/FiraCode][Fira Code]] |
+| Font                    | [[https://tosche.net/fonts/comic-code][Comic Code]] / [[https://github.com/dtinth/comic-mono-font][Comic Mono]] / [[https://github.com/tonsky/FiraCode][Fira Code]] |
 | Pdf Reader              | [[https://github.com/ahrm/sioyek][Sioyek]] 📔 (ditch zathura)           |
 | Media Player            | [[https://mpv.io][MPV!]] 🎬 (its MVP too)               |
 | RSS Reader              | [[https://github.com/skeeto/elfeed][Elfeed]] 📰 (Again, Emacs)            |

@@ -99,10 +99,19 @@
       (set-register '_ (list (current-window-configuration)))
       (delete-other-windows))))
 
+(defun org-archive-done-tasks ()
+(interactive)
+(org-map-entries
+ (lambda ()
+   (org-archive-subtree)
+   (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+ "/DONE" 'tree))
+
 (global-set-key (kbd "M-v") #'d/scroll-up)
 (global-set-key (kbd "C-v") #'d/scroll-down)
 (global-set-key (kbd "C-<f5>") #'d/refresh-buffer)
 
+(define-key org-mode-map (kbd "C-c C-x C-s") #'org-archive-done-tasks)
 (global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
 (global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
 (global-set-key [C-tab] 'other-window)
@@ -1011,6 +1020,7 @@ org-modern-list
   (add-hook 'markdown-mode-hook 'd/markdown-mode-hook))
 
 (use-package eglot
+  :defer t
   :init
     (setq eglot-sync-connect 1
       eglot-connect-timeout 10
@@ -1029,6 +1039,7 @@ org-modern-list
   (markdown-mode-hook . marksman))
 
 (use-package magit
+  :defer t
   :config
   ;; Show word-granularity differences within diff hunks
   (setq magit-diff-refine-hunk t)
@@ -1071,7 +1082,17 @@ org-modern-list
   (advice-add 'mingus-playlist-mode :after #'olivetti-mode)
   (advice-add 'mingus-browse-mode :after #'olivetti-mode))
 ;; (use-package wikinforg)
-(use-package 0x0)
+(use-package webpaste
+  :ensure t
+  :bind (("C-c C-p C-b" . webpaste-paste-buffer)
+         ("C-c C-p C-r" . webpaste-paste-region)
+         ("C-c C-p C-p" . webpaste-paste-buffer-or-region))
+  :config
+  (setq webpaste-provider-priority '("dpaste.org" "dpaste.com" "paste.mozilla.org"))
+  ;; Require confirmation before doing paste
+  (setq webpaste-paste-confirmation t)
+  )
+
 (use-package sdcv
   :config
   (setq sdcv-say-word-p t)

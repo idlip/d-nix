@@ -92,10 +92,9 @@ Some of the highlights which you might wanna copy or take from this config :
      default-input-method nil
      initial-major-mode 'org-mode
      inhibit-default-init t
-     inhibit-startup-screen t 			 ; Do not show the startup message.
-     inhibit-startup-buffer-menu t       ; stop `list-buffers' from showing when opening multiple files.
-     my-computer-has-smaller-memory-p t) ; computers with smaller memory. Not sure if it works or not!
-
+     inhibit-startup-screen t 	
+     inhibit-startup-buffer-menu t)
+   
 
     ;; Maximize the Emacs frame on startup
     (push '(fullscreen . maximized) default-frame-alist)
@@ -244,6 +243,14 @@ Keep folders and backuping files clean!
         (set-register '_ (list (current-window-configuration)))
         (delete-other-windows))))
 
+  (defun org-archive-done-tasks ()
+  (interactive)
+  (org-map-entries
+   (lambda ()
+     (org-archive-subtree)
+     (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+   "/DONE" 'tree))
+
     #+end_src
 ** Respected binds
 #+begin_src emacs-lisp
@@ -252,6 +259,7 @@ Keep folders and backuping files clean!
   (global-set-key (kbd "C-v") #'d/scroll-down)
   (global-set-key (kbd "C-<f5>") #'d/refresh-buffer)
 
+  (define-key org-mode-map (kbd "C-c C-x C-s") #'org-archive-done-tasks)
   (global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
   (global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
   (global-set-key [C-tab] 'other-window)
@@ -1262,6 +1270,7 @@ I'm not a programmer, maybe will be expanded in future..
     (add-hook 'markdown-mode-hook 'd/markdown-mode-hook))
 
   (use-package eglot
+    :defer t
     :init
       (setq eglot-sync-connect 1
         eglot-connect-timeout 10
@@ -1284,6 +1293,7 @@ I'm not a programmer, maybe will be expanded in future..
 Magit the killer beast after org-mode.
 #+begin_src emacs-lisp
   (use-package magit
+    :defer t
     :config
     ;; Show word-granularity differences within diff hunks
     (setq magit-diff-refine-hunk t)
@@ -1334,7 +1344,17 @@ Some small codes from good source.
     (advice-add 'mingus-playlist-mode :after #'olivetti-mode)
     (advice-add 'mingus-browse-mode :after #'olivetti-mode))
   ;; (use-package wikinforg)
-  (use-package 0x0)
+  (use-package webpaste
+    :ensure t
+    :bind (("C-c C-p C-b" . webpaste-paste-buffer)
+           ("C-c C-p C-r" . webpaste-paste-region)
+           ("C-c C-p C-p" . webpaste-paste-buffer-or-region))
+    :config
+    (setq webpaste-provider-priority '("dpaste.org" "dpaste.com" "paste.mozilla.org"))
+    ;; Require confirmation before doing paste
+    (setq webpaste-paste-confirmation t)
+    )
+  
   (use-package sdcv
     :config
     (setq sdcv-say-word-p t)

@@ -37,9 +37,8 @@
    default-input-method nil
    initial-major-mode 'org-mode
    inhibit-default-init t
-   inhibit-startup-screen t 			 ; Do not show the startup message.
-   inhibit-startup-buffer-menu t       ; stop `list-buffers' from showing when opening multiple files.
-   my-computer-has-smaller-memory-p t) ; computers with smaller memory. Not sure if it works or not!
+   inhibit-startup-screen t 	
+   inhibit-startup-buffer-menu t)
 
 
   ;; Maximize the Emacs frame on startup

@@ -2239,7 +2239,7 @@ https://www.youtube.com/feeds/videos.xml?channel_id=UCAiiOTio8Yu69c3XnR7nQBQ ema
             "warning" =  50;
             "critical" =  30;
           };
-          "format" =  "{capacity}% {icon}";
+          "format" =  "{capacity}% {icon} ";
           "format-icons" =  ["" "" "" "" ""];
           "max-length" =  25;
         };

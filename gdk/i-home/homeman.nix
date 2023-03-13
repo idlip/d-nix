@@ -1213,7 +1213,7 @@ programs.waybar = {
           "warning" =  50;
           "critical" =  30;
         };
-        "format" =  "{capacity}% {icon}";
+        "format" =  "{capacity}% {icon} ";
         "format-icons" =  ["" "" "" "" ""];
         "max-length" =  25;
       };

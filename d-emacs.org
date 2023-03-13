@@ -1218,6 +1218,7 @@ Managing frames and their buffers handy way. Gets rid of using tab-bar or window
 #+begin_src emacs-lisp
   (use-package beframe)
   (setq beframe-global-buffers '("*scratch*"))
+  (setq beframe-create-frame-scratch-buffer nil)
 
   (beframe-mode 1)
 

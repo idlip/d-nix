@@ -972,6 +972,7 @@ org-modern-list
 
 (use-package beframe)
 (setq beframe-global-buffers '("*scratch*"))
+(setq beframe-create-frame-scratch-buffer nil)
 
 (beframe-mode 1)
 

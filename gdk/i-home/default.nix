@@ -1,3 +1,4 @@
+# FIXME Chaneg hostname and directory under :tangle ...
 {
   inputs, pkgs, config, lib, self, ...}:
 

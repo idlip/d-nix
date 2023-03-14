@@ -10,6 +10,7 @@ imports = [
   ./hardware-configuration.nix
 ];
 
+# Should move this line probably, it only does make use of starship to bash shell init
 programs = {
   bash.promptInit = ''eval "$(${pkgs.starship}/bin/starship init bash)"'';
 };
@@ -20,14 +21,18 @@ zramSwap = {
   memoryPercent = 50 ;
   algorithm = "zstd";
 };
-
+ # As the name suggest.
 sound = {
   enable = true;
   mediaKeys.enable = true;
 };
 
+# obviously your timezone here. Have a nice day or good night sleep ;)
+# Don't waste more time on nixos lol, be healthy and have some sleep. Stay helathy!
 time.timeZone = "Asia/Kolkata";
 
+# This code is from nixos wiki for Btrfs. Depends on which file system you use.
+# Refer nixos wiki once.
 fileSystems = {
   "/".options = [ "compress=zstd" ];
   "/home".options = [ "compress=zstd" ];
@@ -36,6 +41,7 @@ fileSystems = {
 
 # Select internationalisation properties.
 i18n.defaultLocale = "en_US.UTF-8";
+# Sets big font for bootloader, as I have small laptop. You can remove font and packages line to have default vanilla font.
 console = {
   earlySetup = true;
   font = "${pkgs.terminus_font}/share/consolefonts/ter-132n.psf.gz";
@@ -51,6 +57,7 @@ environment = {
   };
 };
 
+# As name implies, allows Unfree packages. You can enable in case you wanna install non-free tools (eg: some fonts lol)
 nixpkgs = {
   config = {
     allowUnfree = true;
@@ -67,11 +74,13 @@ documentation = {
   dev.enable = false;
 };
 
+# Collect garbage and delete generation every 6 day. Will help to get some storage space.
+# Better to atleast keep it for few days, as you do major update (unstable), if something breaks you can roll back.
 nix = {
   gc = {
     automatic = true;
     dates = "daily";
-    options = "--delete-older-than 9d";
+    options = "--delete-older-than 6d";
   };
 
   # pin the registry to avoid downloading and evaling a new nixpkgs version every time
@@ -92,6 +101,9 @@ nix = {
     min-free = ${toString (100 * 1024 * 1024)}
     max-free = ${toString (1024 * 1024 * 1024)}
   '';
+
+  # substituters are cachix domain, where some package binaries are available (eg : Hyprland & Emacs 30)
+  # NOTE : You should do a simple rebuild with these substituters line and then install packages from there, as a rebuild will register these cachix into /etc/nix/nix.conf file. If you continue without rebuild, Hyprland and Emacs will start compiling. So rebuild and make sure you see these substituters in /etc/nix/nix.conf and then add packages.
   settings = {
     auto-optimise-store = true;
     builders-use-substitutes = true;
@@ -104,7 +116,7 @@ nix = {
       "https://nix-community.cachix.org"
       "https://hyprland.cachix.org"
     ];
-
+    # Keys for the sustituters cachix
     trusted-public-keys = [
       "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
       "nixpkgs-wayland.cachix.org-1:3lwxaILxMRkVhehr5StQprHdEo4IrE8sRho9R9HOLYA="
@@ -114,13 +126,15 @@ nix = {
   };
 };
 system.autoUpgrade.enable = false;
-system.stateVersion = "22.11"; # DONT TOUCH THIS
+system.stateVersion = "22.11"; # DONT TOUCH THIS (See about state version on nixos manual)
 
 boot = {
   cleanTmpDir = true;
+  # Uses bleeding edge latest kernel. 
   kernelPackages = pkgs.linuxPackages_latest;
 
   loader = {
+    # FIXME change first line if you want to use Grub
     systemd-boot.enable = true;
     efi.canTouchEfiVariables = true;
     timeout = 5;
@@ -128,6 +142,7 @@ boot = {
 };
 
 networking = {
+  # #FIXME Change it your choice of HOSTNAME
   hostName = "gdk";
   # dns
   networkmanager = {
@@ -135,6 +150,9 @@ networking = {
     unmanaged = ["docker0" "rndis0"];
     wifi.macAddress = "random";
   };
+
+  # Killer feature, Its a must these days.
+  # Adblocker!! It uses steven black hosts.
   stevenBlackHosts = {
     enable = true;
     blockFakenews = true;
@@ -142,6 +160,9 @@ networking = {
     blockPorn = true;
     blockSocial = false;
   };
+
+  # Firewall uses iptables underthehood
+  # Rules are for syncthing
   firewall = {
     enable = true;
     # For syncthing
@@ -151,7 +172,7 @@ networking = {
     logReversePathDrops = true;
   };
 };
-# slows down boot time
+# Avoid slow boot time
 systemd.services.NetworkManager-wait-online.enable = false;
 
 security.rtkit.enable = true;
@@ -178,20 +199,27 @@ services = {
     SystemMaxUse=50M
     RuntimeMaxUse=10M
   '';
+  # To mount drives with udiskctl command
   udisks2.enable = true;
 
   tlp.enable = true;                      # TLP and auto-cpufreq for power management
+  auto-cpufreq.enable = true;
+
+  # For Laptop, make lid close and power buttom click to suspend
   logind = {
     lidSwitch = "suspend";
     extraConfig = ''
   HandlePowerKey = suspend
   '';
   };
-  auto-cpufreq.enable = true;
+
+  # See if you want bluetooth setup
   # blueman.enable = true;
 
-
+  # For android file transfer via usb, or better check on KDE connect 
   gvfs.enable = true;
+
+  # configuring syncthing
   syncthing = {
     enable = true;
     user = "i";
@@ -220,9 +248,15 @@ services = {
   };
 
   fstrim.enable = true;
+
+  # This makes the user 'i' to autologin in all tty
+  # Depends on you if you want login manager or prefer entering password manually
+  # FIXME Change 'i' to your USERNAME
   getty.autologinUser = "i" ;
+
   atd.enable = true;
 
+  # Pipewire setup, just these lines enought to make sane default for it
   pipewire = {
     enable = true;
     alsa = {
@@ -241,6 +275,7 @@ environment.systemPackages = with pkgs; [
   fira-code
 ];
 
+# Add other overlays here
 nixpkgs.overlays = with inputs; [emacs-overlay.overlay nur.overlay ];
 
 nixpkgs.config.packageOverrides = pkgs: {
@@ -256,7 +291,6 @@ hardware = {
       vaapiIntel
     ];
   };
-  pulseaudio.support32Bit = true;
 };
 
 fonts = {
@@ -290,10 +324,6 @@ fonts = {
 };
 
 environment = {
-  loginShellInit = ''
-    dbus-update-activation-environment --systemd DISPLAY
-
-  '';
 
   variables = {
     NIXOS_OZONE_WL = "1";
@@ -309,7 +339,8 @@ environment.interactiveShellInit = ''
 
 '';
 
-users.users.i = {
+# FIXME Change 'i' to your USERNAME
+  users.users.i = {
   isNormalUser = true;
   extraGroups = [
     "wheel"
@@ -327,7 +358,10 @@ users.users.i = {
     "nix"
   ];
   uid = 1000;
+  # Use fish if you prefer it
   shell = pkgs.zsh;
+
+  # Or else login to root (which you will create while rebuilding) and run passwd USERNAME 
   # initialPassword = "changeme";
 };
 

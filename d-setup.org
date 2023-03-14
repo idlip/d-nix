@@ -7,12 +7,25 @@
 
 
 * Description
-This file Shows a working template to create a single file per machine configuration. The Goal should be to eliminate the need to go into the actually system directory. All of its contents should be available from this file.
+--------
+This file is organized configuration for whole system, where you can write everything for Nixos and Home-manager configuration.
+This might only make sense if you use emacs, or else nixos modular flakes is a better choice, but there you one advantage of either including or excluding a file, here you have to uncomment blocks to remove a section.
+
+I was using modular setup before, but it is painful to manage directory and remember what all file were there.
+
+The advantage of this setup is, you can add TODO and document everything here, so org stands for its name ==> *Organize Life*
+
+Also, the tangled files are in read-only mode, so you can avoid editing it, unless you were trying/testing something.
+
 * System Configuration
 :PROPERTIES:
 :header-args: :tangle-mode (identity #o444) :tangle ./gdk/configuration.nix :mkdir yes
 :END:
-Machine specific configuration options needed by all users.
+     # FIXME edit 'gdk' to your HOSTNAME. configuration.nix will be created in HOSTNAME directory (will be created as you tangle)
+
+Machine a.k.a Host (if you manage multi hosts or PC) specific setup and configuration goes
+here.
+
 ** Preamble
 *** Tangled File Warning
 Places a warning at the top of the target file.
@@ -33,7 +46,9 @@ Opening brace that contains the rest of the configuration file.
   {
 #+end_src
 *** Imports
-Local files used to build the system derivation.
+Copy your system hardware-configuration file to #FIXME  HOSTNAME/hardware-configuration.nix. 
+It will be usually the /etc/nixos/hardware-configuration.nix  
+It will be generated when you do while first install ~sudo nixos-generate-config~
 #+begin_src nix
   imports = [
     ./hardware-configuration.nix
@@ -41,7 +56,7 @@ Local files used to build the system derivation.
 #+end_src
 *** System core
 #+begin_src nix
-
+  # Should move this line probably, it only does make use of starship to bash shell init
   programs = {
     bash.promptInit = ''eval "$(${pkgs.starship}/bin/starship init bash)"'';
   };
@@ -52,14 +67,18 @@ Local files used to build the system derivation.
     memoryPercent = 50 ;
     algorithm = "zstd";
   };
-
+   # As the name suggest.
   sound = {
     enable = true;
     mediaKeys.enable = true;
   };
 
+  # obviously your timezone here. Have a nice day or good night sleep ;)
+  # Don't waste more time on nixos lol, be healthy and have some sleep. Stay helathy!
   time.timeZone = "Asia/Kolkata";
 
+  # This code is from nixos wiki for Btrfs. Depends on which file system you use.
+  # Refer nixos wiki once.
   fileSystems = {
     "/".options = [ "compress=zstd" ];
     "/home".options = [ "compress=zstd" ];
@@ -68,6 +87,7 @@ Local files used to build the system derivation.
 
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
+  # Sets big font for bootloader, as I have small laptop. You can remove font and packages line to have default vanilla font.
   console = {
     earlySetup = true;
     font = "${pkgs.terminus_font}/share/consolefonts/ter-132n.psf.gz";
@@ -87,6 +107,7 @@ Local files used to build the system derivation.
     };
   };
 
+  # As name implies, allows Unfree packages. You can enable in case you wanna install non-free tools (eg: some fonts lol)
   nixpkgs = {
     config = {
       allowUnfree = true;
@@ -103,11 +124,13 @@ Local files used to build the system derivation.
     dev.enable = false;
   };
 
+  # Collect garbage and delete generation every 6 day. Will help to get some storage space.
+  # Better to atleast keep it for few days, as you do major update (unstable), if something breaks you can roll back.
   nix = {
     gc = {
       automatic = true;
       dates = "daily";
-      options = "--delete-older-than 9d";
+      options = "--delete-older-than 6d";
     };
 
     # pin the registry to avoid downloading and evaling a new nixpkgs version every time
@@ -128,6 +151,9 @@ Local files used to build the system derivation.
       min-free = ${toString (100 * 1024 * 1024)}
       max-free = ${toString (1024 * 1024 * 1024)}
     '';
+
+    # substituters are cachix domain, where some package binaries are available (eg : Hyprland & Emacs 30)
+    # NOTE : You should do a simple rebuild with these substituters line and then install packages from there, as a rebuild will register these cachix into /etc/nix/nix.conf file. If you continue without rebuild, Hyprland and Emacs will start compiling. So rebuild and make sure you see these substituters in /etc/nix/nix.conf and then add packages.
     settings = {
       auto-optimise-store = true;
       builders-use-substitutes = true;
@@ -140,7 +166,7 @@ Local files used to build the system derivation.
         "https://nix-community.cachix.org"
         "https://hyprland.cachix.org"
       ];
-
+      # Keys for the sustituters cachix
       trusted-public-keys = [
         "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
         "nixpkgs-wayland.cachix.org-1:3lwxaILxMRkVhehr5StQprHdEo4IrE8sRho9R9HOLYA="
@@ -150,17 +176,20 @@ Local files used to build the system derivation.
     };
   };
   system.autoUpgrade.enable = false;
-  system.stateVersion = "22.11"; # DONT TOUCH THIS
-  
+  system.stateVersion = "22.11"; # DONT TOUCH THIS (See about state version on nixos manual)
+
 #+end_src
 *** Boot loader
 Configure the boot loader to use UEFI.
+#FIXME Use grub if you prefer that.
 #+begin_src nix
   boot = {
     cleanTmpDir = true;
+    # Uses bleeding edge latest kernel. 
     kernelPackages = pkgs.linuxPackages_latest;
 
     loader = {
+      # FIXME change first line if you want to use Grub
       systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
       timeout = 5;
@@ -170,6 +199,7 @@ Configure the boot loader to use UEFI.
 *** Network
 #+begin_src nix
   networking = {
+    # #FIXME Change it your choice of HOSTNAME
     hostName = "gdk";
     # dns
     networkmanager = {
@@ -177,6 +207,9 @@ Configure the boot loader to use UEFI.
       unmanaged = ["docker0" "rndis0"];
       wifi.macAddress = "random";
     };
+
+    # Killer feature, Its a must these days.
+    # Adblocker!! It uses steven black hosts.
     stevenBlackHosts = {
       enable = true;
       blockFakenews = true;
@@ -184,6 +217,9 @@ Configure the boot loader to use UEFI.
       blockPorn = true;
       blockSocial = false;
     };
+
+    # Firewall uses iptables underthehood
+    # Rules are for syncthing
     firewall = {
       enable = true;
       # For syncthing
@@ -193,11 +229,12 @@ Configure the boot loader to use UEFI.
       logReversePathDrops = true;
     };
   };
-  # slows down boot time
+  # Avoid slow boot time
   systemd.services.NetworkManager-wait-online.enable = false;
 #+end_src
 *** Secure core
 Some security features which are good enough to have.
+I use ~doas~ replacing ~sudo~. Even if you type sudo in terminal it will use doas
 #+begin_src nix
   security.rtkit.enable = true;
   security.polkit.enable = true;
@@ -213,6 +250,7 @@ Some security features which are good enough to have.
   };
 #+end_src
 *** Services
+Certain services, just enable = true; gets the work done for most of the stuffs.
 #+begin_src nix
   services = {
     dbus = {
@@ -225,20 +263,27 @@ Some security features which are good enough to have.
       SystemMaxUse=50M
       RuntimeMaxUse=10M
     '';
+    # To mount drives with udiskctl command
     udisks2.enable = true;
 
     tlp.enable = true;                      # TLP and auto-cpufreq for power management
+    auto-cpufreq.enable = true;
+
+    # For Laptop, make lid close and power buttom click to suspend
     logind = {
       lidSwitch = "suspend";
       extraConfig = ''
     HandlePowerKey = suspend
     '';
     };
-    auto-cpufreq.enable = true;
+
+    # See if you want bluetooth setup
     # blueman.enable = true;
 
-
+    # For android file transfer via usb, or better check on KDE connect 
     gvfs.enable = true;
+
+    # configuring syncthing
     syncthing = {
       enable = true;
       user = "i";
@@ -267,9 +312,15 @@ Some security features which are good enough to have.
     };
 
     fstrim.enable = true;
+
+    # This makes the user 'i' to autologin in all tty
+    # Depends on you if you want login manager or prefer entering password manually
+    # FIXME Change 'i' to your USERNAME
     getty.autologinUser = "i" ;
+
     atd.enable = true;
 
+    # Pipewire setup, just these lines enought to make sane default for it
     pipewire = {
       enable = true;
       alsa = {
@@ -295,10 +346,15 @@ Install packages need by all users system wide.
 #+end_src
 
 *** Overlay
+Use overlay for emacs and Nix user repo (firefox extensions)
+You can add your choice of overlay (eg: Discord, helix...)
 #+begin_src nix
+  # Add other overlays here
   nixpkgs.overlays = with inputs; [emacs-overlay.overlay nur.overlay ];
 #+end_src
-*** Opengl HW
+*** Opengl Hardware
+To use Opengl hardware acceleration using VAAPI.
+Useful to use in firefox and mpv.
 #+begin_src nix
   nixpkgs.config.packageOverrides = pkgs: {
     vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
@@ -313,7 +369,6 @@ Install packages need by all users system wide.
         vaapiIntel
       ];
     };
-    pulseaudio.support32Bit = true;
   };
 #+end_src
 *** System Fonts
@@ -352,10 +407,6 @@ Enables additional fonts system wide
 *** Env
 #+begin_src nix
   environment = {
-    loginShellInit = ''
-      dbus-update-activation-environment --systemd DISPLAY
-
-    '';
 
     variables = {
       NIXOS_OZONE_WL = "1";
@@ -379,7 +430,7 @@ Adds command alias's to the system interactive shell
 **** i
 Configure system permission for the primary user
 #+begin_src nix
-
+  # FIXME Change 'i' to your USERNAME
     users.users.i = {
     isNormalUser = true;
     extraGroups = [
@@ -398,7 +449,10 @@ Configure system permission for the primary user
       "nix"
     ];
     uid = 1000;
+    # Use fish if you prefer it
     shell = pkgs.zsh;
+
+    # Or else login to root (which you will create while rebuilding) and run passwd USERNAME 
     # initialPassword = "changeme";
   };
 
@@ -410,15 +464,17 @@ End of Nix Configuration block
   }
 #+end_src
 * User Configurations
-System Customizations specific to each user.
+User specific configuration
 ** i-home
 My personal user configuration.
 *** Nix Home-Manger
 :PROPERTIES:
 :header-args: :tangle ./gdk/i-home/homeman.nix :tangle-mode (identity #o444) :mkdirp yes
 :END:
+#FIXME Under :tangle ... Change 'gdk' to your HOSTNAME and name directory i-home/homeman.nix as you want.
 **** Default-nix
 #+begin_src nix :tangle ./gdk/i-home/default.nix :tangle-mode  (identity #o444) :mkdirp yes
+  # FIXME Chaneg hostname and directory under :tangle ...
   {
     inputs, pkgs, config, lib, self, ...}:
 
@@ -716,7 +772,10 @@ Installs packages for this user only.
   ];
 #+end_src
 ***** Package Specific Configurations
-Additional Setting for individual applications
+Additional Setting for individual applications.
+You can copy and use your old config file only, no need to tweak nix way.
+There will be not much difference.
+
 ****** Gtk Theme
 #+begin_src nix
 
@@ -2382,7 +2441,7 @@ https://www.youtube.com/feeds/videos.xml?channel_id=UCAiiOTio8Yu69c3XnR7nQBQ ema
   }
 
   #battery {
-      color:#ff6347;
+      color:#ee9572;
   }
 
   #network.disconnected {
@@ -2553,7 +2612,9 @@ Closes the Main Body Block
 #+end_src
 
 * Additional FIles
-Files that are a part of the machine specific subdirectory, but part of the core configuration set.
+Don't worry about this, there is nothing from here.
+
+Its just custom instructions
 ** First Time Set Up Script
 :PROPERTIES:
 :header-args: :tangle ./gdk/init-setup.sh

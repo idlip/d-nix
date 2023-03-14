@@ -48,19 +48,19 @@
 *** [[https://vid.puffyan.us/feed/channel/UCqYPhGiB9tkShZorfgcL2lA][What I've Learned]]
 *** [[https://vid.puffyan.us/feed/channel/UCL8w_A8p8P1HWI3k6PR5Z6w][Two Cents]]
 ** Anime :anime:nyaa:
-*** https://feed.animetosho.org/atom?q=batch Anime
+*** [[https://feed.animetosho.org/atom?q=batch][Batch Seasons]]
 ** Bio Data :bio:inf:
-*** https://journals.plos.org/plosbiology/feed/atom Bio
-*** http://blogs.biomedcentral.com/feed/ Bio
-*** https://rupress.org/rss/site_1000001/LatestArticles_1000003.xml Bio
-*** https://journals.biologists.com/rss/site_1000009/1000007.xml Bio
-*** https://www.biologycorner.com/feed/ Bio
-*** https://www.onlinebiologynotes.com/feed/ Bio
-*** https://bitesizebio.com/feed/ Bio
-*** http://feeds.feedburner.com/BiologyExams4U Bio
-*** https://journals.biologists.com/rss/site_1000001/1000003.xml Bio
-*** https://www.sciencedaily.com/rss/top/science.xml Sci
-*** https://www.sciencedaily.com/rss/most_popular.xml Sci
+*** [[https://journals.plos.org/plosbiology/feed/atom][Plos]]
+*** [[http://blogs.biomedcentral.com/feed/][BioMed]]
+*** [[https://rupress.org/rss/site_1000001/LatestArticles_1000003.xml][Rupress]]
+*** [[https://journals.biologists.com/rss/site_1000009/1000007.xml][Jour-Bio]]
+*** [[https://www.biologycorner.com/feed/][BioCorner]]
+*** [[https://www.onlinebiologynotes.com/feed/][OnlineBio]]
+*** [[https://bitesizebio.com/feed/][BiteSize]]
+*** [[http://feeds.feedburner.com/BiologyExams4U][Bioexam]]
+*** [[https://journals.biologists.com/rss/site_1000001/1000003.xml][Journal-bio]]
+*** [[https://www.sciencedaily.com/rss/top/science.xml][Sci-daily]]
+*** [[https://www.sciencedaily.com/rss/most_popular.xml][Sci]]
 ** Reddit :reddit:
 ** Comics :comic:
 *** [[https://xkcd.com/atom.xml][xkcd.com]]

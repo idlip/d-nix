@@ -51,12 +51,12 @@ I manage my whole system with single org file. Its easy and pretty handy. You ca
 Another key feature in my setup is, every file i tangle is at *read-only mode*. So generally we can avoid editing/touching them. Thus, every action has to be made in *d-setup.org* only.
 
 Also, I have made files to be *symlink*, so i can edit them without requiring to rebuild whole thing!
+--------------
 
-| Note: You can #FIXME tags in [[file:d-setup.org][d-setup.org]] where you should edit it accordingly to your USERNAME and HOSTNAME.       |
-|--------------------------------------------------------------------------------------------------------------------|
-| I have tried to comment few things to make it as a info, you can ask/create issue regarding this, don't hold back. |
-| *I'm waiting for you to ask!*                                                                                        |
 
+| Note: There are #FIXME tags in [[file:d-setup.org][d-setup.org]] where you should edit it accordingly to your USERNAME and HOSTNAME. I have tried to comment few things to make it as a info, you can ask/create issue regarding this, don't hold back. *I'm waiting for you to ask!* |
+
+--------------
 ** Welcome to 'Will of D' flakes system ⚔️
 
 /you can check out small write-up on my [[file:blogs/linux-journey.org][linux journey]]/

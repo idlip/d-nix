@@ -20,6 +20,7 @@
 | Status Bar              | [[https://github.com/Alexays/Waybar][Waybar]]  🍥                           |
 | Favourite Color-Schemes | Modus-Vivendi + Gruvbox             |
 |-------------------------+-------------------------------------|
+
 Rest all other stuffs I do in Emacs, tbh I could do everything in Emacs lol.
 
 Feel free to open an issue and ask me doubts or about some improvements, you wanna inform! I will be glad.
@@ -54,7 +55,7 @@ Also, I have made files to be *symlink*, so i can edit them without requiring to
 --------------
 
 
-| Note: There are #FIXME tags in [[file:d-setup.org][d-setup.org]] where you should edit it accordingly to your USERNAME and HOSTNAME. I have tried to comment few things to make it as a info, you can ask/create issue regarding this, don't hold back. *I'm waiting for you to ask!* |
+| *Note*: There are *#FIXME tags in [[file:d-setup.org][d-setup.org]]* where you should edit it accordingly to your *USERNAME* and *HOSTNAME*.   I have tried to comment few things to make it as a info, you can _ask/create issue_ regarding this, don't hold back.   *I'm waiting for you to ask!*  |
 
 --------------
 ** Welcome to 'Will of D' flakes system ⚔️

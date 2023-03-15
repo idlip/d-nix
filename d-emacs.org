@@ -633,6 +633,38 @@ Another, one which make certain pains of emacs , so good that you will fall i
     (setq consult-narrow-key "<") ;; (kbd "C-+")
     )
 
+(defun d/consult-first-param-is-initial-text (consult-fn &rest rest)
+  "Advising function around CONSULT-FN.
+
+The CONSULT-FN's first parameter should be the initial text.
+
+When there's an active region, use that as the first parameter
+for CONSULT-FN.  Otherwise, use an empty string the first
+parameter.  This function handles the REST of the parameters."
+  (interactive)
+  (apply consult-fn
+         (when (use-region-p)
+           (buffer-substring
+            (region-beginning) (region-end)))
+         rest))
+
+(defun d/consult-ripgrep-wrapper (consult-fn &optional dir given-initial)
+  "Advising function around CONSULT-FN.
+
+DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
+  (interactive "P")
+  (let ((initial (list (or given-initial
+                           (when (use-region-p)
+                             (buffer-substring (region-beginning)
+                                               (region-end)))))))
+    (apply consult-fn dir initial)))
+(advice-add #'consult-line
+            :around #'d/consult-first-param-is-initial-text
+            '((name . "wrapper")))
+(advice-add #'consult-ripgrep
+            :around #'d/consult-ripgrep-wrapper
+            '((name . "wrapper")))
+
 #+end_src
 
 ** Info = Marginalia
@@ -1210,7 +1242,7 @@ After long  usage, you will realize that Modus-themes is a *masterpiece* made by
             (agenda-date . (1.2))
             (agenda-structure . (variable-pitch light 1.8))
             (t . (1.1))))
-    (load-theme 'modus-vivendi t)
+    (load-theme 'modus-vivendi-tinted t)
   #+end_src
 ** Beframe
 Managing frames and their buffers handy way. Gets rid of using tab-bar or windows
@@ -1781,6 +1813,7 @@ Idk why, but i guess these all should be the sane defaults.
 
   (global-unset-key (kbd "C-x C-z"))
   (global-unset-key (kbd "C-z"))
+  (global-set-key (kbd "C-z") #'undo-tree-undo)
 
       ;;; Scrolling
 

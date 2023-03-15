@@ -59,8 +59,6 @@
 *** [[https://bitesizebio.com/feed/][BiteSize]]
 *** [[http://feeds.feedburner.com/BiologyExams4U][Bioexam]]
 *** [[https://journals.biologists.com/rss/site_1000001/1000003.xml][Journal-bio]]
-*** [[https://www.sciencedaily.com/rss/top/science.xml][Sci-daily]]
-*** [[https://www.sciencedaily.com/rss/most_popular.xml][Sci]]
 ** Reddit :reddit:
 ** Comics :comic:
 *** [[https://xkcd.com/atom.xml][xkcd.com]]

@@ -8,6 +8,6 @@
   imports = [
     ./homeman.nix
     inputs.hyprland.homeManagerModules.default
-    inputs.nur.nixosModules.nur
+    # inputs.nur.nixosModules.nur
   ];
 }

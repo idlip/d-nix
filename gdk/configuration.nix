@@ -276,7 +276,7 @@ environment.systemPackages = with pkgs; [
 ];
 
 # Add other overlays here
-nixpkgs.overlays = with inputs; [emacs-overlay.overlay nur.overlay ];
+nixpkgs.overlays = with inputs; [emacs-overlay.overlay  ];
 
 nixpkgs.config.packageOverrides = pkgs: {
   vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };

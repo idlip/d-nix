@@ -100,7 +100,7 @@ export VISUAL=$EDITOR
 export GRIM_DEFAULT_DIR="/home/i/pics/sshots/"
 
     if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
-      exec Hyprland
+      echo "Welcome! Type 'sway' to enter"
     fi
 
     '';
@@ -466,6 +466,19 @@ wayland.windowManager.hyprland = {
 
 xdg.configFile."hypr/hyprland.conf" = { source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.SETUP/gdk/i-home/configs/hyprland.conf"; };
 
+wayland.windowManager.sway = {
+  enable = true;
+  config = null;
+  extraConfig = ''
+    # user config directory
+include $HOME/.config/sway/config.d/*
+
+# only enable this if every app you use is compatible with wayland
+xwayland disable
+         '';
+   wrapperFeatures.gtk = true;
+};
+
 home.file.".config/emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.SETUP/gdk/i-home/configs/early-init.el";
 home.file.".config/emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.SETUP/gdk/i-home/configs/init.el";
 home.file.".config/emacs/elfeed.org".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.SETUP/d-rss.org";
@@ -480,7 +493,7 @@ programs.emacs = {
     cape markdown-mode nix-mode rust-mode lua-mode
     all-the-icons all-the-icons-dired async dired-hide-dotfiles dired-single
     reddigg mingus pdf-tools which-key magit aria2 webpaste
-    org-mime corfu-terminal beframe denote
+    org-mime corfu-terminal beframe denote tempel tempel-collection
     sdcv elfeed elfeed-org link-hint general powerthesaurus
     doom-modeline org-auto-tangle 
   ])

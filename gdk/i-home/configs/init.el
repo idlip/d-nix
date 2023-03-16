@@ -251,7 +251,9 @@
 
   ;; configs
   "fc"  '(:ignore t :which-key "configs")
-  "fce" '(lambda () (interactive) (find-file (expand-file-name "~/.__D_NIX__/modules/home/emacs/config.org"))))
+  "fe" '((lambda () (interactive) (find-file (expand-file-name "~/.SETUP/d-emacs.org"))) :which-key "emacs org")
+  "fm" '((lambda () (interactive) (find-file (expand-file-name "~/.SETUP/README.org"))) :which-key "setup readme")
+  "fs" '((lambda () (interactive) (find-file (expand-file-name "~/.SETUP/d-setup.org"))) :which-key "nix setup"))
 
 (use-package which-key
   :defer 0
@@ -391,6 +393,7 @@
            ("M-s d" . consult-find)
            ("M-s D" . consult-locate)
            ("M-s g" . consult-ripgrep)
+           ("M-s m" . consult-man)
            ("M-s G" . consult-git-grep)
            ("M-s r" . consult-ripgrep)
            ("M-s l" . consult-line)
@@ -611,6 +614,44 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
     (corfu-mode 1)))
 (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
 
+;; Configure Tempel
+(use-package tempel
+  ;; Require trigger prefix before template name when completing.
+  ;; :custom
+  ;; (tempel-trigger-prefix "<")
+
+  :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
+         ("M-*" . tempel-insert))
+
+  :init
+
+  ;; Setup completion at point
+  (defun tempel-setup-capf ()
+    ;; Add the Tempel Capf to `completion-at-point-functions'.
+    ;; `tempel-expand' only triggers on exact matches. Alternatively use
+    ;; `tempel-complete' if you want to see all matches, but then you
+    ;; should also configure `tempel-trigger-prefix', such that Tempel
+    ;; does not trigger too often when you don't expect it. NOTE: We add
+    ;; `tempel-expand' *before* the main programming mode Capf, such
+    ;; that it will be tried first.
+    (setq-local completion-at-point-functions
+                (cons #'tempel-expand
+                      completion-at-point-functions)))
+
+  (add-hook 'prog-mode-hook 'tempel-setup-capf)
+  (add-hook 'text-mode-hook 'tempel-setup-capf)
+
+  ;; Optionally make the Tempel templates available to Abbrev,
+  ;; either locally or globally. `expand-abbrev' is bound to C-x '.
+  (add-hook 'prog-mode-hook #'tempel-abbrev-mode)
+  ;; (global-tempel-abbrev-mode)
+  )
+
+(use-package tempel-collection
+  :ensure t
+  :after tempel
+  )
+
 (use-package org-modern)
 ;; (add-hook 'org-mode-hook #'org-modern-mode)
 (add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
@@ -627,8 +668,9 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 
 ;; Add frame borders and window dividers
 (modify-all-frames-parameters
- '((right-divider-width . 15)
-   (internal-border-width . 15)))
+ '((right-divider-width . 1)
+   (bottom-divider-width . 1)
+   (internal-border-width . 5)))
 (dolist (face '(window-divider
                 window-divider-first-pixel
                 window-divider-last-pixel))
@@ -1033,7 +1075,7 @@ org-modern-list
 (use-package nix-mode)
 
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
-(add-hook 'prog-mode-hook #'eglot-ensure)
+;;(add-hook 'prog-mode-hook #'eglot-ensure)
 (add-hook 'prog-mode-hook #'flycheck-mode)
 
 (use-package markdown-mode
@@ -1180,12 +1222,17 @@ org-modern-list
     (pdf-cache-clear-data))
 
   (define-key pdf-view-mode-map (kbd "Q") 'd/kill-buffer))
-  (define-key image-mode-map (kbd "q") 'd/kill-buffer)
+(define-key image-mode-map (kbd "q") 'd/kill-buffer)
 
 ;; For Comic Manga
 (add-hook 'image-mode-hook (lambda ()
                              (olivetti-mode)
                              (setq olivetti-body-width 0.45)))
+
+(use-package man
+  :bind (("C-c m" . consult-man)
+         :map Man-mode-map
+         ("q" . kill-buffer-and-window)))
 
 (defun config-reload ()
   "Uncle dev created a function to reload Emacs config."
@@ -1472,6 +1519,7 @@ org-modern-list
 (setq tab-bar-new-tab-choice "*scratch")
 (setq tab-bar-close-button-show nil
       tab-bar-new-button-show nil)
+(setq vc-follow-symlinks t)
 
 ;; Set up the visible bell
 (setq visible-bell nil)

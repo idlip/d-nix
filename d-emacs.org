@@ -404,7 +404,9 @@ As a beginner, this might be useful as you might be used to be in Doom-Emacs or 
 
     ;; configs
     "fc"  '(:ignore t :which-key "configs")
-    "fce" '(lambda () (interactive) (find-file (expand-file-name "~/.__D_NIX__/modules/home/emacs/config.org"))))
+    "fe" '((lambda () (interactive) (find-file (expand-file-name "~/.SETUP/d-emacs.org"))) :which-key "emacs org")
+    "fm" '((lambda () (interactive) (find-file (expand-file-name "~/.SETUP/README.org"))) :which-key "setup readme")
+    "fs" '((lambda () (interactive) (find-file (expand-file-name "~/.SETUP/d-setup.org"))) :which-key "nix setup"))
 
 #+end_src
 
@@ -544,126 +546,127 @@ Just check the [[https://github.com/minad/vertico][Vertico github]] repo, you wi
 ** Doctor Consultancy
 Another, one which make certain pains of emacs , so good that you will fall in Love with Emacs again!
 #+begin_src emacs-lisp
-  (use-package consult
-    ;; Replace bindings. Lazily loaded due by `use-package'.
-    :bind (;; C-c bindings (mode-specific-map)
-           ("C-c h" . consult-history)
-           ("C-c m" . consult-mode-command)
-           ("C-c k" . consult-kmacro)
-           ;; C-x bindings (ctl-x-map)
-           ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
-           ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
-           ("C-x C-b" . consult-buffer)                ;; orig. switch-to-buffer
-           ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
-           ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
-           ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
-           ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
-           ;; Custom M-# bindings for fast register access
-           ("M-#" . consult-register-load)
-           ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
-           ("C-M-#" . consult-register)
-           ;; Other custom bindings
-           ("M-y" . consult-yank-pop)                ;; orig. yank-pop
-           ;; M-g bindings (goto-map)
-           ("M-g e" . consult-compile-error)
-           ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
-           ("M-g g" . consult-goto-line)             ;; orig. goto-line
-           ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
-           ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
-           ("M-g m" . consult-mark)
-           ("M-g k" . consult-global-mark)
-           ("M-g i" . consult-imenu)
-           ("M-g I" . consult-imenu-multi)
-           ;; M-s bindings (search-map)
-           ("M-s d" . consult-find)
-           ("M-s D" . consult-locate)
-           ("M-s g" . consult-ripgrep)
-           ("M-s G" . consult-git-grep)
-           ("M-s r" . consult-ripgrep)
-           ("M-s l" . consult-line)
-           ("C-s" . consult-line)
-           ("M-s L" . consult-line-multi)
-           ("M-s k" . consult-keep-lines)
-           ("M-s u" . consult-focus-lines)
-           ;; Isearch integration
-           ("M-s e" . consult-isearch-history)
-           :map isearch-mode-map
-           ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
-           ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
-           ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
-           ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
-           ;; Minibuffer history
-           :map minibuffer-local-map
-           ("M-s" . consult-history)                 ;; orig. next-matching-history-element
-           ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+    (use-package consult
+      ;; Replace bindings. Lazily loaded due by `use-package'.
+      :bind (;; C-c bindings (mode-specific-map)
+             ("C-c h" . consult-history)
+             ("C-c m" . consult-mode-command)
+             ("C-c k" . consult-kmacro)
+             ;; C-x bindings (ctl-x-map)
+             ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+             ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+             ("C-x C-b" . consult-buffer)                ;; orig. switch-to-buffer
+             ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+             ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+             ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+             ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+             ;; Custom M-# bindings for fast register access
+             ("M-#" . consult-register-load)
+             ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+             ("C-M-#" . consult-register)
+             ;; Other custom bindings
+             ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+             ;; M-g bindings (goto-map)
+             ("M-g e" . consult-compile-error)
+             ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+             ("M-g g" . consult-goto-line)             ;; orig. goto-line
+             ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+             ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+             ("M-g m" . consult-mark)
+             ("M-g k" . consult-global-mark)
+             ("M-g i" . consult-imenu)
+             ("M-g I" . consult-imenu-multi)
+             ;; M-s bindings (search-map)
+             ("M-s d" . consult-find)
+             ("M-s D" . consult-locate)
+             ("M-s g" . consult-ripgrep)
+             ("M-s m" . consult-man)
+             ("M-s G" . consult-git-grep)
+             ("M-s r" . consult-ripgrep)
+             ("M-s l" . consult-line)
+             ("C-s" . consult-line)
+             ("M-s L" . consult-line-multi)
+             ("M-s k" . consult-keep-lines)
+             ("M-s u" . consult-focus-lines)
+             ;; Isearch integration
+             ("M-s e" . consult-isearch-history)
+             :map isearch-mode-map
+             ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+             ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+             ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+             ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+             ;; Minibuffer history
+             :map minibuffer-local-map
+             ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+             ("M-r" . consult-history))                ;; orig. previous-matching-history-element
 
-    ;; Enable automatic preview at point in the *Completions* buffer. This is
-    ;; relevant when you use the default completion UI.
-    :hook (completion-list-mode . consult-preview-at-point-mode)
+      ;; Enable automatic preview at point in the *Completions* buffer. This is
+      ;; relevant when you use the default completion UI.
+      :hook (completion-list-mode . consult-preview-at-point-mode)
 
-    ;; The :init configuration is always executed (Not lazy)
-    :init
-    (setq register-preview-delay 0.5
-          register-preview-function #'consult-register-format)
-    (advice-add #'register-preview :override #'consult-register-window)
+      ;; The :init configuration is always executed (Not lazy)
+      :init
+      (setq register-preview-delay 0.5
+            register-preview-function #'consult-register-format)
+      (advice-add #'register-preview :override #'consult-register-window)
 
-    (setq xref-show-xrefs-function #'consult-xref
-          xref-show-definitions-function #'consult-xref)
+      (setq xref-show-xrefs-function #'consult-xref
+            xref-show-definitions-function #'consult-xref)
 
-    :config
+      :config
 
-    ;; Optionally configure preview. The default value
-    ;; is 'any, such that any key triggers the preview.
-    ;; (setq consult-preview-key 'any)
-    ;; (setq consult-preview-key (kbd "M-."))
-    ;; (setq consult-preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
-    ;; For some commands and buffer sources it is useful to configure the
-    ;; :preview-key on a per-command basis using the `consult-customize' macro.
-    (consult-customize
-     consult-theme :preview-key '(:debounce 0.2 any)
-     consult-ripgrep consult-git-grep consult-grep
-     consult-bookmark consult-recent-file consult-xref
-     consult--source-bookmark consult--source-file-register
-     consult--source-recent-file consult--source-project-recent-file
-     ;; :preview-key (kbd "M-.")
-     :preview-key '(:debounce 0.4 any))
+      ;; Optionally configure preview. The default value
+      ;; is 'any, such that any key triggers the preview.
+      ;; (setq consult-preview-key 'any)
+      ;; (setq consult-preview-key (kbd "M-."))
+      ;; (setq consult-preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
+      ;; For some commands and buffer sources it is useful to configure the
+      ;; :preview-key on a per-command basis using the `consult-customize' macro.
+      (consult-customize
+       consult-theme :preview-key '(:debounce 0.2 any)
+       consult-ripgrep consult-git-grep consult-grep
+       consult-bookmark consult-recent-file consult-xref
+       consult--source-bookmark consult--source-file-register
+       consult--source-recent-file consult--source-project-recent-file
+       ;; :preview-key (kbd "M-.")
+       :preview-key '(:debounce 0.4 any))
 
-    ;; Optionally configure the narrowing key.
-    ;; Both  and C-+ work reasonably well.
-    (setq consult-narrow-key "<") ;; (kbd "C-+")
-    )
+      ;; Optionally configure the narrowing key.
+      ;; Both  and C-+ work reasonably well.
+      (setq consult-narrow-key "<") ;; (kbd "C-+")
+      )
 
-(defun d/consult-first-param-is-initial-text (consult-fn &rest rest)
-  "Advising function around CONSULT-FN.
+  (defun d/consult-first-param-is-initial-text (consult-fn &rest rest)
+    "Advising function around CONSULT-FN.
 
-The CONSULT-FN's first parameter should be the initial text.
+  The CONSULT-FN's first parameter should be the initial text.
 
-When there's an active region, use that as the first parameter
-for CONSULT-FN.  Otherwise, use an empty string the first
-parameter.  This function handles the REST of the parameters."
-  (interactive)
-  (apply consult-fn
-         (when (use-region-p)
-           (buffer-substring
-            (region-beginning) (region-end)))
-         rest))
+  When there's an active region, use that as the first parameter
+  for CONSULT-FN.  Otherwise, use an empty string the first
+  parameter.  This function handles the REST of the parameters."
+    (interactive)
+    (apply consult-fn
+           (when (use-region-p)
+             (buffer-substring
+              (region-beginning) (region-end)))
+           rest))
 
-(defun d/consult-ripgrep-wrapper (consult-fn &optional dir given-initial)
-  "Advising function around CONSULT-FN.
+  (defun d/consult-ripgrep-wrapper (consult-fn &optional dir given-initial)
+    "Advising function around CONSULT-FN.
 
-DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
-  (interactive "P")
-  (let ((initial (list (or given-initial
-                           (when (use-region-p)
-                             (buffer-substring (region-beginning)
-                                               (region-end)))))))
-    (apply consult-fn dir initial)))
-(advice-add #'consult-line
-            :around #'d/consult-first-param-is-initial-text
-            '((name . "wrapper")))
-(advice-add #'consult-ripgrep
-            :around #'d/consult-ripgrep-wrapper
-            '((name . "wrapper")))
+  DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
+    (interactive "P")
+    (let ((initial (list (or given-initial
+                             (when (use-region-p)
+                               (buffer-substring (region-beginning)
+                                                 (region-end)))))))
+      (apply consult-fn dir initial)))
+  (advice-add #'consult-line
+              :around #'d/consult-first-param-is-initial-text
+              '((name . "wrapper")))
+  (advice-add #'consult-ripgrep
+              :around #'d/consult-ripgrep-wrapper
+              '((name . "wrapper")))
 
 #+end_src
 
@@ -816,6 +819,48 @@ Cape for Rescue! Feel the power of Emacs Extensibility
   (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
 
 #+end_src
+** Tempel Snip
+Another, minimal and DIY snippets for any buffer!
+#+begin_src emacs-lisp
+
+  ;; Configure Tempel
+  (use-package tempel
+    ;; Require trigger prefix before template name when completing.
+    ;; :custom
+    ;; (tempel-trigger-prefix "<")
+
+    :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
+           ("M-*" . tempel-insert))
+
+    :init
+
+    ;; Setup completion at point
+    (defun tempel-setup-capf ()
+      ;; Add the Tempel Capf to `completion-at-point-functions'.
+      ;; `tempel-expand' only triggers on exact matches. Alternatively use
+      ;; `tempel-complete' if you want to see all matches, but then you
+      ;; should also configure `tempel-trigger-prefix', such that Tempel
+      ;; does not trigger too often when you don't expect it. NOTE: We add
+      ;; `tempel-expand' *before* the main programming mode Capf, such
+      ;; that it will be tried first.
+      (setq-local completion-at-point-functions
+                  (cons #'tempel-expand
+                        completion-at-point-functions)))
+
+    (add-hook 'prog-mode-hook 'tempel-setup-capf)
+    (add-hook 'text-mode-hook 'tempel-setup-capf)
+
+    ;; Optionally make the Tempel templates available to Abbrev,
+    ;; either locally or globally. `expand-abbrev' is bound to C-x '.
+    (add-hook 'prog-mode-hook #'tempel-abbrev-mode)
+    ;; (global-tempel-abbrev-mode)
+    )
+
+  (use-package tempel-collection
+    :ensure t
+    :after tempel
+    )
+#+end_src
 ** Modernize - Organize
 You will see org just below this, this package helps make Org-Mode looks eye-candy and how it reached average audience.
 #+begin_src emacs-lisp
@@ -835,8 +880,9 @@ You will see org just below this, this package helps make Org-Mode looks eye-can
 
   ;; Add frame borders and window dividers
   (modify-all-frames-parameters
-   '((right-divider-width . 15)
-     (internal-border-width . 15)))
+   '((right-divider-width . 1)
+     (bottom-divider-width . 1)
+     (internal-border-width . 5)))
   (dolist (face '(window-divider
                   window-divider-first-pixel
                   window-divider-last-pixel))
@@ -1283,7 +1329,7 @@ I'm not a programmer, maybe will be expanded in future..
   (use-package nix-mode)
 
   (add-hook 'prog-mode-hook #'display-line-numbers-mode)
-  (add-hook 'prog-mode-hook #'eglot-ensure)
+  ;;(add-hook 'prog-mode-hook #'eglot-ensure)
   (add-hook 'prog-mode-hook #'flycheck-mode)
 
   (use-package markdown-mode
@@ -1405,52 +1451,57 @@ Some small codes from good source.
 * Document - The PDF 📎
 Pdf-tools is another great addition if you want to integrate well with Emacs.
 #+begin_src emacs-lisp
-(use-package pdf-tools
-  :init
-  (pdf-tools-install)
-  :config
-  (setq pdf-tools-enabled-modes         ; simplified from the defaults
-        '(pdf-history-minor-mode
-          pdf-isearch-minor-mode
-          pdf-links-minor-mode
-          pdf-outline-minor-mode
-          pdf-misc-size-indication-minor-mode
-          pdf-occur-global-minor-mode))
-  (setq pdf-view-display-size 'fit-page) ;;fit-height
-  (setq pdf-view-continuous t)
-  (setq pdf-cache-image-limit 3)
-  (setq large-file-warning-threshold 700000000)
-  (setq pdf-cache-prefetch-delay 0.5)
-  (setq image-cache-eviction-delay 3)
-  (setq pdf-annot-activate-created-annotations t)
-  (setq pdf-view-use-dedicated-register nil)
-  (setq pdf-view-max-image-width 2000)
-  (add-hook 'pdf-view-mode-hook (lambda () (cua-mode 0)))
-  (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
-  (define-key pdf-view-mode-map (kbd "M-g g") 'pdf-view-goto-page)
-  (setq pdf-outline-imenu-use-flat-menus t)
-  (setq pdf-view-resize-factor 1.1)
-  (define-key pdf-view-mode-map (kbd "h") 'pdf-annot-add-highlight-markup-annotation)
-  (define-key pdf-view-mode-map (kbd "t") 'pdf-annot-add-text-annotation)
-  (define-key pdf-view-mode-map (kbd "D") 'pdf-annot-delete)
-  (define-key pdf-view-mode-map (kbd "I") 'pdf-view-midnight-minor-mode)
+  (use-package pdf-tools
+    :init
+    (pdf-tools-install)
+    :config
+    (setq pdf-tools-enabled-modes         ; simplified from the defaults
+          '(pdf-history-minor-mode
+            pdf-isearch-minor-mode
+            pdf-links-minor-mode
+            pdf-outline-minor-mode
+            pdf-misc-size-indication-minor-mode
+            pdf-occur-global-minor-mode))
+    (setq pdf-view-display-size 'fit-page) ;;fit-height
+    (setq pdf-view-continuous t)
+    (setq pdf-cache-image-limit 3)
+    (setq large-file-warning-threshold 700000000)
+    (setq pdf-cache-prefetch-delay 0.5)
+    (setq image-cache-eviction-delay 3)
+    (setq pdf-annot-activate-created-annotations t)
+    (setq pdf-view-use-dedicated-register nil)
+    (setq pdf-view-max-image-width 2000)
+    (add-hook 'pdf-view-mode-hook (lambda () (cua-mode 0)))
+    (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
+    (define-key pdf-view-mode-map (kbd "M-g g") 'pdf-view-goto-page)
+    (setq pdf-outline-imenu-use-flat-menus t)
+    (setq pdf-view-resize-factor 1.1)
+    (define-key pdf-view-mode-map (kbd "h") 'pdf-annot-add-highlight-markup-annotation)
+    (define-key pdf-view-mode-map (kbd "t") 'pdf-annot-add-text-annotation)
+    (define-key pdf-view-mode-map (kbd "D") 'pdf-annot-delete)
+    (define-key pdf-view-mode-map (kbd "I") 'pdf-view-midnight-minor-mode)
 
 
-  (defun d/kill-buffer ()
-    "Clear the image cache (to release memory) after killing a pdf buffer."
-    (interactive)
-    (ido-kill-buffer)
-    (delete-window)
-    (clear-image-cache t)
-    (pdf-cache-clear-data))
+    (defun d/kill-buffer ()
+      "Clear the image cache (to release memory) after killing a pdf buffer."
+      (interactive)
+      (ido-kill-buffer)
+      (delete-window)
+      (clear-image-cache t)
+      (pdf-cache-clear-data))
 
-  (define-key pdf-view-mode-map (kbd "Q") 'd/kill-buffer))
+    (define-key pdf-view-mode-map (kbd "Q") 'd/kill-buffer))
   (define-key image-mode-map (kbd "q") 'd/kill-buffer)
 
-;; For Comic Manga
-(add-hook 'image-mode-hook (lambda ()
-                             (olivetti-mode)
-                             (setq olivetti-body-width 0.45)))
+  ;; For Comic Manga
+  (add-hook 'image-mode-hook (lambda ()
+                               (olivetti-mode)
+                               (setq olivetti-body-width 0.45)))
+
+  (use-package man
+    :bind (("C-c m" . consult-man)
+           :map Man-mode-map
+           ("q" . kill-buffer-and-window)))
 
 #+end_src
 
@@ -1617,6 +1668,7 @@ Use RSS, just switch to it, and save your time for other productive things. If y
     (define-key eww-mode-map (kbd "j") #'d/external-browser)
     (define-key eww-mode-map (kbd "J") #'d/jump-urls))
 
+
 #+end_src
 
 ** Enhanced Rss experience
@@ -1758,6 +1810,7 @@ Idk why, but i guess these all should be the sane defaults.
   (setq tab-bar-new-tab-choice "*scratch")
   (setq tab-bar-close-button-show nil
         tab-bar-new-button-show nil)
+  (setq vc-follow-symlinks t)
 
   ;; Set up the visible bell
   (setq visible-bell nil)

@@ -26,7 +26,10 @@
 | Favourite Color-Schemes | Modus-Vivendi + Gruvbox             |
 |-------------------------+-------------------------------------|
 
+#+begin_quote
 Rest all other stuffs I do in Emacs, tbh I could do everything in Emacs lol.
+#+end_quote
+
 
 Feel free to open an issue and ask me doubts or about some improvements, you wanna inform! I will be glad.
 If you really wanna talk/discuss with me, open an issue so I will join on some media (Irc/matrix or telegram)
@@ -59,13 +62,17 @@ Another key feature in my setup is, every file i tangle is at *read-only mode*. 
 Also, I have made files to be *symlink*, so i can edit them without requiring to rebuild whole thing!
 --------------
 
-
+#+begin_center
 | *Note*: There are *#FIXME tags in [[file:d-setup.org][d-setup.org]]* where you should edit it accordingly to your *USERNAME* and *HOSTNAME*.   I have tried to comment few things to make it as a info, you can _ask/create issue_ regarding this, don't hold back.   *I'm waiting for you to ask!*  |
+#+end_center
+
 
 --------------
 ** Welcome to 'Will of D' flakes system ⚔️
 
+#+begin_quote
 /you can check out small write-up on my [[file:blogs/linux-journey.org][linux journey]]/
+#+end_quote
 
 *** Now if you get doubt of, "Should I try NixOS?" ❄️
 
@@ -83,7 +90,12 @@ But, if you have decided, go with it. According to me (non-programmer), these po
 
 ** Pack your bags, lets go through our configuration! ✨
 Before that I believe you are a tinkerer, I have a motto which goes like this
-+ /If you want to understand the whole, Understand its parts/. *[[https://www.verywellmind.com/what-is-gestalt-psychology-2795808][Gestalt Psychology]]*
+
+
+#+begin_quote
+/If you want to understand the whole, Understand its parts/. *[[https://www.verywellmind.com/what-is-gestalt-psychology-2795808][Gestalt Psychology]]*
+#+end_quote
+
   
   I mean, that is how *Nix Philosophy or Linux users are, We understand each utility (grep, sed...) and make precise use of it, You can technically call it Magic of scripting.
 
@@ -100,4 +112,7 @@ I thank them sincerely.
 
 ------------------------------------------------------------------------------------------
   
+#+begin_center
 Soon will be more documented.......
+#+end_center
+

@@ -1416,7 +1416,7 @@ Its more mature than hyprland. So... better to have it!
       reddigg mingus pdf-tools which-key magit aria2 webpaste org-present
       org-mime corfu-terminal beframe denote tempel tempel-collection
       sdcv elfeed elfeed-org link-hint general powerthesaurus
-      doom-modeline org-auto-tangle 
+      doom-modeline org-auto-tangle el-fetch
     ])
     );
   };
@@ -2390,11 +2390,12 @@ Enables file as  shell script
   #! /bin/bash
 #+end_src
 *** Install System Flake
+
 #+begin_src sh
-    echo "Installing System Flake"
-    sudo cp -f /etc/nixos/hardware-configuration.nix ~/.SETUP/gdk/hardware-configuration.nix
-    cd ~/.SETUP
-    sudo nixos-rebuild switch --flake .#gdk
+  echo "Installing System Flake"
+  sudo cp -f /etc/nixos/hardware-configuration.nix ~/.SETUP/gdk/hardware-configuration.nix
+  cd ~/.SETUP
+  sudo nixos-rebuild switch --flake .#gdk
 #+end_src
 *** Create SSH Key
 Creates a SSH Key for Git and then copies it to a named file on the Desktop

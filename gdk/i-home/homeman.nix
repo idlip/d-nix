@@ -495,7 +495,7 @@ programs.emacs = {
     reddigg mingus pdf-tools which-key magit aria2 webpaste org-present
     org-mime corfu-terminal beframe denote tempel tempel-collection
     sdcv elfeed elfeed-org link-hint general powerthesaurus
-    doom-modeline org-auto-tangle 
+    doom-modeline org-auto-tangle el-fetch
   ])
   );
 };

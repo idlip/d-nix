@@ -190,7 +190,7 @@ security.doas = {
 
 services = {
   dbus = {
-    # packages = with pkgs; [dconf udisks2];
+    packages = with pkgs; [dconf udisks2 gcr];
     enable = true;
   };
   # udev.packages = with pkgs; [gnome.gnome-settings-daemon];
@@ -201,7 +201,7 @@ services = {
   '';
   # To mount drives with udiskctl command
   udisks2.enable = true;
-
+  gnome.at-spi2-core.enable = true;
 
   tlp.enable = true;                      # TLP and auto-cpufreq for power management
   auto-cpufreq.enable = true;

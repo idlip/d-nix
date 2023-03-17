@@ -254,7 +254,7 @@ Certain services, just enable = true; gets the work done for most of the stuffs.
 #+begin_src nix
   services = {
     dbus = {
-      # packages = with pkgs; [dconf udisks2];
+      packages = with pkgs; [dconf udisks2 gcr];
       enable = true;
     };
     # udev.packages = with pkgs; [gnome.gnome-settings-daemon];
@@ -265,7 +265,7 @@ Certain services, just enable = true; gets the work done for most of the stuffs.
     '';
     # To mount drives with udiskctl command
     udisks2.enable = true;
-    
+    gnome.at-spi2-core.enable = true;
 
     tlp.enable = true;                      # TLP and auto-cpufreq for power management
     auto-cpufreq.enable = true;

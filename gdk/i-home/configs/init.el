@@ -31,19 +31,29 @@
 ;; You will most likely need to adjust this font size for your system!
 (defvar default-font-size 190)
 (defvar default-variable-font-size 190)
+
+;; Set reusable font name variables
+(defvar d/fixed-width-font "ComicCodeLigatures"
+  "The font to use for monospaced (fixed width) text.")
+
+(defvar d/variable-width-font "ComicCodeLigatures"
+  "The font to use for variable-pitch (document) text.")
+
+(defvar d/header-font "Comic Mono"
+  "Font for header level in org-mode." )
+
 (setf use-default-font-for-symbols nil)
 (set-fontset-font t 'unicode "Noto Emoji" nil 'append)
 
-
 (defun set-font-faces ()
   (message "Setting faces!")
-  (set-face-attribute 'default nil :font "ComicCodeLigatures" :weight 'medium :height default-font-size)
+  (set-face-attribute 'default nil :font d/fixed-width-font :weight 'medium :height default-font-size)
 
   ;; Set the fixed pitch face
-  (set-face-attribute 'fixed-pitch nil :font "ComicCodeLigatures" :height default-font-size)
+  (set-face-attribute 'fixed-pitch nil :font d/fixed-width-font :height default-font-size)
 
   ;; Set the variable pitch face
-  (set-face-attribute 'variable-pitch nil :font "ComicCodeLigatures" :height default-variable-font-size :weight 'medium))
+  (set-face-attribute 'variable-pitch nil :font d/variable-width-font :height default-variable-font-size :weight 'medium))
 
 (use-package no-littering)
 
@@ -723,7 +733,8 @@ org-modern-list
                   (org-level-6 . 1.1)
                   (org-level-7 . 1.1)
                   (org-level-8 . 1.1)))
-    (set-face-attribute (car face) nil :font "Comic Mono" :weight 'regular :height (cdr face)))
+    (set-face-attribute 'org-document-title nil :font d/fixed-width-font :weight 'bold :height 1.3)
+    (set-face-attribute (car face) nil :font d/header-font :weight 'regular :height (cdr face)))
 
   ;; Ensure that anything that should be fixed-pitch in Org files appears that way
   (set-face-attribute 'org-block nil    :foreground nil :inherit 'fixed-pitch)
@@ -930,6 +941,176 @@ org-modern-list
 (use-package powerthesaurus
   :defer t)
 
+(use-package org-present)
+
+(setq org-present-add-overlays-regex "^[[:space:]]*\\(#\\\+\\)\\(\\(\\(title\\|subtitle\\|date\\|author\\|email\\)\\\:[[:space:]]\\)\\|\\(\\([a-zA-Z]+\\(?:_[a-zA-Z]+\\)*\\).*\\)\\)")
+
+(defun org-present-add-overlays ()
+  "Add overlays for this mode."
+  (add-to-invisibility-spec '(org-present))
+  (save-excursion
+    ;; hide org-mode options starting with #+
+    (goto-char (point-min))
+    (while (re-search-forward org-present-add-overlays-regex nil t)
+      (let ((end (if (org-present-show-option (match-string 2)) 2 0)))
+        (org-present-add-overlay (match-beginning 1) (match-end end))))
+    ;; hide stars in headings
+    (if org-present-hide-stars-in-headings
+        (progn (goto-char (point-min))
+               (while (re-search-forward "^\\(*+\\)" nil t)
+                 (org-present-add-overlay (match-beginning 1) (match-end 1)))))
+    ;; hide emphasis/verbatim markers if not already hidden by org
+    (if org-hide-emphasis-markers nil
+      ;; TODO https://github.com/rlister/org-present/issues/12
+      ;; It would be better to reuse org's own facility for this, if possible.
+      ;; However it is not obvious how to do this.
+      (progn
+        ;; hide emphasis markers
+        (goto-char (point-min))
+        (while (re-search-forward org-emph-re nil t)
+          (org-present-add-overlay (match-beginning 2) (1+ (match-beginning 2)))
+          (org-present-add-overlay (1- (match-end 2)) (match-end 2)))
+        ;; hide verbatim markers
+        (goto-char (point-min))
+        (while (re-search-forward org-verbatim-re nil t)
+          (org-present-add-overlay (match-beginning 2) (1+ (match-beginning 2)))
+          (org-present-add-overlay (1- (match-end 2)) (match-end 2)))))))
+
+(defvar d/org-present-org-modern-keyword '(("title"       . "")
+                                           ("description" . "")
+                                           ("subtitle"    . "")
+                                           ("date"        . "")
+                                           ("author"      . "")
+                                           ("email"       . "")
+                                           ("language"    . "")
+                                           ("options"     . "")
+                                           (t . t)))
+
+(define-minor-mode d/org-present-mode
+  "Toggle Presentation Mode."
+  :lighter "d/org-present-mode"
+  (if d/org-present-mode
+      (org-present)
+    (org-present-quit)))
+
+(defun d/org-present-enable-hook ()
+  (setq d/org-present--inhibit-message inhibit-message
+        d/org-present--echo-keystrokes echo-keystrokes
+        d/org-present--visual-line-mode visual-line-mode
+        d/org-present--org-ellipsis org-ellipsis
+        d/org-present--org-indent-mode org-indent-mode)
+  (org-indent-mode 0)
+
+  (dolist (face '((org-level-1 . 1.8)
+                  (org-level-2 . 1.7)
+                  (header-line . 2.0)
+                  (org-level-3 . 1.6)
+                  (org-level-4 . 1.5)
+                  (org-level-5 . 1.4)
+                  (org-level-6 . 1.3)
+                  (org-document-title . 3.15)
+                  (org-code . 1.05)
+                  (org-verbatim . 1.25)
+                  (org-block . 1.0)
+                  (org-block-begin-line . 0.7)
+                  (org-level-7 . 1.1)
+                  (org-level-8 . 1.1)))
+    (set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face)))
+
+  ;; Disable 'org-modern-mode' to setup adjustment if it's installed
+  (if (package-installed-p 'org-modern)
+      (org-modern-mode 0))
+
+  (if (package-installed-p 'org-modern)
+      (setq-local d/org-present--org-modern-hide-stars org-modern-hide-stars
+                  d/org-present--org-modern-keyword org-modern-keyword
+                  d/org-present--org-modern-block-fringe org-modern-block-fringe
+
+                  org-modern-hide-stars t
+                  org-modern-block-fringe nil
+                  org-modern-keyword d/org-present-org-modern-keyword))
+
+  (display-line-numbers-mode 0)
+
+  (if (package-installed-p 'org-modern)
+      (org-modern-mode 1))
+
+  (setq inhibit-message t
+        echo-keystrokes nil
+        header-line-format " "
+        org-ellipsis "⤵")
+
+  (if (package-installed-p 'hide-mode-line)
+      (hide-mode-line-mode 1))
+
+  (org-display-inline-images))
+
+(defun d/org-present-prepare-slide (buffer-name heading)
+  (org-overview)
+  (org-show-entry)
+  (org-present-read-only)
+  (org-show-children))
+
+(defun d/org-present-disable-hook ()
+  (setq-local header-line-format nil
+              face-remapping-alist '((default variable-pitch default))
+              org-adapt-indentation nil
+              visual-line-mode d/org-present--visual-line-mode
+              org-ellipsis d/org-present--org-ellipsis
+              inhibit-message d/org-present--inhibit-message
+              echo-keystrokes d/org-present--echo-keystrokes)
+  (org-present-small)
+
+  (org-indent-mode d/org-present--org-indent-mode)
+
+  (if (package-installed-p 'hide-mode-line)
+      (hide-mode-line-mode 0))
+
+  (org-mode-restart)
+  (org-remove-inline-images))
+
+(defun d/org-present-up ()
+  "Go to higher heading from current heading."
+  (interactive)
+  (widen)
+  (org-up-heading-safe)
+  (org-present-narrow)
+  (org-present-run-after-navigate-functions))
+
+(defun d/org-present-next-sibling ()
+  "Go to next sibling."
+  (interactive)
+  (widen)
+  (unless (org-goto-first-child)
+    (org-get-next-sibling))
+  (org-present-narrow)
+  (org-present-run-after-navigate-functions))
+
+(defun d/org-present--last-child ()
+  "Find last child of current heading."
+  (when (org-goto-sibling) (d/org-present--last-child))
+  (when (org-goto-first-child) (d/org-present--last-child)))
+
+(defun d/org-present-previous-sibling ()
+  "Go to next sibling."
+  (interactive)
+  (widen)
+  (when (org-current-level)
+    (org-back-to-heading)
+    (if (and (org-get-previous-sibling) (org-current-level))
+        (when (org-goto-first-child)
+          (d/org-present--last-child))))
+  (org-present-narrow)
+  (org-present-run-after-navigate-functions))
+
+(define-key org-present-mode-keymap (kbd "<right>")   'd/org-present-next-sibling)
+(define-key org-present-mode-keymap (kbd "<left>")   'd/org-present-previous-sibling)
+(define-key org-present-mode-keymap (kbd "<up>")   'd/org-present-up)
+
+(add-hook 'org-present-mode-hook #'d/org-present-enable-hook)
+(add-hook 'org-present-mode-quit-hook #'d/org-present-disable-hook)
+(add-hook 'org-present-after-navigate-functions #'d/org-present-prepare-slide)
+
 (use-package denote)
 (setq denote-directory (expand-file-name "~/sync/denote"))
 (setq denote-known-keywords '("emacs" "blogs" "article"))
@@ -1087,7 +1268,7 @@ org-modern-list
                     (markdown-header-face-3 . 1.15)
                     (markdown-header-face-4 . 1.1)
                     (markdown-header-face-5 . 1.0)))
-      (set-face-attribute (car face) nil :weight 'normal :font "Comic Mono" :height (cdr face))))
+      (set-face-attribute (car face) nil :weight 'normal :font d/header-font :height (cdr face))))
 
   (defun d/markdown-mode-hook ()
     (d/set-markdown-header-font-sizes))

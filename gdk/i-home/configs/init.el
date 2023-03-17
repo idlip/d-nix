@@ -45,7 +45,7 @@
 (setf use-default-font-for-symbols nil)
 (set-fontset-font t 'unicode "Noto Emoji" nil 'append)
 
-(defun set-font-faces ()
+(defun d/set-font-faces ()
   (message "Setting faces!")
   (set-face-attribute 'default nil :font d/fixed-width-font :weight 'medium :height default-font-size)
 
@@ -145,6 +145,7 @@
 (global-unset-key (kbd "M-SPC"))
 
 (use-package general
+  :defer t
   :config
   (general-create-definer leader-keys
     :prefix "M-SPC"))
@@ -737,15 +738,6 @@ org-modern-list
     (set-face-attribute (car face) nil :font d/header-font :weight 'regular :height (cdr face)))
 
   ;; Ensure that anything that should be fixed-pitch in Org files appears that way
-  (set-face-attribute 'org-block nil    :foreground nil :inherit 'fixed-pitch)
-  (set-face-attribute 'org-table nil    :inherit 'fixed-pitch)
-  (set-face-attribute 'org-formula nil  :inherit 'fixed-pitch)
-  (set-face-attribute 'org-code nil     :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-table nil    :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-checkbox nil  :inherit 'fixed-pitch)
   (set-face-attribute 'line-number nil :slant 'normal :weight 'semibold :inherit 'fixed-pitch)
   (set-face-attribute 'line-number-current-line nil :weight 'ultrabold :slant 'normal :inherit 'fixed-pitch ))
 
@@ -757,6 +749,7 @@ org-modern-list
   (flyspell-mode 1)
   (setq
    org-startup-indented nil
+   org-image-actual-width 300
    org-startup-folded t)
   )
 
@@ -1001,20 +994,21 @@ org-modern-list
         d/org-present--org-indent-mode org-indent-mode)
   (org-indent-mode 0)
 
-  (dolist (face '((org-level-1 . 1.8)
-                  (org-level-2 . 1.7)
-                  (header-line . 2.0)
-                  (org-level-3 . 1.6)
-                  (org-level-4 . 1.5)
-                  (org-level-5 . 1.4)
-                  (org-level-6 . 1.3)
-                  (org-document-title . 3.15)
+  (dolist (face '((org-level-1 . 1.5)
+                  (org-level-2 . 1.4)
+                  (org-level-3 . 1.3)
+                  (org-level-4 . 1.25)
+                  (org-level-5 . 1.2)
+                  (org-level-6 . 1.1)
+                  (org-document-title . 2.1)
                   (org-code . 1.05)
                   (org-verbatim . 1.25)
                   (org-block . 1.0)
                   (org-block-begin-line . 0.7)
                   (org-level-7 . 1.1)
                   (org-level-8 . 1.1)))
+    (set-face-attribute 'org-level-1 nil :height '1.6 :foreground "#b6a0ff")
+    (set-face-attribute 'header-line nil :height '2.0 :background)
     (set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face)))
 
   ;; Disable 'org-modern-mode' to setup adjustment if it's installed
@@ -1035,10 +1029,13 @@ org-modern-list
   (if (package-installed-p 'org-modern)
       (org-modern-mode 1))
 
-  (setq inhibit-message t
-        echo-keystrokes nil
-        header-line-format " "
-        org-ellipsis "⤵")
+  (setq-local inhibit-message t
+              echo-keystrokes nil
+              cursor-type t
+              org-image-actual-width 300
+              header-line-format " "
+              org-ellipsis "⤵")
+
 
   (if (package-installed-p 'hide-mode-line)
       (hide-mode-line-mode 1))
@@ -1048,8 +1045,9 @@ org-modern-list
 (defun d/org-present-prepare-slide (buffer-name heading)
   (org-overview)
   (org-show-entry)
-  (org-present-read-only)
+  (read-only-mode 1)
   (org-show-children))
+
 
 (defun d/org-present-disable-hook ()
   (setq-local header-line-format nil
@@ -1103,9 +1101,16 @@ org-modern-list
   (org-present-narrow)
   (org-present-run-after-navigate-functions))
 
+(defun d/org-present-refresh ()
+  (interactive)
+  (d/org-present-mode)
+  (d/org-present-mode))
+
 (define-key org-present-mode-keymap (kbd "<right>")   'd/org-present-next-sibling)
 (define-key org-present-mode-keymap (kbd "<left>")   'd/org-present-previous-sibling)
 (define-key org-present-mode-keymap (kbd "<up>")   'd/org-present-up)
+(define-key org-present-mode-keymap (kbd "S-<f5>") 'd/org-present-refresh)
+(define-key org-mode-map (kbd "C-<f5>") 'd/org-present-mode)
 
 (add-hook 'org-present-mode-hook #'d/org-present-enable-hook)
 (add-hook 'org-present-mode-quit-hook #'d/org-present-disable-hook)
@@ -1572,7 +1577,7 @@ org-modern-list
 
 (defun d/external-browser ()
   (interactive)
-  (link-hint-copy-link)
+  (link-hint-copy-link-at-point)
   (let ((url (current-kill 0)))
     (browse-url-generic url)))
 
@@ -1810,6 +1815,6 @@ org-modern-list
               (lambda (frame)
                 ;; (setq doom-modeline-icon t)
                 (with-selected-frame frame
-                  (set-font-faces))))
-    (set-font-faces))
+                  (d/set-font-faces))))
+    (d/set-font-faces))
 (put 'narrow-to-region 'disabled nil)

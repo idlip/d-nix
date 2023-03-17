@@ -265,6 +265,7 @@ Certain services, just enable = true; gets the work done for most of the stuffs.
     '';
     # To mount drives with udiskctl command
     udisks2.enable = true;
+    
 
     tlp.enable = true;                      # TLP and auto-cpufreq for power management
     auto-cpufreq.enable = true;
@@ -331,6 +332,25 @@ Certain services, just enable = true; gets the work done for most of the stuffs.
     };
   };
 
+
+#+end_src
+**** Systemd
+Make systemd services if required
+#+begin_src nix
+
+  systemd.services = {
+    seatd = {
+      enable = true;
+      description = "Seat management daemon";
+      script = "${pkgs.seatd}/bin/seatd -g wheel";
+      serviceConfig = {
+        Type = "simple";
+        Restart = "always";
+        RestartSec = "1";
+      };
+      wantedBy = ["multi-user.target"];
+    };
+  };
 
 #+end_src
 *** System Packages

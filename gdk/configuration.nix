@@ -202,6 +202,7 @@ services = {
   # To mount drives with udiskctl command
   udisks2.enable = true;
 
+
   tlp.enable = true;                      # TLP and auto-cpufreq for power management
   auto-cpufreq.enable = true;
 
@@ -264,6 +265,20 @@ services = {
     };
     wireplumber.enable = true;
     pulse.enable = true;
+  };
+};
+
+systemd.services = {
+  seatd = {
+    enable = true;
+    description = "Seat management daemon";
+    script = "${pkgs.seatd}/bin/seatd -g wheel";
+    serviceConfig = {
+      Type = "simple";
+      Restart = "always";
+      RestartSec = "1";
+    };
+    wantedBy = ["multi-user.target"];
   };
 };
 

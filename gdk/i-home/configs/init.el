@@ -46,6 +46,11 @@
   "Sans font for reading docs or presentation")
 (defvar d/jetb-font "JetBrains Mono NF"
   "Jetbrains font for code/verbatim" )
+(defvar d/title-face "Impress BT"
+  "Font for title")
+(defvar d/link-font "AestheticIosevka"
+  "Font for links" )
+
 
 (setf use-default-font-for-symbols nil)
 (set-fontset-font t 'unicode "Noto Emoji" nil 'append)
@@ -741,7 +746,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
                   (org-level-6 . 1.1)
                   (org-level-7 . 1.1)
                   (org-level-8 . 1.1)))
-    (set-face-attribute 'org-document-title nil :font "Impress BT" :weight 'bold :height 2.5 :width 'extra-expanded)
+    (set-face-attribute 'org-document-title nil :font d/title-face :weight 'bold :height 2.5 :width 'extra-expanded)
     (set-face-attribute 'org-level-1 nil :font d/header-font :weight 'medium :height 1.3 :foreground "#b6a0ff")
     (set-face-attribute 'org-level-2 nil :font d/header-font :weight 'medium :height 1.2)
     (set-face-attribute 'org-level-3 nil :font d/header-font :weight 'medium :height 1.1)
@@ -1013,7 +1018,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
                   (org-block-begin-line . 0.7)
                   (org-level-7 . 1.1)
                   (org-level-8 . 1.1)))
-    (set-face-attribute 'org-document-title nil :font "Impress BT" :weight 'bold :height 2.5 :width 'extra-expanded)
+    (set-face-attribute 'org-document-title nil :font d/title-face :weight 'bold :height 2.5 :width 'extra-expanded)
     (set-face-attribute 'org-level-1 nil :font d/header-font :weight 'medium :height 1.6 :foreground "#b6a0ff")
     (set-face-attribute 'org-level-2 nil :font d/header-font :weight 'medium :height 1.5)
     (set-face-attribute 'org-level-3 nil :font d/header-font :weight 'medium :height 1.4)
@@ -1537,8 +1542,25 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   (defalias 'elfeed-toggle-star
     (elfeed-expose #'elfeed-search-toggle-all 'star))
 
-  (eval-after-load 'elfeed-search
-    '(define-key elfeed-search-mode-map (kbd "m") 'elfeed-toggle-star))
+  (defun d/elfeed-ui ()
+    (interactive)
+    (setq-local header-line-format " ")
+
+    ;; For sides
+    (set-face-attribute 'message-header-name nil :font d/header-font :height '0.8 :background)
+    ;; For Titlt
+    (set-face-attribute 'message-header-subject nil :font d/title-face :height '1.80 :background)
+    ;; For tags..
+    (set-face-attribute 'message-header-other nil :font d/jetb-font :height '1.0 :background)
+    ;; For Author
+    (set-face-attribute 'message-header-to nil :font d/sans-font :slant 'italic :height '1.50 :background)
+    (set-face-attribute 'shr-link nil :font d/link-font :slant 'italic :width 'condensed :height '1.0 :background)
+
+    (define-key elfeed-search-mode-map (kbd "m") 'elfeed-toggle-star)
+    (define-key elfeed-show-mode-map (kbd "b") 'd/external-browser))
+
+
+  (add-hook 'elfeed-show-mode-hook #'d/elfeed-ui)
 
   ;; face for starred articles
   (defface elfeed-search-star-title-face
@@ -1590,12 +1612,14 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   (define-key eww-mode-map (kbd "C-b") #'shr-previous-link)
   (define-key eww-mode-map (kbd "F") #'d/visit-urls)
   (define-key eww-mode-map (kbd "U") #'elfeed-update)
-  (define-key eww-mode-map (kbd "j") #'d/external-browser)
+  (define-key eww-mode-map (kbd "b") #'d/external-browser)
   (define-key eww-mode-map (kbd "J") #'d/jump-urls))
 
 (defun d/external-browser ()
   (interactive)
-  (link-hint-copy-link-at-point)
+(if (link-hint--shr-url-at-point-p)
+    (link-hint--shr-url-at-point-p)
+  (link-hint-copy-link))
   (let ((url (current-kill 0)))
     (browse-url-generic url)))
 

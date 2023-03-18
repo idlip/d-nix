@@ -143,6 +143,8 @@
 
 ;; Make ESC quit prompts
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+(global-set-key (kbd "M-z") 'zap-up-to-char)
+(global-set-key (kbd "C-S-k") 'avy-kill-whole-line)
 
 (defalias 'yes-or-no-p 'y-or-n-p) ;; Make confirmation messages easy and not a pain.
 
@@ -347,7 +349,7 @@
   (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
   (setq completion-cycle-threshold 3)
-  (setq tab-always-indent 'complete)
+  (setq tab-always-indent t)
   (setq enable-recursive-minibuffers t))
 
 ;; Optionally use the `orderless' completion style.
@@ -739,7 +741,15 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
                   (org-level-6 . 1.1)
                   (org-level-7 . 1.1)
                   (org-level-8 . 1.1)))
-    (set-face-attribute 'org-document-title nil :font d/fixed-width-font :weight 'bold :height 1.3)
+    (set-face-attribute 'org-document-title nil :font "Impress BT" :weight 'bold :height 2.5 :width 'extra-expanded)
+    (set-face-attribute 'org-level-1 nil :font d/header-font :weight 'medium :height 1.3 :foreground "#b6a0ff")
+    (set-face-attribute 'org-level-2 nil :font d/header-font :weight 'medium :height 1.2)
+    (set-face-attribute 'org-level-3 nil :font d/header-font :weight 'medium :height 1.1)
+    (set-face-attribute 'org-level-4 nil :font d/header-font :weight 'medium :height 1.1)
+    (set-face-attribute 'org-level-5 nil :font d/header-font :weight 'medium :height 1.15)
+
+    (set-face-attribute 'org-verbatim nil :height '1.15 :font d/jetb-font :weight 'medium)
+    (set-face-attribute 'org-code nil :height '1.15 :font d/jetb-font :weight 'medium)
     (set-face-attribute (car face) nil :font d/header-font :weight 'regular :height (cdr face)))
 
   ;; Ensure that anything that should be fixed-pitch in Org files appears that way
@@ -1011,10 +1021,10 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
     (set-face-attribute 'org-level-5 nil :font d/header-font :weight 'medium :height 1.25)
 
     (set-face-attribute 'org-verbatim nil :height '1.25 :font d/jetb-font :weight 'medium)
-    (set-face-attribute 'org-code nil :height '1.25 :font d/jetb-font :weight 'medium)
+    (set-face-attribute 'org-code nil :height '1.25 :font d/jetb-font :weight 'medium)o
 
 
-    (set-face-attribute 'header-line nil :height '2.0 :background)
+    (set-face-attribute 'header-line nil :height '1.0 :background)
     (set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face)))
 
   ;; Disable 'org-modern-mode' to setup adjustment if it's installed
@@ -1064,6 +1074,8 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
               inhibit-message d/org-present--inhibit-message
               echo-keystrokes d/org-present--echo-keystrokes)
   (org-present-small)
+
+  (set-face-attribute 'header-line nil :height '1.0 :background)
 
   (org-indent-mode d/org-present--org-indent-mode)
 

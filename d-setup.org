@@ -1220,8 +1220,12 @@ There will be not much difference.
    windowrule=float,ncmpcpp
    windowrule=float,viewnior
    windowrule=float,feh
+
    windowrule=float,mpv
    windowrule=opaque,mpv
+   windowrule=noanim,mpv
+   windowrule=noblur,mpv
+
    windowrulev2 = float, class:^(firefox)$, title:^(Firefox — Sharing Indicator)$
    windowrule=opaque,imv
    windowrule=opacity 0.95,foot

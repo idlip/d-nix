@@ -1620,8 +1620,8 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 
 (defun d/external-browser ()
   (interactive)
-(if (link-hint--shr-url-at-point-p)
-    (link-hint--shr-url-at-point-p)
+(if (shr-url-at-point nil)
+    (link-hint-copy-link-at-point)
   (link-hint-copy-link))
   (let ((url (current-kill 0)))
     (browse-url-generic url)))

@@ -42,6 +42,11 @@
 (defvar d/header-font "Comic Mono"
   "Font for header level in org-mode." )
 
+(defvar d/sans-font "SF Pro Rounded"
+  "Sans font for reading docs or presentation")
+(defvar d/jetb-font "JetBrains Mono NF"
+  "Jetbrains font for code/verbatim" )
+
 (setf use-default-font-for-symbols nil)
 (set-fontset-font t 'unicode "Noto Emoji" nil 'append)
 
@@ -353,7 +358,7 @@
         completion-category-overrides '((file (styles partial-completion)))))
 (define-key vertico-map "?" #'minibuffer-completion-help)
 (define-key vertico-map (kbd "RET") #'vertico-directory-enter)
-(define-key vertico-map (kbd "DEL") #'vertico-directory-delete-word)
+(define-key vertico-map (kbd "DEL") #'vertico-directory-delete-char)
 (define-key vertico-map (kbd "M-d") #'vertico-directory-delete-char)
 (define-key vertico-map (kbd "M-RET") #'minibuffer-force-complete-and-exit)
 (define-key vertico-map (kbd "M-TAB") #'minibuffer-complete)
@@ -702,10 +707,10 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 
  org-modern-hide-stars nil
  org-modern-table t
-org-modern-list 
- '(;; (?- . "-")
-   (?* . "•")
-   (?+ . "🞂"))
+ org-modern-list 
+ '((?* . "⊙")
+   (?- . "❖")
+   (?+ . "➤"))
 
  ;; Agenda styling
  org-agenda-tags-column 0
@@ -994,20 +999,21 @@ org-modern-list
         d/org-present--org-indent-mode org-indent-mode)
   (org-indent-mode 0)
 
-  (dolist (face '((org-level-1 . 1.5)
-                  (org-level-2 . 1.4)
-                  (org-level-3 . 1.3)
-                  (org-level-4 . 1.25)
-                  (org-level-5 . 1.2)
-                  (org-level-6 . 1.1)
-                  (org-document-title . 2.1)
-                  (org-code . 1.05)
-                  (org-verbatim . 1.25)
-                  (org-block . 1.0)
+  (dolist (face '((org-block . 1.0)
                   (org-block-begin-line . 0.7)
                   (org-level-7 . 1.1)
                   (org-level-8 . 1.1)))
-    (set-face-attribute 'org-level-1 nil :height '1.6 :foreground "#b6a0ff")
+    (set-face-attribute 'org-document-title nil :font "Impress BT" :weight 'bold :height 2.5 :width 'extra-expanded)
+    (set-face-attribute 'org-level-1 nil :font d/header-font :weight 'medium :height 1.6 :foreground "#b6a0ff")
+    (set-face-attribute 'org-level-2 nil :font d/header-font :weight 'medium :height 1.5)
+    (set-face-attribute 'org-level-3 nil :font d/header-font :weight 'medium :height 1.4)
+    (set-face-attribute 'org-level-4 nil :font d/header-font :weight 'medium :height 1.3)
+    (set-face-attribute 'org-level-5 nil :font d/header-font :weight 'medium :height 1.25)
+
+    (set-face-attribute 'org-verbatim nil :height '1.25 :font d/jetb-font :weight 'medium)
+    (set-face-attribute 'org-code nil :height '1.25 :font d/jetb-font :weight 'medium)
+
+
     (set-face-attribute 'header-line nil :height '2.0 :background)
     (set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face)))
 
@@ -1735,6 +1741,7 @@ org-modern-list
  shr-use-fonts  nil                          ; No special fonts
  shr-use-colors nil                          ; No colours
  shr-indentation 4                           ; Left-side margin
+ shr-max-width fill-column
  shr-width 90                                ; Fold text to 70 columns
  eww-search-prefix "https://lite.duckduckgo.com/lite/?q=")
 
@@ -1763,7 +1770,7 @@ org-modern-list
 (global-unset-key (kbd "C-z"))
 (global-set-key (kbd "C-z") #'undo-tree-undo)
 
-    ;;; Scrolling
+      ;;; Scrolling
 
 (setq hscroll-margin 2
       hscroll-step 1
@@ -1774,7 +1781,7 @@ org-modern-list
       mouse-wheel-scroll-amount '(2 ((shift) . hscroll))
       mouse-wheel-scroll-amount-horizontal 2)
 
-    ;;; Cursor
+      ;;; Cursor
 (blink-cursor-mode -1)
 
 ;; Don't blink the paren matching the one at point, it's too distracting.

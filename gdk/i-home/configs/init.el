@@ -44,12 +44,14 @@
 
 (defvar d/sans-font "SF Pro Rounded"
   "Sans font for reading docs or presentation")
-(defvar d/jetb-font "JetBrains Mono NF"
+(defvar d/jetb-font "JetBrainsMono Nerd Font"
   "Jetbrains font for code/verbatim" )
 (defvar d/title-face "Impress BT"
   "Font for title")
-(defvar d/link-font "AestheticIosevka"
-  "Font for links" )
+(defvar d/link-font "Iosevka Comfy"
+  "Font for links")
+(defvar d/code-font "VictorMono Nerd Font"
+  "Font for inline code")
 
 
 (setf use-default-font-for-symbols nil)
@@ -1014,24 +1016,6 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
         d/org-present--org-indent-mode org-indent-mode)
   (org-indent-mode 0)
 
-  (dolist (face '((org-block . 1.0)
-                  (org-block-begin-line . 0.7)
-                  (org-level-7 . 1.1)
-                  (org-level-8 . 1.1)))
-    (set-face-attribute 'org-document-title nil :font d/title-face :weight 'bold :height 2.5 :width 'extra-expanded)
-    (set-face-attribute 'org-level-1 nil :font d/header-font :weight 'medium :height 1.6 :foreground "#b6a0ff")
-    (set-face-attribute 'org-level-2 nil :font d/header-font :weight 'medium :height 1.5)
-    (set-face-attribute 'org-level-3 nil :font d/header-font :weight 'medium :height 1.4)
-    (set-face-attribute 'org-level-4 nil :font d/header-font :weight 'medium :height 1.3)
-    (set-face-attribute 'org-level-5 nil :font d/header-font :weight 'medium :height 1.25)
-
-    (set-face-attribute 'org-verbatim nil :height '1.25 :font d/jetb-font :weight 'medium)
-    (set-face-attribute 'org-code nil :height '1.25 :font d/jetb-font :weight 'medium)o
-
-
-    (set-face-attribute 'header-line nil :height '1.0 :background)
-    (set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face)))
-
   ;; Disable 'org-modern-mode' to setup adjustment if it's installed
   (if (package-installed-p 'org-modern)
       (org-modern-mode 0))
@@ -1056,6 +1040,25 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
               org-image-actual-width 300
               header-line-format " "
               org-ellipsis "⤵")
+
+      (dolist (face '((org-block . 1.0)
+                  (org-block-begin-line . 0.7)
+                  (org-level-7 . 1.1)
+                  (org-level-8 . 1.1)))
+    (set-face-attribute 'org-document-title nil :font d/title-face :weight 'bold :height 2.5 :width 'extra-expanded)
+    (set-face-attribute 'org-document-info nil :font d/link-font :weight 'bold :height 2.5 :width 'extra-expanded)      
+    (set-face-attribute 'org-level-1 nil :font d/header-font :weight 'medium :height 1.6 :foreground "#b6a0ff")
+    (set-face-attribute 'org-level-2 nil :font d/header-font :weight 'medium :height 1.5)
+    (set-face-attribute 'org-level-3 nil :font d/header-font :weight 'medium :height 1.4)
+    (set-face-attribute 'org-level-4 nil :font d/header-font :weight 'medium :height 1.3)
+    (set-face-attribute 'org-level-5 nil :font d/header-font :weight 'medium :height 1.25)
+
+    (set-face-attribute 'org-verbatim nil :font d/jetb-font :weight 'medium :height 1.3)
+    (set-face-attribute 'org-code nil :font d/code-font :weight 'medium :height 1.4)
+
+
+    (set-face-attribute 'header-line nil :background nil :height 2.5)
+    (set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face)))
 
 
   (if (package-installed-p 'hide-mode-line)

@@ -287,7 +287,6 @@ environment.systemPackages = with pkgs; [
   gitFull
   ntfs3g
   neovim
-  fira-code
 ];
 
 # Add other overlays here
@@ -311,13 +310,10 @@ hardware = {
 fonts = {
   fonts = with pkgs; [
     emacs-all-the-icons-fonts
-    material-icons
-    comic-mono
-    material-design-icons
-    noto-fonts-emoji
-    weather-icons
-    font-awesome
-    symbola
+    #material-icons comic-mono material-design-icons
+    # weather-icons font-awesome
+    symbola iosevka-comfy.comfy noto-fonts-emoji comic-mono
+    (nerdfonts.override {fonts = ["VictorMono" "FiraCode" "IBMPlexMono" "JetBrainsMono"];})
   ];
 
   enableDefaultFonts = false;
@@ -327,13 +323,13 @@ fonts = {
     defaultFonts = {
       monospace = [
         "ComicCodeLigatures"
-        "Fira Code Nerd Font"
-        "JetBrains Mono Nerd Font"
+        "FiraCode Nerd Font"
+        "JetBrainsMono Nerd Font"
         "Noto Color Emoji"
       ];
-      sansSerif = ["Fira Code Nerd Font" "ComicCodeLigatures"];
-      serif = ["Noto Serif" "Fira Code Nerd Font"];
-      emoji = ["Noto Color Emoji" "all-the-icons" "FontAwesome" "Material Icons" "symbola" "Material Design Icons" ];
+      sansSerif = ["Iosevka Comfy" "BlexMono Nerd Font"];
+      serif = ["VictorMono Nerd Font" "BlexMono Nerd Font"];
+      emoji = ["Noto Color Emoji" "Symbola" "Fira Code Nerd Font" ];
     };
   };
 };

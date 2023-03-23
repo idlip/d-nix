@@ -1365,6 +1365,8 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 (use-package flycheck)
 ;; :init (global-flycheck-mode))
 
+(use-package aria2)
+
 
 (use-package mingus
   :config
@@ -1723,6 +1725,9 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
              (selection (completing-read "Go To URL from page: " links nil t))
              (url (replace-regexp-in-string ".*@ " "" selection)))
         (browse-url-generic url (when arg 4)))))
+
+(use-package ox-hugo
+  :after ox)
 
 (setq inhibit-startup-message t)
 

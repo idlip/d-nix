@@ -71,8 +71,8 @@ programs = {
       stty stop undef		# Disable ctrl-s to freeze terminal.
       setopt interactive_comments
 
-      export PATH="$PATH:$HOME/.local/bin/"
-      export PATH="$PATH:$HOME/.DLIP/BIN/"
+      export PATH="$PATH:$HOME/.local/bin"
+      export PATH="$PATH:$HOME/.DLIP/BIN"
 
       export STARDICT_DATA_DIR="$HOME/.local/share/stardict"
 
@@ -95,7 +95,9 @@ programs = {
 
     '';
     envExtra = ''
-      export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+export PATH="$PATH:$HOME/.DLIP/BIN"
+export PATH="$PATH:$HOME/.local/bin/d"
 export EDITOR="emacsclient -nw -a 'nvim'"
 export VISUAL=$EDITOR
 export GRIM_DEFAULT_DIR="/home/i/pics/sshots/"
@@ -372,7 +374,7 @@ services.dunst = {
       max_icon_size = 32;
       sticky_history = "yes";
       history_length = 20;
-      browser = "/home/i/.local/bin/d/d-stuff";
+      browser = "/home/i/.DLIP/BIN/d-stuff";
       always_run_script = "true";
       title = "Dunst";
       class = "Dunst";

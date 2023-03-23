@@ -21,6 +21,8 @@
 *** [[https://yewtu.be/feed/channel/UCixD9UbKvDxzGNiPC_fgHyA][Tokyo]]
 ** Geeks :blogs:read:
 *** [[https://www.psychologytoday.com/intl/front/feed][Psychology Today: The Latest]] :psych:psy:
+*** [[https://idlip.github.io/index.xml][Idlip]] :mine:idlip:
+*** [[https://idlip.tildevarsh.in/index.xml]] :getit:
 *** [[https://www.beebom.com/feed/][Beebom]]
 *** [[https://www.wionews.com/feeds/india-news/rss.xml][WION - india news News Releases]]
 *** [[https://syndication.howstuffworks.com/rss/HSW][HowStuffWorks]] :stuffs:how:

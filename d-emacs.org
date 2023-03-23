@@ -1639,6 +1639,8 @@ Some small codes from good source.
   (use-package flycheck)
   ;; :init (global-flycheck-mode))
 
+  (use-package aria2)
+
 
   (use-package mingus
     :config
@@ -1655,7 +1657,7 @@ Some small codes from good source.
     ;; Require confirmation before doing paste
     (setq webpaste-paste-confirmation t)
     )
-  
+
   (use-package sdcv
     :config
     (setq sdcv-say-word-p t)
@@ -2018,6 +2020,13 @@ Congratulations, if you are already using Rss, if not, don't worry, you can get 
                (url (replace-regexp-in-string ".*@ " "" selection)))
           (browse-url-generic url (when arg 4)))))
 
+#+end_src
+
+* Good Site 🌐
+Use ox-hugo to manage static site in Hugo.
+#+begin_src emacs-lisp
+    (use-package ox-hugo
+      :after ox)
 #+end_src
 
 * Lots of things, No need to talk 💜

@@ -38,19 +38,19 @@ If you really wanna talk/discuss with me, open an issue so I will join on some m
 ***** Illustrations - Unix Way 🎆
 
 + *Desktop Rice*
-
+  #+attr_html: :width 500
   [[file:assets/desktop-unix.png]]
 
 + *RSS and Emacs*
-
+  #+attr_html: :width 500  
   [[file:assets/emacs-rss.png]]
 
 + *Org Edit and Pdf Reader*
-
+  #+attr_html: :width 500
   [[file:assets/org-pdf.png]]
 
 + Emacs web browser (eww) and Firefox
-
+  #+attr_html: :width 500
   [[file:assets/firefox-ewweb.png]]
 
 * Organized Nix Flakes? 🌲
@@ -68,6 +68,40 @@ Also, I have made files to be *symlink*, so i can edit them without requiring to
 
 
 --------------
+
+*** Installation Guide
+If you are beginner, I'd recommend you to play it with VM.
+
+1. Partition the disk as you require (edit file system section in configuration.nix)
+
+2. Run command to generate hardware-configuration.nix which will be created at /mnt/etc/nixos
+
+      #+begin_src shell
+     sudo nixos-generate-config --root /mnt
+   #+end_src
+
+3. Then git clone this repo and remove flake.lock and update channels
+
+   #+begin_src shell
+     # Install git first
+     nix-env -iA nixos.git
+
+     git clone --depth=1 https://github.com/idlip/d-nix SETUP
+     cd SETUP
+     rm flake.lock
+
+     # Update nix channels
+     nix flake update
+   #+end_src
+
+4. Do rebuild of flake system.
+
+   #+begin_src shell
+     sudo nixos-rebuild switch --flake .#HOSTNAME
+   #+end_src
+
+--------------
+
 ** Welcome to 'Will of D' flakes system ⚔️
 
 #+begin_quote

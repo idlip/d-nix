@@ -72,6 +72,7 @@ Also, I have made files to be *symlink*, so i can edit them without requiring to
 
 #+begin_quote
 /you can check out small write-up on my [[file:blogs/linux-journey.org][linux journey]]/
+You can also check my website here [[https://idlip.github.io]]
 #+end_quote
 
 *** Now if you get doubt of, "Should I try NixOS?" ❄️

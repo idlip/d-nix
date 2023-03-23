@@ -6,6 +6,7 @@
 #+auto_tangle: t
 
 
+
 * Description
 --------
 This file is organized configuration for whole system, where you can write everything for Nixos and Home-manager configuration.
@@ -591,7 +592,9 @@ Opening brace that contains the rest of the configuration file.
         stty stop undef		# Disable ctrl-s to freeze terminal.
         setopt interactive_comments
 
-        export PATH="$PATH:$HOME/.local/bin/d"
+        export PATH="$PATH:$HOME/.local/bin/"
+        export PATH="$PATH:$HOME/.DLIP/BIN/"
+
         export STARDICT_DATA_DIR="$HOME/.local/share/stardict"
 
         # Basic auto/tab complete:
@@ -614,13 +617,12 @@ Opening brace that contains the rest of the configuration file.
       '';
       envExtra = ''
         export MANPAGER="sh -c 'col -bx | bat -l man -p'"
-        export PATH="$PATH:$HOME/.local/bin/d"
   export EDITOR="emacsclient -nw -a 'nvim'"
   export VISUAL=$EDITOR
   export GRIM_DEFAULT_DIR="/home/i/pics/sshots/"
 
       if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
-        echo "Welcome! Type 'sway' to enter"
+        exec Hyprland
       fi
 
       '';
@@ -772,7 +774,7 @@ Installs packages for this user only.
 ****** Browsers
 #+begin_src nix
   # pioneer of web
-  firefox librewolf brave ungoogled-chromium
+  firefox librewolf brave ungoogled-chromium hugo
 #+end_src
 ****** LSP -IDE
 #+begin_src nix
@@ -879,7 +881,7 @@ There will be not much difference.
 #+end_src
 ****** Btop
 #+begin_src nix
-    home.file.".config/btop/btop.conf".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.SETUP/gdk/i-home/configs/btop.conf";
+    home.file.".config/btop/btop.conf".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/btop.conf";
 #+end_src
 ******* btop-config
 #+begin_src nix :tangle ./gdk/i-home/configs/btop.conf
@@ -1089,7 +1091,7 @@ There will be not much difference.
     # extraConfig = builtins.readFile ./hyprland.conf;
   };
 
-  xdg.configFile."hypr/hyprland.conf" = { source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.SETUP/gdk/i-home/configs/hyprland.conf"; };
+  xdg.configFile."hypr/hyprland.conf" = { source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/hyprland.conf"; };
 
 #+end_src
 ******** Hyprland config
@@ -1420,9 +1422,9 @@ Its more mature than hyprland. So... better to have it!
 #+end_src
 ****** Emacs
 #+begin_src nix
-  home.file.".config/emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.SETUP/gdk/i-home/configs/early-init.el";
-  home.file.".config/emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.SETUP/gdk/i-home/configs/init.el";
-  home.file.".config/emacs/elfeed.org".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.SETUP/d-rss.org";
+  home.file.".config/emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/early-init.el";
+  home.file.".config/emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/init.el";
+  home.file.".config/emacs/elfeed.org".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/d-rss.org";
 
   programs.emacs = {
     enable = true;
@@ -1436,7 +1438,7 @@ Its more mature than hyprland. So... better to have it!
       reddigg mingus pdf-tools which-key magit aria2 webpaste org-present
       org-mime corfu-terminal beframe denote tempel tempel-collection
       sdcv elfeed elfeed-org link-hint general powerthesaurus
-      doom-modeline org-auto-tangle el-fetch
+      doom-modeline org-auto-tangle el-fetch ox-hugo htmlize
     ])
     );
   };
@@ -1590,6 +1592,156 @@ creates profile settings specific to a user, and sets my profile as the default
   };
 
 #+end_src
+
+******** userCSS
+Chose t user css to make firefox elegant!
+#+begin_src nix
+  userChrome = ''
+	       /* Base color for the theme, dependent on whether it's a light theme or not */
+  @media (prefers-color-scheme: dark) {
+      :root {
+	  --lwt-accent-color: #1c1b22;
+      }
+  }
+
+  @media (prefers-color-scheme: light) {
+      :root {
+	  --lwt-accent-color: #FAFAFC;
+      }
+  }
+
+  /*====== Aesthetics ======*/
+
+  #navigator-toolbox {
+      border-bottom: none !important;
+  }
+
+  #titlebar {
+      background: var(--lwt-accent-color) !important;
+  }
+
+  /* Sets the toolbar color */
+  toolbar#nav-bar {
+      background: var(--lwt-accent-color) !important;
+      box-shadow: none !important;
+  }
+
+  /* Sets the URL bar color */
+  #urlbar {
+      background: var(--lwt-accent-color) !important;
+  }
+
+  #urlbar-background {
+      background: var(--lwt-accent-color) !important;
+      border: none !important;
+  }
+
+  #urlbar-input-container {
+      border: none !important;
+  }
+
+  /*====== UI Settings ======*/
+
+  :root {
+      --navbarWidth: 475px; /* Set width of navbar */
+  }
+
+  /* If the window is wider than 1000px, use flex layout */
+  @media (min-width: 1000px) {
+      #navigator-toolbox {
+	  display: flex;
+	  flex-wrap: wrap;
+  }
+
+      /*  Url bar  */
+      #nav-bar {
+	  order: 1;
+	  width: var(--navbarWidth);
+      }
+
+      /* Tab bar */
+      #titlebar {
+	  order: 2;
+	  width: calc(100vw - var(--navbarWidth) - 1px);
+      }
+
+      /* Bookmarks bar */
+      #PersonalToolbar {
+	  order: 3;
+	  width: 100%;
+      }
+    
+      /* Fix urlbar sometimes being misaligned */
+      :root[uidensity="compact"] #urlbar {
+	  --urlbar-toolbar-height: 39.60px !important;
+      }
+
+      :root[uidensity="touch"] #urlbar {
+	  --urlbar-toolbar-height: 49.00px !important;
+      }
+  }
+
+  /*====== Simplifying interface ======*/
+
+  /* Autohide back button when disabled */
+  #back-button, #forward-button {
+      transform: scale(1, 1) !important;
+      transition: margin-left 150ms var(--animation-easing-function), opacity 250ms var(--animation-easing-function), transform 350ms var(--animation-easing-function) !important;
+  }
+
+  #back-button[disabled="true"], #forward-button[disabled="true"] {
+      margin-left: -34px !important;
+      opacity: 0 !important;
+      transform: scale(0.8, 0.8) !important;
+      pointer-events: none !important;
+  }
+
+  /* Remove UI elements */
+  #identity-box, /* Site information */
+  #tracking-protection-icon-container, /* Shield icon */
+  #page-action-buttons > :not(#urlbar-zoom-button, #star-button-box), /* All url bar icons except for zoom level and bookmarks */
+  #urlbar-go-button, /* Search URL magnifying glass */
+  #alltabs-button, /* Menu to display all tabs at the end of tabs bar */
+  .titlebar-buttonbox-container /* Minimize, maximize, and close buttons */ {
+      display: none !important;
+  }
+
+  #nav-bar {
+      box-shadow: none !important;
+  }
+
+  /* Remove "padding" left and right from tabs */
+  .titlebar-spacer {
+      display: none !important;
+  }
+
+  /* Fix URL bar overlapping elements */
+  #urlbar-container {
+      min-width: initial !important;
+  }
+
+  /* Remove gap after pinned tabs */
+  #tabbrowser-tabs[haspinnedtabs]:not([positionpinnedtabs])
+  > #tabbrowser-arrowscrollbox
+  > .tabbrowser-tab[first-visible-unpinned-tab] {
+      margin-inline-start: 0 !important;
+  }
+
+  /* Hide the hamburger menu */
+  #PanelUI-menu-button { 
+      padding: 0px !important;
+  }
+
+  #PanelUI-menu-button .toolbarbutton-icon { 
+      width: 1px !important; 
+  }
+
+  #PanelUI-menu-button .toolbarbutton-badge-stack {
+      padding: 0px !important; 
+  }
+	       '';
+#+end_src
+
 ******** Closing Statement
 Closes the User Profiles Code block
 #+begin_src nix
@@ -1606,7 +1758,7 @@ Closes FireFox Block
   # xdg.configFile."newsboat".source = ./configs/.;
   
   home.file.".config/newsboat".recursive = true;
-  home.file.".config/newsboat".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.SETUP/gdk/i-home/configs/newsboat";
+  home.file.".config/newsboat".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/newsboat";
 
 #+end_src
 ******* News config
@@ -2018,7 +2170,7 @@ https://www.youtube.com/feeds/videos.xml?channel_id=UCAiiOTio8Yu69c3XnR7nQBQ ema
 #+end_src
 ****** Waybar
 #+begin_src nix
-  home.file.".config/waybar/style.css".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.SETUP/gdk/i-home/configs/style.css";
+  home.file.".config/waybar/style.css".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/style.css";
   programs.waybar = {
     enable = true;
     package = pkgs.waybar.overrideAttrs (oldAttrs: {
@@ -2271,7 +2423,7 @@ https://www.youtube.com/feeds/videos.xml?channel_id=UCAiiOTio8Yu69c3XnR7nQBQ ema
 ****** Wofi
 #+begin_src nix
   home.file.".config/wofi".recursive = true;
-  home.file.".config/wofi".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.SETUP/gdk/i-home/configs/wofi";
+  home.file.".config/wofi".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/wofi";
 #+end_src
 ******* Wofi-config
 #+begin_src conf :tangle ./gdk/i-home/configs/wofi/config
@@ -2362,7 +2514,7 @@ https://www.youtube.com/feeds/videos.xml?channel_id=UCAiiOTio8Yu69c3XnR7nQBQ ema
 #+end_src
 ****** Ytfzf
 #+begin_src nix
-  home.file.".config/ytfzf/conf.sh".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.SETUP/gdk/i-home/configs/conf.sh";
+  home.file.".config/ytfzf/conf.sh".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/conf.sh";
 #+end_src
 ******* ytfzf-config
 #+begin_src conf :tangle ./gdk/i-home/configs/conf.sh
@@ -2413,8 +2565,8 @@ Enables file as  shell script
 
 #+begin_src sh
   echo "Installing System Flake"
-  sudo cp -f /etc/nixos/hardware-configuration.nix ~/.SETUP/gdk/hardware-configuration.nix
-  cd ~/.SETUP
+  sudo cp -f /etc/nixos/hardware-configuration.nix ~/.DLIP/SETUP/gdk/hardware-configuration.nix
+  cd ~/.DLIP/SETUP
   sudo nixos-rebuild switch --flake .#gdk
 #+end_src
 *** Create SSH Key

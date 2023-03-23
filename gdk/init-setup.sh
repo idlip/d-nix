@@ -1,8 +1,8 @@
 #! /bin/bash
 
 echo "Installing System Flake"
-sudo cp -f /etc/nixos/hardware-configuration.nix ~/.SETUP/gdk/hardware-configuration.nix
-cd ~/.SETUP
+sudo cp -f /etc/nixos/hardware-configuration.nix ~/.DLIP/SETUP/gdk/hardware-configuration.nix
+cd ~/.DLIP/SETUP
 sudo nixos-rebuild switch --flake .#gdk
 
 echo "Creating SSH Key"

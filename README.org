@@ -1,11 +1,5 @@
 #+TITLE: Nix-Org, A Simply Aesthetic, Productive setup with Declaration World! Just do enable=true; 
 
-#+ATTR_HTML: width="100px"
-[[file:assets/emacs.webp]]
-
-#+ATTR_HTML: width="5px"
-[[file:assets/nixoscolorful.svg]]
-
 
 --------------
 

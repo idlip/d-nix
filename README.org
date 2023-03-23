@@ -38,12 +38,13 @@ If you really wanna talk/discuss with me, open an issue so I will join on some m
 ***** Illustrations - Unix Way 🎆
 
 + *Desktop Rice*
-  #+attr_html: :width 100px
+  #+attr_html: :width="100px"
   [[file:assets/desktop-unix.png]]
 
 + *RSS and Emacs*
-  #+attr_html: :width 500  
-  [[file:assets/emacs-rss.png]]
+
+#+ATTR_HTML: width="100px"
+[[file:assets/emacs-rss.png]]
 
 + *Org Edit and Pdf Reader*
   #+attr_html: :width 500

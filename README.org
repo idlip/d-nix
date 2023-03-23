@@ -38,7 +38,7 @@ If you really wanna talk/discuss with me, open an issue so I will join on some m
 ***** Illustrations - Unix Way 🎆
 
 + *Desktop Rice*
-  #+attr_html: :width 500
+  #+attr_html: :width 100px
   [[file:assets/desktop-unix.png]]
 
 + *RSS and Emacs*

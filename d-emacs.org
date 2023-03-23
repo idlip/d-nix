@@ -430,9 +430,9 @@ As a beginner, this might be useful as you might be used to be in Doom-Emacs or 
 
     ;; configs
     "fc"  '(:ignore t :which-key "configs")
-    "fe" '((lambda () (interactive) (find-file (expand-file-name "~/.SETUP/d-emacs.org"))) :which-key "emacs org")
-    "fm" '((lambda () (interactive) (find-file (expand-file-name "~/.SETUP/README.org"))) :which-key "setup readme")
-    "fs" '((lambda () (interactive) (find-file (expand-file-name "~/.SETUP/d-setup.org"))) :which-key "nix setup"))
+    "fe" '((lambda () (interactive) (find-file (expand-file-name "~/.DLIP/SETUP/d-emacs.org"))) :which-key "emacs org")
+    "fm" '((lambda () (interactive) (find-file (expand-file-name "~/.DLIP/SETUP/README.org"))) :which-key "setup readme")
+    "fs" '((lambda () (interactive) (find-file (expand-file-name "~/.DLIP/SETUP/d-setup.org"))) :which-key "nix setup"))
 
 #+end_src
 
@@ -1601,25 +1601,27 @@ Magit the killer beast after org-mode.
 * File Manager 📂
 Not that intuitive to use as file manager, once you get a hand of emacs. You will thank for this.
 #+begin_src emacs-lisp
-  (use-package dired
-    :ensure nil
-    :commands (dired dired-jump)
-    :bind (("C-x C-j" . dired-jump)
-           ("C-x C-d" . dired))
-    :config
-    (define-key dired-mode-map (kbd "q") 'kill-buffer-and-window)
-    (define-key dired-mode-map (kbd "l") 'dired-single-buffer)
-    (define-key dired-mode-map (kbd "n") 'dired-single-buffer)
-    (define-key dired-mode-map (kbd "p") 'dired-single-up-directory)
-    (define-key dired-mode-map (kbd "h") 'dired-single-up-directory)
-    (define-key dired-mode-map (kbd "j") 'dired-next-line)
-    (define-key dired-mode-map (kbd "k") 'dired-previous-line)    
-    :custom ((dired-listing-switches "-agho --group-directories-first")))
-  (setq dired-listing-switches "-alt --dired --group-directories-first -h -G")
-  (add-hook 'dired-mode-hook 'dired-hide-details-mode)
-  (add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))
+      (use-package dired
+        :ensure nil
+        :commands (dired dired-jump)
+        :bind (("C-x C-j" . dired-jump)
+               ("C-x C-d" . dired))
+        :config
+        (define-key dired-mode-map (kbd "q") 'kill-buffer-and-window)
+        (define-key dired-mode-map (kbd "l") 'dired-single-buffer)
+        (define-key dired-mode-map (kbd "n") 'dired-single-buffer)
+        (define-key dired-mode-map (kbd "p") 'dired-single-up-directory)
+        (define-key dired-mode-map (kbd "h") 'dired-single-up-directory)
+        (define-key dired-mode-map (kbd "j") 'dired-next-line)
+        (define-key dired-mode-map (kbd "k") 'dired-previous-line)    
+        :custom ((dired-listing-switches "-agho --group-directories-first")))
+      (setq dired-listing-switches "-alt --dired --group-directories-first -h -G")
+      (add-hook 'dired-mode-hook 'dired-hide-details-mode)
+      (add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))
 
-  (use-package all-the-icons-dired)
+      (use-package all-the-icons-dired
+        :hook
+        (dired-mode . all-the-icons-dired-mode))
 
 #+end_src
 

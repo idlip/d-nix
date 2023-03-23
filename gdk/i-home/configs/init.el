@@ -276,9 +276,9 @@
 
   ;; configs
   "fc"  '(:ignore t :which-key "configs")
-  "fe" '((lambda () (interactive) (find-file (expand-file-name "~/.SETUP/d-emacs.org"))) :which-key "emacs org")
-  "fm" '((lambda () (interactive) (find-file (expand-file-name "~/.SETUP/README.org"))) :which-key "setup readme")
-  "fs" '((lambda () (interactive) (find-file (expand-file-name "~/.SETUP/d-setup.org"))) :which-key "nix setup"))
+  "fe" '((lambda () (interactive) (find-file (expand-file-name "~/.DLIP/SETUP/d-emacs.org"))) :which-key "emacs org")
+  "fm" '((lambda () (interactive) (find-file (expand-file-name "~/.DLIP/SETUP/README.org"))) :which-key "setup readme")
+  "fs" '((lambda () (interactive) (find-file (expand-file-name "~/.DLIP/SETUP/d-setup.org"))) :which-key "nix setup"))
 
 (use-package which-key
   :defer 0
@@ -1350,7 +1350,9 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 (add-hook 'dired-mode-hook 'dired-hide-details-mode)
 (add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))
 
-(use-package all-the-icons-dired)
+(use-package all-the-icons-dired
+  :hook
+  (dired-mode . all-the-icons-dired-mode))
 
 (use-package reddigg
   :config

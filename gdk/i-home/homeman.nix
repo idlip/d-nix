@@ -364,7 +364,6 @@ services.dunst = {
       line_height = 0;
       markup = "full";
       stack_duplicates = "true";
-      format = "<b>%s</b>\n%b";
       vertical_alignment = "center";
       show_age_threshold = 60;
       ellipsize = "middle";
@@ -381,6 +380,7 @@ services.dunst = {
       corner_radius = 20;
       ignore_dbusclose = false;
       force_xwayland = "false";
+      layer = "overlay";
       mouse_left_click = "do_action";
       mouse_middle_click = "do_action";
       mouse_right_click = "close_all";
@@ -394,7 +394,6 @@ services.dunst = {
        script="d-notif";
     };
 
-    fullscreen_delay_everything.fullscreen = "delay";
     urgency_low = {
       background = "#1e1e2e";
       foreground = "#cdd6f4";

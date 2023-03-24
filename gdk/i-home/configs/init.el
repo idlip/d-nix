@@ -714,6 +714,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
  org-pretty-entities t
  ;;   org-ellipsis "…"
 
+ org-modern-star ("◉" "○" "◈" "◇" "✳")
  org-modern-hide-stars nil
  org-modern-table t
  org-modern-list 
@@ -747,6 +748,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
                   (org-level-5 . 1.1)
                   (org-level-6 . 1.1)
                   (org-level-7 . 1.1)
+                  (org-block-begin-line . 0.9)                    
                   (org-level-8 . 1.1)))
     (set-face-attribute 'org-document-title nil :font d/title-face :weight 'bold :height 2.5 :width 'extra-expanded)
     (set-face-attribute 'org-level-1 nil :font d/header-font :weight 'medium :height 1.3 :foreground "#b6a0ff")
@@ -1025,8 +1027,8 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
                   d/org-present--org-modern-keyword org-modern-keyword
                   d/org-present--org-modern-block-fringe org-modern-block-fringe
 
-                  org-modern-hide-stars t
-                  org-modern-block-fringe nil
+                  ;; org-modern-hide-stars t
+                  org-modern-block-fringe t
                   org-modern-keyword d/org-present-org-modern-keyword))
 
   (display-line-numbers-mode 0)
@@ -1042,7 +1044,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
               org-ellipsis "⤵")
 
       (dolist (face '((org-block . 1.0)
-                  (org-block-begin-line . 0.7)
+                  (org-block-begin-line . 0.1)
                   (org-level-7 . 1.1)
                   (org-level-8 . 1.1)))
     (set-face-attribute 'org-document-title nil :font d/title-face :weight 'bold :height 2.5 :width 'extra-expanded)
@@ -1330,7 +1332,10 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   :config
   ;; Show word-granularity differences within diff hunks
   (setq magit-diff-refine-hunk t)
-  )
+  (use-package magit
+    :commands (magit-status magit-get-current-branch)
+    :custom
+    (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
 (use-package dired
   :ensure nil
@@ -1871,16 +1876,3 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
                   (d/set-font-faces))))
     (d/set-font-faces))
 (put 'narrow-to-region 'disabled nil)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(vterm undo-tree flycheck helpful ox-pandoc no-littering rainbow-delimiters rainbow-mode vertico orderless marginalia embark-consult olivetti org-modern cape markdown-mode nix-mode rust-mode lua-mode all-the-icons-dired dired-hide-dotfiles dired-single reddigg mingus pdf-tools which-key magit webpaste org-present org-mime corfu-terminal beframe denote tempel-collection sdcv elfeed-org link-hint general powerthesaurus doom-modeline org-auto-tangle el-fetch ox-hugo htmlize)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

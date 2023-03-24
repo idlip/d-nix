@@ -327,8 +327,8 @@ fonts = {
         "JetBrainsMono Nerd Font"
         "Noto Color Emoji"
       ];
-      sansSerif = ["Iosevka Comfy" "BlexMono Nerd Font"];
-      serif = ["VictorMono Nerd Font" "BlexMono Nerd Font"];
+      sansSerif = [ "Gandhi Sans" "Iosevka Comfy" "BlexMono Nerd Font"];
+      serif = [ "SF Pro Rounded" "VictorMono Nerd Font" "BlexMono Nerd Font"];
       emoji = ["Noto Color Emoji" "Symbola" "Fira Code Nerd Font" ];
     };
   };

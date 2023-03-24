@@ -2,8 +2,8 @@
 #+TITLE: D Nixyfied Flaky Station
 #+STARTUP: overview hideblocks
 #+OPTIONS: num:nil author:nil
-#+PROPERTY: :tangle yes :noweb yes header-args :tangle-mode (identity #o444) :mkdirp yes
 #+auto_tangle: t
+#+PROPERTY: :tangle-mode (identity #o444) :mkdirp yes
 
 
 
@@ -414,8 +414,8 @@ Enables additional fonts system wide
           "JetBrainsMono Nerd Font"
           "Noto Color Emoji"
         ];
-        sansSerif = ["Iosevka Comfy" "BlexMono Nerd Font"];
-        serif = ["VictorMono Nerd Font" "BlexMono Nerd Font"];
+        sansSerif = [ "Gandhi Sans" "Iosevka Comfy" "BlexMono Nerd Font"];
+        serif = [ "SF Pro Rounded" "VictorMono Nerd Font" "BlexMono Nerd Font"];
         emoji = ["Noto Color Emoji" "Symbola" "Fira Code Nerd Font" ];
       };
     };

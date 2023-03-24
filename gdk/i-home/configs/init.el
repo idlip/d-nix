@@ -714,7 +714,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
  org-pretty-entities t
  ;;   org-ellipsis "…"
 
- org-modern-star ("◉" "○" "◈" "◇" "✳")
+ org-modern-star '("◉" "○" "◈" "◇" "✳")
  org-modern-hide-stars nil
  org-modern-table t
  org-modern-list 
@@ -757,6 +757,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
     (set-face-attribute 'org-level-4 nil :font d/header-font :weight 'medium :height 1.1)
     (set-face-attribute 'org-level-5 nil :font d/header-font :weight 'medium :height 1.15)
 
+  (set-face-attribute 'variable-pitch nil :font d/variable-width-font :height default-variable-font-size :weight 'medium)
     (set-face-attribute 'org-verbatim nil :height '1.15 :font d/jetb-font :weight 'medium)
     (set-face-attribute 'org-code nil :height '1.15 :font d/jetb-font :weight 'medium)
     (set-face-attribute (car face) nil :font d/header-font :weight 'regular :height (cdr face)))
@@ -960,39 +961,6 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 
 (use-package org-present)
 
-(setq org-present-add-overlays-regex "^[[:space:]]*\\(#\\\+\\)\\(\\(\\(title\\|subtitle\\|date\\|author\\|email\\)\\\:[[:space:]]\\)\\|\\(\\([a-zA-Z]+\\(?:_[a-zA-Z]+\\)*\\).*\\)\\)")
-
-(defun org-present-add-overlays ()
-  "Add overlays for this mode."
-  (add-to-invisibility-spec '(org-present))
-  (save-excursion
-    ;; hide org-mode options starting with #+
-    (goto-char (point-min))
-    (while (re-search-forward org-present-add-overlays-regex nil t)
-      (let ((end (if (org-present-show-option (match-string 2)) 2 0)))
-        (org-present-add-overlay (match-beginning 1) (match-end end))))
-    ;; hide stars in headings
-    (if org-present-hide-stars-in-headings
-        (progn (goto-char (point-min))
-               (while (re-search-forward "^\\(*+\\)" nil t)
-                 (org-present-add-overlay (match-beginning 1) (match-end 1)))))
-    ;; hide emphasis/verbatim markers if not already hidden by org
-    (if org-hide-emphasis-markers nil
-      ;; TODO https://github.com/rlister/org-present/issues/12
-      ;; It would be better to reuse org's own facility for this, if possible.
-      ;; However it is not obvious how to do this.
-      (progn
-        ;; hide emphasis markers
-        (goto-char (point-min))
-        (while (re-search-forward org-emph-re nil t)
-          (org-present-add-overlay (match-beginning 2) (1+ (match-beginning 2)))
-          (org-present-add-overlay (1- (match-end 2)) (match-end 2)))
-        ;; hide verbatim markers
-        (goto-char (point-min))
-        (while (re-search-forward org-verbatim-re nil t)
-          (org-present-add-overlay (match-beginning 2) (1+ (match-beginning 2)))
-          (org-present-add-overlay (1- (match-end 2)) (match-end 2)))))))
-
 (defvar d/org-present-org-modern-keyword '(("title"       . "")
                                            ("description" . "")
                                            ("subtitle"    . "")
@@ -1016,7 +984,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
         d/org-present--visual-line-mode visual-line-mode
         d/org-present--org-ellipsis org-ellipsis
         d/org-present--org-indent-mode org-indent-mode)
-  (org-indent-mode 0)
+  (org-indent-mode 1)
 
   ;; Disable 'org-modern-mode' to setup adjustment if it's installed
   (if (package-installed-p 'org-modern)
@@ -1027,7 +995,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
                   d/org-present--org-modern-keyword org-modern-keyword
                   d/org-present--org-modern-block-fringe org-modern-block-fringe
 
-                  ;; org-modern-hide-stars t
+                  org-modern-hide-stars nil
                   org-modern-block-fringe t
                   org-modern-keyword d/org-present-org-modern-keyword))
 
@@ -1060,7 +1028,8 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 
 
     (set-face-attribute 'header-line nil :background nil :height 2.5)
-    (set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face)))
+    (set-face-attribute 'variable-pitch nil :font "ComicCodeLigatures" :height 1.2 :weight 'medium)
+(set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face)))
 
 
   (if (package-installed-p 'hide-mode-line)
@@ -1332,7 +1301,6 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   :config
   ;; Show word-granularity differences within diff hunks
   (setq magit-diff-refine-hunk t)
-  (use-package magit
     :commands (magit-status magit-get-current-branch)
     :custom
     (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))

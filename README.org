@@ -54,11 +54,13 @@ If you really wanna talk/discuss with me, open an issue so I will join on some m
   #+attr_html: :width 500
   [[file:assets/firefox-ewweb.png]]
 
+--------------
+
 * Organized Nix Flakes? 🌲
 
 I manage my whole system with single org file. Its easy and pretty handy. You can read that file here *↬* [[file:d-setup.org][d-setup.org]] , its both self documenting and has all source code blocks.
 
-Another key feature in my setup is, every file i tangle is at *read-only mode*. So generally we can avoid editing/touching them. Thus, every action has to be made in *d-setup.org* only.
+Another key feature in my setup is, every file i tangle is at *read-only mode* (#o444). So generally we can avoid editing/touching them. Thus, every action has to be made in *d-setup.org* only.
 
 Also, I have made files to be *symlink*, so i can edit them without requiring to rebuild whole thing!
 --------------
@@ -103,28 +105,7 @@ If you are beginner, I'd recommend you to play it with VM.
 
 --------------
 
-** Welcome to 'Will of D' flakes system ⚔️
 
-#+begin_quote
-/you can check out small write-up on my [[file:blogs/linux-journey.org][linux journey]]/
-You can also check my website here [[https://idlip.github.io]]
-#+end_quote
-
-*** Now if you get doubt of, "Should I try NixOS?" ❄️
-
-Here is an answer from a non-programmer, who just browses and watches media.
-Just don't, if you are looking for small benefit. Don't!
-You will regret having hard time to figure out petty things, again forget about error, you cannot even search in web.
-
-But, if you have decided, go with it. According to me (non-programmer), these points are good to consider NixOS
- + You use Emacs (lol), *Emacs* ❤️  *Nix* is Match made in Heaven.
- + You want to declare stuffs and get same output, and forget what all you setup, cause its all declared in config.
- + You want an isolated environments (shell) to do some stuffs without involving whole system.
- + You want to stop troubleshooting and breaking update and are lazy to backup, and want to rollback with ease like with just a reboot.
- + You want to say I use *Nixos Btw*.
-
-
-** Pack your bags, lets go through our configuration! ✨
 Before that I believe you are a tinkerer, I have a motto which goes like this
 
 
@@ -147,8 +128,4 @@ I thank them sincerely.
 [[https://github.com/sioodmy/dotfiles][Sioodmy]] *⟹* First config which I understand thoroughly and modified based on this.
 
 ------------------------------------------------------------------------------------------
-  
-#+begin_center
-Soon will be more documented.......
-#+end_center
 

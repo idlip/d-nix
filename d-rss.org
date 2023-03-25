@@ -22,7 +22,6 @@
 ** Geeks :blogs:read:
 *** [[https://www.psychologytoday.com/intl/front/feed][Psychology Today: The Latest]] :psych:psy:
 *** [[https://idlip.github.io/index.xml][Idlip]] :mine:idlip:
-*** [[https://idlip.tildevarsh.in/index.xml]] :getit:
 *** [[https://www.beebom.com/feed/][Beebom]]
 *** [[https://www.wionews.com/feeds/india-news/rss.xml][WION - india news News Releases]]
 *** [[https://syndication.howstuffworks.com/rss/HSW][HowStuffWorks]] :stuffs:how:
@@ -67,6 +66,7 @@
 ** Jokes :jokes:
 ** Emacs                                                              :emacs:
 *** [[https://sachachua.com/blog/category/emacs/feed][Sachi]] :sacha:
+*** [[https://emacs-apac.gitlab.io/announcements/index.xml][Apac Emacs]] :meet:apac:
 *** [[https://planet.emacslife.com/atom.xml][Planet-Emacs]]
 ** Music                                                              :music:
 *** [[https://www.reddit.com/r/listentothis/search.rss?q=jazz&restrict_sr=on&sort=new&t=all/.rss][Jazz]] :jazz:

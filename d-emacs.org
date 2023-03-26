@@ -5,14 +5,14 @@
 
 
 ** Todo Stuffs (Feel free to say/add something. I will be glad!)
-**** COMPLETED Finally Done.. Ooof 😄
+****  Finally Done.. Ooof 😄
 CLOSED: [2023-03-07 Tue 14:27]
 :LOGBOOK:
 - CLOSING NOTE [2023-03-07 Tue 14:27]
 :END:
 - [X] Ditch evil-mode, go pure Emacs way!
 - [X] No need modeline nor dashboard, go zen-mode with minimal distraction
-    PS : Used ~olivetti-mode~ and ~(setq-default mode-line-format nil)~
+    PS : Used ~olivetti-mode~ and ~hide-mode-line-mode~
 - [X] Clean and minimise unnecessary package/bloat
 - [X] No need doom-themes too, use one theme (Either vivendi or Catppuccin)
 - [X] Setup robust and extensive use for Rss feeds
@@ -24,7 +24,7 @@ CLOSED: [2023-03-07 Tue 14:27]
 - [X] Make README.org or improve this Config.org so it is informational to all
 - [X] Share some cool stuffs with others and explain it very crisp and clearly
     
-**** PLAN Planning 😴 [0/5]
+****  Planning 😴 [0/5]
 - [ ] add these stuffs.
   #+begin_src conf
 
@@ -35,8 +35,6 @@ CLOSED: [2023-03-07 Tue 14:27]
 (diff-hl-flydiff-mode t)
 
   #+end_src
-- [ ] Check why tramp for root files isnt working.
-  + Although i don't use it.
 - [ ] Add daily quotes for ~initial-scratch-message~
 - [ ] Learn more stuffs from Experienced and Master Users, like Purcell, bbsatov and others
 - [ ] Learn elisp for enhancing some more stuffs
@@ -2016,7 +2014,7 @@ Idk why, but i guess these all should be the sane defaults.
 
   (menu-bar-mode -1)            ; Disable the menu bar
 
-  (setq-default mode-line-format nil)
+  ;; (setq-default mode-line-format nil)
 
   ;; (server-start)
 

@@ -62,7 +62,7 @@ I manage my whole system with single org file. Its easy and pretty handy. You ca
 
 Another key feature in my setup is, every file i tangle is at *read-only mode* (#o444). So generally we can avoid editing/touching them. Thus, every action has to be made in *d-setup.org* only.
 
-Also, I have made files to be *symlink*, so i can edit them without requiring to rebuild whole thing!
+Also, I have made some config (/hyprland,emacs../) files to be *symlink*, so i can edit them without requiring to rebuild whole thing!
 --------------
 
 #+begin_center
@@ -73,7 +73,7 @@ Also, I have made files to be *symlink*, so i can edit them without requiring to
 --------------
 
 *** Installation Guide
-If you are beginner, I'd recommend you to play it with VM.
+If you are beginner, I'd recommend you to play with it in VM.
 
 1. Partition the disk as you require (edit file system section in configuration.nix)
 

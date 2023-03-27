@@ -324,8 +324,6 @@ programs.bottom = {
   };
 };
 
-home.file.".config/btop/btop.conf".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/btop.conf";
-
 services.dunst = {
   enable = true;
   iconTheme = {
@@ -465,8 +463,6 @@ wayland.windowManager.hyprland = {
   enable = true;
   # extraConfig = builtins.readFile ./hyprland.conf;
 };
-
-xdg.configFile."hypr/hyprland.conf" = { source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/hyprland.conf"; };
 
 wayland.windowManager.sway = {
   enable = true;
@@ -789,8 +785,8 @@ toolbar#nav-bar {
 
 # xdg.configFile."newsboat".source = ./configs/.;
 
-home.file.".config/newsboat".recursive = true;
-home.file.".config/newsboat".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/newsboat";
+# home.file.".config/newsboat".recursive = true;
+# home.file.".config/newsboat".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/newsboat";
 
 services.mpd = {
   enable = true;
@@ -809,171 +805,17 @@ services.mpd = {
 
 programs.ncmpcpp = {
   enable = true;
-  package = pkgs.ncmpcpp;
-  settings = {
-    ncmpcpp_directory = "/home/i/.config/ncmpcpp";
-    mpd_crossfade_time = 2;
-    lyrics_directory = "/home/i/.cache/lyrics";
-    progressbar_elapsed_color = 5;
-    progressbar_color = "black";
-    media_library_primary_tag = "album_artist";
-    follow_now_playing_lyrics = "yes";
-    connected_message_on_startup = "no";
-    ignore_leading_the = "yes";
-    screen_switcher_mode = "playlist, media_library";
-    song_columns_list_format = "(50)[]{t|fr:Title} (0)[blue]{a}";
-    song_list_format = "$8%a - %t$R  %l";
-    song_library_format = "{{%a - %t} (%b)}|{%f}";
-    song_status_format = "$7%t";
-    song_window_title_format = "Now Playing ..";
-    now_playing_prefix = "$b$6 ";
-    now_playing_suffix = "  $/b$8";
-    current_item_prefix = "$b$6$/b$6";
-    current_item_suffix = "  $8";
-    statusbar_color = "white";
-    color1 = "white";
-    color2 = "blue";
-    header_visibility = "no";
-    statusbar_visibility = "no";
-    titles_visibility = "no";
-    enable_window_title = "yes";
-    cyclic_scrolling = "yes";
-    mouse_support = "yes";
-    mouse_list_scroll_whole_page = "yes";
-    lines_scrolled = "1";
-    message_delay_time = "1";
-    playlist_shorten_total_times = "yes";
-    playlist_display_mode = "columns";
-    browser_display_mode = "columns";
-    search_engine_display_mode = "columns";
-    playlist_editor_display_mode = "columns";
-    autocenter_mode = "yes";
-    centered_cursor = "yes";
-    user_interface = "classic";
-    locked_screen_width_part = "50";
-    ask_for_locked_screen_width_part = "yes";
-    display_bitrate = "no";
-    external_editor = "hx";
-    main_window_color = "default";
-    startup_screen = "playlist";
-    visualizer_data_source = "/tmp/mpd.fifo";
-    visualizer_output_name = "Visualizer";
-    visualizer_in_stereo = "no";
-    visualizer_type = "ellipse";
-    visualizer_fps = "60";
-    visualizer_look = "●▮";
-    visualizer_color = "33,39,63,75,81,99,117,153,189";
-  };
-  bindings = [
-    {
-      key = "j";
-      command = "scroll_down";
-    }
-    {
-      key = "k";
-      command = "scroll_up";
-    }
-    {
-      key = "J";
-      command = ["select_item" "scroll_down"];
-    }
-    {
-      key = "K";
-      command = ["select_item" "scroll_up"];
-    }
-  ];
 };
 
 programs = {
   mpv = {
     enable = true;
-    # scripts = with pkgs.mpvScripts; [ thumbnail sponsorblock];
-    bindings = {
-      "l" = "seek 5";
-      "h" = "seek -5";
-      "j" = "seek -30";
-      "k" = "seek 30";
-      "J" = "cycle sub";
-      "K" = "cycle sub down";
-    };
-    config = {
-      hwdec="vaapi";
-      gpu-hwdec-interop="vaapi";
-      vo="gpu";
-      profile="gpu-hq";
-      gpu-context="wayland";
-      force-window=true;
-      osc=false;
-      sub-border-size="3.0";
-      sub-auto="fuzzy";
-      msg-level="all=warn";
-      ytdl-format="[height<1080]";
-      save-position-on-quit=true;
-      slang="eng,en,Eng,English";
-      alang="jp,jpn,en,eng";
-      sub-font="ComicCodeLigatures";
-      autofit="50%";
-      sub-font-size="38";
-    };
+    scripts = with pkgs.mpvScripts; [ thumbnail sponsorblock];
   };
 };
 
 programs.sioyek = {
   enable = true;
-
-  config = {
-
-      "background_color" =  "0.0 0.0 0.0";
-      "dark_mode_background_color"  =  "0.0 0.0 0.0";
-      "custom_background_color" =  "0.180 0.204 0.251";
-      "custom_text_color" =  "0.847 0.871 0.914";
-
-      "dark_mode_contrast" =			"0.8";
-      "text_highlight_color" =     "1.0 1.0 0.0";
-      "search_url_s" = 	"https://scholar.google.com/scholar?q=";
-      "search_url_l" = 	"http://gen.lib.rus.ec/scimag/?q=";
-      "search_url_g" =	"https://www.google.com/search?q=";
-      "middle_click_search_engine" = "s";
-      "shift_middle_click_search_engine" = 	"l";
-      "zoom_inc_factor" =         "1.2";
-      "flat_toc" =                            "0";
-      "should_launch_new_instance"		=		"1";
-
-      "should_launch_new_window"		=		"1";
-
-      "default_dark_mode" =	"1";
-      "sort_bookmarks_by_location" = 	"1";
-      "ui_font" = "ComicCodeLigatures";
-      "font_size" =  "24";
-      "wheel_zoom_on_cursor" =  "1";
-      "status_bar_font_size" = "22";
-      "collapsed_toc" = "1";
-      "ruler_mode" = "1";
-
-      "single_click_selects_words" =  "1";
-
-
-      "item_list_prefix" =  ">";
-
-      "#ignore_whitespace_in_presentation_mode" = "0";
-
-      "prerender_next_page_presentation" = "1";
-
-  };
-
-  bindings = {
-    "fit_to_page_width" =  "<f9>";
-    "fit_to_page_width_smart" =  "<f10>";
-
-     " quit"	= "q";
-      "toggle_custom_color"  =   "<f8>";
-      "toggle_fullscreen" =   "<f11>";
-      "toggle_highlight" =   "<f1>";
-      "command" =             "<A-x>";
-      "toggle_dark_mode" =	"i";
-      "toggle_presentation_mode" =	"<f5>";
-      "toggle_statusbar" = "<S-b>";
-  };
 };
 
 services = {
@@ -1074,7 +916,6 @@ xdg = {
   };
 };
 
-home.file.".config/waybar/style.css".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/style.css";
 programs.waybar = {
   enable = true;
   package = pkgs.waybar.overrideAttrs (oldAttrs: {
@@ -1193,10 +1034,5 @@ programs.waybar = {
     };
   };
 };
-
-home.file.".config/wofi".recursive = true;
-home.file.".config/wofi".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/wofi";
-
-home.file.".config/ytfzf/conf.sh".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/conf.sh";
 
 }

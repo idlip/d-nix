@@ -131,7 +131,8 @@
 
 (global-set-key (kbd "M-v") #'d/scroll-up)
 (global-set-key (kbd "C-v") #'d/scroll-down)
-(global-set-key (kbd "C-<f5>") #'d/refresh-buffer)
+(global-set-key (kbd "<f5>") #'d/refresh-buffer)
+(global-set-key (kbd "<f9>") 'hide-mode-line-mode)  
 
 ;;(define-key org-mode-map (kbd "C-c C-x C-s") #'org-archive-done-tasks)
 (global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
@@ -1072,7 +1073,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   (org-present-narrow)
   (org-present-run-after-navigate-functions))
 
-(defun d/org-present-next-sibling ()
+(defun d/org-present-next-slide ()
   "Go to next sibling."
   (interactive)
   (widen)
@@ -1086,7 +1087,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   (when (org-goto-sibling) (d/org-present--last-child))
   (when (org-goto-first-child) (d/org-present--last-child)))
 
-(defun d/org-present-previous-sibling ()
+(defun d/org-present-previous-slide ()
   "Go to next sibling."
   (interactive)
   (widen)
@@ -1103,11 +1104,12 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   (d/org-present-mode)
   (d/org-present-mode))
 
-(define-key org-present-mode-keymap (kbd "<right>")   'd/org-present-next-sibling)
-(define-key org-present-mode-keymap (kbd "<left>")   'd/org-present-previous-sibling)
+(define-key org-present-mode-keymap (kbd "<right>")   'd/org-present-next-slide)
+(define-key org-present-mode-keymap (kbd "<left>")   'd/org-present-previous-slide)
 (define-key org-present-mode-keymap (kbd "<up>")   'd/org-present-up)
-(define-key org-present-mode-keymap (kbd "S-<f5>") 'd/org-present-refresh)
+(define-key org-present-mode-keymap (kbd "<f5>") 'd/org-present-refresh)
 (define-key org-mode-map (kbd "C-<f5>") 'd/org-present-mode)
+(define-key org-mode-map (kbd "<f8>") 'd/org-present-mode)  
 
 (add-hook 'org-present-mode-hook #'d/org-present-enable-hook)
 (add-hook 'org-present-mode-quit-hook #'d/org-present-disable-hook)
@@ -1204,6 +1206,14 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   (olivetti-body-width 0.8)
   :delight " ⊛")
                                         ; "Ⓐ" "⊗"
+
+(use-package doom-modeline
+  :init (doom-modeline-mode 1)
+  (setq doom-modeline-time-icon nil)
+  (setq doom-modeline-bar-width 2)
+  (setq doom-modeline-major-mode-icon t)
+  :custom ((doom-modeline-height 8)
+           (doom-modeline-buffer-encoding nil)))
 
 (setq modus-themes-italic-constructs t
       modus-themes-bold-constructs t

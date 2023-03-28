@@ -38,120 +38,20 @@ programs = {
   fish = {
     enable = true;
     shellInit = ''
-    starship init fish | source
-    '';
-    plugins = with pkgs; [
-      {
-        name = "autopair.fish";
-        src = fishPlugins.autopair-fish;
-      }
-    ];
-  };
+        starship init fish | source
+        set -x FZF_DEFAULT_OPTS "--preview='bat {} --color=always'" \n
+  set -x SKIM_DEFAULT_COMMAND "rg --files || fd || find ."
+  set -g theme_nerd_fonts yes
+  set -g theme_newline_cursor yes
+  set fish_greeting
+        '';
 
-  zsh = {
-    enable = true;
-    enableCompletion = true;
-    enableAutosuggestions = true;
-    enableSyntaxHighlighting = true;
-    autocd = true;
-    dotDir = ".config/shell";
-    sessionVariables = {
-      LC_ALL = "en_US.UTF-8";
-      ZSH_AUTOSUGGEST_USE_ASYNC = "true";
-      BEMENU_OPTS = "-i -l 10 -p '  Apps : ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures 20' --nb '#00000099' --ab '#00000099' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#fff0f5' --hf '#000000' --fb '#00000099' --ff '#a6e3a1' --tb '#00000099' --tf '#f9e2af' ";
-      NIXOS_OZONE_WL = "1";
-      BROWSER = "librewolf";
-      MOZ_ENABLE_WAYLAND = "1";
-    };
-    completionInit = ''
-      eval "$(starship init zsh)"
-
-      autoload -U colors && colors	# Load colors
-      setopt autocd		# Automatically cd into typed directory.
-      stty stop undef		# Disable ctrl-s to freeze terminal.
-      setopt interactive_comments
-
-      export PATH="$PATH:$HOME/.local/bin"
-      export PATH="$PATH:$HOME/.DLIP/BIN"
-
-      export STARDICT_DATA_DIR="$HOME/.local/share/stardict"
-
-      # Basic auto/tab complete:
-      autoload -U compinit
-      zstyle ':completion:*' menu select
-      zmodload zsh/complist
-      compinit
-      _comp_options+=(globdots)		# Include hidden files.
-
-
-      # Use vim keys in tab complete menu:
-      bindkey -M menuselect 'h' vi-backward-char
-      bindkey -M menuselect 'k' vi-up-line-or-history
-      bindkey -M menuselect 'l' vi-forward-char
-      bindkey -M menuselect 'j' vi-down-line-or-history
-      bindkey -v '^?' backward-delete-char
-
-      bindkey -e
-
-    '';
-    envExtra = ''
-export MANPAGER="sh -c 'col -bx | bat -l man -p'"
-export PATH="$PATH:$HOME/.DLIP/BIN"
-export PATH="$PATH:$HOME/.local/bin/d"
-export EDITOR="emacsclient -nw -a 'nvim'"
-export VISUAL=$EDITOR
-export GRIM_DEFAULT_DIR="/home/i/pics/sshots/"
-
-    if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
-      exec Hyprland
-    fi
-
-    '';
-    initExtra = ''
-
-      function ytdl() {
-          yt-dlp --embed-metadata --embed-subs -f 22 "$1"
-      }
-
-      function run() {
-        nix run nixpkgs#$@
-      }
-
-      command_not_found_handler() {
-        printf 'Command not found ->\033[01;32m %s\033[0m \n' "$0" >&2
-        return 127
-                                                      }
-
-      clear
-    '';
-    history = {
-      save = 1000;
-      size = 1000;
-      expireDuplicatesFirst = true;
-      ignoreDups = true;
-      ignoreSpace = true;
-    };
-
-    dirHashes = {
-      docs = "$HOME/docs";
-      notes = "$HOME/docs/notes";
-      dotfiles = "$HOME/dotfiles";
-      dl = "$HOME/dloads";
-      vids = "$HOME/vids";
-      music = "$HOME/music";
-      media = "/run/media/$USER";
-    };
-
-    shellAliases = let
-      # for setting up license in new projects
-
-    in
-      with pkgs; {
+    shellAliases = with pkgs; {
         rebuild = "doas nix-store --verify; pushd ~dotfiles && doas nixos-rebuild switch --flake .# && notify-send \"Done\"&& bat cache --build; popd";
         cleanup = "doas nix-collect-garbage --delete-older-than 7d";
         bloat = "nix path-info -Sh /run/current-system";
         ytmp3 = ''
-          ${lib.getExe yt-dlp} -x --continue --add-metadata --embed-thumbnail --audio-format mp3 --audio-quality 0 --metadata-from-title="%(artist)s - %(title)s" --prefer-ffmpeg -o "%(title)s.%(ext)s"'';
+              ${lib.getExe yt-dlp} -x --continue --add-metadata --embed-thumbnail --audio-format mp3 --audio-quality 0 --metadata-from-title="%(artist)s - %(title)s" --prefer-ffmpeg -o "%(title)s.%(ext)s"'';
         cat = "${lib.getExe bat} --style=plain";
         grep = lib.getExe ripgrep;
         du = lib.getExe du-dust;
@@ -171,10 +71,135 @@ export GRIM_DEFAULT_DIR="/home/i/pics/sshots/"
         ".2" = "cd ../..";
         ".3" = "cd ../../..";
         c = "clear";
-        # helix > nvim
+
         v = "nvim";
         emd = "pkill emacs; emacs --daemon";
-        ytdl = "yt-dlp -f 22";
+
+        e = "emacsclient -t";
+        cp="cp -iv";
+        mv="mv -iv";
+        rm="rm -vI";
+        bc="bc -ql";
+        mkd="mkdir -pv";
+        ytfzf="ytfzf -Df";
+        hyprcaps="hyprctl keyword input:kb_options caps:caps";
+        gc = "git clone --depth=1";
+        sudo = "doas";
+    };
+    plugins = with pkgs; [
+      {
+        name = "autopair.fish";
+        src = pkgs.fishPlugins.autopair-fish;
+      }
+    ];
+  };
+
+  zsh = {
+    enable = true;
+    dotDir = ".config/shell";
+    sessionVariables = {
+      LC_ALL = "en_US.UTF-8";
+      ZSH_AUTOSUGGEST_USE_ASYNC = "true";
+      BEMENU_OPTS = "-i -l 10 -p '  Apps : ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures 20' --nb '#00000099' --ab '#00000099' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#fff0f5' --hf '#000000' --fb '#00000099' --ff '#a6e3a1' --tb '#00000099' --tf '#f9e2af' ";
+      NIXOS_OZONE_WL = "1";
+      BROWSER = "librewolf";
+      MOZ_ENABLE_WAYLAND = "1";
+    };
+
+    completionInit = ''
+          eval "$(starship init zsh)"
+
+          autoload -U compinit && compinit
+
+          zstyle ':completion:*' list-colors "''${(s.:.)LS_COLORS}"
+
+          # preview directory's content with exa when completing cd
+          zstyle ':fzf-tab:complete:*:*' fzf-preview 'exa -1 --color=always $realpath'
+
+          # switch group using `,` and `.`
+          zstyle ':fzf-tab:*' switch-group ',' '.'
+
+          # give a preview of commandline arguments when completing `kill`
+          zstyle ':completion:*:*:*:*:processes' command "ps -u $USER -o pid,user,comm -w -w"
+          zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-preview \
+            '[[ $group == "[process ID]" ]] && ps --pid=$word -o cmd --no-headers -w -w'
+            zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-flags --preview-window=down:3:wrap
+
+          bindkey -e
+        '';
+
+    envExtra = ''
+    export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+    export PATH="$PATH:$HOME/.DLIP/BIN"
+    export PATH="$PATH:$HOME/.local/bin/d"
+    export EDITOR="emacsclient -nw -a 'nvim'"
+    export VISUAL=$EDITOR
+    export STARDICT_DATA_DIR="$HOME/.local/share/stardict"
+
+    export GRIM_DEFAULT_DIR="/home/i/pics/sshots/"
+
+        if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
+          exec Hyprland
+        fi
+
+        '';
+    initExtra = ''
+        source "${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+        source "${pkgs.zsh-history-substring-search}/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
+        source "${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+        source "${pkgs.zsh-autopair}/share/zsh/zsh-autopair/autopair.zsh"
+        source "${pkgs.nix-zsh-completions}/share/zsh/plugins/nix/nix-zsh-completions.plugin.zsh"
+        source "${pkgs.fzf}/share/fzf/completion.zsh"
+        source "${pkgs.fzf}/share/fzf/key-bindings.zsh"
+        source "${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh"
+        source "${pkgs.zsh-fzf-tab}/share/fzf-tab/lib/zsh-ls-colors/ls-colors.zsh"
+
+          function ytdl() {
+              yt-dlp --embed-metadata --embed-subs -f 22 "$1"
+          }
+
+        '';
+
+    history = {
+      save = 1000;
+      size = 1000;
+      expireDuplicatesFirst = true;
+      ignoreDups = true;
+    };
+
+    shellAliases = let
+      # for setting up license in new projects
+
+    in
+      with pkgs; {
+        rebuild = "doas nix-store --verify; pushd ~dotfiles && doas nixos-rebuild switch --flake .# && notify-send \"Done\"&& bat cache --build; popd";
+        cleanup = "doas nix-collect-garbage --delete-older-than 7d";
+        bloat = "nix path-info -Sh /run/current-system";
+        ytmp3 = ''
+              ${lib.getExe yt-dlp} -x --continue --add-metadata --embed-thumbnail --audio-format mp3 --audio-quality 0 --metadata-from-title="%(artist)s - %(title)s" --prefer-ffmpeg -o "%(title)s.%(ext)s"'';
+        cat = "${lib.getExe bat} --style=plain";
+        grep = lib.getExe ripgrep;
+        du = lib.getExe du-dust;
+        ps = lib.getExe procs;
+        m = "mkdir -p";
+        fcd = "cd $(find -type d | fzf)";
+        ls = "${lib.getExe exa} -h --git --icons --color=auto --group-directories-first -s extension";
+        l = "ls -lF --time-style=long-iso --icons";
+        la = "${lib.getExe exa} -lah --tree";
+        tree = "${lib.getExe exa} --tree --icons --tree";
+        http = "${lib.getExe python3} -m http.server";
+        burn = "pkill -9";
+        diff = "diff --color=auto";
+        kys = "doas shutdown now";
+        killall = "pkill";
+        ".1" = "cd ..";
+        ".2" = "cd ../..";
+        ".3" = "cd ../../..";
+        c = "clear";
+
+        v = "nvim";
+        emd = "pkill emacs; emacs --daemon";
+
         e = "emacsclient -t";
         cp="cp -iv";
         mv="mv -iv";
@@ -186,25 +211,6 @@ export GRIM_DEFAULT_DIR="/home/i/pics/sshots/"
         gc = "git clone --depth=1";
         sudo = "doas";
       };
-
-    plugins = with pkgs; [
-      {
-        name = "zsh-nix-shell";
-        src = zsh-nix-shell;
-        file = "share/zsh-nix-shell/nix-shell.plugin.zsh";
-      }
-
-      {
-        name = "zsh-autopair";
-        file = "zsh-autopair.plugin.zsh";
-        src = fetchFromGitHub {
-          owner = "hlissner";
-          repo = "zsh-autopair";
-          rev = "34a8bca0c18fcf3ab1561caef9790abffc1d3d49";
-          sha256 = "1h0vm2dgrmb8i2pvsgis3lshc5b0ad846836m62y8h3rdb3zmpy1";
-        };
-      }
-    ];
   };
 };
 
@@ -221,7 +227,7 @@ mpc_cli playerctl pavucontrol pulsemixer imv
 # cli tools
 cached-nix-shell pcmanfm yt-dlp fzf neovim btop
 
-  unzip aspell aspellDicts.en
+  unzip aspell aspellDicts.en hunspell enchant
   ripgrep nitch libreoffice transmission pandoc
   rsync  ffmpeg sdcv imagemagick groff
   # texlive.combined.scheme-full
@@ -461,8 +467,9 @@ programs.foot = {
 
 wayland.windowManager.hyprland = {
   enable = true;
-  # extraConfig = builtins.readFile ./hyprland.conf;
 };
+
+  xdg.configFile."hypr/hyprland.conf".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/hyprland.conf";
 
 wayland.windowManager.sway = {
   enable = true;
@@ -492,7 +499,7 @@ programs.emacs = {
     all-the-icons all-the-icons-dired async dired-hide-dotfiles dired-single
     reddigg mingus pdf-tools which-key magit aria2 webpaste org-present
     org-mime corfu-terminal beframe denote tempel tempel-collection
-    sdcv elfeed elfeed-org link-hint general powerthesaurus
+    sdcv elfeed elfeed-org link-hint general powerthesaurus 
     doom-modeline hide-mode-line org-auto-tangle el-fetch ox-hugo htmlize
   ])
   );

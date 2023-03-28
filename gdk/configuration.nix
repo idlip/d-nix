@@ -21,11 +21,6 @@ zramSwap = {
   memoryPercent = 50 ;
   algorithm = "zstd";
 };
- # As the name suggest.
-sound = {
-  enable = true;
-  mediaKeys.enable = true;
-};
 
 # obviously your timezone here. Have a nice day or good night sleep ;)
 # Don't waste more time on nixos lol, be healthy and have some sleep. Stay helathy!
@@ -309,7 +304,7 @@ hardware = {
 
 fonts = {
   fonts = with pkgs; [
-    emacs-all-the-icons-fonts
+    emacs-all-the-icons-fonts noto-fonts
     #material-icons comic-mono material-design-icons
     # weather-icons font-awesome
     symbola iosevka-comfy.comfy noto-fonts-emoji comic-mono
@@ -375,5 +370,6 @@ environment.interactiveShellInit = ''
   # Or else login to root (which you will create while rebuilding) and run passwd USERNAME 
   # initialPassword = "changeme";
 };
+  programs.zsh.enable = true;
 
 }

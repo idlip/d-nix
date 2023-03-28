@@ -146,7 +146,7 @@
 (global-set-key (kbd "M-j") 'avy-goto-char-timer) ;;Save ton to pain/strain
 (global-set-key (kbd "M-K") 'avy-kill-region) ;; Practise these two avy binding, it will be of great help
 (global-set-key (kbd "C-x C-k") 'd/kill-buffer) ;; My func to clear cache along killing buffer
-(global-set-key (kbd "C-x k") 'd/kill-buffer)
+(global-set-key (kbd "C-x k") 'kill-buffer)
 (global-set-key (kbd "M-%") 'query-replace-regexp) ;; Hail regexp searching!
 
 ;; Make ESC quit prompts
@@ -715,7 +715,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
  org-pretty-entities t
  ;;   org-ellipsis "…"
 
- org-modern-star '("◉" "○" "◈" "◇" "✳")
+  org-modern-star '("◉" "🞷" "◈" "✿" "✸")
  org-modern-hide-stars nil
  org-modern-table t
  org-modern-list 
@@ -996,7 +996,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
                   d/org-present--org-modern-keyword org-modern-keyword
                   d/org-present--org-modern-block-fringe org-modern-block-fringe
 
-                  org-modern-hide-stars nil
+                  org-modern-hide-stars 'leading
                   org-modern-block-fringe t
                   org-modern-keyword d/org-present-org-modern-keyword))
 
@@ -1415,7 +1415,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   (defun d/kill-buffer ()
     "Clear the image cache (to release memory) after killing a pdf buffer."
     (interactive)
-    (ido-kill-buffer)
+    (kill-this-buffer)
     (delete-window)
     (clear-image-cache t)
     (pdf-cache-clear-data))
@@ -1544,7 +1544,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
     (set-face-attribute 'message-header-other nil :font d/jetb-font :height '1.0 :background)
     ;; For Author
     (set-face-attribute 'message-header-to nil :font d/sans-font :slant 'italic :height '1.50 :background)
-    (set-face-attribute 'shr-link nil :font d/link-font :slant 'italic :width 'condensed :height '1.0 :background)
+    (set-face-attribute 'shr-link nil :font d/link-font :slant 'normal :width 'condensed :height '1.0 :background)
 
     (define-key elfeed-search-mode-map (kbd "m") 'elfeed-toggle-star)
     (define-key elfeed-show-mode-map (kbd "b") 'd/external-browser))

@@ -293,7 +293,7 @@ Keep folders and backuping files clean!
   (global-set-key (kbd "M-j") 'avy-goto-char-timer) ;;Save ton to pain/strain
   (global-set-key (kbd "M-K") 'avy-kill-region) ;; Practise these two avy binding, it will be of great help
   (global-set-key (kbd "C-x C-k") 'd/kill-buffer) ;; My func to clear cache along killing buffer
-  (global-set-key (kbd "C-x k") 'd/kill-buffer)
+  (global-set-key (kbd "C-x k") 'kill-buffer)
   (global-set-key (kbd "M-%") 'query-replace-regexp) ;; Hail regexp searching!
 
   ;; Make ESC quit prompts
@@ -926,7 +926,7 @@ You will see org just below this, this package helps make Org-Mode looks eye-can
    org-pretty-entities t
    ;;   org-ellipsis "…"
 
-   org-modern-star '("◉" "○" "◈" "◇" "✳")
+    org-modern-star '("◉" "🞷" "◈" "✿" "✸")
    org-modern-hide-stars nil
    org-modern-table t
    org-modern-list 
@@ -1228,7 +1228,7 @@ How amazing it is to do presentation with power of org? Yes its possible (need o
                     d/org-present--org-modern-keyword org-modern-keyword
                     d/org-present--org-modern-block-fringe org-modern-block-fringe
 
-                    org-modern-hide-stars nil
+                    org-modern-hide-stars 'leading
                     org-modern-block-fringe t
                     org-modern-keyword d/org-present-org-modern-keyword))
 
@@ -1697,7 +1697,7 @@ Pdf-tools is another great addition if you want to integrate well with Emacs.
     (defun d/kill-buffer ()
       "Clear the image cache (to release memory) after killing a pdf buffer."
       (interactive)
-      (ido-kill-buffer)
+      (kill-this-buffer)
       (delete-window)
       (clear-image-cache t)
       (pdf-cache-clear-data))
@@ -1836,7 +1836,7 @@ Use RSS, just switch to it, and save your time for other productive things. If y
       (set-face-attribute 'message-header-other nil :font d/jetb-font :height '1.0 :background)
       ;; For Author
       (set-face-attribute 'message-header-to nil :font d/sans-font :slant 'italic :height '1.50 :background)
-      (set-face-attribute 'shr-link nil :font d/link-font :slant 'italic :width 'condensed :height '1.0 :background)
+      (set-face-attribute 'shr-link nil :font d/link-font :slant 'normal :width 'condensed :height '1.0 :background)
       
       (define-key elfeed-search-mode-map (kbd "m") 'elfeed-toggle-star)
       (define-key elfeed-show-mode-map (kbd "b") 'd/external-browser))

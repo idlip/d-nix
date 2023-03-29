@@ -138,7 +138,6 @@
 (global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
 (global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
 (global-set-key [C-tab] 'other-window)
-(global-set-key (kbd "C-c c") 'calendar)
 
 
 (global-set-key (kbd "C-c f") 'window-focus-mode)
@@ -761,7 +760,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
     (set-face-attribute 'org-level-4 nil :font d/header-font :weight 'medium :height 1.1)
     (set-face-attribute 'org-level-5 nil :font d/header-font :weight 'medium :height 1.15)
 
-  (set-face-attribute 'variable-pitch nil :font d/variable-width-font :height default-variable-font-size :weight 'medium)
+    (set-face-attribute 'variable-pitch nil :font d/variable-width-font :height default-variable-font-size :weight 'medium)
     (set-face-attribute 'org-verbatim nil :height '1.15 :font d/jetb-font :weight 'medium)
     (set-face-attribute 'org-code nil :height '1.15 :font d/jetb-font :weight 'medium)
     (set-face-attribute (car face) nil :font d/header-font :weight 'regular :height (cdr face)))
@@ -789,6 +788,8 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   :hook (org-mode . org-mode-setup)
   (org-mode . org-modern-mode)
 
+  :bind (("C-c c c" . org-capture)
+         ("C-c c d" . calendar))
   :config
   (setq org-ellipsis " ▾")
 
@@ -804,7 +805,8 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
         browse-url-generic-program "d-stuff")
 
   (setq org-agenda-files
-        '("~/sync/org/tasks.org"))
+        '("~/sync/org/tasks.org"
+          "~/.DLIP/SITE/README.org"))
 
   ;; (require 'org-habit)
   ;; (add-to-list 'org-modules 'org-habit)
@@ -823,77 +825,21 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 
   (setq org-tag-alist
         '((:startgroup)
-                                        ; Put mutually exclusive tags here
           (:endgroup)
-          ("@errand" . ?E)
-          ("@home" . ?H)
           ("@work" . ?W)
           ("agenda" . ?a)
+          ("linux" . ?l)
           ("planning" . ?p)
-          ("publish" . ?P)
-          ("batch" . ?b)
           ("note" . ?n)
           ("idea" . ?i)))
 
-  ;; Configure custom agenda views
-  (setq org-agenda-custom-commands
-        '(("d" "Dashboard"
-           ((agenda "" ((org-deadline-warning-days 7)))
-            (todo "NEXT"
-                  ((org-agenda-overriding-header "Next Tasks")))
-            (tags-todo "agenda/ACTIVE" ((org-agenda-overriding-header "Active Projects")))))
-
-          ("n" "Next Tasks"
-           ((todo "NEXT"
-                  ((org-agenda-overriding-header "Next Tasks")))))
-
-          ("W" "Work Tasks" tags-todo "+work-email")
-
-          ;; Low-effort next actions
-          ("e" tags-todo "+TODO=\"NEXT\"+Effort<15&+Effort>0"
-           ((org-agenda-overriding-header "Low Effort Tasks")
-            (org-agenda-max-todos 20)
-            (org-agenda-files org-agenda-files)))
-
-          ("w" "Workflow Status"
-           ((todo "WAIT"
-                  ((org-agenda-overriding-header "Waiting on External")
-                   (org-agenda-files org-agenda-files)))
-            (todo "REVIEW"
-                  ((org-agenda-overriding-header "In Review")
-                   (org-agenda-files org-agenda-files)))
-            (todo "PLAN"
-                  ((org-agenda-overriding-header "In Planning")
-                   (org-agenda-todo-list-sublevels nil)
-                   (org-agenda-files org-agenda-files)))
-            (todo "BACKLOG"
-                  ((org-agenda-overriding-header "Project Backlog")
-                   (org-agenda-todo-list-sublevels nil)
-                   (org-agenda-files org-agenda-files)))
-            (todo "READY"
-                  ((org-agenda-overriding-header "Ready for Work")
-                   (org-agenda-files org-agenda-files)))
-            (todo "ACTIVE"
-                  ((org-agenda-overriding-header "Active Projects")
-                   (org-agenda-files org-agenda-files)))
-            (todo "COMPLETED"
-                  ((org-agenda-overriding-header "Completed Projects")
-                   (org-agenda-files org-agenda-files)))
-            (todo "CANC"
-                  ((org-agenda-overriding-header "Cancelled Projects")
-                   (org-agenda-files org-agenda-files)))))))
 
   (setq org-capture-templates
-        `(("t" "Tasks / Projects")
-          ("tt" "Task" entry (file+olp "~/docs/org/tasks.org" "Inbox")
-           "* TODO %?\n  %U\n  %a\n  %i" :empty-lines 1)
-
-          ;;mails
-          (("m" "Email Workflow")
-           ("mf" "Follow Up" entry (file+olp "~/sync/org/mails.org" "Follow Up")
-            "* TODO Follow up with %:fromname on %:subject\n%a\n\n%i")
-           ("mr" "Read Later" entry (file+olp "~/sync/org/mails.org" "Read Later")
-            "* TODO Read %:subject\n%a\n\n%i"))
+        `(
+          ("t" "Task" entry (file+olp "~/sync/org/tasks.org" "One-Timer")
+           "* TODO %?\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
+          ("w" "Website Todo" entry (file+headline "~/.DLIP/SITE/README.org" "Ideas - TODO")
+           "* TODO %?\n  SCHEDULED:%T\n " :empty-lines 1)            
 
           ("j" "Journal Entries")
           ("jj" "Journal" entry
@@ -901,23 +847,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
            "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
            ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
            :clock-in :clock-resume
-           :empty-lines 1)
-          ("jm" "Meeting" entry
-           (file+olp+datetree "~/docs/org/journal.org")
-           "* %<%I:%M %p> - %a :meetings:\n\n%?\n\n"
-           :clock-in :clock-resume
-           :empty-lines 1)
-
-          ("w" "Workflows")
-          ("we" "Checking Email" entry (file+olp+datetree "~/docs/org/journal.org")
-           "* Checking Email :email:\n\n%?" :clock-in :clock-resume :empty-lines 1)
-
-          ("m" "Metrics Capture")
-          ("mw" "Weight" table-line (file+headline "~/docs/org/metrics.org" "Weight")
-           "| %U | %^{Weight} | %^{Notes} |" :kill-buffer t)))
-
-  (define-key global-map (kbd "C-c j")
-              (lambda () (interactive) (org-capture nil "jj"))))
+           :empty-lines 1))))
 
 (with-eval-after-load 'org
   (org-babel-do-load-languages
@@ -967,10 +897,10 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 (use-package org-present
   :after org
   :bind (:map org-present-mode
-  ("<right>" . d/org-present-next-slide)
-  ("<left>" . d/org-present-previous-slide)
-  ("<up>" . d/org-present-up)
-  ("<f5>" . d/org-present-refresh))
+              ("<right>" . d/org-present-next-slide)
+              ("<left>" . d/org-present-previous-slide)
+              ("<up>" . d/org-present-up)
+              ("<f5>" . d/org-present-refresh))
   :hook ((org-present-mode . d/org-present-enable-hook)
          (org-present-mode-quit . d/org-present-disable-hook)
          (org-present-after-navigate-functions . d/org-present-prepare-slide)))
@@ -1026,7 +956,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
               header-line-format " "
               org-ellipsis "⤵")
 
-      (dolist (face '((org-block . 1.0)
+  (dolist (face '((org-block . 1.0)
                   (org-block-begin-line . 0.1)
                   (org-level-7 . 1.1)
                   (org-level-8 . 1.1)))
@@ -1044,7 +974,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 
     (set-face-attribute 'header-line nil :background nil :height 2.5)
     (set-face-attribute 'variable-pitch nil :font "ComicCodeLigatures" :height 1.2 :weight 'medium)
-(set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face)))
+    (set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face)))
 
 
   (if (package-installed-p 'hide-mode-line)
@@ -1219,7 +1149,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
            (doom-modeline-buffer-encoding nil)))
 
 ;; to hide during presentation and writing
-  (use-package hide-mode-line
+(use-package hide-mode-line
   :bind
   ("<f9>" . hide-mode-line-mode))
 
@@ -1300,13 +1230,13 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 (use-package eglot
   :defer t
   :init
-    (setq eglot-sync-connect 1
-      eglot-connect-timeout 10
-      eglot-autoshutdown t
-      eglot-send-changes-idle-time 0.5
-      ;; NOTE We disable eglot-auto-display-help-buffer because :select t in
-      ;;      its popup rule causes eglot to steal focus too often.
-      eglot-auto-display-help-buffer nil)
+  (setq eglot-sync-connect 1
+        eglot-connect-timeout 10
+        eglot-autoshutdown t
+        eglot-send-changes-idle-time 0.5
+        ;; NOTE We disable eglot-auto-display-help-buffer because :select t in
+        ;;      its popup rule causes eglot to steal focus too often.
+        eglot-auto-display-help-buffer nil)
   :config
   (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
   (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
@@ -1321,9 +1251,9 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   :config
   ;; Show word-granularity differences within diff hunks
   (setq magit-diff-refine-hunk t)
-    :commands (magit-status magit-get-current-branch)
-    :custom
-    (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+  :commands (magit-status magit-get-current-branch)
+  :custom
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
 (use-package dired
   :ensure nil
@@ -1427,13 +1357,13 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   (setq pdf-view-resize-factor 1.1))
 
 
-  (defun d/kill-buffer ()
-    "Clear the image cache (to release memory) after killing a pdf buffer."
-    (interactive)
-    (kill-this-buffer)
-    (delete-window)
-    (clear-image-cache t)
-    (pdf-cache-clear-data))
+(defun d/kill-buffer ()
+  "Clear the image cache (to release memory) after killing a pdf buffer."
+  (interactive)
+  (kill-this-buffer)
+  (delete-window)
+  (clear-image-cache t)
+  (pdf-cache-clear-data))
 
 (define-key image-mode-map (kbd "q") 'd/kill-buffer)
 
@@ -1452,7 +1382,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   (interactive)
   (load-file (expand-file-name "~/.config/emacs/init.el")))
 
-  ;; Bionic Reading
+;; Bionic Reading
 
 (defvar bionic-reading-face nil "a face for `d/bionic-region'.")
 (setq bionic-reading-face 'bold)
@@ -1491,11 +1421,19 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 
 (use-package elfeed
   :defer t
+  :hook (elfeed-show-mode-hook . d/elfeed-ui)
+  :bind ("C-c d e" . elfeed)
+  (:map elfeed-show-mode-map
+        ("e" . elfeed-open-in-eww)
+        ("i" . d/bionic-read)
+        ("r" . elfeed-open-in-reddit)
+        ("m" . elfeed-toggle-show-star)
+        ("b" . d/external-browser))
+  (:map elfeed-search-mode-map
+        ("m" . elfeed-toggle-star)
+        ("U" . elfeed-update)
+        ("u" . elfeed-update-feed))
   :config
-  (define-key elfeed-show-mode-map (kbd "e") #'elfeed-open-in-eww)
-  (define-key elfeed-show-mode-map (kbd "i") #'d/bionic-read)
-  (define-key elfeed-show-mode-map (kbd "r") #'elfeed-open-in-reddit)
-  (define-key elfeed-show-mode-map (kbd "m") #'elfeed-toggle-show-star)
   ;; (setq-default elfeed-search-filter "@1-week-ago--1-day-ago +unread -news +")
   (setq-default elfeed-search-filter "+unread -news +")
   (defalias 'elfeed-toggle-show-star
@@ -1515,13 +1453,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
     (set-face-attribute 'message-header-other nil :font d/jetb-font :height '1.0 :background)
     ;; For Author
     (set-face-attribute 'message-header-to nil :font d/sans-font :slant 'italic :height '1.50 :background)
-    (set-face-attribute 'shr-link nil :font d/link-font :slant 'normal :width 'condensed :height '1.0 :background)
-
-    (define-key elfeed-search-mode-map (kbd "m") 'elfeed-toggle-star)
-    (define-key elfeed-show-mode-map (kbd "b") 'd/external-browser))
-
-
-  (add-hook 'elfeed-show-mode-hook #'d/elfeed-ui)
+    (set-face-attribute 'shr-link nil :font d/link-font :slant 'normal :width 'condensed :height '1.0 :background))
 
   ;; face for starred articles
   (defface elfeed-search-star-title-face
@@ -1572,15 +1504,15 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 
 (use-package eww
   :bind (:map eww-mode-map
-  ("e" . readable-article)
-  ("Q" . d/kill-buffer)
-  ("M-v" . d/scroll-up)
-  ("C-v" . d/scroll-down)
-  ("C-f" . shr-next-link)
-  ("C-b" . shr-previous-link)
-  ("F" . d/visit-urls)
-  ("U" . elfeed-update)
-  ("b" . d/external-browser)))
+              ("e" . readable-article)
+              ("Q" . d/kill-buffer)
+              ("M-v" . d/scroll-up)
+              ("C-v" . d/scroll-down)
+              ("C-f" . shr-next-link)
+              ("C-b" . shr-previous-link)
+              ("F" . d/visit-urls)
+              ("U" . elfeed-update)
+              ("b" . d/external-browser)))
 
 (defun d/external-browser ()
   (interactive)

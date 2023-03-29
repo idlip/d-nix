@@ -67,8 +67,8 @@
   ;; Set the variable pitch face
   (set-face-attribute 'variable-pitch nil :font d/variable-width-font :height default-variable-font-size :weight 'medium))
 
-(use-package no-littering)
-
+(use-package no-littering
+  :config
 ;; no-littering doesn't set this by default so we must place
 ;; auto save files in the same path as it uses for sessions
 (setq auto-save-file-name-transforms
@@ -76,7 +76,7 @@
 ;;  (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
 (setq delete-old-versions -1)
 (setq version-control t)
-(setq vc-make-backup-files t)
+(setq vc-make-backup-files t))
 
 (use-package savehist
   :init
@@ -132,7 +132,7 @@
 (global-set-key (kbd "M-v") #'d/scroll-up)
 (global-set-key (kbd "C-v") #'d/scroll-down)
 (global-set-key (kbd "<f5>") #'d/refresh-buffer)
-(global-set-key (kbd "<f9>") 'hide-mode-line-mode)  
+
 
 ;;(define-key org-mode-map (kbd "C-c C-x C-s") #'org-archive-done-tasks)
 (global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
@@ -140,11 +140,9 @@
 (global-set-key [C-tab] 'other-window)
 (global-set-key (kbd "C-c c") 'calendar)
 
+
 (global-set-key (kbd "C-c f") 'window-focus-mode)
-;; (global-set-key (kbd "C-M-r") 'undo-redo)
-(global-set-key (kbd "C-M-r") 'undo-tree-redo) ;; If want to use undo-tree mode
-(global-set-key (kbd "M-j") 'avy-goto-char-timer) ;;Save ton to pain/strain
-(global-set-key (kbd "M-K") 'avy-kill-region) ;; Practise these two avy binding, it will be of great help
+
 (global-set-key (kbd "C-x C-k") 'd/kill-buffer) ;; My func to clear cache along killing buffer
 (global-set-key (kbd "C-x k") 'kill-buffer)
 (global-set-key (kbd "M-%") 'query-replace-regexp) ;; Hail regexp searching!
@@ -152,7 +150,10 @@
 ;; Make ESC quit prompts
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 (global-set-key (kbd "M-z") 'zap-up-to-char)
-(global-set-key (kbd "C-S-k") 'avy-kill-whole-line)
+
+(global-set-key (kbd "M-u") 'upcase-dwim)
+(global-set-key (kbd "M-l") 'downcase-dwim)
+(global-set-key (kbd "M-c") 'capitalize-dwim)
 
 (defalias 'yes-or-no-p 'y-or-n-p) ;; Make confirmation messages easy and not a pain.
 
@@ -301,14 +302,16 @@
   (which-key-mode)
   (setq which-key-idle-delay 1))
 
-(use-package helpful)
-
-(global-set-key (kbd "C-h f") #'helpful-callable)
-(global-set-key (kbd "C-h v") #'helpful-variable)
-(global-set-key (kbd "C-h k") #'helpful-key)
-(global-set-key (kbd "C-h x") #'helpful-command)
-(global-set-key (kbd "C-c C-d") #'helpful-at-point)
-(global-set-key (kbd "C-h F") #'helpful-function)
+(use-package helpful
+  :bind
+("C-h f" . helpful-callable)
+("C-h v" . helpful-variable)
+("C-h k" . helpful-key)
+("C-h x" . helpful-command)
+("C-c C-d" . helpful-at-point)
+("C-h F" . helpful-function)
+(:map helpful-mode-map
+      ("q" . kill-buffer-and-window)))
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
@@ -785,6 +788,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   :commands (org-capture org-agenda)
   :hook (org-mode . org-mode-setup)
   (org-mode . org-modern-mode)
+
   :config
   (setq org-ellipsis " ▾")
 
@@ -960,7 +964,17 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 (use-package powerthesaurus
   :defer t)
 
-(use-package org-present)
+(use-package org-present
+  :after org
+  :bind (:map org-present-mode
+  ("<right>" . d/org-present-next-slide)
+  ("<left>" . d/org-present-previous-slide)
+  ("<up>" . d/org-present-up)
+  ("<f5>" . d/org-present-refresh))
+  :hook ((org-present-mode . d/org-present-enable-hook)
+         (org-present-mode-quit . d/org-present-disable-hook)
+         (org-present-after-navigate-functions . d/org-present-prepare-slide)))
+
 
 (defvar d/org-present-org-modern-keyword '(("title"       . "")
                                            ("description" . "")
@@ -1104,17 +1118,6 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   (d/org-present-mode)
   (d/org-present-mode))
 
-(define-key org-present-mode-keymap (kbd "<right>")   'd/org-present-next-slide)
-(define-key org-present-mode-keymap (kbd "<left>")   'd/org-present-previous-slide)
-(define-key org-present-mode-keymap (kbd "<up>")   'd/org-present-up)
-(define-key org-present-mode-keymap (kbd "<f5>") 'd/org-present-refresh)
-(define-key org-mode-map (kbd "C-<f5>") 'd/org-present-mode)
-(define-key org-mode-map (kbd "<f8>") 'd/org-present-mode)  
-
-(add-hook 'org-present-mode-hook #'d/org-present-enable-hook)
-(add-hook 'org-present-mode-quit-hook #'d/org-present-disable-hook)
-(add-hook 'org-present-after-navigate-functions #'d/org-present-prepare-slide)
-
 (use-package denote)
 (setq denote-directory (expand-file-name "~/sync/denote"))
 (setq denote-known-keywords '("emacs" "blogs" "article"))
@@ -1215,6 +1218,11 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   :custom ((doom-modeline-height 8)
            (doom-modeline-buffer-encoding nil)))
 
+;; to hide during presentation and writing
+  (use-package hide-mode-line
+  :bind
+  ("<f9>" . hide-mode-line-mode))
+
 (setq modus-themes-italic-constructs t
       modus-themes-bold-constructs t
       modus-themes-mixed-fonts t
@@ -1265,7 +1273,9 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 
   (add-to-list 'consult-buffer-sources 'beframe--consult-source))
 
-(use-package nix-mode)
+(use-package nix-mode
+  :mode "\\.nix\\'"
+  :defer t)
 
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 ;;(add-hook 'prog-mode-hook #'eglot-ensure)
@@ -1333,6 +1343,9 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 (add-hook 'dired-mode-hook 'dired-hide-details-mode)
 (add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))
 
+(use-package all-the-icons
+  :bind ("C-x 8 i" . all-the-icons-insert))
+
 (use-package all-the-icons-dired
   :hook
   (dired-mode . all-the-icons-dired-mode))
@@ -1344,7 +1357,9 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 
 ;; (use-package howdoyou)
 (use-package undo-tree
+  :bind ("C-M-r" . undo-tree-redo)
   :init (global-undo-tree-mode t))
+
 (use-package flycheck)
 ;; :init (global-flycheck-mode))
 
@@ -1373,17 +1388,21 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   (setq sdcv-dictionary-data-dir "/home/i/.local/share/stardict/") 
   (setq sdcv-dictionary-simple-list   
         '("wn" "enjp" "thesaurus"))
-  )
-(define-key sdcv-mode-map (kbd "q") #'kill-buffer-and-window)
-(define-key sdcv-mode-map (kbd "n") 'sdcv-next-dictionary)
-(define-key sdcv-mode-map (kbd "p") 'sdcv-previous-dictionary)
-(define-key help-mode-map (kbd "q") #'kill-buffer-and-window)
-(define-key helpful-mode-map (kbd "q") #'kill-buffer-and-window)
-(define-key sdcv-mode-map (kbd "M-q") 'vterm-send-next-key)
+  :bind (:map sdcv-mode-map
+              ("q" . kill-buffer-and-window)
+              ("n" . sdcv-next-dictionary)
+              ("p" . sdcv-previous-dictionary)))
 
 (use-package pdf-tools
   :init
   (pdf-tools-install)
+  :bind (:map pdf-view-mode-map
+              ("h" . pdf-annot-add-highlight-markup-annotation)
+              ("t" . pdf-annot-add-text-annotation)
+              ("D" . pdf-annot-delete)
+              ("i" . pdf-view-midnight-minor-mode)
+              ("Q" . d/kill-buffer))
+
   :config
   (setq pdf-tools-enabled-modes         ; simplified from the defaults
         '(pdf-history-minor-mode
@@ -1405,11 +1424,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
   (define-key pdf-view-mode-map (kbd "M-g g") 'pdf-view-goto-page)
   (setq pdf-outline-imenu-use-flat-menus t)
-  (setq pdf-view-resize-factor 1.1)
-  (define-key pdf-view-mode-map (kbd "h") 'pdf-annot-add-highlight-markup-annotation)
-  (define-key pdf-view-mode-map (kbd "t") 'pdf-annot-add-text-annotation)
-  (define-key pdf-view-mode-map (kbd "D") 'pdf-annot-delete)
-  (define-key pdf-view-mode-map (kbd "I") 'pdf-view-midnight-minor-mode)
+  (setq pdf-view-resize-factor 1.1))
 
 
   (defun d/kill-buffer ()
@@ -1420,7 +1435,6 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
     (clear-image-cache t)
     (pdf-cache-clear-data))
 
-  (define-key pdf-view-mode-map (kbd "Q") 'd/kill-buffer))
 (define-key image-mode-map (kbd "q") 'd/kill-buffer)
 
 ;; For Comic Manga
@@ -1438,52 +1452,9 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   (interactive)
   (load-file (expand-file-name "~/.config/emacs/init.el")))
 
-(defvar d/buffer-url-regexp
-  (concat
-   "\\b\\(\\(www\\.\\|\\(s?https?\\|ftp\\|file\\|gopher\\|"
-   "nntp\\|news\\|telnet\\|wais\\|mailto\\|info\\):\\)"
-   "\\(//[-a-z0-9_.]+:[0-9]*\\)?"
-   (let ((chars "-a-z0-9_=#$@~%&*+\\/[:word:]")
-         (punct "!?:;.,"))
-     (concat
-      "\\(?:"
-      "[" chars punct "]+" "(" "[" chars punct "]+" ")"
-      "\\(?:" "[" chars punct "]+" "[" chars "]" "\\)?"
-      "\\|"
-      "[" chars punct "]+" "[" chars "]"
-      "\\)"))
-   "\\)")
-  "Regular expression that matches URLs.
-          Copy of variable `browse-url-button-regexp'.")
-
-(defun d/buffer-links (&optional use-generic-p)
-  "Point browser at a URL in the buffer using completion.
-          Which web browser to use depends on the value of the variable
-          `browse-url-browser-function'.
-        Also see `d/print-buffer-links'."
-  (interactive "P")
-  (let ((matches nil))
-    (save-excursion
-      (goto-char (point-min))
-      (while (search-forward-regexp d/buffer-url-regexp nil t)
-        (push (match-string-no-properties 0) matches)))
-    (let ((url (completing-read "Browse URL: " matches nil t)))
-      (if use-generic-p
-          (browse-url-generic url)
-        (browse-url url)))))
-
-(defun d/print-buffer-links ()
-  "Produce buttonised list of all URLs in the current buffer."
-  (interactive)
-  (add-hook 'occur-hook #'goto-address-mode)
-  (occur d/buffer-url-regexp "\\&")
-  (remove-hook 'occur-hook #'goto-address-mode)
-  (other-window 1))
-
-;; Bionic Reading
+  ;; Bionic Reading
 
 (defvar bionic-reading-face nil "a face for `d/bionic-region'.")
-
 (setq bionic-reading-face 'bold)
 ;; try
 ;; 'bold
@@ -1565,12 +1536,19 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   ("C-c l o" . link-hint-open-link)
   ("C-c l c" . link-hint-copy-link))
 
+(use-package avy
+  :bind
+  ("M-j" . avy-goto-char-timer)
+  ("M-K" . avy-kill-region)
+  ("C-S-k" . avy-kill-whole-line))
+
 (use-package elfeed-org
   :after elfeed
   :config
-  (elfeed-org))
+  (elfeed-org)
+  (setq rmh-elfeed-org-files (list "~/.config/emacs/elfeed.org")))
 
-(setq rmh-elfeed-org-files (list "~/.config/emacs/elfeed.org"))
+
 
 (defun readable-article ()
   (interactive)
@@ -1593,17 +1571,16 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
     (reddigg-view-comments (elfeed-entry-link entry))))
 
 (use-package eww
-  :config
-  (define-key eww-mode-map (kbd "e") #'readable-article)
-  (define-key eww-mode-map (kbd "Q") #'d/kill-buffer)
-  (define-key eww-mode-map (kbd "M-v") #'d/scroll-up)
-  (define-key eww-mode-map (kbd "C-v") #'d/scroll-down)
-  (define-key eww-mode-map (kbd "C-f") #'shr-next-link)
-  (define-key eww-mode-map (kbd "C-b") #'shr-previous-link)
-  (define-key eww-mode-map (kbd "F") #'d/visit-urls)
-  (define-key eww-mode-map (kbd "U") #'elfeed-update)
-  (define-key eww-mode-map (kbd "b") #'d/external-browser)
-  (define-key eww-mode-map (kbd "J") #'d/jump-urls))
+  :bind (:map eww-mode-map
+  ("e" . readable-article)
+  ("Q" . d/kill-buffer)
+  ("M-v" . d/scroll-up)
+  ("C-v" . d/scroll-down)
+  ("C-f" . shr-next-link)
+  ("C-b" . shr-previous-link)
+  ("F" . d/visit-urls)
+  ("U" . elfeed-update)
+  ("b" . d/external-browser)))
 
 (defun d/external-browser ()
   (interactive)
@@ -1626,28 +1603,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   (advice-add 'eww-forward-url :after #'d/eww-rename-buffer)
   ;; (advice-add 'eww-readable :after #'d/bionic-read)
 
-  (defun d/jump-urls (&optional arg)
-    "Jump to URL position on the page using completion.
-
-      When called without ARG (\\[universal-argument]) get URLs only
-      from the visible portion of the buffer.  But when ARG is provided
-      consider whole buffer."
-    (interactive "P")
-    (when (derived-mode-p 'eww-mode)
-      (let* ((links
-              (if arg
-                  (d/capture-urls t)
-                (d/act-visible
-                 (d/capture-urls t))))
-             (prompt-scope (if arg
-                               (propertize "URL on the page" 'face 'warning)
-                             "visible URL"))
-             (prompt (format "Jump to %s: " prompt-scope))
-             (selection (completing-read prompt links nil t))
-             (position (replace-regexp-in-string "^.*(\\([0-9]+\\))[\s\t]+~" "\\1" selection))
-             (point (string-to-number position)))
-        (goto-char point))))
-  (defmacro d/act-visible (&rest body)
+   (defmacro d/act-visible (&rest body)
     "Run BODY within narrowed-region.
     If region is active run BODY within active region instead.
     Return the value of the last form of BODY."

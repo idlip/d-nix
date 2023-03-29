@@ -1341,7 +1341,7 @@ There will be not much difference.
    bind=,i,exec,d-stuff
    bind=,i,submap,reset
 
-   bind=,p,exec,d-apps
+   bind=,p,exec,d-menu
    bind=,p,submap,reset
 
    bind=,x,exec,d-power
@@ -1434,7 +1434,7 @@ Its more mature than hyprland. So... better to have it!
       all-the-icons all-the-icons-dired async dired-hide-dotfiles dired-single
       reddigg mingus pdf-tools which-key magit aria2 webpaste org-present
       org-mime corfu-terminal beframe denote tempel tempel-collection
-      sdcv elfeed elfeed-org link-hint general powerthesaurus 
+      sdcv elfeed elfeed-org link-hint powerthesaurus 
       doom-modeline hide-mode-line org-auto-tangle el-fetch ox-hugo htmlize
     ])
     );
@@ -1883,6 +1883,7 @@ mpv config which is tangled directly
   sub-font=Impress BT
   autofit=50%
   sub-font-size=48
+  speed=1.5
 
 #+end_src
 ******* mpv input

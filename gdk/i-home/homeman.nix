@@ -499,7 +499,7 @@ programs.emacs = {
     all-the-icons all-the-icons-dired async dired-hide-dotfiles dired-single
     reddigg mingus pdf-tools which-key magit aria2 webpaste org-present
     org-mime corfu-terminal beframe denote tempel tempel-collection
-    sdcv elfeed elfeed-org link-hint general powerthesaurus 
+    sdcv elfeed elfeed-org link-hint powerthesaurus 
     doom-modeline hide-mode-line org-auto-tangle el-fetch ox-hugo htmlize
   ])
   );

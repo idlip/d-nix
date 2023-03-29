@@ -22,11 +22,11 @@
 ** Geeks :blogs:read:
 *** [[https://www.psychologytoday.com/intl/front/feed][Psychology Today: The Latest]] :psych:psy:
 *** [[https://idlip.github.io/index.xml][Idlip]] :mine:idlip:
-*** [[https://www.beebom.com/feed/][Beebom]]
+*** [[https://www.beebom.com/feed/][Beebom]] :tech:
 *** [[https://www.wionews.com/feeds/india-news/rss.xml][WION - india news News Releases]]
 *** [[https://syndication.howstuffworks.com/rss/HSW][HowStuffWorks]] :stuffs:how:
 ** News :news:
-*** [[https://www.thehindu.com/feeder/default.rss][The Hindu - Home]]            
+
 ** Youtube-Time :youtube:yt:
 *** [[https://yt.funami.tech/feed/channel/UCUdettijNYvLAm4AixZv4RA][SciShow Psych]]
 *** [[https://yt.funami.tech/feed/channel/UC2-_WWPT_124iN6jiym4fOw][Asian Boss]]

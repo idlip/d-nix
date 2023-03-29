@@ -139,9 +139,6 @@
 (global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
 (global-set-key [C-tab] 'other-window)
 
-
-(global-set-key (kbd "C-c f") 'window-focus-mode)
-
 (global-set-key (kbd "C-x C-k") 'd/kill-buffer) ;; My func to clear cache along killing buffer
 (global-set-key (kbd "C-x k") 'kill-buffer)
 (global-set-key (kbd "M-%") 'query-replace-regexp) ;; Hail regexp searching!
@@ -155,131 +152,6 @@
 (global-set-key (kbd "M-c") 'capitalize-dwim)
 
 (defalias 'yes-or-no-p 'y-or-n-p) ;; Make confirmation messages easy and not a pain.
-
-;; First gotta unbind to use a key combo as general key. Maybe useful for custom bind and easy access. Make it for your liking
-(global-unset-key (kbd "M-SPC"))
-
-(use-package general
-  :defer t
-  :config
-  (general-create-definer leader-keys
-    :prefix "M-SPC"))
-(leader-keys
-  ;; Toggle modes and looks
-  "t"  '(:ignore t :which-key "toggles")
-  "tt" '(consult-theme :which-key "choose theme")
-  "tc" '(rainbow-mode :which-key "colorizer")
-  "te" '(insert-char :which-key "characters")
-  "ti" '(all-the-icons-insert :which-key "icons")
-  "tv" '(org-mode-visual-fill :which-key "visual reading")
-  "tm" '(bookmark-jump :which-key "bookmarks")
-  "tr" '(d/bionic-region :which-key "bionic reading region")
-  "tR" '(d/bionic-read :which-key "bionic reading buffer")
-
-  ;; tabs mode
-  "y"  '(:ignore t :which-key "tabs")
-  "yn" '(tab-new :which-key "new tab")
-  "yk" '(tab-close :which-key "close tab")
-  "yl" '(tab-list :which-key "list tabs")
-  "ys" '(tab-switch :which-key "switch tabs")
-  "yu" '(tab-undo :which-key "undo tab")
-  "yr" '(tab-rename :which-key "rename tab")
-  "yn" '(tab-next :which-key "next tab(gt)")
-
-  ;; games
-  "g" '(:ignore t :which-key "games")
-  "gz" '(zone :which-key "zone out")
-
-
-  ;; window manager
-  "w"  '(:ignore t :which-key "window")
-  "wf" '(window-focus-mode :which-key "max window")
-  "wq" '(d/kill-buffer :which-key "close buffer")
-
-
-  ;; Apps
-  "p"  '(:ignore t :which-key "apps")
-  "pe" '(elfeed :which-key "rss reader")
-  "pw" '(eww :which-key "eww browser")
-  "pd" '(counsel-linux-app :which-key "app menu")
-  "pm" '(mingus-browse :tag "Name" :which-key "music player")
-  "pn" '(newsticker-treeview :tag "Name" :which-key "rss feeds")
-  "pr" '(:ignore t :which-key "reddit browser")
-  "prr" '(reddigg-view-sub :tag "Name" :which-key "subreddit")
-  "prp" '(reddigg-view-comments :tag "Name" :which-key "comment")
-  "prm" '(reddigg-view-frontpage :which-key "main page")
-  "ps" '(howdoyou-query :tag "Name" :which-key "stack overflow")
-
-  "e" '(:ignore t :which-key "eww")
-  "ew" '(eww-search-words :which-key "open in eww")
-  "ef" '(elfeed-open-in-eww :which-key "open feed in eww")
-
-  "~" '(insert-char :which-key "Insert Char/Emoji")
-  "`" '(all-the-icons-insert :which-key " All Icons")    
-  ;; script
-  "," '(:ignore t :which-key "Script browser")
-  ",," '(d/external-browser :which-key "open links avy")
-  ",b" '(d/external-browser :which-key "External Browser")
-  ",`" '(insert-char :which-key "Insert Char/Emoji")
-  ",l" '(d/buffer-links :which-key "list buff link")
-  ",p" '(d/print-buffer-links :which-key "print links")
-
-  ;; dictionary
-  "d" '(:ignore t :which-key "dictionary")
-  "d w" '(sdcv-search-pointer :which-key "word at point")
-  "d s" '(sdcv-search-input :which-key "search word")
-  "d d" '(sdcv-search-input :which-key "search word")
-  "d p" '(sdcv-search-pointer+ :which-key   "hover word at point")
-  "d f" '(sdcv-search-input+ :which-key "hover input word")
-
-  ;; open
-  "o"  '(:ignore t :which-key "open-org")
-  "oo" '(org-capture :which-key "org template")
-  "oa" '(org-agenda :which-key "org agenda")
-  "oa" '(org-agenda :which-key "org agenda")
-
-  ;; quickie
-  "RET" '(vterm :which-key "Terminal")
-  "<backtab>" '(previous-buffer :which-key "prev buffer")
-  "TAB" '(next-buffer :which-key "next buffer")
-  "n" '(dired :which-key "file browser")
-  ;;"s" '(swiper :which-key "search text")
-  "3" '(comment-line :which-key "ucomment")
-
-  ;; music
-  "m"  '(:ignore t :which-key "music")
-  "mp" '(mingus-toggle :tag "Name" :which-key "play/pause")
-  "m>" '(mingus-next :tag "Name" :which-key "next song")
-  "m<" '(mingus-prev :tag "Name" :which-key "prev song")
-
-  ;; consults
-  "c" '(:ignore t :which-key "consultant")
-  "c b" '(consult-buffer :which-key "buffer list")
-  "c f" '(consult-find :which-key "find files")
-  "c r" '(consult-ripgrep :which-key "live grep dir")
-  "c l" '(consult-line :which-key "see-lines")
-  "c t" '(consult-theme :which-key "themer")
-  "c k" '(consult-bookmark :which-key "bookmarks")
-  "c m" '(consult-man :which-key "man pager")
-
-  ;; registers
-  "r" '(:ignore t :which-key "registers")
-  "r g" '(consult-register :which-key "register")
-  "r s" '(consult-register-store :which-key "store register")
-  "r l" '(consult-register-load :which-key "load register")
-
-  ;; file
-  "f"  '(:ignore t :which-key "files")
-  "fd" '(dired :which-key "find directory")
-  "ff" '(find-file :which-key "find file")
-  "RET" '(vterm :which-key "Terminal")
-  "f r" '(config-reload :which-key "reload config")
-
-  ;; configs
-  "fc"  '(:ignore t :which-key "configs")
-  "fe" '((lambda () (interactive) (find-file (expand-file-name "~/.DLIP/SETUP/d-emacs.org"))) :which-key "emacs org")
-  "fm" '((lambda () (interactive) (find-file (expand-file-name "~/.DLIP/SETUP/README.org"))) :which-key "setup readme")
-  "fs" '((lambda () (interactive) (find-file (expand-file-name "~/.DLIP/SETUP/d-setup.org"))) :which-key "nix setup"))
 
 (use-package which-key
   :defer 0
@@ -315,7 +187,8 @@
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
 (use-package rainbow-mode
-  :init (add-hook 'prog-mode-hook 'rainbow-mode))
+  :init (add-hook 'prog-mode-hook 'rainbow-mode)
+  :bind ("C-c t c" . rainbow-mode))
 
 (setq scroll-conservatively 101) ;; value greater than 100 gets rid of half page jumping
 (setq mouse-wheel-scroll-amount nil)
@@ -393,6 +266,7 @@
            ("C-c h" . consult-history)
            ("C-c m" . consult-mode-command)
            ("C-c k" . consult-kmacro)
+           ("C-c t t" . consult-theme)
            ;; C-x bindings (ctl-x-map)
            ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
            ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
@@ -464,7 +338,7 @@
     ;; For some commands and buffer sources it is useful to configure the
     ;; :preview-key on a per-command basis using the `consult-customize' macro.
     (consult-customize
-     consult-theme :preview-key '(:debounce 0.2 any)
+     consult-theme :preview-key '(:debounce 1.5 any)
      consult-ripgrep consult-git-grep consult-grep
      consult-bookmark consult-recent-file consult-xref
      consult--source-bookmark consult--source-file-register
@@ -789,7 +663,10 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   (org-mode . org-modern-mode)
 
   :bind (("C-c c c" . org-capture)
-         ("C-c c d" . calendar))
+         ("C-c c d" . calendar)
+         ("C-c t R" . d/bionic-region)
+         ("C-c d a" . org-agenda)
+         ("C-c t r" . d/bionic-read))
   :config
   (setq org-ellipsis " ▾")
 
@@ -1259,15 +1136,20 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   :ensure nil
   :commands (dired dired-jump)
   :bind (("C-x C-j" . dired-jump)
+         ("C-c f f" . window-focus-mode)
+         ("C-c f e" . (lambda () (interactive) (find-file (expand-file-name "~/.DLIP/SETUP/d-emacs.org"))))
+         ("C-c f s" . (lambda () (interactive) (find-file (expand-file-name "~/.DLIP/SETUP/d-setup.org"))))
+         ("C-c f m" . (lambda () (interactive) (find-file (expand-file-name "~/.DLIP/SETUP/README.org"))))
          ("C-x C-d" . dired))
-  :config
-  (define-key dired-mode-map (kbd "q") 'kill-buffer-and-window)
-  (define-key dired-mode-map (kbd "l") 'dired-single-buffer)
-  (define-key dired-mode-map (kbd "n") 'dired-single-buffer)
-  (define-key dired-mode-map (kbd "p") 'dired-single-up-directory)
-  (define-key dired-mode-map (kbd "h") 'dired-single-up-directory)
-  (define-key dired-mode-map (kbd "j") 'dired-next-line)
-  (define-key dired-mode-map (kbd "k") 'dired-previous-line)    
+  (:map dired-mode-map
+        ("q" . kill-buffer-and-window)
+        ("l" . dired-single-buffer)
+        ("n" . dired-single-buffer)
+        ("p" . dired-single-up-directory)
+        ("h" . dired-single-up-directory)
+        ("j" . dired-next-line)
+        ("k" . dired-previous-line))
+
   :custom ((dired-listing-switches "-agho --group-directories-first")))
 (setq dired-listing-switches "-alt --dired --group-directories-first -h -G")
 (add-hook 'dired-mode-hook 'dired-hide-details-mode)
@@ -1279,6 +1161,10 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 (use-package all-the-icons-dired
   :hook
   (dired-mode . all-the-icons-dired-mode))
+
+(use-package vterm
+  :defer t
+  :bind ("C-c d t" . vterm))
 
 (use-package reddigg
   :config
@@ -1297,6 +1183,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 
 
 (use-package mingus
+  :bind ("C-c d m" . mingus-browse)
   :config
   (advice-add 'mingus-playlist-mode :after #'olivetti-mode)
   (advice-add 'mingus-browse-mode :after #'olivetti-mode))
@@ -1318,7 +1205,8 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   (setq sdcv-dictionary-data-dir "/home/i/.local/share/stardict/") 
   (setq sdcv-dictionary-simple-list   
         '("wn" "enjp" "thesaurus"))
-  :bind (:map sdcv-mode-map
+  :bind ("C-c d d" . sdcv-search-input)
+  (:map sdcv-mode-map
               ("q" . kill-buffer-and-window)
               ("n" . sdcv-next-dictionary)
               ("p" . sdcv-previous-dictionary)))
@@ -1423,6 +1311,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   :defer t
   :hook (elfeed-show-mode-hook . d/elfeed-ui)
   :bind ("C-c d e" . elfeed)
+  ("C-c d b" . d/external-browser)
   (:map elfeed-show-mode-map
         ("e" . elfeed-open-in-eww)
         ("i" . d/bionic-read)
@@ -1435,7 +1324,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
         ("u" . elfeed-update-feed))
   :config
   ;; (setq-default elfeed-search-filter "@1-week-ago--1-day-ago +unread -news +")
-  (setq-default elfeed-search-filter "+unread -news +")
+  (setq-default elfeed-search-filter "+unread +")
   (defalias 'elfeed-toggle-show-star
     (elfeed-expose #'elfeed-show-tag 'star))    
   (defalias 'elfeed-toggle-star

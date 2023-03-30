@@ -183,7 +183,7 @@ Fonts are crucial to read.
     "Jetbrains font for code/verbatim" )
   (defvar d/title-face "Impress BT"
     "Font for title")
-  (defvar d/link-font "Iosevka Comfy"
+  (defvar d/link-font "VictorMono Nerd Font"
     "Font for links")
   (defvar d/code-font "VictorMono Nerd Font"
     "Font for inline code")
@@ -1085,7 +1085,7 @@ How amazing it is to do presentation with power of org? Yes its possible (need o
                     (org-level-7 . 1.1)
                     (org-level-8 . 1.1)))
       (set-face-attribute 'org-document-title nil :font d/title-face :weight 'bold :height 2.5 :width 'extra-expanded)
-      (set-face-attribute 'org-document-info nil :font d/link-font :weight 'bold :height 2.5 :width 'extra-expanded)      
+      (set-face-attribute 'org-document-info nil :font d/link-font :slant 'italic :weight 'bold :height 2.5 :width 'extra-expanded)      
       (set-face-attribute 'org-level-1 nil :font d/header-font :weight 'medium :height 1.6 :foreground "#b6a0ff")
       (set-face-attribute 'org-level-2 nil :font d/header-font :weight 'medium :height 1.5)
       (set-face-attribute 'org-level-3 nil :font d/header-font :weight 'medium :height 1.4)
@@ -1148,7 +1148,9 @@ How amazing it is to do presentation with power of org? Yes its possible (need o
     (unless (org-goto-first-child)
       (org-get-next-sibling))
     (org-present-narrow)
-    (org-present-run-after-navigate-functions))
+    (org-present-run-after-navigate-functions)
+    (org-cycle) (org-cycle))
+
 
   (defun d/org-present--last-child ()
     "Find last child of current heading."
@@ -1165,7 +1167,9 @@ How amazing it is to do presentation with power of org? Yes its possible (need o
           (when (org-goto-first-child)
             (d/org-present--last-child))))
     (org-present-narrow)
-    (org-present-run-after-navigate-functions))
+    (org-present-run-after-navigate-functions)
+    (org-cycle)(org-cycle))
+
 
   (defun d/org-present-refresh ()
     (interactive)
@@ -1655,7 +1659,7 @@ Use RSS, just switch to it, and save your time for other productive things. If y
       (set-face-attribute 'message-header-other nil :font d/jetb-font :height '1.0 :background)
       ;; For Author
       (set-face-attribute 'message-header-to nil :font d/sans-font :slant 'italic :height '1.50 :background)
-      (set-face-attribute 'shr-link nil :font d/link-font :slant 'normal :width 'condensed :height '1.0 :background))
+      (set-face-attribute 'shr-link nil :font d/link-font :slant 'italic :weight 'semibold :width 'medium :height '1.0 :background))
 
     ;; face for starred articles
     (defface elfeed-search-star-title-face
@@ -1882,8 +1886,8 @@ Idk why, but i guess these all should be the sane defaults.
   ;;(toggle-truncate-lines t)
 
   (setq
-   shr-use-fonts  nil                          ; No special fonts
-   shr-use-colors nil                          ; No colours
+   shr-use-fonts  t                          ; No special fonts
+   shr-use-colors t                          ; No colours
    shr-indentation 4                           ; Left-side margin
    shr-max-width fill-column
    shr-width 90                                ; Fold text to 70 columns

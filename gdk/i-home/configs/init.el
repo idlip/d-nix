@@ -48,7 +48,7 @@
   "Jetbrains font for code/verbatim" )
 (defvar d/title-face "Impress BT"
   "Font for title")
-(defvar d/link-font "Iosevka Comfy"
+(defvar d/link-font "VictorMono Nerd Font"
   "Font for links")
 (defvar d/code-font "VictorMono Nerd Font"
   "Font for inline code")
@@ -841,7 +841,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
                   (org-level-7 . 1.1)
                   (org-level-8 . 1.1)))
     (set-face-attribute 'org-document-title nil :font d/title-face :weight 'bold :height 2.5 :width 'extra-expanded)
-    (set-face-attribute 'org-document-info nil :font d/link-font :weight 'bold :height 2.5 :width 'extra-expanded)      
+    (set-face-attribute 'org-document-info nil :font d/link-font :slant 'italic :weight 'bold :height 2.5 :width 'extra-expanded)      
     (set-face-attribute 'org-level-1 nil :font d/header-font :weight 'medium :height 1.6 :foreground "#b6a0ff")
     (set-face-attribute 'org-level-2 nil :font d/header-font :weight 'medium :height 1.5)
     (set-face-attribute 'org-level-3 nil :font d/header-font :weight 'medium :height 1.4)
@@ -904,7 +904,9 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   (unless (org-goto-first-child)
     (org-get-next-sibling))
   (org-present-narrow)
-  (org-present-run-after-navigate-functions))
+  (org-present-run-after-navigate-functions)
+  (org-cycle) (org-cycle))
+
 
 (defun d/org-present--last-child ()
   "Find last child of current heading."
@@ -921,7 +923,9 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
         (when (org-goto-first-child)
           (d/org-present--last-child))))
   (org-present-narrow)
-  (org-present-run-after-navigate-functions))
+  (org-present-run-after-navigate-functions)
+  (org-cycle)(org-cycle))
+
 
 (defun d/org-present-refresh ()
   (interactive)
@@ -1347,7 +1351,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
     (set-face-attribute 'message-header-other nil :font d/jetb-font :height '1.0 :background)
     ;; For Author
     (set-face-attribute 'message-header-to nil :font d/sans-font :slant 'italic :height '1.50 :background)
-    (set-face-attribute 'shr-link nil :font d/link-font :slant 'normal :width 'condensed :height '1.0 :background))
+    (set-face-attribute 'shr-link nil :font d/link-font :slant 'italic :weight 'semibold :width 'medium :height '1.0 :background))
 
   ;; face for starred articles
   (defface elfeed-search-star-title-face
@@ -1558,8 +1562,8 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 ;;(toggle-truncate-lines t)
 
 (setq
- shr-use-fonts  nil                          ; No special fonts
- shr-use-colors nil                          ; No colours
+ shr-use-fonts  t                          ; No special fonts
+ shr-use-colors t                          ; No colours
  shr-indentation 4                           ; Left-side margin
  shr-max-width fill-column
  shr-width 90                                ; Fold text to 70 columns
@@ -1622,3 +1626,16 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
                   (d/set-font-faces))))
     (d/set-font-faces))
 (put 'narrow-to-region 'disabled nil)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(vterm undo-tree flycheck helpful ox-pandoc no-littering rainbow-delimiters rainbow-mode vertico orderless marginalia embark-consult olivetti org-modern cape markdown-mode nix-mode rust-mode lua-mode all-the-icons-dired dired-hide-dotfiles dired-single reddigg mingus pdf-tools which-key magit aria2 webpaste org-present org-mime corfu-terminal beframe denote tempel-collection sdcv elfeed-org link-hint powerthesaurus doom-modeline hide-mode-line org-auto-tangle el-fetch ox-hugo htmlize)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

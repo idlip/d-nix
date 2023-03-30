@@ -47,44 +47,44 @@ programs = {
         '';
 
     shellAliases = with pkgs; {
-        rebuild = "doas nix-store --verify; pushd ~dotfiles && doas nixos-rebuild switch --flake .# && notify-send \"Done\"&& bat cache --build; popd";
-        cleanup = "doas nix-collect-garbage --delete-older-than 7d";
-        bloat = "nix path-info -Sh /run/current-system";
-        ytmp3 = ''
+      rebuild = "doas nix-store --verify; pushd ~dotfiles && doas nixos-rebuild switch --flake .# && notify-send \"Done\"&& bat cache --build; popd";
+      cleanup = "doas nix-collect-garbage --delete-older-than 7d";
+      bloat = "nix path-info -Sh /run/current-system";
+      ytmp3 = ''
               ${lib.getExe yt-dlp} -x --continue --add-metadata --embed-thumbnail --audio-format mp3 --audio-quality 0 --metadata-from-title="%(artist)s - %(title)s" --prefer-ffmpeg -o "%(title)s.%(ext)s"'';
-        cat = "${lib.getExe bat} --style=plain";
-        grep = lib.getExe ripgrep;
-        du = lib.getExe du-dust;
-        ps = lib.getExe procs;
-        m = "mkdir -p";
-        fcd = "cd $(find -type d | fzf)";
-        ls = "${lib.getExe exa} -h --git --icons --color=auto --group-directories-first -s extension";
-        l = "ls -lF --time-style=long-iso --icons";
-        la = "${lib.getExe exa} -lah --tree";
-        tree = "${lib.getExe exa} --tree --icons --tree";
-        http = "${lib.getExe python3} -m http.server";
-        burn = "pkill -9";
-        diff = "diff --color=auto";
-        kys = "doas shutdown now";
-        killall = "pkill";
-        ".1" = "cd ..";
-        ".2" = "cd ../..";
-        ".3" = "cd ../../..";
-        c = "clear";
+      cat = "${lib.getExe bat} --style=plain";
+      grep = lib.getExe ripgrep;
+      du = lib.getExe du-dust;
+      ps = lib.getExe procs;
+      m = "mkdir -p";
+      fcd = "cd $(find -type d | fzf)";
+      ls = "${lib.getExe exa} -h --git --icons --color=auto --group-directories-first -s extension";
+      l = "ls -lF --time-style=long-iso --icons";
+      la = "${lib.getExe exa} -lah --tree";
+      tree = "${lib.getExe exa} --tree --icons --tree";
+      http = "${lib.getExe python3} -m http.server";
+      burn = "pkill -9";
+      diff = "diff --color=auto";
+      kys = "doas shutdown now";
+      killall = "pkill";
+      ".1" = "cd ..";
+      ".2" = "cd ../..";
+      ".3" = "cd ../../..";
+      c = "clear";
 
-        v = "nvim";
-        emd = "pkill emacs; emacs --daemon";
+      v = "nvim";
+      emd = "pkill emacs; emacs --daemon";
 
-        e = "emacsclient -t";
-        cp="cp -iv";
-        mv="mv -iv";
-        rm="rm -vI";
-        bc="bc -ql";
-        mkd="mkdir -pv";
-        ytfzf="ytfzf -Df";
-        hyprcaps="hyprctl keyword input:kb_options caps:caps";
-        gc = "git clone --depth=1";
-        sudo = "doas";
+      e = "emacsclient -t";
+      cp="cp -iv";
+      mv="mv -iv";
+      rm="rm -vI";
+      bc="bc -ql";
+      mkd="mkdir -pv";
+      ytfzf="ytfzf -Df";
+      hyprcaps="hyprctl keyword input:kb_options caps:caps";
+      gc = "git clone --depth=1";
+      sudo = "doas";
     };
     plugins = with pkgs; [
       {
@@ -136,7 +136,7 @@ programs = {
     export VISUAL=$EDITOR
     export STARDICT_DATA_DIR="$HOME/.local/share/stardict"
 
-    export GRIM_DEFAULT_DIR="/home/i/pics/sshots/"
+    export GRIM_DEFAULT_DIR="$HOME/pics/sshots/"
 
         if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
           exec Hyprland
@@ -218,8 +218,8 @@ home.packages = with pkgs; [
 
 # wayland
 libnotify libsixel wofi seatd bemenu
-wf-recorder brightnessctl pamixer slurp grim
-wl-clipboard rofi-wayland cliphist wtype swaybg swayidle gammastep
+  wf-recorder brightnessctl pamixer slurp grim
+  wl-clipboard rofi-wayland cliphist wtype swaybg swayidle gammastep
 
 # media
 mpc_cli playerctl pavucontrol pulsemixer imv
@@ -236,9 +236,9 @@ cached-nix-shell pcmanfm yt-dlp fzf neovim btop
 
 # themes
 gruvbox-gtk-theme
-orchis-theme
-bibata-cursors
-papirus-icon-theme
+  orchis-theme
+  bibata-cursors
+  papirus-icon-theme
 
 # dl media
 deluged yt-dlp jq ytfzf ani-cli
@@ -247,11 +247,11 @@ deluged yt-dlp jq ytfzf ani-cli
 firefox librewolf brave ungoogled-chromium hugo
 
 nodePackages_latest.bash-language-server
- nodePackages_latest.vscode-langservers-extracted
-# python39Packages.python-lsp-server
- python3
- marksman nil 
- tree-sitter-grammars.tree-sitter-bash
+  nodePackages_latest.vscode-langservers-extracted
+  # python39Packages.python-lsp-server
+  python3
+  marksman nil 
+  tree-sitter-grammars.tree-sitter-bash
 
 ];
 
@@ -293,13 +293,13 @@ programs = {
   aria2 = {
     enable = true;
     settings = {
-	    dir = "/home/i/dloads";
-	    file-allocation = "none";
-	    log-level = "warn";
-	    split = "10";
-	    max-connection-per-server = 6;
-	    min-split-size = "5M";
-	    on-download-complete = "exit";
+      dir = "/home/i/dloads";
+      file-allocation = "none";
+      log-level = "warn";
+      split = "10";
+      max-connection-per-server = 6;
+      min-split-size = "5M";
+      on-download-complete = "exit";
     };
   };
 };
@@ -789,11 +789,6 @@ toolbar#nav-bar {
 };
 
 };
-
-# xdg.configFile."newsboat".source = ./configs/.;
-
-# home.file.".config/newsboat".recursive = true;
-# home.file.".config/newsboat".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/newsboat";
 
 services.mpd = {
   enable = true;

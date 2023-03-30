@@ -101,12 +101,12 @@
 (defun d/scroll-down ()
   "Trust me, make scrolling alot smoother. +1 Makes you fall in love with Emacs again!"
   (interactive)
-  (pixel-scroll-precision-scroll-down 40))
+  (pixel-scroll-precision-scroll-down 20))
 
 (defun d/scroll-up ()
   "Trust me, adds a wonderfull smooth scroll. You can do this by trackpad too (laptop)"
   (interactive)
-  (pixel-scroll-precision-scroll-up 40))
+  (pixel-scroll-precision-scroll-up 20))
 (defun d/refresh-buffer ()
   "Revert buffer without confirmation."
   (interactive)
@@ -519,8 +519,8 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 ;; Configure Tempel
 (use-package tempel
   ;; Require trigger prefix before template name when completing.
-  ;; :custom
-  ;; (tempel-trigger-prefix "<")
+   :custom
+   (tempel-trigger-prefix "<")
 
   :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
          ("M-*" . tempel-insert))
@@ -591,11 +591,11 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
  org-pretty-entities t
  ;;   org-ellipsis "…"
 
-  org-modern-star '("◉" "🞷" "◈" "✿" "✸")
+  org-modern-star '("◉" "✤" "◈" "✿" "✤")
  org-modern-hide-stars nil
  org-modern-table t
  org-modern-list 
- '((?* . "⊙")
+ '((?* . "❉")
    (?- . "❖")
    (?+ . "➤"))
 
@@ -772,12 +772,15 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   :defer t)
 
 (use-package org-present
+  :defer t
   :after org
-  :bind (:map org-present-mode
+  :bind (:map org-present-mode-keymap
               ("<right>" . d/org-present-next-slide)
               ("<left>" . d/org-present-previous-slide)
               ("<up>" . d/org-present-up)
               ("<f5>" . d/org-present-refresh))
+  (:map org-mode-map
+        ("<f8>" . d/org-present-mode))
   :hook ((org-present-mode . d/org-present-enable-hook)
          (org-present-mode-quit . d/org-present-disable-hook)
          (org-present-after-navigate-functions . d/org-present-prepare-slide)))
@@ -1309,7 +1312,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 
 (use-package elfeed
   :defer t
-  :hook (elfeed-show-mode-hook . d/elfeed-ui)
+  :hook (elfeed-show-mode . d/elfeed-ui)
   :bind ("C-c d e" . elfeed)
   ("C-c d b" . d/external-browser)
   (:map elfeed-show-mode-map
@@ -1334,9 +1337,11 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
     (interactive)
     (setq-local header-line-format " ")
 
+    (set-face-attribute 'header-line nil :background nil :height 0.9)
+
     ;; For sides
     (set-face-attribute 'message-header-name nil :font d/header-font :height '0.8 :background)
-    ;; For Titlt
+    ;; For Title
     (set-face-attribute 'message-header-subject nil :font d/title-face :height '1.80 :background)
     ;; For tags..
     (set-face-attribute 'message-header-other nil :font d/jetb-font :height '1.0 :background)
@@ -1417,7 +1422,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
     (let ((name (if (eq "" (plist-get eww-data :title))
                     (plist-get eww-data :url)
                   (plist-get eww-data :title))))
-      (rename-buffer (substring (format "*%s # eww*" name)0 25) t)))
+      (rename-buffer (substring (format "*%s # eww*" name)0 32) t)))
 
   (add-hook 'eww-after-render-hook #'d/eww-rename-buffer)
   (advice-add 'eww-back-url :after #'d/eww-rename-buffer)
@@ -1507,9 +1512,10 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 
 (setq use-dialog-box nil)
 (setq sentence-end-double-space nil)
-(setq inhibit-startup-screen t)
+
 (setq initial-scratch-message
       ";; Type to your Will !\n")
+
 (setq frame-inhibit-implied-resize t)
 ;;(global-prettify-symbols-mode t)
 
@@ -1517,32 +1523,40 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 (setq tab-bar-new-tab-choice "*scratch")
 (setq tab-bar-close-button-show nil
       tab-bar-new-button-show nil)
+
 (setq vc-follow-symlinks t)
 
 ;; Set up the visible bell
 (setq visible-bell nil)
+
+;; Wayland 
 (setq x-select-request-type 'text/plain\;charset=utf-8)
+
 (set-language-environment "UTF-8")
 (set-default-coding-systems 'utf-8)
 (set-keyboard-coding-system 'utf-8-unix)
 (set-terminal-coding-system 'utf-8-unix)
+
 (electric-pair-mode t)
+
 (setq recenter-positions '(top middle bottom))
 (global-display-line-numbers-mode t)
 (setq  display-line-numbers-type 'relative)
-(setq text-scale-mode-step 1.05)
+(setq text-scale-mode-step 1.1)
 (setq frame-resize-pixelwise t)
 (global-hl-line-mode 1)
 (column-number-mode -1)
-(line-number-mode -1)
+(line-number-mode 1)
 (delete-selection-mode +1)
 (save-place-mode t)
+
 ;;(display-battery-mode t)
 ;;(setq display-time;5;9~-default-load-average nil)
 ;;(setq display-time-24hr-format t)
 ;;(setq display-time-format "%H:%M")
 ;;(display-time-mode t)
 ;;(toggle-truncate-lines t)
+
 (setq
  shr-use-fonts  nil                          ; No special fonts
  shr-use-colors nil                          ; No colours
@@ -1576,26 +1590,11 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 (global-unset-key (kbd "C-z"))
 (global-set-key (kbd "C-z") #'undo-tree-undo)
 
-      ;;; Scrolling
 
-(setq hscroll-margin 2
-      hscroll-step 1
-      scroll-conservatively 101
-      scroll-margin 0
-      scroll-preserve-screen-position t
-      auto-window-vscroll nil
-      mouse-wheel-scroll-amount '(2 ((shift) . hscroll))
-      mouse-wheel-scroll-amount-horizontal 2)
-
-      ;;; Cursor
 (blink-cursor-mode -1)
 
 ;; Don't blink the paren matching the one at point, it's too distracting.
 (setq blink-matching-paren nil)
-
-;; Don't stretch the cursor to fit wide characters, it is disorienting,
-;; especially for tabs.
-(setq x-stretch-cursor nil)
 
 ;; A simple frame title
 (setq frame-title-format '("%b")
@@ -1609,15 +1608,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 (setq window-resize-pixelwise t)
 (setq frame-resize-pixelwise t)
 
-;; But do not resize windows pixelwise, this can cause crashes in some cases
-;; when resizing too many windows at once or rapidly.
-(setq window-resize-pixelwise nil)
 (pixel-scroll-precision-mode 1)
-
-;; Favor vertical splits over horizontal ones. Monitors are trending toward
-;; wide, rather than tall.
-(setq split-width-threshold 160
-      split-height-threshold nil)
 
 (setq-default fill-column 80)
 

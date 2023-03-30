@@ -306,8 +306,8 @@ fonts = {
     emacs-all-the-icons-fonts noto-fonts
     #material-icons comic-mono material-design-icons
     # weather-icons font-awesome
-    symbola iosevka-comfy.comfy noto-fonts-emoji comic-mono
-    (nerdfonts.override {fonts = ["VictorMono" "FiraCode" "IBMPlexMono" "JetBrainsMono"];})
+    symbola noto-fonts-emoji comic-mono
+    (nerdfonts.override {fonts = ["VictorMono" "FiraCode" "JetBrainsMono"];})
   ];
 
   enableDefaultFonts = false;
@@ -321,9 +321,9 @@ fonts = {
         "JetBrainsMono Nerd Font"
         "Noto Color Emoji"
       ];
-      sansSerif = [ "Gandhi Sans" "Iosevka Comfy" "BlexMono Nerd Font"];
-      serif = [ "SF Pro Rounded" "VictorMono Nerd Font" "BlexMono Nerd Font"];
-      emoji = ["Noto Color Emoji" "Symbola" "Fira Code Nerd Font" ];
+      sansSerif = [ "Gandhi Sans" "Noto Sans"];
+      serif = [ "SF Pro Rounded" "VictorMono Nerd Font" "JetBrainsMono Nerd Font"];
+      emoji = ["Noto Color Emoji" "Symbola" "FiraCode Nerd Font" ];
     };
   };
 };

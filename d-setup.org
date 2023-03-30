@@ -405,8 +405,8 @@ Enables additional fonts system wide
       emacs-all-the-icons-fonts noto-fonts
       #material-icons comic-mono material-design-icons
       # weather-icons font-awesome
-      symbola iosevka-comfy.comfy noto-fonts-emoji comic-mono
-      (nerdfonts.override {fonts = ["VictorMono" "FiraCode" "IBMPlexMono" "JetBrainsMono"];})
+      symbola noto-fonts-emoji comic-mono
+      (nerdfonts.override {fonts = ["VictorMono" "FiraCode" "JetBrainsMono"];})
     ];
 
     enableDefaultFonts = false;
@@ -420,9 +420,9 @@ Enables additional fonts system wide
           "JetBrainsMono Nerd Font"
           "Noto Color Emoji"
         ];
-        sansSerif = [ "Gandhi Sans" "Iosevka Comfy" "BlexMono Nerd Font"];
-        serif = [ "SF Pro Rounded" "VictorMono Nerd Font" "BlexMono Nerd Font"];
-        emoji = ["Noto Color Emoji" "Symbola" "Fira Code Nerd Font" ];
+        sansSerif = [ "Gandhi Sans" "Noto Sans"];
+        serif = [ "SF Pro Rounded" "VictorMono Nerd Font" "JetBrainsMono Nerd Font"];
+        emoji = ["Noto Color Emoji" "Symbola" "FiraCode Nerd Font" ];
       };
     };
   };
@@ -1215,11 +1215,6 @@ There will be not much difference.
   bind=SUPER,b,exec,pkill -SIGUSR1 waybar
   bind=SUPER,P,pseudo,
   bind=SUPER,F,fullscreen,
-  #bind=SUPER,x,exec d-power
-  #bind=SUPER,o,exec d-menu
-  #bind=SUPER,p,exec d-apps
-  #bind=SUPER, ,d-
-
 
   bind=,Print,exec,d-sshot
   bind=CONTROL,Insert,exec,d-sshot
@@ -1305,7 +1300,7 @@ There will be not much difference.
   bind=,i,exec,d-stuff
   bind=,i,submap,reset
 
-  bind=,p,exec,d-menu
+  bind=,p,exec,d-pirt
   bind=,p,submap,reset
 
   bind=,x,exec,d-power

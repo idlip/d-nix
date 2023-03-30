@@ -1093,312 +1093,311 @@ There will be not much difference.
 #+end_src
 ******* Hyprland config
 #+begin_src conf :tangle ./gdk/i-home/configs/hyprland.conf
-   monitor=,preferred,auto,1
-   workspace=DP-1,1
-   # ---- Autostart Apps ----
+  monitor=,preferred,auto,1
+  workspace=DP-1,1
+  # ---- Autostart Apps ----
 
-   exec-once=waybar
-   # exec-once=dunst
-   # #exec-once=exec xrdb -load ~/.config/X11/Xresources
-   exec-once=systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
-   exec-once=wl-paste -t text --watch clipman store
-   # #exec-once=swaybg -i ~/.local/share/bg.jpg
-   # exec-once=hyprctl setcursor Bibata-Modern-Classic
-   exec-once=swayidle timeout 150 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on'
-   exec-once=gammastep -l 19:72 -t 6500:4100
-   # exec-once=pkill -SIGKILL Xwayland
-   exec-once=d-walls
-   exec-once=foot --server
+  exec-once=waybar
+  # exec-once=dunst
+  # #exec-once=exec xrdb -load ~/.config/X11/Xresources
+  exec-once=systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
+  exec-once=wl-paste -t text --watch clipman store
+  # #exec-once=swaybg -i ~/.local/share/bg.jpg
+  # exec-once=hyprctl setcursor Bibata-Modern-Classic
+  exec-once=swayidle timeout 150 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on'
+  exec-once=gammastep -l 19:72 -t 6500:4100
+  # exec-once=pkill -SIGKILL Xwayland
+  exec-once=d-walls
+  exec-once=foot --server
 
-   input {
-   kb_layout=us
-   kb_options=caps:ctrl_modifier
-   follow_mouse=1
-   #    repeat_delay=250
+  input {
+  kb_layout=us
+  kb_options=caps:ctrl_modifier
+  follow_mouse=1
+  #    repeat_delay=250
 
-   touchpad {
-   natural_scroll=no
-   disable_while_typing=0
-   clickfinger_behavior=1
-   middle_button_emulation=1
-   tap-to-click=1
-   }
+  touchpad {
+  natural_scroll=no
+  disable_while_typing=0
+  clickfinger_behavior=1
+  middle_button_emulation=1
+  tap-to-click=1
+  }
 
-   sensitivity=0 # -1.0 - 1.0, 0 means no modification.
-   }
+  sensitivity=0 # -1.0 - 1.0, 0 means no modification.
+  }
 
-   device:at-translated-set-2-keyboard {
-   enabled=false
-   }
+  device:at-translated-set-2-keyboard {
+  enabled=false
+  }
 
-   general {
-   gaps_in=5
-   gaps_out=15
-   border_size=2
-   col.active_border=rgb(ffe4b5)
-   col.inactive_border=rgb(313244)
-   col.active_border = rgba(cba6f7ff) rgba(89b4faff) rgba(94e2d5ff) 10deg
-   col.active_border = rgb(bcd2ee) rgb(fff0f5) rgb(ffe4e1) 10degg
-   no_border_on_floating = true
-   }
+  general {
+  gaps_in=5
+  gaps_out=15
+  border_size=2
+  col.active_border=rgb(ffe4b5)
+  col.inactive_border=rgb(313244)
+  col.active_border = rgba(cba6f7ff) rgba(89b4faff) rgba(94e2d5ff) 10deg
+  col.active_border = rgb(bcd2ee) rgb(fff0f5) rgb(ffe4e1) 10degg
+  no_border_on_floating = true
+  }
 
-   misc {
-   disable_hyprland_logo = true
-   disable_splash_rendering = true
-   mouse_move_enables_dpms = true
-   # no_vfr = false
-   enable_swallow = true
-   swallow_regex = ^(foot)$
-   }
+  misc {
+  disable_hyprland_logo = true
+  disable_splash_rendering = true
+  mouse_move_enables_dpms = true
+  # no_vfr = false
+  enable_swallow = true
+  swallow_regex = ^(foot)$
+  }
 
-   decoration {
-   rounding=16
-   multisample_edges = true
-   inactive_opacity=0.9
-   active_opacity=0.95
+  decoration {
+  rounding=16
+  multisample_edges = true
+  inactive_opacity=0.9
+  active_opacity=0.95
   # fullscreen_opacity=0.9
-   dim_inactive = false
-   dim_strength = 0.05
-   blur=1
-   blur_size=5
-   blur_passes=4
-   blur_new_optimizations=1
-   }
+  dim_inactive = false
+  dim_strength = 0.05
+  blur=1
+  blur_size=5
+  blur_passes=4
+  blur_new_optimizations=1
+  }
 
-   animations {
-   enabled=1
-   animation=border,1,5,default
-   animation=fade,1,3,default
-   # animation=workspaces,1,4,default
-   # animation=windows,1,8,default,popin 10%
-   # bezier = smoothOut, 0.36, 0, 0.66, -0.56
-   # bezier = smoothIn, 0.25, 1, 0.5, 1
-   # bezier = overshot, 0.4, 0.8, 0.2, 1.2
+  animations {
+  enabled=1
+  animation=border,1,5,default
+  animation=fade,1,3,default
+  # animation=workspaces,1,4,default
+  # animation=windows,1,8,default,popin 10%
+  # bezier = smoothOut, 0.36, 0, 0.66, -0.56
+  # bezier = smoothIn, 0.25, 1, 0.5, 1
+  # bezier = overshot, 0.4, 0.8, 0.2, 1.2
 
-   # animation = windows, 1, 4, overshot, slide
-   # animation = windowsOut, 1, 4, smoothOut, slide
-   # animation = border, 1, 10, default
-   # animation = fade, 1, 10, smoothIn
-   # animation = fadeDim, 1, 10, smoothIn
-   # animation=workspaces,1,4,overshot,slidevert
+  # animation = windows, 1, 4, overshot, slide
+  # animation = windowsOut, 1, 4, smoothOut, slide
+  # animation = border, 1, 10, default
+  # animation = fade, 1, 10, smoothIn
+  # animation = fadeDim, 1, 10, smoothIn
+  # animation=workspaces,1,4,overshot,slidevert
 
-   }
+  }
 
-   dwindle {
-   pseudotile=0 # enable pseudotiling on dwindle
-   preserve_split=true
-   }
+  dwindle {
+  pseudotile=0 # enable pseudotiling on dwindle
+  preserve_split=true
+  }
 
-   master {
-   new_is_master=false
-   new_on_top=true
-   }
+  master {
+  new_is_master=false
+  new_on_top=true
+  }
 
-   gestures {
-   workspace_swipe=1
-   workspace_swipe_distance=400
-   workspace_swipe_invert=1
-   workspace_swipe_min_speed_to_force=30
-   workspace_swipe_cancel_ratio=0.5
-   }
+  gestures {
+  workspace_swipe=1
+  workspace_swipe_distance=400
+  workspace_swipe_invert=1
+  workspace_swipe_min_speed_to_force=30
+  workspace_swipe_cancel_ratio=0.5
+  }
 
-   # example window rules
-   #windowrule=move 69 420,abc
-   #windowrule=size 420 69,abc
-   #windowrule=tile,xyz
-   #windowrule=float,abc
-   #windowrule=pseudo,abc
-   #windowrule=monitor 0,xyz
-   #--------window rules---------
-   windowrule=float,rofi
-   windowrule=float,ncmpcpp
-   windowrule=float,viewnior
-   windowrule=float,feh
+  # example window rules
+  #windowrule=move 69 420,abc
+  #windowrule=size 420 69,abc
+  #windowrule=tile,xyz
+  #windowrule=float,abc
+  #windowrule=pseudo,abc
+  #windowrule=monitor 0,xyz
+  #--------window rules---------
+  windowrule=float,rofi
+  windowrule=float,ncmpcpp
+  windowrule=float,viewnior
+  windowrule=float,feh
 
-   windowrule=float,mpv
-   windowrule=opaque,mpv
-   windowrule=noanim,mpv
-   windowrule=noblur,mpv
+  windowrule=float,mpv
+  windowrule=opaque,mpv
+  windowrule=noanim,mpv
+  windowrule=noblur,mpv
 
-   windowrulev2 = float, class:^(firefox)$, title:^(Firefox — Sharing Indicator)$
-   windowrule=opaque,imv
-   windowrule=opacity 0.95,foot
-   windowrule=opacity 0.8,pcmanfm
-   windowrule=opacity 0.95,firefox
-   windowrule=fullscreen,emacs
+  windowrulev2 = float, class:^(firefox)$, title:^(Firefox — Sharing Indicator)$
+  windowrule=opaque,imv
+  windowrule=opacity 0.95,foot
+  windowrule=opacity 0.8,pcmanfm
+  windowrule=opacity 0.95,firefox
+  windowrule=fullscreen,emacs
 
+  #blurls=waybar
+  blurls=wofi
+  blurls=rofi
+  blurls=menu
+  blurls=gtk-layer-shell
+  blurls=notifications
 
-   #blurls=waybar
-   blurls=wofi
-   blurls=rofi
-   blurls=menu
-   blurls=gtk-layer-shell
-   blurls=notifications
+  # some nice mouse binds
+  bindm=SUPER,mouse:272,movewindow
+  bindm=SUPER,mouse:273,resizewindow
 
-   # some nice mouse binds
-   bindm=SUPER,mouse:272,movewindow
-   bindm=SUPER,mouse:273,resizewindow
-
-   # example binds
-   bind=SUPER,RETURN,exec,emacsclient -c -e "(vterm 1)"
-   bind=SUPERSHIFT,RETURN,exec,footclient
-   bind=SUPERSHIFT,Q,killactive,
-   bind=SUPERSHIFT,R,exec,hyprctl reload
-   bind=SUPERCONTROL,Q,exit,
-   bind=SUPER,F12,exec,uxterm
-   bind=SUPER,SPACE,togglefloating,
-   bind=SUPER,d,exec,bemenu-run
-   bind=SUPER,b,exec,pkill -SIGUSR1 waybar
-   bind=SUPER,P,pseudo,
-   bind=SUPER,F,fullscreen,
-   #bind=SUPER,x,exec d-power
-   #bind=SUPER,o,exec d-menu
-   #bind=SUPER,p,exec d-apps
-   #bind=SUPER, ,d-
-
-
-   bind=,Print,exec,d-sshot
-   bind=CONTROL,Insert,exec,d-sshot
-
-   bind=SUPER,left,movefocus,l
-   bind=SUPER,right,movefocus,r
-   bind=SUPER,up,movefocus,u
-   bind=SUPER,down,movefocus,d
-
-   bind=SUPERCONTROL,left,splitratio,-0.1
-   bind=SUPERCONTROL,right,splitratio,+0.1
-
-   bind=SUPERCONTROL,h,splitratio,-0.1
-   bind=SUPERCONTROL,l,splitratio,+0.1
-   bind=SUPER,1,workspace,1
-   bind=SUPER,2,workspace,2
-   bind=SUPER,3,workspace,3
-   bind=SUPER,4,workspace,4
-   bind=SUPER,5,workspace,5
-   bind=SUPER,6,workspace,6
-   bind=SUPER,7,workspace,7
-   bind=SUPER,8,workspace,8
-   bind=SUPER,9,workspace,9
-   bind=SUPER,0,workspace,10
-   bind=SUPERSHIFT,z,movetoworkspace,special
-   bind=SUPER,z,togglespecialworkspace,
-
-   bind=SUPER,1,movetoworkspace,1
-   bind=SUPER,2,movetoworkspace,2
-   bind=SUPER,3,movetoworkspace,3
-   bind=SUPER,4,movetoworkspace,4
-   bind=SUPER,5,movetoworkspace,5
-   bind=SUPER,6,movetoworkspace,6
-   bind=SUPER,7,movetoworkspace,7
-   bind=SUPER,8,movetoworkspace,8
-   bind=SUPER,9,movetoworkspace,9
-   bind=SUPER,0,movetoworkspace,10
-
-   bind=SUPERSHIFT,1,movetoworkspacesilent,1
-   bind=SUPERSHIFT,2,movetoworkspacesilent,2
-   bind=SUPERSHIFT,3,movetoworkspacesilent,3
-   bind=SUPERSHIFT,4,movetoworkspacesilent,4
-   bind=SUPERSHIFT,5,movetoworkspacesilent,5
-   bind=SUPERSHIFT,6,movetoworkspacesilent,6
-   bind=SUPERSHIFT,7,movetoworkspacesilent,7
-   bind=SUPERSHIFT,8,movetoworkspacesilent,8
-   bind=SUPERSHIFT,9,movetoworkspacesilent,9
-   bind=SUPERSHIFT,0,movetoworkspacesilent,10
-
-   bind=SUPER,h,movefocus,l
-   bind=SUPER,l,movefocus,r
-   bind=SUPER,k,movefocus,u
-   bind=SUPER,j,movefocus,d
-   bind=SUPER,mouse_down,workspace,e+1
-   bind=SUPER,mouse_up,workspace,e-1
-   bind=,XF86AudioRaiseVolume,exec,pamixer -ui 5
-   bind=,XF86AudioLowerVolume,exec,pamixer -ud 5
-   bind=,XF86AudioMute,exec,pamixer -t
+  # example binds
+  bind=SUPER,RETURN,exec,emacsclient -c -e "(vterm 1)"
+  bind=SUPERSHIFT,RETURN,exec,footclient
+  bind=SUPERSHIFT,Q,killactive,
+  bind=SUPERSHIFT,R,exec,hyprctl reload
+  bind=SUPERCONTROL,Q,exit,
+  bind=SUPER,F12,exec,uxterm
+  bind=SUPER,SPACE,togglefloating,
+  bind=SUPER,d,exec,bemenu-run
+  bind=SUPER,b,exec,pkill -SIGUSR1 waybar
+  bind=SUPER,P,pseudo,
+  bind=SUPER,F,fullscreen,
+  #bind=SUPER,x,exec d-power
+  #bind=SUPER,o,exec d-menu
+  #bind=SUPER,p,exec d-apps
+  #bind=SUPER, ,d-
 
 
-   # Chords
-   bind=SUPER,period,submap,Wordz
-   submap=Wordz
-   bind=,d,exec,d-dict
-   bind=,d,submap,reset
+  bind=,Print,exec,d-sshot
+  bind=CONTROL,Insert,exec,d-sshot
 
-   bind=,a,exec,d-vocab
-   bind=,a,submap,reset
+  bind=SUPER,left,movefocus,l
+  bind=SUPER,right,movefocus,r
+  bind=SUPER,up,movefocus,u
+  bind=SUPER,down,movefocus,d
 
-   bind=,v,exec,wtype "$(cat ~/.local/share/dict/myglossary | bemenu -W 0.8 | awk '{print $1}')"
-   bind=,v,submap,reset
+  bind=SUPERCONTROL,left,splitratio,-0.1
+  bind=SUPERCONTROL,right,splitratio,+0.1
 
-   bind=,escape,submap,reset
-   bind=CONTROL,g,submap,reset
-   submap=reset
+  bind=SUPERCONTROL,h,splitratio,-0.1
+  bind=SUPERCONTROL,l,splitratio,+0.1
+  bind=SUPER,1,workspace,1
+  bind=SUPER,2,workspace,2
+  bind=SUPER,3,workspace,3
+  bind=SUPER,4,workspace,4
+  bind=SUPER,5,workspace,5
+  bind=SUPER,6,workspace,6
+  bind=SUPER,7,workspace,7
+  bind=SUPER,8,workspace,8
+  bind=SUPER,9,workspace,9
+  bind=SUPER,0,workspace,10
+  bind=SUPERSHIFT,z,movetoworkspace,special
+  bind=SUPER,z,togglespecialworkspace,
+
+  bind=SUPER,1,movetoworkspace,1
+  bind=SUPER,2,movetoworkspace,2
+  bind=SUPER,3,movetoworkspace,3
+  bind=SUPER,4,movetoworkspace,4
+  bind=SUPER,5,movetoworkspace,5
+  bind=SUPER,6,movetoworkspace,6
+  bind=SUPER,7,movetoworkspace,7
+  bind=SUPER,8,movetoworkspace,8
+  bind=SUPER,9,movetoworkspace,9
+  bind=SUPER,0,movetoworkspace,10
+
+  bind=SUPERSHIFT,1,movetoworkspacesilent,1
+  bind=SUPERSHIFT,2,movetoworkspacesilent,2
+  bind=SUPERSHIFT,3,movetoworkspacesilent,3
+  bind=SUPERSHIFT,4,movetoworkspacesilent,4
+  bind=SUPERSHIFT,5,movetoworkspacesilent,5
+  bind=SUPERSHIFT,6,movetoworkspacesilent,6
+  bind=SUPERSHIFT,7,movetoworkspacesilent,7
+  bind=SUPERSHIFT,8,movetoworkspacesilent,8
+  bind=SUPERSHIFT,9,movetoworkspacesilent,9
+  bind=SUPERSHIFT,0,movetoworkspacesilent,10
+
+  bind=SUPER,h,movefocus,l
+  bind=SUPER,l,movefocus,r
+  bind=SUPER,k,movefocus,u
+  bind=SUPER,j,movefocus,d
+  bind=SUPER,mouse_down,workspace,e+1
+  bind=SUPER,mouse_up,workspace,e-1
+  bind=,XF86AudioRaiseVolume,exec,pamixer -ui 5
+  bind=,XF86AudioLowerVolume,exec,pamixer -ud 5
+  bind=,XF86AudioMute,exec,pamixer -t
 
 
-   bind=SUPER,O,submap,Scripts
-   submap=Scripts
-   bind=,o,exec,d-menu
-   bind=,o,submap,reset
+  # Chords
+  bind=SUPER,period,submap,Wordz
+  submap=Wordz
+  bind=,d,exec,d-dict
+  bind=,d,submap,reset
 
-   bind=,i,exec,d-stuff
-   bind=,i,submap,reset
+  bind=,a,exec,d-vocab
+  bind=,a,submap,reset
 
-   bind=,p,exec,d-menu
-   bind=,p,submap,reset
+  bind=,v,exec,wtype "$(cat ~/.local/share/dict/myglossary | bemenu -W 0.8 | awk '{print $1}')"
+  bind=,v,submap,reset
 
-   bind=,x,exec,d-power
-   bind=,x,submap,reset
+  bind=,escape,submap,reset
+  bind=CONTROL,g,submap,reset
+  submap=reset
 
-   bind=,escape,submap,reset
-   bind=CONTROL,g,submap,reset
-   submap=reset
 
-   bind=SUPER,P,submap,Apps
-   submap=Apps
+  bind=SUPER,O,submap,Scripts
+  submap=Scripts
+  bind=,o,exec,d-menu
+  bind=,o,submap,reset
 
-   bind=,p,exec,sioyek
-   bind=,p,submap,reset
+  bind=,i,exec,d-stuff
+  bind=,i,submap,reset
 
-   bind=,f,exec,firefox
-   bind=,f,submap,reset
+  bind=,p,exec,d-menu
+  bind=,p,submap,reset
 
-   bind=,b,exec,brave
-   bind=,b,submap,reset
+  bind=,x,exec,d-power
+  bind=,x,submap,reset
 
-   bind=,w,exec,librewolf
-   bind=,w,submap,reset
+  bind=,escape,submap,reset
+  bind=CONTROL,g,submap,reset
+  submap=reset
 
-   bind=,c,exec,chromium
-   bind=,c,submap,reset
+  bind=SUPER,P,submap,Apps
+  submap=Apps
 
-   bind=,e,exec,emacsclient -c
-   bind=,e,submap,reset
+  bind=,p,exec,sioyek
+  bind=,p,submap,reset
 
-   bind=,escape,submap,reset
-   bind=CONTROL,g,submap,reset
-   submap=reset
+  bind=,f,exec,firefox
+  bind=,f,submap,reset
 
-   # bind=SUPER,e,exec,d-emwhere
-   bind=SUPER,x,exec,d-power
-   # bind=SUPER,period,exec,d-dict
-   bind=SUPERSHIFT,b,exec,d-bookmark
-   bind=SUPER,m,exec,d-urls
-   bind=SUPER,Insert,exec,d-urls
+  bind=,b,exec,brave
+  bind=,b,submap,reset
 
-   bind=SUPER,grave,exec,d-unicodes
-   bind=SUPER,Delete,exec,pkill -INT wf-recorder
+  bind=,w,exec,librewolf
+  bind=,w,submap,reset
 
-   bind=CONTROL,F1,exec,hyprctl dispatch dpms on                               
-   bind=SUPER,F1,exec,d-keys
-   bind=SUPER,F2,exec,brightnessctl set 2%-
-   bind=SUPER,F3,exec,brightnessctl set +2%
-   bind=SUPER,F4,exec,d-record
-   bind=SUPER,F5,exec,d-walls
-   bind=SUPER,F8,exec,mpv --untimed --geometry=35%-30-30 --no-cache --no-osc --no-input-default-bindings --profile=low-latency --input-conf=/dev/null --title=webcam $(ls /dev/video[0,2,4,6,8] | tail -n 1)
-   bind=SUPER,F11,exec,d-mpdplay
-   bind=SUPER,F10,exec,mpc prev
-   bind=SUPER,F12,exec,mpc next
+  bind=,c,exec,chromium
+  bind=,c,submap,reset
 
-   bind=SUPER,e,exec,d-emwhere
-   bind=SUPER,y,exec,ytfzf -Df
+  bind=,e,exec,emacsclient -c
+  bind=,e,submap,reset
+
+  bind=,escape,submap,reset
+  bind=CONTROL,g,submap,reset
+  submap=reset
+
+  # bind=SUPER,e,exec,d-emwhere
+  bind=SUPER,x,exec,d-power
+  # bind=SUPER,period,exec,d-dict
+  bind=SUPERSHIFT,b,exec,d-bookmark
+  bind=SUPER,m,exec,d-urls
+  bind=SUPER,Insert,exec,d-urls
+
+  bind=SUPER,grave,exec,d-unicodes
+  bind=SUPER,Delete,exec,pkill -INT wf-recorder
+
+  bind=CONTROL,F1,exec,hyprctl dispatch dpms on                               
+  bind=SUPER,F1,exec,d-keys
+  bind=SUPER,F2,exec,brightnessctl set 2%-
+  bind=SUPER,F3,exec,brightnessctl set +2%
+  bind=SUPER,F4,exec,d-record
+  bind=SUPER,F5,exec,d-walls
+  bind=SUPER,F8,exec,mpv --untimed --geometry=35%-30-30 --no-cache --no-osc --no-input-default-bindings --profile=low-latency --input-conf=/dev/null --title=webcam $(ls /dev/video[0,2,4,6,8] | tail -n 1)
+  bind=SUPER,F11,exec,d-mpdplay
+  bind=SUPER,F10,exec,mpc prev
+  bind=SUPER,F12,exec,mpc next
+
+  bind=SUPER,e,exec,d-emwhere
+  bind=SUPER,y,exec,ytfzf -Df
 
 #+end_src
 ****** Sway

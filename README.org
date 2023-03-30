@@ -39,20 +39,20 @@ If you really wanna talk/discuss with me, open an issue so I will join on some m
 
 + *Desktop Rice*
   #+attr_html: :width="100px"
-  [[file:assets/desktop-unix.png]]
+  [[file:assets/desktop-fetch.png]]
 
 + *RSS and Emacs*
 
 #+ATTR_HTML: width="100px"
-[[file:assets/emacs-rss.png]]
+[[file:assets/rss-org.png]]
 
-+ *Org Edit and Pdf Reader*
++ *Firefox and Pdf Reader*
   #+attr_html: :width 500
-  [[file:assets/org-pdf.png]]
+  [[file:assets/pdf-browse.png]]
 
-+ Emacs web browser (eww) and Firefox
++ Emacs web browser (eww) 
   #+attr_html: :width 500
-  [[file:assets/firefox-ewweb.png]]
+  [[file:assets/zone-eww.png]]
 
 --------------
 

@@ -425,7 +425,7 @@ programs.foot = {
     main = {
       term = "xterm-256color";
       font = "ComicCodeLigatures:size=12";
-      font-bold = "Fira Code Nerd Font:size=12";
+      font-bold = "VictorMono Nerd Font:size=12";
       letter-spacing = "1";
        box-drawings-uses-font-glyphs = "no";
     };

@@ -1462,50 +1462,53 @@ Vterm to replace terminal emulator.
 * Cool Stuffs 🧊
 Some small codes from good source.
 #+begin_src emacs-lisp
-    (use-package reddigg
-      :config
-      (setq reddigg-subs '(bangalore india emacs fossdroid piracy aww)))
-    (setq org-confirm-elisp-link-function nil)
-
-    ;; (use-package howdoyou)
-    (use-package undo-tree
-      :bind ("C-M-r" . undo-tree-redo)
-      :init (global-undo-tree-mode t))
-
-    (use-package flycheck)
-    ;; :init (global-flycheck-mode))
-
-    (use-package aria2)
+  (use-package reddigg
+    :bind (("C-c d f" . reddigg-view-frontpage)
+           ("C-c d r" . reddigg-view-sub))
+    :config
+    (setq org-confirm-elisp-link-function nil)    
+    (setq reddigg-subs '(bangalore india emacs fossdroid piracy aww)))
 
 
-    (use-package mingus
-      :bind ("C-c d m" . mingus-browse)
-      :config
-      (advice-add 'mingus-playlist-mode :after #'olivetti-mode)
-      (advice-add 'mingus-browse-mode :after #'olivetti-mode))
-    ;; (use-package wikinforg)
-    (use-package webpaste
-      :ensure t
-      :bind (("C-c C-p C-b" . webpaste-paste-buffer)
-             ("C-c C-p C-r" . webpaste-paste-region)
-             ("C-c C-p C-p" . webpaste-paste-buffer-or-region))
-      :config
-      (setq webpaste-provider-priority '("dpaste.org" "dpaste.com" "paste.mozilla.org"))
-      ;; Require confirmation before doing paste
-      (setq webpaste-paste-confirmation t)
-      )
+  ;; (use-package howdoyou)
+  (use-package undo-tree
+    :bind ("C-M-r" . undo-tree-redo)
+    :init (global-undo-tree-mode t))
 
-    (use-package sdcv
-      :config
-      (setq sdcv-say-word-p t)
-      (setq sdcv-dictionary-data-dir "/home/i/.local/share/stardict/") 
-      (setq sdcv-dictionary-simple-list   
-            '("wn" "enjp" "thesaurus"))
-      :bind ("C-c d d" . sdcv-search-input)
-      (:map sdcv-mode-map
-                  ("q" . kill-buffer-and-window)
-                  ("n" . sdcv-next-dictionary)
-                  ("p" . sdcv-previous-dictionary)))
+  (use-package flycheck)
+  ;; :init (global-flycheck-mode))
+
+  (use-package aria2)
+
+
+  (use-package mingus
+    :bind ("C-c d m" . mingus-browse)
+    :config
+    (advice-add 'mingus-playlist-mode :after #'olivetti-mode)
+    (advice-add 'mingus-browse-mode :after #'olivetti-mode))
+  ;; (use-package wikinforg)
+  (use-package webpaste
+    :ensure t
+    :bind (("C-c C-p C-b" . webpaste-paste-buffer)
+           ("C-c C-p C-r" . webpaste-paste-region)
+           ("C-c C-p C-p" . webpaste-paste-buffer-or-region))
+    :config
+    (setq webpaste-provider-priority '("dpaste.org" "dpaste.com" "paste.mozilla.org"))
+    ;; Require confirmation before doing paste
+    (setq webpaste-paste-confirmation t)
+    )
+
+  (use-package sdcv
+    :config
+    (setq sdcv-say-word-p t)
+    (setq sdcv-dictionary-data-dir "/home/i/.local/share/stardict/") 
+    (setq sdcv-dictionary-simple-list   
+          '("wn" "enjp" "thesaurus"))
+    :bind ("C-c d d" . sdcv-search-input)
+    (:map sdcv-mode-map
+          ("q" . kill-buffer-and-window)
+          ("n" . sdcv-next-dictionary)
+          ("p" . sdcv-previous-dictionary)))
 
 #+end_src
 * Document - The PDF 📎

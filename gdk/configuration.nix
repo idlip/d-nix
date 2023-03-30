@@ -321,9 +321,9 @@ fonts = {
         "JetBrainsMono Nerd Font"
         "Noto Color Emoji"
       ];
-      sansSerif = [ "Gandhi Sans" "Noto Sans"];
-      serif = [ "SF Pro Rounded" "VictorMono Nerd Font" "JetBrainsMono Nerd Font"];
-      emoji = ["Noto Color Emoji" "Symbola" "FiraCode Nerd Font" ];
+      sansSerif = [ "Gandhi Sans" "VictorMono Nerd Font" "Noto Sans"];
+      serif = [ "SF Pro Rounded" "Noto Sans" "VictorMono Nerd Font" "JetBrainsMono Nerd Font"];
+      emoji = ["Noto Color Emoji" "Symbola" "all-the-icons" "Weather Icons" "Material Icons" "FiraCode Nerd Font" ];
     };
   };
 };

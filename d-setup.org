@@ -1,17 +1,19 @@
-#+DATE: <2023-02-22 Wed>
 #+TITLE: D Nixyfied Flaky Station
+#+AUTHOR: iDlip
 #+STARTUP: overview hideblocks
 #+OPTIONS: num:nil author:nil
 #+auto_tangle: t
-#+PROPERTY: :tangle-mode (identity #o444) :mkdirp yes
+#+PROPERTY: header-args: :tangle-mode (identity #o444) :mkdirp yes
 
 
 * Description
 --------
 This file is organized configuration for whole system, where you can write everything for Nixos and Home-manager configuration.
-This might only make sense if you use emacs, or else nixos modular flakes is a better choice, but there you one advantage of either including or excluding a file, here you have to uncomment blocks to remove a section.
+This might only make sense if you use emacs, or else nixos modular (multi hosts) flakes is a better choice, but there you have one advantage of disabling a module, here you have to uncomment blocks (or tangle it to some name) to remove a section.
 
 I was using modular setup before, but it is painful to manage directory and remember what all file were there.
+
+Maybe in future, I will tangle each headings as a module itself, so we can combine both single org file to tangle for modular config. (only makes sense if managing multiple hosts/computers).
 
 The advantage of this setup is, you can add TODO and document everything here, so org stands for its name ==> *Organize Life*
 
@@ -30,6 +32,84 @@ gdk
 i
 #+end_src
 
+* Flake
+Why not have a block for flake.nix too?
+#+begin_src nix :tangle ./flake.nix :noweb yes
+{
+  description = "D Nixyfied ❄️ Flaky Station";
+
+  inputs = {
+
+    # Change it to table, if you want stable channel
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+
+    # Idk where is this used, I just have it
+    nixpkgs-wayland.url = "github:nix-community/nixpkgs-wayland";
+
+    # For firefox extension
+    nur.url = "github:nix-community/nur";
+
+    # For Adblocking and making internet usable
+    hosts.url = "github:StevenBlack/hosts";
+
+    # Oh yeah, the best wayland compositor out there
+    hyprland = {  
+      url = "github:hyprwm/Hyprland";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    xdg-portal-hyprland.url = "github:hyprwm/xdg-desktop-portal-hyprland";
+
+    # Greatest editor of all time. (if you shill on vim, give emacs a try and see first, it objective to individuals)
+    emacs-overlay = {   
+      url = "github:nix-community/emacs-overlay";
+    };
+
+    # Home to manage all user configs
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+  };
+
+  outputs = inputs @ {self, hyprland, nur, hosts, home-manager, nixpkgs, ...} :
+    let
+      # You might check on darwin, or its this is enough
+      system = "x86_64-linux";
+      pkgs = import nixpkgs {
+        inherit system;
+        config.allowUnfree = true;
+      };
+      lib = nixpkgs.lib;
+      
+  in {
+    
+    nixosConfigurations = {
+
+      <<my-hostname>> = lib.nixosSystem {
+        inherit system;
+        modules = [
+
+          ./<<my-hostname>>/configuration.nix
+          home-manager.nixosModules.home-manager {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.extraSpecialArgs = {
+              inherit inputs;
+              inherit self;
+            };
+
+            home-manager.users.<<my-username>> = ./<<my-hostname>>/i-home ;
+          }
+          hosts.nixosModule
+        ];
+        specialArgs = {inherit inputs;};
+      };
+    };
+  };
+}
+
+#+end_src
 * System Configuration
 :PROPERTIES:
 :header-args: :tangle-mode (identity #o444) :tangle ./gdk/configuration.nix :mkdir yes
@@ -379,7 +459,7 @@ You can add your choice of overlay (eg: Discord, helix...)
   nixpkgs.overlays = with inputs; [emacs-overlay.overlay  ];
 #+end_src
 *** Opengl Hardware
-To use Opengl hardware acceleration using VAAPI.
+To use Opengl hardware acceleration using VA-API.
 Useful to use in firefox and mpv.
 #+begin_src nix
   nixpkgs.config.packageOverrides = pkgs: {
@@ -420,9 +500,9 @@ Enables additional fonts system wide
           "JetBrainsMono Nerd Font"
           "Noto Color Emoji"
         ];
-        sansSerif = [ "Gandhi Sans" "Noto Sans"];
-        serif = [ "SF Pro Rounded" "VictorMono Nerd Font" "JetBrainsMono Nerd Font"];
-        emoji = ["Noto Color Emoji" "Symbola" "FiraCode Nerd Font" ];
+        sansSerif = [ "Gandhi Sans" "VictorMono Nerd Font" "Noto Sans"];
+        serif = [ "SF Pro Rounded" "Noto Sans" "VictorMono Nerd Font" "JetBrainsMono Nerd Font"];
+        emoji = ["Noto Color Emoji" "Symbola" "all-the-icons" "Weather Icons" "Material Icons" "FiraCode Nerd Font" ];
       };
     };
   };
@@ -1006,7 +1086,7 @@ There will be not much difference.
       main = {
         term = "xterm-256color";
         font = "ComicCodeLigatures:size=12";
-        font-bold = "Fira Code Nerd Font:size=12";
+        font-bold = "VictorMono Nerd Font:size=12";
         letter-spacing = "1";
          box-drawings-uses-font-glyphs = "no";
       };
@@ -2165,7 +2245,7 @@ K cycle sub down
   }
 
   #custom-launcher {
-      font-family:Fira Code Nerd Font;
+      font-family:FiraCode Nerd Font;
       font-size:40px;
       color:#000000;
       border-color: #121212;
@@ -2175,7 +2255,7 @@ K cycle sub down
   }
 
   #custom-power {
-      font-family: Fira Code Nerd Font;
+      font-family: FiraCode Nerd Font;
       font-size: 22px;
       color:#f38ba8;
       border-radius: 30px 30px 30px 30px;

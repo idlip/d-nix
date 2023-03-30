@@ -2298,7 +2298,7 @@ external_menu () {
 #    rofi -dmenu -i -theme-str '@import "menu.rasi" window {height:60%;width: 70%;}' -p "$1"
     # rofi -dmenu -i -config ~/.config/rofi/list.rasi -p "Search for :->"
     # wofi -dib -W 90% -H 80% 
-     bemenu -W 0.98 -l 22
+     bemenu -W 0.98 -l 22 -p '  Play '
 #    dmenu -i -l 20
 }
 
@@ -2325,9 +2325,9 @@ Its just custom instructions
 :header-args: :tangle ./gdk/init-setup.sh
 :END:
 *** Configure file as a script
-Enables file as  shell script
+Make it a shell script
 #+begin_src sh
-  #! /bin/bash
+  #! /usr/bin/env bash
 #+end_src
 *** Install System Flake
 
@@ -2337,14 +2337,6 @@ Enables file as  shell script
   cd ~/.DLIP/SETUP
   sudo nixos-rebuild switch --flake .#gdk
 #+end_src
-*** Create SSH Key
-Creates a SSH Key for Git and then copies it to a named file on the Desktop
-#+begin_src sh
-  echo "Creating SSH Key"
-  ssh-keygen -f /home/que/.ssh/id_rsa -q -N ""
-  cp ~/.ssh/id_rsa.pub ~/ssh-key
-#+end_src
-**** TODO Find a way to copy contents of a file to clipboard from CLI
 *** Copy First Time Installation Checklist
 Places a copy of =manual-init-steps.org= in the home directory
 #+begin_src sh
@@ -2363,18 +2355,4 @@ Places a copy of =manual-init-steps.org= in the home directory
 *** File Description
 #+begin_src txt
 This file describes steps that need to be taken during the first time set up of the computer after a new installation of NixOS
-#+end_src
-*** Configure FireFox
-#+begin_src txt
-- Log into FireFox and Sync Settings
-   - Open 'about:config' as  a URL
-   - Search for "legacy"
-   - Toggle "toolkit.legacyUserProfileCustomizations.stylesheets" to true
-- Log into Password Manager
-- Log into Google
-#+end_src
-*** Configure Git
-#+begin_src txt
-- Add SSH Key from ~/ssh-key to GitHub
-- run =ssh -T git@github.com= and accept the new key token.
 #+end_src

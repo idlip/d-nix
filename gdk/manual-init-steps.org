@@ -1,11 +1,1 @@
 This file describes steps that need to be taken during the first time set up of the computer after a new installation of NixOS
-
-- Log into FireFox and Sync Settings
-   - Open 'about:config' as  a URL
-   - Search for "legacy"
-   - Toggle "toolkit.legacyUserProfileCustomizations.stylesheets" to true
-- Log into Password Manager
-- Log into Google
-
-- Add SSH Key from ~/ssh-key to GitHub
-- run =ssh -T git@github.com= and accept the new key token.

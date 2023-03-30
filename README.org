@@ -66,7 +66,8 @@ Also, I have made some config (/hyprland,emacs../) files to be *symlink*, so i c
 --------------
 
 #+begin_center
-| *Note*: There are *#FIXME tags in [[file:d-setup.org][d-setup.org]]* where you should edit it accordingly to your *USERNAME* and *HOSTNAME*.   I have tried to comment few things to make it as a info, you can _ask/create issue_ regarding this, don't hold back.   *I'm waiting for you to ask!*  |
+| *Note*: Check pre-requisites heading in setup file to add your username and hostname there.                              |
+| There are *#FIXME tags in [[file:d-setup.org][d-setup.org]]* where you should edit it accordingly to your *USERNAME* and *HOSTNAME* (mostly for tangling path).   I have tried to comment few things to make it as a info, you can _ask/create issue_ regarding this, don't hold back.   *I'm waiting for you to ask!* |
 #+end_center
 
 

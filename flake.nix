@@ -48,11 +48,11 @@
   in {
     
     nixosConfigurations = {
-      # #FIXME change 'gdk' to your HOSTNAME
+
       gdk = lib.nixosSystem {
         inherit system;
         modules = [
-          # Again #FIXME to your HOSTNAME
+
           ./gdk/configuration.nix
           home-manager.nixosModules.home-manager {
             home-manager.useGlobalPkgs = true;
@@ -61,8 +61,7 @@
               inherit inputs;
               inherit self;
             };
-            # FIXME 'users.i' to your users.USERNAME
-            # And '/gdk/i-home' to your choice of path (eg: HOSTNAME/USERNAME) It is just path where nix files are tangled, so you have to enter this into d-setup.org file too
+
             home-manager.users.i = ./gdk/i-home ;
           }
           hosts.nixosModule

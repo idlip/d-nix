@@ -22,12 +22,13 @@
     };
     xdg-portal-hyprland.url = "github:hyprwm/xdg-desktop-portal-hyprland";
 
-    # Greatest editor of all time. (if you shill on vim, give emacs a try and see first, it objective to individuals)
+    # Greatest Editor of all time. (if you shill on vim, give emacs a try and see first, although it is objective to individual)
     emacs-overlay = {   
       url = "github:nix-community/emacs-overlay";
     };
 
     # Home to manage all user configs
+    # You can you use normal config files, just use a heading anc create block and tangle it directly to ~/.config/tool/file path (I use this for mpv, btop, hyprland..)
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";

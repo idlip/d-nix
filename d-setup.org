@@ -2458,7 +2458,7 @@ Make it a shell script
 
 #+begin_src sh :noweb yes
   echo "Installing System Flake"
-  sudo cp -f /etc/nixos/hardware-configuration.nix ~/<<my-git-path>>/gdk/hardware-configuration.nix
+  sudo cp -f /etc/nixos/hardware-configuration.nix <<my-git-path>>/gdk/hardware-configuration.nix
   cd ~/.DLIP/SETUP
   sudo nixos-rebuild switch --flake .#gdk
 #+end_src

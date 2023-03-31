@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 echo "Installing System Flake"
-sudo cp -f /etc/nixos/hardware-configuration.nix ~/.DLIP/SETUP/gdk/hardware-configuration.nix
+sudo cp -f /etc/nixos/hardware-configuration.nix ~//home/i/.DLIP/SETUP/gdk/hardware-configuration.nix
 cd ~/.DLIP/SETUP
 sudo nixos-rebuild switch --flake .#gdk
 

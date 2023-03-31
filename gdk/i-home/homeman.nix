@@ -130,7 +130,7 @@ programs = {
 
     envExtra = ''
     export MANPAGER="sh -c 'col -bx | bat -l man -p'"
-    export PATH="$PATH:$HOME/.DLIP/BIN"
+    export PATH="$PATH:/home/i/.DLIP/BIN"
     export PATH="$PATH:$HOME/.local/bin/d"
     export EDITOR="emacsclient -nw -a 'nvim'"
     export VISUAL=$EDITOR
@@ -491,7 +491,7 @@ wayland.windowManager.hyprland = {
 };
 
 # Symlinking the file (hyprland.conf) from the path of repo so we can edit and have immediate effects without requiring to rebuild
-  xdg.configFile."hypr/hyprland.conf".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/hyprland.conf";
+  xdg.configFile."hypr/hyprland.conf".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/gdk/i-home/configs/hyprland.conf";
 
 wayland.windowManager.sway = {
   enable = true;
@@ -509,15 +509,15 @@ xwayland disable
 # Symlinking emacs configs, so we can edit it in realtime and have immediate effect without requiring a rebuild.
 # Change the path to git repo location.
 
-home.file.".config/emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/early-init.el";
-home.file.".config/emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/init.el";
-home.file.".config/emacs/elfeed.org".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/d-rss.org";
+home.file.".config/emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/gdk/i-home/configs/early-init.el";
+home.file.".config/emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/gdk/i-home/configs/init.el";
+home.file.".config/emacs/elfeed.org".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/d-rss.org";
 
 programs.emacs = {
   enable = true;
   package = pkgs.emacsPgtk;
   extraPackages = (epkgs: (with epkgs; [
-    vterm undo-tree flycheck helpful ox-pandoc
+    vterm undo-fu flycheck helpful ox-pandoc
     no-littering rainbow-delimiters rainbow-mode vertico 
     orderless consult marginalia embark embark-consult org olivetti org-modern corfu
     cape markdown-mode nix-mode rust-mode lua-mode

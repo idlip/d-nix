@@ -3,7 +3,7 @@
 #+STARTUP: overview hideblocks
 #+OPTIONS: num:nil author:nil
 #+auto_tangle: t
-#+PROPERTY: header-args: :tangle-mode (identity #o444) :mkdirp yes
+#+PROPERTY: header-args :tangle-mode (identity #o444) :mkdirp yes
 
 
 * Description
@@ -34,19 +34,25 @@ gdk
 i
 #+end_src
 
-- Git repo path in system (For symlinking configs)
+- Git repo path in system 
 #+name: my-git-path
-#+begin_src nix
-.DLIP/SETUP
+#+begin_src nix :noweb yes
+/home/<<my-username>>/.DLIP/SETUP
 #+end_src
 
 - Config path in git
 
   #+name: my-config-path
-#+begin_src nix
-.DLIP/SETUP/gdk/i-home/configs
+#+begin_src nix :noweb yes
+/home/<<my-username>>/.DLIP/SETUP/<<my-hostname>>/i-home/configs
 #+end_src
 
+- Bin (scripts) path
+  I have some scripts here ==> [[https://github.com/idlip/d-bin]]
+#+name: my-bin
+#+begin_src nix :noweb yes
+/home/<<my-username>>/.DLIP/BIN
+#+end_src
 
 
 * Flake
@@ -630,7 +636,7 @@ Opening brace that contains the rest of the configuration file.
 #+end_src
 ***** Shell Configuration
 ****** System Shell
-#+begin_src nix
+#+begin_src nix :noweb yes
   home.sessionVariables.STARSHIP_CACHE = "${config.xdg.cacheHome}/starship";
   programs = {
     exa.enable = true;
@@ -755,7 +761,7 @@ Opening brace that contains the rest of the configuration file.
 
       envExtra = ''
       export MANPAGER="sh -c 'col -bx | bat -l man -p'"
-      export PATH="$PATH:$HOME/.DLIP/BIN"
+      export PATH="$PATH:<<my-bin>>"
       export PATH="$PATH:$HOME/.local/bin/d"
       export EDITOR="emacsclient -nw -a 'nvim'"
       export VISUAL=$EDITOR
@@ -1074,7 +1080,7 @@ There will be not much difference.
         max_icon_size = 32;
         sticky_history = "yes";
         history_length = 20;
-        browser = "/home/<<my-username>>/.DLIP/BIN/d-stuff";
+        browser = "<<my-bin>>/d-stuff";
         always_run_script = "true";
         title = "Dunst";
         class = "Dunst";
@@ -1173,7 +1179,7 @@ There will be not much difference.
   };
 
   # Symlinking the file (hyprland.conf) from the path of repo so we can edit and have immediate effects without requiring to rebuild
-    xdg.configFile."hypr/hyprland.conf".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/<<my-config-path>>/hyprland.conf";
+    xdg.configFile."hypr/hyprland.conf".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/hyprland.conf";
 
 #+end_src
 ******* Hyprland config
@@ -1502,15 +1508,15 @@ Its more mature than hyprland. So... better to have it!
   # Symlinking emacs configs, so we can edit it in realtime and have immediate effect without requiring a rebuild.
   # Change the path to git repo location.
 
-  home.file.".config/emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/<<my-config-path>>/early-init.el";
-  home.file.".config/emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/<<my-config-path>>/init.el";
-  home.file.".config/emacs/elfeed.org".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/<<my-git-path>>/d-rss.org";
+  home.file.".config/emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/early-init.el";
+  home.file.".config/emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/init.el";
+  home.file.".config/emacs/elfeed.org".source = config.lib.file.mkOutOfStoreSymlink "<<my-git-path>>/d-rss.org";
 
   programs.emacs = {
     enable = true;
     package = pkgs.emacsPgtk;
     extraPackages = (epkgs: (with epkgs; [
-      vterm undo-tree flycheck helpful ox-pandoc
+      vterm undo-fu flycheck helpful ox-pandoc
       no-littering rainbow-delimiters rainbow-mode vertico 
       orderless consult marginalia embark embark-consult org olivetti org-modern corfu
       cape markdown-mode nix-mode rust-mode lua-mode

@@ -43,8 +43,8 @@ If you really wanna talk/discuss with me, open an issue so I will join on some m
 
 + *RSS and Emacs*
 
-#+ATTR_HTML: width="100px"
-[[file:assets/rss-org.png]]
+  #+ATTR_HTML: width="100px"
+  [[file:assets/rss-org.png]]
 
 + *Firefox and Pdf Reader*
   #+attr_html: :width 500

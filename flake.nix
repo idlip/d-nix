@@ -3,7 +3,7 @@
 
   inputs = {
 
-    # Change it to table, if you want stable channel
+    # Change it to stable, if you want stable channel
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     # Idk where is this used, I just have it

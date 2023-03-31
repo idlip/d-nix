@@ -68,15 +68,30 @@
   (set-face-attribute 'variable-pitch nil :font d/variable-width-font :height default-variable-font-size :weight 'medium))
 
 (use-package no-littering
+  :defer t
   :config
 ;; no-littering doesn't set this by default so we must place
 ;; auto save files in the same path as it uses for sessions
 (setq auto-save-file-name-transforms
       `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
-;;  (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+;;  (setq backup-directory-alist '(("." . "~/.config/emacs/backups")))
 (setq delete-old-versions -1)
 (setq version-control t)
 (setq vc-make-backup-files t))
+
+(setq make-backup-files t          ; backup of a file the first time it is saved.
+  backup-by-copying t          ; don't clobber symlinks
+  version-control t            ; version numbers for backup files
+  vc-make-backup-files t       ; version control for git/vcs dirs
+  delete-old-versions t        ; delete excess backup files silently
+  delete-by-moving-to-trash t
+  kept-old-versions 2          ; oldest versions to keep when a new numbered backup is made 
+  kept-new-versions 2          ; newest versions to keep when a new numbered backup is made 
+  auto-save-default t          ; auto-save every buffer that visits a file
+  auto-save-timeout 20         ; number of seconds idle time before auto-save (default: 30)
+  auto-save-interval 200       ; number of keystrokes between auto-saves (default: 300)
+  create-lockfiles nil         ; don't use lockfiles (default: t)
+  )
 
 (use-package savehist
   :init
@@ -1176,15 +1191,16 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 
 
 ;; (use-package howdoyou)
-(use-package undo-tree
-  :bind ("C-M-r" . undo-tree-redo)
-  :init (global-undo-tree-mode t))
+(use-package undo-fu
+  :bind ("C-M-r" . undo-fu-only-redo)
+  ("C-z" . undo-fu-only-undo)
+  ("C-S-z" . undo-fu-only-redo-all))
+
 
 (use-package flycheck)
 ;; :init (global-flycheck-mode))
 
 (use-package aria2)
-
 
 (use-package mingus
   :bind ("C-c d m" . mingus-browse)
@@ -1589,8 +1605,6 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 
 (global-unset-key (kbd "C-x C-z"))
 (global-unset-key (kbd "C-z"))
-(global-set-key (kbd "C-z") #'undo-tree-undo)
-
 
 (blink-cursor-mode -1)
 

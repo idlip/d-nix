@@ -490,6 +490,7 @@ wayland.windowManager.hyprland = {
   enable = true;
 };
 
+# Symlinking the file (hyprland.conf) from the path of repo so we can edit and have immediate effects without requiring to rebuild
   xdg.configFile."hypr/hyprland.conf".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/hyprland.conf";
 
 wayland.windowManager.sway = {
@@ -504,6 +505,9 @@ xwayland disable
          '';
    wrapperFeatures.gtk = true;
 };
+
+# Symlinking emacs configs, so we can edit it in realtime and have immediate effect without requiring a rebuild.
+# Change the path to git repo location.
 
 home.file.".config/emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/early-init.el";
 home.file.".config/emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/init.el";

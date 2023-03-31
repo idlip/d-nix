@@ -22,15 +22,32 @@ Also, the tangled files are in read-only mode, so you can avoid editing it, unle
 * Pre-requisites
 With power of org, we can made variables for org-blocks. So no need to type out hostname or username again. Replace it with your host and username
 
+- Hostname goes here
 #+name: my-hostname
 #+begin_src nix
 gdk
 #+end_src
 
+- Username goes here
 #+name: my-username
 #+begin_src nix
 i
 #+end_src
+
+- Git repo path in system (For symlinking configs)
+#+name: my-git-path
+#+begin_src nix
+.DLIP/SETUP
+#+end_src
+
+- Config path in git
+
+  #+name: my-config-path
+#+begin_src nix
+.DLIP/SETUP/gdk/i-home/configs
+#+end_src
+
+
 
 * Flake
 Why not have a block for flake.nix too?
@@ -59,12 +76,13 @@ Why not have a block for flake.nix too?
     };
     xdg-portal-hyprland.url = "github:hyprwm/xdg-desktop-portal-hyprland";
 
-    # Greatest editor of all time. (if you shill on vim, give emacs a try and see first, it objective to individuals)
+    # Greatest Editor of all time. (if you shill on vim, give emacs a try and see first, although it is objective to individual)
     emacs-overlay = {   
       url = "github:nix-community/emacs-overlay";
     };
 
     # Home to manage all user configs
+    # You can you use normal config files, just use a heading anc create block and tangle it directly to ~/.config/tool/file path (I use this for mpv, btop, hyprland..)
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -1148,13 +1166,14 @@ There will be not much difference.
   };
 #+end_src
 ****** Hyprland
-#+begin_src nix
+#+begin_src nix :noweb yes
 
   wayland.windowManager.hyprland = {
     enable = true;
   };
 
-    xdg.configFile."hypr/hyprland.conf".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/hyprland.conf";
+  # Symlinking the file (hyprland.conf) from the path of repo so we can edit and have immediate effects without requiring to rebuild
+    xdg.configFile."hypr/hyprland.conf".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/<<my-config-path>>/hyprland.conf";
 
 #+end_src
 ******* Hyprland config
@@ -1478,10 +1497,14 @@ Its more mature than hyprland. So... better to have it!
   };
 #+end_src
 ****** Emacs
-#+begin_src nix
-  home.file.".config/emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/early-init.el";
-  home.file.".config/emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/gdk/i-home/configs/init.el";
-  home.file.".config/emacs/elfeed.org".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.DLIP/SETUP/d-rss.org";
+#+begin_src nix :noweb yes
+
+  # Symlinking emacs configs, so we can edit it in realtime and have immediate effect without requiring a rebuild.
+  # Change the path to git repo location.
+
+  home.file.".config/emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/<<my-config-path>>/early-init.el";
+  home.file.".config/emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/<<my-config-path>>/init.el";
+  home.file.".config/emacs/elfeed.org".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/<<my-git-path>>/d-rss.org";
 
   programs.emacs = {
     enable = true;
@@ -2427,9 +2450,9 @@ Make it a shell script
 #+end_src
 *** Install System Flake
 
-#+begin_src sh
+#+begin_src sh :noweb yes
   echo "Installing System Flake"
-  sudo cp -f /etc/nixos/hardware-configuration.nix ~/.DLIP/SETUP/gdk/hardware-configuration.nix
+  sudo cp -f /etc/nixos/hardware-configuration.nix ~/<<my-git-path>>/gdk/hardware-configuration.nix
   cd ~/.DLIP/SETUP
   sudo nixos-rebuild switch --flake .#gdk
 #+end_src

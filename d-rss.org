@@ -1,12 +1,11 @@
 * Feeds :elfeed:
 ** Youtube-Linux :linux:
+*** [[https://yt.funami.tech/feed/channel/UCAiiOTio8Yu69c3XnR7nQBQ][System Crafters]] :crafter:
 *** [[https://yt.funami.tech/feed/channel/UCld68syR8Wi-GY_n4CaoJGA][Brodie Robertson]]           
 *** [[https://yt.funami.tech/feed/channel/UCngn7SVujlvskHRvRKc1cTw][BugsWriter]]
 *** [[https://yt.funami.tech/feed/channel/UCVls1GmFKf6WlTraIb_IaJg][DistroTube]]
-*** [[https://yt.funami.tech/feed/channel/UC7YOGHUfC1Tb6E4pudI9STA][Mental Outlaw]]
 *** [[https://yt.funami.tech/feed/channel/UC2eYFnH61tmytImy1mTYvhA][Luke]]
 *** [[https://yt.funami.tech/feed/channel/UCriRR_CzOny-akXyk1R-oDQ][Napoleon]]
-*** [[https://yt.funami.tech/feed/channel/UCX_WM2O-X96URC5n66G-hvw][EF - Linux Made Simple]]
 *** [[https://yt.funami.tech/feed/channel/UC5UAwBUum7CPN5buc-_N1Fw][The Linux Experiment]]
 ** Animalogy :animalogy:animal:zoo:
 *** [[https://yt.funami.tech/feed/channel/UCwmZiChSryoWQCZMIQezgTg][BBC Earth]]

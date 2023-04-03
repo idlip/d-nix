@@ -68,7 +68,6 @@
   (set-face-attribute 'variable-pitch nil :font d/variable-width-font :height default-variable-font-size :weight 'medium))
 
 (use-package no-littering
-  :defer t
   :config
 ;; no-littering doesn't set this by default so we must place
 ;; auto save files in the same path as it uses for sessions
@@ -113,15 +112,7 @@
   (balance-windows)
   (other-window 1))
 
-(defun d/scroll-down ()
-  "Trust me, make scrolling alot smoother. +1 Makes you fall in love with Emacs again!"
-  (interactive)
-  (pixel-scroll-precision-scroll-down 20))
 
-(defun d/scroll-up ()
-  "Trust me, adds a wonderfull smooth scroll. You can do this by trackpad too (laptop)"
-  (interactive)
-  (pixel-scroll-precision-scroll-up 20))
 (defun d/refresh-buffer ()
   "Revert buffer without confirmation."
   (interactive)
@@ -137,12 +128,12 @@
       (delete-other-windows))))
 
 (defun org-archive-done-tasks ()
-(interactive)
-(org-map-entries
- (lambda ()
-   (org-archive-subtree)
-   (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
- "/DONE" 'tree))
+  (interactive)
+  (org-map-entries
+   (lambda ()
+     (org-archive-subtree)
+     (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+   "/DONE" 'tree))
 
 (global-set-key (kbd "M-v") #'d/scroll-up)
 (global-set-key (kbd "C-v") #'d/scroll-down)
@@ -190,14 +181,14 @@
 
 (use-package helpful
   :bind
-("C-h f" . helpful-callable)
-("C-h v" . helpful-variable)
-("C-h k" . helpful-key)
-("C-h x" . helpful-command)
-("C-c C-d" . helpful-at-point)
-("C-h F" . helpful-function)
-(:map helpful-mode-map
-      ("q" . kill-buffer-and-window)))
+  ("C-h f" . helpful-callable)
+  ("C-h v" . helpful-variable)
+  ("C-h k" . helpful-key)
+  ("C-h x" . helpful-command)
+  ("C-c C-d" . helpful-at-point)
+  ("C-h F" . helpful-function)
+  (:map helpful-mode-map
+        ("q" . kill-buffer-and-window)))
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
@@ -276,95 +267,95 @@
 ;;                args)))
 
 (use-package consult
-    ;; Replace bindings. Lazily loaded due by `use-package'.
-    :bind (;; C-c bindings (mode-specific-map)
-           ("C-c h" . consult-history)
-           ("C-c m" . consult-mode-command)
-           ("C-c k" . consult-kmacro)
-           ("C-c t t" . consult-theme)
-           ;; C-x bindings (ctl-x-map)
-           ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
-           ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
-           ("C-x C-b" . consult-buffer)                ;; orig. switch-to-buffer
-           ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
-           ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
-           ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
-           ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
-           ;; Custom M-# bindings for fast register access
-           ("M-#" . consult-register-load)
-           ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
-           ("C-M-#" . consult-register)
-           ;; Other custom bindings
-           ("M-y" . consult-yank-pop)                ;; orig. yank-pop
-           ;; M-g bindings (goto-map)
-           ("M-g e" . consult-compile-error)
-           ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
-           ("M-g g" . consult-goto-line)             ;; orig. goto-line
-           ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
-           ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
-           ("M-g m" . consult-mark)
-           ("M-g k" . consult-global-mark)
-           ("M-g i" . consult-imenu)
-           ("M-g I" . consult-imenu-multi)
-           ;; M-s bindings (search-map)
-           ("M-s d" . consult-find)
-           ("M-s D" . consult-locate)
-           ("M-s g" . consult-ripgrep)
-           ("M-s m" . consult-man)
-           ("M-s G" . consult-git-grep)
-           ("M-s r" . consult-ripgrep)
-           ("M-s l" . consult-line)
-           ("C-s" . consult-line)
-           ("M-s L" . consult-line-multi)
-           ("M-s k" . consult-keep-lines)
-           ("M-s u" . consult-focus-lines)
-           ;; Isearch integration
-           ("M-s e" . consult-isearch-history)
-           :map isearch-mode-map
-           ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
-           ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
-           ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
-           ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
-           ;; Minibuffer history
-           :map minibuffer-local-map
-           ("M-s" . consult-history)                 ;; orig. next-matching-history-element
-           ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+  ;; Replace bindings. Lazily loaded due by `use-package'.
+  :bind (;; C-c bindings (mode-specific-map)
+         ("C-c h" . consult-history)
+         ("C-c m" . consult-mode-command)
+         ("C-c k" . consult-kmacro)
+         ("C-c t t" . consult-theme)
+         ;; C-x bindings (ctl-x-map)
+         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-x C-b" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+         ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+         ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+         ;; Custom M-# bindings for fast register access
+         ("M-#" . consult-register-load)
+         ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+         ("C-M-#" . consult-register)
+         ;; Other custom bindings
+         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+         ;; M-g bindings (goto-map)
+         ("M-g e" . consult-compile-error)
+         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+         ("M-g g" . consult-goto-line)             ;; orig. goto-line
+         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+         ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+         ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+         ;; M-s bindings (search-map)
+         ("M-s d" . consult-find)
+         ("M-s D" . consult-locate)
+         ("M-s g" . consult-ripgrep)
+         ("M-s m" . consult-man)
+         ("M-s G" . consult-git-grep)
+         ("M-s r" . consult-ripgrep)
+         ("M-s l" . consult-line)
+         ("C-s" . consult-line)
+         ("M-s L" . consult-line-multi)
+         ("M-s k" . consult-keep-lines)
+         ("M-s u" . consult-focus-lines)
+         ;; Isearch integration
+         ("M-s e" . consult-isearch-history)
+         :map isearch-mode-map
+         ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+         ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+         ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+         ;; Minibuffer history
+         :map minibuffer-local-map
+         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+         ("M-r" . consult-history))                ;; orig. previous-matching-history-element
 
-    ;; Enable automatic preview at point in the *Completions* buffer. This is
-    ;; relevant when you use the default completion UI.
-    :hook (completion-list-mode . consult-preview-at-point-mode)
+  ;; Enable automatic preview at point in the *Completions* buffer. This is
+  ;; relevant when you use the default completion UI.
+  :hook (completion-list-mode . consult-preview-at-point-mode)
 
-    ;; The :init configuration is always executed (Not lazy)
-    :init
-    (setq register-preview-delay 0.5
-          register-preview-function #'consult-register-format)
-    (advice-add #'register-preview :override #'consult-register-window)
+  ;; The :init configuration is always executed (Not lazy)
+  :init
+  (setq register-preview-delay 0.5
+        register-preview-function #'consult-register-format)
+  (advice-add #'register-preview :override #'consult-register-window)
 
-    (setq xref-show-xrefs-function #'consult-xref
-          xref-show-definitions-function #'consult-xref)
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref)
 
-    :config
+  :config
 
-    ;; Optionally configure preview. The default value
-    ;; is 'any, such that any key triggers the preview.
-    ;; (setq consult-preview-key 'any)
-    ;; (setq consult-preview-key (kbd "M-."))
-    ;; (setq consult-preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
-    ;; For some commands and buffer sources it is useful to configure the
-    ;; :preview-key on a per-command basis using the `consult-customize' macro.
-    (consult-customize
-     consult-theme :preview-key '(:debounce 1.5 any)
-     consult-ripgrep consult-git-grep consult-grep
-     consult-bookmark consult-recent-file consult-xref
-     consult--source-bookmark consult--source-file-register
-     consult--source-recent-file consult--source-project-recent-file
-     ;; :preview-key (kbd "M-.")
-     :preview-key '(:debounce 0.4 any))
+  ;; Optionally configure preview. The default value
+  ;; is 'any, such that any key triggers the preview.
+  ;; (setq consult-preview-key 'any)
+  ;; (setq consult-preview-key (kbd "M-."))
+  ;; (setq consult-preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
+  ;; For some commands and buffer sources it is useful to configure the
+  ;; :preview-key on a per-command basis using the `consult-customize' macro.
+  (consult-customize
+   consult-theme :preview-key '(:debounce 1.5 any)
+   consult-ripgrep consult-git-grep consult-grep
+   consult-bookmark consult-recent-file consult-xref
+   consult--source-bookmark consult--source-file-register
+   consult--source-recent-file consult--source-project-recent-file
+   ;; :preview-key (kbd "M-.")
+   :preview-key '(:debounce 0.4 any))
 
-    ;; Optionally configure the narrowing key.
-    ;; Both  and C-+ work reasonably well.
-    (setq consult-narrow-key "<") ;; (kbd "C-+")
-    )
+  ;; Optionally configure the narrowing key.
+  ;; Both  and C-+ work reasonably well.
+  (setq consult-narrow-key "<") ;; (kbd "C-+")
+  )
 
 (defun d/consult-first-param-is-initial-text (consult-fn &rest rest)
   "Advising function around CONSULT-FN.
@@ -454,6 +445,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   (corfu-echo-documentation 0.25)
   (corfu-preview-current 'insert)
   (corfu-preselect-first t)
+  (corfu-popupinfo-delay 1.5)
   (corfu-history 1)
   (corfu-scroll-margin 0)
   :bind (:map corfu-map
@@ -467,6 +459,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 
   :init
   (corfu-history-mode)
+  (corfu-popupinfo-mode)
   (global-corfu-mode))
 
 (unless (display-graphic-p)
@@ -532,9 +525,15 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 
 ;; Configure Tempel
 (use-package tempel
+  :after corfu
+  :hook
+  (prog-mode . tempel-setup-capf)
+  (text-mode . tempel-setup-capf)
+  (prog-mode . tempel-abbrev-mode)
+
   ;; Require trigger prefix before template name when completing.
-   :custom
-   (tempel-trigger-prefix "<")
+  :custom
+  (tempel-trigger-prefix "<")
 
   :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
          ("M-*" . tempel-insert))
@@ -543,24 +542,9 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 
   ;; Setup completion at point
   (defun tempel-setup-capf ()
-    ;; Add the Tempel Capf to `completion-at-point-functions'.
-    ;; `tempel-expand' only triggers on exact matches. Alternatively use
-    ;; `tempel-complete' if you want to see all matches, but then you
-    ;; should also configure `tempel-trigger-prefix', such that Tempel
-    ;; does not trigger too often when you don't expect it. NOTE: We add
-    ;; `tempel-expand' *before* the main programming mode Capf, such
-    ;; that it will be tried first.
     (setq-local completion-at-point-functions
                 (cons #'tempel-expand
                       completion-at-point-functions)))
-
-  (add-hook 'prog-mode-hook 'tempel-setup-capf)
-  (add-hook 'text-mode-hook 'tempel-setup-capf)
-
-  ;; Optionally make the Tempel templates available to Abbrev,
-  ;; either locally or globally. `expand-abbrev' is bound to C-x '.
-  (add-hook 'prog-mode-hook #'tempel-abbrev-mode)
-  ;; (global-tempel-abbrev-mode)
   )
 
 (use-package tempel-collection
@@ -605,7 +589,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
  org-pretty-entities t
  ;;   org-ellipsis "…"
 
-  org-modern-star '("◉" "✤" "◈" "✿" "✤")
+ org-modern-star '("◉" "✤" "◈" "✿" "✤")
  org-modern-hide-stars nil
  org-modern-table t
  org-modern-list 
@@ -1095,6 +1079,25 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
        :state    ,#'consult--buffer-state))
 
   (add-to-list 'consult-buffer-sources 'beframe--consult-source))
+
+(setq-default scroll-conservatively 10000)
+(setq-default scroll-margin 5)
+
+(pixel-scroll-precision-mode t)
+(setq pixel-scroll-precision-use-momentum t)
+(setq pixel-scroll-precision-interpolate-mice t)
+(setq pixel-scroll-precision-large-scroll-height 10.0)
+(setq pixel-scroll-precision-interpolate-page t)
+
+(defun d/scroll-down ()
+  "Trust me, make scrolling alot smoother. +1 Makes you fall in love with Emacs again!"
+  (interactive)
+  (pixel-scroll-precision-scroll-down 20))
+
+(defun d/scroll-up ()
+  "Trust me, adds a wonderfull smooth scroll. You can do this by trackpad too (laptop)"
+  (interactive)
+  (pixel-scroll-precision-scroll-up 20))
 
 (use-package nix-mode
   :mode "\\.nix\\'"
@@ -1622,8 +1625,6 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 (setq confirm-kill-emacs #'yes-or-no-p)
 (setq window-resize-pixelwise t)
 (setq frame-resize-pixelwise t)
-
-(pixel-scroll-precision-mode 1)
 
 (setq-default fill-column 80)
 

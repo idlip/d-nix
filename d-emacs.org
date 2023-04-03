@@ -207,7 +207,6 @@ Fonts are crucial to read.
 Keep folders and backuping files clean!
 #+begin_src emacs-lisp
   (use-package no-littering
-    :defer t
     :config
   ;; no-littering doesn't set this by default so we must place
   ;; auto save files in the same path as it uses for sessions
@@ -256,15 +255,7 @@ Keep folders and backuping files clean!
     (balance-windows)
     (other-window 1))
 
-  (defun d/scroll-down ()
-    "Trust me, make scrolling alot smoother. +1 Makes you fall in love with Emacs again!"
-    (interactive)
-    (pixel-scroll-precision-scroll-down 20))
 
-  (defun d/scroll-up ()
-    "Trust me, adds a wonderfull smooth scroll. You can do this by trackpad too (laptop)"
-    (interactive)
-    (pixel-scroll-precision-scroll-up 20))
   (defun d/refresh-buffer ()
     "Revert buffer without confirmation."
     (interactive)
@@ -280,14 +271,14 @@ Keep folders and backuping files clean!
         (delete-other-windows))))
 
   (defun org-archive-done-tasks ()
-  (interactive)
-  (org-map-entries
-   (lambda ()
-     (org-archive-subtree)
-     (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
-   "/DONE" 'tree))
+    (interactive)
+    (org-map-entries
+     (lambda ()
+       (org-archive-subtree)
+       (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+     "/DONE" 'tree))
 
-    #+end_src
+        #+end_src
 ** Respected binds
 #+begin_src emacs-lisp
 
@@ -347,14 +338,14 @@ Helpful package to even elaborate on describe commands. Decreases many hassles.
 #+begin_src emacs-lisp
   (use-package helpful
     :bind
-  ("C-h f" . helpful-callable)
-  ("C-h v" . helpful-variable)
-  ("C-h k" . helpful-key)
-  ("C-h x" . helpful-command)
-  ("C-c C-d" . helpful-at-point)
-  ("C-h F" . helpful-function)
-  (:map helpful-mode-map
-        ("q" . kill-buffer-and-window)))
+    ("C-h f" . helpful-callable)
+    ("C-h v" . helpful-variable)
+    ("C-h k" . helpful-key)
+    ("C-h x" . helpful-command)
+    ("C-c C-d" . helpful-at-point)
+    ("C-h F" . helpful-function)
+    (:map helpful-mode-map
+          ("q" . kill-buffer-and-window)))
 
 #+end_src
 
@@ -362,11 +353,11 @@ Helpful package to even elaborate on describe commands. Decreases many hassles.
 Coloured parentheses or hex values are really needed for some usecases, obviously you know it lol.
 *Happy Ricing* but use Emacs Everywhere lol
 #+begin_src emacs-lisp
-    (use-package rainbow-delimiters
-      :hook (prog-mode . rainbow-delimiters-mode))
-    (use-package rainbow-mode
-      :init (add-hook 'prog-mode-hook 'rainbow-mode)
-      :bind ("C-c t c" . rainbow-mode))
+  (use-package rainbow-delimiters
+    :hook (prog-mode . rainbow-delimiters-mode))
+  (use-package rainbow-mode
+    :init (add-hook 'prog-mode-hook 'rainbow-mode)
+    :bind ("C-c t c" . rainbow-mode))
 #+end_src
 * Good Mouse use? 🖱️
 Just don't use mouse, try to stay with keyboard, feel like *Pro*!
@@ -455,96 +446,96 @@ Just check the [[https://github.com/minad/vertico][Vertico github]] repo, you wi
 ** Doctor Consultancy
 Another, one which make certain pains of emacs , so good that you will fall in Love with Emacs again!
 #+begin_src emacs-lisp
-    (use-package consult
-      ;; Replace bindings. Lazily loaded due by `use-package'.
-      :bind (;; C-c bindings (mode-specific-map)
-             ("C-c h" . consult-history)
-             ("C-c m" . consult-mode-command)
-             ("C-c k" . consult-kmacro)
-             ("C-c t t" . consult-theme)
-             ;; C-x bindings (ctl-x-map)
-             ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
-             ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
-             ("C-x C-b" . consult-buffer)                ;; orig. switch-to-buffer
-             ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
-             ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
-             ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
-             ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
-             ;; Custom M-# bindings for fast register access
-             ("M-#" . consult-register-load)
-             ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
-             ("C-M-#" . consult-register)
-             ;; Other custom bindings
-             ("M-y" . consult-yank-pop)                ;; orig. yank-pop
-             ;; M-g bindings (goto-map)
-             ("M-g e" . consult-compile-error)
-             ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
-             ("M-g g" . consult-goto-line)             ;; orig. goto-line
-             ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
-             ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
-             ("M-g m" . consult-mark)
-             ("M-g k" . consult-global-mark)
-             ("M-g i" . consult-imenu)
-             ("M-g I" . consult-imenu-multi)
-             ;; M-s bindings (search-map)
-             ("M-s d" . consult-find)
-             ("M-s D" . consult-locate)
-             ("M-s g" . consult-ripgrep)
-             ("M-s m" . consult-man)
-             ("M-s G" . consult-git-grep)
-             ("M-s r" . consult-ripgrep)
-             ("M-s l" . consult-line)
-             ("C-s" . consult-line)
-             ("M-s L" . consult-line-multi)
-             ("M-s k" . consult-keep-lines)
-             ("M-s u" . consult-focus-lines)
-             ;; Isearch integration
-             ("M-s e" . consult-isearch-history)
-             :map isearch-mode-map
-             ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
-             ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
-             ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
-             ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
-             ;; Minibuffer history
-             :map minibuffer-local-map
-             ("M-s" . consult-history)                 ;; orig. next-matching-history-element
-             ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+  (use-package consult
+    ;; Replace bindings. Lazily loaded due by `use-package'.
+    :bind (;; C-c bindings (mode-specific-map)
+           ("C-c h" . consult-history)
+           ("C-c m" . consult-mode-command)
+           ("C-c k" . consult-kmacro)
+           ("C-c t t" . consult-theme)
+           ;; C-x bindings (ctl-x-map)
+           ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+           ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+           ("C-x C-b" . consult-buffer)                ;; orig. switch-to-buffer
+           ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+           ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+           ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+           ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+           ;; Custom M-# bindings for fast register access
+           ("M-#" . consult-register-load)
+           ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+           ("C-M-#" . consult-register)
+           ;; Other custom bindings
+           ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+           ;; M-g bindings (goto-map)
+           ("M-g e" . consult-compile-error)
+           ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+           ("M-g g" . consult-goto-line)             ;; orig. goto-line
+           ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+           ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+           ("M-g m" . consult-mark)
+           ("M-g k" . consult-global-mark)
+           ("M-g i" . consult-imenu)
+           ("M-g I" . consult-imenu-multi)
+           ;; M-s bindings (search-map)
+           ("M-s d" . consult-find)
+           ("M-s D" . consult-locate)
+           ("M-s g" . consult-ripgrep)
+           ("M-s m" . consult-man)
+           ("M-s G" . consult-git-grep)
+           ("M-s r" . consult-ripgrep)
+           ("M-s l" . consult-line)
+           ("C-s" . consult-line)
+           ("M-s L" . consult-line-multi)
+           ("M-s k" . consult-keep-lines)
+           ("M-s u" . consult-focus-lines)
+           ;; Isearch integration
+           ("M-s e" . consult-isearch-history)
+           :map isearch-mode-map
+           ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+           ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+           ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+           ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+           ;; Minibuffer history
+           :map minibuffer-local-map
+           ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+           ("M-r" . consult-history))                ;; orig. previous-matching-history-element
 
-      ;; Enable automatic preview at point in the *Completions* buffer. This is
-      ;; relevant when you use the default completion UI.
-      :hook (completion-list-mode . consult-preview-at-point-mode)
+    ;; Enable automatic preview at point in the *Completions* buffer. This is
+    ;; relevant when you use the default completion UI.
+    :hook (completion-list-mode . consult-preview-at-point-mode)
 
-      ;; The :init configuration is always executed (Not lazy)
-      :init
-      (setq register-preview-delay 0.5
-            register-preview-function #'consult-register-format)
-      (advice-add #'register-preview :override #'consult-register-window)
+    ;; The :init configuration is always executed (Not lazy)
+    :init
+    (setq register-preview-delay 0.5
+          register-preview-function #'consult-register-format)
+    (advice-add #'register-preview :override #'consult-register-window)
 
-      (setq xref-show-xrefs-function #'consult-xref
-            xref-show-definitions-function #'consult-xref)
+    (setq xref-show-xrefs-function #'consult-xref
+          xref-show-definitions-function #'consult-xref)
 
-      :config
+    :config
 
-      ;; Optionally configure preview. The default value
-      ;; is 'any, such that any key triggers the preview.
-      ;; (setq consult-preview-key 'any)
-      ;; (setq consult-preview-key (kbd "M-."))
-      ;; (setq consult-preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
-      ;; For some commands and buffer sources it is useful to configure the
-      ;; :preview-key on a per-command basis using the `consult-customize' macro.
-      (consult-customize
-       consult-theme :preview-key '(:debounce 1.5 any)
-       consult-ripgrep consult-git-grep consult-grep
-       consult-bookmark consult-recent-file consult-xref
-       consult--source-bookmark consult--source-file-register
-       consult--source-recent-file consult--source-project-recent-file
-       ;; :preview-key (kbd "M-.")
-       :preview-key '(:debounce 0.4 any))
+    ;; Optionally configure preview. The default value
+    ;; is 'any, such that any key triggers the preview.
+    ;; (setq consult-preview-key 'any)
+    ;; (setq consult-preview-key (kbd "M-."))
+    ;; (setq consult-preview-key (list (kbd "<S-down>") (kbd "<S-up>")))
+    ;; For some commands and buffer sources it is useful to configure the
+    ;; :preview-key on a per-command basis using the `consult-customize' macro.
+    (consult-customize
+     consult-theme :preview-key '(:debounce 1.5 any)
+     consult-ripgrep consult-git-grep consult-grep
+     consult-bookmark consult-recent-file consult-xref
+     consult--source-bookmark consult--source-file-register
+     consult--source-recent-file consult--source-project-recent-file
+     ;; :preview-key (kbd "M-.")
+     :preview-key '(:debounce 0.4 any))
 
-      ;; Optionally configure the narrowing key.
-      ;; Both  and C-+ work reasonably well.
-      (setq consult-narrow-key "<") ;; (kbd "C-+")
-      )
+    ;; Optionally configure the narrowing key.
+    ;; Both  and C-+ work reasonably well.
+    (setq consult-narrow-key "<") ;; (kbd "C-+")
+    )
 
   (defun d/consult-first-param-is-initial-text (consult-fn &rest rest)
     "Advising function around CONSULT-FN.
@@ -647,6 +638,7 @@ Completion to next level, works even on terminal
     (corfu-echo-documentation 0.25)
     (corfu-preview-current 'insert)
     (corfu-preselect-first t)
+    (corfu-popupinfo-delay 1.5)
     (corfu-history 1)
     (corfu-scroll-margin 0)
     :bind (:map corfu-map
@@ -660,6 +652,7 @@ Completion to next level, works even on terminal
 
     :init
     (corfu-history-mode)
+    (corfu-popupinfo-mode)
     (global-corfu-mode))
 
   (unless (display-graphic-p)
@@ -734,9 +727,15 @@ Another, minimal and DIY snippets for any buffer!
 
   ;; Configure Tempel
   (use-package tempel
+    :after corfu
+    :hook
+    (prog-mode . tempel-setup-capf)
+    (text-mode . tempel-setup-capf)
+    (prog-mode . tempel-abbrev-mode)
+
     ;; Require trigger prefix before template name when completing.
-     :custom
-     (tempel-trigger-prefix "<")
+    :custom
+    (tempel-trigger-prefix "<")
 
     :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
            ("M-*" . tempel-insert))
@@ -745,24 +744,9 @@ Another, minimal and DIY snippets for any buffer!
 
     ;; Setup completion at point
     (defun tempel-setup-capf ()
-      ;; Add the Tempel Capf to `completion-at-point-functions'.
-      ;; `tempel-expand' only triggers on exact matches. Alternatively use
-      ;; `tempel-complete' if you want to see all matches, but then you
-      ;; should also configure `tempel-trigger-prefix', such that Tempel
-      ;; does not trigger too often when you don't expect it. NOTE: We add
-      ;; `tempel-expand' *before* the main programming mode Capf, such
-      ;; that it will be tried first.
       (setq-local completion-at-point-functions
                   (cons #'tempel-expand
                         completion-at-point-functions)))
-
-    (add-hook 'prog-mode-hook 'tempel-setup-capf)
-    (add-hook 'text-mode-hook 'tempel-setup-capf)
-
-    ;; Optionally make the Tempel templates available to Abbrev,
-    ;; either locally or globally. `expand-abbrev' is bound to C-x '.
-    (add-hook 'prog-mode-hook #'tempel-abbrev-mode)
-    ;; (global-tempel-abbrev-mode)
     )
 
   (use-package tempel-collection
@@ -774,18 +758,18 @@ Another, minimal and DIY snippets for any buffer!
 Making snippets/templates is so easy with this package.
 #+begin_src emacs-lisp :tangle ~/.config/emacs/templates
 
-org-mode
+  org-mode
 
-(hugosite ":PROPERTIES:"  n ":EXPORT_FILE_NAME: " p n ":EXPORT_DATE: " p n ":EXPORT_HUGO_DRAFT: false" n ":END:")
-(tangle-RO ":tangle-mode (identity #o444) :mkdirp yes" n)
-(variable-set "#+name: " p n "#+begin_src " q n> r> n "#+end_src")
+  (hugosite ":PROPERTIES:"  n ":EXPORT_FILE_NAME: " p n ":EXPORT_DATE: " p n ":EXPORT_HUGO_DRAFT: false" n ":END:")
+  (readonly ":tangle-mode (identity #o444) :mkdirp yes" n)
+  (variablweb "#+name: " p n "#+begin_src " q n> r> n "#+end_src")
 
 
 
-;; Local Variables:
-;; mode: lisp-data
-;; outline-regexp: "[a-z]"
-;; End:
+  ;; Local Variables:
+  ;; mode: lisp-data
+  ;; outline-regexp: "[a-z]"
+  ;; End:
 
 #+end_src
 ** Modernize - Organize
@@ -828,7 +812,7 @@ You will see org just below this, this package helps make Org-Mode looks eye-can
    org-pretty-entities t
    ;;   org-ellipsis "…"
 
-    org-modern-star '("◉" "✤" "◈" "✿" "✤")
+   org-modern-star '("◉" "✤" "◈" "✿" "✤")
    org-modern-hide-stars nil
    org-modern-table t
    org-modern-list 
@@ -1029,161 +1013,161 @@ Lets try ~ispell~ paired with ~aspell~ so its better writing.
 How amazing it is to do presentation with power of org? Yes its possible (need olivetti to center)
 #+begin_src emacs-lisp
 
-    (use-package org-present
-      :defer t
-      :after org
-      :bind (:map org-present-mode-keymap
-                  ("<right>" . d/org-present-next-slide)
-                  ("<left>" . d/org-present-previous-slide)
-                  ("<up>" . d/org-present-up)
-                  ("<f5>" . d/org-present-refresh))
-      (:map org-mode-map
-            ("<f8>" . d/org-present-mode))
-      :hook ((org-present-mode . d/org-present-enable-hook)
-             (org-present-mode-quit . d/org-present-disable-hook)
-             (org-present-after-navigate-functions . d/org-present-prepare-slide)))
+  (use-package org-present
+    :defer t
+    :after org
+    :bind (:map org-present-mode-keymap
+                ("<right>" . d/org-present-next-slide)
+                ("<left>" . d/org-present-previous-slide)
+                ("<up>" . d/org-present-up)
+                ("<f5>" . d/org-present-refresh))
+    (:map org-mode-map
+          ("<f8>" . d/org-present-mode))
+    :hook ((org-present-mode . d/org-present-enable-hook)
+           (org-present-mode-quit . d/org-present-disable-hook)
+           (org-present-after-navigate-functions . d/org-present-prepare-slide)))
 
 
-    (defvar d/org-present-org-modern-keyword '(("title"       . "")
-                                               ("description" . "")
-                                               ("subtitle"    . "")
-                                               ("date"        . "")
-                                               ("author"      . "")
-                                               ("email"       . "")
-                                               ("language"    . "")
-                                               ("options"     . "")
-                                               (t . t)))
+  (defvar d/org-present-org-modern-keyword '(("title"       . "")
+                                             ("description" . "")
+                                             ("subtitle"    . "")
+                                             ("date"        . "")
+                                             ("author"      . "")
+                                             ("email"       . "")
+                                             ("language"    . "")
+                                             ("options"     . "")
+                                             (t . t)))
 
-    (define-minor-mode d/org-present-mode
-      "Toggle Presentation Mode."
-      :lighter "d/org-present-mode"
-      (if d/org-present-mode
-          (org-present)
-        (org-present-quit)))
+  (define-minor-mode d/org-present-mode
+    "Toggle Presentation Mode."
+    :lighter "d/org-present-mode"
+    (if d/org-present-mode
+        (org-present)
+      (org-present-quit)))
 
-    (defun d/org-present-enable-hook ()
-      (setq d/org-present--inhibit-message inhibit-message
-            d/org-present--echo-keystrokes echo-keystrokes
-            d/org-present--visual-line-mode visual-line-mode
-            d/org-present--org-ellipsis org-ellipsis
-            d/org-present--org-indent-mode org-indent-mode)
-      (org-indent-mode 1)
+  (defun d/org-present-enable-hook ()
+    (setq d/org-present--inhibit-message inhibit-message
+          d/org-present--echo-keystrokes echo-keystrokes
+          d/org-present--visual-line-mode visual-line-mode
+          d/org-present--org-ellipsis org-ellipsis
+          d/org-present--org-indent-mode org-indent-mode)
+    (org-indent-mode 1)
 
-      ;; Disable 'org-modern-mode' to setup adjustment if it's installed
-      (if (package-installed-p 'org-modern)
-          (org-modern-mode 0))
+    ;; Disable 'org-modern-mode' to setup adjustment if it's installed
+    (if (package-installed-p 'org-modern)
+        (org-modern-mode 0))
 
-      (if (package-installed-p 'org-modern)
-          (setq-local d/org-present--org-modern-hide-stars org-modern-hide-stars
-                      d/org-present--org-modern-keyword org-modern-keyword
-                      d/org-present--org-modern-block-fringe org-modern-block-fringe
+    (if (package-installed-p 'org-modern)
+        (setq-local d/org-present--org-modern-hide-stars org-modern-hide-stars
+                    d/org-present--org-modern-keyword org-modern-keyword
+                    d/org-present--org-modern-block-fringe org-modern-block-fringe
 
-                      org-modern-hide-stars 'leading
-                      org-modern-block-fringe t
-                      org-modern-keyword d/org-present-org-modern-keyword))
+                    org-modern-hide-stars 'leading
+                    org-modern-block-fringe t
+                    org-modern-keyword d/org-present-org-modern-keyword))
 
-      (display-line-numbers-mode 0)
+    (display-line-numbers-mode 0)
 
-      (if (package-installed-p 'org-modern)
-          (org-modern-mode 1))
+    (if (package-installed-p 'org-modern)
+        (org-modern-mode 1))
 
-      (setq-local inhibit-message t
-                  echo-keystrokes nil
-                  cursor-type t
-                  org-image-actual-width 300
-                  header-line-format " "
-                  org-ellipsis "⤵")
+    (setq-local inhibit-message t
+                echo-keystrokes nil
+                cursor-type t
+                org-image-actual-width 300
+                header-line-format " "
+                org-ellipsis "⤵")
 
-      (dolist (face '((org-block . 1.0)
-                      (org-block-begin-line . 0.1)
-                      (org-level-7 . 1.1)
-                      (org-level-8 . 1.1)))
-        (set-face-attribute 'org-document-title nil :font d/title-face :weight 'bold :height 2.5 :width 'extra-expanded)
-        (set-face-attribute 'org-document-info nil :font d/link-font :slant 'italic :weight 'bold :height 2.5 :width 'extra-expanded)      
-        (set-face-attribute 'org-level-1 nil :font d/header-font :weight 'medium :height 1.6 :foreground "#b6a0ff")
-        (set-face-attribute 'org-level-2 nil :font d/header-font :weight 'medium :height 1.5)
-        (set-face-attribute 'org-level-3 nil :font d/header-font :weight 'medium :height 1.4)
-        (set-face-attribute 'org-level-4 nil :font d/header-font :weight 'medium :height 1.3)
-        (set-face-attribute 'org-level-5 nil :font d/header-font :weight 'medium :height 1.25)
+    (dolist (face '((org-block . 1.0)
+                    (org-block-begin-line . 0.1)
+                    (org-level-7 . 1.1)
+                    (org-level-8 . 1.1)))
+      (set-face-attribute 'org-document-title nil :font d/title-face :weight 'bold :height 2.5 :width 'extra-expanded)
+      (set-face-attribute 'org-document-info nil :font d/link-font :slant 'italic :weight 'bold :height 2.5 :width 'extra-expanded)      
+      (set-face-attribute 'org-level-1 nil :font d/header-font :weight 'medium :height 1.6 :foreground "#b6a0ff")
+      (set-face-attribute 'org-level-2 nil :font d/header-font :weight 'medium :height 1.5)
+      (set-face-attribute 'org-level-3 nil :font d/header-font :weight 'medium :height 1.4)
+      (set-face-attribute 'org-level-4 nil :font d/header-font :weight 'medium :height 1.3)
+      (set-face-attribute 'org-level-5 nil :font d/header-font :weight 'medium :height 1.25)
 
-        (set-face-attribute 'org-verbatim nil :font d/jetb-font :weight 'medium :height 1.3)
-        (set-face-attribute 'org-code nil :font d/code-font :weight 'medium :height 1.4)
-
-
-        (set-face-attribute 'header-line nil :background nil :height 2.5)
-        (set-face-attribute 'variable-pitch nil :font "ComicCodeLigatures" :height 1.2 :weight 'medium)
-        (set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face)))
+      (set-face-attribute 'org-verbatim nil :font d/jetb-font :weight 'medium :height 1.3)
+      (set-face-attribute 'org-code nil :font d/code-font :weight 'medium :height 1.4)
 
 
-      (if (package-installed-p 'hide-mode-line)
-          (hide-mode-line-mode 1))
-    
-      (org-display-inline-images)
-      (read-only-mode 1))
+      (set-face-attribute 'header-line nil :background nil :height 2.5)
+      (set-face-attribute 'variable-pitch nil :font "ComicCodeLigatures" :height 1.2 :weight 'medium)
+      (set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face)))
 
-    (defun d/org-present-prepare-slide (buffer-name heading)
-      (org-overview)
-      (org-show-entry)
-      (org-show-children))
 
-    (defun d/org-present-disable-hook ()
-      (setq-local header-line-format nil
-                  face-remapping-alist '((default variable-pitch default))
-                  org-adapt-indentation nil
-                  visual-line-mode d/org-present--visual-line-mode
-                  org-ellipsis d/org-present--org-ellipsis
-                  inhibit-message d/org-present--inhibit-message
-                  echo-keystrokes d/org-present--echo-keystrokes)
-      (org-present-small)
+    (if (package-installed-p 'hide-mode-line)
+        (hide-mode-line-mode 1))
 
-      (set-face-attribute 'header-line nil :height '1.0 :background)
+    (org-display-inline-images)
+    (read-only-mode 1))
 
-      (org-indent-mode d/org-present--org-indent-mode)
+  (defun d/org-present-prepare-slide (buffer-name heading)
+    (org-overview)
+    (org-show-entry)
+    (org-show-children))
 
-      (if (package-installed-p 'hide-mode-line)
-          (hide-mode-line-mode 0))
+  (defun d/org-present-disable-hook ()
+    (setq-local header-line-format nil
+                face-remapping-alist '((default variable-pitch default))
+                org-adapt-indentation nil
+                visual-line-mode d/org-present--visual-line-mode
+                org-ellipsis d/org-present--org-ellipsis
+                inhibit-message d/org-present--inhibit-message
+                echo-keystrokes d/org-present--echo-keystrokes)
+    (org-present-small)
 
-      (org-mode-restart)
-      (org-remove-inline-images))
+    (set-face-attribute 'header-line nil :height '1.0 :background)
 
-    (defun d/org-present-up ()
-      "Go to higher heading from current heading."
-      (interactive)
-      (widen)
-      (org-up-heading-safe)
-      (org-present-narrow)
-      (org-present-run-after-navigate-functions))
+    (org-indent-mode d/org-present--org-indent-mode)
 
-    (defun d/org-present-next-slide ()
-      "Go to next sibling."
-      (interactive)
-      (widen)
-      (unless (org-goto-first-child)
-        (org-get-next-sibling))
-      (org-present-narrow)
-      (org-present-run-after-navigate-functions))
+    (if (package-installed-p 'hide-mode-line)
+        (hide-mode-line-mode 0))
 
-    (defun d/org-present--last-child ()
-      "Find last child of current heading."
-      (when (org-goto-sibling) (d/org-present--last-child))
-      (when (org-goto-first-child) (d/org-present--last-child)))
+    (org-mode-restart)
+    (org-remove-inline-images))
 
-    (defun d/org-present-previous-slide ()
-      "Go to next sibling."
-      (interactive)
-      (widen)
-      (when (org-current-level)
-        (org-back-to-heading)
-        (if (and (org-get-previous-sibling) (org-current-level))
-            (when (org-goto-first-child)
-              (d/org-present--last-child))))
-      (org-present-narrow)
-      (org-present-run-after-navigate-functions))
+  (defun d/org-present-up ()
+    "Go to higher heading from current heading."
+    (interactive)
+    (widen)
+    (org-up-heading-safe)
+    (org-present-narrow)
+    (org-present-run-after-navigate-functions))
 
-    (defun d/org-present-refresh ()
-      (interactive)
-      (d/org-present-mode)
-      (d/org-present-mode))
+  (defun d/org-present-next-slide ()
+    "Go to next sibling."
+    (interactive)
+    (widen)
+    (unless (org-goto-first-child)
+      (org-get-next-sibling))
+    (org-present-narrow)
+    (org-present-run-after-navigate-functions))
+
+  (defun d/org-present--last-child ()
+    "Find last child of current heading."
+    (when (org-goto-sibling) (d/org-present--last-child))
+    (when (org-goto-first-child) (d/org-present--last-child)))
+
+  (defun d/org-present-previous-slide ()
+    "Go to next sibling."
+    (interactive)
+    (widen)
+    (when (org-current-level)
+      (org-back-to-heading)
+      (if (and (org-get-previous-sibling) (org-current-level))
+          (when (org-goto-first-child)
+            (d/org-present--last-child))))
+    (org-present-narrow)
+    (org-present-run-after-navigate-functions))
+
+  (defun d/org-present-refresh ()
+    (interactive)
+    (d/org-present-mode)
+    (d/org-present-mode))
 
 
 #+end_src
@@ -1313,31 +1297,31 @@ I was using =doom-themes= actually, but they are not that good, tho I like doom-
 After long  usage, you will realize that Modus-themes is a *masterpiece* made by Protesilaos (Prot).
 + Works very well with eww browser too, url bar looks fine.
   Its subjective to you!
-  #+begin_src emacs-lisp
+    #+begin_src emacs-lisp
 
-    (setq modus-themes-italic-constructs t
-          modus-themes-bold-constructs t
-          modus-themes-mixed-fonts t
-          modus-themes-variable-pitch-ui t
-          modus-themes-custom-auto-reload t
-          modus-themes-disable-other-themes t
-          modus-themes-prompts '(italic bold)
-          modus-themes-org-blocks 'gray-background
-          modus-themes-completions
-          '((matches . (extrabold))
-            (selection . (semibold italic text-also)))
+      (setq modus-themes-italic-constructs t
+            modus-themes-bold-constructs t
+            modus-themes-mixed-fonts t
+            modus-themes-variable-pitch-ui t
+            modus-themes-custom-auto-reload t
+            modus-themes-disable-other-themes t
+            modus-themes-prompts '(italic bold)
+            modus-themes-org-blocks 'gray-background
+            modus-themes-completions
+            '((matches . (extrabold))
+              (selection . (semibold italic text-also)))
 
-          modus-themes-org-blocks 'gray-background
+            modus-themes-org-blocks 'gray-background
 
-          modus-themes-headings
-          '((1 . (variable-pitch 1.1))
-            (2 . (1.1))
-            (agenda-date . (1.2))
-            (agenda-structure . (variable-pitch light 1.8))
-            (t . (1.1))))
-    (load-theme 'modus-vivendi-tinted t)
+            modus-themes-headings
+            '((1 . (variable-pitch 1.1))
+              (2 . (1.1))
+              (agenda-date . (1.2))
+              (agenda-structure . (variable-pitch light 1.8))
+              (t . (1.1))))
+      (load-theme 'modus-vivendi-tinted t)
 
-  #+end_src
+    #+end_src
 ** Beframe
 Managing frames and their buffers handy way. Gets rid of using tab-bar or windows
 
@@ -1370,6 +1354,28 @@ Managing frames and their buffers handy way. Gets rid of using tab-bar or window
 
     (add-to-list 'consult-buffer-sources 'beframe--consult-source))
 
+#+end_src
+** Smooth Scrolling
+With emacs 29, we have ~pixel-scroll-precision-mode~
+#+begin_src emacs-lisp
+  (setq-default scroll-conservatively 10000)
+  (setq-default scroll-margin 5)
+
+  (pixel-scroll-precision-mode t)
+  (setq pixel-scroll-precision-use-momentum t)
+  (setq pixel-scroll-precision-interpolate-mice t)
+  (setq pixel-scroll-precision-large-scroll-height 10.0)
+  (setq pixel-scroll-precision-interpolate-page t)
+
+  (defun d/scroll-down ()
+    "Trust me, make scrolling alot smoother. +1 Makes you fall in love with Emacs again!"
+    (interactive)
+    (pixel-scroll-precision-scroll-down 20))
+
+  (defun d/scroll-up ()
+    "Trust me, adds a wonderfull smooth scroll. You can do this by trackpad too (laptop)"
+    (interactive)
+    (pixel-scroll-precision-scroll-up 20))
 #+end_src
 * Language - IDE maybe? 💻
 I'm not a programmer, maybe will be expanded in future..
@@ -1946,8 +1952,6 @@ Idk why, but i guess these all should be the sane defaults.
   (setq confirm-kill-emacs #'yes-or-no-p)
   (setq window-resize-pixelwise t)
   (setq frame-resize-pixelwise t)
-
-  (pixel-scroll-precision-mode 1)
 
   (setq-default fill-column 80)
 

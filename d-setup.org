@@ -1337,7 +1337,7 @@ There will be not much difference.
   bind=SUPERCONTROL,Q,exit,
   bind=SUPER,F12,exec,uxterm
   bind=SUPER,SPACE,togglefloating,
-  bind=SUPER,d,exec,bemenu-run
+  bind=SUPER,d,exec,rofi -show drun
   bind=SUPER,b,exec,pkill -SIGUSR1 waybar
   bind=SUPER,P,pseudo,
   bind=SUPER,F,fullscreen,
@@ -1410,7 +1410,7 @@ There will be not much difference.
   bind=,a,exec,d-vocab
   bind=,a,submap,reset
 
-  bind=,v,exec,wtype "$(cat ~/.local/share/dict/myglossary | bemenu -W 0.8 | awk '{print $1}')"
+  bind=,v,exec,wtype "$(cat ~/.local/share/dict/myglossary | rofi -dmenuxss | awk '{print $1}')"
   bind=,v,submap,reset
 
   bind=,escape,submap,reset
@@ -1904,6 +1904,490 @@ j seek -30
 J cycle sub 
 K cycle sub down
 #+end_src
+****** Rofi
+The best menu, I tried wofi, bemenu, fuzzel and others.. but they were not extensive, so since rofi has rofi-wayland, so I will stick to it.
+******* Theme
+#+begin_src css :tangle ~/.config/rofi/theme.rasi
+// Modus theme
+
+ * {
+   background:     #0d0e1cAA;
+   background-alt: #0d0e1cEE;
+   foreground:     #c6daff;
+   selected:       #6ae4b6;
+   active:         #79a8ff;
+   urgent:         #E06B74FF;
+ }
+
+
+#+end_src
+******* Config
+Sane defaults go here
+#+begin_src conf :tangle ~/.config/rofi/config.rasi
+  @import                          "theme.rasi"
+
+  configuration {
+  modi: "drun,run";
+
+  font: "ComicCodeLigatures 20";
+
+  case-sensitive: false;
+  cycle: true;
+  filter: "";
+  scroll-method: 0;
+  normalize-match: true;
+  show-icons: true;
+  icon-theme: "Papirus";
+  steal-focus: true;
+  matching: "normal";
+  tokenize: true;
+
+  drun-categories: "";
+  drun-match-fields: "name,generic,exec,categories,keywords";
+  drun-display-format: "{name} [<span weight='light' size='small'><i>({generic})</i></span>]";
+  drun-show-actions: false;
+  drun-url-launcher: "xdg-open";
+  drun-use-desktop-cache: false;
+  drun-reload-desktop-cache: false;
+  drun {
+  /** Parse user desktop files. */
+  parse-user:   true;
+  /** Parse system desktop files. */
+  parse-system: true;
+  }
+
+  run-command: "{cmd}";
+  run-list-command: "";
+  run-shell-command: "{terminal} -e {cmd}";
+
+
+  disable-history: false;
+  sorting-method: "normal";
+  max-history-size: 25;
+
+
+  display-drun:               " Apps";
+  display-run:                " Run";
+  display-filebrowser:        " Files";
+  drun-display-format:        "{name} [<span weight='light' size='small'><i>({generic})</i></span>]";
+  window-format:              "{w} · {c} · {t}";
+
+  terminal: "rofi-sensible-terminal";
+
+  sort: false;
+  threads: 0;
+  click-to-exit: true;
+
+
+  kb-primary-paste: "Control+V,Shift+Insert";
+  kb-secondary-paste: "Control+v,Insert";
+  kb-clear-line: "Control+w";
+  kb-move-front: "Control+a";
+  kb-move-end: "Control+e";
+  kb-move-word-back: "Alt+b,Control+Left";
+  kb-move-word-forward: "Alt+f,Control+Right";
+  kb-move-char-back: "Left,Control+b";
+  kb-move-char-forward: "Right,Control+f";
+  kb-remove-word-back: "Control+Alt+h,Control+BackSpace";
+  kb-remove-word-forward: "Control+Alt+d";
+  kb-remove-char-forward: "Delete,Control+d";
+  kb-remove-char-back: "BackSpace,Shift+BackSpace,Control+h";
+  kb-remove-to-eol: "Control+k";
+  kb-remove-to-sol: "Control+u";
+  kb-accept-entry: "Control+j,Control+m,Return,KP_Enter";
+  kb-accept-custom: "Control+Return";
+  kb-accept-custom-alt: "Control+Shift+Return";
+  kb-accept-alt: "Shift+Return";
+  kb-delete-entry: "Shift+Delete";
+  kb-mode-next: "Shift+Right,Control+Tab";
+  kb-mode-previous: "Shift+Left,Control+ISO_Left_Tab";
+  kb-mode-complete: "Control+l";
+  kb-row-left: "Control+Page_Up";
+  kb-row-right: "Control+Page_Down";
+  kb-row-down: "Down,Control+n";
+  kb-page-prev: "Page_Up";
+  kb-page-next: "Page_Down";
+  kb-row-first: "Home,KP_Home";
+  kb-row-last: "End,KP_End";
+  kb-row-select: "Control+space";
+  kb-screenshot: "Alt+S";
+  kb-ellipsize: "Alt+period";
+  kb-toggle-case-sensitivity: "grave,dead_grave";
+  kb-toggle-sort: "Alt+grave";
+  kb-cancel: "Escape,Control+g,Control+bracketleft";
+  kb-custom-1: "Alt+1";
+  kb-custom-2: "Alt+2";
+  kb-custom-3: "Alt+3";
+  kb-custom-4: "Alt+4";
+  kb-custom-5: "Alt+5";
+  kb-custom-6: "Alt+6";
+  kb-custom-7: "Alt+7";
+  kb-custom-8: "Alt+8";
+  kb-custom-9: "Alt+9";
+  kb-custom-10: "Alt+0";
+  kb-custom-11: "Alt+exclam";
+  kb-custom-12: "Alt+at";
+  kb-custom-13: "Alt+numbersign";
+  kb-custom-14: "Alt+dollar";
+  kb-custom-15: "Alt+percent";
+  kb-custom-16: "Alt+dead_circumflex";
+  kb-custom-17: "Alt+ampersand";
+  kb-custom-18: "Alt+asterisk";
+  kb-custom-19: "Alt+parenleft";
+  kb-select-1: "Super+1";
+  kb-select-2: "Super+2";
+  kb-select-3: "Super+3";
+  kb-select-4: "Super+4";
+  kb-select-5: "Super+5";
+  kb-select-6: "Super+6";
+  kb-select-7: "Super+7";
+  kb-select-8: "Super+8";
+  kb-select-9: "Super+9";
+  kb-select-10: "Super+0";
+  ml-row-left: "ScrollLeft";
+  ml-row-right: "ScrollRight";
+  ml-row-up: "ScrollUp";
+  ml-row-down: "ScrollDown";
+  me-select-entry: "MousePrimary";
+  me-accept-entry: "MouseDPrimary";
+  me-accept-custom: "Control+MouseDPrimary";
+
+  }
+
+
+   ,* {
+  border-colour:               var(selected);
+  handle-colour:               var(selected);
+  background-colour:           var(background);
+  foreground-colour:           var(foreground);
+  alternate-background:        var(background-alt);
+  normal-background:           var(background);
+  normal-foreground:           var(foreground);
+  urgent-background:           var(urgent);
+  urgent-foreground:           var(background);
+  active-background:           var(active);
+  active-foreground:           var(background);
+  selected-normal-background:  var(selected);
+  selected-normal-foreground:  var(background);
+  selected-urgent-background:  var(active);
+  selected-urgent-foreground:  var(background);
+  selected-active-background:  var(urgent);
+  selected-active-foreground:  var(background);
+  alternate-normal-background: var(background);
+  alternate-normal-foreground: var(foreground);
+  alternate-urgent-background: var(urgent);
+  alternate-urgent-foreground: var(background);
+  alternate-active-background: var(active);
+  alternate-active-foreground: var(background);
+  }
+
+  window {
+  transparency:                "real";
+  location:                    center;
+  anchor:                      center;
+  fullscreen:                  false;
+  width:                       50%;
+  height:			     60%;
+  x-offset:                    0px;
+  y-offset:                    0px;
+
+  enabled:                     true;
+  margin:                      0px;
+  padding:                     0px;
+  border:                      0px solid;
+  border-radius:               20px;
+  border-color:                @border-colour;
+  cursor:                      "default";
+  background-color:            @background-colour;
+
+  /* Angle Linear Gradient */
+  // background-image:          linear-gradient(45, #eb0, #ebe, indigo);
+  }
+
+  mainbox {
+  enabled:                     true;
+  spacing:                     10px;
+  margin:                      0px;
+  padding:                     40px;
+  border:                      0px solid;
+  border-radius:               0px 0px 0px 0px;
+  border-color:                @border-colour;
+  background-color:            transparent;
+  children:                    [ "inputbar", "message", "listview", "mode-switcher" ];
+  }
+
+  inputbar {
+  enabled:                     true;
+  spacing:                     10px;
+  margin:                      0px;
+  padding:                     0px;
+  border:                      0px solid;
+  border-radius:               0px;
+  border-color:                @border-colour;
+  background-color:            transparent;
+  text-color:                  @foreground-colour;
+  children:                    [ "prompt", "textbox-prompt-colon", "entry" ];
+  }
+
+  prompt {
+  enabled:                     true;
+  background-color:            inherit;
+  text-color:                  inherit;
+  }
+  textbox-prompt-colon {
+  enabled:                     true;
+  expand:                      false;
+  str:                         "::";
+  background-color:            inherit;
+  text-color:                  inherit;
+  }
+  entry {
+  enabled:                     true;
+  background-color:            inherit;
+  text-color:                  inherit;
+  cursor:                      text;
+  placeholder:                 "Search...";
+  placeholder-color:           inherit;
+  }
+  num-filtered-rows {
+  enabled:                     true;
+  expand:                      false;
+  background-color:            inherit;
+  text-color:                  inherit;
+  }
+  textbox-num-sep {
+  enabled:                     true;
+  expand:                      false;
+  str:                         "/";
+  background-color:            inherit;
+  text-color:                  inherit;
+  }
+  num-rows {
+  enabled:                     true;
+  expand:                      false;
+  background-color:            inherit;
+  text-color:                  inherit;
+  }
+  case-indicator {
+  enabled:                     true;
+  background-color:            inherit;
+  text-color:                  inherit;
+  }
+
+  listview {
+  enabled:                     true;
+  columns:                     2;
+  lines:                       10;
+  cycle:                       true;
+  dynamic:                     true;
+  scrollbar:                   false;
+  layout:                      vertical;
+  reverse:                     false;
+  fixed-height:                false;
+  fixed-columns:               false;
+
+  spacing:                     5px;
+  margin:                      0px;
+  padding:                     0px;
+  border:                      0px solid;
+  border-radius:               0px;
+  border-color:                @border-colour;
+  background-color:            transparent;
+  text-color:                  @foreground-colour;
+  cursor:                      "default";
+  }
+  scrollbar {
+  handle-width:                10px ;
+  handle-color:                @handle-colour;
+  border-radius:               10px;
+  background-color:            @alternate-background;
+  }
+
+  element {
+  enabled:                     true;
+  spacing:                     10px;
+  margin:                      0px;
+  padding:                     5px 10px;
+  border:                      0px solid;
+  border-radius:               20px;
+  border-color:                @border-colour;
+  background-color:            transparent;
+  text-color:                  @foreground-colour;
+  cursor:                      pointer;
+  }
+  element normal.normal {
+  background-color:            var(normal-background);
+  text-color:                  var(normal-foreground);
+  }
+  element normal.urgent {
+  background-color:            var(urgent-background);
+  text-color:                  var(urgent-foreground);
+  }
+  element normal.active {
+  background-color:            var(active-background);
+  text-color:                  var(active-foreground);
+  }
+  element selected.normal {
+  background-color:            var(selected-normal-background);
+  text-color:                  var(selected-normal-foreground);
+  }
+  element selected.urgent {
+  background-color:            var(selected-urgent-background);
+  text-color:                  var(selected-urgent-foreground);
+  }
+  element selected.active {
+  background-color:            var(selected-active-background);
+  text-color:                  var(selected-active-foreground);
+  }
+  element alternate.normal {
+  background-color:            var(alternate-normal-background);
+  text-color:                  var(alternate-normal-foreground);
+  }
+  element alternate.urgent {
+  background-color:            var(alternate-urgent-background);
+  text-color:                  var(alternate-urgent-foreground);
+  }
+  element alternate.active {
+  background-color:            var(alternate-active-background);
+  text-color:                  var(alternate-active-foreground);
+  }
+  element-icon {
+  background-color:            transparent;
+  text-color:                  inherit;
+  size:                        24px;
+  cursor:                      inherit;
+  }
+  element-text {
+  background-color:            transparent;
+  text-color:                  inherit;
+  highlight:                   inherit;
+  cursor:                      inherit;
+  vertical-align:              0.5;
+  horizontal-align:            0.0;
+  }
+
+  mode-switcher{
+  enabled:                     true;
+  spacing:                     10px;
+  margin:                      0px;
+  padding:                     0px;
+  border:                      0px solid;
+  border-radius:               0px;
+  border-color:                @border-colour;
+  background-color:            transparent;
+  text-color:                  @foreground-colour;
+  }
+  button {
+  padding:                     5px 10px;
+  border:                      0px solid;
+  border-radius:               20px;
+  border-color:                @border-colour;
+  background-color:            @alternate-background;
+  text-color:                  inherit;
+  cursor:                      pointer;
+  }
+  button selected {
+  background-color:            var(selected-normal-background);
+  text-color:                  var(selected-normal-foreground);
+  }
+
+  message {
+  enabled:                     true;
+  margin:                      0px;
+  padding:                     0px;
+  border:                      0px solid;
+  border-radius:               0px 0px 0px 0px;
+  border-color:                @border-colour;
+  background-color:            transparent;
+  text-color:                  @foreground-colour;
+  }
+  textbox {
+  padding:                     5px 10px;
+  border:                      0px solid;
+  border-radius:               20px;
+  border-color:                @border-colour;
+  background-color:            @alternate-background;
+  text-color:                  @foreground-colour;
+  vertical-align:              0.5;
+  horizontal-align:            0.0;
+  highlight:                   none;
+  placeholder-color:           @foreground-colour;
+  blink:                       true;
+  markup:                      true;
+  }
+  error-message {
+  padding:                     10px;
+  border:                      2px solid;
+  border-radius:               20px;
+  border-color:                @border-colour;
+  background-color:            @background-colour;
+  text-color:                  @foreground-colour;
+  }
+
+#+end_src
+******** For Emoji
+Config for calling emoji menu
+#+begin_src conf :tangle ~/.config/rofi/dmoji.rasi
+
+  @import				 "config.rasi"
+
+
+  window {
+  location:                    center;
+  anchor:                      center;
+  fullscreen:                  true;
+  width:                       80%;
+  height:			     80%;
+  }
+
+  listview {
+  enabled:                     true;
+  columns:                     14;
+  lines:                       20;
+  }
+#+end_src
+******** For smenu
+Config for calling small menus
+#+begin_src conf :tangle ~/.config/rofi/smenu.rasi
+
+  @import				 "config.rasi"
+
+
+  window {
+  location:                    center;
+  anchor:                      center;
+  fullscreen:                  false;
+  width:                       50%;
+  height:			     60%;
+  }
+
+  listview {
+  enabled:                     true;
+  columns:                     2;
+  lines:                       20;
+  }
+#+end_src
+******** For list
+listing menus
+#+begin_src conf :tangle ~/.config/rofi/list.rasi
+
+  @import				 "config.rasi"
+
+
+  window {
+  location:                    center;
+  anchor:                      center;
+  fullscreen:                  false;
+  width:                       85%;
+  height:			     80%;
+  }
+
+  listview {
+  enabled:                     true;
+  columns:                     1;
+  lines:                       22;
+  }
+#+end_src
 ****** Sioyek
 #+begin_src nix
   programs.sioyek = {
@@ -2082,7 +2566,7 @@ K cycle sub down
       mainBar = {
         layer = "top";
         position = "top";
-        height = 20;
+        height = 15;
         spacing = 7;
         fixed-center = true;
         exclusive = true;
@@ -2113,7 +2597,7 @@ K cycle sub down
         };
 
         "hyprland/window" = {
-          "format" = "🧬 {}";
+          "format" = "👁 {}";
           "separate-outputs" = true;
         };
 
@@ -2126,7 +2610,7 @@ K cycle sub down
         "custom/launcher" = {
           format = " ";
           tooltip = false;
-          on-click = "bemenu-run";
+          on-click = "rofi -show drun";
         };
 
         "battery" =  {
@@ -2137,12 +2621,12 @@ K cycle sub down
             "critical" =  30;
           };
           "format" =  "{capacity}% {icon} ";
-          "format-icons" =  ["" "" "" "" ""];
+          "format-icons" =  [" " "🔴 " "🪫 " " " " "];
           "max-length" =  25;
         };
 
         "custom/power" = {
-          "format" = " ";
+          "format" = "⏻ ";
           "on-click" = "d-power";
           "tooltip" = false;
         };
@@ -2156,10 +2640,10 @@ K cycle sub down
         };
         "cpu" = {
           "format" = "﬙ {usage: >3}%";
-          "on-click" = "footclient -e htop";
+          "on-click" = "footclient -e btop";
         };
         "memory" = {
-          "format" = " {: >3}%";
+          "format" = "🏶 {: >3}%";
           "on-click" = "foot -e btop";
         };
         "network" = {
@@ -2175,7 +2659,7 @@ K cycle sub down
           "scroll-step" = 2;
           "format" = "{icon} {volume: >3}%";
           "format-bluetooth" = "{icon} {volume: >3}%";
-          "format-muted" =" muted";
+          "format-muted" =" muted ";
           "on-click" = "pamixer -t";
           "format-icons" = {
             "headphones" = "";
@@ -2184,7 +2668,7 @@ K cycle sub down
             "phone" = "";
             "portable" = "";
             "car" = "";
-            "default" = ["" ""];
+            "default" = [" " " "];
           };
         };
       };
@@ -2194,131 +2678,157 @@ K cycle sub down
 #+end_src
 ******* Style.css
 #+begin_src css :tangle ~/.config/waybar/style.css
-  *{
-      color: #ffffff;
-      border: 0;
-      border-radius: 10px;
-      padding: 0 0;
-      font-family:ComicCodeLigatures Bold;
-      font-size: 24px;
-      margin-right: 5px;
-      margin-left: 5px;
-      padding-bottom:3px;
-      min-height: 45px;
-  }
+@import "modus.css";
+/* @import "catppuccin.css"; */
 
-  window#waybar {
-      background: transparent;
-      background: rgba(00, 00, 00, 0.0);
-  }
+ * {
+    color: @fg-alt;
+    border: 0;
+    border-radius: 10px;
+    padding: 0 0;
+    font-family:ComicCodeLigatures Bold;
+    font-size: 24px;
+    margin-right: 5px;
+    margin-left: 5px;
+    padding-bottom:3px;
+    min-height: 15px;
+}
 
-  #workspaces button {
-      border-radius: 20px;
-      background-color: #11111b;
-      color: #ffff00;
+window#waybar {
+    background: transparent;
 
-  }
+}
 
-  #workspaces button.active {
-      border-color: #89DCEB ;
-      padding-bottom:5px ;
-  }
+#workspaces button {
+    border-radius: 20px;
+    background-color: @bg-main;
+    color: @yellow;
 
-  #mode {
-      color: #ebcb8b;
-  }
+}
 
-  #battery, #mpd,#workspaces, #submap, #clock, #cpu, #memory,#network, #pulseaudio, #window,#custom-launcher,#custom-power{
-      padding: 0 3px;
-      border-bottom: 2px;
-      border-style: solid;
-      border-radius: 15px 15px 15px 15px;
-      background-color: #11111b;
-      margin-top: 3px;
-      padding-top: 1px;
-      padding-left: 13px;
-      padding-right: 3px;
-      opacity: 1.0;
-      font-size: 20px;
-  }
+#workspaces button.active {
+    border-color: @magenta;
+    padding-bottom:5px ;
+}
 
-  #window {
-      border-radius: 20px;
-      padding-left: 10px;
-      padding-right: 10px;
-      color:#ffd700;
-      margin-top:1px;
-      border-color:#ffd700;
-  }
+#mode {
+    color: @pink;
+}
 
-  #clock {
-      color:#89b4fa;
-  }
+#battery, #mpd,#workspaces, #submap, #clock, #cpu, #memory,#network, #pulseaudio, #window,#custom-launcher,#custom-power{
+    padding: 0 3px;
+    border-bottom: 2px;
+    border-style: solid;
+    border-radius: 15px 15px 15px 15px;
+    background-color: @bg-main;
+    margin-top: 3px;
+    padding-top: 1px;
+    padding-left: 13px;
+    padding-right: 3px;
+    opacity: 1.0;
+    font-size: 20px;
+}
 
-  #mpd {
-      color: #cdd6f4;
-  }
+#window {
+    border-radius: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+    color: @fg-alt;
+    margin-top:1px;
+    border-color: @fg-alt;
+}
 
+#clock {
+    color: @magenta;
+}
 
-  #cpu {
-      color:#a6e3a1;
-  }
+#mpd {
+    color: @lavender;
+}
 
 
-  #memory {
-      color: #94e2d5;
-      color: #cba6f7;
-  }
+#cpu {
+    color: @blue-faint;
+}
 
-  #network.disabled {
-      color:#bf616a;
-  }
 
-  #network{
-      color:#f9e2af;
-  }
+#memory {
+    color: @blue-faint;
+}
 
-  #battery {
-      color:#ee9572;
-  }
+#network.disabled {
+    color: @rust;
+}
 
-  #network.disconnected {
-      color: #bf616a;
-  }
+#network{
+    color: @teal;
+}
 
-  #pulseaudio {
-      color: #a6e3a1;
-  }
+#battery {
+    color: @yellow;
+}
 
-  #pulseaudio.muted {
-      color: #3b4252;
-  }
+#network.disconnected {
+    color: @rust;
+}
 
-  #custom-launcher {
-      font-family:FiraCode Nerd Font;
-      font-size:40px;
-      color:#000000;
-      border-color: #121212;
-      border-radius: 20px 20px 20px 20px;
-      background: linear-gradient(90deg, #bcd2ee 28%, #fff0f5 85%, #ffe4e1 100%);
+#pulseaudio {
+    color: @peach;
+}
 
-  }
+#pulseaudio.muted {
+    color: @rust;
+}
 
-  #custom-power {
-      font-family: FiraCode Nerd Font;
-      font-size: 22px;
-      color:#f38ba8;
-      border-radius: 30px 30px 30px 30px;
+#custom-launcher {
+    font-family:FiraCode Nerd Font;
+    font-size:40px;
+    color: @bg-main;
+    border-color: @bg-dim;
+    border-radius: 20px 20px 20px 20px;
+    background: linear-gradient(90deg, @blue 28%, @peach 85%, @pink 100%);
 
-  }
+}
 
-  #submap {
-      color:#eb9;
-  }
-  #mode{
-      margin-bottom:3px;
-  }
+#custom-power {
+    font-family: FiraCode Nerd Font;
+    font-size: 22px;
+    color: @red;
+    border-radius: 30px 30px 30px 30px;
 
+}
+
+#submap {
+    color: @cyan;
+}
+#mode{
+    margin-bottom:3px;
+}
+
+#+end_src
+******** Modus theme
+#+begin_src css :tangle ~/.config/waybar/modus.css
+  @define-color  bg-main	     #0d0e1c;
+  @define-color  bg-dim	     #1d2235;
+  @define-color  fg-main	     #ffffff;
+  @define-color  fg-dim	     #989898;
+  @define-color  fg-alt	     #c6daff;
+
+  @define-color  white	     #ffffff;
+  @define-color  magenta	     #ff66ff;
+  @define-color  cyan	     #00eff0;
+  @define-color  lavender	     #b6a0ff;
+  @define-color  blue	     #79a8ff;
+  @define-color  pink	     #f78fe7;
+
+  @define-color  teal    #6ae4b9;
+  @define-color  rust    #d2b580;
+  @define-color  blue-warm    #82b0ec;
+  @define-color  peach    #feacd0;
+  @define-color  green    #88ca9f;
+  @define-color  red    #ff9f80;
+  @define-color  blue-faint    #9ac8e0;
+  @define-color  yellow     #fec43f;
 
 #+end_src
 ****** Wofi
@@ -2447,19 +2957,20 @@ Don't worry about this, there is nothing from here.
 Its just custom instructions
 ** First Time Set Up Script
 :PROPERTIES:
-:header-args: :tangle ./gdk/init-setup.sh
+:header-args: :tangle ./gdk/init-setup.sh :shebang #!/usr/bin/env bash
 :END:
-*** Configure file as a script
-Make it a shell script
-#+begin_src sh
-  #! /usr/bin/env bash
-#+end_src
 *** Install System Flake
 
 #+begin_src sh :noweb yes
+
+  # Read and edit these once accordingly
+
   echo "Installing System Flake"
-  sudo cp -f /etc/nixos/hardware-configuration.nix <<my-git-path>>/gdk/hardware-configuration.nix
-  cd ~/.DLIP/SETUP
+  sudo cp -f /etc/nixos/hardware-configuration.nix <<my-git-path>>/<<my-hostname>>/hardware-configuration.nix
+
+  # Edit it your file path
+
+  #cd <<my-git-path>>
   sudo nixos-rebuild switch --flake .#gdk
 #+end_src
 *** Copy First Time Installation Checklist

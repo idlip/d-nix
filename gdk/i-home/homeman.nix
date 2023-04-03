@@ -953,7 +953,7 @@ programs.waybar = {
     mainBar = {
       layer = "top";
       position = "top";
-      height = 20;
+      height = 15;
       spacing = 7;
       fixed-center = true;
       exclusive = true;
@@ -984,7 +984,7 @@ programs.waybar = {
       };
 
       "hyprland/window" = {
-        "format" = "🧬 {}";
+        "format" = "👁 {}";
         "separate-outputs" = true;
       };
 
@@ -997,7 +997,7 @@ programs.waybar = {
       "custom/launcher" = {
         format = " ";
         tooltip = false;
-        on-click = "bemenu-run";
+        on-click = "rofi -show drun";
       };
 
       "battery" =  {
@@ -1008,12 +1008,12 @@ programs.waybar = {
           "critical" =  30;
         };
         "format" =  "{capacity}% {icon} ";
-        "format-icons" =  ["" "" "" "" ""];
+        "format-icons" =  [" " "🔴 " "🪫 " " " " "];
         "max-length" =  25;
       };
 
       "custom/power" = {
-        "format" = " ";
+        "format" = "⏻ ";
         "on-click" = "d-power";
         "tooltip" = false;
       };
@@ -1027,10 +1027,10 @@ programs.waybar = {
       };
       "cpu" = {
         "format" = "﬙ {usage: >3}%";
-        "on-click" = "footclient -e htop";
+        "on-click" = "footclient -e btop";
       };
       "memory" = {
-        "format" = " {: >3}%";
+        "format" = "🏶 {: >3}%";
         "on-click" = "foot -e btop";
       };
       "network" = {
@@ -1046,7 +1046,7 @@ programs.waybar = {
         "scroll-step" = 2;
         "format" = "{icon} {volume: >3}%";
         "format-bluetooth" = "{icon} {volume: >3}%";
-        "format-muted" =" muted";
+        "format-muted" =" muted ";
         "on-click" = "pamixer -t";
         "format-icons" = {
           "headphones" = "";
@@ -1055,7 +1055,7 @@ programs.waybar = {
           "phone" = "";
           "portable" = "";
           "car" = "";
-          "default" = ["" ""];
+          "default" = [" " " "];
         };
       };
     };

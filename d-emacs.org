@@ -168,10 +168,10 @@ Fonts are crucial to read.
   (defvar default-variable-font-size 190)
 
   ;; Set reusable font name variables
-  (defvar d/fixed-width-font "ComicCodeLigatures"
+  (defvar d/fixed-width-font "ComicCodeLigatures Nerd Font"
     "The font to use for monospaced (fixed width) text.")
 
-  (defvar d/variable-width-font "ComicCodeLigatures"
+  (defvar d/variable-width-font "ComicCodeLigatures Nerd Font"
     "The font to use for variable-pitch (document) text.")
 
   (defvar d/header-font "Comic Mono"
@@ -286,6 +286,9 @@ Keep folders and backuping files clean!
   (global-set-key (kbd "C-v") #'d/scroll-down)
   (global-set-key (kbd "<f5>") #'d/refresh-buffer)
 
+  ;; Get rid of annoyance
+  (global-unset-key (kbd "C-x C-z"))
+  (global-unset-key (kbd "C-z"))
 
   ;;(define-key org-mode-map (kbd "C-c C-x C-s") #'org-archive-done-tasks)
   (global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
@@ -420,7 +423,7 @@ Just check the [[https://github.com/minad/vertico][Vertico github]] repo, you wi
   ;; Optionally use the `orderless' completion style.
   (use-package orderless
     :init
-    (setq completion-styles '(orderless basic)
+    (setq completion-styles '(flex orderless basic)
           completion-category-defaults nil
           completion-category-overrides '((file (styles partial-completion)))))
   (define-key vertico-map "?" #'minibuffer-completion-help)
@@ -429,7 +432,7 @@ Just check the [[https://github.com/minad/vertico][Vertico github]] repo, you wi
   (define-key vertico-map (kbd "M-d") #'vertico-directory-delete-char)
   (define-key vertico-map (kbd "M-RET") #'minibuffer-force-complete-and-exit)
   (define-key vertico-map (kbd "M-TAB") #'minibuffer-complete)
-  (setq completion-styles '(substring orderless basic))
+  (setq completion-styles '(flex orderless))
   (setq read-file-name-completion-ignore-case t
         read-buffer-completion-ignore-case t
         completion-ignore-case t)
@@ -635,6 +638,8 @@ Completion to next level, works even on terminal
     (corfu-auto-prefix 2)
     (corfu-auto-delay 0.0)
     (corfu-quit-at-boundary 'separator)
+    (corfu-popupinfo-resize t)
+    (corfu-popupinfo-hide nil)
     (corfu-echo-documentation 0.25)
     (corfu-preview-current 'insert)
     (corfu-preselect-first t)
@@ -644,6 +649,9 @@ Completion to next level, works even on terminal
     :bind (:map corfu-map
                 ("M-SPC" . corfu-insert-separator)
                 ("TAB" . corfu-insert)
+                ("<escape>" . corfu-quit)
+                ("C-j" . corfu-next)
+                ("C-k" . corfu-previous)                
                 ("RET" . corfu-insert))
     ;; Enable Corfu only for certain modes.
     ;; :hook ((prog-mode . corfu-mode)
@@ -705,7 +713,7 @@ Cape for Rescue! Feel the power of Emacs Extensibility
               corfu-auto-prefix 0
               completion-category-defaults nil
               completion-category-overrides '((file (styles partial-completion)))
-              completion-styles '(orderless basic))
+              completion-styles '(flex orderless))
 
   (defun corfu-enable-always-in-minibuffer ()
     "Enable corfi in minibuffer, if vertico is not active"
@@ -1095,7 +1103,7 @@ How amazing it is to do presentation with power of org? Yes its possible (need o
 
 
       (set-face-attribute 'header-line nil :background nil :height 2.5)
-      (set-face-attribute 'variable-pitch nil :font "ComicCodeLigatures" :height 1.2 :weight 'medium)
+      (set-face-attribute 'variable-pitch nil :font d/variable-width-font :height 1.2 :weight 'medium)
       (set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face)))
 
 
@@ -1499,8 +1507,6 @@ Some small codes from good source.
 
   (use-package flycheck)
   ;; :init (global-flycheck-mode))
-
-  (use-package aria2)
 
   (use-package mingus
     :bind ("C-c d m" . mingus-browse)
@@ -1932,9 +1938,6 @@ Idk why, but i guess these all should be the sane defaults.
                   elfeed-search-mode-hook
                   eshell-mode-hook))
     (add-hook mode (lambda () (display-line-numbers-mode 0))))
-
-  (global-unset-key (kbd "C-x C-z"))
-  (global-unset-key (kbd "C-z"))
 
   (blink-cursor-mode -1)
 

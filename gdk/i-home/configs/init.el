@@ -33,10 +33,10 @@
 (defvar default-variable-font-size 190)
 
 ;; Set reusable font name variables
-(defvar d/fixed-width-font "ComicCodeLigatures"
+(defvar d/fixed-width-font "ComicCodeLigatures Nerd Font"
   "The font to use for monospaced (fixed width) text.")
 
-(defvar d/variable-width-font "ComicCodeLigatures"
+(defvar d/variable-width-font "ComicCodeLigatures Nerd Font"
   "The font to use for variable-pitch (document) text.")
 
 (defvar d/header-font "Comic Mono"
@@ -139,6 +139,9 @@
 (global-set-key (kbd "C-v") #'d/scroll-down)
 (global-set-key (kbd "<f5>") #'d/refresh-buffer)
 
+;; Get rid of annoyance
+(global-unset-key (kbd "C-x C-z"))
+(global-unset-key (kbd "C-z"))
 
 ;;(define-key org-mode-map (kbd "C-c C-x C-s") #'org-archive-done-tasks)
 (global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
@@ -244,7 +247,7 @@
 ;; Optionally use the `orderless' completion style.
 (use-package orderless
   :init
-  (setq completion-styles '(orderless basic)
+  (setq completion-styles '(flex orderless basic)
         completion-category-defaults nil
         completion-category-overrides '((file (styles partial-completion)))))
 (define-key vertico-map "?" #'minibuffer-completion-help)
@@ -253,7 +256,7 @@
 (define-key vertico-map (kbd "M-d") #'vertico-directory-delete-char)
 (define-key vertico-map (kbd "M-RET") #'minibuffer-force-complete-and-exit)
 (define-key vertico-map (kbd "M-TAB") #'minibuffer-complete)
-(setq completion-styles '(substring orderless basic))
+(setq completion-styles '(flex orderless))
 (setq read-file-name-completion-ignore-case t
       read-buffer-completion-ignore-case t
       completion-ignore-case t)
@@ -442,6 +445,8 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   (corfu-auto-prefix 2)
   (corfu-auto-delay 0.0)
   (corfu-quit-at-boundary 'separator)
+  (corfu-popupinfo-resize t)
+  (corfu-popupinfo-hide nil)
   (corfu-echo-documentation 0.25)
   (corfu-preview-current 'insert)
   (corfu-preselect-first t)
@@ -451,6 +456,9 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   :bind (:map corfu-map
               ("M-SPC" . corfu-insert-separator)
               ("TAB" . corfu-insert)
+              ("<escape>" . corfu-quit)
+              ("C-j" . corfu-next)
+              ("C-k" . corfu-previous)                
               ("RET" . corfu-insert))
   ;; Enable Corfu only for certain modes.
   ;; :hook ((prog-mode . corfu-mode)
@@ -508,7 +516,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
             corfu-auto-prefix 0
             completion-category-defaults nil
             completion-category-overrides '((file (styles partial-completion)))
-            completion-styles '(orderless basic))
+            completion-styles '(flex orderless))
 
 (defun corfu-enable-always-in-minibuffer ()
   "Enable corfi in minibuffer, if vertico is not active"
@@ -851,7 +859,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 
 
     (set-face-attribute 'header-line nil :background nil :height 2.5)
-    (set-face-attribute 'variable-pitch nil :font "ComicCodeLigatures" :height 1.2 :weight 'medium)
+    (set-face-attribute 'variable-pitch nil :font d/variable-width-font :height 1.2 :weight 'medium)
     (set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face)))
 
 
@@ -1202,8 +1210,6 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 
 (use-package flycheck)
 ;; :init (global-flycheck-mode))
-
-(use-package aria2)
 
 (use-package mingus
   :bind ("C-c d m" . mingus-browse)
@@ -1606,9 +1612,6 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
                 eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-(global-unset-key (kbd "C-x C-z"))
-(global-unset-key (kbd "C-z"))
-
 (blink-cursor-mode -1)
 
 ;; Don't blink the paren matching the one at point, it's too distracting.
@@ -1638,3 +1641,16 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
                   (d/set-font-faces))))
     (d/set-font-faces))
 (put 'narrow-to-region 'disabled nil)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(rg vterm undo-fu flycheck helpful ox-pandoc no-littering rainbow-delimiters rainbow-mode vertico orderless marginalia embark-consult olivetti org-modern cape markdown-mode nix-mode rust-mode lua-mode all-the-icons-dired dired-hide-dotfiles dired-single reddigg mingus pdf-tools which-key magit aria2 webpaste org-present org-mime corfu-terminal beframe denote tempel-collection sdcv elfeed-org link-hint powerthesaurus jinx doom-modeline hide-mode-line org-auto-tangle el-fetch ox-hugo htmlize kind-icon catppuccin-theme)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

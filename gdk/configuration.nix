@@ -316,14 +316,14 @@ fonts = {
   fontconfig = {
     defaultFonts = {
       monospace = [
-        "ComicCodeLigatures"
+        "ComicCodeLigatures Nerd Font"
         "FiraCode Nerd Font"
         "JetBrainsMono Nerd Font"
         "Noto Color Emoji"
       ];
       sansSerif = [ "Gandhi Sans" "VictorMono Nerd Font" "Noto Sans"];
       serif = [ "SF Pro Rounded" "Noto Sans" "VictorMono Nerd Font" "JetBrainsMono Nerd Font"];
-      emoji = ["Noto Color Emoji" "Symbola" "all-the-icons" "Weather Icons" "Material Icons" "FiraCode Nerd Font" ];
+      emoji = ["ComicCodeLigatures Nerd Font"  "Noto Color Emoji" "Symbola" "all-the-icons" "Weather Icons" "Material Icons" "FiraCode Nerd Font" ];
     };
   };
 };

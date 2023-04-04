@@ -445,8 +445,8 @@ programs.foot = {
   settings = {
     main = {
       term = "xterm-256color";
-      font = "ComicCodeLigatures:size=12";
-      font-bold = "VictorMono Nerd Font:size=12";
+      font = "ComicCodeLigatures Nerd Font:size=12";
+      font-bold = "ComicCodeLigatures Nerd Font:size=12";
       letter-spacing = "1";
        box-drawings-uses-font-glyphs = "no";
     };
@@ -524,7 +524,7 @@ programs.emacs = {
     all-the-icons all-the-icons-dired async dired-hide-dotfiles dired-single
     reddigg mingus pdf-tools which-key magit aria2 webpaste org-present
     org-mime corfu-terminal beframe denote tempel tempel-collection
-    sdcv elfeed elfeed-org link-hint powerthesaurus 
+    sdcv elfeed elfeed-org link-hint powerthesaurus jinx
     doom-modeline hide-mode-line org-auto-tangle el-fetch ox-hugo htmlize
   ])
   );
@@ -953,8 +953,8 @@ programs.waybar = {
     mainBar = {
       layer = "top";
       position = "top";
-      height = 15;
-      spacing = 7;
+      # height = 15;
+      # spacing = 7;
       fixed-center = true;
       exclusive = true;
       modules-left = [
@@ -984,7 +984,7 @@ programs.waybar = {
       };
 
       "hyprland/window" = {
-        "format" = "👁 {}";
+        "format" = "👁{}";
         "separate-outputs" = true;
       };
 
@@ -1013,7 +1013,7 @@ programs.waybar = {
       };
 
       "custom/power" = {
-        "format" = "⏻ ";
+        "format" = "⏻";
         "on-click" = "d-power";
         "tooltip" = false;
       };
@@ -1030,7 +1030,7 @@ programs.waybar = {
         "on-click" = "footclient -e btop";
       };
       "memory" = {
-        "format" = "🏶 {: >3}%";
+        "format" = " {: >3}%";
         "on-click" = "foot -e btop";
       };
       "network" = {
@@ -1055,7 +1055,7 @@ programs.waybar = {
           "phone" = "";
           "portable" = "";
           "car" = "";
-          "default" = [" " " "];
+          "default" = ["" ""];
         };
       };
     };

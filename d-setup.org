@@ -519,14 +519,14 @@ Enables additional fonts system wide
     fontconfig = {
       defaultFonts = {
         monospace = [
-          "ComicCodeLigatures"
+          "ComicCodeLigatures Nerd Font"
           "FiraCode Nerd Font"
           "JetBrainsMono Nerd Font"
           "Noto Color Emoji"
         ];
         sansSerif = [ "Gandhi Sans" "VictorMono Nerd Font" "Noto Sans"];
         serif = [ "SF Pro Rounded" "Noto Sans" "VictorMono Nerd Font" "JetBrainsMono Nerd Font"];
-        emoji = ["Noto Color Emoji" "Symbola" "all-the-icons" "Weather Icons" "Material Icons" "FiraCode Nerd Font" ];
+        emoji = ["ComicCodeLigatures Nerd Font"  "Noto Color Emoji" "Symbola" "all-the-icons" "Weather Icons" "Material Icons" "FiraCode Nerd Font" ];
       };
     };
   };
@@ -1130,8 +1130,8 @@ There will be not much difference.
     settings = {
       main = {
         term = "xterm-256color";
-        font = "ComicCodeLigatures:size=12";
-        font-bold = "VictorMono Nerd Font:size=12";
+        font = "ComicCodeLigatures Nerd Font:size=12";
+        font-bold = "ComicCodeLigatures Nerd Font:size=12";
         letter-spacing = "1";
          box-drawings-uses-font-glyphs = "no";
       };
@@ -1523,7 +1523,7 @@ Its more mature than hyprland. So... better to have it!
       all-the-icons all-the-icons-dired async dired-hide-dotfiles dired-single
       reddigg mingus pdf-tools which-key magit aria2 webpaste org-present
       org-mime corfu-terminal beframe denote tempel tempel-collection
-      sdcv elfeed elfeed-org link-hint powerthesaurus 
+      sdcv elfeed elfeed-org link-hint powerthesaurus jinx
       doom-modeline hide-mode-line org-auto-tangle el-fetch ox-hugo htmlize
     ])
     );
@@ -2566,8 +2566,8 @@ listing menus
       mainBar = {
         layer = "top";
         position = "top";
-        height = 15;
-        spacing = 7;
+        # height = 15;
+        # spacing = 7;
         fixed-center = true;
         exclusive = true;
         modules-left = [
@@ -2597,7 +2597,7 @@ listing menus
         };
 
         "hyprland/window" = {
-          "format" = "👁 {}";
+          "format" = "👁{}";
           "separate-outputs" = true;
         };
 
@@ -2626,7 +2626,7 @@ listing menus
         };
 
         "custom/power" = {
-          "format" = "⏻ ";
+          "format" = "⏻";
           "on-click" = "d-power";
           "tooltip" = false;
         };
@@ -2643,7 +2643,7 @@ listing menus
           "on-click" = "footclient -e btop";
         };
         "memory" = {
-          "format" = "🏶 {: >3}%";
+          "format" = " {: >3}%";
           "on-click" = "foot -e btop";
         };
         "network" = {
@@ -2668,7 +2668,7 @@ listing menus
             "phone" = "";
             "portable" = "";
             "car" = "";
-            "default" = [" " " "];
+            "default" = ["" ""];
           };
         };
       };
@@ -2678,132 +2678,133 @@ listing menus
 #+end_src
 ******* Style.css
 #+begin_src css :tangle ~/.config/waybar/style.css
-@import "modus.css";
-/* @import "catppuccin.css"; */
+  @import "modus.css";
+  /* @import "catppuccin.css"; */
 
- * {
-    color: @fg-alt;
-    border: 0;
-    border-radius: 10px;
-    padding: 0 0;
-    font-family:ComicCodeLigatures Bold;
-    font-size: 24px;
-    margin-right: 5px;
-    margin-left: 5px;
-    padding-bottom:3px;
-    min-height: 15px;
-}
+   ,* {
+      color: @fg-alt;
+      border: 0;
+      border-radius: 10px;
+      padding: 0 2;
+      font-family:ComicCodeLigatures Nerd Font;
+      font-size: 24px;
+      margin-right: 5px;
+      margin-left: 5px;
+      padding-bottom:3px;
+      min-height: 15px;
+  }
 
-window#waybar {
-    background: transparent;
+  window#waybar {
+      background: inherit;
 
-}
+  }
 
-#workspaces button {
-    border-radius: 20px;
-    background-color: @bg-main;
-    color: @yellow;
+  #workspaces button {
+      border-radius: 20px;
+      color: @yellow;
 
-}
+  }
 
-#workspaces button.active {
-    border-color: @magenta;
-    padding-bottom:5px ;
-}
+  #workspaces button.active {
+      border-color: @magenta;
+      padding-bottom:1px ;
+  }
 
-#mode {
-    color: @pink;
-}
+  #mode {
+      color: @pink;
+  }
 
-#battery, #mpd,#workspaces, #submap, #clock, #cpu, #memory,#network, #pulseaudio, #window,#custom-launcher,#custom-power{
-    padding: 0 3px;
-    border-bottom: 2px;
-    border-style: solid;
-    border-radius: 15px 15px 15px 15px;
-    background-color: @bg-main;
-    margin-top: 3px;
-    padding-top: 1px;
-    padding-left: 13px;
-    padding-right: 3px;
-    opacity: 1.0;
-    font-size: 20px;
-}
+  #battery, #mpd,#workspaces, #submap, #clock, #cpu, #memory,#network, #pulseaudio, #window,#custom-launcher,#custom-power{
+      border-style: solid;
+      border-radius: 15px 15px 15px 15px;
+      background-color: rgba(00, 00, 00, 0.7);
+      padding: 0 3px;
+      border-bottom: 2px;
+      margin-top: 3px;
+      padding-top: 1px;
+      padding-left: 13px;
+      padding-right: 3px;
+      opacity: 1.0;
+      font-size: 20px;
 
-#window {
-    border-radius: 20px;
-    padding-left: 10px;
-    padding-right: 10px;
-    color: @fg-alt;
-    margin-top:1px;
-    border-color: @fg-alt;
-}
+  }
 
-#clock {
-    color: @magenta;
-}
+  #window {
+      border-radius: 20px;
+      padding-left: 10px;
+      padding-right: 10px;
+      color: @fg-alt;
+      margin-top:1px;
+      border-color: @fg-alt;
+  }
 
-#mpd {
-    color: @lavender;
-}
+  #clock {
+      color: @magenta;
+  }
 
-
-#cpu {
-    color: @blue-faint;
-}
+  #mpd {
+      color: @lavender;
+  }
 
 
-#memory {
-    color: @blue-faint;
-}
+  #cpu {
+      color: @blue-faint;
+  }
 
-#network.disabled {
-    color: @rust;
-}
 
-#network{
-    color: @teal;
-}
+  #memory {
+      color: @blue-faint;
+  }
 
-#battery {
-    color: @yellow;
-}
+  #network.disabled {
+      color: @rust;
+  }
 
-#network.disconnected {
-    color: @rust;
-}
+  #network{
+      color: @teal;
+  }
 
-#pulseaudio {
-    color: @peach;
-}
+  #battery {
+      color: @yellow;
+  }
 
-#pulseaudio.muted {
-    color: @rust;
-}
+  #network.disconnected {
+      color: @rust;
+  }
 
-#custom-launcher {
-    font-family:FiraCode Nerd Font;
-    font-size:40px;
-    color: @bg-main;
-    border-color: @bg-dim;
-    border-radius: 20px 20px 20px 20px;
-    background: linear-gradient(90deg, @blue 28%, @peach 85%, @pink 100%);
+  #pulseaudio {
+      color: @peach;
+  }
 
-}
+  #pulseaudio.muted {
+      color: @rust;
+  }
 
-#custom-power {
-    font-family: FiraCode Nerd Font;
-    font-size: 22px;
-    color: @red;
-    border-radius: 30px 30px 30px 30px;
+  #custom-launcher {
+      font-family:ComicCodeLigatures Nerd Font;
+      font-size: 40px;
+      color: @bg-main;
+      border-color: @bg-dim;
+      border-radius: 20px 20px 20px 20px;
+      background: linear-gradient(90deg, @blue 28%, @peach 85%, @pink 100%);
 
-}
+  }
 
-#submap {
-    color: @cyan;
-}
-#mode{
-    margin-bottom:3px;
-}
+  #custom-power {
+      font-family:ComicCodeLigatures Nerd Font;
+      font-size: 22px;
+      color: @red;
+      border-radius: 30px 30px 30px 30px;
+      background: linear-gradient(90deg, @bg-dim 28%, @bg-main 85%, @bg-dim 100%);
+      padding-right: 15px;
+  }
+
+  #submap {
+      color: @cyan;
+  }
+  #mode{
+      margin-bottom:3px;
+  }
 
 #+end_src
 ******** Modus theme
@@ -2921,26 +2922,26 @@ window#waybar {
 #+end_src
 ****** Ytfzf
 #+begin_src conf :tangle ~/.config/ytfzf/conf.sh
-#video_pref="248+bestaudio/best"
-video_pref="[height<=1080]"
-#scrape 1 video link per channel instead of the default 2
-sub_link_count=1
-show_thumbnails=0
-##}}}
+  #video_pref="248+bestaudio/best"
+  video_pref="[height<=1080]"
+  #scrape 1 video link per channel instead of the default 2
+  sub_link_count=1
+  show_thumbnails=0
+  ##}}}
 
-external_menu () {
-    #use rofi instead of dmenu
-#    rofi -dmenu -i -theme-str '@import "menu.rasi" window {height:60%;width: 70%;}' -p "$1"
-    # rofi -dmenu -i -config ~/.config/rofi/list.rasi -p "Search for :->"
-    # wofi -dib -W 90% -H 80% 
-     bemenu -W 0.98 -l 22 -p '  Play '
-#    dmenu -i -l 20
-}
+  external_menu () {
+      #use rofi instead of dmenu
+  #    rofi -dmenu -i -theme-str '@import "menu.rasi" window {height:60%;width: 70%;}' -p "$1"
+      rofi -dmenu -i -config ~/.config/rofi/list.rasi -p "  Play "  
+      # wofi -dib -W 90% -H 80% 
+       # bemenu -W 0.98 -l 22 -p '  Play '
+  #    dmenu -i -l 20
+  }
 
-thumbnail_quality=high
-scrape=youtube
-#is_sort=1
-#search_sort_by=upload_date
+  thumbnail_quality=high
+  scrape=youtube
+  #is_sort=1
+  #search_sort_by=upload_date
 
 #+end_src
 ***** System Files

@@ -205,6 +205,14 @@
 (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
 
 (use-package vertico
+  :bind (:map vertico-map
+              ("?" . minibuffer-completion-help)
+              ("RET" . vertico-directory-enter)
+              ("DEL" . vertico-directory-delete-char)
+              ("M-d" . vertico-directory-delete-char)
+              ("M-RET" . minibuffer-force-complete-and-exit)
+              ("M-TAB" . minibuffer-complete))
+
   :init
   (vertico-mode)
   ;; (vertico-flat-mode 1)
@@ -247,16 +255,10 @@
 ;; Optionally use the `orderless' completion style.
 (use-package orderless
   :init
-  (setq completion-styles '(flex orderless basic)
+  (setq completion-styles '(orderless)
         completion-category-defaults nil
         completion-category-overrides '((file (styles partial-completion)))))
-(define-key vertico-map "?" #'minibuffer-completion-help)
-(define-key vertico-map (kbd "RET") #'vertico-directory-enter)
-(define-key vertico-map (kbd "DEL") #'vertico-directory-delete-char)
-(define-key vertico-map (kbd "M-d") #'vertico-directory-delete-char)
-(define-key vertico-map (kbd "M-RET") #'minibuffer-force-complete-and-exit)
-(define-key vertico-map (kbd "M-TAB") #'minibuffer-complete)
-(setq completion-styles '(flex orderless))
+(setq completion-styles '(orderless))
 (setq read-file-name-completion-ignore-case t
       read-buffer-completion-ignore-case t
       completion-ignore-case t)
@@ -516,7 +518,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
             corfu-auto-prefix 0
             completion-category-defaults nil
             completion-category-overrides '((file (styles partial-completion)))
-            completion-styles '(flex orderless))
+            completion-styles '(orderless))
 
 (defun corfu-enable-always-in-minibuffer ()
   "Enable corfi in minibuffer, if vertico is not active"
@@ -527,7 +529,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
                 corfu-popupinfo-delay nil
                 corfu-auto-delay 0
                 corfu-auto-prefix 0
-                completion-styles '(orderless basic))
+                completion-styles '(basic))
     (corfu-mode 1)))
 (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
 
@@ -1008,7 +1010,6 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
          (Info-mode         . olivetti-mode)
          (eshell-mode         . olivetti-mode)
          (helpful-mode         . olivetti-mode)
-         (vterm-mode         . olivetti-mode)
          (Info-mode         . olivetti-mode)           
          (org-mode          . olivetti-mode)
          (dashboard-mode    . olivetti-mode)
@@ -1058,7 +1059,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
         (agenda-date . (1.2))
         (agenda-structure . (variable-pitch light 1.8))
         (t . (1.1))))
-(load-theme 'modus-vivendi-tinted t)
+(load-theme 'modus-vivendi t)
 
 (use-package beframe)
 (setq beframe-global-buffers '("*scratch*"))
@@ -1092,10 +1093,6 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 (setq-default scroll-margin 5)
 
 (pixel-scroll-precision-mode t)
-(setq pixel-scroll-precision-use-momentum t)
-(setq pixel-scroll-precision-interpolate-mice t)
-(setq pixel-scroll-precision-large-scroll-height 10.0)
-(setq pixel-scroll-precision-interpolate-page t)
 
 (defun d/scroll-down ()
   "Trust me, make scrolling alot smoother. +1 Makes you fall in love with Emacs again!"
@@ -1132,7 +1129,6 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   (add-hook 'markdown-mode-hook 'd/markdown-mode-hook))
 
 (use-package eglot
-  :defer t
   :init
   (setq eglot-sync-connect 1
         eglot-connect-timeout 10
@@ -1145,10 +1141,11 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
   (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
   (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
+
   :hook
   (nix-mode . eglot-ensure)
   (bash-ts-mode . eglot-ensure)
-  (markdown-mode-hook . marksman))
+  (markdown-mode-hook . eglot-ensure))
 
 (use-package magit
   :defer t
@@ -1538,6 +1535,7 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 
 (setq use-dialog-box nil)
 (setq sentence-end-double-space nil)
+(setq sentence-end "[.?!] ")  
 
 (setq initial-scratch-message
       ";; Type to your Will !\n")
@@ -1641,16 +1639,3 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
                   (d/set-font-faces))))
     (d/set-font-faces))
 (put 'narrow-to-region 'disabled nil)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(rg vterm undo-fu flycheck helpful ox-pandoc no-littering rainbow-delimiters rainbow-mode vertico orderless marginalia embark-consult olivetti org-modern cape markdown-mode nix-mode rust-mode lua-mode all-the-icons-dired dired-hide-dotfiles dired-single reddigg mingus pdf-tools which-key magit aria2 webpaste org-present org-mime corfu-terminal beframe denote tempel-collection sdcv elfeed-org link-hint powerthesaurus jinx doom-modeline hide-mode-line org-auto-tangle el-fetch ox-hugo htmlize kind-icon catppuccin-theme)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

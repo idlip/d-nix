@@ -19,7 +19,7 @@
 | RSS Reader              | [[https://github.com/skeeto/elfeed][Elfeed]] 📰 (Again, Emacs)             |
 | Music Player            | [[https://github.com/ncmpcpp/ncmpcpp][Ncmpcpp]] or [[https://github.com//mingus][Mingus in Emacs]] 🎶        |
 | Terminal                | [[https://codeberg.org/dnkl/foot][Foot]] via footclient ⚽               |
-| Menu/Launcher           | [[https://github.com/Cloudef/bemenu][Bemenu]] 🚀                            |
+| Menu/Launcher           | [[https://github.com/davatorium/rofi][Rofi]] 🚀                            |
 | Notification            | [[https://github.com/dunst/dunst][Dunst]]  🛎️                            |
 | Shell                   | [[https://zsh.org][Zshell]] with [[https://starship.rs][Starship]] 🔰              |
 | Status Bar              | [[https://github.com/Alexays/Waybar][Waybar]]  🍥                           |
@@ -39,20 +39,19 @@ If you really wanna talk/discuss with me, open an issue so I will join on some m
 
 + *Desktop Rice*
   #+attr_html: :width="100px"
-  [[file:assets/desktop-fetch.png]]
+  [[file:assets/desktop.png]]
 
-+ *RSS and Emacs*
-
++ *Pdf viewer and Rofi*
   #+ATTR_HTML: width="100px"
-  [[file:assets/rss-org.png]]
+  [[file:assets/nix-rof.png]]
 
-+ *Firefox and Pdf Reader*
++ *Firefox and eww*
   #+attr_html: :width 500
-  [[file:assets/pdf-browse.png]]
+  [[file:assets/org-eww.png]]
 
-+ Emacs web browser (eww) 
++ *Firefox and Rss reader*
   #+attr_html: :width 500
-  [[file:assets/zone-eww.png]]
+  [[file:assets/firefox-rss.png]]
 
 --------------
 

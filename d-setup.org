@@ -1967,7 +1967,7 @@ Sane defaults go here
 
 
   display-drun:               " Apps";
-  display-run:                " Run";
+  display-run:                " Run";
   display-filebrowser:        " Files";
   drun-display-format:        "{name} [<span weight='light' size='small'><i>({generic})</i></span>]";
   window-format:              "{w} · {c} · {t}";

@@ -81,7 +81,7 @@ programs = {
       rm="rm -vI";
       bc="bc -ql";
       mkd="mkdir -pv";
-      ytfzf="ytfzf -Df";
+      ytfzf="ytfzf -D";
       hyprcaps="hyprctl keyword input:kb_options caps:caps";
       gc = "git clone --depth=1";
       sudo = "doas";
@@ -206,7 +206,7 @@ programs = {
         rm="rm -vI";
         bc="bc -ql";
         mkd="mkdir -pv";
-        ytfzf="ytfzf -Df";
+        ytfzf="ytfzf -D";
         hyprcaps="hyprctl keyword input:kb_options caps:caps";
         gc = "git clone --depth=1";
         sudo = "doas";
@@ -229,7 +229,7 @@ cached-nix-shell pcmanfm yt-dlp fzf neovim btop
 
   unzip aspell aspellDicts.en hunspell enchant
   ripgrep nitch libreoffice transmission pandoc
-  rsync  ffmpeg sdcv imagemagick groff
+  rsync  ffmpeg sdcv imagemagick groff pciutils acpi
   # texlive.combined.scheme-full
   fd ncdu mu isync ts  syncthing 
   jq keepassxc figlet keepassxc dconf gcc
@@ -350,6 +350,10 @@ programs.bottom = {
     ];
   };
 };
+
+# We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+home.file.".config/btop/btop.conf".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/gdk/i-home/configs/btop/btop.conf";
 
 services.dunst = {
   enable = true;
@@ -491,7 +495,7 @@ wayland.windowManager.hyprland = {
 };
 
 # Symlinking the file (hyprland.conf) from the path of repo so we can edit and have immediate effects without requiring to rebuild
-  xdg.configFile."hypr/hyprland.conf".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/gdk/i-home/configs/hyprland.conf";
+  xdg.configFile."hypr/hyprland.conf".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/gdk/i-home/configs/hypr/hyprland.conf";
 
 wayland.windowManager.sway = {
   enable = true;
@@ -507,10 +511,9 @@ xwayland disable
 };
 
 # Symlinking emacs configs, so we can edit it in realtime and have immediate effect without requiring a rebuild.
-# Change the path to git repo location.
 
-home.file.".config/emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/gdk/i-home/configs/early-init.el";
-home.file.".config/emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/gdk/i-home/configs/init.el";
+home.file.".config/emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/gdk/i-home/configs/emacs/early-init.el";
+home.file.".config/emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/gdk/i-home/configs/emacs/init.el";
 home.file.".config/emacs/elfeed.org".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/d-rss.org";
 
 programs.emacs = {
@@ -519,13 +522,13 @@ programs.emacs = {
   extraPackages = (epkgs: (with epkgs; [
     vterm undo-fu flycheck helpful ox-pandoc
     no-littering rainbow-delimiters rainbow-mode vertico 
-    orderless consult marginalia embark embark-consult org olivetti org-modern corfu
+    orderless consult marginalia embark org olivetti org-modern corfu
     cape markdown-mode nix-mode rust-mode lua-mode
     all-the-icons all-the-icons-dired async dired-hide-dotfiles dired-single
-    reddigg mingus pdf-tools which-key magit aria2 webpaste org-present
+    reddigg mingus pdf-tools which-key magit webpaste org-present
     org-mime corfu-terminal beframe denote tempel tempel-collection
     sdcv elfeed elfeed-org link-hint powerthesaurus jinx
-    doom-modeline hide-mode-line org-auto-tangle el-fetch ox-hugo htmlize
+    doom-modeline hide-mode-line el-fetch ox-hugo htmlize
   ])
   );
 };
@@ -841,9 +844,45 @@ programs = {
   };
 };
 
+# We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+home.file.".config/mpv/mpv.conf".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/gdk/i-home/configs/mpv/mpv.conf";
+
+# We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+home.file.".config/mpv/input.conf".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/gdk/i-home/configs/mpv/input.conf";
+
+# We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+home.file.".config/rofi/theme.rasi".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/gdk/i-home/configs/rofi/theme.rasi";
+
+# We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+home.file.".config/rofi/config.rasi".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/gdk/i-home/configs/rofi/config.rasi";
+
+# We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+home.file.".config/rofi/dmoji.rasi".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/gdk/i-home/configs/rofi/dmoji.rasi";
+
+# We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+home.file.".config/rofi/smenu.rasi".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/gdk/i-home/configs/rofi/smenu.rasi";
+
+# We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+home.file.".config/rofi/list.rasi".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/gdk/i-home/configs/rofi/list.rasi";
+
 programs.sioyek = {
   enable = true;
 };
+
+# We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+home.file.".config/sioyek/prefs_user.config".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/gdk/i-home/configs/sioyek/prefs_user.config";
+
+# We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+home.file.".config/sioyek/keys_user.config".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/gdk/i-home/configs/sioyek/keys_user.config";
 
 services = {
   # udiskie = {
@@ -1061,5 +1100,25 @@ programs.waybar = {
     };
   };
 };
+
+# We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+home.file.".config/waybar/style.css".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/gdk/i-home/configs/waybar/style.css";
+
+# We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+home.file.".config/waybar/modus.css".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/gdk/i-home/configs/waybar/modus.css";
+
+# We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+home.file.".config/wofi/config".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/gdk/i-home/configs/wofi/config";
+
+# We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+home.file.".config/wofi/style.css".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/gdk/i-home/configs/wofi/style.css";
+
+# We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+home.file.".config/ytfzf/conf.sh".source = config.lib.file.mkOutOfStoreSymlink "/home/i/.DLIP/SETUP/gdk/i-home/configs/ytfzf/conf.sh";
 
 }

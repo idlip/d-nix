@@ -280,7 +280,7 @@ environment.systemPackages = with pkgs; [
   firefox
   gitFull
   ntfs3g
-  neovim
+  neovim helix
 ];
 
 # Add other overlays here

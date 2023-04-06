@@ -1,8 +1,8 @@
+
 #+TITLE: D Nixyfied Flaky Station
 #+AUTHOR: iDlip
 #+STARTUP: overview hideblocks
 #+OPTIONS: num:nil author:nil
-#+auto_tangle: t
 #+PROPERTY: header-args :tangle-mode (identity #o444) :mkdirp yes
 
 
@@ -20,6 +20,11 @@ The advantage of this setup is, you can add TODO and document everything here, s
 Also, the tangled files are in read-only mode, so you can avoid editing it, unless you were trying/testing something.
 
 * Pre-requisites
+
+--------
+Note: Every tangle is made into this git directory itself. Nothing goes outside. Every config files are symlinked via Nix homemanager. You need to evaluate the elisp function given down.
+--------
+
 With power of org, we can made variables for org-blocks. So no need to type out hostname or username again. Replace it with your host and username
 
 - Hostname goes here
@@ -41,10 +46,17 @@ i
 #+end_src
 
 - Config path in git
-
-  #+name: my-config-path
+  We will use this to symlink config files too.
+#+name: my-config-path
 #+begin_src nix :noweb yes
-/home/<<my-username>>/.DLIP/SETUP/<<my-hostname>>/i-home/configs
+<<my-git-path>>/<<my-hostname>>/i-home/configs
+#+end_src
+
+- Path to tangle config file in git repo
+  Just to make things easy, input the path manually to tangle all config files inside this directory.
+#+name: my-configs
+#+begin_src conf
+./gdk/i-home/configs
 #+end_src
 
 - Bin (scripts) path
@@ -54,6 +66,26 @@ i
 /home/<<my-username>>/.DLIP/BIN
 #+end_src
 
+- Tangling main nix files
+
+To tangle nix and config files (configuration, homemanager.nix) to ./my-hostname/configuration.nix and ./my-hostname/i-home/ 
+You might want to eval this code for this to work on :tangle header.
+
+Please eval this or else tangling nix files into this git repo won't work.
+
+#+begin_src emacs-lisp config.el
+(defun get-named-src-block-contents (name &optional trim)
+  "Return the contents of the named Org source block."
+  (let* ((block (org-element-map (org-element-parse-buffer) 'src-block
+                  (lambda (src-block)
+                    (when (string= name (org-element-property :name src-block))
+                        src-block))
+                  nil t))
+         (source (org-element-property :value block)))
+    (if trim
+        (string-trim source)
+      source)))
+#+end_src
 
 * Flake
 Why not have a block for flake.nix too?
@@ -136,9 +168,8 @@ Why not have a block for flake.nix too?
 #+end_src
 * System Configuration
 :PROPERTIES:
-:header-args: :tangle-mode (identity #o444) :tangle ./gdk/configuration.nix :mkdir yes
+:header-args: :noweb yes :tangle-mode (identity #o444) :mkdir yes :tangle (format "./%s/configuration.nix" (get-named-src-block-contents "my-hostname" t))
 :END:
-# FIXME edit 'gdk' to your HOSTNAME. configuration.nix will be created in HOSTNAME directory (will be created as you tangle)
 
 Machine a.k.a Host (if you manage multi hosts or PC) specific setup and configuration goes
 here.
@@ -163,9 +194,10 @@ Opening brace that contains the rest of the configuration file.
   {
 #+end_src
 *** Imports
-Copy your system hardware-configuration file to #FIXME  HOSTNAME/hardware-configuration.nix. 
-It will be usually the /etc/nixos/hardware-configuration.nix  
-It will be generated when you do while first install ~sudo nixos-generate-config~
++ Copy your system hardware-configuration file to #FIXME  HOSTNAME/hardware-configuration.nix  in this git repo.
++ It will be usually the /etc/nixos/hardware-configuration.nix  
++ It will be generated when you do while first install ~sudo nixos-generate-config~
+  
 #+begin_src nix
   imports = [
     ./hardware-configuration.nix
@@ -471,7 +503,7 @@ Install packages need by all users system wide.
     firefox
     gitFull
     ntfs3g
-    neovim
+    neovim helix
   ];
 #+end_src
 
@@ -596,12 +628,11 @@ User specific configuration
 My personal user configuration.
 *** Nix Home-Manger
 :PROPERTIES:
-:header-args: :tangle ./gdk/i-home/homeman.nix :tangle-mode (identity #o444) :mkdirp yes
+:header-args: :tangle-mode (identity #o444) :noweb yes :mkdirp yes :tangle (format "./%s/i-home/homeman.nix" (get-named-src-block-contents "my-hostname" t))
 :END:
-#FIXME Under :tangle ... Change 'gdk' to your HOSTNAME and name directory i-home/homeman.nix as you want.
 **** Default-nix
-#+begin_src nix :tangle ./gdk/i-home/default.nix :tangle-mode  (identity #o444) :mkdirp yes
-  # FIXME Chaneg hostname and directory under :tangle ...
+#+begin_src nix :tangle-mode  (identity #o444) :mkdirp yes :tangle (format "./%s/i-home/default.nix" (get-named-src-block-contents "my-hostname" t))
+
   {
     inputs, pkgs, config, lib, self, ...}:
 
@@ -712,7 +743,7 @@ Opening brace that contains the rest of the configuration file.
         rm="rm -vI";
         bc="bc -ql";
         mkd="mkdir -pv";
-        ytfzf="ytfzf -Df";
+        ytfzf="ytfzf -D";
         hyprcaps="hyprctl keyword input:kb_options caps:caps";
         gc = "git clone --depth=1";
         sudo = "doas";
@@ -837,7 +868,7 @@ Opening brace that contains the rest of the configuration file.
           rm="rm -vI";
           bc="bc -ql";
           mkd="mkdir -pv";
-          ytfzf="ytfzf -Df";
+          ytfzf="ytfzf -D";
           hyprcaps="hyprctl keyword input:kb_options caps:caps";
           gc = "git clone --depth=1";
           sudo = "doas";
@@ -871,7 +902,7 @@ Installs packages for this user only.
 
     unzip aspell aspellDicts.en hunspell enchant
     ripgrep nitch libreoffice transmission pandoc
-    rsync  ffmpeg sdcv imagemagick groff
+    rsync  ffmpeg sdcv imagemagick groff pciutils acpi
     # texlive.combined.scheme-full
     fd ncdu mu isync ts  syncthing 
     jq keepassxc figlet keepassxc dconf gcc
@@ -1019,7 +1050,13 @@ There will be not much difference.
   };
 #+end_src
 ****** Btop
-#+begin_src nix :tangle ~/.config/btop/btop.conf
+#+begin_src nix :noweb yes
+  # We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+  home.file.".config/btop/btop.conf".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/btop/btop.conf";
+#+end_src
+
+#+begin_src nix :tangle (format "%s/btop/btop.conf" (get-named-src-block-contents "my-configs" t))
       color_theme = "Default"
       theme_background = False
       vim_keys = True
@@ -1179,11 +1216,11 @@ There will be not much difference.
   };
 
   # Symlinking the file (hyprland.conf) from the path of repo so we can edit and have immediate effects without requiring to rebuild
-    xdg.configFile."hypr/hyprland.conf".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/hyprland.conf";
+    xdg.configFile."hypr/hyprland.conf".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/hypr/hyprland.conf";
 
 #+end_src
 ******* Hyprland config
-#+begin_src conf :tangle ./gdk/i-home/configs/hyprland.conf
+#+begin_src conf  :tangle (format "%s/hypr/hyprland.conf" (get-named-src-block-contents "my-configs" t))
   monitor=,preferred,auto,1
   workspace=DP-1,1
   # ---- Autostart Apps ----
@@ -1483,11 +1520,11 @@ There will be not much difference.
   bind=SUPER,F12,exec,mpc next
 
   bind=SUPER,e,exec,d-emwhere
-  bind=SUPER,y,exec,ytfzf -Df
+  bind=SUPER,y,exec,ytfzf -D
 
 #+end_src
 ****** Sway
-Its more mature than hyprland. So... better to have it!
+Its more mature than hyprland. So... better to have it! I dont use sway that much.
 #+begin_src nix
   wayland.windowManager.sway = {
     enable = true;
@@ -1506,10 +1543,9 @@ Its more mature than hyprland. So... better to have it!
 #+begin_src nix :noweb yes
 
   # Symlinking emacs configs, so we can edit it in realtime and have immediate effect without requiring a rebuild.
-  # Change the path to git repo location.
 
-  home.file.".config/emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/early-init.el";
-  home.file.".config/emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/init.el";
+  home.file.".config/emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/emacs/early-init.el";
+  home.file.".config/emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/emacs/init.el";
   home.file.".config/emacs/elfeed.org".source = config.lib.file.mkOutOfStoreSymlink "<<my-git-path>>/d-rss.org";
 
   programs.emacs = {
@@ -1518,13 +1554,13 @@ Its more mature than hyprland. So... better to have it!
     extraPackages = (epkgs: (with epkgs; [
       vterm undo-fu flycheck helpful ox-pandoc
       no-littering rainbow-delimiters rainbow-mode vertico 
-      orderless consult marginalia embark embark-consult org olivetti org-modern corfu
+      orderless consult marginalia embark org olivetti org-modern corfu
       cape markdown-mode nix-mode rust-mode lua-mode
       all-the-icons all-the-icons-dired async dired-hide-dotfiles dired-single
-      reddigg mingus pdf-tools which-key magit aria2 webpaste org-present
+      reddigg mingus pdf-tools which-key magit webpaste org-present
       org-mime corfu-terminal beframe denote tempel tempel-collection
       sdcv elfeed elfeed-org link-hint powerthesaurus jinx
-      doom-modeline hide-mode-line org-auto-tangle el-fetch ox-hugo htmlize
+      doom-modeline hide-mode-line el-fetch ox-hugo htmlize
     ])
     );
   };
@@ -1870,7 +1906,13 @@ Closes FireFox Block
 ****** Mpv 
 mpv config which is tangled directly
 ******* mpv config
-#+begin_src conf :tangle ~/.config/mpv/mpv.conf
+#+begin_src nix :noweb yes
+  # We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+  home.file.".config/mpv/mpv.conf".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/mpv/mpv.conf";
+#+end_src
+
+#+begin_src conf :noweb yes :tangle (format "%s/mpv/mpv.conf" (get-named-src-block-contents "my-configs" t))
   hwdec=vaapi
   gpu-hwdec-interop=vaapi
   vo=gpu
@@ -1894,7 +1936,13 @@ mpv config which is tangled directly
 
 #+end_src
 ******* mpv input
-#+begin_src conf :tangle ~/.config/mpv/input.conf
+#+begin_src nix :noweb yes
+  # We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+  home.file.".config/mpv/input.conf".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/mpv/input.conf";
+#+end_src
+
+#+begin_src conf :noweb yes :tangle (format "%s/mpv/input.conf" (get-named-src-block-contents "my-configs" t))
 l seek  5
 h seek -5
 k seek  30
@@ -1907,7 +1955,13 @@ K cycle sub down
 ****** Rofi
 The best menu, I tried wofi, bemenu, fuzzel and others.. but they were not extensive, so since rofi has rofi-wayland, so I will stick to it.
 ******* Theme
-#+begin_src css :tangle ~/.config/rofi/theme.rasi
+#+begin_src nix :noweb yes
+  # We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+  home.file.".config/rofi/theme.rasi".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/rofi/theme.rasi";
+#+end_src
+
+#+begin_src css :tangle (format "%s/rofi/theme.rasi" (get-named-src-block-contents "my-configs" t))
 // Modus theme
 
  * {
@@ -1923,7 +1977,13 @@ The best menu, I tried wofi, bemenu, fuzzel and others.. but they were not exten
 #+end_src
 ******* Config
 Sane defaults go here
-#+begin_src conf :tangle ~/.config/rofi/config.rasi
+#+begin_src nix :noweb yes
+  # We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+  home.file.".config/rofi/config.rasi".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/rofi/config.rasi";
+#+end_src
+
+#+begin_src conf :tangle (format "%s/rofi/config.rasi" (get-named-src-block-contents "my-configs" t))
   @import                          "theme.rasi"
 
   configuration {
@@ -2327,7 +2387,13 @@ Sane defaults go here
 #+end_src
 ******** For Emoji
 Config for calling emoji menu
-#+begin_src conf :tangle ~/.config/rofi/dmoji.rasi
+#+begin_src nix :noweb yes
+  # We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+  home.file.".config/rofi/dmoji.rasi".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/rofi/dmoji.rasi";
+#+end_src
+
+#+begin_src conf :tangle (format "%s/rofi/dmoji.rasi" (get-named-src-block-contents "my-configs" t))
 
   @import				 "config.rasi"
 
@@ -2348,7 +2414,13 @@ Config for calling emoji menu
 #+end_src
 ******** For smenu
 Config for calling small menus
-#+begin_src conf :tangle ~/.config/rofi/smenu.rasi
+#+begin_src nix :noweb yes
+  # We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+  home.file.".config/rofi/smenu.rasi".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/rofi/smenu.rasi";
+#+end_src
+
+#+begin_src conf :tangle (format "%s/rofi/smenu.rasi" (get-named-src-block-contents "my-configs" t))
 
   @import				 "config.rasi"
 
@@ -2369,7 +2441,13 @@ Config for calling small menus
 #+end_src
 ******** For list
 listing menus
-#+begin_src conf :tangle ~/.config/rofi/list.rasi
+#+begin_src nix :noweb yes
+  # We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+  home.file.".config/rofi/list.rasi".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/rofi/list.rasi";
+#+end_src
+
+#+begin_src conf :tangle (format "%s/rofi/list.rasi" (get-named-src-block-contents "my-configs" t))
 
   @import				 "config.rasi"
 
@@ -2394,9 +2472,14 @@ listing menus
     enable = true;
   };
 #+end_src
-
 ******* Sioyek config
-#+begin_src conf :tangle ~/.config/sioyek/prefs_user.config
+#+begin_src nix :noweb yes
+  # We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+  home.file.".config/sioyek/prefs_user.config".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/sioyek/prefs_user.config";
+#+end_src
+
+#+begin_src conf :tangle (format "%s/sioyek/prefs_user.config" (get-named-src-block-contents "my-configs" t)) :noweb yes
 
   background_color   0.0 0.0 0.0
   dark_mode_background_color    0.0 0.0 0.0
@@ -2438,7 +2521,13 @@ listing menus
 #+end_src
 
 ******* Sioyek Keys
-#+begin_src conf :tangle ~/.config/sioyek/keys_user.config
+#+begin_src nix :noweb yes
+  # We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+  home.file.".config/sioyek/keys_user.config".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/sioyek/keys_user.config";
+#+end_src
+
+#+begin_src conf :tangle (format "%s/sioyek/keys_user.config" (get-named-src-block-contents "my-configs" t))
 
   fit_to_page_width   <f9>
   fit_to_page_width_smart   <f10>
@@ -2677,7 +2766,13 @@ listing menus
 
 #+end_src
 ******* Style.css
-#+begin_src css :tangle ~/.config/waybar/style.css
+#+begin_src nix :noweb yes
+  # We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+  home.file.".config/waybar/style.css".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/waybar/style.css";
+#+end_src
+
+#+begin_src css :tangle (format "%s/waybar/style.css" (get-named-src-block-contents "my-configs" t))
   @import "modus.css";
   /* @import "catppuccin.css"; */
 
@@ -2808,7 +2903,13 @@ listing menus
 
 #+end_src
 ******** Modus theme
-#+begin_src css :tangle ~/.config/waybar/modus.css
+#+begin_src nix :noweb yes
+  # We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+  home.file.".config/waybar/modus.css".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/waybar/modus.css";
+#+end_src
+
+#+begin_src css :tangle (format "%s/waybar/modus.css" (get-named-src-block-contents "my-configs" t))
   @define-color  bg-main	     #0d0e1c;
   @define-color  bg-dim	     #1d2235;
   @define-color  fg-main	     #ffffff;
@@ -2834,7 +2935,13 @@ listing menus
 #+end_src
 ****** Wofi
 ******* Wofi-config
-#+begin_src conf :tangle ~/.config/wofi/config
+#+begin_src nix :noweb yes
+  # We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+  home.file.".config/wofi/config".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/wofi/config";
+#+end_src
+
+#+begin_src conf :tangle (format "%s/wofi/config" (get-named-src-block-contents "my-configs" t))
   width=35%
   height=50%
   allow_images=true
@@ -2852,7 +2959,13 @@ listing menus
   prompt=  Apps
 #+end_src
 ******* Wofi-style
-#+begin_src css :tangle ~/.config/wofi/style.css
+#+begin_src nix :noweb yes
+  # We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+  home.file.".config/wofi/style.css".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/wofi/style.css";
+#+end_src
+
+#+begin_src css :tangle (format "%s/wofi/style.css" (get-named-src-block-contents "my-configs" t))
  *{
     border: 0px;
     font-family:ComicCodeLigatures Medium;
@@ -2921,7 +3034,13 @@ listing menus
 
 #+end_src
 ****** Ytfzf
-#+begin_src conf :tangle ~/.config/ytfzf/conf.sh
+#+begin_src nix :noweb yes
+  # We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+  home.file.".config/ytfzf/conf.sh".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/ytfzf/conf.sh";
+#+end_src
+
+#+begin_src conf :tangle (format "%s/ytfzf/conf.sh" (get-named-src-block-contents "my-configs" t))
   #video_pref="248+bestaudio/best"
   video_pref="[height<=1080]"
   #scrape 1 video link per channel instead of the default 2
@@ -2944,8 +3063,7 @@ listing menus
   #search_sort_by=upload_date
 
 #+end_src
-***** System Files
-Creates files in the user environment to be used by other Applications
+
 ***** Closing Statement
 Closes the Main Body Block
 #+begin_src nix
@@ -2958,7 +3076,7 @@ Don't worry about this, there is nothing from here.
 Its just custom instructions
 ** First Time Set Up Script
 :PROPERTIES:
-:header-args: :tangle ./gdk/init-setup.sh :shebang #!/usr/bin/env bash
+:header-args: :tangle (format "./%s/init-setup.sh" (get-named-src-block-contents "my-hostname" t)) :shebang #!/usr/bin/env bash
 :END:
 *** Install System Flake
 
@@ -2987,7 +3105,7 @@ Places a copy of =manual-init-steps.org= in the home directory
 #+end_src
 ** Manual Set Up Instructions
 :PROPERTIES:
-:header-args: :tangle ./gdk/manual-init-steps.org
+:header-args:  :tangle (format "./%s/manual-init-steps.org" (get-named-src-block-contents "my-hostname" t))
 :END:
 *** File Description
 #+begin_src txt

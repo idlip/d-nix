@@ -1,0 +1,127 @@
+@import "modus.css";
+/* @import "catppuccin.css"; */
+
+ * {
+    color: @fg-alt;
+    border: 0;
+    border-radius: 10px;
+    padding: 0 2;
+    font-family:ComicCodeLigatures Nerd Font;
+    font-size: 24px;
+    margin-right: 5px;
+    margin-left: 5px;
+    padding-bottom:3px;
+    min-height: 15px;
+}
+
+window#waybar {
+    background: inherit;
+
+}
+
+#workspaces button {
+    border-radius: 20px;
+    color: @yellow;
+
+}
+
+#workspaces button.active {
+    border-color: @magenta;
+    padding-bottom:1px ;
+}
+
+#mode {
+    color: @pink;
+}
+
+#battery, #mpd,#workspaces, #submap, #clock, #cpu, #memory,#network, #pulseaudio, #window,#custom-launcher,#custom-power{
+    border-style: solid;
+    border-radius: 15px 15px 15px 15px;
+    background-color: rgba(00, 00, 00, 0.7);
+    padding: 0 3px;
+    border-bottom: 2px;
+    margin-top: 3px;
+    padding-top: 1px;
+    padding-left: 13px;
+    padding-right: 3px;
+    opacity: 1.0;
+    font-size: 20px;
+
+}
+
+#window {
+    border-radius: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+    color: @fg-alt;
+    margin-top:1px;
+    border-color: @fg-alt;
+}
+
+#clock {
+    color: @magenta;
+}
+
+#mpd {
+    color: @lavender;
+}
+
+
+#cpu {
+    color: @blue-faint;
+}
+
+
+#memory {
+    color: @blue-faint;
+}
+
+#network.disabled {
+    color: @rust;
+}
+
+#network{
+    color: @teal;
+}
+
+#battery {
+    color: @yellow;
+}
+
+#network.disconnected {
+    color: @rust;
+}
+
+#pulseaudio {
+    color: @peach;
+}
+
+#pulseaudio.muted {
+    color: @rust;
+}
+
+#custom-launcher {
+    font-family:ComicCodeLigatures Nerd Font;
+    font-size: 40px;
+    color: @bg-main;
+    border-color: @bg-dim;
+    border-radius: 20px 20px 20px 20px;
+    background: linear-gradient(90deg, @blue 28%, @peach 85%, @pink 100%);
+
+}
+
+#custom-power {
+    font-family:ComicCodeLigatures Nerd Font;
+    font-size: 22px;
+    color: @red;
+    border-radius: 30px 30px 30px 30px;
+    background: linear-gradient(90deg, @bg-dim 28%, @bg-main 85%, @bg-dim 100%);
+    padding-right: 15px;
+}
+
+#submap {
+    color: @cyan;
+}
+#mode{
+    margin-bottom:3px;
+}

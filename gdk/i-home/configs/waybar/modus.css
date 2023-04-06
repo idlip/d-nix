@@ -1,0 +1,21 @@
+@define-color  bg-main	     #0d0e1c;
+@define-color  bg-dim	     #1d2235;
+@define-color  fg-main	     #ffffff;
+@define-color  fg-dim	     #989898;
+@define-color  fg-alt	     #c6daff;
+
+@define-color  white	     #ffffff;
+@define-color  magenta	     #ff66ff;
+@define-color  cyan	     #00eff0;
+@define-color  lavender	     #b6a0ff;
+@define-color  blue	     #79a8ff;
+@define-color  pink	     #f78fe7;
+
+@define-color  teal    #6ae4b9;
+@define-color  rust    #d2b580;
+@define-color  blue-warm    #82b0ec;
+@define-color  peach    #feacd0;
+@define-color  green    #88ca9f;
+@define-color  red    #ff9f80;
+@define-color  blue-faint    #9ac8e0;
+@define-color  yellow     #fec43f;

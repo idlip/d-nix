@@ -436,44 +436,47 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   (embark-collect-mode . consult-preview-at-point-mode))
 
 (use-package corfu
-  :defer 1
-  :custom
-  (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-  (corfu-auto t)                 ;; Enable auto completion
-  (corfu-separator ?\s)          ;; Orderless field separator
-  ;; (corfu-preview-current t)    ;; Disable current candidate preview
-  ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-  ;; (corfu-quit-no-match t)
-  (corfu-auto-prefix 2)
-  (corfu-auto-delay 0.0)
-  (corfu-quit-at-boundary 'separator)
-  (corfu-popupinfo-resize t)
-  (corfu-popupinfo-hide nil)
-  (corfu-echo-documentation 0.25)
-  (corfu-preview-current 'insert)
-  (corfu-preselect-first t)
-  (corfu-popupinfo-delay 1.5)
-  (corfu-history 1)
-  (corfu-scroll-margin 0)
-  :bind (:map corfu-map
-              ("M-SPC" . corfu-insert-separator)
-              ("TAB" . corfu-insert)
-              ("<escape>" . corfu-quit)
-              ("C-j" . corfu-next)
-              ("C-k" . corfu-previous)                
-              ("RET" . corfu-insert))
-  ;; Enable Corfu only for certain modes.
-  ;; :hook ((prog-mode . corfu-mode)
-  ;;        (shell-mode . corfu-mode)
-  ;;        (eshell-mode . corfu-mode))
+    :defer 1
+    :custom
+    (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+    (corfu-auto t)                 ;; Enable auto completion
+    (corfu-separator ?\s)          ;; Orderless field separator
+    ;; (corfu-preview-current t)    ;; Disable current candidate preview
+    ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+    ;; (corfu-quit-no-match t)
+    (corfu-auto-prefix 2)
+    (corfu-auto-delay 0.0)
+    (corfu-quit-at-boundary 'separator)
+    (corfu-popupinfo-resize t)
+    (corfu-popupinfo-hide nil)
+    (corfu-echo-documentation 0.25)
+    (corfu-preview-current 'insert)
+    (corfu-preselect-first t)
+    (corfu-popupinfo-delay 1.5)
+    (corfu-history 1)
+    (corfu-scroll-margin 0)
+    :bind (:map corfu-map
+                ("M-SPC" . corfu-insert-separator)
+                ("TAB" . corfu-insert)
+                ("<escape>" . corfu-quit)
+                ("C-j" . corfu-next)
+                ("C-k" . corfu-previous)                
+                ("RET" . corfu-insert))
+    ;; Enable Corfu only for certain modes.
+    ;; :hook ((prog-mode . corfu-mode)
+    ;;        (shell-mode . corfu-mode)
+    ;;        (eshell-mode . corfu-mode))
 
-  :init
-  (corfu-history-mode)
-  (corfu-popupinfo-mode)
-  (global-corfu-mode))
+    :init
+    (corfu-history-mode)
+    (corfu-popupinfo-mode)
+    (global-corfu-mode))
 
-(unless (display-graphic-p)
-  (corfu-terminal-mode +1))
+(setq completion-category-overrides '((eglot (styles orderless))))
+
+
+  (unless (display-graphic-p)
+    (corfu-terminal-mode +1))
 
 ;; Add extensions
 (use-package cape
@@ -1014,7 +1017,6 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
          (org-mode          . olivetti-mode)
          (dashboard-mode    . olivetti-mode)
          (sdcv-mode         . olivetti-mode)
-         (eww-mode          . olivetti-mode)
          (fundamental-mode  . olivetti-mode)
          (nov-mode          . olivetti-mode)
          (markdown-mode     . olivetti-mode)
@@ -1024,7 +1026,6 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   :custom
   (olivetti-body-width 0.8)
   :delight " ⊛")
-                                        ; "Ⓐ" "⊗"
 
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
@@ -1105,47 +1106,56 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   (pixel-scroll-precision-scroll-up 20))
 
 (use-package nix-mode
-  :mode "\\.nix\\'"
-  :defer t)
+    :mode "\\.nix\\'"
+    :defer t)
 
-(add-hook 'prog-mode-hook #'display-line-numbers-mode)
-;;(add-hook 'prog-mode-hook #'eglot-ensure)
-(add-hook 'prog-mode-hook #'flycheck-mode)
+  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+  ;;(add-hook 'prog-mode-hook #'eglot-ensure)
+  (add-hook 'prog-mode-hook #'flycheck-mode)
 
-(use-package markdown-mode
-  :mode "\\.md\\'"
-  :config
-  (defun d/set-markdown-header-font-sizes ()
-    (dolist (face '((markdown-header-face-1 . 1.3)
-                    (markdown-header-face-2 . 1.2)
-                    (markdown-header-face-3 . 1.15)
-                    (markdown-header-face-4 . 1.1)
-                    (markdown-header-face-5 . 1.0)))
-      (set-face-attribute (car face) nil :weight 'normal :font d/header-font :height (cdr face))))
+  (use-package markdown-mode
+    :mode "\\.md\\'"
+    :config
+    (defun d/set-markdown-header-font-sizes ()
+      (dolist (face '((markdown-header-face-1 . 1.3)
+                      (markdown-header-face-2 . 1.2)
+                      (markdown-header-face-3 . 1.15)
+                      (markdown-header-face-4 . 1.1)
+                      (markdown-header-face-5 . 1.0)))
+        (set-face-attribute (car face) nil :weight 'normal :font d/header-font :height (cdr face))))
 
-  (defun d/markdown-mode-hook ()
-    (d/set-markdown-header-font-sizes))
+    (defun d/markdown-mode-hook ()
+      (d/set-markdown-header-font-sizes))
 
-  (add-hook 'markdown-mode-hook 'd/markdown-mode-hook))
+    (add-hook 'markdown-mode-hook 'd/markdown-mode-hook))
 
-(use-package eglot
-  :init
-  (setq eglot-sync-connect 1
-        eglot-connect-timeout 10
-        eglot-autoshutdown t
-        eglot-send-changes-idle-time 0.5
-        ;; NOTE We disable eglot-auto-display-help-buffer because :select t in
-        ;;      its popup rule causes eglot to steal focus too often.
-        eglot-auto-display-help-buffer nil)
-  :config
-  (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
-  (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
-  (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
+  (use-package eglot
+    :init
+    (setq eglot-sync-connect 1
+          eglot-connect-timeout 10
+          eglot-autoshutdown t
+          eglot-send-changes-idle-time 0.5
+          ;; NOTE We disable eglot-auto-display-help-buffer because :select t in
+          ;;      its popup rule causes eglot to steal focus too often.
+          eglot-auto-display-help-buffer nil)
+    :config
+    (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
+    (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
+    (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
 
-  :hook
-  (nix-mode . eglot-ensure)
-  (bash-ts-mode . eglot-ensure)
-  (markdown-mode-hook . eglot-ensure))
+    :hook
+    (nix-mode . eglot-ensure)
+    (bash-ts-mode . eglot-ensure)
+    (markdown-mode-hook . eglot-ensure))
+
+(defun my/eglot-capf ()
+  (setq-local completion-at-point-functions
+              (list (cape-super-capf
+                     #'eglot-completion-at-point
+                     #'tempel-expand
+                     #'cape-file))))
+
+(add-hook 'eglot-managed-mode-hook #'my/eglot-capf)
 
 (use-package magit
   :defer t

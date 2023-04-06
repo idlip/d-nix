@@ -1,6 +1,5 @@
 ﻿#+TITLE: D Emacs Station
-#+PROPERTY: header-args:emacs-lisp :tangle ./gdk/i-home/configs/init.el :tangle-mode (identity #o444) :mkdirp yes
-#+auto_tangle: t
+#+PROPERTY: header-args:emacs-lisp :tangle ./gdk/i-home/configs/emacs/init.el :tangle-mode (identity #o444) :mkdirp yes
 #+TOC: tables
 
 
@@ -51,7 +50,7 @@ Some of the highlights which you might wanna copy or take from this config :
 
 
 * Early-Init 🌅
-#+begin_src emacs-lisp :noweb yes :tangle ./gdk/i-home/configs/early-init.el :tangle-mode (identity #o444) :mkdirp yes
+#+begin_src emacs-lisp :noweb yes :tangle ./gdk/i-home/configs/emacs/early-init.el :tangle-mode (identity #o444) :mkdirp yes
   ;;; Personal configuration -*- lexical-binding: t -*-
 
     (setq package-enable-at-startup nil ; don't auto-initialize!
@@ -340,6 +339,7 @@ Helpful package to even elaborate on describe commands. Decreases many hassles.
 
 #+begin_src emacs-lisp
   (use-package helpful
+    :defer t
     :bind
     ("C-h f" . helpful-callable)
     ("C-h v" . helpful-variable)
@@ -357,8 +357,10 @@ Coloured parentheses or hex values are really needed for some usecases, obviousl
 *Happy Ricing* but use Emacs Everywhere lol
 #+begin_src emacs-lisp
   (use-package rainbow-delimiters
+    :defer t
     :hook (prog-mode . rainbow-delimiters-mode))
   (use-package rainbow-mode
+    :defer t
     :init (add-hook 'prog-mode-hook 'rainbow-mode)
     :bind ("C-c t c" . rainbow-mode))
 #+end_src
@@ -618,55 +620,52 @@ Really gets handy for experienced users, maybe difficult to understand for Begin
                    nil
                    (window-parameters (mode-line-format . none)))))
 
-  ;; Consult users will also want the embark-consult package.
-  (use-package embark-consult
-    :ensure t ; only need to install it, embark loads it after consult if found
-    :hook
-    (embark-collect-mode . consult-preview-at-point-mode))
-
 #+end_src
 ** Corfu - The Required Love
 Completion to next level, works even on terminal
 #+begin_src emacs-lisp
   (use-package corfu
-    :defer 1
-    :custom
-    (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-    (corfu-auto t)                 ;; Enable auto completion
-    (corfu-separator ?\s)          ;; Orderless field separator
-    ;; (corfu-preview-current t)    ;; Disable current candidate preview
-    ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-    ;; (corfu-quit-no-match t)
-    (corfu-auto-prefix 2)
-    (corfu-auto-delay 0.0)
-    (corfu-quit-at-boundary 'separator)
-    (corfu-popupinfo-resize t)
-    (corfu-popupinfo-hide nil)
-    (corfu-echo-documentation 0.25)
-    (corfu-preview-current 'insert)
-    (corfu-preselect-first t)
-    (corfu-popupinfo-delay 1.5)
-    (corfu-history 1)
-    (corfu-scroll-margin 0)
-    :bind (:map corfu-map
-                ("M-SPC" . corfu-insert-separator)
-                ("TAB" . corfu-insert)
-                ("<escape>" . corfu-quit)
-                ("C-j" . corfu-next)
-                ("C-k" . corfu-previous)                
-                ("RET" . corfu-insert))
-    ;; Enable Corfu only for certain modes.
-    ;; :hook ((prog-mode . corfu-mode)
-    ;;        (shell-mode . corfu-mode)
-    ;;        (eshell-mode . corfu-mode))
+      :defer 1
+      :custom
+      (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+      (corfu-auto t)                 ;; Enable auto completion
+      (corfu-separator ?\s)          ;; Orderless field separator
+      ;; (corfu-preview-current t)    ;; Disable current candidate preview
+      ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+      ;; (corfu-quit-no-match t)
+      (corfu-auto-prefix 2)
+      (corfu-auto-delay 0.0)
+      (corfu-quit-at-boundary 'separator)
+      (corfu-popupinfo-resize t)
+      (corfu-popupinfo-hide nil)
+      (corfu-echo-documentation 0.25)
+      (corfu-preview-current 'insert)
+      (corfu-preselect-first t)
+      (corfu-popupinfo-delay 1.5)
+      (corfu-history 1)
+      (corfu-scroll-margin 0)
+      :bind (:map corfu-map
+                  ("M-SPC" . corfu-insert-separator)
+                  ("TAB" . corfu-insert)
+                  ("<escape>" . corfu-quit)
+                  ("C-j" . corfu-next)
+                  ("C-k" . corfu-previous)                
+                  ("RET" . corfu-insert))
+      ;; Enable Corfu only for certain modes.
+      ;; :hook ((prog-mode . corfu-mode)
+      ;;        (shell-mode . corfu-mode)
+      ;;        (eshell-mode . corfu-mode))
 
-    :init
-    (corfu-history-mode)
-    (corfu-popupinfo-mode)
-    (global-corfu-mode))
+      :init
+      (corfu-history-mode)
+      (corfu-popupinfo-mode)
+      (global-corfu-mode))
 
-  (unless (display-graphic-p)
-    (corfu-terminal-mode +1))
+  (setq completion-category-overrides '((eglot (styles orderless))))
+
+
+    (unless (display-graphic-p)
+      (corfu-terminal-mode +1))
 
 #+end_src
 *** Extensify - Cape the Hero
@@ -772,9 +771,7 @@ Making snippets/templates is so easy with this package.
 
   (hugosite ":PROPERTIES:"  n ":EXPORT_FILE_NAME: " p n ":EXPORT_DATE: " p n ":EXPORT_HUGO_DRAFT: false" n ":END:")
   (readonly ":tangle-mode (identity #o444) :mkdirp yes" n)
-  (variablweb "#+name: " p n "#+begin_src " q n> r> n "#+end_src")
-
-
+  (variablweb "#+name: " p n "#+begin_src " p n> r> n> "#+end_src" :post (org-edit-src-code))
 
   ;; Local Variables:
   ;; mode: lisp-data
@@ -785,7 +782,8 @@ Making snippets/templates is so easy with this package.
 ** Modernize - Organize
 You will see org just below this, this package helps make Org-Mode looks eye-candy and how it reached average audience.
 #+begin_src emacs-lisp
-  (use-package org-modern)
+  (use-package org-modern
+    :defer t)
   ;; (add-hook 'org-mode-hook #'org-modern-mode)
   (add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
 
@@ -842,7 +840,7 @@ You will see org just below this, this package helps make Org-Mode looks eye-can
 
   (global-org-modern-mode)
 
-#+end_src
+    #+end_src
 * Organize Life 🗄️
 Life's Good if you Organize is well, don't worry if you feel organizing is not easy, Org for the rescue.
 Plain (naked) simple file can help maintain GTD, even hell lot more many people don't know about.
@@ -991,11 +989,6 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
     (add-to-list 'org-structure-template-alist '("nix" . "src nix"))    
     (add-to-list 'org-structure-template-alist '("lx" . "src latex"))
     (add-to-list 'org-structure-template-alist '("cal" . "src calc")))
-
-  (use-package org-auto-tangle
-    :defer t
-    :hook (org-mode . org-auto-tangle-mode))
-
 
 
 #+end_src
@@ -1260,6 +1253,7 @@ TODO : Learn more on this
 All texts from left is not intuitive, Spoils GUI end of emacs, feels like you are on Terminal all time. Also, the space on right side will be wasted, unless you use split window vertically. Centering content helps focus and make things look tidy.
 #+begin_src emacs-lisp
   (use-package olivetti
+    :defer t
     :hook ((text-mode         . olivetti-mode)
            ;; (prog-mode         . olivetti-mode)
            (Info-mode         . olivetti-mode)
@@ -1269,7 +1263,6 @@ All texts from left is not intuitive, Spoils GUI end of emacs, feels like you ar
            (org-mode          . olivetti-mode)
            (dashboard-mode    . olivetti-mode)
            (sdcv-mode         . olivetti-mode)
-           (eww-mode          . olivetti-mode)
            (fundamental-mode  . olivetti-mode)
            (nov-mode          . olivetti-mode)
            (markdown-mode     . olivetti-mode)
@@ -1279,7 +1272,7 @@ All texts from left is not intuitive, Spoils GUI end of emacs, feels like you ar
     :custom
     (olivetti-body-width 0.8)
     :delight " ⊛")
-                                          ; "Ⓐ" "⊗"
+
 
 #+end_src
 ** Mode line
@@ -1382,51 +1375,61 @@ With emacs 29, we have ~pixel-scroll-precision-mode~
     (interactive)
     (pixel-scroll-precision-scroll-up 20))
 #+end_src
-* Language - IDE maybe? 💻
+* IDE like Lsp 💻
 I'm not a programmer, maybe will be expanded in future..
 #+begin_src emacs-lisp
-  (use-package nix-mode
-    :mode "\\.nix\\'"
-    :defer t)
+    (use-package nix-mode
+      :mode "\\.nix\\'"
+      :defer t)
 
-  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
-  ;;(add-hook 'prog-mode-hook #'eglot-ensure)
-  (add-hook 'prog-mode-hook #'flycheck-mode)
+    (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+    ;;(add-hook 'prog-mode-hook #'eglot-ensure)
+    (add-hook 'prog-mode-hook #'flycheck-mode)
 
-  (use-package markdown-mode
-    :mode "\\.md\\'"
-    :config
-    (defun d/set-markdown-header-font-sizes ()
-      (dolist (face '((markdown-header-face-1 . 1.3)
-                      (markdown-header-face-2 . 1.2)
-                      (markdown-header-face-3 . 1.15)
-                      (markdown-header-face-4 . 1.1)
-                      (markdown-header-face-5 . 1.0)))
-        (set-face-attribute (car face) nil :weight 'normal :font d/header-font :height (cdr face))))
+    (use-package markdown-mode
+      :defer t
+      :mode "\\.md\\'"
+      :config
+      (defun d/set-markdown-header-font-sizes ()
+        (dolist (face '((markdown-header-face-1 . 1.3)
+                        (markdown-header-face-2 . 1.2)
+                        (markdown-header-face-3 . 1.15)
+                        (markdown-header-face-4 . 1.1)
+                        (markdown-header-face-5 . 1.0)))
+          (set-face-attribute (car face) nil :weight 'normal :font d/header-font :height (cdr face))))
 
-    (defun d/markdown-mode-hook ()
-      (d/set-markdown-header-font-sizes))
+      (defun d/markdown-mode-hook ()
+        (d/set-markdown-header-font-sizes))
 
-    (add-hook 'markdown-mode-hook 'd/markdown-mode-hook))
+      (add-hook 'markdown-mode-hook 'd/markdown-mode-hook))
 
-  (use-package eglot
-    :init
-    (setq eglot-sync-connect 1
-          eglot-connect-timeout 10
-          eglot-autoshutdown t
-          eglot-send-changes-idle-time 0.5
-          ;; NOTE We disable eglot-auto-display-help-buffer because :select t in
-          ;;      its popup rule causes eglot to steal focus too often.
-          eglot-auto-display-help-buffer nil)
-    :config
-    (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
-    (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
-    (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
+    (use-package eglot
+      :init
+      (setq eglot-sync-connect 1
+            eglot-connect-timeout 10
+            eglot-autoshutdown t
+            eglot-send-changes-idle-time 0.5
+            ;; NOTE We disable eglot-auto-display-help-buffer because :select t in
+            ;;      its popup rule causes eglot to steal focus too often.
+            eglot-auto-display-help-buffer nil)
+      :config
+      (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
+      (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
+      (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
 
-    :hook
-    (nix-mode . eglot-ensure)
-    (bash-ts-mode . eglot-ensure)
-    (markdown-mode-hook . eglot-ensure))
+      :hook
+      (nix-mode . eglot-ensure)
+      (bash-ts-mode . eglot-ensure)
+      (markdown-mode-hook . eglot-ensure))
+
+  (defun my/eglot-capf ()
+    (setq-local completion-at-point-functions
+                (list (cape-super-capf
+                       #'eglot-completion-at-point
+                       #'tempel-expand
+                       #'cape-file))))
+
+  (add-hook 'eglot-managed-mode-hook #'my/eglot-capf)
 
 #+end_src
 * Git Controller  
@@ -1488,6 +1491,7 @@ Vterm to replace terminal emulator.
 Some small codes from good source.
 #+begin_src emacs-lisp
   (use-package reddigg
+    :defer t
     :bind (("C-c d f" . reddigg-view-frontpage)
            ("C-c d r" . reddigg-view-sub))
     :config
@@ -1502,16 +1506,19 @@ Some small codes from good source.
     ("C-S-z" . undo-fu-only-redo-all))
 
 
-  (use-package flycheck)
+  (use-package flycheck
+    :defer t)
   ;; :init (global-flycheck-mode))
 
   (use-package mingus
+    :defer t
     :bind ("C-c d m" . mingus-browse)
     :config
     (advice-add 'mingus-playlist-mode :after #'olivetti-mode)
     (advice-add 'mingus-browse-mode :after #'olivetti-mode))
   ;; (use-package wikinforg)
   (use-package webpaste
+    :defer t
     :ensure t
     :bind (("C-c C-p C-b" . webpaste-paste-buffer)
            ("C-c C-p C-r" . webpaste-paste-region)
@@ -1523,6 +1530,7 @@ Some small codes from good source.
     )
 
   (use-package sdcv
+    :defer t
     :config
     (setq sdcv-say-word-p t)
     (setq sdcv-dictionary-data-dir "/home/i/.local/share/stardict/") 
@@ -1539,6 +1547,7 @@ Some small codes from good source.
 Pdf-tools is another great addition if you want to integrate well with Emacs.
 #+begin_src emacs-lisp
   (use-package pdf-tools
+    :defer t
     :init
     (pdf-tools-install)
     :bind (:map pdf-view-mode-map
@@ -1639,6 +1648,19 @@ Some more functions copied and adapted well to my flow. You will also find it we
           (put-text-property xWordBegin xBoldEndPos
                              'font-lock-face bionic-reading-face)))))
 
+  ;; This is for managing nixos config
+  (defun get-named-src-block-contents (name &optional trim)
+  "Return the contents of the named Org source block."
+  (let* ((block (org-element-map (org-element-parse-buffer) 'src-block
+                  (lambda (src-block)
+                    (when (string= name (org-element-property :name src-block))
+                        src-block))
+                  nil t))
+         (source (org-element-property :value block)))
+    (if trim
+        (string-trim source)
+      source)))
+
 #+end_src
 
 * Rss - Better Web 📰
@@ -1691,12 +1713,14 @@ Use RSS, just switch to it, and save your time for other productive things. If y
     (push '(star elfeed-search-star-title-face) elfeed-search-face-alist))
 
   (use-package link-hint
+    :defer t
     :ensure t
     :bind
     ("C-c l o" . link-hint-open-link)
     ("C-c l c" . link-hint-copy-link))
 
   (use-package avy
+    :defer t
     :bind
     ("M-j" . avy-goto-char-timer)
     ("M-K" . avy-kill-region)
@@ -1865,7 +1889,7 @@ Idk why, but i guess these all should be the sane defaults.
   (setq sentence-end "[.?!] ")  
 
   (setq initial-scratch-message
-        ";; Type to your Will !\n")
+        ";; Type to your Will !\n\n")
 
   (setq frame-inhibit-implied-resize t)
   ;;(global-prettify-symbols-mode t)

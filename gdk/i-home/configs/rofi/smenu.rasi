@@ -1,0 +1,16 @@
+@import				 "config.rasi"
+
+
+window {
+location:                    center;
+anchor:                      center;
+fullscreen:                  false;
+width:                       50%;
+height:			     60%;
+}
+
+listview {
+enabled:                     true;
+columns:                     2;
+lines:                       20;
+}

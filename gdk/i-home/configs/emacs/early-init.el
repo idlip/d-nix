@@ -1,71 +1,52 @@
-;;; Personal configuration -*- lexical-binding: t -*-
+;;; early-init.el ---   -*- lexical-binding: t -*-
 
-  (setq package-enable-at-startup nil ; don't auto-initialize!
-        ;; don't add that `custom-set-variables' block to my init.el!
-        package--init-file-ensured t)
-  (setq package-archives nil)
+;;; Commentary:
 
+;;
 
-  ;; Defer garbage collection further back in the startup process
-  (setq gc-cons-threshold most-positive-fixnum ; 2^61 bytes
-        gc-cons-percentage 0.6)
+;;; Code:
 
-  (add-hook 'emacs-startup-hook
-            (lambda ()
-              (setq gc-cons-threshold 16777216 ; 16mb
-                    gc-cons-percentage 0.1)))
+(setq package-enable-at-startup nil) ; don't auto-initialize!
+(setq package-archives nil)
 
-  (defun config:defer-gc ()
-    (setq gc-cons-threshold most-positive-fixnum))
-  (defun config:-do-restore-gc ()
-    (setq gc-cons-threshold 16777216))
-  (defun config:restore-gc ()
-    (run-at-time 1 nil #'config:-do-restore-gc))
+(setq
+ load-prefer-newer nil
+ default-input-method nil
+ initial-major-mode 'org-mode
+ inhibit-default-init t
+ inhibit-startup-screen t 	
+ inhibit-startup-buffer-menu t)
 
-  (add-hook 'minibuffer-setup #'config:defer-gc)
-  (add-hook 'minibuffer-exit #'config:restore-gc)
+;; Maximize the Emacs frame on startup
+(push '(fullscreen . maximized) default-frame-alist)
 
-  (setq safe-local-variable-values
-        '((org-src-preserve-indentation . t)
-          (eval add-hook 'after-save-hook
-                '(lambda nil
-                   (org-babel-tangle))
-                nil t)))
+;; Prevent the glimpse of un-styled Emacs by disabling these UI elements early.
 
-  (setq
-   load-prefer-newer nil
-   default-input-method nil
-   initial-major-mode 'org-mode
-   inhibit-default-init t
-   inhibit-startup-screen t 	
-   inhibit-startup-buffer-menu t)
+(setq default-frame-alist
+      '((menu-bar-lines . 0)
+        (tool-bar-lines . 0)
+        (horizontal-scroll-bars)
+        (vertical-scroll-bars)))
 
+;; Suppress warnings and errors during asynchronous native compilation
+(setq native-comp-async-report-warnings-errors nil)
+(setq native-comp-jit-compilation nil)
 
-  ;; Maximize the Emacs frame on startup
-  (push '(fullscreen . maximized) default-frame-alist)
+;; Do not resize the frame at this early stage.
+(setq frame-inhibit-implied-resize t)
 
-  ;; Prevent the glimpse of un-styled Emacs by disabling these UI elements early.
-  (push '(menu-bar-lines . 0) default-frame-alist)
-  (push '(tool-bar-lines . 0) default-frame-alist)
-  (push '(vertical-scroll-bars) default-frame-alist)
+(defun my-cleanup-gc ()
+  "Clean up gc."
+  (setq gc-cons-threshold  67108864) ; 64M
+  (setq gc-cons-percentage 0.1) ; original value
+  (garbage-collect))
 
-  ;; Suppress warnings and errors during asynchronous native compilation
-  (setq native-comp-async-report-warnings-errors nil)
-  (setq native-comp-deferred-compilation t)
+(run-with-idle-timer 4 nil #'my-cleanup-gc)
 
-  ;; Do not resize the frame at this early stage.
-  (setq frame-inhibit-implied-resize t)
+(message "  Emacs loaded in %s with %d garbage collections."
+         (format "%.2f seconds"
+                 (float-time (time-subtract after-init-time before-init-time)))
+         gcs-done)
 
-  ;; Prevent unwanted runtime builds; packages are compiled ahead-of-time when
-  ;; they are installed and site files are compiled when gccemacs is installed.
-  ;; (setq comp-deferred-compilation nil)
-  (setq native-comp-deferred-compilation nil)
-
-  ;; Prevent unwanted runtime builds in gccemacs (native-comp); packages are
-  ;; compiled ahead-of-time when they are installed and site files are compiled
-  ;; when gccemacs is installed.
-  (setq comp-deferred-compilation nil)
-
-  (provide 'early-init)
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ;;; early-init.el ends here
+(provide 'early-init)
+;;; early-init.el ends here

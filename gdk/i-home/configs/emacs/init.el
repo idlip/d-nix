@@ -1,14 +1,5 @@
 ;;; Personal configuration -*- lexical-binding: t -*-
 
-(defun display-startup-time ()
-  (message "Emacs loaded in %s with %d garbage collections."
-           (format "%.2f seconds"
-                   (float-time
-                    (time-subtract after-init-time before-init-time)))
-           gcs-done))
-
-(add-hook 'emacs-startup-hook #'display-startup-time)
-;; If you are thinking about adding codes for garbage-collect (gc-cons-threshold), we already did that in early-init.el
 
 ;; Initialize package sources
 (require 'package)
@@ -126,6 +117,12 @@
     (progn
       (set-register '_ (list (current-window-configuration)))
       (delete-other-windows))))
+
+(defun d/edit-src-block ()
+  "Makes editing src block focused in its respective major mode"
+  (interactive)
+  (if (org-in-src-block-p) (progn (org-edit-special) (window-focus-mode))
+    (org-edit-src-abort)))
 
 (defun org-archive-done-tasks ()
   (interactive)
@@ -433,47 +430,47 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
                  (window-parameters (mode-line-format . none)))))
 
 (use-package corfu
-    :defer 1
-    :custom
-    (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-    (corfu-auto t)                 ;; Enable auto completion
-    (corfu-separator ?\s)          ;; Orderless field separator
-    ;; (corfu-preview-current t)    ;; Disable current candidate preview
-    ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-    ;; (corfu-quit-no-match t)
-    (corfu-auto-prefix 2)
-    (corfu-auto-delay 0.0)
-    (corfu-quit-at-boundary 'separator)
-    (corfu-popupinfo-resize t)
-    (corfu-popupinfo-hide nil)
-    (corfu-echo-documentation 0.25)
-    (corfu-preview-current 'insert)
-    (corfu-preselect-first t)
-    (corfu-popupinfo-delay 1.5)
-    (corfu-history 1)
-    (corfu-scroll-margin 0)
-    :bind (:map corfu-map
-                ("M-SPC" . corfu-insert-separator)
-                ("TAB" . corfu-insert)
-                ("<escape>" . corfu-quit)
-                ("C-j" . corfu-next)
-                ("C-k" . corfu-previous)                
-                ("RET" . corfu-insert))
-    ;; Enable Corfu only for certain modes.
-    ;; :hook ((prog-mode . corfu-mode)
-    ;;        (shell-mode . corfu-mode)
-    ;;        (eshell-mode . corfu-mode))
+  :defer 1
+  :custom
+  (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+  (corfu-auto t)                 ;; Enable auto completion
+  (corfu-separator ?\s)          ;; Orderless field separator
+  ;; (corfu-preview-current t)    ;; Disable current candidate preview
+  ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+  ;; (corfu-quit-no-match t)
+  (corfu-auto-prefix 2)
+  (corfu-auto-delay 0.0)
+  (corfu-quit-at-boundary 'separator)
+  (corfu-popupinfo-resize t)
+  (corfu-popupinfo-hide nil)
+  (corfu-echo-documentation 0.25)
+  (corfu-preview-current 'insert)
+  (corfu-preselect-first t)
+  (corfu-popupinfo-delay 1.5)
+  (corfu-history 1)
+  (corfu-scroll-margin 0)
+  :bind (:map corfu-map
+              ("M-SPC" . corfu-insert-separator)
+              ("TAB" . corfu-insert)
+              ("<escape>" . corfu-quit)
+              ("C-j" . corfu-next)
+              ("C-k" . corfu-previous)                
+              ("RET" . corfu-insert))
+  ;; Enable Corfu only for certain modes.
+  ;; :hook ((prog-mode . corfu-mode)
+  ;;        (shell-mode . corfu-mode)
+  ;;        (eshell-mode . corfu-mode))
 
-    :init
-    (corfu-history-mode)
-    (corfu-popupinfo-mode)
-    (global-corfu-mode))
+  :init
+  (corfu-history-mode)
+  (corfu-popupinfo-mode)
+  (global-corfu-mode))
 
 (setq completion-category-overrides '((eglot (styles orderless))))
 
 
-  (unless (display-graphic-p)
-    (corfu-terminal-mode +1))
+(unless (display-graphic-p)
+  (corfu-terminal-mode +1))
 
 ;; Add extensions
 (use-package cape
@@ -675,7 +672,10 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
          ("C-c c d" . calendar)
          ("C-c t R" . d/bionic-region)
          ("C-c d a" . org-agenda)
-         ("C-c t r" . d/bionic-read))
+         ("C-c t r" . d/bionic-read)
+         :map org-mode-map
+         ("C-c o b" . d/edit-src-block)
+         ("<f6>" . d/edit-src-block))
   :config
   (setq org-ellipsis " ▾")
 
@@ -1101,48 +1101,54 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   (pixel-scroll-precision-scroll-up 20))
 
 (use-package nix-mode
-    :mode "\\.nix\\'"
-    :defer t)
+  :mode "\\.nix\\'"
+  :defer t)
 
-  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
-  ;;(add-hook 'prog-mode-hook #'eglot-ensure)
-  (add-hook 'prog-mode-hook #'flycheck-mode)
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+;;(add-hook 'prog-mode-hook #'eglot-ensure)
+(add-hook 'prog-mode-hook #'flycheck-mode)
 
-  (use-package markdown-mode
-    :defer t
-    :mode "\\.md\\'"
-    :config
-    (defun d/set-markdown-header-font-sizes ()
-      (dolist (face '((markdown-header-face-1 . 1.3)
-                      (markdown-header-face-2 . 1.2)
-                      (markdown-header-face-3 . 1.15)
-                      (markdown-header-face-4 . 1.1)
-                      (markdown-header-face-5 . 1.0)))
-        (set-face-attribute (car face) nil :weight 'normal :font d/header-font :height (cdr face))))
+(use-package markdown-mode
+  :defer t
+  :mode "\\.md\\'"
+  :config
+  (defun d/set-markdown-header-font-sizes ()
+    (dolist (face '((markdown-header-face-1 . 1.3)
+                    (markdown-header-face-2 . 1.2)
+                    (markdown-header-face-3 . 1.15)
+                    (markdown-header-face-4 . 1.1)
+                    (markdown-header-face-5 . 1.0)))
+      (set-face-attribute (car face) nil :weight 'normal :font d/header-font :height (cdr face))))
 
-    (defun d/markdown-mode-hook ()
-      (d/set-markdown-header-font-sizes))
+  (defun d/markdown-mode-hook ()
+    (d/set-markdown-header-font-sizes))
 
-    (add-hook 'markdown-mode-hook 'd/markdown-mode-hook))
+  (add-hook 'markdown-mode-hook 'd/markdown-mode-hook))
 
-  (use-package eglot
-    :init
-    (setq eglot-sync-connect 1
-          eglot-connect-timeout 10
-          eglot-autoshutdown t
-          eglot-send-changes-idle-time 0.5
-          ;; NOTE We disable eglot-auto-display-help-buffer because :select t in
-          ;;      its popup rule causes eglot to steal focus too often.
-          eglot-auto-display-help-buffer nil)
-    :config
-    (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
-    (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
-    (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
+(use-package eglot
+  :init
+  (setq eglot-sync-connect 1
+        eglot-connect-timeout 10
+        eglot-autoshutdown t
+        eglot-send-changes-idle-time 0.5
+        ;; NOTE We disable eglot-auto-display-help-buffer because :select t in
+        ;;      its popup rule causes eglot to steal focus too often.
+        eglot-auto-display-help-buffer nil)
+  :config
+  (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
+  (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
+  (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
 
-    :hook
-    (nix-mode . eglot-ensure)
-    (bash-ts-mode . eglot-ensure)
-    (markdown-mode-hook . eglot-ensure))
+  :hook
+  (nix-mode . eglot-ensure)
+  (bash-ts-mode . eglot-ensure)
+  (markdown-mode-hook . eglot-ensure))
+
+(use-package treesit-auto
+  :demand t
+  :config
+  (setq treesit-auto-install 'prompt)
+  (global-treesit-auto-mode))
 
 (defun my/eglot-capf ()
   (setq-local completion-at-point-functions

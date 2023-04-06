@@ -51,39 +51,16 @@ Some of the highlights which you might wanna copy or take from this config :
 
 * Early-Init 🌅
 #+begin_src emacs-lisp :noweb yes :tangle ./gdk/i-home/configs/emacs/early-init.el :tangle-mode (identity #o444) :mkdirp yes
-  ;;; Personal configuration -*- lexical-binding: t -*-
+    ;;; early-init.el ---   -*- lexical-binding: t -*-
 
-    (setq package-enable-at-startup nil ; don't auto-initialize!
-          ;; don't add that `custom-set-variables' block to my init.el!
-          package--init-file-ensured t)
+    ;;; Commentary:
+
+    ;;
+
+    ;;; Code:
+
+    (setq package-enable-at-startup nil) ; don't auto-initialize!
     (setq package-archives nil)
-
-
-    ;; Defer garbage collection further back in the startup process
-    (setq gc-cons-threshold most-positive-fixnum ; 2^61 bytes
-          gc-cons-percentage 0.6)
-
-    (add-hook 'emacs-startup-hook
-              (lambda ()
-                (setq gc-cons-threshold 16777216 ; 16mb
-                      gc-cons-percentage 0.1)))
-
-    (defun config:defer-gc ()
-      (setq gc-cons-threshold most-positive-fixnum))
-    (defun config:-do-restore-gc ()
-      (setq gc-cons-threshold 16777216))
-    (defun config:restore-gc ()
-      (run-at-time 1 nil #'config:-do-restore-gc))
-
-    (add-hook 'minibuffer-setup #'config:defer-gc)
-    (add-hook 'minibuffer-exit #'config:restore-gc)
-
-    (setq safe-local-variable-values
-          '((org-src-preserve-indentation . t)
-            (eval add-hook 'after-save-hook
-                  '(lambda nil
-                     (org-babel-tangle))
-                  nil t)))
 
     (setq
      load-prefer-newer nil
@@ -92,53 +69,46 @@ Some of the highlights which you might wanna copy or take from this config :
      inhibit-default-init t
      inhibit-startup-screen t 	
      inhibit-startup-buffer-menu t)
-   
 
     ;; Maximize the Emacs frame on startup
     (push '(fullscreen . maximized) default-frame-alist)
 
     ;; Prevent the glimpse of un-styled Emacs by disabling these UI elements early.
-    (push '(menu-bar-lines . 0) default-frame-alist)
-    (push '(tool-bar-lines . 0) default-frame-alist)
-    (push '(vertical-scroll-bars) default-frame-alist)
+
+    (setq default-frame-alist
+          '((menu-bar-lines . 0)
+            (tool-bar-lines . 0)
+            (horizontal-scroll-bars)
+            (vertical-scroll-bars)))
 
     ;; Suppress warnings and errors during asynchronous native compilation
     (setq native-comp-async-report-warnings-errors nil)
-    (setq native-comp-deferred-compilation t)
+    (setq native-comp-jit-compilation nil)
 
     ;; Do not resize the frame at this early stage.
     (setq frame-inhibit-implied-resize t)
 
-    ;; Prevent unwanted runtime builds; packages are compiled ahead-of-time when
-    ;; they are installed and site files are compiled when gccemacs is installed.
-    ;; (setq comp-deferred-compilation nil)
-    (setq native-comp-deferred-compilation nil)
+    (defun my-cleanup-gc ()
+      "Clean up gc."
+      (setq gc-cons-threshold  67108864) ; 64M
+      (setq gc-cons-percentage 0.1) ; original value
+      (garbage-collect))
 
-    ;; Prevent unwanted runtime builds in gccemacs (native-comp); packages are
-    ;; compiled ahead-of-time when they are installed and site files are compiled
-    ;; when gccemacs is installed.
-    (setq comp-deferred-compilation nil)
+    (run-with-idle-timer 4 nil #'my-cleanup-gc)
+
+    (message "  Emacs loaded in %s with %d garbage collections."
+             (format "%.2f seconds"
+                     (float-time (time-subtract after-init-time before-init-time)))
+             gcs-done)
 
     (provide 'early-init)
-      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-      ;;; early-init.el ends here
-
+    ;;; early-init.el ends here
 #+end_src  
 * Start-ify 🔰
 Manage Font size, Initialize Package setup and sends you startup time (Daemonize 👹 your Emacs)
 #+begin_src emacs-lisp
-
   ;;; Personal configuration -*- lexical-binding: t -*-
 
-  (defun display-startup-time ()
-    (message "Emacs loaded in %s with %d garbage collections."
-             (format "%.2f seconds"
-                     (float-time
-                      (time-subtract after-init-time before-init-time)))
-             gcs-done))
-  
-  (add-hook 'emacs-startup-hook #'display-startup-time)
-  ;; If you are thinking about adding codes for garbage-collect (gc-cons-threshold), we already did that in early-init.el
 
   ;; Initialize package sources
   (require 'package)
@@ -268,6 +238,12 @@ Keep folders and backuping files clean!
       (progn
         (set-register '_ (list (current-window-configuration)))
         (delete-other-windows))))
+
+  (defun d/edit-src-block ()
+    "Makes editing src block focused in its respective major mode"
+    (interactive)
+    (if (org-in-src-block-p) (progn (org-edit-special) (window-focus-mode))
+      (org-edit-src-abort)))
 
   (defun org-archive-done-tasks ()
     (interactive)
@@ -625,47 +601,47 @@ Really gets handy for experienced users, maybe difficult to understand for Begin
 Completion to next level, works even on terminal
 #+begin_src emacs-lisp
   (use-package corfu
-      :defer 1
-      :custom
-      (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-      (corfu-auto t)                 ;; Enable auto completion
-      (corfu-separator ?\s)          ;; Orderless field separator
-      ;; (corfu-preview-current t)    ;; Disable current candidate preview
-      ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-      ;; (corfu-quit-no-match t)
-      (corfu-auto-prefix 2)
-      (corfu-auto-delay 0.0)
-      (corfu-quit-at-boundary 'separator)
-      (corfu-popupinfo-resize t)
-      (corfu-popupinfo-hide nil)
-      (corfu-echo-documentation 0.25)
-      (corfu-preview-current 'insert)
-      (corfu-preselect-first t)
-      (corfu-popupinfo-delay 1.5)
-      (corfu-history 1)
-      (corfu-scroll-margin 0)
-      :bind (:map corfu-map
-                  ("M-SPC" . corfu-insert-separator)
-                  ("TAB" . corfu-insert)
-                  ("<escape>" . corfu-quit)
-                  ("C-j" . corfu-next)
-                  ("C-k" . corfu-previous)                
-                  ("RET" . corfu-insert))
-      ;; Enable Corfu only for certain modes.
-      ;; :hook ((prog-mode . corfu-mode)
-      ;;        (shell-mode . corfu-mode)
-      ;;        (eshell-mode . corfu-mode))
+    :defer 1
+    :custom
+    (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+    (corfu-auto t)                 ;; Enable auto completion
+    (corfu-separator ?\s)          ;; Orderless field separator
+    ;; (corfu-preview-current t)    ;; Disable current candidate preview
+    ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+    ;; (corfu-quit-no-match t)
+    (corfu-auto-prefix 2)
+    (corfu-auto-delay 0.0)
+    (corfu-quit-at-boundary 'separator)
+    (corfu-popupinfo-resize t)
+    (corfu-popupinfo-hide nil)
+    (corfu-echo-documentation 0.25)
+    (corfu-preview-current 'insert)
+    (corfu-preselect-first t)
+    (corfu-popupinfo-delay 1.5)
+    (corfu-history 1)
+    (corfu-scroll-margin 0)
+    :bind (:map corfu-map
+                ("M-SPC" . corfu-insert-separator)
+                ("TAB" . corfu-insert)
+                ("<escape>" . corfu-quit)
+                ("C-j" . corfu-next)
+                ("C-k" . corfu-previous)                
+                ("RET" . corfu-insert))
+    ;; Enable Corfu only for certain modes.
+    ;; :hook ((prog-mode . corfu-mode)
+    ;;        (shell-mode . corfu-mode)
+    ;;        (eshell-mode . corfu-mode))
 
-      :init
-      (corfu-history-mode)
-      (corfu-popupinfo-mode)
-      (global-corfu-mode))
+    :init
+    (corfu-history-mode)
+    (corfu-popupinfo-mode)
+    (global-corfu-mode))
 
   (setq completion-category-overrides '((eglot (styles orderless))))
 
 
-    (unless (display-graphic-p)
-      (corfu-terminal-mode +1))
+  (unless (display-graphic-p)
+    (corfu-terminal-mode +1))
 
 #+end_src
 *** Extensify - Cape the Hero
@@ -840,7 +816,7 @@ You will see org just below this, this package helps make Org-Mode looks eye-can
 
   (global-org-modern-mode)
 
-    #+end_src
+#+end_src
 * Organize Life 🗄️
 Life's Good if you Organize is well, don't worry if you feel organizing is not easy, Org for the rescue.
 Plain (naked) simple file can help maintain GTD, even hell lot more many people don't know about.
@@ -902,7 +878,10 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
            ("C-c c d" . calendar)
            ("C-c t R" . d/bionic-region)
            ("C-c d a" . org-agenda)
-           ("C-c t r" . d/bionic-read))
+           ("C-c t r" . d/bionic-read)
+           :map org-mode-map
+           ("C-c o b" . d/edit-src-block)
+           ("<f6>" . d/edit-src-block))
     :config
     (setq org-ellipsis " ▾")
 
@@ -1378,49 +1357,55 @@ With emacs 29, we have ~pixel-scroll-precision-mode~
 * IDE like Lsp 💻
 I'm not a programmer, maybe will be expanded in future..
 #+begin_src emacs-lisp
-    (use-package nix-mode
-      :mode "\\.nix\\'"
-      :defer t)
+  (use-package nix-mode
+    :mode "\\.nix\\'"
+    :defer t)
 
-    (add-hook 'prog-mode-hook #'display-line-numbers-mode)
-    ;;(add-hook 'prog-mode-hook #'eglot-ensure)
-    (add-hook 'prog-mode-hook #'flycheck-mode)
+  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+  ;;(add-hook 'prog-mode-hook #'eglot-ensure)
+  (add-hook 'prog-mode-hook #'flycheck-mode)
 
-    (use-package markdown-mode
-      :defer t
-      :mode "\\.md\\'"
-      :config
-      (defun d/set-markdown-header-font-sizes ()
-        (dolist (face '((markdown-header-face-1 . 1.3)
-                        (markdown-header-face-2 . 1.2)
-                        (markdown-header-face-3 . 1.15)
-                        (markdown-header-face-4 . 1.1)
-                        (markdown-header-face-5 . 1.0)))
-          (set-face-attribute (car face) nil :weight 'normal :font d/header-font :height (cdr face))))
+  (use-package markdown-mode
+    :defer t
+    :mode "\\.md\\'"
+    :config
+    (defun d/set-markdown-header-font-sizes ()
+      (dolist (face '((markdown-header-face-1 . 1.3)
+                      (markdown-header-face-2 . 1.2)
+                      (markdown-header-face-3 . 1.15)
+                      (markdown-header-face-4 . 1.1)
+                      (markdown-header-face-5 . 1.0)))
+        (set-face-attribute (car face) nil :weight 'normal :font d/header-font :height (cdr face))))
 
-      (defun d/markdown-mode-hook ()
-        (d/set-markdown-header-font-sizes))
+    (defun d/markdown-mode-hook ()
+      (d/set-markdown-header-font-sizes))
 
-      (add-hook 'markdown-mode-hook 'd/markdown-mode-hook))
+    (add-hook 'markdown-mode-hook 'd/markdown-mode-hook))
 
-    (use-package eglot
-      :init
-      (setq eglot-sync-connect 1
-            eglot-connect-timeout 10
-            eglot-autoshutdown t
-            eglot-send-changes-idle-time 0.5
-            ;; NOTE We disable eglot-auto-display-help-buffer because :select t in
-            ;;      its popup rule causes eglot to steal focus too often.
-            eglot-auto-display-help-buffer nil)
-      :config
-      (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
-      (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
-      (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
+  (use-package eglot
+    :init
+    (setq eglot-sync-connect 1
+          eglot-connect-timeout 10
+          eglot-autoshutdown t
+          eglot-send-changes-idle-time 0.5
+          ;; NOTE We disable eglot-auto-display-help-buffer because :select t in
+          ;;      its popup rule causes eglot to steal focus too often.
+          eglot-auto-display-help-buffer nil)
+    :config
+    (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
+    (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
+    (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
 
-      :hook
-      (nix-mode . eglot-ensure)
-      (bash-ts-mode . eglot-ensure)
-      (markdown-mode-hook . eglot-ensure))
+    :hook
+    (nix-mode . eglot-ensure)
+    (bash-ts-mode . eglot-ensure)
+    (markdown-mode-hook . eglot-ensure))
+
+  (use-package treesit-auto
+    :demand t
+    :config
+    (setq treesit-auto-install 'prompt)
+    (global-treesit-auto-mode))
 
   (defun my/eglot-capf ()
     (setq-local completion-at-point-functions

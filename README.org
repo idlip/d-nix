@@ -6,25 +6,25 @@
 *** 🌟 Utilities that are Best! 
 --------------
 
-|-------------------------+-------------------------------------|
-| Class                   | Name                                |
-|-------------------------+-------------------------------------|
-| Window Manager 🌸        | [[https://hyprland.org/][Hyprland]]                            |
-| 💜 Text Editor           | [[https://www.gnu.org/software/emacs/][Emacs]]                               |
-| Gtk Theme               | [[https://github.com/Fausto-Korpsvart/Gruvbox-GTK-Theme][🎨 Gruvbox]] / [[https://github.com/vinceliuice/Orchis-theme][Orchis]]                  |
-| Font                    | [[https://tosche.net/fonts/comic-code][Comic Code]] / [[https://github.com/dtinth/comic-mono-font][Comic Mono]] / [[https://github.com/tonsky/FiraCode][Fira Code]] |
-| 📔 Pdf Reader            | [[https://github.com/ahrm/sioyek][Sioyek]] (ditch zathura)              |
-| Media Player 🎬          | [[https://mpv.io][MPV!]] (its MVP too)                  |
-| Image Viewer            | [[https://sr.ht/~exec64/imv/][Imv]] 🖼️                               |
-| RSS Reader              | [[https://github.com/skeeto/elfeed][Elfeed]] 📰 (Again, Emacs)             |
-| Music Player            | [[https://github.com/ncmpcpp/ncmpcpp][Ncmpcpp]] or [[https://github.com//mingus][Mingus in Emacs]] 🎶        |
-| Terminal                | [[https://codeberg.org/dnkl/foot][Foot]] via footclient ⚽               |
-| Menu/Launcher           | [[https://github.com/davatorium/rofi][Rofi]] 🚀                              |
-| Notification            | [[https://github.com/dunst/dunst][Dunst]]  🛎️                            |
-| Shell                   | [[https://zsh.org][Zshell]] with [[https://starship.rs][Starship]] 🔰              |
-| Status Bar              | [[https://github.com/Alexays/Waybar][Waybar]]  🍥                           |
-| Favourite Color-Schemes | Modus-Vivendi + Gruvbox             |
-|-------------------------+-------------------------------------|
+|---------------------------+-------------------------------------|
+| Class                     | Name                                |
+|---------------------------+-------------------------------------|
+| 🌸 Window Manager          | [[https://hyprland.org/][Hyprland]]                            |
+| 💜 Text Editor             | [[https://www.gnu.org/software/emacs/][Emacs]]                               |
+| 🎨 Gtk Theme               | [[https://github.com/Fausto-Korpsvart/Gruvbox-GTK-Theme][Gruvbox]] / [[https://github.com/vinceliuice/Orchis-theme][Orchis]]                    |
+|   Font                   | [[https://tosche.net/fonts/comic-code][Comic Code]] / [[https://github.com/dtinth/comic-mono-font][Comic Mono]] / [[https://github.com/tonsky/FiraCode][Fira Code]] |
+| 📔 Pdf Reader              | [[https://github.com/ahrm/sioyek][Sioyek]] (ditch zathura)              |
+| 🎬 Media Player            | [[https://mpv.io][MPV!]] (its MVP too)                  |
+| 🖼️ Image Viewer            | [[https://sr.ht/~exec64/imv/][Imv]]                                 |
+| 📰 RSS Reader              | [[https://github.com/skeeto/elfeed][Elfeed]] (Again, Emacs)               |
+| 🎶 Music Player            | [[https://github.com/ncmpcpp/ncmpcpp][Ncmpcpp]] or [[https://github.com//mingus][Mingus in Emacs]]          |
+|   Terminal               | [[https://codeberg.org/dnkl/foot][Foot]] via footclient                 |
+| 🚀 Menu/Launcher           | [[https://github.com/davatorium/rofi][Rofi]]                                |
+| 🛎️ Notification            | [[https://github.com/dunst/dunst][Dunst]]                               |
+| 🔰 Shell                   | [[https://zsh.org][Zshell]] with [[https://starship.rs][Starship]]                |
+| 🍥 Status Bar              | [[https://github.com/Alexays/Waybar][Waybar]]                              |
+| 🫰 Favourite Color-Schemes | Modus-Vivendi + Gruvbox             |
+|---------------------------+-------------------------------------|
 
 #+begin_quote
 Rest all other stuffs I do in Emacs, tbh I could do everything in Emacs lol.
@@ -129,3 +129,6 @@ I thank them sincerely.
 
 ------------------------------------------------------------------------------------------
 
+#+begin_center
+If you have reached here, I think you'd like to read more. I have made a static website, you can catch on some stuffs here ==> [[https://idlip.github.io]]
+#+end_center

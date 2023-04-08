@@ -72,3 +72,9 @@
 *** [[https://www.reddit.com/r/listentothis/search.rss?q=jazz&restrict_sr=on&sort=new&t=all/.rss][Jazz]] :jazz:
 *** [[https://www.reddit.com/r/listentothis/search.rss?q=classical&restrict_sr=on&sort=new&t=all/.rss][Classical]] :classical:
 *** [[https://www.reddit.com/r/listentothis/search.rss?q=instrument&restrict_sr=on&sort=new&t=all/.rss][Instrumental]] :intrumental:
+** Media :media:
+*** [[https://yt.funami.tech/feed/channel/UCSV81Z2v0KMzDtH6SFQ62YQ][Movie Ape]]
+*** [[https://yt.funami.tech/channel/UCyXD1jAZBdZ4u0K-GLYC77Q][Movie Recaps]] :gist:
+*** [[https://yt.funami.tech/channel/UCjyv8n7SQOXD75SW0EiAYxA][Film Recaps]]
+*** [[https://yt.funami.tech/feed/channel/UCEmig2PwKGUmaQ9xzFWJ_xA][Mystery Recapped]]
+*** [[https://yt.funami.tech/feed/channel/UCMOB6uDg7e-h8OuCw8dK2_Q][Horror - Alter]]

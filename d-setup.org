@@ -6,7 +6,7 @@
 #+PROPERTY: header-args :tangle-mode (identity #o444) :mkdirp yes
 
 
-*  Description
+* 📑 Description
 --------
 This file is organized configuration for whole system, where you can write everything for Nixos and Home-manager configuration.
 This might only make sense if you use emacs, or else nixos modular (multi hosts) flakes is a better choice, but there you have one advantage of disabling a module, here you have to uncomment blocks (or tangle it to some name) to remove a section.
@@ -19,7 +19,7 @@ The advantage of this setup is, you can add TODO and document everything here, s
 
 Also, the tangled files are in read-only mode, so you can avoid editing it, unless you were trying/testing something.
 
-*  Pre-requisites
+* 📜 Pre-requisites
 
 --------
 Note: Every tangle is made into this git directory itself. Nothing goes outside. Every config files are symlinked via Nix homemanager. You need to evaluate the elisp function given down.
@@ -3070,7 +3070,7 @@ Closes the Main Body Block
   }
 #+end_src
 
-*  Additional FIles
+*  Additional FIles
 Don't worry about this, there is nothing from here.
 
 Its just custom instructions

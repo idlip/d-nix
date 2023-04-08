@@ -51,64 +51,71 @@ Some of the highlights which you might wanna copy or take from this config :
 
 * Early-Init 🌅
 #+begin_src emacs-lisp :noweb yes :tangle ./gdk/i-home/configs/emacs/early-init.el :tangle-mode (identity #o444) :mkdirp yes
-    ;;; early-init.el ---   -*- lexical-binding: t -*-
+  ;;; early-init.el ---   -*- lexical-binding: t -*-
 
-    ;;; Commentary:
+  ;;; Commentary:
 
-    ;;
+  ;;
 
-    ;;; Code:
+  ;;; Code:
 
-    (setq package-enable-at-startup nil) ; don't auto-initialize!
-    (setq package-archives nil)
+  (setq package-enable-at-startup nil) ; don't auto-initialize!
+  (setq package-archives nil)
 
-    (setq
-     load-prefer-newer nil
-     default-input-method nil
-     initial-major-mode 'org-mode
-     inhibit-default-init t
-     inhibit-startup-screen t 	
-     inhibit-startup-buffer-menu t)
+  (setq
+   load-prefer-newer nil
+   default-input-method nil
+   initial-major-mode 'org-mode
+   inhibit-default-init t
+   inhibit-startup-screen t 	
+   inhibit-startup-buffer-menu t)
 
-    ;; Maximize the Emacs frame on startup
-    (push '(fullscreen . maximized) default-frame-alist)
+  ;; Maximize the Emacs frame on startup
+  (push '(fullscreen . maximized) default-frame-alist)
 
-    ;; Prevent the glimpse of un-styled Emacs by disabling these UI elements early.
+  ;; Prevent the glimpse of un-styled Emacs by disabling these UI elements early.
 
-    (setq default-frame-alist
-          '((menu-bar-lines . 0)
-            (tool-bar-lines . 0)
-            (horizontal-scroll-bars)
-            (vertical-scroll-bars)))
+  (setq default-frame-alist
+        '((menu-bar-lines . 0)
+          (tool-bar-lines . 0)
+          (horizontal-scroll-bars)
+          (vertical-scroll-bars)))
 
-    ;; Suppress warnings and errors during asynchronous native compilation
-    (setq native-comp-async-report-warnings-errors nil)
-    (setq native-comp-jit-compilation nil)
+  ;; Suppress warnings and errors during asynchronous native compilation
+  (setq native-comp-async-report-warnings-errors nil)
+  (setq native-comp-jit-compilation nil)
 
-    ;; Do not resize the frame at this early stage.
-    (setq frame-inhibit-implied-resize t)
+  ;; Do not resize the frame at this early stage.
+  (setq frame-inhibit-implied-resize t)
 
-    (defun my-cleanup-gc ()
-      "Clean up gc."
-      (setq gc-cons-threshold  67108864) ; 64M
-      (setq gc-cons-percentage 0.1) ; original value
-      (garbage-collect))
-
-    (run-with-idle-timer 4 nil #'my-cleanup-gc)
-
-    (message "  Emacs loaded in %s with %d garbage collections."
-             (format "%.2f seconds"
-                     (float-time (time-subtract after-init-time before-init-time)))
-             gcs-done)
-
-    (provide 'early-init)
-    ;;; early-init.el ends here
-#+end_src  
+  (provide 'early-init)
+  ;;; early-init.el ends here
+    #+end_src  
 * Start-ify 🔰
 Manage Font size, Initialize Package setup and sends you startup time (Daemonize 👹 your Emacs)
 #+begin_src emacs-lisp
   ;;; Personal configuration -*- lexical-binding: t -*-
 
+  ;;; Commentary:
+
+  ;; No need write this file, do it in literate org file!
+
+  ;;; Code:
+
+  ;; Lets garbage collect to make emacs quicker! 
+
+  (defun my-cleanup-gc ()
+    "Clean up gc."
+    (setq gc-cons-threshold  67108864) ; 64M
+    (setq gc-cons-percentage 0.1) ; original value
+    (garbage-collect))
+
+  (run-with-idle-timer 4 nil #'my-cleanup-gc)
+
+  (message "  Emacs loaded in %s with %d garbage collections."
+           (format "%.2f seconds"
+                   (float-time (time-subtract after-init-time before-init-time)))
+           gcs-done)
 
   ;; Initialize package sources
   (require 'package)
@@ -128,7 +135,7 @@ Manage Font size, Initialize Package setup and sends you startup time (Daemonize
   (require 'use-package)
   (setq use-package-always-ensure t)
 
-#+end_src
+  #+end_src
 * Fontify 🔤
 Fonts are crucial to read.
 #+begin_src emacs-lisp
@@ -177,28 +184,28 @@ Keep folders and backuping files clean!
 #+begin_src emacs-lisp
   (use-package no-littering
     :config
-  ;; no-littering doesn't set this by default so we must place
-  ;; auto save files in the same path as it uses for sessions
-  (setq auto-save-file-name-transforms
-        `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
-  ;;  (setq backup-directory-alist '(("." . "~/.config/emacs/backups")))
-  (setq delete-old-versions -1)
-  (setq version-control t)
-  (setq vc-make-backup-files t))
+    ;; no-littering doesn't set this by default so we must place
+    ;; auto save files in the same path as it uses for sessions
+    (setq auto-save-file-name-transforms
+          `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
+    ;;  (setq backup-directory-alist '(("." . "~/.config/emacs/backups")))
+    (setq delete-old-versions -1)
+    (setq version-control t)
+    (setq vc-make-backup-files t))
 
   (setq make-backup-files t          ; backup of a file the first time it is saved.
-    backup-by-copying t          ; don't clobber symlinks
-    version-control t            ; version numbers for backup files
-    vc-make-backup-files t       ; version control for git/vcs dirs
-    delete-old-versions t        ; delete excess backup files silently
-    delete-by-moving-to-trash t
-    kept-old-versions 2          ; oldest versions to keep when a new numbered backup is made 
-    kept-new-versions 2          ; newest versions to keep when a new numbered backup is made 
-    auto-save-default t          ; auto-save every buffer that visits a file
-    auto-save-timeout 20         ; number of seconds idle time before auto-save (default: 30)
-    auto-save-interval 200       ; number of keystrokes between auto-saves (default: 300)
-    create-lockfiles nil         ; don't use lockfiles (default: t)
-    )
+        backup-by-copying t          ; don't clobber symlinks
+        version-control t            ; version numbers for backup files
+        vc-make-backup-files t       ; version control for git/vcs dirs
+        delete-old-versions t        ; delete excess backup files silently
+        delete-by-moving-to-trash t
+        kept-old-versions 2          ; oldest versions to keep when a new numbered backup is made 
+        kept-new-versions 2          ; newest versions to keep when a new numbered backup is made 
+        auto-save-default t          ; auto-save every buffer that visits a file
+        auto-save-timeout 20         ; number of seconds idle time before auto-save (default: 30)
+        auto-save-interval 200       ; number of keystrokes between auto-saves (default: 300)
+        create-lockfiles nil         ; don't use lockfiles (default: t)
+        )
 
   (use-package savehist
     :init
@@ -552,6 +559,19 @@ Another, one which make certain pains of emacs , so good that you will fall i
               :around #'d/consult-ripgrep-wrapper
               '((name . "wrapper")))
 
+  (defun consult-colors-web (color)
+    "Show a list of all CSS colors.\
+
+  You can insert the name (default), or insert or kill the hexadecimal or RGB value of the
+  selected color."
+    (interactive
+     (list (consult--read (counsel-colors--web-list)
+                          :prompt "Color: "
+                          :require-match t
+                          :category 'color
+                          :history '(:input consult-colors-history)
+                          )))
+    (insert color))
 #+end_src
 
 ** Info = Marginalia
@@ -1278,31 +1298,31 @@ I was using =doom-themes= actually, but they are not that good, tho I like doom-
 After long  usage, you will realize that Modus-themes is a *masterpiece* made by Protesilaos (Prot).
 + Works very well with eww browser too, url bar looks fine.
   Its subjective to you!
-    #+begin_src emacs-lisp
+      #+begin_src emacs-lisp
 
-      (setq modus-themes-italic-constructs t
-            modus-themes-bold-constructs t
-            modus-themes-mixed-fonts t
-            modus-themes-variable-pitch-ui t
-            modus-themes-custom-auto-reload t
-            modus-themes-disable-other-themes t
-            modus-themes-prompts '(italic bold)
-            modus-themes-org-blocks 'gray-background
-            modus-themes-completions
-            '((matches . (extrabold))
-              (selection . (semibold italic text-also)))
+        (setq modus-themes-italic-constructs t
+              modus-themes-bold-constructs t
+              modus-themes-mixed-fonts t
+              modus-themes-variable-pitch-ui t
+              modus-themes-custom-auto-reload t
+              modus-themes-disable-other-themes t
+              modus-themes-prompts '(italic bold)
+              modus-themes-org-blocks 'gray-background
+              modus-themes-completions
+              '((matches . (extrabold))
+                (selection . (semibold italic text-also)))
 
-            modus-themes-org-blocks 'gray-background
+              modus-themes-org-blocks 'gray-background
 
-            modus-themes-headings
-            '((1 . (variable-pitch 1.1))
-              (2 . (1.1))
-              (agenda-date . (1.2))
-              (agenda-structure . (variable-pitch light 1.8))
-              (t . (1.1))))
-      (load-theme 'modus-vivendi t)
+              modus-themes-headings
+              '((1 . (variable-pitch 1.1))
+                (2 . (1.1))
+                (agenda-date . (1.2))
+                (agenda-structure . (variable-pitch light 1.8))
+                (t . (1.1))))
+        (load-theme 'modus-vivendi t)
 
-    #+end_src
+      #+end_src
 ** Beframe
 Managing frames and their buffers handy way. Gets rid of using tab-bar or windows
 
@@ -1470,7 +1490,9 @@ Vterm to replace terminal emulator.
 #+begin_src emacs-lisp
   (use-package vterm
     :defer t
-    :bind ("C-c d t" . vterm))
+    :bind ("C-c d t" . vterm)
+    :config
+    (setq vterm-shell "/etc/profiles/per-user/i/bin/fish"))
 #+end_src
 * Cool Stuffs 🧊
 Some small codes from good source.

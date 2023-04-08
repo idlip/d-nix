@@ -1,5 +1,25 @@
 ;;; Personal configuration -*- lexical-binding: t -*-
 
+;;; Commentary:
+
+;; No need write this file, do it in literate org file!
+
+;;; Code:
+
+;; Lets garbage collect to make emacs quicker! 
+
+(defun my-cleanup-gc ()
+  "Clean up gc."
+  (setq gc-cons-threshold  67108864) ; 64M
+  (setq gc-cons-percentage 0.1) ; original value
+  (garbage-collect))
+
+(run-with-idle-timer 4 nil #'my-cleanup-gc)
+
+(message "  Emacs loaded in %s with %d garbage collections."
+         (format "%.2f seconds"
+                 (float-time (time-subtract after-init-time before-init-time)))
+         gcs-done)
 
 ;; Initialize package sources
 (require 'package)
@@ -60,28 +80,28 @@
 
 (use-package no-littering
   :config
-;; no-littering doesn't set this by default so we must place
-;; auto save files in the same path as it uses for sessions
-(setq auto-save-file-name-transforms
-      `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
-;;  (setq backup-directory-alist '(("." . "~/.config/emacs/backups")))
-(setq delete-old-versions -1)
-(setq version-control t)
-(setq vc-make-backup-files t))
+  ;; no-littering doesn't set this by default so we must place
+  ;; auto save files in the same path as it uses for sessions
+  (setq auto-save-file-name-transforms
+        `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
+  ;;  (setq backup-directory-alist '(("." . "~/.config/emacs/backups")))
+  (setq delete-old-versions -1)
+  (setq version-control t)
+  (setq vc-make-backup-files t))
 
 (setq make-backup-files t          ; backup of a file the first time it is saved.
-  backup-by-copying t          ; don't clobber symlinks
-  version-control t            ; version numbers for backup files
-  vc-make-backup-files t       ; version control for git/vcs dirs
-  delete-old-versions t        ; delete excess backup files silently
-  delete-by-moving-to-trash t
-  kept-old-versions 2          ; oldest versions to keep when a new numbered backup is made 
-  kept-new-versions 2          ; newest versions to keep when a new numbered backup is made 
-  auto-save-default t          ; auto-save every buffer that visits a file
-  auto-save-timeout 20         ; number of seconds idle time before auto-save (default: 30)
-  auto-save-interval 200       ; number of keystrokes between auto-saves (default: 300)
-  create-lockfiles nil         ; don't use lockfiles (default: t)
-  )
+      backup-by-copying t          ; don't clobber symlinks
+      version-control t            ; version numbers for backup files
+      vc-make-backup-files t       ; version control for git/vcs dirs
+      delete-old-versions t        ; delete excess backup files silently
+      delete-by-moving-to-trash t
+      kept-old-versions 2          ; oldest versions to keep when a new numbered backup is made 
+      kept-new-versions 2          ; newest versions to keep when a new numbered backup is made 
+      auto-save-default t          ; auto-save every buffer that visits a file
+      auto-save-timeout 20         ; number of seconds idle time before auto-save (default: 30)
+      auto-save-interval 200       ; number of keystrokes between auto-saves (default: 300)
+      create-lockfiles nil         ; don't use lockfiles (default: t)
+      )
 
 (use-package savehist
   :init
@@ -393,6 +413,20 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 (advice-add #'consult-ripgrep
             :around #'d/consult-ripgrep-wrapper
             '((name . "wrapper")))
+
+(defun consult-colors-web (color)
+  "Show a list of all CSS colors.\
+
+You can insert the name (default), or insert or kill the hexadecimal or RGB value of the
+selected color."
+  (interactive
+   (list (consult--read (counsel-colors--web-list)
+                        :prompt "Color: "
+                        :require-match t
+                        :category 'color
+                        :history '(:input consult-colors-history)
+                        )))
+  (insert color))
 
 ;; Enable rich annotations using the Marginalia package
 (use-package marginalia
@@ -1200,7 +1234,9 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
 
 (use-package vterm
   :defer t
-  :bind ("C-c d t" . vterm))
+  :bind ("C-c d t" . vterm)
+  :config
+  (setq vterm-shell "/etc/profiles/per-user/i/bin/fish"))
 
 (use-package reddigg
   :defer t
@@ -1672,3 +1708,92 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
                   (d/set-font-faces))))
     (d/set-font-faces))
 (put 'narrow-to-region 'disabled nil)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(connection-local-criteria-alist
+   '(((:application tramp)
+      tramp-connection-local-default-system-profile tramp-connection-local-default-shell-profile)))
+ '(connection-local-profile-alist
+   '((tramp-connection-local-darwin-ps-profile
+      (tramp-process-attributes-ps-args "-acxww" "-o" "pid,uid,user,gid,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state=abcde" "-o" "ppid,pgid,sess,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etime,pcpu,pmem,args")
+      (tramp-process-attributes-ps-format
+       (pid . number)
+       (euid . number)
+       (user . string)
+       (egid . number)
+       (comm . 52)
+       (state . 5)
+       (ppid . number)
+       (pgrp . number)
+       (sess . number)
+       (ttname . string)
+       (tpgid . number)
+       (minflt . number)
+       (majflt . number)
+       (time . tramp-ps-time)
+       (pri . number)
+       (nice . number)
+       (vsize . number)
+       (rss . number)
+       (etime . tramp-ps-time)
+       (pcpu . number)
+       (pmem . number)
+       (args)))
+     (tramp-connection-local-busybox-ps-profile
+      (tramp-process-attributes-ps-args "-o" "pid,user,group,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "stat=abcde" "-o" "ppid,pgid,tty,time,nice,etime,args")
+      (tramp-process-attributes-ps-format
+       (pid . number)
+       (user . string)
+       (group . string)
+       (comm . 52)
+       (state . 5)
+       (ppid . number)
+       (pgrp . number)
+       (ttname . string)
+       (time . tramp-ps-time)
+       (nice . number)
+       (etime . tramp-ps-time)
+       (args)))
+     (tramp-connection-local-bsd-ps-profile
+      (tramp-process-attributes-ps-args "-acxww" "-o" "pid,euid,user,egid,egroup,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state,ppid,pgid,sid,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etimes,pcpu,pmem,args")
+      (tramp-process-attributes-ps-format
+       (pid . number)
+       (euid . number)
+       (user . string)
+       (egid . number)
+       (group . string)
+       (comm . 52)
+       (state . string)
+       (ppid . number)
+       (pgrp . number)
+       (sess . number)
+       (ttname . string)
+       (tpgid . number)
+       (minflt . number)
+       (majflt . number)
+       (time . tramp-ps-time)
+       (pri . number)
+       (nice . number)
+       (vsize . number)
+       (rss . number)
+       (etime . number)
+       (pcpu . number)
+       (pmem . number)
+       (args)))
+     (tramp-connection-local-default-shell-profile
+      (shell-file-name . "/bin/sh")
+      (shell-command-switch . "-c"))
+     (tramp-connection-local-default-system-profile
+      (path-separator . ":")
+      (null-device . "/dev/null"))))
+ '(package-selected-packages
+   '(speed-type the-matrix-theme aria2 vterm undo-fu flycheck helpful ox-pandoc no-littering rainbow-delimiters rainbow-mode vertico orderless consult marginalia olivetti org-modern cape markdown-mode nix-mode rust-mode lua-mode all-the-icons-dired async dired-hide-dotfiles dired-single reddigg mingus pdf-tools which-key magit webpaste org-present org-mime corfu-terminal beframe denote tempel-collection sdcv elfeed-org link-hint powerthesaurus jinx doom-modeline hide-mode-line el-fetch ox-hugo htmlize treesit-auto embark)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

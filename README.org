@@ -3,7 +3,7 @@
 
 --------------
 
-*** 🌟 Utilities that are Best! 
+* 🌟 Utilities that are Best! 
 --------------
 
 |---------------------------+-------------------------------------|
@@ -35,7 +35,7 @@ Feel free to open an issue and ask me doubts or about some improvements, you wan
 If you really wanna talk/discuss with me, open an issue so I will join on some media (Irc/matrix or telegram)
 
 
-***** ✨ Illustrations - Unix Way
+* ✨ Illustrations - Unix Way
 
 + 🐧 *Desktop Rice*
   #+attr_html: :width="100px"
@@ -72,7 +72,7 @@ Also, I have made some config (/hyprland,emacs../) files to be *symlink*, so i c
 
 --------------
 
-*** 📑 Installation Guide
+** 📑 Installation Guide
 If you are beginner, I'd recommend you to play with it in VM.
 
 1. Partition the disk as you require (edit file system section in configuration.nix)
@@ -117,7 +117,7 @@ Before that I believe you are a tinkerer, I have a motto which goes like this
 I mean, that is how *Nix Philosophy or Linux users are, We understand each utility (grep, sed...) and make precise use of it, You can technically call it Magic of scripting.
 
 
-**** 🎖️ Credits 
+*** 🎖️ Credits 
 
 These configs were the inspiration and helped to build this way.
 

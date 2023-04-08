@@ -1,10 +1,10 @@
-﻿#+TITLE: D Emacs Station
+﻿#+TITLE: 🧬 D Emacs Station
 #+PROPERTY: header-args:emacs-lisp :tangle ./gdk/i-home/configs/emacs/init.el :tangle-mode (identity #o444) :mkdirp yes
 #+TOC: tables
 
 
 ** Todo Stuffs (Feel free to say/add something. I will be glad!
-****  Finally Done.. Ooof 😄
+**** 😄 Finally Done.. Ooof 
 CLOSED: [2023-03-07 Tue 14:27]
 :LOGBOOK:
 - CLOSING NOTE [2023-03-07 Tue 14:27]
@@ -23,7 +23,7 @@ CLOSED: [2023-03-07 Tue 14:27]
 - [X] Make README.org or improve this Config.org so it is informational to all
 - [X] Share some cool stuffs with others and explain it very crisp and clearly
     
-****  Planning 😴 [0/5]
+**** 😴 Planning  [0/5]
 - [ ] add these stuffs.
   #+begin_src conf
 
@@ -39,7 +39,7 @@ CLOSED: [2023-03-07 Tue 14:27]
 - [ ] Learn elisp for enhancing some more stuffs
 
 
-** TLDWR - Features 🌟
+** ✨ TLDWR - Features
 /too long, don't wanna read/
 
 Some of the highlights which you might wanna copy or take from this config :
@@ -49,7 +49,7 @@ Some of the highlights which you might wanna copy or take from this config :
 3. Zen, Distraction free text viewing experience (No mode-line)
 
 
-* Early-Init 🌅
+* 🌅 Early-Init 
 #+begin_src emacs-lisp :noweb yes :tangle ./gdk/i-home/configs/emacs/early-init.el :tangle-mode (identity #o444) :mkdirp yes
   ;;; early-init.el ---   -*- lexical-binding: t -*-
 
@@ -91,7 +91,7 @@ Some of the highlights which you might wanna copy or take from this config :
   (provide 'early-init)
   ;;; early-init.el ends here
     #+end_src  
-* Start-ify 🔰
+* 🔰 Start-ify 
 Manage Font size, Initialize Package setup and sends you startup time (Daemonize 👹 your Emacs)
 #+begin_src emacs-lisp
   ;;; Personal configuration -*- lexical-binding: t -*-
@@ -136,7 +136,7 @@ Manage Font size, Initialize Package setup and sends you startup time (Daemonize
   (setq use-package-always-ensure t)
 
   #+end_src
-* Fontify 🔤
+* 🔤 Fontify 
 Fonts are crucial to read.
 #+begin_src emacs-lisp
   ;; You will most likely need to adjust this font size for your system!
@@ -179,7 +179,7 @@ Fonts are crucial to read.
     (set-face-attribute 'variable-pitch nil :font d/variable-width-font :height default-variable-font-size :weight 'medium))
 #+end_src
 
-* Cleanliness 📑
+* 📑 Cleanliness 
 Keep folders and backuping files clean!
 #+begin_src emacs-lisp
   (use-package no-littering
@@ -214,7 +214,7 @@ Keep folders and backuping files clean!
     (setq savehist-additional-variables '(kill-ring search-ring regexp-search-ring)))
 #+end_src
 
-* Better Bindings ⌨️
+* ⌨️ Better Bindings 
 ** Custom functions
 #+begin_src emacs-lisp
   (defun split-and-follow-horizontally ()
@@ -292,7 +292,7 @@ Keep folders and backuping files clean!
   (defalias 'yes-or-no-p 'y-or-n-p) ;; Make confirmation messages easy and not a pain.
 
 #+end_src
-* What Key? 🔤
+* 🎹 What Key? 
 Many people know that emacs has lot of keychords, which aren't easy to remember, ~which-key~ is a package which shows cheatsheet for the keychords you press. Mostly will find helpful for ~C-x~ or ~C-c~ or (yours general key/leader key)
 #+begin_src emacs-lisp
   (use-package which-key
@@ -317,7 +317,7 @@ Many people know that emacs has lot of keychords, which aren't easy to remember,
 
 #+end_src
 
-* Helpful 🍁
+* 🍁 Helpful 
 Helpful package to even elaborate on describe commands. Decreases many hassles.
 
 #+begin_src emacs-lisp
@@ -335,7 +335,7 @@ Helpful package to even elaborate on describe commands. Decreases many hassles.
 
 #+end_src
 
-* Color-ify 🎨
+* 🎨 Color-ify 
 Coloured parentheses or hex values are really needed for some usecases, obviously you know it lol.
 *Happy Ricing* but use Emacs Everywhere lol
 #+begin_src emacs-lisp
@@ -347,7 +347,7 @@ Coloured parentheses or hex values are really needed for some usecases, obviousl
     :init (add-hook 'prog-mode-hook 'rainbow-mode)
     :bind ("C-c t c" . rainbow-mode))
 #+end_src
-* Good Mouse use? 🖱️
+* 🖱️ Good Mouse use? 
 Just don't use mouse, try to stay with keyboard, feel like *Pro*!
 But if you like clicks, tacks and ticks of you mouse, then go with it. (Mouse is a good invention lol)
 #+begin_src emacs-lisp
@@ -357,12 +357,12 @@ But if you like clicks, tacks and ticks of you mouse, then go with it. (Mouse is
   (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
 #+end_src
 
-* Minad - The Messiah 😇
+* 😇 Minad - The Messiah 
 Daniel Mendler minad  is a great guy, It is one of the reason why I love Emacs and Moved to Emacs and use it everywhere as much as Possible.
 Just see his git repo issues, he has it all solved, and he will explain and converse with clear and good explanation, I wondered how could a man be so dedicated to Emacs so well with very positive approach. Consider trying his packages and if possible, do Donate to him.
 Just Awesome, if it wasn't for his packages, I probably would never have tried Emacs. Now I hate vim/neovim, Idk why.
 
-** Vertico - The first ❤️
+** ❤️ Vertico - The first 
 Just check the [[https://github.com/minad/vertico][Vertico github]] repo, you will find great Readme file with rich information and some basic usage codes which is more than enough.
 #+begin_src emacs-lisp
   (use-package vertico
@@ -837,7 +837,7 @@ You will see org just below this, this package helps make Org-Mode looks eye-can
   (global-org-modern-mode)
 
 #+end_src
-* Organize Life 🗄️
+* 🗄️ Organize Life 
 Life's Good if you Organize is well, don't worry if you feel organizing is not easy, Org for the rescue.
 Plain (naked) simple file can help maintain GTD, even hell lot more many people don't know about.
 Don't compare Notion or Logseq, Org-mode is on different league. These no match for it yet ( actually from 20 years lol). If you know Org, you know it. If not, go check YT.
@@ -1247,8 +1247,8 @@ TODO : Learn more on this
                    :jump-to-captured t)))
 
 #+end_src
-* Eye Candy Looks 🍭
-** Olive Etiquette 🫒
+* 🍭 Eye Candy Looks 
+** 🫒 Olive Etiquette 
 All texts from left is not intuitive, Spoils GUI end of emacs, feels like you are on Terminal all time. Also, the space on right side will be wasted, unless you use split window vertically. Centering content helps focus and make things look tidy.
 #+begin_src emacs-lisp
   (use-package olivetti
@@ -1293,7 +1293,7 @@ Mode-line to make stuff easy to use
 
 
 #+end_src
-** Theme 😻
+** 😻 Theme 
 I was using =doom-themes= actually, but they are not that good, tho I like doom-gruvbox alot. modus-vivendi is also well made, dedicatingly for emacs.
 After long  usage, you will realize that Modus-themes is a *masterpiece* made by Protesilaos (Prot).
 + Works very well with eww browser too, url bar looks fine.
@@ -1374,7 +1374,7 @@ With emacs 29, we have ~pixel-scroll-precision-mode~
     (interactive)
     (pixel-scroll-precision-scroll-up 20))
 #+end_src
-* IDE like Lsp 💻
+* 💻 IDE like Lsp 
 I'm not a programmer, maybe will be expanded in future..
 #+begin_src emacs-lisp
   (use-package nix-mode
@@ -1437,7 +1437,7 @@ I'm not a programmer, maybe will be expanded in future..
   (add-hook 'eglot-managed-mode-hook #'my/eglot-capf)
 
 #+end_src
-* Git Controller  
+*  Git Controller 
 Magit the killer beast after org-mode.
 #+begin_src emacs-lisp
   (use-package magit
@@ -1451,7 +1451,7 @@ Magit the killer beast after org-mode.
 
 
 #+end_src
-* File Manager 📂
+* 📂 File Manager 
 Not that intuitive to use as file manager, once you get a hand of emacs. You will thank for this.
 #+begin_src emacs-lisp
   (use-package dired
@@ -1485,7 +1485,7 @@ Not that intuitive to use as file manager, once you get a hand of emacs. You wil
     (dired-mode . all-the-icons-dired-mode))
 
 #+end_src
-* Terminal 
+*  Terminal 
 Vterm to replace terminal emulator.
 #+begin_src emacs-lisp
   (use-package vterm
@@ -1494,7 +1494,7 @@ Vterm to replace terminal emulator.
     :config
     (setq vterm-shell "/etc/profiles/per-user/i/bin/fish"))
 #+end_src
-* Cool Stuffs 🧊
+* 🧊 Cool Stuffs 
 Some small codes from good source.
 #+begin_src emacs-lisp
   (use-package reddigg
@@ -1550,7 +1550,7 @@ Some small codes from good source.
           ("p" . sdcv-previous-dictionary)))
 
 #+end_src
-* Document - The PDF 📎
+* 📎 Document - The PDF 
 Pdf-tools is another great addition if you want to integrate well with Emacs.
 #+begin_src emacs-lisp
   (use-package pdf-tools
@@ -1610,7 +1610,7 @@ Pdf-tools is another great addition if you want to integrate well with Emacs.
 
 #+end_src
 
-* Functions Mania 🏅
+* 🏅 Functions Mania 
 Some more functions copied and adapted well to my flow. You will also find it well.
 #+begin_src emacs-lisp
   (defun config-reload ()
@@ -1670,7 +1670,7 @@ Some more functions copied and adapted well to my flow. You will also find it we
 
 #+end_src
 
-* Rss - Better Web 📰
+* 📰 Rss - Better Web 
 Use RSS, just switch to it, and save your time for other productive things. If you wanna follow lazy people and hit that 'like, share and subscribe button, and /ding/ the bell icon' and what not, go on.
 #+begin_src emacs-lisp
   (use-package elfeed
@@ -1865,14 +1865,14 @@ Congratulations, if you are already using Rss, if not, don't worry, you can get 
 
 #+end_src
 
-* Good Site 🌐
+* 🌐 Good Site 
 Use ox-hugo to manage static site in Hugo.
 #+begin_src emacs-lisp
     (use-package ox-hugo
       :after ox)
 #+end_src
 
-* Lots of things, No need to talk 💜
+* 💜 Lots of things, No need to talk 
 Idk why, but i guess these all should be the sane defaults.
 #+begin_src emacs-lisp
   (setq inhibit-startup-message t)
@@ -1989,7 +1989,7 @@ Idk why, but i guess these all should be the sane defaults.
 
 #+end_src
 
-* Run Always, and be Everywhere 🏍️
+* 🏍️ Run Always, and be Everywhere 
 Run emacs as daemon and thank yourself for blazing fast clients of emacs.
 #+begin_src emacs-lisp
 

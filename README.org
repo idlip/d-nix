@@ -1,25 +1,25 @@
-#+TITLE: Nix-Org, A Simply Aesthetic, Productive setup with Declaration World! Just do enable=true; 
+#+TITLE: 🧬 Nix-Org, A Simply Aesthetic, Productive setup with Declaration World! Just do enable=true; 
 
 
 --------------
 
-*** Utilities that are Best! 🌟
+*** 🌟 Utilities that are Best! 
 --------------
 
 |-------------------------+-------------------------------------|
 | Class                   | Name                                |
 |-------------------------+-------------------------------------|
-| Window Manager          | [[https://hyprland.org/][Hyprland]] 🌸                          |
-| Text Editor             | [[https://www.gnu.org/software/emacs/][Emacs]] 💮                             |
-| Gtk Theme               | [[https://github.com/Fausto-Korpsvart/Gruvbox-GTK-Theme][Gruvbox]] / [[https://github.com/vinceliuice/Orchis-theme][Orchis]] 🎨                  |
+| Window Manager 🌸        | [[https://hyprland.org/][Hyprland]]                            |
+| 💜 Text Editor           | [[https://www.gnu.org/software/emacs/][Emacs]]                               |
+| Gtk Theme               | [[https://github.com/Fausto-Korpsvart/Gruvbox-GTK-Theme][🎨 Gruvbox]] / [[https://github.com/vinceliuice/Orchis-theme][Orchis]]                  |
 | Font                    | [[https://tosche.net/fonts/comic-code][Comic Code]] / [[https://github.com/dtinth/comic-mono-font][Comic Mono]] / [[https://github.com/tonsky/FiraCode][Fira Code]] |
-| Pdf Reader              | [[https://github.com/ahrm/sioyek][Sioyek]] 📔 (ditch zathura)            |
-| Media Player            | [[https://mpv.io][MPV!]] 🎬 (its MVP too)                |
-| Image Viewer            | [[https://sr.ht/~exec64/imv/][Imv]] 🖼️                                 |
+| 📔 Pdf Reader            | [[https://github.com/ahrm/sioyek][Sioyek]] (ditch zathura)              |
+| Media Player 🎬          | [[https://mpv.io][MPV!]] (its MVP too)                  |
+| Image Viewer            | [[https://sr.ht/~exec64/imv/][Imv]] 🖼️                               |
 | RSS Reader              | [[https://github.com/skeeto/elfeed][Elfeed]] 📰 (Again, Emacs)             |
 | Music Player            | [[https://github.com/ncmpcpp/ncmpcpp][Ncmpcpp]] or [[https://github.com//mingus][Mingus in Emacs]] 🎶        |
 | Terminal                | [[https://codeberg.org/dnkl/foot][Foot]] via footclient ⚽               |
-| Menu/Launcher           | [[https://github.com/davatorium/rofi][Rofi]] 🚀                            |
+| Menu/Launcher           | [[https://github.com/davatorium/rofi][Rofi]] 🚀                              |
 | Notification            | [[https://github.com/dunst/dunst][Dunst]]  🛎️                            |
 | Shell                   | [[https://zsh.org][Zshell]] with [[https://starship.rs][Starship]] 🔰              |
 | Status Bar              | [[https://github.com/Alexays/Waybar][Waybar]]  🍥                           |
@@ -35,27 +35,27 @@ Feel free to open an issue and ask me doubts or about some improvements, you wan
 If you really wanna talk/discuss with me, open an issue so I will join on some media (Irc/matrix or telegram)
 
 
-***** Illustrations - Unix Way 🎆
+***** ✨ Illustrations - Unix Way
 
-+ *Desktop Rice*
++ 🐧 *Desktop Rice*
   #+attr_html: :width="100px"
   [[file:assets/desktop.png]]
 
-+ *Pdf viewer and Rofi*
++ 📚 *Pdf viewer and Rofi*
   #+ATTR_HTML: width="100px"
   [[file:assets/nix-rof.png]]
 
-+ *Firefox and eww*
++ 📖 *Org and eww*
   #+attr_html: :width 500
   [[file:assets/org-eww.png]]
 
-+ *Firefox and Rss reader*
++ 🦊 *Firefox and Rss reader*
   #+attr_html: :width 500
   [[file:assets/firefox-rss.png]]
 
 --------------
 
-* Organized Nix Flakes? 🌲
+* 🌲 Organized Nix Flakes? 
 
 I manage my whole system with single org file. Its easy and pretty handy. You can read that file here *↬* [[file:d-setup.org][d-setup.org]] , its both self documenting and has all source code blocks.
 
@@ -65,43 +65,43 @@ Also, I have made some config (/hyprland,emacs../) files to be *symlink*, so i c
 --------------
 
 #+begin_center
-| *Note*: Check pre-requisites heading in setup file to add your username and hostname there.                              |
-| There are *#FIXME tags in [[file:d-setup.org][d-setup.org]]* where you should edit it accordingly to your *USERNAME* and *HOSTNAME* (mostly for tangling path).   I have tried to comment few things to make it as a info, you can _ask/create issue_ regarding this, don't hold back.   *I'm waiting for you to ask!* |
+| *Note*: Check pre-requisites heading in setup file ([[file:d-setup.org][d-setup]]) to add your username and hostname there.                            |
+| I have tried to comment few things to make it as a info, you can _ask/create issue_ regarding this, don't hold back.   *I'm waiting for you to ask!*      |
 #+end_center
 
 
 --------------
 
-*** Installation Guide
+*** 📑 Installation Guide
 If you are beginner, I'd recommend you to play with it in VM.
 
 1. Partition the disk as you require (edit file system section in configuration.nix)
 
 2. Run command to generate hardware-configuration.nix which will be created at /mnt/etc/nixos
 
-      #+begin_src shell
-     sudo nixos-generate-config --root /mnt
-   #+end_src
+         #+begin_src shell
+           sudo nixos-generate-config --root /mnt
+      #+end_src
 
 3. Then git clone this repo and remove flake.lock and update channels
 
-   #+begin_src shell
-     # Install git first
-     nix-env -iA nixos.git
+      #+begin_src shell
+        # Install git first
+        nix-env -iA nixos.git
 
-     git clone --depth=1 https://github.com/idlip/d-nix SETUP
-     cd SETUP
-     rm flake.lock
+        git clone --depth=1 https://github.com/idlip/d-nix SETUP
+        cd SETUP
+        rm flake.lock
 
-     # Update nix channels
-     nix flake update
-   #+end_src
+        # Update nix channels
+        nix flake update
+      #+end_src
 
 4. Do rebuild of flake system.
 
-   #+begin_src shell
-     sudo nixos-rebuild switch --flake .#HOSTNAME
-   #+end_src
+      #+begin_src shell
+        sudo nixos-rebuild switch --flake .#HOSTNAME
+      #+end_src
 
 --------------
 
@@ -114,10 +114,10 @@ Before that I believe you are a tinkerer, I have a motto which goes like this
 #+end_quote
 
   
-  I mean, that is how *Nix Philosophy or Linux users are, We understand each utility (grep, sed...) and make precise use of it, You can technically call it Magic of scripting.
+I mean, that is how *Nix Philosophy or Linux users are, We understand each utility (grep, sed...) and make precise use of it, You can technically call it Magic of scripting.
 
 
-**** Credits 🎖️
+**** 🎖️ Credits 
 
 These configs were the inspiration and helped to build this way.
 

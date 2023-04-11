@@ -1991,7 +1991,7 @@ Sane defaults go here
 
   font: "ComicCodeLigatures 20";
 
-  case-sensitive: false;
+  case-insensitive: true;
   cycle: true;
   filter: "";
   scroll-method: 0;
@@ -2014,6 +2014,10 @@ Sane defaults go here
   parse-user:   true;
   /** Parse system desktop files. */
   parse-system: true;
+  }
+
+  dmenu {
+  case-insensitive: true;
   }
 
   run-command: "{cmd}";

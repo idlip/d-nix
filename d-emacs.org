@@ -1260,6 +1260,7 @@ All texts from left is not intuitive, Spoils GUI end of emacs, feels like you ar
            (helpful-mode         . olivetti-mode)
            (Info-mode         . olivetti-mode)           
            (org-mode          . olivetti-mode)
+           (ement-room-mode   . olivetti-mode)
            (dashboard-mode    . olivetti-mode)
            (sdcv-mode         . olivetti-mode)
            (fundamental-mode  . olivetti-mode)
@@ -1360,7 +1361,7 @@ Managing frames and their buffers handy way. Gets rid of using tab-bar or window
 With emacs 29, we have ~pixel-scroll-precision-mode~
 #+begin_src emacs-lisp
   (setq-default scroll-conservatively 10000)
-  (setq-default scroll-margin 5)
+  (setq-default scroll-margin 3)
 
   (pixel-scroll-precision-mode t)
 
@@ -1435,6 +1436,19 @@ I'm not a programmer, maybe will be expanded in future..
                        #'cape-file))))
 
   (add-hook 'eglot-managed-mode-hook #'my/eglot-capf)
+
+#+end_src
+** ⚡ Kind Icons
+Icons to prettify the corfu popup
+#+begin_src emacs-lisp
+  (use-package kind-icon
+    :ensure t
+    :after corfu
+    :custom
+    (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly
+    :config
+    (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
+    (setq kind-icon-default-style '(:padding -0.5 :stroke 0 :margin 0 :radius 0 :height 0.6 :scale 1.0)))
 
 #+end_src
 *  Git Controller 
@@ -1865,6 +1879,17 @@ Congratulations, if you are already using Rss, if not, don't worry, you can get 
 
 #+end_src
 
+* 🐲 Matrix
+Just to use matrix for some hacky nerds community
+#+begin_src emacs-lisp
+  (use-package ement
+    :hook (ement-room-compose-hook . ement-room-compose-org)
+    :bind (:map ement-room-minibuffer-map
+                ("<f6>" . ement-room-compose-from-minibuffer))
+    :config
+    (setq ement-room-send-message-filter 'ement-room-send-org-filter))
+
+#+end_src
 * 🌐 Good Site 
 Use ox-hugo to manage static site in Hugo.
 #+begin_src emacs-lisp

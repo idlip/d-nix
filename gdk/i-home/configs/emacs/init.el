@@ -1044,6 +1044,7 @@ selected color."
          (helpful-mode         . olivetti-mode)
          (Info-mode         . olivetti-mode)           
          (org-mode          . olivetti-mode)
+         (ement-room-mode   . olivetti-mode)
          (dashboard-mode    . olivetti-mode)
          (sdcv-mode         . olivetti-mode)
          (fundamental-mode  . olivetti-mode)
@@ -1120,7 +1121,7 @@ selected color."
   (add-to-list 'consult-buffer-sources 'beframe--consult-source))
 
 (setq-default scroll-conservatively 10000)
-(setq-default scroll-margin 5)
+(setq-default scroll-margin 3)
 
 (pixel-scroll-precision-mode t)
 
@@ -1192,6 +1193,15 @@ selected color."
                      #'cape-file))))
 
 (add-hook 'eglot-managed-mode-hook #'my/eglot-capf)
+
+(use-package kind-icon
+  :ensure t
+  :after corfu
+  :custom
+  (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly
+  :config
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
+  (setq kind-icon-default-style '(:padding -0.5 :stroke 0 :margin 0 :radius 0 :height 0.6 :scale 1.0)))
 
 (use-package magit
   :defer t
@@ -1582,6 +1592,13 @@ selected color."
              (selection (completing-read "Go To URL from page: " links nil t))
              (url (replace-regexp-in-string ".*@ " "" selection)))
         (browse-url-generic url (when arg 4)))))
+
+(use-package ement
+  :hook (ement-room-compose-hook . ement-room-compose-org)
+  :bind (:map ement-room-minibuffer-map
+              ("<f6>" . ement-room-compose-from-minibuffer))
+  :config
+  (setq ement-room-send-message-filter 'ement-room-send-org-filter))
 
 (use-package ox-hugo
   :after ox)

@@ -227,12 +227,12 @@ mpc_cli playerctl pavucontrol pulsemixer imv
 # cli tools
 cached-nix-shell pcmanfm yt-dlp fzf neovim btop
 
-  unzip aspell aspellDicts.en hunspell enchant
-  ripgrep nitch libreoffice transmission pandoc
-  rsync  ffmpeg sdcv imagemagick groff pciutils acpi
-  # texlive.combined.scheme-full
-  fd ncdu mu isync ts  syncthing 
-  jq keepassxc figlet keepassxc dconf gcc
+unzip aspell aspellDicts.en hunspell enchant
+ripgrep nitch libreoffice pandoc newsboat
+rsync  ffmpeg sdcv imagemagick groff pciutils acpi
+# texlive.combined.scheme-full
+fd ncdu mu isync ts  syncthing 
+jq keepassxc figlet keepassxc dconf gcc
 
 # themes
 gruvbox-gtk-theme

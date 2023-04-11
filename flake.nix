@@ -24,7 +24,7 @@
 
     # Greatest Editor of all time. (if you shill on vim, give emacs a try and see first, although it is objective to individual)
     emacs-overlay = {   
-      url = "github:nix-community/emacs-overlay";
+      url = "github:nix-community/emacs-overlay?rev=96fec8e6cdb99a7a40e5d8f7f7449d7fee6d441f";
     };
 
     # Home to manage all user configs
@@ -45,30 +45,30 @@
         config.allowUnfree = true;
       };
       lib = nixpkgs.lib;
-      
-  in {
-    
-    nixosConfigurations = {
 
-      gdk = lib.nixosSystem {
-        inherit system;
-        modules = [
+    in {
 
-          ./gdk/configuration.nix
-          home-manager.nixosModules.home-manager {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.extraSpecialArgs = {
-              inherit inputs;
-              inherit self;
-            };
+      nixosConfigurations = {
 
-            home-manager.users.i = ./gdk/i-home ;
-          }
-          hosts.nixosModule
-        ];
-        specialArgs = {inherit inputs;};
+        gdk = lib.nixosSystem {
+                          inherit system;
+                          modules = [
+
+                            ./gdk/configuration.nix
+                              home-manager.nixosModules.home-manager {
+                                home-manager.useGlobalPkgs = true;
+                                home-manager.useUserPackages = true;
+                                home-manager.extraSpecialArgs = {
+                                  inherit inputs;
+                                  inherit self;
+                                };
+
+                                home-manager.users.i = ./gdk/i-home ;
+                              }
+                              hosts.nixosModule
+                          ];
+                          specialArgs = {inherit inputs;};
+                        };
       };
     };
-  };
 }

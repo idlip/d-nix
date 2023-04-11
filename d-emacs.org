@@ -1492,7 +1492,7 @@ Vterm to replace terminal emulator.
     :defer t
     :bind ("C-c d t" . vterm)
     :config
-    (setq vterm-shell "/etc/profiles/per-user/i/bin/fish"))
+    (setq vterm-shell "/etc/profiles/per-user/i/bin/zsh"))
 #+end_src
 * 🧊 Cool Stuffs 
 Some small codes from good source.

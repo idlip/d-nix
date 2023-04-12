@@ -228,11 +228,11 @@ mpc_cli playerctl pavucontrol pulsemixer imv
 cached-nix-shell pcmanfm yt-dlp fzf neovim btop
 
 unzip aspell aspellDicts.en hunspell enchant
-ripgrep nitch libreoffice pandoc newsboat
-rsync  ffmpeg sdcv imagemagick groff pciutils acpi
+ripgrep nitch libreoffice pandoc newsboat tmux
+rsync  ffmpeg_6-full sdcv imagemagick groff pciutils acpi
 # texlive.combined.scheme-full
 fd ncdu mu isync ts  syncthing 
-jq keepassxc figlet keepassxc dconf gcc
+jq keepassxc figlet keepassxc
 
 # themes
 gruvbox-gtk-theme
@@ -529,6 +529,7 @@ programs.emacs = {
     org-mime corfu-terminal beframe denote tempel tempel-collection
     sdcv elfeed elfeed-org link-hint powerthesaurus jinx
     doom-modeline hide-mode-line el-fetch ox-hugo htmlize
+    ement kind-icon speed-type
   ])
   );
 };
@@ -984,9 +985,9 @@ xdg = {
 
 programs.waybar = {
   enable = true;
-  package = pkgs.waybar.overrideAttrs (oldAttrs: {
-    mesonFlags = oldAttrs.mesonFlags ++ ["-Dexperimental=true"];
-  });
+  # package = pkgs.waybar.overrideAttrs (oldAttrs: {
+  #   mesonFlags = oldAttrs.mesonFlags ++ ["-Dexperimental=true"];
+  # });
 
   settings = {
     mainBar = {

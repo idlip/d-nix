@@ -707,9 +707,9 @@ selected color."
          ("C-c t R" . d/bionic-region)
          ("C-c d a" . org-agenda)
          ("C-c t r" . d/bionic-read)
+         ("<f6>" . d/edit-src-block)
          :map org-mode-map
-         ("C-c o b" . d/edit-src-block)
-         ("<f6>" . d/edit-src-block))
+         ("C-c o b" . d/edit-src-block))
   :config
   (setq org-ellipsis " ▾")
 
@@ -966,75 +966,6 @@ selected color."
   (d/org-present-mode)
   (d/org-present-mode))
 
-(use-package denote)
-(setq denote-directory (expand-file-name "~/sync/denote"))
-(setq denote-known-keywords '("emacs" "blogs" "article"))
-(setq denote-infer-keywords t)
-(setq denote-sort-keywords t)
-(setq denote-file-type nil) ; Org is the default, set others here
-(setq denote-prompts '(title keywords))
-(setq denote-excluded-directories-regexp nil)
-(setq denote-excluded-keywords-regexp nil)
-
-(setq denote-date-prompt-use-org-read-date t)
-
-(setq denote-allow-multi-word-keywords t)
-(setq denote-date-format nil) ; read doc string
-
-(setq denote-backlinks-show-context t)
-
-(add-hook 'find-file-hook #'denote-link-buttonize-buffer)
-
-(setq denote-dired-directories
-      (list denote-directory
-            (thread-last denote-directory (expand-file-name "attachments"))
-            (expand-file-name "~/sync/org/books/")))
-
-(add-hook 'dired-mode-hook #'denote-dired-mode)
-
-(defun my-denote-journal ()
-  "Create an entry tagged 'journal', while prompting for a title."
-  (interactive)
-  (denote
-   (denote--title-prompt)
-   '("journal")))
-
-(let ((map global-map))
-  (define-key map (kbd "C-c n j") #'my-denote-journal) ; our custom command
-  (define-key map (kbd "C-c n n") #'denote)
-  (define-key map (kbd "C-c n N") #'denote-type)
-  (define-key map (kbd "C-c n d") #'denote-date)
-  (define-key map (kbd "C-c n s") #'denote-subdirectory)
-  (define-key map (kbd "C-c n t") #'denote-template)
-  ;; If you intend to use Denote with a variety of file types, it is
-  ;; easier to bind the link-related commands to the `global-map', as
-  ;; shown here.  Otherwise follow the same pattern for `org-mode-map',
-  ;; `markdown-mode-map', and/or `text-mode-map'.
-  (define-key map (kbd "C-c n i") #'denote-link) ; "insert" mnemonic
-  (define-key map (kbd "C-c n I") #'denote-link-add-links)
-  (define-key map (kbd "C-c n b") #'denote-link-backlinks)
-  (define-key map (kbd "C-c n f f") #'denote-link-find-file)
-  (define-key map (kbd "C-c n f b") #'denote-link-find-backlink)
-  (define-key map (kbd "C-c n r") #'denote-rename-file)
-  (define-key map (kbd "C-c n R") #'denote-rename-file-using-front-matter))
-
-;; Key bindings specifically for Dired.
-(let ((map dired-mode-map))
-  (define-key map (kbd "C-c C-d C-i") #'denote-link-dired-marked-notes)
-  (define-key map (kbd "C-c C-d C-r") #'denote-dired-rename-marked-files)
-  (define-key map (kbd "C-c C-d C-R") #'denote-dired-rename-marked-files-using-front-matter))
-
-(with-eval-after-load 'org-capture
-  (setq denote-org-capture-specifiers "%l\n%i\n%?")
-  (add-to-list 'org-capture-templates
-               '("n" "New note (with denote.el)" plain
-                 (file denote-last-path)
-                 #'denote-org-capture
-                 :no-save t
-                 :immediate-finish nil
-                 :kill-buffer t
-                 :jump-to-captured t)))
-
 (use-package olivetti
   :defer t
   :hook ((text-mode         . olivetti-mode)
@@ -1091,34 +1022,6 @@ selected color."
         (agenda-structure . (variable-pitch light 1.8))
         (t . (1.1))))
 (load-theme 'modus-vivendi t)
-
-(use-package beframe)
-(setq beframe-global-buffers '("*scratch*"))
-(setq beframe-create-frame-scratch-buffer nil)
-
-(beframe-mode 1)
-
-(define-key global-map (kbd "C-x B") #'beframe-switch-buffer)
-
-(defvar consult-buffer-sources)
-(declare-function consult--buffer-state "consult")
-
-(with-eval-after-load 'consult
-  (defface beframe-buffer
-    '((t :inherit font-lock-string-face))
-    "Face for `consult' framed buffers.")
-
-  (defvar beframe--consult-source
-    `( :name     "Frame-specific buffers (current frame)"
-       :narrow   ?F
-       :category buffer
-       :face     beframe-buffer
-       :history  beframe-history
-       :items    ,#'beframe--buffer-names
-       :action   ,#'switch-to-buffer
-       :state    ,#'consult--buffer-state))
-
-  (add-to-list 'consult-buffer-sources 'beframe--consult-source))
 
 (setq-default scroll-conservatively 10000)
 (setq-default scroll-margin 3)
@@ -1597,8 +1500,11 @@ selected color."
   :hook (ement-room-compose-hook . ement-room-compose-org)
   :bind (:map ement-room-minibuffer-map
               ("<f6>" . ement-room-compose-from-minibuffer))
+  (:map ement-room-mode-map
+        ("M-<" . ement-room-scroll-down-command))
   :config
-  (setq ement-room-send-message-filter 'ement-room-send-org-filter))
+  (setq ement-room-send-message-filter 'ement-room-send-org-filter)
+  (setq ement-room-list-avatars nil))
 
 (use-package ox-hugo
   :after ox)
@@ -1720,8 +1626,97 @@ selected color."
 (if (daemonp)
     (add-hook 'after-make-frame-functions
               (lambda (frame)
-                ;; (setq doom-modeline-icon t)
+                (setq doom-modeline-icon t)
                 (with-selected-frame frame
                   (d/set-font-faces))))
     (d/set-font-faces))
-(put 'narrow-to-region 'disabled nil)
+ (put 'narrow-to-region 'disabled nil)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(connection-local-criteria-alist
+   '(((:application tramp)
+      tramp-connection-local-default-system-profile tramp-connection-local-default-shell-profile)))
+ '(connection-local-profile-alist
+   '((tramp-connection-local-darwin-ps-profile
+      (tramp-process-attributes-ps-args "-acxww" "-o" "pid,uid,user,gid,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state=abcde" "-o" "ppid,pgid,sess,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etime,pcpu,pmem,args")
+      (tramp-process-attributes-ps-format
+       (pid . number)
+       (euid . number)
+       (user . string)
+       (egid . number)
+       (comm . 52)
+       (state . 5)
+       (ppid . number)
+       (pgrp . number)
+       (sess . number)
+       (ttname . string)
+       (tpgid . number)
+       (minflt . number)
+       (majflt . number)
+       (time . tramp-ps-time)
+       (pri . number)
+       (nice . number)
+       (vsize . number)
+       (rss . number)
+       (etime . tramp-ps-time)
+       (pcpu . number)
+       (pmem . number)
+       (args)))
+     (tramp-connection-local-busybox-ps-profile
+      (tramp-process-attributes-ps-args "-o" "pid,user,group,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "stat=abcde" "-o" "ppid,pgid,tty,time,nice,etime,args")
+      (tramp-process-attributes-ps-format
+       (pid . number)
+       (user . string)
+       (group . string)
+       (comm . 52)
+       (state . 5)
+       (ppid . number)
+       (pgrp . number)
+       (ttname . string)
+       (time . tramp-ps-time)
+       (nice . number)
+       (etime . tramp-ps-time)
+       (args)))
+     (tramp-connection-local-bsd-ps-profile
+      (tramp-process-attributes-ps-args "-acxww" "-o" "pid,euid,user,egid,egroup,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state,ppid,pgid,sid,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etimes,pcpu,pmem,args")
+      (tramp-process-attributes-ps-format
+       (pid . number)
+       (euid . number)
+       (user . string)
+       (egid . number)
+       (group . string)
+       (comm . 52)
+       (state . string)
+       (ppid . number)
+       (pgrp . number)
+       (sess . number)
+       (ttname . string)
+       (tpgid . number)
+       (minflt . number)
+       (majflt . number)
+       (time . tramp-ps-time)
+       (pri . number)
+       (nice . number)
+       (vsize . number)
+       (rss . number)
+       (etime . number)
+       (pcpu . number)
+       (pmem . number)
+       (args)))
+     (tramp-connection-local-default-shell-profile
+      (shell-file-name . "/bin/sh")
+      (shell-command-switch . "-c"))
+     (tramp-connection-local-default-system-profile
+      (path-separator . ":")
+      (null-device . "/dev/null"))))
+ '(package-selected-packages
+   '(zenburn-theme color-theme-sanityinc-tomorrow vterm undo-fu flycheck helpful ox-pandoc no-littering rainbow-delimiters rainbow-mode vertico orderless consult marginalia embark olivetti org-modern cape markdown-mode nix-mode rust-mode lua-mode all-the-icons-dired async dired-hide-dotfiles dired-single reddigg mingus pdf-tools which-key magit webpaste org-present org-mime corfu-terminal beframe denote tempel-collection sdcv elfeed-org link-hint powerthesaurus jinx doom-modeline hide-mode-line el-fetch ox-hugo htmlize treesit-auto aria2 speed-type emmet-mode kind-icon ement)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

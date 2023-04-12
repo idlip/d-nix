@@ -899,9 +899,9 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
            ("C-c t R" . d/bionic-region)
            ("C-c d a" . org-agenda)
            ("C-c t r" . d/bionic-read)
+           ("<f6>" . d/edit-src-block)
            :map org-mode-map
-           ("C-c o b" . d/edit-src-block)
-           ("<f6>" . d/edit-src-block))
+           ("C-c o b" . d/edit-src-block))
     :config
     (setq org-ellipsis " ▾")
 
@@ -1172,11 +1172,11 @@ How amazing it is to do presentation with power of org? Yes its possible (need o
     (d/org-present-mode))
 
 
-#+end_src
+                    #+end_src
 ** Denote
 Prot's package which might come handy to take notes and connect them.
 TODO : Learn more on this
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package denote)
   (setq denote-directory (expand-file-name "~/sync/denote"))
   (setq denote-known-keywords '("emacs" "blogs" "article"))
@@ -1327,7 +1327,7 @@ After long  usage, you will realize that Modus-themes is a *masterpiece* made by
 ** Beframe
 Managing frames and their buffers handy way. Gets rid of using tab-bar or windows
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package beframe)
   (setq beframe-global-buffers '("*scratch*"))
   (setq beframe-create-frame-scratch-buffer nil)
@@ -1886,8 +1886,11 @@ Just to use matrix for some hacky nerds community
     :hook (ement-room-compose-hook . ement-room-compose-org)
     :bind (:map ement-room-minibuffer-map
                 ("<f6>" . ement-room-compose-from-minibuffer))
+    (:map ement-room-mode-map
+          ("M-<" . ement-room-scroll-down-command))
     :config
-    (setq ement-room-send-message-filter 'ement-room-send-org-filter))
+    (setq ement-room-send-message-filter 'ement-room-send-org-filter)
+    (setq ement-room-list-avatars nil))
 
 #+end_src
 * 🌐 Good Site 
@@ -2023,10 +2026,10 @@ Run emacs as daemon and thank yourself for blazing fast clients of emacs.
 (if (daemonp)
     (add-hook 'after-make-frame-functions
               (lambda (frame)
-                ;; (setq doom-modeline-icon t)
+                (setq doom-modeline-icon t)
                 (with-selected-frame frame
                   (d/set-font-faces))))
     (d/set-font-faces))
-(put 'narrow-to-region 'disabled nil)
+ (put 'narrow-to-region 'disabled nil)
 
 #+end_src

@@ -116,7 +116,7 @@ Why not have a block for flake.nix too?
 
       # Greatest Editor of all time. (if you shill on vim, give emacs a try and see first, although it is objective to individual)
       emacs-overlay = {   
-        url = "github:nix-community/emacs-overlay?rev=96fec8e6cdb99a7a40e5d8f7f7449d7fee6d441f";
+        url = "github:nix-community/emacs-overlay?rev=1be00f42d07320f4fd0230172ceb27ec40330f53";
       };
 
       # Home to manage all user configs
@@ -901,11 +901,11 @@ Installs packages for this user only.
   cached-nix-shell pcmanfm yt-dlp fzf neovim btop
 
   unzip aspell aspellDicts.en hunspell enchant
-  ripgrep nitch libreoffice pandoc newsboat
-  rsync  ffmpeg sdcv imagemagick groff pciutils acpi
+  ripgrep nitch libreoffice pandoc newsboat tmux
+  rsync  ffmpeg_6-full sdcv imagemagick groff pciutils acpi
   # texlive.combined.scheme-full
   fd ncdu mu isync ts  syncthing 
-  jq keepassxc figlet keepassxc dconf gcc
+  jq keepassxc figlet keepassxc
 #+end_src
 ****** Themes
 #+begin_src nix
@@ -1561,6 +1561,7 @@ Its more mature than hyprland. So... better to have it! I dont use sway that muc
       org-mime corfu-terminal beframe denote tempel tempel-collection
       sdcv elfeed elfeed-org link-hint powerthesaurus jinx
       doom-modeline hide-mode-line el-fetch ox-hugo htmlize
+      ement kind-icon speed-type
     ])
     );
   };
@@ -2651,9 +2652,9 @@ listing menus
 
   programs.waybar = {
     enable = true;
-    package = pkgs.waybar.overrideAttrs (oldAttrs: {
-      mesonFlags = oldAttrs.mesonFlags ++ ["-Dexperimental=true"];
-    });
+    # package = pkgs.waybar.overrideAttrs (oldAttrs: {
+    #   mesonFlags = oldAttrs.mesonFlags ++ ["-Dexperimental=true"];
+    # });
 
     settings = {
       mainBar = {

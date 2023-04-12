@@ -24,7 +24,7 @@
 
     # Greatest Editor of all time. (if you shill on vim, give emacs a try and see first, although it is objective to individual)
     emacs-overlay = {   
-      url = "github:nix-community/emacs-overlay?rev=96fec8e6cdb99a7a40e5d8f7f7449d7fee6d441f";
+      url = "github:nix-community/emacs-overlay?rev=1be00f42d07320f4fd0230172ceb27ec40330f53";
     };
 
     # Home to manage all user configs

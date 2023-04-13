@@ -216,7 +216,7 @@
   :hook (prog-mode . rainbow-delimiters-mode))
 (use-package rainbow-mode
   :defer t
-  :init (add-hook 'prog-mode-hook 'rainbow-mode)
+  :hook (prog-mode . rainbow-mode)
   :bind ("C-c t c" . rainbow-mode))
 
 (setq scroll-conservatively 101) ;; value greater than 100 gets rid of half page jumping
@@ -688,7 +688,6 @@ selected color."
   (org-display-inline-images 1)
   (variable-pitch-mode 1)
   (org-font-setup)
-  (flyspell-mode 1)
   (setq
    org-startup-indented nil
    org-image-actual-width 300
@@ -793,22 +792,11 @@ selected color."
   (add-to-list 'org-structure-template-alist '("lx" . "src latex"))
   (add-to-list 'org-structure-template-alist '("cal" . "src calc")))
 
-(use-package ispell
-  :no-require t
-  :config
-  (setq ispell-dictionary "en")
-  (setq ispell-highlight-face (quote flyspell-incorrect))
-  (setq ispell-silently-savep t))
-
-(use-package flyspell
-  :defer t
-  :init
-  (progn
-    (add-hook 'message-mode-hook 'turn-on-flyspell)
-    (add-hook 'org-mode-hook 'flyspell-mode)))
-
-(use-package powerthesaurus
-  :defer t)
+(use-package jinx
+    :hook (emacs-startup . global-jinx-mode)
+    :bind ("M-$". jinx-correct))
+;;    :config
+;;    (set-face-attribute 'jinx-misspelled nil :underline '(:color foreground-color :style wave :position nil)))
 
 (use-package org-present
   :defer t
@@ -966,6 +954,74 @@ selected color."
   (d/org-present-mode)
   (d/org-present-mode))
 
+(use-package denote
+  :hook ((find-file-hook . denote-link-buttonize-buffer)
+
+         (dired-mode . denote-dired-mode))
+  :bind 
+  ("C-c n j" . d/my-journal)
+  ("C-c n n" . denote)
+  ("C-c n N" . denote-type)
+  ("C-c n d" . denote-date)
+  ("C-c n s" . denote-subdirectory)
+  ("C-c n t" . denote-template)
+  ("C-c n i" . denote-link)
+  ("C-c n I" . denote-link-add-links)
+  ("C-c n b" . denote-link-backlinks)
+  ("C-c n f f" . denote-link-find-file)
+  ("C-c n f b" . denote-link-find-backlink)
+  ("C-c n r" . denote-rename-file)
+  ("C-c n R" . denote-rename-file-using-front-matter)
+  (:map dired-mode-map
+        ("C-c C-d C-i" . denote-link-dired-marked-notes)
+        ("C-c C-d C-r" . denote-dired-rename-marked-files)
+        ("C-c C-d C-R" . denote-dired-rename-marked-files-using-front-matter))
+
+  :config
+  (setq
+   denote-directory (expand-file-name "~/sync/denote")
+   denote-known-keywords '("emacs" "blogs" "article")
+   denote-infer-keywords t
+   denote-sort-keywords t
+   denote-file-type nil ; Org is the default, set others here
+   denote-prompts '(title keywords)
+   denote-excluded-directories-regexp nil
+   denote-excluded-keywords-regexp nil
+   denote-date-prompt-use-org-read-date t
+   denote-allow-multi-word-keywords t
+   denote-date-format nil
+   denote-backlinks-show-context t)
+  denote-dired-directories
+  (list denote-directory
+        (thread-last denote-directory (expand-file-name "attachments"))
+        (expand-file-name "~/sync/org/books/")))
+
+(defun d/my-journal ()
+  (interactive)
+  (let* ((date (org-read-date))
+         (time (org-time-string-to-time date))
+         (title (format-time-string "%A %d %B %Y" time))
+         (initial (denote-sluggify title))
+         (target (read-file-name "Select note: " (denote-directory) nil nil initial
+                                 (lambda (f)
+                                   (or (denote-file-has-identifier-p f)
+                                       (file-directory-p f))))))
+    (if (file-exists-p target)
+        (find-file target)
+      (denote title '("journal") denote-file-type nil date))))
+
+
+(with-eval-after-load 'org-capture
+  (setq denote-org-capture-specifiers "%l\n%i\n%?")
+  (add-to-list 'org-capture-templates
+               '("n" "New note (with denote.el)" plain
+                 (file denote-last-path)
+                 #'denote-org-capture
+                 :no-save t
+                 :immediate-finish nil
+                 :kill-buffer t
+                 :jump-to-captured t)))
+
 (use-package olivetti
   :defer t
   :hook ((text-mode         . olivetti-mode)
@@ -977,6 +1033,7 @@ selected color."
          (org-mode          . olivetti-mode)
          (ement-room-mode   . olivetti-mode)
          (dashboard-mode    . olivetti-mode)
+         (eww-mode          . olivetti-mode)
          (sdcv-mode         . olivetti-mode)
          (fundamental-mode  . olivetti-mode)
          (nov-mode          . olivetti-mode)
@@ -1194,13 +1251,15 @@ selected color."
   :defer t
   :config
   (setq sdcv-say-word-p t)
-  (setq sdcv-dictionary-data-dir "/home/i/.local/share/stardict/") 
+  (setq sdcv-dictionary-data-dir "~/.DLIP/BIN/treasure/dict/") 
   (setq sdcv-dictionary-simple-list   
         '("wn" "enjp" "thesaurus"))
   :bind ("C-c d d" . sdcv-search-input)
   (:map sdcv-mode-map
         ("q" . kill-buffer-and-window)
         ("n" . sdcv-next-dictionary)
+        ("TAB" . hide-entry)
+        ("<backtab>" . show-entry)
         ("p" . sdcv-previous-dictionary)))
 
 (use-package pdf-tools
@@ -1497,7 +1556,7 @@ selected color."
         (browse-url-generic url (when arg 4)))))
 
 (use-package ement
-  :hook (ement-room-compose-hook . ement-room-compose-org)
+  :hook (ement-room-compose . ement-room-compose-org)
   :bind (:map ement-room-minibuffer-map
               ("<f6>" . ement-room-compose-from-minibuffer))
   (:map ement-room-mode-map
@@ -1631,92 +1690,3 @@ selected color."
                   (d/set-font-faces))))
     (d/set-font-faces))
  (put 'narrow-to-region 'disabled nil)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(connection-local-criteria-alist
-   '(((:application tramp)
-      tramp-connection-local-default-system-profile tramp-connection-local-default-shell-profile)))
- '(connection-local-profile-alist
-   '((tramp-connection-local-darwin-ps-profile
-      (tramp-process-attributes-ps-args "-acxww" "-o" "pid,uid,user,gid,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state=abcde" "-o" "ppid,pgid,sess,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etime,pcpu,pmem,args")
-      (tramp-process-attributes-ps-format
-       (pid . number)
-       (euid . number)
-       (user . string)
-       (egid . number)
-       (comm . 52)
-       (state . 5)
-       (ppid . number)
-       (pgrp . number)
-       (sess . number)
-       (ttname . string)
-       (tpgid . number)
-       (minflt . number)
-       (majflt . number)
-       (time . tramp-ps-time)
-       (pri . number)
-       (nice . number)
-       (vsize . number)
-       (rss . number)
-       (etime . tramp-ps-time)
-       (pcpu . number)
-       (pmem . number)
-       (args)))
-     (tramp-connection-local-busybox-ps-profile
-      (tramp-process-attributes-ps-args "-o" "pid,user,group,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "stat=abcde" "-o" "ppid,pgid,tty,time,nice,etime,args")
-      (tramp-process-attributes-ps-format
-       (pid . number)
-       (user . string)
-       (group . string)
-       (comm . 52)
-       (state . 5)
-       (ppid . number)
-       (pgrp . number)
-       (ttname . string)
-       (time . tramp-ps-time)
-       (nice . number)
-       (etime . tramp-ps-time)
-       (args)))
-     (tramp-connection-local-bsd-ps-profile
-      (tramp-process-attributes-ps-args "-acxww" "-o" "pid,euid,user,egid,egroup,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state,ppid,pgid,sid,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etimes,pcpu,pmem,args")
-      (tramp-process-attributes-ps-format
-       (pid . number)
-       (euid . number)
-       (user . string)
-       (egid . number)
-       (group . string)
-       (comm . 52)
-       (state . string)
-       (ppid . number)
-       (pgrp . number)
-       (sess . number)
-       (ttname . string)
-       (tpgid . number)
-       (minflt . number)
-       (majflt . number)
-       (time . tramp-ps-time)
-       (pri . number)
-       (nice . number)
-       (vsize . number)
-       (rss . number)
-       (etime . number)
-       (pcpu . number)
-       (pmem . number)
-       (args)))
-     (tramp-connection-local-default-shell-profile
-      (shell-file-name . "/bin/sh")
-      (shell-command-switch . "-c"))
-     (tramp-connection-local-default-system-profile
-      (path-separator . ":")
-      (null-device . "/dev/null"))))
- '(package-selected-packages
-   '(zenburn-theme color-theme-sanityinc-tomorrow vterm undo-fu flycheck helpful ox-pandoc no-littering rainbow-delimiters rainbow-mode vertico orderless consult marginalia embark olivetti org-modern cape markdown-mode nix-mode rust-mode lua-mode all-the-icons-dired async dired-hide-dotfiles dired-single reddigg mingus pdf-tools which-key magit webpaste org-present org-mime corfu-terminal beframe denote tempel-collection sdcv elfeed-org link-hint powerthesaurus jinx doom-modeline hide-mode-line el-fetch ox-hugo htmlize treesit-auto aria2 speed-type emmet-mode kind-icon ement)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

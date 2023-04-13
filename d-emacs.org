@@ -85,6 +85,7 @@ Some of the highlights which you might wanna copy or take from this config :
   (setq native-comp-async-report-warnings-errors nil)
   (setq native-comp-jit-compilation nil)
 
+  (load-theme 'modus-vivendi-tinted t)
   ;; Do not resize the frame at this early stage.
   (setq frame-inhibit-implied-resize t)
 
@@ -344,7 +345,7 @@ Coloured parentheses or hex values are really needed for some usecases, obviousl
     :hook (prog-mode . rainbow-delimiters-mode))
   (use-package rainbow-mode
     :defer t
-    :init (add-hook 'prog-mode-hook 'rainbow-mode)
+    :hook (prog-mode . rainbow-mode)
     :bind ("C-c t c" . rainbow-mode))
 #+end_src
 * 🖱️ Good Mouse use? 
@@ -768,6 +769,7 @@ Making snippets/templates is so easy with this package.
   (hugosite ":PROPERTIES:"  n ":EXPORT_FILE_NAME: " p n ":EXPORT_DATE: " p n ":EXPORT_HUGO_DRAFT: false" n ":END:")
   (readonly ":tangle-mode (identity #o444) :mkdirp yes" n)
   (variablweb "#+name: " p n "#+begin_src " p n> r> n> "#+end_src" :post (org-edit-src-code))
+  (datime (format-time-string "%Y-%m-%d %A %d %B %Y"))
 
   ;; Local Variables:
   ;; mode: lisp-data
@@ -880,7 +882,6 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
     (org-display-inline-images 1)
     (variable-pitch-mode 1)
     (org-font-setup)
-    (flyspell-mode 1)
     (setq
      org-startup-indented nil
      org-image-actual-width 300
@@ -993,7 +994,7 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
 #+end_src
 ** Spell Org
 Lets try ~ispell~ paired with ~aspell~ so its better writing.
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package ispell
     :no-require t
     :config
@@ -1010,6 +1011,15 @@ Lets try ~ispell~ paired with ~aspell~ so its better writing.
 
   (use-package powerthesaurus
     :defer t)
+#+end_src
+
+Jinx is another cool new package by Minad!
+#+begin_src emacs-lisp
+  (use-package jinx
+    :hook (emacs-startup . global-jinx-mode)
+    :bind ("M-$". jinx-correct))
+;;    :config
+;;    (set-face-attribute 'jinx-misspelled nil :underline '(:color foreground-color :style wave :position nil)))
 #+end_src
 ** Present Org
 How amazing it is to do presentation with power of org? Yes its possible (need olivetti to center)
@@ -1176,64 +1186,63 @@ How amazing it is to do presentation with power of org? Yes its possible (need o
 ** Denote
 Prot's package which might come handy to take notes and connect them.
 TODO : Learn more on this
-#+begin_src emacs-lisp :tangle no
-  (use-package denote)
-  (setq denote-directory (expand-file-name "~/sync/denote"))
-  (setq denote-known-keywords '("emacs" "blogs" "article"))
-  (setq denote-infer-keywords t)
-  (setq denote-sort-keywords t)
-  (setq denote-file-type nil) ; Org is the default, set others here
-  (setq denote-prompts '(title keywords))
-  (setq denote-excluded-directories-regexp nil)
-  (setq denote-excluded-keywords-regexp nil)
+#+begin_src emacs-lisp
+  (use-package denote
+    :hook ((find-file-hook . denote-link-buttonize-buffer)
+	 
+           (dired-mode . denote-dired-mode))
+    :bind 
+    ("C-c n j" . d/my-journal)
+    ("C-c n n" . denote)
+    ("C-c n N" . denote-type)
+    ("C-c n d" . denote-date)
+    ("C-c n s" . denote-subdirectory)
+    ("C-c n t" . denote-template)
+    ("C-c n i" . denote-link)
+    ("C-c n I" . denote-link-add-links)
+    ("C-c n b" . denote-link-backlinks)
+    ("C-c n f f" . denote-link-find-file)
+    ("C-c n f b" . denote-link-find-backlink)
+    ("C-c n r" . denote-rename-file)
+    ("C-c n R" . denote-rename-file-using-front-matter)
+    (:map dired-mode-map
+          ("C-c C-d C-i" . denote-link-dired-marked-notes)
+          ("C-c C-d C-r" . denote-dired-rename-marked-files)
+          ("C-c C-d C-R" . denote-dired-rename-marked-files-using-front-matter))
+  
+    :config
+    (setq
+     denote-directory (expand-file-name "~/sync/denote")
+     denote-known-keywords '("emacs" "blogs" "article")
+     denote-infer-keywords t
+     denote-sort-keywords t
+     denote-file-type nil ; Org is the default, set others here
+     denote-prompts '(title keywords)
+     denote-excluded-directories-regexp nil
+     denote-excluded-keywords-regexp nil
+     denote-date-prompt-use-org-read-date t
+     denote-allow-multi-word-keywords t
+     denote-date-format nil
+     denote-backlinks-show-context t)
+    denote-dired-directories
+    (list denote-directory
+          (thread-last denote-directory (expand-file-name "attachments"))
+          (expand-file-name "~/sync/org/books/")))
 
-  (setq denote-date-prompt-use-org-read-date t)
-
-  (setq denote-allow-multi-word-keywords t)
-  (setq denote-date-format nil) ; read doc string
-
-  (setq denote-backlinks-show-context t)
-
-  (add-hook 'find-file-hook #'denote-link-buttonize-buffer)
-
-  (setq denote-dired-directories
-        (list denote-directory
-              (thread-last denote-directory (expand-file-name "attachments"))
-              (expand-file-name "~/sync/org/books/")))
-
-  (add-hook 'dired-mode-hook #'denote-dired-mode)
-
-  (defun my-denote-journal ()
-    "Create an entry tagged 'journal', while prompting for a title."
+  (defun d/my-journal ()
     (interactive)
-    (denote
-     (denote--title-prompt)
-     '("journal")))
+    (let* ((date (org-read-date))
+           (time (org-time-string-to-time date))
+           (title (format-time-string "%A %d %B %Y" time))
+           (initial (denote-sluggify title))
+           (target (read-file-name "Select note: " (denote-directory) nil nil initial
+                                   (lambda (f)
+                                     (or (denote-file-has-identifier-p f)
+                                         (file-directory-p f))))))
+      (if (file-exists-p target)
+          (find-file target)
+        (denote title '("journal") denote-file-type nil date))))
 
-  (let ((map global-map))
-    (define-key map (kbd "C-c n j") #'my-denote-journal) ; our custom command
-    (define-key map (kbd "C-c n n") #'denote)
-    (define-key map (kbd "C-c n N") #'denote-type)
-    (define-key map (kbd "C-c n d") #'denote-date)
-    (define-key map (kbd "C-c n s") #'denote-subdirectory)
-    (define-key map (kbd "C-c n t") #'denote-template)
-    ;; If you intend to use Denote with a variety of file types, it is
-    ;; easier to bind the link-related commands to the `global-map', as
-    ;; shown here.  Otherwise follow the same pattern for `org-mode-map',
-    ;; `markdown-mode-map', and/or `text-mode-map'.
-    (define-key map (kbd "C-c n i") #'denote-link) ; "insert" mnemonic
-    (define-key map (kbd "C-c n I") #'denote-link-add-links)
-    (define-key map (kbd "C-c n b") #'denote-link-backlinks)
-    (define-key map (kbd "C-c n f f") #'denote-link-find-file)
-    (define-key map (kbd "C-c n f b") #'denote-link-find-backlink)
-    (define-key map (kbd "C-c n r") #'denote-rename-file)
-    (define-key map (kbd "C-c n R") #'denote-rename-file-using-front-matter))
-
-  ;; Key bindings specifically for Dired.
-  (let ((map dired-mode-map))
-    (define-key map (kbd "C-c C-d C-i") #'denote-link-dired-marked-notes)
-    (define-key map (kbd "C-c C-d C-r") #'denote-dired-rename-marked-files)
-    (define-key map (kbd "C-c C-d C-R") #'denote-dired-rename-marked-files-using-front-matter))
 
   (with-eval-after-load 'org-capture
     (setq denote-org-capture-specifiers "%l\n%i\n%?")
@@ -1262,6 +1271,7 @@ All texts from left is not intuitive, Spoils GUI end of emacs, feels like you ar
            (org-mode          . olivetti-mode)
            (ement-room-mode   . olivetti-mode)
            (dashboard-mode    . olivetti-mode)
+           (eww-mode          . olivetti-mode)
            (sdcv-mode         . olivetti-mode)
            (fundamental-mode  . olivetti-mode)
            (nov-mode          . olivetti-mode)
@@ -1554,13 +1564,15 @@ Some small codes from good source.
     :defer t
     :config
     (setq sdcv-say-word-p t)
-    (setq sdcv-dictionary-data-dir "/home/i/.local/share/stardict/") 
+    (setq sdcv-dictionary-data-dir "~/.DLIP/BIN/treasure/dict/") 
     (setq sdcv-dictionary-simple-list   
           '("wn" "enjp" "thesaurus"))
     :bind ("C-c d d" . sdcv-search-input)
     (:map sdcv-mode-map
           ("q" . kill-buffer-and-window)
           ("n" . sdcv-next-dictionary)
+          ("TAB" . hide-entry)
+          ("<backtab>" . show-entry)
           ("p" . sdcv-previous-dictionary)))
 
 #+end_src
@@ -1883,7 +1895,7 @@ Congratulations, if you are already using Rss, if not, don't worry, you can get 
 Just to use matrix for some hacky nerds community
 #+begin_src emacs-lisp
   (use-package ement
-    :hook (ement-room-compose-hook . ement-room-compose-org)
+    :hook (ement-room-compose . ement-room-compose-org)
     :bind (:map ement-room-minibuffer-map
                 ("<f6>" . ement-room-compose-from-minibuffer))
     (:map ement-room-mode-map

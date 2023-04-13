@@ -63,7 +63,7 @@ i
   I have some scripts here ==> [[https://github.com/idlip/d-bin]]
 #+name: my-bin
 #+begin_src nix :noweb yes
-/home/<<my-username>>/d-git/d-bin
+/home/<<my-username>>/d-git/d-bin/bin
 #+end_src
 
 - Tangling main nix files

@@ -42,7 +42,7 @@ i
 - Git repo path in system 
 #+name: my-git-path
 #+begin_src nix :noweb yes
-/home/<<my-username>>/.DLIP/SETUP
+/home/<<my-username>>/d-git/d-nix
 #+end_src
 
 - Config path in git
@@ -63,7 +63,7 @@ i
   I have some scripts here ==> [[https://github.com/idlip/d-bin]]
 #+name: my-bin
 #+begin_src nix :noweb yes
-/home/<<my-username>>/.DLIP/BIN
+/home/<<my-username>>/d-git/d-bin
 #+end_src
 
 - Tangling main nix files
@@ -900,11 +900,11 @@ Installs packages for this user only.
   # cli tools
   cached-nix-shell pcmanfm yt-dlp fzf neovim btop
 
-  unzip aspell aspellDicts.en hunspell enchant
+  unzip aspell aspellDicts.en-science aspellDicts.en hunspell hunspellDicts.en-us enchant
   ripgrep nitch libreoffice pandoc newsboat tmux
   rsync  ffmpeg_6-full sdcv imagemagick groff pciutils acpi
   # texlive.combined.scheme-full
-  fd ncdu mu isync ts  syncthing 
+  fd ncdu mu isync ts  syncthing dconf
   jq keepassxc figlet keepassxc
 #+end_src
 ****** Themes
@@ -1565,6 +1565,53 @@ Its more mature than hyprland. So... better to have it! I dont use sway that muc
     ])
     );
   };
+#+end_src
+****** Helix
+Vim need alot of plugins and customization which wastes time on tinkering, Helix shoudl work pretty much out of the box.
+
+#+begin_src nix :noweb yes
+  # We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+  home.file.".config/helix/config.toml".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/helix/config.toml";
+#+end_src
+
+#+begin_src toml :noweb yes :tangle (format "%s/helix/config.toml" (get-named-src-block-contents "my-configs" t))
+  theme = "onedarker"
+
+  [editor]
+  line-number = "relative"
+  cursorline = true
+  auto-completion = true
+  auto-format = true
+  auto-pairs = true
+  mouse = true
+
+  [editor.auto-pairs]
+  '(' = ')'
+  '{' = '}'
+  '[' = ']'
+  '"' = '"'
+  '`' = '`'
+  '<' = '>'
+
+
+  [editor.cursor-shape]
+  insert = "bar"
+  normal = "block"
+  select = "underline"
+
+  [editor.file-picker]
+  hidden = false
+
+  [editor.lsp]
+  enable = true
+  display-messages = true
+  display-inlay-hints = true
+  snippets = true
+
+  [keys.insert]
+  "A-x" = "normal_mode"     # Maps Alt-X to enter normal mode
+  j = { k = "normal_mode" } # Maps `jk` to exit insert mode
 #+end_src
 ****** FireFox
 ******* initial set

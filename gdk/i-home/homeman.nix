@@ -130,7 +130,7 @@ programs = {
 
     envExtra = ''
     export MANPAGER="sh -c 'col -bx | bat -l man -p'"
-    export PATH="$PATH:/home/i/d-git/d-bin"
+    export PATH="$PATH:/home/i/d-git/d-bin/bin"
     export PATH="$PATH:$HOME/.local/bin/d"
     export EDITOR="emacsclient -nw -a 'nvim'"
     export VISUAL=$EDITOR
@@ -402,7 +402,7 @@ services.dunst = {
       max_icon_size = 32;
       sticky_history = "yes";
       history_length = 20;
-      browser = "/home/i/d-git/d-bin/d-stuff";
+      browser = "/home/i/d-git/d-bin/bin/d-stuff";
       always_run_script = "true";
       title = "Dunst";
       class = "Dunst";

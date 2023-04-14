@@ -8,6 +8,7 @@
 *** [[https://yt.funami.tech/feed/channel/UC2eYFnH61tmytImy1mTYvhA][Luke]]
 *** [[https://yt.funami.tech/feed/channel/UCriRR_CzOny-akXyk1R-oDQ][Napoleon]]
 *** [[https://yt.funami.tech/feed/channel/UC5UAwBUum7CPN5buc-_N1Fw][The Linux Experiment]]
+*** [[https://yt.funami.tech/feed/channel/UC5U7mHlhP6s6478wd7ZvnhA][Trafotin]]
 ** Animalogy :animalogy:animal:zoo:
 *** [[https://yt.funami.tech/feed/channel/UCwmZiChSryoWQCZMIQezgTg][BBC Earth]]
 *** [[https://yt.funami.tech/feed/channel/UCwg6_F2hDHYrqbNSGjmar4w][Animalogic]]
@@ -19,7 +20,7 @@
 ** Docs :docs:doc:
 *** [[https://yt.funami.tech/feed/channel/UC_g32e3JeECjEuRbk-loywg][HQ Docs]]
 *** [[https://yt.funami.tech/feed/channel/UCixD9UbKvDxzGNiPC_fgHyA][Tokyo]]
-** Geeks :blogs:read:
+** Reads :blogs:read:
 *** [[https://www.psychologytoday.com/intl/front/feed][Psychology Today: The Latest]] :psych:psy:
 *** [[https://idlip.github.io/index.xml][Idlip]] :mine:idlip:
 *** [[https://www.beebom.com/feed/][Beebom]] :tech:
@@ -60,6 +61,8 @@
 *** [[https://bitesizebio.com/feed/][BiteSize]]
 *** [[http://feeds.feedburner.com/BiologyExams4U][Bioexam]]
 *** [[https://journals.biologists.com/rss/site_1000001/1000003.xml][Journal-bio]]
+** Edu :edu:
+*** [[https://nitter.net/official_ibab/rss][Ibab]] :ibab:
 ** Reddit :reddit:
 ** Comics :comic:
 *** [[https://xkcd.com/atom.xml][xkcd.com]]
@@ -68,6 +71,9 @@
 *** [[https://sachachua.com/blog/category/emacs/feed][Sachi]] :sacha:
 *** [[https://emacs-apac.gitlab.io/announcements/index.xml][Apac Emacs]] :meet:apac:
 *** [[https://planet.emacslife.com/atom.xml][Planet-Emacs]]
+** Linux :linux:
+*** [[https://opensourcemusings.com/feed/ blog][opensource]]
+*** [[https://itsfoss.com/rss][itsfoss]]
 ** Music                                                              :music:
 *** [[https://www.reddit.com/r/listentothis/search.rss?q=jazz&restrict_sr=on&sort=new&t=all/.rss][Jazz]] :jazz:
 *** [[https://www.reddit.com/r/listentothis/search.rss?q=classical&restrict_sr=on&sort=new&t=all/.rss][Classical]] :classical:

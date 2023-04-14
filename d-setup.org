@@ -1583,7 +1583,7 @@ Vim need alot of plugins and customization which wastes time on tinkering, Helix
   cursorline = true
   auto-completion = true
   auto-format = true
-  auto-pairs = true
+
   mouse = true
 
   [editor.auto-pairs]
@@ -1999,6 +1999,26 @@ j seek -30
 # subtitles
 J cycle sub 
 K cycle sub down
+#+end_src
+****** Imv
+Image viewer config
+#+begin_src nix :noweb yes
+  # We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+  home.file.".config/imv/config".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/imv/config";
+#+end_src
+
+#+begin_src conf :tangle (format "%s/imv/config" (get-named-src-block-contents "my-configs" t))
+  [binds]
+
+  # Delete and then close an open image by pressing 'X'
+  <Shift+X> = exec rm "$imv_current_file"; close
+
+  # Rotate the currently open image by 90 degrees by pressing 'R'
+  <Shift+R> = exec mogrify -rotate 90 "$imv_current_file"
+
+  p = prev
+  n = next
 #+end_src
 ****** Rofi
 The best menu, I tried wofi, bemenu, fuzzel and others.. but they were not extensive, so since rofi has rofi-wayland, so I will stick to it.

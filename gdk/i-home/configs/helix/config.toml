@@ -5,7 +5,7 @@ line-number = "relative"
 cursorline = true
 auto-completion = true
 auto-format = true
-auto-pairs = true
+
 mouse = true
 
 [editor.auto-pairs]

@@ -725,7 +725,7 @@ selected color."
 
   (setq org-agenda-files
         '("~/sync/org/tasks.org"
-          "~/.DLIP/SITE/README.org"))
+          "~/d-git/d-site/README.org"))
 
   ;; (require 'org-habit)
   ;; (add-to-list 'org-modules 'org-habit)
@@ -757,7 +757,7 @@ selected color."
         `(
           ("t" "Task" entry (file+olp "~/sync/org/tasks.org" "One-Timer")
            "* TODO %?\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
-          ("w" "Website Todo" entry (file+headline "~/.DLIP/SITE/README.org" "Ideas - TODO")
+          ("w" "Website Todo" entry (file+headline "~/d-git/d-site/README.org" "Ideas - TODO")
            "* TODO %?\n  SCHEDULED:%T\n " :empty-lines 1)            
 
           ("j" "Journal Entries")
@@ -1139,12 +1139,6 @@ selected color."
   (bash-ts-mode . eglot-ensure)
   (markdown-mode-hook . eglot-ensure))
 
-(use-package treesit-auto
-  :demand t
-  :config
-  (setq treesit-auto-install 'prompt)
-  (global-treesit-auto-mode))
-
 (defun my/eglot-capf ()
   (setq-local completion-at-point-functions
               (list (cape-super-capf
@@ -1177,9 +1171,9 @@ selected color."
   :commands (dired dired-jump)
   :bind (("C-x C-j" . dired-jump)
          ("C-c f f" . window-focus-mode)
-         ("C-c f e" . (lambda () (interactive) (find-file (expand-file-name "~/.DLIP/SETUP/d-emacs.org"))))
-         ("C-c f s" . (lambda () (interactive) (find-file (expand-file-name "~/.DLIP/SETUP/d-setup.org"))))
-         ("C-c f m" . (lambda () (interactive) (find-file (expand-file-name "~/.DLIP/SETUP/README.org"))))
+         ("C-c f e" . (lambda () (interactive) (find-file (expand-file-name "~/d-git/d-nix/d-emacs.org"))))
+         ("C-c f s" . (lambda () (interactive) (find-file (expand-file-name "~/d-git/d-nix/d-setup.org"))))
+         ("C-c f m" . (lambda () (interactive) (find-file (expand-file-name "~/d-git/d-nix/README.org"))))
          ("C-x C-d" . dired))
   (:map dired-mode-map
         ("q" . kill-buffer-and-window)
@@ -1251,7 +1245,7 @@ selected color."
   :defer t
   :config
   (setq sdcv-say-word-p t)
-  (setq sdcv-dictionary-data-dir "~/.DLIP/BIN/treasure/dict/") 
+  (setq sdcv-dictionary-data-dir "~/d-git/d-bin/treasure/dict/") 
   (setq sdcv-dictionary-simple-list   
         '("wn" "enjp" "thesaurus"))
   :bind ("C-c d d" . sdcv-search-input)
@@ -1690,3 +1684,4 @@ selected color."
                   (d/set-font-faces))))
     (d/set-font-faces))
  (put 'narrow-to-region 'disabled nil)
+(vterm)

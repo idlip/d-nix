@@ -40,8 +40,8 @@
 (setq use-package-always-ensure t)
 
 ;; You will most likely need to adjust this font size for your system!
-(defvar default-font-size 190)
-(defvar default-variable-font-size 190)
+(defvar default-font-size 170)
+(defvar default-variable-font-size 170)
 
 ;; Set reusable font name variables
 (defvar d/fixed-width-font "ComicCodeLigatures Nerd Font"
@@ -53,7 +53,7 @@
 (defvar d/header-font "Comic Mono"
   "Font for header level in org-mode." )
 
-(defvar d/sans-font "Gandhi Sans"
+(defvar d/sans-font "SF Pro Rounded"
   "Sans font for reading docs or presentation")
 (defvar d/jetb-font "JetBrainsMono Nerd Font"
   "Jetbrains font for code/verbatim" )
@@ -70,12 +70,12 @@
 
 (defun d/set-font-faces ()
   (message "Setting faces!")
-  (set-face-attribute 'default nil :font d/fixed-width-font :weight 'medium :height default-font-size)
+  (set-face-attribute 'default nil :font d/variable-width-font :weight 'medium :height default-font-size)
 
-  ;; Set the fixed pitch face
+  ;; Set the fixed pitch face (monospace)
   (set-face-attribute 'fixed-pitch nil :font d/fixed-width-font :height default-font-size)
 
-  ;; Set the variable pitch face
+  ;; Set the variable pitch face (document text)
   (set-face-attribute 'variable-pitch nil :font d/variable-width-font :height default-variable-font-size :weight 'medium))
 
 (use-package no-littering
@@ -598,14 +598,6 @@ selected color."
 ;; (add-hook 'org-mode-hook #'org-modern-mode)
 (add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
 
-;; Option 2: Globally
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
-
-;; Choose some fonts
-;; (set-face-attribute 'default nil :family "Iosevka")
-;; (set-face-attribute 'variable-pitch nil :family "Iosevka Aile")
 ;; (set-face-attribute 'org-modern-symbol nil :family "Iosevka")
 
 ;; Add frame borders and window dividers
@@ -674,7 +666,7 @@ selected color."
     (set-face-attribute 'org-level-4 nil :font d/header-font :weight 'medium :height 1.1)
     (set-face-attribute 'org-level-5 nil :font d/header-font :weight 'medium :height 1.15)
 
-    (set-face-attribute 'variable-pitch nil :font d/variable-width-font :height default-variable-font-size :weight 'medium)
+    (set-face-attribute 'variable-pitch nil :height default-variable-font-size :weight 'medium)
     (set-face-attribute 'org-verbatim nil :height '1.15 :font d/jetb-font :weight 'medium)
     (set-face-attribute 'org-code nil :height '1.15 :font d/jetb-font :weight 'medium)
     (set-face-attribute (car face) nil :font d/header-font :weight 'regular :height (cdr face)))
@@ -693,7 +685,6 @@ selected color."
    org-image-actual-width 300
    org-startup-folded t)
   )
-
 
 (use-package org
   :pin org
@@ -793,10 +784,10 @@ selected color."
   (add-to-list 'org-structure-template-alist '("cal" . "src calc")))
 
 (use-package jinx
-    :hook (emacs-startup . global-jinx-mode)
-    :bind ("M-$". jinx-correct))
-;;    :config
-;;    (set-face-attribute 'jinx-misspelled nil :underline '(:color foreground-color :style wave :position nil)))
+  :hook (emacs-startup . global-jinx-mode)
+  :bind ("M-$". jinx-correct)
+  :config
+  (set-face-attribute 'jinx-misspelled nil :underline '(:color "gold" :style line :position t)))
 
 (use-package org-present
   :defer t
@@ -1684,4 +1675,3 @@ selected color."
                   (d/set-font-faces))))
     (d/set-font-faces))
  (put 'narrow-to-region 'disabled nil)
-(vterm)

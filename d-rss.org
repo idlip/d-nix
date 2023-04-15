@@ -23,10 +23,9 @@
 ** Reads :blogs:read:
 *** [[https://www.psychologytoday.com/intl/front/feed][Psychology Today: The Latest]] :psych:psy:
 *** [[https://idlip.github.io/index.xml][Idlip]] :mine:idlip:
-*** [[https://www.beebom.com/feed/][Beebom]] :tech:
-*** [[https://www.wionews.com/feeds/india-news/rss.xml][WION - india news News Releases]]
 *** [[https://syndication.howstuffworks.com/rss/HSW][HowStuffWorks]] :stuffs:how:
 ** News :news:
+*** [[https://www.wionews.com/feeds/india-news/rss.xml][Wion]] :india:
 
 ** Youtube-Time :youtube:yt:
 *** [[https://yt.funami.tech/feed/channel/UCUdettijNYvLAm4AixZv4RA][SciShow Psych]]

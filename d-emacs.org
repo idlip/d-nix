@@ -92,6 +92,7 @@ Some of the highlights which you might wanna copy or take from this config :
   (provide 'early-init)
   ;;; early-init.el ends here
     #+end_src  
+
 * 🔰 Start-ify 
 Manage Font size, Initialize Package setup and sends you startup time (Daemonize 👹 your Emacs)
 #+begin_src emacs-lisp
@@ -137,12 +138,13 @@ Manage Font size, Initialize Package setup and sends you startup time (Daemonize
   (setq use-package-always-ensure t)
 
   #+end_src
+
 * 🔤 Fontify 
 Fonts are crucial to read.
 #+begin_src emacs-lisp
   ;; You will most likely need to adjust this font size for your system!
-  (defvar default-font-size 190)
-  (defvar default-variable-font-size 190)
+  (defvar default-font-size 170)
+  (defvar default-variable-font-size 170)
 
   ;; Set reusable font name variables
   (defvar d/fixed-width-font "ComicCodeLigatures Nerd Font"
@@ -154,7 +156,7 @@ Fonts are crucial to read.
   (defvar d/header-font "Comic Mono"
     "Font for header level in org-mode." )
 
-  (defvar d/sans-font "Gandhi Sans"
+  (defvar d/sans-font "SF Pro Rounded"
     "Sans font for reading docs or presentation")
   (defvar d/jetb-font "JetBrainsMono Nerd Font"
     "Jetbrains font for code/verbatim" )
@@ -171,12 +173,12 @@ Fonts are crucial to read.
 
   (defun d/set-font-faces ()
     (message "Setting faces!")
-    (set-face-attribute 'default nil :font d/fixed-width-font :weight 'medium :height default-font-size)
+    (set-face-attribute 'default nil :font d/variable-width-font :weight 'medium :height default-font-size)
 
-    ;; Set the fixed pitch face
+    ;; Set the fixed pitch face (monospace)
     (set-face-attribute 'fixed-pitch nil :font d/fixed-width-font :height default-font-size)
 
-    ;; Set the variable pitch face
+    ;; Set the variable pitch face (document text)
     (set-face-attribute 'variable-pitch nil :font d/variable-width-font :height default-variable-font-size :weight 'medium))
 #+end_src
 
@@ -785,14 +787,6 @@ You will see org just below this, this package helps make Org-Mode looks eye-can
   ;; (add-hook 'org-mode-hook #'org-modern-mode)
   (add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
 
-  ;; Option 2: Globally
-  (menu-bar-mode -1)
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
-
-  ;; Choose some fonts
-  ;; (set-face-attribute 'default nil :family "Iosevka")
-  ;; (set-face-attribute 'variable-pitch nil :family "Iosevka Aile")
   ;; (set-face-attribute 'org-modern-symbol nil :family "Iosevka")
 
   ;; Add frame borders and window dividers
@@ -868,7 +862,7 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
       (set-face-attribute 'org-level-4 nil :font d/header-font :weight 'medium :height 1.1)
       (set-face-attribute 'org-level-5 nil :font d/header-font :weight 'medium :height 1.15)
 
-      (set-face-attribute 'variable-pitch nil :font d/variable-width-font :height default-variable-font-size :weight 'medium)
+      (set-face-attribute 'variable-pitch nil :height default-variable-font-size :weight 'medium)
       (set-face-attribute 'org-verbatim nil :height '1.15 :font d/jetb-font :weight 'medium)
       (set-face-attribute 'org-code nil :height '1.15 :font d/jetb-font :weight 'medium)
       (set-face-attribute (car face) nil :font d/header-font :weight 'regular :height (cdr face)))
@@ -887,7 +881,6 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
      org-image-actual-width 300
      org-startup-folded t)
     )
-
 
   (use-package org
     :pin org
@@ -1017,9 +1010,9 @@ Jinx is another cool new package by Minad!
 #+begin_src emacs-lisp
   (use-package jinx
     :hook (emacs-startup . global-jinx-mode)
-    :bind ("M-$". jinx-correct))
-;;    :config
-;;    (set-face-attribute 'jinx-misspelled nil :underline '(:color foreground-color :style wave :position nil)))
+    :bind ("M-$". jinx-correct)
+    :config
+    (set-face-attribute 'jinx-misspelled nil :underline '(:color "gold" :style line :position t)))
 #+end_src
 ** Present Org
 How amazing it is to do presentation with power of org? Yes its possible (need olivetti to center)
@@ -1455,7 +1448,7 @@ Icons to prettify the corfu popup
     (setq kind-icon-default-style '(:padding -0.5 :stroke 0 :margin 0 :radius 0 :height 0.6 :scale 1.0)))
 
 #+end_src
-*  Git Controller 
+*  Git Controrller 
 Magit the killer beast after org-mode.
 #+begin_src emacs-lisp
   (use-package magit

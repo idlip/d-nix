@@ -18,15 +18,15 @@ programs = {
       character = {
         error_symbol = " [](#df5b61)";
         success_symbol = "[](#6791c9)";
-        vicmd_symbol = "[](bold yellow)";
-        format = "[   $directory$all$character  ](bold)";
+        vicmd_symbol = "[](bold yellow)";
+        format = "[  $directory$all$character  ](bold)";
       };
       git_commit = {commit_hash_length = 4;};
       line_break.disabled = false;
-      lua.symbol = "[](blue) ";
-      python.symbol = "[](blue) ";
+      lua.symbol = "[](blue) ";
+      python.symbol = "[](blue) ";
       directory.read_only = " ";
-      nix_shell.symbol = " ";
+      nix_shell.symbol = " ";
       hostname = {
         ssh_only = true;
         format = "[$hostname](bold blue) ";
@@ -100,7 +100,7 @@ programs = {
     sessionVariables = {
       LC_ALL = "en_US.UTF-8";
       ZSH_AUTOSUGGEST_USE_ASYNC = "true";
-      BEMENU_OPTS = "-i -l 10 -p '  Apps : ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures 20' --nb '#00000099' --ab '#00000099' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#fff0f5' --hf '#000000' --fb '#00000099' --ff '#a6e3a1' --tb '#00000099' --tf '#f9e2af' ";
+      BEMENU_OPTS = "-i -l 10 -p '  Apps : ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font  20' --nb '#00000099' --ab '#00000099' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#fff0f5' --hf '#000000' --fb '#00000099' --ff '#a6e3a1' --tb '#00000099' --tf '#f9e2af' ";
       NIXOS_OZONE_WL = "1";
       BROWSER = "librewolf";
       MOZ_ENABLE_WAYLAND = "1";
@@ -149,10 +149,7 @@ programs = {
         source "${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
         source "${pkgs.zsh-autopair}/share/zsh/zsh-autopair/autopair.zsh"
         source "${pkgs.nix-zsh-completions}/share/zsh/plugins/nix/nix-zsh-completions.plugin.zsh"
-        source "${pkgs.fzf}/share/fzf/completion.zsh"
-        source "${pkgs.fzf}/share/fzf/key-bindings.zsh"
-        source "${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh"
-        source "${pkgs.zsh-fzf-tab}/share/fzf-tab/lib/zsh-ls-colors/ls-colors.zsh"
+        source "${pkgs.zsh-nix-shell}/share/zsh-nix-shell/nix-shell.plugin.zsh"
 
           function ytdl() {
               yt-dlp --embed-metadata --embed-subs -f 22 "$1"
@@ -264,7 +261,7 @@ gtk = {
     name = "Papirus";
   };
   font = {
-    name = "ComicCodeLigatures";
+    name = "ComicCodeLigatures Nerd Font";
     size = 17;
   };
   gtk3.extraConfig = {
@@ -389,7 +386,7 @@ services.dunst = {
       frame_width = 3;
       separator_color = "frame";
       sort = "yes";
-      font = "ComicCodeLigatures 20";
+      font = "ComicCodeLigatures Nerd Font 20";
       line_height = 0;
       markup = "full";
       stack_duplicates = "true";
@@ -856,6 +853,10 @@ home.file.".config/mpv/mpv.conf".source = config.lib.file.mkOutOfStoreSymlink "/
 # We will tangle config files from git repo to home dir (Let nix manage the magics)
 
 home.file.".config/mpv/input.conf".source = config.lib.file.mkOutOfStoreSymlink "/home/i/d-git/d-nix/gdk/i-home/configs/mpv/input.conf";
+
+# We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+home.file.".config/imv/config".source = config.lib.file.mkOutOfStoreSymlink "/home/i/d-git/d-nix/gdk/i-home/configs/imv/config";
 
 # We will tangle config files from git repo to home dir (Let nix manage the magics)
 

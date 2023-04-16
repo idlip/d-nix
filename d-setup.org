@@ -116,7 +116,7 @@ Why not have a block for flake.nix too?
 
       # Greatest Editor of all time. (if you shill on vim, give emacs a try and see first, although it is objective to individual)
       emacs-overlay = {   
-        url = "github:nix-community/emacs-overlay?rev=1be00f42d07320f4fd0230172ceb27ec40330f53";
+        url = "github:nix-community/emacs-overlay";
       };
 
       # Home to manage all user configs
@@ -328,7 +328,6 @@ Configure the boot loader to use UEFI.
 #FIXME Use grub if you prefer that.
 #+begin_src nix
   boot = {
-    cleanTmpDir = true;
     # Uses bleeding edge latest kernel. 
     kernelPackages = pkgs.linuxPackages_latest;
 
@@ -337,6 +336,10 @@ Configure the boot loader to use UEFI.
       systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
       timeout = 5;
+    };
+
+    tmp = {
+      cleanOnBoot = true;
     };
   };
 #+end_src
@@ -518,9 +521,7 @@ You can add your choice of overlay (eg: Discord, helix...)
 To use Opengl hardware acceleration using VA-API.
 Useful to use in firefox and mpv.
 #+begin_src nix
-  nixpkgs.config.packageOverrides = pkgs: {
-    vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
-  };
+
   hardware = {
     opengl = {
       enable = true;
@@ -538,7 +539,8 @@ Enables additional fonts system wide
 #+begin_src nix
   fonts = {
     fonts = with pkgs; [
-      emacs-all-the-icons-fonts noto-fonts
+      emacs-all-the-icons-fonts
+      noto-fonts
       #material-icons comic-mono material-design-icons
       # weather-icons font-awesome
       symbola noto-fonts-emoji comic-mono
@@ -557,8 +559,8 @@ Enables additional fonts system wide
           "Noto Color Emoji"
         ];
         sansSerif = [ "Gandhi Sans" "VictorMono Nerd Font" "Noto Sans"];
-        serif = [ "SF Pro Rounded" "Noto Sans" "VictorMono Nerd Font" "JetBrainsMono Nerd Font"];
-        emoji = ["ComicCodeLigatures Nerd Font"  "Noto Color Emoji" "Symbola" "all-the-icons" "Weather Icons" "Material Icons" "FiraCode Nerd Font" ];
+        serif = [ "Gandhi Sans" "Noto Sans" "VictorMono Nerd Font" "JetBrainsMono Nerd Font" "Noto Sans"];
+        emoji = ["ComicCodeLigatures Nerd Font" "Noto Color Emoji" "FiraCode Nerd Font" "Symbola" "all-the-icons" "Weather Icons" "Material Icons" ];
       };
     };
   };
@@ -680,15 +682,15 @@ Opening brace that contains the rest of the configuration file.
         character = {
           error_symbol = " [](#df5b61)";
           success_symbol = "[](#6791c9)";
-          vicmd_symbol = "[](bold yellow)";
-          format = "[   $directory$all$character  ](bold)";
+          vicmd_symbol = "[](bold yellow)";
+          format = "[  $directory$all$character  ](bold)";
         };
         git_commit = {commit_hash_length = 4;};
         line_break.disabled = false;
-        lua.symbol = "[](blue) ";
-        python.symbol = "[](blue) ";
+        lua.symbol = "[](blue) ";
+        python.symbol = "[](blue) ";
         directory.read_only = " ";
-        nix_shell.symbol = " ";
+        nix_shell.symbol = " ";
         hostname = {
           ssh_only = true;
           format = "[$hostname](bold blue) ";
@@ -762,7 +764,7 @@ Opening brace that contains the rest of the configuration file.
       sessionVariables = {
         LC_ALL = "en_US.UTF-8";
         ZSH_AUTOSUGGEST_USE_ASYNC = "true";
-        BEMENU_OPTS = "-i -l 10 -p '  Apps : ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures 20' --nb '#00000099' --ab '#00000099' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#fff0f5' --hf '#000000' --fb '#00000099' --ff '#a6e3a1' --tb '#00000099' --tf '#f9e2af' ";
+        BEMENU_OPTS = "-i -l 10 -p '  Apps : ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font  20' --nb '#00000099' --ab '#00000099' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#fff0f5' --hf '#000000' --fb '#00000099' --ff '#a6e3a1' --tb '#00000099' --tf '#f9e2af' ";
         NIXOS_OZONE_WL = "1";
         BROWSER = "librewolf";
         MOZ_ENABLE_WAYLAND = "1";
@@ -811,10 +813,7 @@ Opening brace that contains the rest of the configuration file.
           source "${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
           source "${pkgs.zsh-autopair}/share/zsh/zsh-autopair/autopair.zsh"
           source "${pkgs.nix-zsh-completions}/share/zsh/plugins/nix/nix-zsh-completions.plugin.zsh"
-          source "${pkgs.fzf}/share/fzf/completion.zsh"
-          source "${pkgs.fzf}/share/fzf/key-bindings.zsh"
-          source "${pkgs.zsh-fzf-tab}/share/fzf-tab/fzf-tab.plugin.zsh"
-          source "${pkgs.zsh-fzf-tab}/share/fzf-tab/lib/zsh-ls-colors/ls-colors.zsh"
+          source "${pkgs.zsh-nix-shell}/share/zsh-nix-shell/nix-shell.plugin.zsh"
 
             function ytdl() {
                 yt-dlp --embed-metadata --embed-subs -f 22 "$1"
@@ -955,7 +954,7 @@ There will be not much difference.
       name = "Papirus";
     };
     font = {
-      name = "ComicCodeLigatures";
+      name = "ComicCodeLigatures Nerd Font";
       size = 17;
     };
     gtk3.extraConfig = {
@@ -1104,7 +1103,7 @@ There will be not much difference.
         frame_width = 3;
         separator_color = "frame";
         sort = "yes";
-        font = "ComicCodeLigatures 20";
+        font = "ComicCodeLigatures Nerd Font 20";
         line_height = 0;
         markup = "full";
         stack_duplicates = "true";
@@ -2057,7 +2056,7 @@ Sane defaults go here
   configuration {
   modi: "drun,run";
 
-  font: "ComicCodeLigatures 20";
+  font: "ComicCodeLigatures Nerd Font 20";
 
   case-insensitive: true;
   cycle: true;
@@ -2573,7 +2572,7 @@ listing menus
 
   default_dark_mode 	1
   sort_bookmarks_by_location  	1
-  ui_font  ComicCodeLigatures
+  ui_font  ComicCodeLigatures Nerd Font
   font_size   24
   wheel_zoom_on_cursor   1
   status_bar_font_size  22
@@ -3040,7 +3039,7 @@ listing menus
 #+begin_src css :tangle (format "%s/wofi/style.css" (get-named-src-block-contents "my-configs" t))
  *{
     border: 0px;
-    font-family:ComicCodeLigatures Medium;
+    font-family:ComicCodeLigatures Nerd Font;
     font-size: 30px;
 
 }

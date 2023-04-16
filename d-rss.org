@@ -74,7 +74,6 @@
 *** [[https://opensourcemusings.com/feed/ blog][opensource]]
 *** [[https://itsfoss.com/rss][itsfoss]]
 ** Music                                                              :music:
-*** [[https://www.reddit.com/r/listentothis/search.rss?q=jazz&restrict_sr=on&sort=new&t=all/.rss][Jazz]] :jazz:
 *** [[https://www.reddit.com/r/listentothis/search.rss?q=classical&restrict_sr=on&sort=new&t=all/.rss][Classical]] :classical:
 *** [[https://www.reddit.com/r/listentothis/search.rss?q=instrument&restrict_sr=on&sort=new&t=all/.rss][Instrumental]] :intrumental:
 ** Media :media:

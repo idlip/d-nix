@@ -1531,6 +1531,9 @@ Some small codes from good source.
   (use-package mingus
     :defer t
     :bind ("C-c d m" . mingus-browse)
+    (:map mingus-browse-mode-map
+          ("h" . mingus-browse-top-level)
+          ("l" . mingus-down-dir-or-play-song))
     :config
     (advice-add 'mingus-playlist-mode :after #'olivetti-mode)
     (advice-add 'mingus-browse-mode :after #'olivetti-mode))
@@ -1971,7 +1974,8 @@ Idk why, but i guess these all should be the sane defaults.
    shr-use-colors t                          ; No colours
    shr-indentation 4                           ; Left-side margin
    shr-max-width fill-column
-   shr-width 90                                ; Fold text to 70 columns
+   shr-max-image-proportion 0.2
+   shr-width 100                                ; Fold text to 70 columns
    eww-search-prefix "https://lite.duckduckgo.com/lite/?q=")
 
   ;; Set frame transparency
@@ -2012,7 +2016,7 @@ Idk why, but i guess these all should be the sane defaults.
   (setq window-resize-pixelwise t)
   (setq frame-resize-pixelwise t)
 
-  (setq-default fill-column 80)
+  (setq fill-column 100)
 
 #+end_src
 

@@ -124,7 +124,6 @@ system.autoUpgrade.enable = false;
 system.stateVersion = "22.11"; # DONT TOUCH THIS (See about state version on nixos manual)
 
 boot = {
-  cleanTmpDir = true;
   # Uses bleeding edge latest kernel. 
   kernelPackages = pkgs.linuxPackages_latest;
 
@@ -133,6 +132,10 @@ boot = {
     systemd-boot.enable = true;
     efi.canTouchEfiVariables = true;
     timeout = 5;
+  };
+
+  tmp = {
+    cleanOnBoot = true;
   };
 };
 
@@ -286,9 +289,6 @@ environment.systemPackages = with pkgs; [
 # Add other overlays here
 nixpkgs.overlays = with inputs; [emacs-overlay.overlay  ];
 
-nixpkgs.config.packageOverrides = pkgs: {
-  vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
-};
 hardware = {
   opengl = {
     enable = true;
@@ -303,7 +303,8 @@ hardware = {
 
 fonts = {
   fonts = with pkgs; [
-    emacs-all-the-icons-fonts noto-fonts
+    emacs-all-the-icons-fonts
+    noto-fonts
     #material-icons comic-mono material-design-icons
     # weather-icons font-awesome
     symbola noto-fonts-emoji comic-mono
@@ -322,8 +323,8 @@ fonts = {
         "Noto Color Emoji"
       ];
       sansSerif = [ "Gandhi Sans" "VictorMono Nerd Font" "Noto Sans"];
-      serif = [ "SF Pro Rounded" "Noto Sans" "VictorMono Nerd Font" "JetBrainsMono Nerd Font"];
-      emoji = ["ComicCodeLigatures Nerd Font"  "Noto Color Emoji" "Symbola" "all-the-icons" "Weather Icons" "Material Icons" "FiraCode Nerd Font" ];
+      serif = [ "Gandhi Sans" "Noto Sans" "VictorMono Nerd Font" "JetBrainsMono Nerd Font" "Noto Sans"];
+      emoji = ["ComicCodeLigatures Nerd Font" "Noto Color Emoji" "FiraCode Nerd Font" "Symbola" "all-the-icons" "Weather Icons" "Material Icons" ];
     };
   };
 };

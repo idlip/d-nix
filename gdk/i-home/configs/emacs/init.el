@@ -1216,6 +1216,9 @@ selected color."
 (use-package mingus
   :defer t
   :bind ("C-c d m" . mingus-browse)
+  (:map mingus-browse-mode-map
+        ("h" . mingus-browse-top-level)
+        ("l" . mingus-down-dir-or-play-song))
   :config
   (advice-add 'mingus-playlist-mode :after #'olivetti-mode)
   (advice-add 'mingus-browse-mode :after #'olivetti-mode))
@@ -1622,7 +1625,8 @@ selected color."
  shr-use-colors t                          ; No colours
  shr-indentation 4                           ; Left-side margin
  shr-max-width fill-column
- shr-width 90                                ; Fold text to 70 columns
+ shr-max-image-proportion 0.2
+ shr-width 100                                ; Fold text to 70 columns
  eww-search-prefix "https://lite.duckduckgo.com/lite/?q=")
 
 ;; Set frame transparency
@@ -1663,7 +1667,7 @@ selected color."
 (setq window-resize-pixelwise t)
 (setq frame-resize-pixelwise t)
 
-(setq-default fill-column 80)
+(setq fill-column 100)
 
 (set-face-attribute 'corfu-border nil  :background "#bcd2ee")
 (setq doom-modeline-icon t)
@@ -1675,3 +1679,16 @@ selected color."
                   (d/set-font-faces))))
     (d/set-font-faces))
  (put 'narrow-to-region 'disabled nil)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(nerd-icons fontaine vterm undo-fu flycheck helpful ox-pandoc no-littering rainbow-delimiters rainbow-mode vertico orderless consult marginalia olivetti org-modern cape markdown-mode nix-mode rust-mode lua-mode all-the-icons-dired async dired-hide-dotfiles dired-single reddigg mingus pdf-tools which-key magit org-present org-mime corfu-terminal beframe denote tempel-collection sdcv elfeed-org link-hint powerthesaurus jinx doom-modeline hide-mode-line el-fetch ox-hugo htmlize speed-type aria2 emmet-mode ement languagetool langtool embark kind-icon webpaste)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

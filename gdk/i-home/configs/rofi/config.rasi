@@ -3,7 +3,7 @@
 configuration {
 modi: "drun,run";
 
-font: "ComicCodeLigatures 20";
+font: "ComicCodeLigatures Nerd Font 20";
 
 case-insensitive: true;
 cycle: true;

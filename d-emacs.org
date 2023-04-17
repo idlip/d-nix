@@ -255,6 +255,16 @@ Keep folders and backuping files clean!
     (if (org-in-src-block-p) (progn (org-edit-special) (window-focus-mode))
       (org-edit-src-abort)))
 
+  (defun d/insert-unicodes (&rest filenames)
+    "Inserts unicode character (emoji/icons) from given files"
+    (insert
+     (let* ((content
+             (mapcar #'(lambda (file) (with-temp-buffer (insert-file-contents file) (split-string (buffer-string) "\n" t))) filenames))
+            (options (apply #'append content))
+            (selected-item (completing-read "Choose Icon 󰨈: " options))
+            (fields (split-string selected-item)))
+       (car fields))))
+
   (defun org-archive-done-tasks ()
     (interactive)
     (org-map-entries
@@ -270,6 +280,8 @@ Keep folders and backuping files clean!
   (global-set-key (kbd "M-v") #'d/scroll-up)
   (global-set-key (kbd "C-v") #'d/scroll-down)
   (global-set-key (kbd "<f5>") #'d/refresh-buffer)
+  (global-set-key (kbd "C-c d i") (lambda () (interactive)
+                                    (d/insert-unicodes "~/d-git/d-bin/treasure/unicodes/emoji" "~/d-git/d-bin/treasure/unicodes/icons")))
 
   ;; Get rid of annoyance
   (global-unset-key (kbd "C-x C-z"))

@@ -144,6 +144,16 @@
   (if (org-in-src-block-p) (progn (org-edit-special) (window-focus-mode))
     (org-edit-src-abort)))
 
+(defun d/insert-unicodes (&rest filenames)
+  "Inserts unicode character (emoji/icons) from given files"
+  (insert
+   (let* ((content
+           (mapcar #'(lambda (file) (with-temp-buffer (insert-file-contents file) (split-string (buffer-string) "\n" t))) filenames))
+          (options (apply #'append content))
+          (selected-item (completing-read "Choose Icon 󰨈: " options))
+          (fields (split-string selected-item)))
+     (car fields))))
+
 (defun org-archive-done-tasks ()
   (interactive)
   (org-map-entries
@@ -155,6 +165,8 @@
 (global-set-key (kbd "M-v") #'d/scroll-up)
 (global-set-key (kbd "C-v") #'d/scroll-down)
 (global-set-key (kbd "<f5>") #'d/refresh-buffer)
+(global-set-key (kbd "C-c d i") (lambda () (interactive)
+                                  (d/insert-unicodes "~/d-git/d-bin/treasure/unicodes/emoji" "~/d-git/d-bin/treasure/unicodes/icons")))
 
 ;; Get rid of annoyance
 (global-unset-key (kbd "C-x C-z"))
@@ -385,11 +397,11 @@
 (defun d/consult-first-param-is-initial-text (consult-fn &rest rest)
   "Advising function around CONSULT-FN.
 
-The CONSULT-FN's first parameter should be the initial text.
+  The CONSULT-FN's first parameter should be the initial text.
 
-When there's an active region, use that as the first parameter
-for CONSULT-FN.  Otherwise, use an empty string the first
-parameter.  This function handles the REST of the parameters."
+  When there's an active region, use that as the first parameter
+  for CONSULT-FN.  Otherwise, use an empty string the first
+  parameter.  This function handles the REST of the parameters."
   (interactive)
   (apply consult-fn
          (when (use-region-p)
@@ -400,7 +412,7 @@ parameter.  This function handles the REST of the parameters."
 (defun d/consult-ripgrep-wrapper (consult-fn &optional dir given-initial)
   "Advising function around CONSULT-FN.
 
-DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
+  DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
   (interactive "P")
   (let ((initial (list (or given-initial
                            (when (use-region-p)
@@ -414,11 +426,16 @@ DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
             :around #'d/consult-ripgrep-wrapper
             '((name . "wrapper")))
 
-(defun consult-colors-web (color)
+(defun counsel-colors--web-list nil
+  "Return list of CSS colors for `counsult-colors-web'."
+  (require 'shr-color)
+  (sort (mapcar #'downcase (mapcar #'car shr-color-html-colors-alist)) #'string-lessp))
+
+(defun d/colors-web (color)
   "Show a list of all CSS colors.\
 
-You can insert the name (default), or insert or kill the hexadecimal or RGB value of the
-selected color."
+  You can insert the name (default), or insert or kill the hexadecimal or RGB value of the
+  selected color."
   (interactive
    (list (consult--read (counsel-colors--web-list)
                         :prompt "Color: "
@@ -643,6 +660,12 @@ selected color."
 
 (global-org-modern-mode)
 
+(use-package jinx
+  :hook (emacs-startup . global-jinx-mode)
+  :bind ("M-$". jinx-correct)
+  :config
+  (set-face-attribute 'jinx-misspelled nil :underline '(:color "gold" :style line :position t)))
+
 (defun org-font-setup ()
   ;; Replace list hyphen with dot
   (font-lock-add-keywords 'org-mode
@@ -783,12 +806,6 @@ selected color."
   (add-to-list 'org-structure-template-alist '("lx" . "src latex"))
   (add-to-list 'org-structure-template-alist '("cal" . "src calc")))
 
-(use-package jinx
-  :hook (emacs-startup . global-jinx-mode)
-  :bind ("M-$". jinx-correct)
-  :config
-  (set-face-attribute 'jinx-misspelled nil :underline '(:color "gold" :style line :position t)))
-
 (use-package org-present
   :defer t
   :after org
@@ -859,7 +876,7 @@ selected color."
                   (org-level-7 . 1.1)
                   (org-level-8 . 1.1)))
     (set-face-attribute 'org-document-title nil :font d/title-face :weight 'bold :height 2.5 :width 'extra-expanded)
-    (set-face-attribute 'org-document-info nil :font d/link-font :slant 'italic :weight 'bold :height 2.5 :width 'extra-expanded)      
+    (set-face-attribute 'org-document-info nil :font d/link-font :slant 'italic :weight 'bold :height 2.5 :width 'extra-expanded)
     (set-face-attribute 'org-level-1 nil :font d/header-font :weight 'medium :height 1.6 :foreground "#b6a0ff")
     (set-face-attribute 'org-level-2 nil :font d/header-font :weight 'medium :height 1.5)
     (set-face-attribute 'org-level-3 nil :font d/header-font :weight 'medium :height 1.4)
@@ -914,6 +931,7 @@ selected color."
   (org-present-narrow)
   (org-present-run-after-navigate-functions))
 
+
 (defun d/org-present-next-slide ()
   "Go to next sibling."
   (interactive)
@@ -923,10 +941,12 @@ selected color."
   (org-present-narrow)
   (org-present-run-after-navigate-functions))
 
+
 (defun d/org-present--last-child ()
   "Find last child of current heading."
   (when (org-goto-sibling) (d/org-present--last-child))
   (when (org-goto-first-child) (d/org-present--last-child)))
+
 
 (defun d/org-present-previous-slide ()
   "Go to next sibling."
@@ -939,6 +959,7 @@ selected color."
           (d/org-present--last-child))))
   (org-present-narrow)
   (org-present-run-after-navigate-functions))
+
 
 (defun d/org-present-refresh ()
   (interactive)
@@ -1071,6 +1092,9 @@ selected color."
         (t . (1.1))))
 (load-theme 'modus-vivendi t)
 
+;; For foot to show colors properly
+(add-to-list 'term-file-aliases '("foot" . "xterm"))
+
 (setq-default scroll-conservatively 10000)
 (setq-default scroll-margin 3)
 
@@ -1173,7 +1197,8 @@ selected color."
         ("p" . dired-single-up-directory)
         ("h" . dired-single-up-directory)
         ("j" . dired-next-line)
-        ("k" . dired-previous-line))
+        ("k" . dired-previous-line)
+        ("b" . d/external-browser))
 
   :custom ((dired-listing-switches "-agho --group-directories-first")))
 (setq dired-listing-switches "-alt --dired --group-directories-first -h -G")
@@ -1426,8 +1451,6 @@ selected color."
   (elfeed-org)
   (setq rmh-elfeed-org-files (list "~/.config/emacs/elfeed.org")))
 
-
-
 (defun readable-article ()
   (interactive)
   (eww-readable)
@@ -1462,86 +1485,24 @@ selected color."
 
 (defun d/external-browser ()
   (interactive)
-(if (shr-url-at-point nil)
-    (link-hint-copy-link-at-point)
-  (link-hint-copy-link))
+  (cond ((shr-url-at-point nil) (link-hint-copy-link-at-point))
+        ((dired-file-name-at-point)  (link-hint-copy-link-at-point))
+        (t (link-hint-copy-link)))
   (let ((url (current-kill 0)))
     (browse-url-generic url)))
 
-  (defun d/eww-rename-buffer ()
-    "Rename EWW buffer using page title or URL.
-  To be used by `eww-after-render-hook'."
-    (let ((name (if (eq "" (plist-get eww-data :title))
-                    (plist-get eww-data :url)
-                  (plist-get eww-data :title))))
-      (rename-buffer (substring (format "*%s # eww*" name)0 32) t)))
+(defun d/eww-rename-buffer ()
+  "Rename EWW buffer using page title or URL.
+    To be used by `eww-after-render-hook'."
+  (let ((name (if (eq "" (plist-get eww-data :title))
+                  (plist-get eww-data :url)
+                (plist-get eww-data :title))))
+    (rename-buffer (substring (format "*%s # eww*" name)0 32) t)))
 
-  (add-hook 'eww-after-render-hook #'d/eww-rename-buffer)
-  (advice-add 'eww-back-url :after #'d/eww-rename-buffer)
-  (advice-add 'eww-forward-url :after #'d/eww-rename-buffer)
-  ;; (advice-add 'eww-readable :after #'d/bionic-read)
-
-   (defmacro d/act-visible (&rest body)
-    "Run BODY within narrowed-region.
-    If region is active run BODY within active region instead.
-    Return the value of the last form of BODY."
-    `(save-restriction
-       (if (use-region-p)
-           (narrow-to-region (region-beginning) (region-end))
-         (narrow-to-region (window-start) (window-end)))
-       ,@body))
-
-  (defun d/capture-urls (&optional position)
-    "Capture all the links on the current web page.
-
-    Return a list of strings.  Strings are in the form LABEL @ URL.
-    When optional argument POSITION is non-nil, include position info
-    in the strings too, so strings take the form
-    LABEL @ URL ~ POSITION."
-    (let (links match)
-      (save-excursion
-        (goto-char (point-max))
-        ;; NOTE 2021-07-25: The first clause in the `or' is meant to
-        ;; address a bug where if a URL is in `point-min' it does not get
-        ;; captured.
-        (while (setq match (text-property-search-backward 'shr-url))
-          (let* ((raw-url (prop-match-value match))
-                 (start-point-prop (prop-match-beginning match))
-                 (end-point-prop (prop-match-end match))
-                 (url (when (stringp raw-url)
-                        (propertize raw-url 'face 'link)))
-                 (label (replace-regexp-in-string "\n" " " ; NOTE 2021-07-25: newlines break completion
-                                                  (buffer-substring-no-properties
-                                                   start-point-prop end-point-prop)))
-                 (point start-point-prop)
-                 (line (line-number-at-pos point t))
-                 (column (save-excursion (goto-char point) (current-column)))
-                 (coordinates (propertize
-                               (format "%d,%d (%d)" line column point)
-                               'face 'shadow)))
-            (when url
-              (if position
-                  (push (format "%-15s ~ %s  @ %s"
-                                coordinates label url)
-                        links)
-                (push (format "%s  @ %s"
-                              label url)
-                      links))))))
-      links))
-
-
-
-  (defun d/visit-urls (&optional arg)
-    "Visit URL from list of links on the page using completion.
-
-    With optional prefix ARG (\\[universal-argument]) open URL in a
-    new EWW buffer."
-    (interactive "P")
-    (when (derived-mode-p 'eww-mode)
-      (let* ((links (d/capture-urls))
-             (selection (completing-read "Go To URL from page: " links nil t))
-             (url (replace-regexp-in-string ".*@ " "" selection)))
-        (browse-url-generic url (when arg 4)))))
+(add-hook 'eww-after-render-hook #'d/eww-rename-buffer)
+(advice-add 'eww-back-url :after #'d/eww-rename-buffer)
+(advice-add 'eww-forward-url :after #'d/eww-rename-buffer)
+;; (advice-add 'eww-readable :after #'d/bionic-read)
 
 (use-package ement
   :hook (ement-room-compose . ement-room-compose-org)
@@ -1679,16 +1640,3 @@ selected color."
                   (d/set-font-faces))))
     (d/set-font-faces))
  (put 'narrow-to-region 'disabled nil)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(nerd-icons fontaine vterm undo-fu flycheck helpful ox-pandoc no-littering rainbow-delimiters rainbow-mode vertico orderless consult marginalia olivetti org-modern cape markdown-mode nix-mode rust-mode lua-mode all-the-icons-dired async dired-hide-dotfiles dired-single reddigg mingus pdf-tools which-key magit org-present org-mime corfu-terminal beframe denote tempel-collection sdcv elfeed-org link-hint powerthesaurus jinx doom-modeline hide-mode-line el-fetch ox-hugo htmlize speed-type aria2 emmet-mode ement languagetool langtool embark kind-icon webpaste)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

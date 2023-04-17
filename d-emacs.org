@@ -1114,7 +1114,7 @@ How amazing it is to do presentation with power of org? Yes its possible (need o
                     (org-level-7 . 1.1)
                     (org-level-8 . 1.1)))
       (set-face-attribute 'org-document-title nil :font d/title-face :weight 'bold :height 2.5 :width 'extra-expanded)
-      (set-face-attribute 'org-document-info nil :font d/link-font :slant 'italic :weight 'bold :height 2.5 :width 'extra-expanded)      
+      (set-face-attribute 'org-document-info nil :font d/link-font :slant 'italic :weight 'bold :height 2.5 :width 'extra-expanded)
       (set-face-attribute 'org-level-1 nil :font d/header-font :weight 'medium :height 1.6 :foreground "#b6a0ff")
       (set-face-attribute 'org-level-2 nil :font d/header-font :weight 'medium :height 1.5)
       (set-face-attribute 'org-level-3 nil :font d/header-font :weight 'medium :height 1.4)
@@ -1169,6 +1169,7 @@ How amazing it is to do presentation with power of org? Yes its possible (need o
     (org-present-narrow)
     (org-present-run-after-navigate-functions))
 
+
   (defun d/org-present-next-slide ()
     "Go to next sibling."
     (interactive)
@@ -1178,10 +1179,12 @@ How amazing it is to do presentation with power of org? Yes its possible (need o
     (org-present-narrow)
     (org-present-run-after-navigate-functions))
 
+
   (defun d/org-present--last-child ()
     "Find last child of current heading."
     (when (org-goto-sibling) (d/org-present--last-child))
     (when (org-goto-first-child) (d/org-present--last-child)))
+
 
   (defun d/org-present-previous-slide ()
     "Go to next sibling."
@@ -1194,6 +1197,7 @@ How amazing it is to do presentation with power of org? Yes its possible (need o
             (d/org-present--last-child))))
     (org-present-narrow)
     (org-present-run-after-navigate-functions))
+
 
   (defun d/org-present-refresh ()
     (interactive)
@@ -1352,6 +1356,10 @@ After long  usage, you will realize that Modus-themes is a *masterpiece* made by
                 (t . (1.1))))
         (load-theme 'modus-vivendi t)
 
+        ;; For foot to show colors properly
+        (add-to-list 'term-file-aliases '("foot" . "xterm"))
+
+
       #+end_src
 ** Beframe
 Managing frames and their buffers handy way. Gets rid of using tab-bar or windows
@@ -1507,7 +1515,8 @@ Not that intuitive to use as file manager, once you get a hand of emacs. You wil
           ("p" . dired-single-up-directory)
           ("h" . dired-single-up-directory)
           ("j" . dired-next-line)
-          ("k" . dired-previous-line))
+          ("k" . dired-previous-line)
+          ("b" . d/external-browser))
 
     :custom ((dired-listing-switches "-agho --group-directories-first")))
   (setq dired-listing-switches "-alt --dired --group-directories-first -h -G")
@@ -1781,8 +1790,6 @@ Use RSS, just switch to it, and save your time for other productive things. If y
     (elfeed-org)
     (setq rmh-elfeed-org-files (list "~/.config/emacs/elfeed.org")))
 
-
-
   (defun readable-article ()
     (interactive)
     (eww-readable)
@@ -1824,87 +1831,25 @@ Congratulations, if you are already using Rss, if not, don't worry, you can get 
 #+begin_src emacs-lisp
   (defun d/external-browser ()
     (interactive)
-  (if (shr-url-at-point nil)
-      (link-hint-copy-link-at-point)
-    (link-hint-copy-link))
+    (cond ((shr-url-at-point nil) (link-hint-copy-link-at-point))
+          ((dired-file-name-at-point)  (link-hint-copy-link-at-point))
+          (t (link-hint-copy-link)))
     (let ((url (current-kill 0)))
       (browse-url-generic url)))
 
-    (defun d/eww-rename-buffer ()
-      "Rename EWW buffer using page title or URL.
-    To be used by `eww-after-render-hook'."
-      (let ((name (if (eq "" (plist-get eww-data :title))
-                      (plist-get eww-data :url)
-                    (plist-get eww-data :title))))
-        (rename-buffer (substring (format "*%s # eww*" name)0 32) t)))
+  (defun d/eww-rename-buffer ()
+    "Rename EWW buffer using page title or URL.
+      To be used by `eww-after-render-hook'."
+    (let ((name (if (eq "" (plist-get eww-data :title))
+                    (plist-get eww-data :url)
+                  (plist-get eww-data :title))))
+      (rename-buffer (substring (format "*%s # eww*" name)0 32) t)))
 
-    (add-hook 'eww-after-render-hook #'d/eww-rename-buffer)
-    (advice-add 'eww-back-url :after #'d/eww-rename-buffer)
-    (advice-add 'eww-forward-url :after #'d/eww-rename-buffer)
-    ;; (advice-add 'eww-readable :after #'d/bionic-read)
-
-     (defmacro d/act-visible (&rest body)
-      "Run BODY within narrowed-region.
-      If region is active run BODY within active region instead.
-      Return the value of the last form of BODY."
-      `(save-restriction
-         (if (use-region-p)
-             (narrow-to-region (region-beginning) (region-end))
-           (narrow-to-region (window-start) (window-end)))
-         ,@body))
-
-    (defun d/capture-urls (&optional position)
-      "Capture all the links on the current web page.
-
-      Return a list of strings.  Strings are in the form LABEL @ URL.
-      When optional argument POSITION is non-nil, include position info
-      in the strings too, so strings take the form
-      LABEL @ URL ~ POSITION."
-      (let (links match)
-        (save-excursion
-          (goto-char (point-max))
-          ;; NOTE 2021-07-25: The first clause in the `or' is meant to
-          ;; address a bug where if a URL is in `point-min' it does not get
-          ;; captured.
-          (while (setq match (text-property-search-backward 'shr-url))
-            (let* ((raw-url (prop-match-value match))
-                   (start-point-prop (prop-match-beginning match))
-                   (end-point-prop (prop-match-end match))
-                   (url (when (stringp raw-url)
-                          (propertize raw-url 'face 'link)))
-                   (label (replace-regexp-in-string "\n" " " ; NOTE 2021-07-25: newlines break completion
-                                                    (buffer-substring-no-properties
-                                                     start-point-prop end-point-prop)))
-                   (point start-point-prop)
-                   (line (line-number-at-pos point t))
-                   (column (save-excursion (goto-char point) (current-column)))
-                   (coordinates (propertize
-                                 (format "%d,%d (%d)" line column point)
-                                 'face 'shadow)))
-              (when url
-                (if position
-                    (push (format "%-15s ~ %s  @ %s"
-                                  coordinates label url)
-                          links)
-                  (push (format "%s  @ %s"
-                                label url)
-                        links))))))
-        links))
-
-
-
-    (defun d/visit-urls (&optional arg)
-      "Visit URL from list of links on the page using completion.
-
-      With optional prefix ARG (\\[universal-argument]) open URL in a
-      new EWW buffer."
-      (interactive "P")
-      (when (derived-mode-p 'eww-mode)
-        (let* ((links (d/capture-urls))
-               (selection (completing-read "Go To URL from page: " links nil t))
-               (url (replace-regexp-in-string ".*@ " "" selection)))
-          (browse-url-generic url (when arg 4)))))
-
+  (add-hook 'eww-after-render-hook #'d/eww-rename-buffer)
+  (advice-add 'eww-back-url :after #'d/eww-rename-buffer)
+  (advice-add 'eww-forward-url :after #'d/eww-rename-buffer)
+  ;; (advice-add 'eww-readable :after #'d/bionic-read)
+ 
 #+end_src
 
 * 🐲 Matrix

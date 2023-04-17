@@ -25,7 +25,8 @@ Also, the tangled files are in read-only mode, so you can avoid editing it, unle
 Note: Every tangle is made into this git directory itself. Nothing goes outside. Every config files are symlinked via Nix homemanager. You need to evaluate the elisp function given down.
 --------
 
-With power of org, we can made variables for org-blocks. So no need to type out hostname or username again. Replace it with your host and username
+With power of org, we can made variables for org-blocks. So no need to type out hostname or username again. Replace it with your host and username.
+You can either use org properly ~#+name:my-var~ or use =:noweb-ref my-var= on src-block-begin-line.
 
 - Hostname goes here
 #+name: my-hostname
@@ -1161,13 +1162,13 @@ There will be not much difference.
 
   programs.foot = {
     enable = true;
-    # doesnt work properly
+    # doesnt work properly; Enable it in hyprland or sway config
     server.enable = false;
     settings = {
       main = {
         term = "xterm-256color";
-        font = "ComicCodeLigatures Nerd Font:size=12";
-        font-bold = "ComicCodeLigatures Nerd Font:size=12";
+        font = "ComicCodeLigatures Nerd Font, Noto Color Emoji, FiraCode Nerd Font:size=12";
+        font-bold = "ComicCodeLigatures Nerd Font, Noto Color Emoji, FiraCode Nerd Font:size=12";
         letter-spacing = "1";
          box-drawings-uses-font-glyphs = "no";
       };
@@ -1763,152 +1764,147 @@ creates profile settings specific to a user, and sets my profile as the default
 #+end_src
 
 ******** userCSS
-Chose t user css to make firefox elegant!
+ User css to make firefox elegant!
 #+begin_src nix
   userChrome = ''
-	       /* Base color for the theme, dependent on whether it's a light theme or not */
-  @media (prefers-color-scheme: dark) {
-      :root {
-	  --lwt-accent-color: #1c1b22;
-      }
-  }
 
-  @media (prefers-color-scheme: light) {
-      :root {
-	  --lwt-accent-color: #FAFAFC;
-      }
-  }
+  /* Check this for updated! https://github.com/rockofox/firefox-minima/blob/main/userChrome.css  */
 
-  /*====== Aesthetics ======*/
-
-  #navigator-toolbox {
-      border-bottom: none !important;
-  }
-
-  #titlebar {
-      background: var(--lwt-accent-color) !important;
-  }
-
-  /* Sets the toolbar color */
-  toolbar#nav-bar {
-      background: var(--lwt-accent-color) !important;
-      box-shadow: none !important;
-  }
-
-  /* Sets the URL bar color */
-  #urlbar {
-      background: var(--lwt-accent-color) !important;
-  }
-
-  #urlbar-background {
-      background: var(--lwt-accent-color) !important;
-      border: none !important;
-  }
-
-  #urlbar-input-container {
-      border: none !important;
-  }
-
-  /*====== UI Settings ======*/
+  /* User changable variables */
 
   :root {
-      --navbarWidth: 475px; /* Set width of navbar */
+          --tab-font-size: 0.8em; /* Font size of the tab labels */
+          --tab-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* The font used for the tab labels */
+          --max-tab-width: none; /* The maximum width a tab in the tab bar can use. Set this to none for no limit */
+          --show-titlebar-buttons: none; /* Hide the buttons (close/minimize/maximize) in the title bar. Required on some platforms (e.g macOS) to fully hide the title bar. `none` hides them, `block` shows them */
+          --tab-height: 20px;
   }
 
-  /* If the window is wider than 1000px, use flex layout */
-  @media (min-width: 1000px) {
-      #navigator-toolbox {
-	  display: flex;
-	  flex-wrap: wrap;
+  /* Minima Source Code. Here be dragons. */
+  /* Only change this if you know what you're doing */
+
+  .titlebar-buttonbox-container {
+          display: var(--show-titlebar-buttons);
   }
 
-      /*  Url bar  */
-      #nav-bar {
-	  order: 1;
-	  width: var(--navbarWidth);
-      }
-
-      /* Tab bar */
-      #titlebar {
-	  order: 2;
-	  width: calc(100vw - var(--navbarWidth) - 1px);
-      }
-
-      /* Bookmarks bar */
-      #PersonalToolbar {
-	  order: 3;
-	  width: 100%;
-      }
-    
-      /* Fix urlbar sometimes being misaligned */
-      :root[uidensity="compact"] #urlbar {
-	  --urlbar-toolbar-height: 39.60px !important;
-      }
-
-      :root[uidensity="touch"] #urlbar {
-	  --urlbar-toolbar-height: 49.00px !important;
-      }
+  :root:not([customizing]) #TabsToolbar {
+          margin-left: 1px !important;
+          margin-right: 1px !important;
+          border-radius: 0 !important;
+          padding: 0 !important;
+  }
+  .tabbrowser-tab * {
+          margin:0 !important;
+          border-radius: 0 !important;
+          font-family: var(--tab-font-family) !important;
+  }
+  .tabbrowser-tab {
+          height: var(--tab-height);
+          font-size: var(--tab-font-size) !important;
+          min-height: 0 !important;
+  }
+  .tabbrowser-tab[fadein]:not([pinned]) {
+          max-width: var(--max-tab-width) !important;
+  }
+  .tab-close-button, .new-tab-button, #firefox-view-button, #scrollbutton-up, .tab-secondary-label {
+          display: none !important;
+  }
+  .tab-icon-image {
+          height: auto !important;
+          width: calc(var(--tab-height) / 1.5) !important;
+          margin-right: 4px !important;
   }
 
-  /*====== Simplifying interface ======*/
-
-  /* Autohide back button when disabled */
-  #back-button, #forward-button {
-      transform: scale(1, 1) !important;
-      transition: margin-left 150ms var(--animation-easing-function), opacity 250ms var(--animation-easing-function), transform 350ms var(--animation-easing-function) !important;
+  #tabs-newtab-button, #titlebar spacer {
+          display: none !important;
   }
 
-  #back-button[disabled="true"], #forward-button[disabled="true"] {
-      margin-left: -34px !important;
-      opacity: 0 !important;
-      transform: scale(0.8, 0.8) !important;
-      pointer-events: none !important;
+  :root:not([customizing]) #nav-bar
+  {
+          min-height : 2.5em       !important;
+          height     : 2.5em       !important;
+          margin     : 0 0 -2.5em  !important;
+          z-index    : -1000       !important;
+          opacity    : 0           !important;
   }
 
-  /* Remove UI elements */
-  #identity-box, /* Site information */
-  #tracking-protection-icon-container, /* Shield icon */
-  #page-action-buttons > :not(#urlbar-zoom-button, #star-button-box), /* All url bar icons except for zoom level and bookmarks */
-  #urlbar-go-button, /* Search URL magnifying glass */
-  #alltabs-button, /* Menu to display all tabs at the end of tabs bar */
-  .titlebar-buttonbox-container /* Minimize, maximize, and close buttons */ {
-      display: none !important;
+  :root:not([customizing]) #nav-bar:focus-within
+  {
+          z-index    : 1000        !important;
+          opacity    : 1           !important;
   }
 
-  #nav-bar {
-      box-shadow: none !important;
+  #nav-bar{
+          border-inline: var(--uc-window-drag-space-width) solid var(--toolbar-bgcolor);
+  }
+  #new-tab-button, #alltabs-button, #scrollbutton-down, .tab-loading-burst{
+          display: none;
+  }
+  #titlebar {
+          overflow: none !important;
   }
 
-  /* Remove "padding" left and right from tabs */
-  .titlebar-spacer {
-      display: none !important;
+  /* Source file https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome/hide_tabs_with_one_tab.css made available under Mozilla Public License v. 2.0
+  See the above repository for updates as well as full license text. */
+
+  /* Makes tabs toolbar items zero-height initially and sets enlarge them to fill up space equal to tab-min-height set on tabs. Optionally use privatemode_indicator_as_menu_button.css to replace main menu icon with private browsing indicator while tabs are hidden. */
+  /* Firefox 65+ only */
+
+  :root[sizemode="normal"] #nav-bar{ --uc-window-drag-space-width: 20px }
+
+  #titlebar{ -moz-appearance: none !important; }
+  #TabsToolbar{ min-height: 0px !important }
+
+  #tabbrowser-tabs, #tabbrowser-tabs > .tabbrowser-arrowscrollbox, #tabbrowser-arrowscrollbox{ min-height: 0 !important; }
+
+  :root:not([customizing]) #tabbrowser-tabs .tabs-newtab-button,
+  :root:not([customizing]) #tabs-newtab-button,
+  :root:not([customizing]) #TabsToolbar-customization-target > .toolbarbutton-1,
+  :root:not([customizing]) #TabsToolbar .titlebar-button{
+          -moz-appearance: none !important;
+          height: 0px;
+          padding-top: 0px !important;
+          padding-bottom: 0px !important;
+          -moz-box-align: stretch;
+          margin: 0 !important;
   }
 
-  /* Fix URL bar overlapping elements */
-  #urlbar-container {
-      min-width: initial !important;
+  .accessibility-indicator,
+  .private-browsing-indicator{ 
+          height: unset !important;
+  }
+  .accessibility-indicator > hbox{ padding-block: 0 !important }
+
+  #tabbrowser-tabs tab:only-of-type {
+          visibility: collapse !important;
   }
 
-  /* Remove gap after pinned tabs */
-  #tabbrowser-tabs[haspinnedtabs]:not([positionpinnedtabs])
-  > #tabbrowser-arrowscrollbox
-  > .tabbrowser-tab[first-visible-unpinned-tab] {
-      margin-inline-start: 0 !important;
+  /* Button re-styling */
+  #tabs-newtab-button:hover,
+  #tabbrowser-tabs .tabs-newtab-button:hover{ background-color: var(--toolbarbutton-hover-background) }
+
+  #tabs-newtab-button > .toolbarbutton-icon,
+  #tabbrowser-tabs .tabs-newtab-button > .toolbarbutton-icon{
+          padding: 0 !important;
+          transform: scale(0.6);
+          background-color: transparent !important;
+  }
+  /* Extra top padding  in maximized window */
+  @media (-moz-os-version: windows-win10){
+          :root[sizemode="maximized"] #navigator-toolbox{ padding-top:7px !important; }
+  }
+  /* Fix window controls not being clickable */
+  :root[tabsintitlebar] #toolbar-menubar[autohide="true"][inactive]{
+          transition: height 0ms steps(1) 80ms;
+  }
+  #nav-bar{
+          border-inline: var(--uc-window-drag-space-width) solid var(--toolbar-bgcolor);
+  }
+  #navigator-toolbox {
+          appearance: toolbar !important; /* Pretty much anything except none */
   }
 
-  /* Hide the hamburger menu */
-  #PanelUI-menu-button { 
-      padding: 0px !important;
-  }
-
-  #PanelUI-menu-button .toolbarbutton-icon { 
-      width: 1px !important; 
-  }
-
-  #PanelUI-menu-button .toolbarbutton-badge-stack {
-      padding: 0px !important; 
-  }
-	       '';
+               '';
 #+end_src
 
 ******** Closing Statement
@@ -2034,7 +2030,7 @@ The best menu, I tried wofi, bemenu, fuzzel and others.. but they were not exten
  * {
    background:     #0d0e1cAA;
    background-alt: #0d0e1cEE;
-   foreground:     #c6daff;
+   foreground:     #FFFFFF;
    selected:       #6ae4b6;
    active:         #79a8ff;
    urgent:         #E06B74FF;

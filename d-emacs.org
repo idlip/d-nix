@@ -545,11 +545,11 @@ Another, one which make certain pains of emacs , so good that you will fall i
   (defun d/consult-first-param-is-initial-text (consult-fn &rest rest)
     "Advising function around CONSULT-FN.
 
-  The CONSULT-FN's first parameter should be the initial text.
+    The CONSULT-FN's first parameter should be the initial text.
 
-  When there's an active region, use that as the first parameter
-  for CONSULT-FN.  Otherwise, use an empty string the first
-  parameter.  This function handles the REST of the parameters."
+    When there's an active region, use that as the first parameter
+    for CONSULT-FN.  Otherwise, use an empty string the first
+    parameter.  This function handles the REST of the parameters."
     (interactive)
     (apply consult-fn
            (when (use-region-p)
@@ -560,7 +560,7 @@ Another, one which make certain pains of emacs , so good that you will fall i
   (defun d/consult-ripgrep-wrapper (consult-fn &optional dir given-initial)
     "Advising function around CONSULT-FN.
 
-  DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
+    DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
     (interactive "P")
     (let ((initial (list (or given-initial
                              (when (use-region-p)
@@ -574,11 +574,16 @@ Another, one which make certain pains of emacs , so good that you will fall i
               :around #'d/consult-ripgrep-wrapper
               '((name . "wrapper")))
 
-  (defun consult-colors-web (color)
+  (defun counsel-colors--web-list nil
+    "Return list of CSS colors for `counsult-colors-web'."
+    (require 'shr-color)
+    (sort (mapcar #'downcase (mapcar #'car shr-color-html-colors-alist)) #'string-lessp))
+
+  (defun d/colors-web (color)
     "Show a list of all CSS colors.\
 
-  You can insert the name (default), or insert or kill the hexadecimal or RGB value of the
-  selected color."
+    You can insert the name (default), or insert or kill the hexadecimal or RGB value of the
+    selected color."
     (interactive
      (list (consult--read (counsel-colors--web-list)
                           :prompt "Color: "

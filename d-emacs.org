@@ -855,6 +855,16 @@ You will see org just below this, this package helps make Org-Mode looks eye-can
   (global-org-modern-mode)
 
 #+end_src
+** Jinxed Correction
+Jinx is another cool new package for spell corrections
+#+begin_src emacs-lisp
+  (use-package jinx
+    :hook (emacs-startup . global-jinx-mode)
+    :bind ("M-$". jinx-correct)
+    :config
+    (set-face-attribute 'jinx-misspelled nil :underline '(:color "gold" :style line :position t)))
+#+end_src
+
 * 🗄️ Organize Life 
 Life's Good if you Organize is well, don't worry if you feel organizing is not easy, Org for the rescue.
 Plain (naked) simple file can help maintain GTD, even hell lot more many people don't know about.
@@ -1010,6 +1020,8 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
 ** Spell Org
 Lets try ~ispell~ paired with ~aspell~ so its better writing.
 #+begin_src emacs-lisp :tangle no
+;;  Replaced this with minad's jinx package.
+
   (use-package ispell
     :no-require t
     :config
@@ -1028,14 +1040,6 @@ Lets try ~ispell~ paired with ~aspell~ so its better writing.
     :defer t)
 #+end_src
 
-Jinx is another cool new package by Minad!
-#+begin_src emacs-lisp
-  (use-package jinx
-    :hook (emacs-startup . global-jinx-mode)
-    :bind ("M-$". jinx-correct)
-    :config
-    (set-face-attribute 'jinx-misspelled nil :underline '(:color "gold" :style line :position t)))
-#+end_src
 ** Present Org
 How amazing it is to do presentation with power of org? Yes its possible (need olivetti to center)
 #+begin_src emacs-lisp

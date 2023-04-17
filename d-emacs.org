@@ -789,6 +789,11 @@ Making snippets/templates is so easy with this package.
   (readonly ":tangle-mode (identity #o444) :mkdirp yes" n)
   (variablweb "#+name: " p n "#+begin_src " p n> r> n> "#+end_src" :post (org-edit-src-code))
   (datime (format-time-string "%Y-%m-%d %A %d %B %Y"))
+  (gitcollapse "#+begin_html" n "<details>" n "<summary>" p "</summary>" n "#+end_html" n n "*** " p n "[[file:assets/]]" n "#+begin_html" n "</details>" n "#+end_html")
+
+  markdown-mode
+
+  (gitcollapse "<details>" n "<summary>" p "</summary>" n n "## " p n n "- " p n n "</details>")
 
   ;; Local Variables:
   ;; mode: lisp-data

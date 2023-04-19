@@ -446,8 +446,8 @@ programs.foot = {
   settings = {
     main = {
       term = "xterm-256color";
-      font = "ComicCodeLigatures Nerd Font, Noto Color Emoji, FiraCode Nerd Font:size=12";
-      font-bold = "ComicCodeLigatures Nerd Font, Noto Color Emoji, FiraCode Nerd Font:size=12";
+      font = "ComicCodeLigatures Nerd Font:size=12, Noto Color Emoji:size=15, FiraCode Nerd Font:size=12";
+      font-bold = "ComicCodeLigatures Nerd Font:size=12, Noto Color Emoji:size=15, FiraCode Nerd Font:size=12";
       letter-spacing = "1";
        box-drawings-uses-font-glyphs = "no";
     };

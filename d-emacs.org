@@ -785,11 +785,11 @@ Making snippets/templates is so easy with this package.
 
   org-mode
 
-  (hugosite ":PROPERTIES:"  n ":EXPORT_FILE_NAME: " p n ":EXPORT_DATE: " p n ":EXPORT_HUGO_DRAFT: false" n ":END:")
+  (hugosite ":PROPERTIES:"  n ":EXPORT_FILE_NAME: " (p "simple-name") n ":EXPORT_DATE: " (format-time-string "%Y-%m-%d") n ":EXPORT_HUGO_DRAFT: false" n ":END:")
   (readonly ":tangle-mode (identity #o444) :mkdirp yes" n)
-  (variablweb "#+name: " p n "#+begin_src " p n> r> n> "#+end_src" :post (org-edit-src-code))
+  (variablweb "#+name: " (p "noweb-ref") n "#+begin_src " p n> r> n> "#+end_src" :post (org-edit-src-code))
   (datime (format-time-string "%Y-%m-%d %A %d %B %Y"))
-  (gitcollapse "#+begin_html" n "<details>" n "<summary>" p "</summary>" n "#+end_html" n n "*** " p n "[[file:assets/]]" n "#+begin_html" n "</details>" n "#+end_html")
+  (gitcollapse  "*** " p n "#+begin_html" n "<details>" n "<summary> " (p "heading")  " </summary>" n "#+end_html" n n n "#+begin_html" n "</details>" n "#+end_html" n n)
 
   markdown-mode
 

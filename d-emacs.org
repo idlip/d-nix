@@ -813,11 +813,39 @@ Making snippets/templates is so easy with this package.
   (readonly ":tangle-mode (identity #o444) :mkdirp yes" n)
   (variablweb "#+name: " (p "noweb-ref") n "#+begin_src " p n> r> n> "#+end_src" :post (org-edit-src-code))
   (datime (format-time-string "%Y-%m-%d %A %d %B %Y"))
-  (gitcollapse  "*** " p n "#+begin_html" n "<details>" n "<summary> " (p "heading")  " </summary>" n "#+end_html" n n n "#+begin_html" n "</details>" n "#+end_html" n n)
+  (gitcollapse  "*** " p n "#+begin_html" n "<details>" n "<summary> " (p "heading")  " </summary>" n "#+end_html" n (p "link or any comments") n n "#+begin_html" n "</details>" n "#+end_html" n n)
 
   markdown-mode
 
-  (gitcollapse "<details>" n "<summary>" p "</summary>" n n "## " p n n "- " p n n "</details>")
+  (gitcollapse "## " (p "Heading") n n "<details>" n n
+               "<summary>" (p "Sub Heading")  "</summary>" n n
+               (r "Insert Link or comments") n n "</details>")
+  (bolditalics "***" p "***")
+  (srcblock (call-interactively #'markdown-insert-gfm-code-block))
+  (src "'" p "'")
+  (unorderlist "- " (p "First") n> "- " (p "Second") n> "- " (p "Third"))
+  (orderlist "1. " (p "First") n> "2. " (p "Second") n> "3. " (p "Third"))
+  (insertimage (call-interactively #'markdown-insert-image))
+  (insertlink (call-interactively #'markdown-insert-link))
+  (hugotitle "+++" n "title = " (p "title") n "date = " (format-time-string "%Y-%m-%d") n "tags = [ " (p "tag1, tag2 ") "]" n "draft = false" n "+++")
+  (h1 "# " p " #")
+  (h2 "## " p " ##")
+  (h3 "### " p " ###")
+  (h4 "#### " p " ####")
+  (inserttable (call-interactively #'markdown-insert-table))
+
+  nix-mode
+
+  (buildphase > "buildPhase= ''" n (p "Build Instructions") n " '';")
+  (checkPhase > "checkPhase= ''" n (p "") n " '';")
+  (configurephase > "configurePhase= ''" n (p "") n " '';")
+  (fixupphase > "fixupPhase= ''" n (p "") n " '';")
+  (distphase > "distPhase= ''" n (p "") n " '';")
+  (patchphase > "patchPhase= ''" n (p "") n " '';")
+  (unpackphase > "unpackPhase= ''" n (p "") n " '';")
+  (installCheckPhasephase > "installCheckPhasePhase= ''" n (p "") n " '';")
+  (installphase > "installphase= ''" n p " mkdir -p $out/bin" n> "for f in $(find . -executable -type f);" n> "do" n> "cp $f $out/bin" n> "done}" n> " '';")
+
 
   ;; Local Variables:
   ;; mode: lisp-data

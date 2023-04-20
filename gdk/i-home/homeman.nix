@@ -214,7 +214,7 @@ programs = {
 home.packages = with pkgs; [
 
 # wayland
-libnotify libsixel wofi seatd bemenu
+libnotify libsixel wofi seatd bemenu hyprpicker
   wf-recorder brightnessctl pamixer slurp grim
   wl-clipboard rofi-wayland cliphist wtype swaybg swayidle gammastep
 

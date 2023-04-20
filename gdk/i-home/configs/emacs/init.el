@@ -144,15 +144,17 @@
   (if (org-in-src-block-p) (progn (org-edit-special) (window-focus-mode))
     (org-edit-src-abort)))
 
-(defun d/insert-unicodes (&rest filenames)
+(defun d/insert-unicodes (add-unicodes)
   "Inserts unicode character (emoji/icons) from given files"
+  (interactive (list add-unicodes))
   (insert
    (let* ((content
-           (mapcar #'(lambda (file) (with-temp-buffer (insert-file-contents file) (split-string (buffer-string) "\n" t))) filenames))
+           (mapcar #'(lambda (file) (with-temp-buffer (insert-file-contents file) (split-string (buffer-string) "\n" t))) add-unicodes))
           (options (apply #'append content))
           (selected-item (completing-read "Choose Icon 󰨈: " options))
           (fields (split-string selected-item)))
      (car fields))))
+(setq add-unicodes '("~/d-git/d-bin/treasure/unicodes/emoji" "~/d-git/d-bin/treasure/unicodes/icons"))
 
 (defun org-archive-done-tasks ()
   (interactive)
@@ -165,8 +167,8 @@
 (global-set-key (kbd "M-v") #'d/scroll-up)
 (global-set-key (kbd "C-v") #'d/scroll-down)
 (global-set-key (kbd "<f5>") #'d/refresh-buffer)
-(global-set-key (kbd "C-c d i") (lambda () (interactive)
-                                  (d/insert-unicodes "~/d-git/d-bin/treasure/unicodes/emoji" "~/d-git/d-bin/treasure/unicodes/icons")))
+(global-set-key (kbd "C-c d i") #'d/insert-unicodes)
+(global-set-key (kbd "C-c d c") #'d/insert-colors)
 
 ;; Get rid of annoyance
 (global-unset-key (kbd "C-x C-z"))
@@ -443,7 +445,29 @@
                         :category 'color
                         :history '(:input consult-colors-history)
                         )))
-  (insert color))
+  (insert
+   (when-let* ((rgb (color-name-to-rgb color))
+               ;; Sets 2 digits per component.
+               (hex (apply #'color-rgb-to-hex (append rgb '(2)))))
+     hex)))
+
+(defun d/insert-colors (color)
+  "Show a list of all supported colors for a particular frame.\
+
+You can insert the name (default), or insert or kill the hexadecimal or RGB value of the
+selected color."
+  (interactive
+   (list (consult--read (list-colors-duplicates (defined-colors))
+                        :prompt "Emacs color: "
+                        :require-match t
+                        :category 'color
+                        :history '(:input consult-colors-history)
+                        )))
+  (insert
+   (when-let* ((rgb (color-name-to-rgb color))
+               ;; Sets 2 digits per component.
+               (hex (apply #'color-rgb-to-hex (append rgb '(2)))))
+     hex)))
 
 ;; Enable rich annotations using the Marginalia package
 (use-package marginalia
@@ -620,7 +644,7 @@
 ;; Add frame borders and window dividers
 (modify-all-frames-parameters
  '((right-divider-width . 1)
-   (bottom-divider-width . 1)
+   (bottom-divider-width . 0)
    (internal-border-width . 5)))
 (dolist (face '(window-divider
                 window-divider-first-pixel

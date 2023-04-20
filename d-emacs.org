@@ -255,15 +255,17 @@ Keep folders and backuping files clean!
     (if (org-in-src-block-p) (progn (org-edit-special) (window-focus-mode))
       (org-edit-src-abort)))
 
-  (defun d/insert-unicodes (&rest filenames)
+  (defun d/insert-unicodes (add-unicodes)
     "Inserts unicode character (emoji/icons) from given files"
+    (interactive (list add-unicodes))
     (insert
      (let* ((content
-             (mapcar #'(lambda (file) (with-temp-buffer (insert-file-contents file) (split-string (buffer-string) "\n" t))) filenames))
+             (mapcar #'(lambda (file) (with-temp-buffer (insert-file-contents file) (split-string (buffer-string) "\n" t))) add-unicodes))
             (options (apply #'append content))
             (selected-item (completing-read "Choose Icon 󰨈: " options))
             (fields (split-string selected-item)))
        (car fields))))
+  (setq add-unicodes '("~/d-git/d-bin/treasure/unicodes/emoji" "~/d-git/d-bin/treasure/unicodes/icons"))
 
   (defun org-archive-done-tasks ()
     (interactive)

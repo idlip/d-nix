@@ -593,7 +593,29 @@ Another, one which make certain pains of emacs , so good that you will fall i
                           :category 'color
                           :history '(:input consult-colors-history)
                           )))
-    (insert color))
+    (insert
+     (when-let* ((rgb (color-name-to-rgb color))
+                 ;; Sets 2 digits per component.
+                 (hex (apply #'color-rgb-to-hex (append rgb '(2)))))
+       hex)))
+
+  (defun d/insert-colors (color)
+    "Show a list of all supported colors for a particular frame.\
+
+  You can insert the name (default), or insert or kill the hexadecimal or RGB value of the
+  selected color."
+    (interactive
+     (list (consult--read (list-colors-duplicates (defined-colors))
+                          :prompt "Emacs color: "
+                          :require-match t
+                          :category 'color
+                          :history '(:input consult-colors-history)
+                          )))
+    (insert
+     (when-let* ((rgb (color-name-to-rgb color))
+                 ;; Sets 2 digits per component.
+                 (hex (apply #'color-rgb-to-hex (append rgb '(2)))))
+       hex)))
 #+end_src
 
 ** Info = Marginalia

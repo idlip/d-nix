@@ -866,7 +866,7 @@ You will see org just below this, this package helps make Org-Mode looks eye-can
   ;; Add frame borders and window dividers
   (modify-all-frames-parameters
    '((right-divider-width . 1)
-     (bottom-divider-width . 1)
+     (bottom-divider-width . 0)
      (internal-border-width . 5)))
   (dolist (face '(window-divider
                   window-divider-first-pixel

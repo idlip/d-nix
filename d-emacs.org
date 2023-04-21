@@ -1595,11 +1595,21 @@ Some small codes from good source.
 
 
   ;; (use-package howdoyou)
-  (use-package undo-fu
-    :bind ("C-M-r" . undo-fu-only-redo)
-    ("C-z" . undo-fu-only-undo)
-    ("C-S-z" . undo-fu-only-redo-all))
+  ;; (use-package undo-fu
+  ;;   :bind ("C-M-r" . undo-fu-only-redo)
+  ;;   ("C-z" . undo-fu-only-undo)
+  ;;   ("C-S-z" . undo-fu-only-redo-all))
 
+  (use-package undo-fu-session
+    :init (undo-fu-session-global-mode)
+    :config
+    (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'")))
+
+  (use-package vundo
+    :bind (("C-x u" . vundo)
+           ("C-z" . undo-only)
+           ("C-S-z" . redo-only)
+           ("C-M-r" . redo-only)))
 
   (use-package flycheck
     :defer t)

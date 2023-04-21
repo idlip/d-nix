@@ -688,7 +688,7 @@ selected color."
   :hook (emacs-startup . global-jinx-mode)
   :bind ("M-$". jinx-correct)
   :config
-  (set-face-attribute 'jinx-misspelled nil :underline '(:color "gold" :style line :position t)))
+  (set-face-attribute 'jinx-misspelled nil :inherit nil :underline '(:color "gold" :style line :position t)))
 
 (defun org-font-setup ()
   ;; Replace list hyphen with dot
@@ -1252,11 +1252,21 @@ selected color."
 
 
 ;; (use-package howdoyou)
-(use-package undo-fu
-  :bind ("C-M-r" . undo-fu-only-redo)
-  ("C-z" . undo-fu-only-undo)
-  ("C-S-z" . undo-fu-only-redo-all))
+;; (use-package undo-fu
+;;   :bind ("C-M-r" . undo-fu-only-redo)
+;;   ("C-z" . undo-fu-only-undo)
+;;   ("C-S-z" . undo-fu-only-redo-all))
 
+(use-package undo-fu-session
+  :init (undo-fu-session-global-mode)
+  :config
+  (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'")))
+
+(use-package vundo
+  :bind (("C-x u" . vundo)
+         ("C-z" . undo-only)
+         ("C-S-z" . redo-only)
+         ("C-M-r" . redo-only)))
 
 (use-package flycheck
   :defer t)
@@ -1272,6 +1282,7 @@ selected color."
   (advice-add 'mingus-playlist-mode :after #'olivetti-mode)
   (advice-add 'mingus-browse-mode :after #'olivetti-mode))
 ;; (use-package wikinforg)
+
 (use-package webpaste
   :defer t
   :ensure t
@@ -1281,8 +1292,7 @@ selected color."
   :config
   (setq webpaste-provider-priority '("dpaste.org" "dpaste.com" "paste.mozilla.org"))
   ;; Require confirmation before doing paste
-  (setq webpaste-paste-confirmation t)
-  )
+  (setq webpaste-paste-confirmation t))
 
 (use-package sdcv
   :defer t
@@ -1536,6 +1546,7 @@ selected color."
         ("M-<" . ement-room-scroll-down-command))
   :config
   (setq ement-room-send-message-filter 'ement-room-send-org-filter)
+  (setq ement-room-message-format-spec "%S> %L%B%r%R%t")
   (setq ement-room-list-avatars nil))
 
 (use-package ox-hugo

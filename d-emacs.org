@@ -904,7 +904,7 @@ Jinx is another cool new package for spell corrections
     :hook (emacs-startup . global-jinx-mode)
     :bind ("M-$". jinx-correct)
     :config
-    (set-face-attribute 'jinx-misspelled nil :underline '(:color "gold" :style line :position t)))
+    (set-face-attribute 'jinx-misspelled nil :inherit nil :underline '(:color "gold" :style line :position t)))
 #+end_src
 
 * 🗄️ Organize Life 

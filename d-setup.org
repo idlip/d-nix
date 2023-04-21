@@ -1552,7 +1552,7 @@ Its more mature than hyprland. So... better to have it! I dont use sway that muc
     enable = true;
     package = pkgs.emacsPgtk;
     extraPackages = (epkgs: (with epkgs; [
-      vterm undo-fu flycheck helpful ox-pandoc
+      vterm vundo undo-fu-session flycheck helpful ox-pandoc
       no-littering rainbow-delimiters rainbow-mode vertico 
       orderless consult marginalia embark org olivetti org-modern corfu
       cape markdown-mode nix-mode rust-mode lua-mode
@@ -1956,11 +1956,11 @@ mpv config which is tangled directly
 #+end_src
 
 #+begin_src conf :noweb yes :tangle (format "%s/mpv/mpv.conf" (get-named-src-block-contents "my-configs" t))
-  hwdec=vaapi
-  gpu-hwdec-interop=vaapi
-  vo=gpu
-  profile=gpu-hq
-  gpu-context=wayland
+  # hwdec=vaapi
+  # gpu-hwdec-interop=vaapi
+  # vo=gpu
+  # profile=gpu-hq
+  # gpu-context=wayland
   force-window=yes
   osc=no
   sub-border-size=4.0

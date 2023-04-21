@@ -24,16 +24,6 @@ CLOSED: [2023-03-07 Tue 14:27]
 - [X] Share some cool stuffs with others and explain it very crisp and clearly
     
 **** 😴 Planning  [0/5]
-- [ ] add these stuffs.
-  #+begin_src conf
-
-;; Enable `diff-hl' support by default in programming buffers
-(add-hook 'prog-mode-hook #'diff-hl-mode)
-
-;; Update the highlighting without saving
-(diff-hl-flydiff-mode t)
-
-  #+end_src
 - [ ] Add daily quotes for ~initial-scratch-message~
 - [ ] Learn more stuffs from Experienced and Master Users, like Purcell, bbsatov and others
 - [ ] Learn elisp for enhancing some more stuffs

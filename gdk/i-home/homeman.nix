@@ -517,7 +517,7 @@ programs.emacs = {
   enable = true;
   package = pkgs.emacsPgtk;
   extraPackages = (epkgs: (with epkgs; [
-    vterm undo-fu flycheck helpful ox-pandoc
+    vterm vundo undo-fu-session flycheck helpful ox-pandoc
     no-littering rainbow-delimiters rainbow-mode vertico 
     orderless consult marginalia embark org olivetti org-modern corfu
     cape markdown-mode nix-mode rust-mode lua-mode

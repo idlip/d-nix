@@ -886,7 +886,7 @@ Installs packages for this user only.
 ****** Wayland
 #+begin_src nix
   # wayland
-  libnotify libsixel wofi seatd bemenu hyprpicker
+  libnotify libsixel wofi seatd bemenu hyprpicker fuzzel
     wf-recorder brightnessctl pamixer slurp grim
     wl-clipboard rofi-wayland cliphist wtype swaybg swayidle gammastep
 #+end_src

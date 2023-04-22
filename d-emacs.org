@@ -224,7 +224,6 @@ Keep folders and backuping files clean!
     (balance-windows)
     (other-window 1))
 
-
   (defun d/refresh-buffer ()
     "Revert buffer without confirmation."
     (interactive)
@@ -242,8 +241,8 @@ Keep folders and backuping files clean!
   (defun d/edit-src-block ()
     "Makes editing src block focused in its respective major mode"
     (interactive)
-    (if (org-in-src-block-p) (progn (org-edit-special) (window-focus-mode))
-      (org-edit-src-abort)))
+    (if (org-src-edit-buffer-p)         (org-edit-src-abort)
+    (progn (org-edit-special) (window-focus-mode))))
 
   (defun d/insert-unicodes (add-unicodes)
     "Inserts unicode character (emoji/icons) from given files"

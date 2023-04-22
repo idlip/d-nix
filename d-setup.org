@@ -1358,6 +1358,7 @@ There will be not much difference.
   #blurls=waybar
   blurls=wofi
   blurls=rofi
+  blurls=launcher
   blurls=menu
   blurls=gtk-layer-shell
   blurls=notifications

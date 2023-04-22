@@ -9,7 +9,6 @@
 *** [[https://yt.funami.tech/feed/channel/UCpVm7bg6pXKo1Pr6k5kxG9A][Nat Geo]]
 ** Docs :docs:doc:
 *** [[https://yt.funami.tech/feed/channel/UC_g32e3JeECjEuRbk-loywg][HQ Docs]]
-*** [[https://yt.funami.tech/feed/channel/UCixD9UbKvDxzGNiPC_fgHyA][Tokyo]]
 ** Reads :blogs:read:
 *** [[https://www.psychologytoday.com/intl/front/feed][Psychology Today: The Latest]] :psych:psy:
 *** [[https://idlip.github.io/index.xml][Idlip]] :mine:idlip:
@@ -19,7 +18,6 @@
 
 ** Youtube-Time :youtube:yt:
 *** [[https://yt.funami.tech/feed/channel/UCUdettijNYvLAm4AixZv4RA][SciShow Psych]]
-*** [[https://yt.funami.tech/feed/channel/UC2-_WWPT_124iN6jiym4fOw][Asian Boss]]
 *** [[https://yt.funami.tech/feed/channel/UCMlGmHokrQRp-RaNO7aq4Uw][TopThink]]
 *** [[https://yt.funami.tech/feed/channel/UCHL9bfHTxCMi-7vfxQ-AYtg][Abroad in Japan]]
 *** [[https://yt.funami.tech/feed/channel/UCZYTClx2T1of7BRZ86-8fow][SciShow]]

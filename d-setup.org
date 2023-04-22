@@ -1375,7 +1375,7 @@ There will be not much difference.
   bind=SUPERCONTROL,Q,exit,
   bind=SUPER,F12,exec,uxterm
   bind=SUPER,SPACE,togglefloating,
-  bind=SUPER,d,exec,rofi -show drun
+  bind=SUPER,d,exec,fuzzel
   bind=SUPER,b,exec,pkill -SIGUSR1 waybar
   bind=SUPER,P,pseudo,
   bind=SUPER,F,fullscreen,

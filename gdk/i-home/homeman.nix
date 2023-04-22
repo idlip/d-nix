@@ -214,7 +214,7 @@ programs = {
 home.packages = with pkgs; [
 
 # wayland
-libnotify libsixel wofi seatd bemenu hyprpicker
+libnotify libsixel wofi seatd bemenu hyprpicker fuzzel
   wf-recorder brightnessctl pamixer slurp grim
   wl-clipboard rofi-wayland cliphist wtype swaybg swayidle gammastep
 
@@ -522,7 +522,7 @@ programs.emacs = {
     orderless consult marginalia embark org olivetti org-modern corfu
     cape markdown-mode nix-mode rust-mode lua-mode
     all-the-icons all-the-icons-dired async dired-hide-dotfiles dired-single
-    reddigg mingus pdf-tools which-key magit webpaste org-present
+    reddigg hnreader mingus pdf-tools which-key magit webpaste org-present
     org-mime corfu-terminal beframe denote tempel tempel-collection
     sdcv elfeed elfeed-org link-hint powerthesaurus jinx
     doom-modeline hide-mode-line el-fetch ox-hugo htmlize
@@ -852,6 +852,10 @@ home.file.".config/mpv/input.conf".source = config.lib.file.mkOutOfStoreSymlink 
 # We will tangle config files from git repo to home dir (Let nix manage the magics)
 
 home.file.".config/imv/config".source = config.lib.file.mkOutOfStoreSymlink "/home/i/d-git/d-nix/gdk/i-home/configs/imv/config";
+
+# We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+home.file.".config/fuzzel/fuzzel.ini".source = config.lib.file.mkOutOfStoreSymlink "/home/i/d-git/d-nix/gdk/i-home/configs/fuzzel/fuzzel.ini";
 
 # We will tangle config files from git repo to home dir (Let nix manage the magics)
 

@@ -2016,6 +2016,39 @@ Image viewer config
   p = prev
   n = next
 #+end_src
+****** Fuzzel
+A minimal launcher for wayland
+#+begin_src nix :noweb yes
+  # We will tangle config files from git repo to home dir (Let nix manage the magics)
+
+  home.file.".config/fuzzel/fuzzel.ini".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/fuzzel/fuzzel.ini";
+#+end_src
+
+#+begin_src conf :tangle (format "%s/fuzzel/fuzzel.ini" (get-named-src-block-contents "my-configs" t))
+  [main]
+  font = ComicCodeLigatures Nerd Font:weight=medium:size=13, Noto Color Emoji:size=15
+  prompt = " Menu > "
+  icon-theme = Papirus
+  icons-enabled = yes
+  fuzzy = no
+  show-actions  = yes
+  width = 55
+  lines = 15        
+
+  [colors]
+  background = 0d0e1cBB
+  text = ffffffff
+  match = ffd700ff
+  selection = 6ae4b6ff
+  selection-text = 010101ff
+  selection-match = 000000ff
+  border = ffe4e1ff
+
+  [border]
+  width =  2
+  radius = 30
+
+#+end_src
 ****** Rofi
 The best menu, I tried wofi, bemenu, fuzzel and others.. but they were not extensive, so since rofi has rofi-wayland, so I will stick to it.
 ******* Theme

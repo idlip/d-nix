@@ -225,7 +225,7 @@ services = {
     overrideDevices = true;     # overrides any devices added or deleted through the WebUI
     overrideFolders = true;     # overrides any folders added or deleted through the WebUI
     devices = {
-      "realme" = { id = "JAJECCB-UC73TPE-KJFHYK4-KZT2A74-BEQSYVG-LAKP34N-V2G5E6X-TH2ZQQQ"; };
+      "realme" = { id = "5ZNAQ2Z-T2DD757-6JK53J6-4NFMMGG-ETTFU5W-UNAMYLV-XM3P6CZ-ERSRTQX"; };
       #"device2" = { id = "DEVICE-ID-GOES-HERE"; };
     };
     folders = {

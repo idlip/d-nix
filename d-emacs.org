@@ -1592,6 +1592,8 @@ Some small codes from good source.
     (setq org-confirm-elisp-link-function nil)    
     (setq reddigg-subs '(bangalore india emacs fossdroid piracy aww)))
 
+  (use-package hnreader
+    :defer t)
 
   ;; (use-package howdoyou)
   ;; (use-package undo-fu
@@ -1756,6 +1758,20 @@ Some more functions copied and adapted well to my flow. You will also find it we
           (setq xBoldEndPos (+ xWordBegin (1+ (/ (- xWordEnd xWordBegin) 2))))
           (put-text-property xWordBegin xBoldEndPos
                              'font-lock-face bionic-reading-face)))))
+
+  ;; From kathink. It repeats the seq without modifier
+  (defun repeated-prefix-help-command ()
+    (interactive)
+    (when-let* ((keys (this-command-keys-vector))
+                (prefix (seq-take keys (1- (length keys))))
+                (orig-keymap (key-binding prefix 'accept-default))
+                (keymap (copy-keymap orig-keymap))
+                (exit-func (set-transient-map keymap t #'which-key-abort)))
+      (define-key keymap [remap keyboard-quit]
+        (lambda () (interactive) (funcall exit-func)))
+      (which-key--create-buffer-and-show nil keymap)))
+
+  (setq prefix-help-command #'repeated-prefix-help-command)
 
   ;; This is for managing nixos config
   (defun get-named-src-block-contents (name &optional trim)

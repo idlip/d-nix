@@ -1975,7 +1975,7 @@ Congratulations, if you are already using Rss, if not, don't worry, you can get 
   (advice-add 'eww-back-url :after #'d/eww-rename-buffer)
   (advice-add 'eww-forward-url :after #'d/eww-rename-buffer)
   ;; (advice-add 'eww-readable :after #'d/bionic-read)
- 
+
 #+end_src
 
 * 🐲 Matrix

@@ -123,7 +123,6 @@
   (balance-windows)
   (other-window 1))
 
-
 (defun d/refresh-buffer ()
   "Revert buffer without confirmation."
   (interactive)
@@ -141,8 +140,8 @@
 (defun d/edit-src-block ()
   "Makes editing src block focused in its respective major mode"
   (interactive)
-  (if (org-in-src-block-p) (progn (org-edit-special) (window-focus-mode))
-    (org-edit-src-abort)))
+  (if (org-src-edit-buffer-p)         (org-edit-src-abort)
+  (progn (org-edit-special) (window-focus-mode))))
 
 (defun d/insert-unicodes (add-unicodes)
   "Inserts unicode character (emoji/icons) from given files"
@@ -1250,6 +1249,8 @@ selected color."
   (setq org-confirm-elisp-link-function nil)    
   (setq reddigg-subs '(bangalore india emacs fossdroid piracy aww)))
 
+(use-package hnreader
+  :defer t)
 
 ;; (use-package howdoyou)
 ;; (use-package undo-fu
@@ -1406,6 +1407,20 @@ selected color."
         (put-text-property xWordBegin xBoldEndPos
                            'font-lock-face bionic-reading-face)))))
 
+;; From kathink. It repeats the seq without modifier
+(defun repeated-prefix-help-command ()
+  (interactive)
+  (when-let* ((keys (this-command-keys-vector))
+              (prefix (seq-take keys (1- (length keys))))
+              (orig-keymap (key-binding prefix 'accept-default))
+              (keymap (copy-keymap orig-keymap))
+              (exit-func (set-transient-map keymap t #'which-key-abort)))
+    (define-key keymap [remap keyboard-quit]
+      (lambda () (interactive) (funcall exit-func)))
+    (which-key--create-buffer-and-show nil keymap)))
+
+(setq prefix-help-command #'repeated-prefix-help-command)
+
 ;; This is for managing nixos config
 (defun get-named-src-block-contents (name &optional trim)
 "Return the contents of the named Org source block."
@@ -1420,106 +1435,165 @@ selected color."
     source)))
 
 (use-package elfeed
-  :defer t
-  :hook (elfeed-show-mode . d/elfeed-ui)
-  :bind ("C-c d e" . elfeed)
-  ("C-c d b" . d/external-browser)
-  (:map elfeed-show-mode-map
-        ("e" . elfeed-open-in-eww)
-        ("i" . d/bionic-read)
-        ("r" . elfeed-open-in-reddit)
-        ("m" . elfeed-toggle-show-star)
-        ("b" . d/external-browser))
-  (:map elfeed-search-mode-map
-        ("m" . elfeed-toggle-star)
-        ("U" . elfeed-update)
-        ("u" . elfeed-update-feed))
-  :config
-  ;; (setq-default elfeed-search-filter "@1-week-ago--1-day-ago +unread -news +")
-  (setq-default elfeed-search-filter "+unread +")
-  (defalias 'elfeed-toggle-show-star
-    (elfeed-expose #'elfeed-show-tag 'star))    
-  (defalias 'elfeed-toggle-star
-    (elfeed-expose #'elfeed-search-toggle-all 'star))
+    :defer t
+    :hook (elfeed-show-mode . d/elfeed-ui)
+    :bind ("C-c d e" . elfeed)
+    ("C-c d b" . d/external-browser)
+    (:map elfeed-show-mode-map
+          ("e" . elfeed-open-in-eww)
+          ("i" . d/bionic-read)
+          ("r" . elfeed-open-in-reddit)
+          ("m" . elfeed-toggle-show-star)
+          ("b" . d/external-browser))
+    (:map elfeed-search-mode-map
+          ("m" . elfeed-toggle-star)
+          ("U" . elfeed-update)
+          ("u" . elfeed-update-feed))
+    :config
+    ;; (setq-default elfeed-search-filter "@1-week-ago--1-day-ago +unread -news +")
+    (setq-default elfeed-search-filter "+unread +")
+    (defalias 'elfeed-toggle-show-star
+      (elfeed-expose #'elfeed-show-tag 'star))    
+    (defalias 'elfeed-toggle-star
+      (elfeed-expose #'elfeed-search-toggle-all 'star))
 
-  (defun d/elfeed-ui ()
+    (defun d/elfeed-ui ()
+      (interactive)
+      (setq-local header-line-format " ")
+
+      (set-face-attribute 'header-line nil :background nil :height 0.9)
+
+      ;; For sides
+      (set-face-attribute 'message-header-name nil :font d/header-font :height '0.8 :background)
+      ;; For Title
+      (set-face-attribute 'message-header-subject nil :font d/title-face :height '1.80 :background)
+      ;; For tags..
+      (set-face-attribute 'message-header-other nil :font d/jetb-font :height '1.0 :background)
+      ;; For Author
+      (set-face-attribute 'message-header-to nil :font d/sans-font :slant 'italic :height '1.50 :background)
+      (set-face-attribute 'shr-link nil :font d/link-font :slant 'italic :weight 'semibold :width 'medium :height '1.0 :background))
+
+    ;; face for starred articles
+    (defface elfeed-search-star-title-face
+      '((t :foreground "#f77"))
+      "Marks a starred Elfeed entry.")
+
+    (push '(star elfeed-search-star-title-face) elfeed-search-face-alist))
+
+  (use-package link-hint
+    :defer t
+    :ensure t
+    :bind
+    ("C-c l o" . link-hint-open-link)
+    ("C-c l c" . link-hint-copy-link))
+
+  (use-package avy
+    :defer t
+    :bind
+    ("M-j" . avy-goto-char-timer)
+    ("M-K" . avy-kill-region)
+    ("C-S-k" . avy-kill-whole-line))
+
+  (use-package elfeed-org
+    :after elfeed
+    :config
+    (elfeed-org)
+    (setq rmh-elfeed-org-files (list "~/.config/emacs/elfeed.org")))
+
+  (defun readable-article ()
     (interactive)
-    (setq-local header-line-format " ")
+    (eww-readable)
+    ;; (d/bionic-read)
+    (beginning-of-buffer)
+    (d/eww-rename-buffer))
 
-    (set-face-attribute 'header-line nil :background nil :height 0.9)
+  (defun elfeed-open-in-eww ()
+    "open in eww"
+    (interactive)
+    (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
+      (eww (elfeed-entry-link entry))
+      (add-hook 'eww-after-render-hook 'readable-article)))
 
-    ;; For sides
-    (set-face-attribute 'message-header-name nil :font d/header-font :height '0.8 :background)
-    ;; For Title
-    (set-face-attribute 'message-header-subject nil :font d/title-face :height '1.80 :background)
-    ;; For tags..
-    (set-face-attribute 'message-header-other nil :font d/jetb-font :height '1.0 :background)
-    ;; For Author
-    (set-face-attribute 'message-header-to nil :font d/sans-font :slant 'italic :height '1.50 :background)
-    (set-face-attribute 'shr-link nil :font d/link-font :slant 'italic :weight 'semibold :width 'medium :height '1.0 :background))
+  (defun elfeed-open-in-reddit ()
+    "open in reddit"
+    (interactive)
+    (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
+      (reddigg-view-comments (elfeed-entry-link entry))))
 
-  ;; face for starred articles
-  (defface elfeed-search-star-title-face
-    '((t :foreground "#f77"))
-    "Marks a starred Elfeed entry.")
+  (use-package eww
+    :bind (:map eww-mode-map
+                ("e" . readable-article)
+                ("Q" . d/kill-buffer)
+                ("M-v" . d/scroll-up)
+                ("C-v" . d/scroll-down)
+                ("C-f" . shr-next-link)
+                ("C-b" . shr-previous-link)
+                ("F" . d/visit-urls)
+                ("U" . elfeed-update)
+                ("b" . d/external-browser)))
+(with-eval-after-load "shr"
+    (defun shr-put-image (spec alt &optional flags)
+      "Insert image SPEC with a string ALT.  Return image.
+SPEC is either an image data blob, or a list where the first
+element is the data blob and the second element is the content-type.
+Hack to use `insert-sliced-image' to avoid jerky image scrolling."
+      (if (display-graphic-p)
+          (let* ((size (cdr (assq 'size flags)))
+                 (data (if (consp spec)
+                           (car spec)
+                         spec))
+                 (content-type (and (consp spec)
+                                    (cadr spec)))
+                 (start (point))
+                 (image (cond
+                         ((eq size 'original)
+                          (create-image data nil t :ascent 100
+                                        :format content-type))
+                         ((eq content-type 'image/svg+xml)
+                          (create-image data 'svg t :ascent 100))
+                         ((eq size 'full)
+                          (ignore-errors
+                            (shr-rescale-image data content-type
+                                               (plist-get flags :width)
+                                               (plist-get flags :height))))
+                         (t
+                          (ignore-errors
+                            (shr-rescale-image data content-type
+                                               (plist-get flags :width)
+                                               (plist-get flags :height)))))))
+            (when image
+              (let* ((image-pixel-cons (image-size image t))
+                     (image-pixel-width (car image-pixel-cons))
+                     (image-pixel-height (cdr image-pixel-cons))
+                     (image-scroll-rows (round (/ image-pixel-height (default-font-height)))))
+                ;; When inserting big-ish pictures, put them at the
+                ;; beginning of the line.
+                (when (and (> (current-column) 0)
+                           (> (car (image-size image t)) 400))
+                  (insert "\n"))
 
-  (push '(star elfeed-search-star-title-face) elfeed-search-face-alist))
+                (insert-sliced-image image (or alt "*") nil image-scroll-rows 1)
+                ;; (if (eq size 'original)
+                ;;     (insert-sliced-image image (or alt "*") nil image-scroll-rows 1)
+                ;;   (insert-image image (or alt "*")))
 
-(use-package link-hint
-  :defer t
-  :ensure t
-  :bind
-  ("C-c l o" . link-hint-open-link)
-  ("C-c l c" . link-hint-copy-link))
-
-(use-package avy
-  :defer t
-  :bind
-  ("M-j" . avy-goto-char-timer)
-  ("M-K" . avy-kill-region)
-  ("C-S-k" . avy-kill-whole-line))
-
-(use-package elfeed-org
-  :after elfeed
-  :config
-  (elfeed-org)
-  (setq rmh-elfeed-org-files (list "~/.config/emacs/elfeed.org")))
-
-(defun readable-article ()
-  (interactive)
-  (eww-readable)
-  ;; (d/bionic-read)
-  (beginning-of-buffer)
-  (d/eww-rename-buffer))
-
-(defun elfeed-open-in-eww ()
-  "open in eww"
-  (interactive)
-  (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
-    (eww (elfeed-entry-link entry))
-    (add-hook 'eww-after-render-hook 'readable-article)))
-
-(defun elfeed-open-in-reddit ()
-  "open in reddit"
-  (interactive)
-  (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
-    (reddigg-view-comments (elfeed-entry-link entry))))
-
-(use-package eww
-  :bind (:map eww-mode-map
-              ("e" . readable-article)
-              ("Q" . d/kill-buffer)
-              ("M-v" . d/scroll-up)
-              ("C-v" . d/scroll-down)
-              ("C-f" . shr-next-link)
-              ("C-b" . shr-previous-link)
-              ("F" . d/visit-urls)
-              ("U" . elfeed-update)
-              ("b" . d/external-browser)))
+                (put-text-property start (point) 'image-size size)
+                (when (and shr-image-animate
+                           (cond ((fboundp 'image-multi-frame-p)
+                                  ;; Only animate multi-frame things that specify a
+                                  ;; delay; eg animated gifs as opposed to
+                                  ;; multi-page tiffs.  FIXME?
+                                  (cdr (image-multi-frame-p image)))
+                                 ((fboundp 'image-animated-p)
+                                  (image-animated-p image))))
+                  (image-animate image nil 60))))
+            image)
+        (insert (or alt "")))))
 
 (defun d/external-browser ()
   (interactive)
-  (cond ((shr-url-at-point nil) (link-hint-copy-link-at-point))
+  (cond ((thing-at-point-url-at-point) (link-hint-copy-link-at-point))
+        ((shr-url-at-point nil) (link-hint-copy-link-at-point))
         ((dired-file-name-at-point)  (link-hint-copy-link-at-point))
         (t (link-hint-copy-link)))
   (let ((url (current-kill 0)))

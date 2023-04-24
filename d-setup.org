@@ -882,21 +882,21 @@ Installs packages for this user only.
   # wayland
   libnotify libsixel wofi seatd bemenu hyprpicker fuzzel
     wf-recorder brightnessctl pamixer slurp grim
-    wl-clipboard rofi-wayland cliphist wtype swaybg swayidle gammastep
+    wl-clipboard rofi-wayland wtype swaybg swayidle gammastep
 #+end_src
 ****** Media
 #+begin_src nix
   # media
-  mpc_cli playerctl pavucontrol pulsemixer imv 
+  mpc_cli pavucontrol pulsemixer imv 
 #+end_src
 ****** cli-tools
 #+begin_src nix
   # cli tools
-  cached-nix-shell pcmanfm yt-dlp fzf neovim btop
-
+  pcmanfm yt-dlp fzf neovim btop
   unzip aspell aspellDicts.en-science aspellDicts.en hunspell hunspellDicts.en-us enchant
   ripgrep nitch libreoffice pandoc newsboat tmux
-  rsync  ffmpeg_6-full sdcv imagemagick groff pciutils acpi
+  rsync  ffmpeg sdcv imagemagick groff pciutils acpi
+  wkhtmltopdf-bin
   # texlive.combined.scheme-full
   fd ncdu mu isync ts  syncthing dconf
   jq keepassxc figlet keepassxc
@@ -1571,7 +1571,7 @@ Vim need alot of plugins and customization which wastes time on tinkering, Helix
 #+end_src
 
 #+begin_src toml :noweb yes :tangle (format "%s/helix/config.toml" (get-named-src-block-contents "my-configs" t))
-  theme = "onedarker"
+  theme = "gruvbox_dark_hard"
 
   [editor]
   line-number = "relative"

@@ -200,7 +200,7 @@ services = {
   udisks2.enable = true;
   gnome.at-spi2-core.enable = true;
 
-  tlp.enable = true;                      # TLP and auto-cpufreq for power management
+  tlp.enable = true;     # TLP and auto-cpufreq for power management
   auto-cpufreq.enable = true;
 
   # For Laptop, make lid close and power buttom click to suspend
@@ -288,18 +288,6 @@ environment.systemPackages = with pkgs; [
 
 # Add other overlays here
 nixpkgs.overlays = with inputs; [emacs-overlay.overlay  ];
-
-hardware = {
-  opengl = {
-    enable = true;
-    extraPackages = with pkgs; [
-      vaapiVdpau
-      libvdpau-va-gl
-      intel-media-driver
-      vaapiIntel
-    ];
-  };
-};
 
 fonts = {
   fonts = with pkgs; [

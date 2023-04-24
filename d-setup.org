@@ -408,7 +408,7 @@ Certain services, just enable = true; gets the work done for most of the stuffs.
     udisks2.enable = true;
     gnome.at-spi2-core.enable = true;
 
-    tlp.enable = true;                      # TLP and auto-cpufreq for power management
+    tlp.enable = true;     # TLP and auto-cpufreq for power management
     auto-cpufreq.enable = true;
 
     # For Laptop, make lid close and power buttom click to suspend
@@ -515,7 +515,7 @@ You can add your choice of overlay (eg: Discord, helix...)
 *** Opengl Hardware
 To use Opengl hardware acceleration using VA-API.
 Useful to use in firefox and mpv.
-#+begin_src nix
+#+begin_src nix :tangle no
 
   hardware = {
     opengl = {
@@ -579,7 +579,7 @@ Enables additional fonts system wide
 Adds command alias's to the system interactive shell
 #+begin_src nix
   environment.interactiveShellInit = ''
-
+                                   
   '';
 #+end_src
 *** System Users

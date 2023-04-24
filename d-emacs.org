@@ -2070,12 +2070,11 @@ Congratulations, if you are already using Rss, if not, don't worry, you can get 
 #+begin_src emacs-lisp
   (defun d/external-browser ()
     (interactive)
-    (cond ((thing-at-point-url-at-point) (link-hint-copy-link-at-point))
-          ((shr-url-at-point nil) (link-hint-copy-link-at-point))
-          ((dired-file-name-at-point)  (link-hint-copy-link-at-point))
-          (t (link-hint-copy-link)))
-    (let ((url (current-kill 0)))
-      (browse-url-generic url)))
+    (cond ((or (thing-at-point-url-at-point) (shr-url-at-point nil) (dired-file-name-at-point) (link-hint--org-link-at-point-p))
+     (link-hint-copy-link-at-point))
+    (t (link-hint-copy-link)))
+  (let ((url (current-kill 0)))
+    (browse-url-generic url)))
 
   (defun d/eww-rename-buffer ()
     "Rename EWW buffer using page title or URL.

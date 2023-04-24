@@ -1723,8 +1723,8 @@ Some small codes from good source.
   (use-package vundo
     :bind (("C-x u" . vundo)
            ("C-z" . undo-only)
-           ("C-S-z" . redo-only)
-           ("C-M-r" . redo-only)))
+           ("C-S-z" . undo-redo)
+           ("C-M-r" . undo-redo)))
 
   (use-package flycheck
     :defer t)

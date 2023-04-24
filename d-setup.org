@@ -99,12 +99,6 @@ Why not have a block for flake.nix too?
       # Change it to stable, if you want stable channel
       nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-      # Idk where is this used, I just have it
-      nixpkgs-wayland.url = "github:nix-community/nixpkgs-wayland";
-
-      # For firefox extension
-      nur.url = "github:nix-community/nur";
-
       # For Adblocking and making internet usable
       hosts.url = "github:StevenBlack/hosts";
 

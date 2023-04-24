@@ -216,17 +216,17 @@ home.packages = with pkgs; [
 # wayland
 libnotify libsixel wofi seatd bemenu hyprpicker fuzzel
   wf-recorder brightnessctl pamixer slurp grim
-  wl-clipboard rofi-wayland cliphist wtype swaybg swayidle gammastep
+  wl-clipboard rofi-wayland wtype swaybg swayidle gammastep
 
 # media
-mpc_cli playerctl pavucontrol pulsemixer imv
+mpc_cli pavucontrol pulsemixer imv
 
 # cli tools
-cached-nix-shell pcmanfm yt-dlp fzf neovim btop
-
+pcmanfm yt-dlp fzf neovim btop
 unzip aspell aspellDicts.en-science aspellDicts.en hunspell hunspellDicts.en-us enchant
 ripgrep nitch libreoffice pandoc newsboat tmux
-rsync  ffmpeg_6-full sdcv imagemagick groff pciutils acpi
+rsync  ffmpeg sdcv imagemagick groff pciutils acpi
+wkhtmltopdf-bin
 # texlive.combined.scheme-full
 fd ncdu mu isync ts  syncthing dconf
 jq keepassxc figlet keepassxc

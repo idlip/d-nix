@@ -297,12 +297,12 @@
       completion-ignore-case t)
 ;; Use `consult-completion-in-region' if Vertico is enabled.
 ;; Otherwise use the default `completion--in-region' function.
-;; (setq completion-in-region-function
-;;       (lambda (&rest args)
-;;         (apply (if vertico-mode
-;;                    #'consult-completion-in-region
-;;                  #'completion--in-region)
-;;                args)))
+(setq completion-in-region-function
+      (lambda (&rest args)
+        (apply (if vertico-mode
+                   #'consult-completion-in-region
+                 #'completion--in-region)
+               args)))
 
 (use-package consult
   ;; Replace bindings. Lazily loaded due by `use-package'.
@@ -1204,6 +1204,116 @@ selected color."
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
+;; We need to define setup for keyboard layout
+
+(require 'meow)
+
+(defun meow-setup ()
+  (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
+  (setq meow-use-cursor-position-hack t)
+  (meow-motion-overwrite-define-key
+   '("j" . meow-next)
+   '("k" . meow-prev)
+   '("<escape>" . ignore))
+  (meow-leader-define-key
+   ;; SPC j/k will run the original command in MOTION state.
+   '("j" . "H-j")
+   '("k" . "H-k")
+   ;; Use SPC (0-9) for digit arguments.
+   '("1" . meow-digit-argument)
+   '("2" . meow-digit-argument)
+   '("3" . meow-digit-argument)
+   '("4" . meow-digit-argument)
+   '("5" . meow-digit-argument)
+   '("6" . meow-digit-argument)
+   '("7" . meow-digit-argument)
+   '("8" . meow-digit-argument)
+   '("9" . meow-digit-argument)
+   '("0" . meow-digit-argument)
+   '("/" . meow-keypad-describe-key)
+   '("?" . meow-cheatsheet))
+  (meow-normal-define-key
+   '("0" . meow-expand-0)
+   '("9" . meow-expand-9)
+   '("8" . meow-expand-8)
+   '("7" . meow-expand-7)
+   '("6" . meow-expand-6)
+   '("5" . meow-expand-5)
+   '("4" . meow-expand-4)
+   '("3" . meow-expand-3)
+   '("2" . meow-expand-2)
+   '("1" . meow-expand-1)
+   '("-" . negative-argument)
+   '(";" . meow-reverse)
+   '("," . meow-inner-of-thing)
+   '("." . meow-bounds-of-thing)
+   '("[" . meow-beginning-of-thing)
+   '("]" . meow-end-of-thing)
+   '("a" . meow-append)
+   '("A" . meow-open-below)
+   '("b" . meow-back-word)
+   '("B" . meow-back-symbol)
+   '("c" . meow-change)
+   '("d" . meow-delete)
+   '("D" . meow-backward-delete)
+   '("e" . meow-next-word)
+   '("E" . meow-next-symbol)
+   '("f" . meow-find)
+   '("g" . meow-cancel-selection)
+   '("G" . meow-grab)
+   '("h" . meow-left)
+   '("H" . meow-left-expand)
+   '("i" . meow-insert)
+   '("I" . meow-open-above)
+   '("j" . meow-next)
+   '("J" . meow-next-expand)
+   '("k" . meow-prev)
+   '("K" . meow-prev-expand)
+   '("l" . meow-right)
+   '("L" . meow-right-expand)
+   '("m" . meow-join)
+   '("n" . meow-search)
+   '("o" . meow-block)
+   '("O" . meow-to-block)
+   '("p" . meow-yank)
+   '("q" . meow-quit)
+   '("Q" . meow-goto-line)
+   '("r" . meow-replace)
+   '("R" . meow-swap-grab)
+   '("s" . meow-kill)
+   '("t" . meow-till)
+   '("u" . meow-undo)
+   '("U" . meow-undo-in-selection)
+   '("v" . meow-visit)
+   '("w" . meow-mark-word)
+   '("W" . meow-mark-symbol)
+   '("x" . meow-line)
+   '("X" . meow-goto-line)
+   '("y" . meow-save)
+   '("Y" . meow-sync-grab)
+   '("z" . meow-pop-selection)
+   '("'" . repeat)
+   '("<escape>" . ignore)))
+
+(setq meow-replace-state-name-list
+      '((normal . "")
+        (motion . "󱖲")
+        (keypad . "󰥻")
+        (insert . "")
+        (beacon . "")))
+
+;meow-thing-register THING INNER BOUNDS
+;(meow-thing-register 'arrow '(pair ("<") (">")) '(pair ("<") (">")))
+;(add-to-list 'meow-char-thing-table '(?a . arrow))
+(set-face-attribute 'meow-normal-indicator nil :foreground "#87ceeb" :height 1.0 :weight 'ultra-heavy)
+(set-face-attribute 'meow-motion-indicator nil :foreground "#ffd700" :height 1.0 :weight 'ultra-heavy)
+(set-face-attribute 'meow-keypad-indicator nil :foreground "#00ffff" :height 1.0 :weight 'ultra-heavy)
+(set-face-attribute 'meow-insert-indicator nil :foreground "#00ff00" :height 1.0 :weight 'ultra-heavy)
+(set-face-attribute 'meow-beacon-indicator nil :foreground "#ff00ff" :height 1.0 :weight 'ultra-heavy)
+
+(meow-setup)
+(meow-global-mode 1)
+
 (use-package dired
   :ensure nil
   :commands (dired dired-jump)
@@ -1266,8 +1376,8 @@ selected color."
 (use-package vundo
   :bind (("C-x u" . vundo)
          ("C-z" . undo-only)
-         ("C-S-z" . redo-only)
-         ("C-M-r" . redo-only)))
+         ("C-S-z" . undo-redo)
+         ("C-M-r" . undo-redo)))
 
 (use-package flycheck
   :defer t)
@@ -1592,12 +1702,11 @@ Hack to use `insert-sliced-image' to avoid jerky image scrolling."
 
 (defun d/external-browser ()
   (interactive)
-  (cond ((thing-at-point-url-at-point) (link-hint-copy-link-at-point))
-        ((shr-url-at-point nil) (link-hint-copy-link-at-point))
-        ((dired-file-name-at-point)  (link-hint-copy-link-at-point))
-        (t (link-hint-copy-link)))
-  (let ((url (current-kill 0)))
-    (browse-url-generic url)))
+  (cond ((or (thing-at-point-url-at-point) (shr-url-at-point nil) (dired-file-name-at-point) (link-hint--org-link-at-point-p))
+   (link-hint-copy-link-at-point))
+  (t (link-hint-copy-link)))
+(let ((url (current-kill 0)))
+  (browse-url-generic url)))
 
 (defun d/eww-rename-buffer ()
   "Rename EWW buffer using page title or URL.
@@ -1749,3 +1858,16 @@ Hack to use `insert-sliced-image' to avoid jerky image scrolling."
                   (d/set-font-faces))))
     (d/set-font-faces))
  (put 'narrow-to-region 'disabled nil)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(mini-frame vterm vundo undo-fu-session flycheck helpful ox-pandoc no-littering rainbow-delimiters rainbow-mode vertico orderless consult marginalia embark olivetti org-modern cape markdown-mode nix-mode rust-mode lua-mode all-the-icons-dired async dired-hide-dotfiles dired-single reddigg hnreader mingus pdf-tools which-key magit org-present org-mime corfu-terminal beframe denote tempel-collection sdcv elfeed-org link-hint powerthesaurus jinx doom-modeline hide-mode-line el-fetch ox-hugo htmlize ement kind-icon speed-type aria2 meow webpaste hydra evil-collection treesit-auto modalka)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

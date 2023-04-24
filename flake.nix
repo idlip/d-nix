@@ -6,12 +6,6 @@
     # Change it to stable, if you want stable channel
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    # Idk where is this used, I just have it
-    nixpkgs-wayland.url = "github:nix-community/nixpkgs-wayland";
-
-    # For firefox extension
-    nur.url = "github:nix-community/nur";
-
     # For Adblocking and making internet usable
     hosts.url = "github:StevenBlack/hosts";
 
@@ -36,7 +30,7 @@
 
   };
 
-  outputs = inputs @ {self, hyprland, nur, hosts, home-manager, nixpkgs, ...} :
+  outputs = inputs @ {self, hyprland, hosts, home-manager, nixpkgs, ...} :
     let
       # You might check on darwin, or its this is enough
       system = "x86_64-linux";

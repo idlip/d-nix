@@ -300,7 +300,7 @@ Keep folders and backuping files clean!
 #+end_src
 * 🎹 What Key? 
 Many people know that emacs has lot of keychords, which aren't easy to remember, ~which-key~ is a package which shows cheatsheet for the keychords you press. Mostly will find helpful for ~C-x~ or ~C-c~ or (yours general key/leader key)
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp 
   (use-package which-key
     :defer 0
     :init
@@ -431,12 +431,12 @@ Just check the [[https://github.com/minad/vertico][Vertico github]] repo, you wi
         completion-ignore-case t)
   ;; Use `consult-completion-in-region' if Vertico is enabled.
   ;; Otherwise use the default `completion--in-region' function.
-  ;; (setq completion-in-region-function
-  ;;       (lambda (&rest args)
-  ;;         (apply (if vertico-mode
-  ;;                    #'consult-completion-in-region
-  ;;                  #'completion--in-region)
-  ;;                args)))
+  (setq completion-in-region-function
+        (lambda (&rest args)
+          (apply (if vertico-mode
+                     #'consult-completion-in-region
+                   #'completion--in-region)
+                 args)))
 
 #+end_src
 ** Doctor Consultancy

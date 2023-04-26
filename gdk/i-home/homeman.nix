@@ -524,7 +524,7 @@ programs.emacs = {
     all-the-icons all-the-icons-dired async dired-hide-dotfiles dired-single
     reddigg hnreader mingus pdf-tools which-key magit webpaste org-present
     org-mime corfu-terminal beframe denote tempel tempel-collection
-    sdcv elfeed elfeed-org link-hint powerthesaurus jinx
+    sdcv elfeed elfeed-org link-hint powerthesaurus jinx meow
     doom-modeline hide-mode-line el-fetch ox-hugo htmlize
     ement kind-icon speed-type
   ])

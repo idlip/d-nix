@@ -289,6 +289,18 @@ environment.systemPackages = with pkgs; [
 # Add other overlays here
 nixpkgs.overlays = with inputs; [emacs-overlay.overlay  ];
 
+hardware = {
+  opengl = {
+    enable = true;
+    extraPackages = with pkgs; [
+      vaapiVdpau
+      libvdpau-va-gl
+      intel-media-driver
+      vaapiIntel
+    ];
+  };
+};
+
 fonts = {
   fonts = with pkgs; [
     emacs-all-the-icons-fonts

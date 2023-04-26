@@ -1863,8 +1863,10 @@ Hack to use `insert-sliced-image' to avoid jerky image scrolling."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("1021e43a7d494af9927db1531e10c2b168eedcaff0b7f510995db7d305288519" "6454421996f0508c38215a633256e36c19a28591542fb0946cfc40f1dceb89cf" default))
  '(package-selected-packages
-   '(mini-frame vterm vundo undo-fu-session flycheck helpful ox-pandoc no-littering rainbow-delimiters rainbow-mode vertico orderless consult marginalia embark olivetti org-modern cape markdown-mode nix-mode rust-mode lua-mode all-the-icons-dired async dired-hide-dotfiles dired-single reddigg hnreader mingus pdf-tools which-key magit org-present org-mime corfu-terminal beframe denote tempel-collection sdcv elfeed-org link-hint powerthesaurus jinx doom-modeline hide-mode-line el-fetch ox-hugo htmlize ement kind-icon speed-type aria2 meow webpaste hydra evil-collection treesit-auto modalka)))
+   '(gruvbox-theme kaolin-themes doom-themes autothemer vterm vundo undo-fu-session flycheck helpful ox-pandoc no-littering rainbow-delimiters rainbow-mode vertico orderless consult marginalia embark olivetti org-modern cape markdown-mode nix-mode rust-mode lua-mode all-the-icons-dired async dired-hide-dotfiles dired-single reddigg hnreader mingus pdf-tools which-key magit org-present org-mime corfu-terminal beframe denote tempel-collection sdcv elfeed-org link-hint powerthesaurus jinx doom-modeline hide-mode-line el-fetch ox-hugo htmlize ement kind-icon speed-type aria2 meow webpaste hydra evil-collection treesit-auto modalka mini-frame nerd-icons-dired)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

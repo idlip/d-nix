@@ -90,80 +90,80 @@ Please eval this or else tangling nix files into this git repo won't work.
 * ❄ Flake
 Why not have a block for flake.nix too?
 #+begin_src nix :tangle ./flake.nix :noweb yes
-{
-  description = "D Nixyfied ❄️ Flaky Station";
+  {
+    description = "D Nixyfied ❄️ Flaky Station";
 
-  inputs = {
+    inputs = {
 
-    # Change it to table, if you want stable channel
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+      # Change it to stable, if you want stable channel
+      nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    # Idk where is this used, I just have it
-    nixpkgs-wayland.url = "github:nix-community/nixpkgs-wayland";
+      # Idk where is this used, I just have it
+      nixpkgs-wayland.url = "github:nix-community/nixpkgs-wayland";
 
-    # For firefox extension
-    nur.url = "github:nix-community/nur";
+      # For firefox extension
+      nur.url = "github:nix-community/nur";
 
-    # For Adblocking and making internet usable
-    hosts.url = "github:StevenBlack/hosts";
+      # For Adblocking and making internet usable
+      hosts.url = "github:StevenBlack/hosts";
 
-    # Oh yeah, the best wayland compositor out there
-    hyprland = {  
-      url = "github:hyprwm/Hyprland";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    xdg-portal-hyprland.url = "github:hyprwm/xdg-desktop-portal-hyprland";
-
-    # Greatest Editor of all time. (if you shill on vim, give emacs a try and see first, although it is objective to individual)
-    emacs-overlay = {   
-      url = "github:nix-community/emacs-overlay";
-    };
-
-    # Home to manage all user configs
-    # You can you use normal config files, just use a heading anc create block and tangle it directly to ~/.config/tool/file path (I use this for mpv, btop, hyprland..)
-    home-manager = {
-      url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-  };
-
-  outputs = inputs @ {self, hyprland, nur, hosts, home-manager, nixpkgs, ...} :
-    let
-      # You might check on darwin, or its this is enough
-      system = "x86_64-linux";
-      pkgs = import nixpkgs {
-        inherit system;
-        config.allowUnfree = true;
+      # Oh yeah, the best wayland compositor out there
+      hyprland = {  
+        url = "github:hyprwm/Hyprland";
+        inputs.nixpkgs.follows = "nixpkgs";
       };
-      lib = nixpkgs.lib;
-      
-  in {
-    
-    nixosConfigurations = {
+      xdg-portal-hyprland.url = "github:hyprwm/xdg-desktop-portal-hyprland";
 
-      <<my-hostname>> = lib.nixosSystem {
-        inherit system;
-        modules = [
-
-          ./<<my-hostname>>/configuration.nix
-          home-manager.nixosModules.home-manager {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.extraSpecialArgs = {
-              inherit inputs;
-              inherit self;
-            };
-
-            home-manager.users.<<my-username>> = ./<<my-hostname>>/i-home ;
-          }
-          hosts.nixosModule
-        ];
-        specialArgs = {inherit inputs;};
+      # Greatest Editor of all time. (if you shill on vim, give emacs a try and see first, although it is objective to individual)
+      emacs-overlay = {   
+        url = "github:nix-community/emacs-overlay?rev=96fec8e6cdb99a7a40e5d8f7f7449d7fee6d441f";
       };
+
+      # Home to manage all user configs
+      # You can you use normal config files, just use a heading anc create block and tangle it directly to ~/.config/tool/file path (I use this for mpv, btop, hyprland..)
+      home-manager = {
+        url = "github:nix-community/home-manager";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
     };
-  };
-}
+
+    outputs = inputs @ {self, hyprland, nur, hosts, home-manager, nixpkgs, ...} :
+      let
+        # You might check on darwin, or its this is enough
+        system = "x86_64-linux";
+        pkgs = import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+        };
+        lib = nixpkgs.lib;
+
+      in {
+
+        nixosConfigurations = {
+
+          <<my-hostname>> = lib.nixosSystem {
+                            inherit system;
+                            modules = [
+
+                              ./<<my-hostname>>/configuration.nix
+                                home-manager.nixosModules.home-manager {
+                                  home-manager.useGlobalPkgs = true;
+                                  home-manager.useUserPackages = true;
+                                  home-manager.extraSpecialArgs = {
+                                    inherit inputs;
+                                    inherit self;
+                                  };
+
+                                  home-manager.users.<<my-username>> = ./<<my-hostname>>/i-home ;
+                                }
+                                hosts.nixosModule
+                            ];
+                            specialArgs = {inherit inputs;};
+                          };
+        };
+      };
+  }
 
 #+end_src
 *  System Configuration
@@ -900,12 +900,12 @@ Installs packages for this user only.
   # cli tools
   cached-nix-shell pcmanfm yt-dlp fzf neovim btop
 
-    unzip aspell aspellDicts.en hunspell enchant
-    ripgrep nitch libreoffice transmission pandoc
-    rsync  ffmpeg sdcv imagemagick groff pciutils acpi
-    # texlive.combined.scheme-full
-    fd ncdu mu isync ts  syncthing 
-    jq keepassxc figlet keepassxc dconf gcc
+  unzip aspell aspellDicts.en hunspell enchant
+  ripgrep nitch libreoffice pandoc newsboat
+  rsync  ffmpeg sdcv imagemagick groff pciutils acpi
+  # texlive.combined.scheme-full
+  fd ncdu mu isync ts  syncthing 
+  jq keepassxc figlet keepassxc dconf gcc
 #+end_src
 ****** Themes
 #+begin_src nix

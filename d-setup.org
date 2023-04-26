@@ -515,7 +515,7 @@ You can add your choice of overlay (eg: Discord, helix...)
 *** Opengl Hardware
 To use Opengl hardware acceleration using VA-API.
 Useful to use in firefox and mpv.
-#+begin_src nix :tangle no
+#+begin_src nix
 
   hardware = {
     opengl = {
@@ -1347,7 +1347,10 @@ There will be not much difference.
   windowrule=opacity 0.95,foot
   windowrule=opacity 0.8,pcmanfm
   windowrule=opacity 0.95,firefox
-  windowrule=fullscreen,emacs
+
+  windowrulev2 = size 50% 50%,title:^(BrowserInput.*)$
+  windowrulev2=center,title:^(BrowserInput.*)
+  windowrulev2 = float,title:^(BrowserInput.*)
 
   #blurls=waybar
   blurls=wofi
@@ -1369,7 +1372,7 @@ There will be not much difference.
   bind=SUPERCONTROL,Q,exit,
   bind=SUPER,F12,exec,uxterm
   bind=SUPER,SPACE,togglefloating,
-  bind=SUPER,d,exec,fuzzel
+  bind=SUPER,d,exec,rofi -show drun
   bind=SUPER,b,exec,pkill -SIGUSR1 waybar
   bind=SUPER,P,pseudo,
   bind=SUPER,F,fullscreen,
@@ -1554,7 +1557,7 @@ Its more mature than hyprland. So... better to have it! I dont use sway that muc
       all-the-icons all-the-icons-dired async dired-hide-dotfiles dired-single
       reddigg hnreader mingus pdf-tools which-key magit webpaste org-present
       org-mime corfu-terminal beframe denote tempel tempel-collection
-      sdcv elfeed elfeed-org link-hint powerthesaurus jinx
+      sdcv elfeed elfeed-org link-hint powerthesaurus jinx meow
       doom-modeline hide-mode-line el-fetch ox-hugo htmlize
       ement kind-icon speed-type
     ])

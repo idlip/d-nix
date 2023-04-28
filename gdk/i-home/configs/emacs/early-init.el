@@ -32,7 +32,7 @@
 (setq native-comp-async-report-warnings-errors nil)
 (setq native-comp-jit-compilation nil)
 
-(load-theme 'modus-vivendi-tinted t)
+(load-theme 'modus-vivendi t)
 ;; Do not resize the frame at this early stage.
 (setq frame-inhibit-implied-resize t)
 

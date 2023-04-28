@@ -103,11 +103,12 @@ Why not have a block for flake.nix too?
       hosts.url = "github:StevenBlack/hosts";
 
       # Oh yeah, the best wayland compositor out there
-      hyprland = {  
-        url = "github:hyprwm/Hyprland";
-        inputs.nixpkgs.follows = "nixpkgs";
-      };
-      xdg-portal-hyprland.url = "github:hyprwm/xdg-desktop-portal-hyprland";
+      # Now hyprland is back in nixos unstable
+      # hyprland = {  
+      #   url = "github:hyprwm/Hyprland";
+      #   inputs.nixpkgs.follows = "nixpkgs";
+      # };
+      # xdg-portal-hyprland.url = "github:hyprwm/xdg-desktop-portal-hyprland";
 
       # Greatest Editor of all time. (if you shill on vim, give emacs a try and see first, although it is objective to individual)
       emacs-overlay = {   
@@ -161,7 +162,7 @@ Why not have a block for flake.nix too?
   }
 
 #+end_src
-*  System Configuration
+* System Configuration
 :PROPERTIES:
 :header-args: :noweb yes :tangle-mode (identity #o444) :mkdir yes :tangle (format "./%s/configuration.nix" (get-named-src-block-contents "my-hostname" t))
 :END:
@@ -619,7 +620,7 @@ End of Nix Configuration block
 #+begin_src nix
   }
 #+end_src
-*  User Configurations
+* User Configurations
 User specific configuration
 ** i-home
 My personal user configuration.
@@ -638,7 +639,7 @@ My personal user configuration.
     config.home.extraOutputsToInstall = ["doc" "devdoc"];
     imports = [
       ./homeman.nix
-      inputs.hyprland.homeManagerModules.default
+      # inputs.hyprland.homeManagerModules.default
       # inputs.nur.nixosModules.nur
     ];
   }
@@ -1205,8 +1206,10 @@ There will be not much difference.
 ****** Hyprland
 #+begin_src nix :noweb yes
 
-  wayland.windowManager.hyprland = {
+  programs.hyprland = {
     enable = true;
+    xwayland.enable = false;
+    nvidiaPatches = false;
   };
 
   # Symlinking the file (hyprland.conf) from the path of repo so we can edit and have immediate effects without requiring to rebuild
@@ -3168,7 +3171,7 @@ Closes the Main Body Block
   }
 #+end_src
 
-*  Additional FIles
+* Additional FIles
 Don't worry about this, there is nothing from here.
 
 Its just custom instructions

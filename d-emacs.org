@@ -75,7 +75,7 @@ Some of the highlights which you might wanna copy or take from this config :
   (setq native-comp-async-report-warnings-errors nil)
   (setq native-comp-jit-compilation nil)
 
-  (load-theme 'modus-vivendi-tinted t)
+  (load-theme 'modus-vivendi t)
   ;; Do not resize the frame at this early stage.
   (setq frame-inhibit-implied-resize t)
 
@@ -1809,8 +1809,8 @@ Pdf-tools is another great addition if you want to integrate well with Emacs.
   (defun d/kill-buffer ()
     "Clear the image cache (to release memory) after killing a pdf buffer."
     (interactive)
-    (kill-this-buffer)
-    (delete-window)
+    (if (one-window-p) (kill-this-buffer)
+      (kill-buffer-and-window))
     (clear-image-cache t)
     (pdf-cache-clear-data))
 

@@ -487,8 +487,10 @@ programs.foot = {
   };
 };
 
-wayland.windowManager.hyprland = {
+programs.hyprland = {
   enable = true;
+  xwayland.enable = false;
+  nvidiaPatches = false;
 };
 
 # Symlinking the file (hyprland.conf) from the path of repo so we can edit and have immediate effects without requiring to rebuild

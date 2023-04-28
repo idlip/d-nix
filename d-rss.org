@@ -7,8 +7,6 @@
 *** [[https://yt.funami.tech/feed/channel/UCDSzwZqgtJEnUzacq3ddoOQ][Ben G Thomas]]
 *** [[https://yt.funami.tech/feed/channel/UC176GAQozKKjhz62H8u9vQQ][Real Science]]
 *** [[https://yt.funami.tech/feed/channel/UCpVm7bg6pXKo1Pr6k5kxG9A][Nat Geo]]
-** Docs :docs:doc:
-*** [[https://yt.funami.tech/feed/channel/UC_g32e3JeECjEuRbk-loywg][HQ Docs]]
 ** Reads :blogs:read:
 *** [[https://www.psychologytoday.com/intl/front/feed][Psychology Today: The Latest]] :psych:psy:
 *** [[https://idlip.github.io/index.xml][Idlip]] :mine:idlip:
@@ -36,8 +34,6 @@
 *** [[https://yt.funami.tech/feed/channel/UCzR-rom72PHN9Zg7RML9EbA][PBS Eons]]
 *** [[https://yt.funami.tech/feed/channel/UCqYPhGiB9tkShZorfgcL2lA][What I've Learned]]
 *** [[https://yt.funami.tech/feed/channel/UCL8w_A8p8P1HWI3k6PR5Z6w][Two Cents]]
-** Anime :anime:nyaa:
-*** [[https://feed.animetosho.org/atom?q=batch][Batch Seasons]]
 ** Bio Data :bio:inf:
 *** [[https://journals.plos.org/plosbiology/feed/atom][Plos]]
 *** [[http://blogs.biomedcentral.com/feed/][BioMed]]
@@ -50,13 +46,7 @@
 *** [[https://journals.biologists.com/rss/site_1000001/1000003.xml][Journal-bio]]
 ** Edu :edu:
 *** [[https://nitter.net/official_ibab/rss][Ibab]] :ibab:
-** Reddit :reddit:
-** Comics :comic:
-*** [[https://xkcd.com/atom.xml][xkcd.com]]
-** Jokes :jokes:
 ** Emacs                                                              :emacs:
-*** [[https://sachachua.com/blog/category/emacs/feed][Sachi]] :sacha:
-*** [[https://emacs-apac.gitlab.io/announcements/index.xml][Apac Emacs]] :meet:apac:
 *** [[https://planet.emacslife.com/atom.xml][Planet-Emacs]]
 ** Linux :linux:
 *** [[https://opensourcemusings.com/feed/ blog][opensource]]

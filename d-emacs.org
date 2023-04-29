@@ -1228,7 +1228,7 @@ How amazing it is to do presentation with power of org? Yes its possible (need o
 
 
   (defun d/org-present-previous-slide ()
-    "Go to next sibling."
+    "Go to previous sibling."
     (interactive)
     (widen)
     (when (org-current-level)

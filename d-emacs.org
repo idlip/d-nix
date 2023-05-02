@@ -4,7 +4,7 @@
 
 
 ** Todo Stuffs (Feel free to say/add something. I will be glad!
-**** 😄 Finally Done.. Ooof 
+**** 😄 Finally Done.. Ooof
 CLOSED: [2023-03-07 Tue 14:27]
 :LOGBOOK:
 - CLOSING NOTE [2023-03-07 Tue 14:27]
@@ -22,7 +22,7 @@ CLOSED: [2023-03-07 Tue 14:27]
   + You get vterm, which wont build that easily in normal emacs config under nixos
 - [X] Make README.org or improve this Config.org so it is informational to all
 - [X] Share some cool stuffs with others and explain it very crisp and clearly
-    
+
 **** 😴 Planning  [0/5]
 - [ ] Add daily quotes for ~initial-scratch-message~
 - [ ] Learn more stuffs from Experienced and Master Users, like Purcell, bbsatov and others
@@ -39,32 +39,126 @@ Some of the highlights which you might wanna copy or take from this config :
 3. Zen, Distraction free text viewing experience (No mode-line)
 
 
-* 🌅 Early-Init 
+* 🌅 Early-Init
 #+begin_src emacs-lisp :noweb yes :tangle ./gdk/i-home/configs/emacs/early-init.el :tangle-mode (identity #o444) :mkdirp yes
-  ;;; early-init.el ---   -*- lexical-binding: t -*-
-
-  ;;; Commentary:
-
+  ;;; early-init.el --- Early initialization file -*- lexical-binding: t; -*-
+  ;; ---
+  ;; Filename: early-init.el
+  ;; Description: Make emacs quicky
+  ;; Author: Dilip
+  ;; Copyright © 2023 Dilip
+  ;; Version: 0.3
+  ;; URL: https://github.com/idlip/d-nix
+  ;; Keywords: Emacs early-init
+  ;; Compatibility: emacs-version >= 29.1
   ;;
+  ;; ---
+  ;;
+    ;;; Commentary:
+  ;;
+  ;; Emacs27 introduces early-init.el, which is run before init.el,
+  ;; before package and UI initialization happens.
+  ;;
+  ;; ---
+  ;;
+  ;; This program is free software: you can redistribute it and/or modify
+  ;; it under the terms of the GNU General Public License as published by
+  ;; the Free Software Foundation, either version 3 of the License, or (at
+  ;; your option) any later version.
+  ;;
+  ;; This program is distributed in the hope that it will be useful, but
+  ;; WITHOUT ANY WARRANTY; without even the implied warranty of
+  ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  ;; General Public License for more details.
+  ;;
+  ;; You should have received a copy of the GNU General Public License
+  ;; along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.
+  ;;
+  ;; ---
+  ;;
+    ;;; Code:
 
-  ;;; Code:
+  
 
-  (setq package-enable-at-startup nil) ; don't auto-initialize!
-  (setq package-archives nil)
+  (unless (daemonp)
+    (advice-add #'display-startup-echo-area-message :override #'ignore))
 
   (setq
+   package-enable-at-startup nil ; don't auto-initialize!
+   package--init-file-ensured t ; don't add that `custom-set-variables' block to init
+   package-quickstart nil ; prevent `package.el' loading packages prior to their init-file
+   package-archives nil)
+
+  (setq gc-cons-threshold (expt 2 32)) ; you can remove it
+
+  ;; Defer garbage collection further back in the startup process
+  (setq gc-cons-threshold most-positive-fixnum ; 2^61 bytes
+        gc-cons-percentage 0.6)
+
+  (add-hook 'emacs-startup-hook
+            (lambda ()
+              (setq gc-cons-threshold 16777216 ; 16mb
+                    gc-cons-percentage 0.1)))
+
+  (setq safe-local-variable-values
+        '((org-src-preserve-indentation . t)
+          (eval add-hook 'after-save-hook
+                '(lambda nil
+                   (org-babel-tangle))
+                nil t)))
+
+  (setq
+   site-run-file nil ; unset SRF
+   use-file-dialog nil
+   mode-line-format nil ; don't want a mode line while loading init
    load-prefer-newer nil
+   create-lockfiles nil ; disable lockfiles
+   make-backup-files nil ; disable backup files
+   auto-save-list-file-prefix nil ; disable auto-save
+   auto-mode-case-fold nil ; use case-sensitive `auto-mode-alist' for performance
    default-input-method nil
-   initial-major-mode 'org-mode
+   utf-translate-cjk-mode nil ; disable CJK coding/encoding (Chinese/Japanese/Korean characters)
+   initial-scratch-message nil ; empty the initial *scratch* buffer.
+   command-line-x-option-alist nil ; remove irreleant command line options for faster startup
+   use-short-answers t ; y/n for yes/no
+   vc-follow-symlinks t ; Do not ask about symlink following
    inhibit-default-init t
-   inhibit-startup-screen t 	
-   inhibit-startup-buffer-menu t)
+   inhibit-splash-screen t
+   inhibit-startup-screen t 		; do not show the startup message
+   inhibit-startup-message t      ; reduce noise at startup
+   inhibit-startup-buffer-menu t  ; stop `list-buffers' from showing when opening multiple files
+   fast-but-imprecise-scrolling t ; more performant rapid scrolling over unfontified regions
+   frame-inhibit-implied-resize t ; do not resize the frame at this early stage
+   ffap-machine-p-known 'reject   ; don't ping things that look like domain names
+   inhibit-compacting-font-caches t ; Inhibit frame resizing for performance
+   read-process-output-max (* 1024 1024) ; Increase how much is read from processes in a single chunk.
+   redisplay-skip-fontification-on-input t ; Inhibits it for better scrolling performance.
+   idle-update-delay 1.0 ; slow down UI updates down
+   select-active-regions 'only ; Emacs hangs when large selections contain mixed line endings
+   ad-redefinition-action 'accept ; disable warnings from legacy advice system
+   initial-major-mode 'fundamental-mode
+   inhibit-startup-echo-area-message user-login-name)
+
+  ;; UnsetFNHA
+  (defvar file-name-handler-alist-original file-name-handler-alist)
+  (setq file-name-handler-alist nil)
+  ;; -UnsetFNHA
 
   ;; Maximize the Emacs frame on startup
+  (push '(fullscreen . maximized) initial-frame-alist)
   (push '(fullscreen . maximized) default-frame-alist)
 
   ;; Prevent the glimpse of un-styled Emacs by disabling these UI elements early.
+  (push '(menu-bar-lines . 0) default-frame-alist)
+  (push '(tool-bar-lines . 0) default-frame-alist)
+  (push '(vertical-scroll-bars) default-frame-alist)
 
+  ;; Prevent unwanted runtime builds; packages are compiled ahead-of-time when
+  ;; they are installed and site files are compiled when gccemacs is installed.
+  ;; (setq comp-deferred-compilation nil)
+  (setq native-comp-deferred-compilation nil)
+  ;; Suppress warnings and errors during asynchronous native compilation
+  (setq native-comp-async-report-warnings-errors nil)
   (setq default-frame-alist
         '((menu-bar-lines . 0)
           (tool-bar-lines . 0)
@@ -75,48 +169,116 @@ Some of the highlights which you might wanna copy or take from this config :
   (setq native-comp-async-report-warnings-errors nil)
   (setq native-comp-jit-compilation nil)
 
-  (load-theme 'modus-vivendi t)
+  ;; Do not resize the frame at this early stage.
+  (setq frame-inhibit-implied-resize t)
+  ;; Prevent unwanted runtime builds in gccemacs (native-comp); packages are
+  ;; compiled ahead-of-time when they are installed and site files are compiled
+  ;; when gccemacs is installed.
+  (setq comp-deferred-compilation nil)
+
+  ;; Suppress warnings and errors during asynchronous native compilation
+  (setq native-comp-async-report-warnings-errors nil)
+  (setq native-comp-jit-compilation nil)
+
   ;; Do not resize the frame at this early stage.
   (setq frame-inhibit-implied-resize t)
 
-  (provide 'early-init)
-  ;;; early-init.el ends here
-    #+end_src  
 
-* 🔰 Start-ify 
+  (provide 'early-init)
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;; early-init.el ends here
+    #+end_src
+
+* 🔰 Start-ify
 Manage Font size, Initialize Package setup and sends you startup time (Daemonize 👹 your Emacs)
 #+begin_src emacs-lisp
-  ;;; Personal configuration -*- lexical-binding: t -*-
-
+  ;;; init.el --- Initialization file -*- lexical-binding: t; -*-
+  ;;
+  ;; Filename: init.el
+  ;; Description: Initialize Emacs (The GOAT-Editor)
+  ;; Author: Dilip
+  ;; Copyright © 2023 Dilip
+  ;; Version: 0.7
+  ;; URL: https://github.com/idlip/d-nix
+  ;; Keywords: init emacs
+  ;; Compatibility: emacs-version >= 29.1
+  ;;
+  ;; ---
+  ;;
   ;;; Commentary:
-
-  ;; No need write this file, do it in literate org file!
-
+  ;;
+  ;; This is the init.el file for Pgtk Emacs (wayland)
+  ;;
+  ;; ---
+  ;;
+  ;; This program is free software: you can redistribute it and/or modify
+  ;; it under the terms of the GNU General Public License as published by
+  ;; the Free Software Foundation, either version 3 of the License, or (at
+  ;; your option) any later version.
+  ;;
+  ;; This program is distributed in the hope that it will be useful, but
+  ;; WITHOUT ANY WARRANTY; without even the implied warranty of
+  ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  ;; General Public License for more details.
+  ;;
+  ;; You should have received a copy of the GNU General Public License
+  ;; along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.
+  ;;
+  ;; ---
+  ;;
   ;;; Code:
 
-  ;; Lets garbage collect to make emacs quicker! 
+  
+  ;; BetterGC
+  (defvar better-gc-cons-threshold 134217728 ; 128mb
+    "If you experience freezing, decrease this.
+  If you experience stuttering, increase this.")
 
-  (defun my-cleanup-gc ()
-    "Clean up gc."
-    (setq gc-cons-threshold  67108864) ; 64M
-    (setq gc-cons-percentage 0.1) ; original value
-    (garbage-collect))
+  (add-hook 'emacs-startup-hook
+            (lambda ()
+              (setq gc-cons-threshold better-gc-cons-threshold)
+              (makunbound 'file-name-handler-alist-original)))
+  ;; -BetterGC
 
-  (run-with-idle-timer 4 nil #'my-cleanup-gc)
+  ;; AutoGC
+  (add-hook 'emacs-startup-hook
+            (lambda ()
+              (if (boundp 'after-focus-change-function)
+                  (add-function :after after-focus-change-function
+                                (lambda ()
+                                  (unless (frame-focus-state)
+                                    (garbage-collect))))
+                (add-hook 'after-focus-change-function 'garbage-collect))
+              (defun gc-minibuffer-setup-hook ()
+                (setq gc-cons-threshold (* better-gc-cons-threshold 2)))
 
-  (message "  Emacs loaded in %s with %d garbage collections."
-           (format "%.2f seconds"
-                   (float-time (time-subtract after-init-time before-init-time)))
-           gcs-done)
+              (defun gc-minibuffer-exit-hook ()
+                (garbage-collect)
+                (setq gc-cons-threshold better-gc-cons-threshold))
+
+              (add-hook 'minibuffer-setup-hook #'gc-minibuffer-setup-hook)
+              (add-hook 'minibuffer-exit-hook #'gc-minibuffer-exit-hook)))
+  ;; -AutoGC
 
   ;; Initialize package sources
   (require 'package)
 
-  (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                           ("org" . "https://orgmode.org/elpa/")
-                           ("elpa" . "https://elpa.gnu.org/packages/")))
+  (setq package-user-dir (expand-file-name "elpa" user-emacs-directory)
+        package-archives
+        '(("melpa" . "https://melpa.org/packages/")
+          ("org" . "https://orgmode.org/elpa/")
+          ("elpa" . "https://elpa.gnu.org/packages/"))
+        package-quickstart nil)
 
-  (package-initialize)
+  (setq package-archive-priorities
+        '(("melpa" .  3)
+          ("org" . 2)
+          ("elpa" . 1)))
+
+  (unless (bound-and-true-p package--initialized)
+    (setq package-enable-at-startup nil) ; To prevent initializing twice
+    (package-initialize))
+
   (unless package-archive-contents
     (package-refresh-contents))
 
@@ -124,81 +286,114 @@ Manage Font size, Initialize Package setup and sends you startup time (Daemonize
   (unless (package-installed-p 'use-package)
     (package-install 'use-package))
 
-  (require 'use-package)
-  (setq use-package-always-ensure t)
+  (eval-and-compile
+    (setq use-package-verbose (not (bound-and-true-p byte-compile-current-file))))
 
+  (require 'use-package)
+  (use-package use-package
+    :custom
+    (use-package-verbose t)
+    (use-package-always-ensure t)  ; :ensure t by default
+    (use-package-always-defer nil) ; :defer t by default
+    (use-package-expand-minimally t)
+    (use-package-enable-imenu-support t))
+
+  ;; Thank you Likhon Sapiens, for your emacs config!
+
+  ;; ─────────────────── Additional Packages and Configurations ──────────────────
+  ;; Add `:doc' support for use-package so that we can use it like what a doc-strings is for
+  (eval-and-compile
+    (add-to-list 'use-package-keywords :doc t)
+    (defun use-package-handler/:doc (name-symbol _keyword _docstring rest state)
+      "An identity handler for :doc.
+       Currently, the value for this keyword is being ignored.
+       This is done just to pass the compilation when :doc is
+       included Argument NAME-SYMBOL is the first argument to
+       `use-package' in a declaration.  Argument KEYWORD here is
+       simply :doc.  Argument DOCSTRING is the value supplied for
+       :doc keyword.  Argument REST is the list of rest of the
+       keywords.  Argument STATE is maintained by `use-package' as
+       it processes symbols."
+
+      ;; just process the next keywords
+      (use-package-process-keywords name-symbol rest state)))
   #+end_src
 
-* 🔤 Fontify 
+* 🔤 Fontify
 Fonts are crucial to read.
 #+begin_src emacs-lisp
-  ;; You will most likely need to adjust this font size for your system!
-  (defvar default-font-size 170)
-  (defvar default-variable-font-size 170)
+    ;; You will most likely need to adjust this font size for your system!
 
-  ;; Set reusable font name variables
-  (defvar d/fixed-width-font "ComicCodeLigatures Nerd Font"
-    "The font to use for monospaced (fixed width) text.")
+    (defvar default-font-size 170)
+    (defvar default-variable-font-size 170)
 
-  (defvar d/variable-width-font "ComicCodeLigatures Nerd Font"
-    "The font to use for variable-pitch (document) text.")
+    ;; Set reusable font name variables
+    (defvar d/fixed-width-font "ComicCodeLigatures Nerd Font"
+      "The font to use for monospaced (fixed width) text.")
 
-  (defvar d/header-font "Comic Mono"
-    "Font for header level in org-mode." )
+    (defvar d/variable-width-font "ComicCodeLigatures Nerd Font"
+      "The font to use for variable-pitch (document) text.")
 
-  (defvar d/sans-font "SF Pro Rounded"
-    "Sans font for reading docs or presentation")
-  (defvar d/jetb-font "JetBrainsMono Nerd Font"
-    "Jetbrains font for code/verbatim" )
-  (defvar d/title-face "Impress BT"
-    "Font for title")
-  (defvar d/link-font "VictorMono Nerd Font"
-    "Font for links")
-  (defvar d/code-font "VictorMono Nerd Font"
-    "Font for inline code")
+    (setq haki-heading-font "Comic Mono")
+    (setq haki-sans-font "Iosevka Comfy Motion")
+  ;;  (setq haki-code-font "JetBrainsMono Nerd Font")
+    (setq haki-title-font "Impress BT")
+    (setq haki-link-font "VictorMono Nerd Font")
+    (setq haki-code-font "Maple Mono NF")
 
 
-  (setf use-default-font-for-symbols nil)
-  (set-fontset-font t 'unicode "Noto Emoji" nil 'append)
 
-  (defun d/set-font-faces ()
-    (message "Setting faces!")
-    (set-face-attribute 'default nil :font d/variable-width-font :weight 'medium :height default-font-size)
+    (setf use-default-font-for-symbols nil)
+    (set-fontset-font t 'unicode "Noto Emoji" nil 'append)
 
-    ;; Set the fixed pitch face (monospace)
-    (set-face-attribute 'fixed-pitch nil :font d/fixed-width-font :height default-font-size)
+    (defun d/set-font-faces ()
+      (message "Setting faces!")
+      (set-face-attribute 'default nil :family d/variable-width-font :weight 'medium :height default-font-size)
 
-    ;; Set the variable pitch face (document text)
-    (set-face-attribute 'variable-pitch nil :font d/variable-width-font :height default-variable-font-size :weight 'medium))
+      ;; Set the fixed pitch face (monospace)
+      (set-face-attribute 'fixed-pitch nil :family d/fixed-width-font :height default-font-size)
+
+      ;; Set the variable pitch face (document text)
+      (set-face-attribute 'variable-pitch nil :family d/variable-width-font :height default-variable-font-size :weight 'medium)
+      (global-font-lock-mode 1)
+      (setq font-lock-maximum-decoration t))
 #+end_src
 
-* 📑 Cleanliness 
+* 📑 Cleanliness
 Keep folders and backuping files clean!
 #+begin_src emacs-lisp
-  (use-package no-littering
+  (use-package no-littering               ; Keep .emacs.d clean
+    :doc "It’s good to have centralized working datasets storage, to prevent pollution of Emacs config directory."
+    :custom
+    (no-littering-var-directory (expand-file-name "data/" user-emacs-directory))
+    (no-littering-etc-directory (expand-file-name "config/" user-emacs-directory))
     :config
-    ;; no-littering doesn't set this by default so we must place
-    ;; auto save files in the same path as it uses for sessions
-    (setq auto-save-file-name-transforms
-          `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
-    ;;  (setq backup-directory-alist '(("." . "~/.config/emacs/backups")))
-    (setq delete-old-versions -1)
-    (setq version-control t)
-    (setq vc-make-backup-files t))
+    (require 'recentf)
+    (add-to-list 'recentf-exclude no-littering-var-directory)
+    (add-to-list 'recentf-exclude no-littering-etc-directory)
 
-  (setq make-backup-files t          ; backup of a file the first time it is saved.
-        backup-by-copying t          ; don't clobber symlinks
-        version-control t            ; version numbers for backup files
-        vc-make-backup-files t       ; version control for git/vcs dirs
-        delete-old-versions t        ; delete excess backup files silently
-        delete-by-moving-to-trash t
-        kept-old-versions 2          ; oldest versions to keep when a new numbered backup is made 
-        kept-new-versions 2          ; newest versions to keep when a new numbered backup is made 
-        auto-save-default t          ; auto-save every buffer that visits a file
-        auto-save-timeout 20         ; number of seconds idle time before auto-save (default: 30)
-        auto-save-interval 200       ; number of keystrokes between auto-saves (default: 300)
-        create-lockfiles nil         ; don't use lockfiles (default: t)
-        )
+    ;; Move this in its own thing
+    (setq
+     create-lockfiles nil
+     delete-old-versions t
+     kept-new-versions 6
+     kept-old-versions 2
+     version-control t)
+
+    (setq
+     backup-directory-alist
+     `((".*" . ,(no-littering-expand-var-file-name "backup/")))
+     auto-save-file-name-transforms
+     `((".*" ,(no-littering-expand-var-file-name "auto-save/") t))))
+
+  (use-package gcmh
+    :init (gcmh-mode 1)
+    :config
+    (setq
+     gcmh-idle-delay 'auto ; default is 15s
+     gcmh-auto-idle-delay-factor 10
+     gcmh-high-cons-threshold (* 16 1024 1024)) ; 16mb
+    :delight " Ⓖ")
 
   (use-package savehist
     :init
@@ -207,7 +402,7 @@ Keep folders and backuping files clean!
     (setq savehist-additional-variables '(kill-ring search-ring regexp-search-ring)))
 #+end_src
 
-* ⌨️ Better Bindings 
+* ⌨️ Better Bindings
 ** Custom functions
 #+begin_src emacs-lisp
   (defun split-and-follow-horizontally ()
@@ -298,9 +493,9 @@ Keep folders and backuping files clean!
   (defalias 'yes-or-no-p 'y-or-n-p) ;; Make confirmation messages easy and not a pain.
 
 #+end_src
-* 🎹 What Key? 
+* 🎹 What Key?
 Many people know that emacs has lot of keychords, which aren't easy to remember, ~which-key~ is a package which shows cheatsheet for the keychords you press. Mostly will find helpful for ~C-x~ or ~C-c~ or (yours general key/leader key)
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
   (use-package which-key
     :defer 0
     :init
@@ -323,7 +518,7 @@ Many people know that emacs has lot of keychords, which aren't easy to remember,
 
 #+end_src
 
-* 🍁 Helpful 
+* 🍁 Helpful
 Helpful package to even elaborate on describe commands. Decreases many hassles.
 
 #+begin_src emacs-lisp
@@ -341,7 +536,7 @@ Helpful package to even elaborate on describe commands. Decreases many hassles.
 
 #+end_src
 
-* 🎨 Color-ify 
+* 🎨 Color-ify
 Coloured parentheses or hex values are really needed for some usecases, obviously you know it lol.
 *Happy Ricing* but use Emacs Everywhere lol
 #+begin_src emacs-lisp
@@ -353,7 +548,7 @@ Coloured parentheses or hex values are really needed for some usecases, obviousl
     :hook (prog-mode . rainbow-mode)
     :bind ("C-c t c" . rainbow-mode))
 #+end_src
-* 🖱️ Good Mouse use? 
+* 🖱️ Good Mouse use?
 Just don't use mouse, try to stay with keyboard, feel like *Pro*!
 But if you like clicks, tacks and ticks of you mouse, then go with it. (Mouse is a good invention lol)
 #+begin_src emacs-lisp
@@ -363,12 +558,12 @@ But if you like clicks, tacks and ticks of you mouse, then go with it. (Mouse is
   (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
 #+end_src
 
-* 😇 Minad - The Messiah 
+* 😇 Minad - The Messiah
 [[https://github.com/minad][@minad]] is a great guy, It is one of the reason why I love Emacs and Moved here, and use it everywhere as much as Possible.
 Just see his git repo issues, he has it all solved, and he will explain and converse with clear and good explanation, I wondered how could a man be so dedicated to Emacs so well with very positive approach. Consider trying his packages and if possible, do Donate to him.
 Just Awesome, if it wasn't for his packages, I probably would never have tried Emacs. Now I hate vim/neovim, Idk why.
 
-** ❤️ Vertico - The first 
+** ❤️ Vertico - The first
 Just check the [[https://github.com/minad/vertico][Vertico github]] repo, you will find great Readme file with rich information and some basic usage codes which is more than enough.
 #+begin_src emacs-lisp
   (use-package vertico
@@ -431,12 +626,12 @@ Just check the [[https://github.com/minad/vertico][Vertico github]] repo, you wi
         completion-ignore-case t)
   ;; Use `consult-completion-in-region' if Vertico is enabled.
   ;; Otherwise use the default `completion--in-region' function.
-  (setq completion-in-region-function
-        (lambda (&rest args)
-          (apply (if vertico-mode
-                     #'consult-completion-in-region
-                   #'completion--in-region)
-                 args)))
+  ;; (setq completion-in-region-function
+  ;;       (lambda (&rest args)
+  ;;         (apply (if vertico-mode
+  ;;                    #'consult-completion-in-region
+  ;;                  #'completion--in-region)
+  ;;                args)))
 
 #+end_src
 ** Doctor Consultancy
@@ -678,7 +873,7 @@ Completion to next level, works even on terminal
                 ("TAB" . corfu-insert)
                 ("<escape>" . corfu-quit)
                 ("C-j" . corfu-next)
-                ("C-k" . corfu-previous)                
+                ("C-k" . corfu-previous)
                 ("RET" . corfu-insert))
     ;; Enable Corfu only for certain modes.
     ;; :hook ((prog-mode . corfu-mode)
@@ -878,7 +1073,7 @@ You will see org just below this, this package helps make Org-Mode looks eye-can
    org-modern-star '("◉" "✤" "◈" "✿" "✤")
    org-modern-hide-stars nil
    org-modern-table t
-   org-modern-list 
+   org-modern-list
    '((?* . "❉")
      (?- . "❖")
      (?+ . "➤"))
@@ -901,12 +1096,11 @@ Jinx is another cool new package for spell corrections
 #+begin_src emacs-lisp
   (use-package jinx
     :hook (emacs-startup . global-jinx-mode)
-    :bind ("M-$". jinx-correct)
-    :config
-    (set-face-attribute 'jinx-misspelled nil :inherit nil :underline '(:color "gold" :style line :position t)))
+    :bind ("M-$". jinx-correct))
+
 #+end_src
 
-* 🗄️ Organize Life 
+* 🗄️ Organize Life
 Life's Good if you Organize is well, don't worry if you feel organizing is not easy, Org for the rescue.
 Plain (naked) simple file can help maintain GTD, even hell lot more many people don't know about.
 Don't compare Notion or Logseq, Org-mode is on different league. These no match for it yet ( actually from 20 years lol). If you know Org, you know it. If not, go check YT.
@@ -918,37 +1112,33 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
                             '(("^ *\\([-]\\) "
                                (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
+      (dolist (face '((org-block . 1.0)
+                      (org-block-begin-line . 0.9)
+                      (org-document-info . 1.5)
+                      (org-document-title . 1.7)
+                      (org-level-1 . 1.4)
+                      (org-level-2 . 1.3)
+                      (org-level-3 . 1.2)
+                      (org-level-4 . 1.1)
+                      (org-level-5 . 1.1)
+                      (org-level-6 . 1.1)
+                      (org-code . 1.2)
+                      (header-line . 1.0)
+                      (org-verbatim . 1.15)
+                      (variable-pitch . 1.0)
+                      (org-level-7 . 1.1)))
+        (set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face))))
+
     ;; Set faces for heading levels
-    (dolist (face '((org-level-1 . 1.3)
-                    (org-level-2 . 1.2)
-                    (org-level-3 . 1.1)
-                    (org-level-4 . 1.1)
-                    (org-level-5 . 1.1)
-                    (org-level-6 . 1.1)
-                    (org-level-7 . 1.1)
-                    (org-block-begin-line . 0.9)                    
-                    (org-level-8 . 1.1)))
-      (set-face-attribute 'org-document-title nil :font d/title-face :weight 'bold :height 2.5 :width 'extra-expanded)
-      (set-face-attribute 'org-level-1 nil :font d/header-font :weight 'medium :height 1.3 :foreground "#b6a0ff")
-      (set-face-attribute 'org-level-2 nil :font d/header-font :weight 'medium :height 1.2)
-      (set-face-attribute 'org-level-3 nil :font d/header-font :weight 'medium :height 1.1)
-      (set-face-attribute 'org-level-4 nil :font d/header-font :weight 'medium :height 1.1)
-      (set-face-attribute 'org-level-5 nil :font d/header-font :weight 'medium :height 1.15)
 
-      (set-face-attribute 'variable-pitch nil :height default-variable-font-size :weight 'medium)
-      (set-face-attribute 'org-verbatim nil :height '1.15 :font d/jetb-font :weight 'medium)
-      (set-face-attribute 'org-code nil :height '1.15 :font d/jetb-font :weight 'medium)
-      (set-face-attribute (car face) nil :font d/header-font :weight 'regular :height (cdr face)))
+      ;; (set-face-attribute (car face) nil :font d/header-font :weight 'regular :height (cdr face)))
 
-    ;; Ensure that anything that should be fixed-pitch in Org files appears that way
-    (set-face-attribute 'line-number nil :slant 'normal :weight 'semibold :inherit 'fixed-pitch)
-    (set-face-attribute 'line-number-current-line nil :weight 'ultrabold :slant 'normal :inherit 'fixed-pitch ))
 
   (defun org-mode-setup ()
     (org-indent-mode 1)
     (org-display-inline-images 1)
     (variable-pitch-mode 1)
-    (org-font-setup)
+;;    (org-font-setup)
     (setq
      org-startup-indented nil
      org-image-actual-width 300
@@ -1018,7 +1208,7 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
             ("t" "Task" entry (file+olp "~/sync/org/tasks.org" "One-Timer")
              "* TODO %?\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
             ("w" "Website Todo" entry (file+headline "~/d-git/d-site/README.org" "Ideas - TODO")
-             "* TODO %?\n  SCHEDULED:%T\n " :empty-lines 1)            
+             "* TODO %?\n  SCHEDULED:%T\n " :empty-lines 1)
 
             ("j" "Journal Entries")
             ("jj" "Journal" entry
@@ -1052,7 +1242,7 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
     (add-to-list 'org-structure-template-alist '("py" . "src python"))
     (add-to-list 'org-structure-template-alist '("txt" . "src text"))
     (add-to-list 'org-structure-template-alist '("conf" . "src conf"))
-    (add-to-list 'org-structure-template-alist '("nix" . "src nix"))    
+    (add-to-list 'org-structure-template-alist '("nix" . "src nix"))
     (add-to-list 'org-structure-template-alist '("lx" . "src latex"))
     (add-to-list 'org-structure-template-alist '("cal" . "src calc")))
 
@@ -1152,23 +1342,20 @@ How amazing it is to do presentation with power of org? Yes its possible (need o
 
     (dolist (face '((org-block . 1.0)
                     (org-block-begin-line . 0.1)
-                    (org-level-7 . 1.1)
-                    (org-level-8 . 1.1)))
-      (set-face-attribute 'org-document-title nil :font d/title-face :weight 'bold :height 2.5 :width 'extra-expanded)
-      (set-face-attribute 'org-document-info nil :font d/link-font :slant 'italic :weight 'bold :height 2.5 :width 'extra-expanded)
-      (set-face-attribute 'org-level-1 nil :font d/header-font :weight 'medium :height 1.6 :foreground "#b6a0ff")
-      (set-face-attribute 'org-level-2 nil :font d/header-font :weight 'medium :height 1.5)
-      (set-face-attribute 'org-level-3 nil :font d/header-font :weight 'medium :height 1.4)
-      (set-face-attribute 'org-level-4 nil :font d/header-font :weight 'medium :height 1.3)
-      (set-face-attribute 'org-level-5 nil :font d/header-font :weight 'medium :height 1.25)
-
-      (set-face-attribute 'org-verbatim nil :font d/jetb-font :weight 'medium :height 1.3)
-      (set-face-attribute 'org-code nil :font d/code-font :weight 'medium :height 1.4)
-
-
-      (set-face-attribute 'header-line nil :background nil :height 2.5)
-      (set-face-attribute 'variable-pitch nil :font d/variable-width-font :height 1.2 :weight 'medium)
-      (set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face)))
+                    (org-document-info . 2.5)
+                    (org-document-title . 2.5)
+                    (org-level-1 . 1.6)
+                    (org-level-2 . 1.5)
+                    (org-level-3 . 1.4)
+                    (org-level-4 . 1.3)
+                    (org-level-5 . 1.2)
+                    (org-level-6 . 1.1)
+                    (org-code . 1.4)
+                    (header-line . 2.5)
+                    (org-verbatim . 1.3)
+                    (variable-pitch . 1.2)
+                    (org-level-7 . 1.1)))
+      (set-face-attribute (car face) nil :height (cdr face)))
 
 
     (if (package-installed-p 'hide-mode-line)
@@ -1192,13 +1379,13 @@ How amazing it is to do presentation with power of org? Yes its possible (need o
                 echo-keystrokes d/org-present--echo-keystrokes)
     (org-present-small)
 
-    (set-face-attribute 'header-line nil :height '1.0 :background)
 
     (org-indent-mode d/org-present--org-indent-mode)
 
     (if (package-installed-p 'hide-mode-line)
         (hide-mode-line-mode 0))
 
+    (load-theme 'haki t)
     (org-mode-restart)
     (org-remove-inline-images))
 
@@ -1253,9 +1440,9 @@ TODO : Learn more on this
 #+begin_src emacs-lisp
   (use-package denote
     :hook ((find-file-hook . denote-link-buttonize-buffer)
-	 
+
            (dired-mode . denote-dired-mode))
-    :bind 
+    :bind
     ("C-c n j" . d/my-journal)
     ("C-c n n" . denote)
     ("C-c n N" . denote-type)
@@ -1273,7 +1460,7 @@ TODO : Learn more on this
           ("C-c C-d C-i" . denote-link-dired-marked-notes)
           ("C-c C-d C-r" . denote-dired-rename-marked-files)
           ("C-c C-d C-R" . denote-dired-rename-marked-files-using-front-matter))
-  
+
     :config
     (setq
      denote-directory (expand-file-name "~/sync/denote")
@@ -1320,8 +1507,8 @@ TODO : Learn more on this
                    :jump-to-captured t)))
 
 #+end_src
-* 🍭 Eye Candy Looks 
-** 🫒 Olive Etiquette 
+* 🍭 Eye Candy Looks
+** 🫒 Olive Etiquette
 All texts from left is not intuitive, Spoils GUI end of emacs, feels like you are on Terminal all time. Also, the space on right side will be wasted, unless you use split window vertically. Centering content helps focus and make things look tidy.
 #+begin_src emacs-lisp
   (use-package olivetti
@@ -1331,7 +1518,7 @@ All texts from left is not intuitive, Spoils GUI end of emacs, feels like you ar
            (Info-mode         . olivetti-mode)
            (eshell-mode         . olivetti-mode)
            (helpful-mode         . olivetti-mode)
-           (Info-mode         . olivetti-mode)           
+           (Info-mode         . olivetti-mode)
            (org-mode          . olivetti-mode)
            (ement-room-mode   . olivetti-mode)
            (dashboard-mode    . olivetti-mode)
@@ -1368,7 +1555,7 @@ Mode-line to make stuff easy to use
 
 
 #+end_src
-** 😻 Theme 
+** 😻 Theme
 I was using =doom-themes= actually, but they are not that good, tho I like doom-gruvbox alot. modus-vivendi is also well made, dedicatingly for emacs.
 After long  usage, you will realize that Modus-themes is a *masterpiece* made by Protesilaos (Prot).
 + Works very well with eww browser too, url bar looks fine.
@@ -1395,7 +1582,10 @@ After long  usage, you will realize that Modus-themes is a *masterpiece* made by
                 (agenda-date . (1.2))
                 (agenda-structure . (variable-pitch light 1.8))
                 (t . (1.1))))
-        (load-theme 'modus-vivendi t)
+
+        ;; My own theme
+        (add-to-list 'custom-theme-load-path "~/.config/emacs/var/theme/")
+        (load-theme 'haki t)
 
         ;; For foot to show colors properly
         (add-to-list 'term-file-aliases '("foot" . "xterm"))
@@ -1453,7 +1643,7 @@ With emacs 29, we have ~pixel-scroll-precision-mode~
     (interactive)
     (pixel-scroll-precision-scroll-up 20))
 #+end_src
-* 💻 IDE like Lsp 
+* 💻 IDE like Lsp
 I'm not a programmer, maybe will be expanded in future..
 #+begin_src emacs-lisp
   (use-package nix-mode
@@ -1523,7 +1713,7 @@ Icons to prettify the corfu popup
     (setq kind-icon-default-style '(:padding -0.5 :stroke 0 :margin 0 :radius 0 :height 0.6 :scale 1.0)))
 
 #+end_src
-*  Git Controrller 
+*  Git Controrller
 Magit the killer beast after org-mode.
 #+begin_src emacs-lisp
   (use-package magit
@@ -1617,14 +1807,14 @@ It is one of the package I wish I had soon discovered it.
      '("Q" . meow-goto-line)
      '("r" . meow-replace)
      '("R" . meow-swap-grab)
-     '("s" . meow-kill)
+     '("x" . meow-kill)
      '("t" . meow-till)
      '("u" . meow-undo)
      '("U" . meow-undo-in-selection)
      '("v" . meow-visit)
      '("w" . meow-mark-word)
      '("W" . meow-mark-symbol)
-     '("x" . meow-line)
+     '("s" . meow-line)
      '("X" . meow-goto-line)
      '("y" . meow-save)
      '("Y" . meow-sync-grab)
@@ -1634,24 +1824,28 @@ It is one of the package I wish I had soon discovered it.
 
   (setq meow-replace-state-name-list
         '((normal . "")
-          (motion . "󱖲")
-          (keypad . "󰥻")
+          (motion . "")
+          (keypad . "")
           (insert . "")
-          (beacon . "")))
+          (beacon . "")))
+
+  (add-to-list 'meow-mode-state-list
+        '((fundamental-mode . normal)
+          (vterm-mode . insert)
+          (eww-mode . insert)
+          (text-mode . normal)
+          (prog-mode . normal)
+          (conf-mode . normal)
+          (json-mode . normal)))
 
   ;meow-thing-register THING INNER BOUNDS
   ;(meow-thing-register 'arrow '(pair ("<") (">")) '(pair ("<") (">")))
   ;(add-to-list 'meow-char-thing-table '(?a . arrow))
-  (set-face-attribute 'meow-normal-indicator nil :foreground "#87ceeb" :height 1.0 :weight 'ultra-heavy)
-  (set-face-attribute 'meow-motion-indicator nil :foreground "#ffd700" :height 1.0 :weight 'ultra-heavy)
-  (set-face-attribute 'meow-keypad-indicator nil :foreground "#00ffff" :height 1.0 :weight 'ultra-heavy)
-  (set-face-attribute 'meow-insert-indicator nil :foreground "#00ff00" :height 1.0 :weight 'ultra-heavy)
-  (set-face-attribute 'meow-beacon-indicator nil :foreground "#ff00ff" :height 1.0 :weight 'ultra-heavy)
 
   (meow-setup)
   (meow-global-mode 1)
 #+end_src
-* 📂 File Manager 
+* 📂 File Manager
 Not that intuitive to use as file manager, once you get a hand of emacs. You will thank for this.
 #+begin_src emacs-lisp
   (use-package dired
@@ -1686,16 +1880,32 @@ Not that intuitive to use as file manager, once you get a hand of emacs. You wil
     (dired-mode . all-the-icons-dired-mode))
 
 #+end_src
-*  Terminal 
+*  Terminal
 Vterm to replace terminal emulator.
 #+begin_src emacs-lisp
   (use-package vterm
-    :defer t
-    :bind ("C-c d t" . vterm)
+    :bind
+    (("C-c d t" . vterm)
+     ("<f12>" . d/vt-toggle))
+    (:map vterm-mode-map
+          ("<f12>" . d/vt-toggle)
+          ("<f9>" . hide-mode-line-mode)
+          ("C-q" . vterm-send-next-key))
     :config
-    (setq vterm-shell "/etc/profiles/per-user/i/bin/zsh"))
+    (setq vterm-shell "/etc/profiles/per-user/i/bin/zsh")
+    (defun d/vt-toggle ()
+    "Minimal hack to toggle vterm."
+    (interactive)
+    (if (vterm--get-cursor-point)
+        (delete-window)
+      (progn (vterm-other-window) (if (package-installed-p 'hide-mode-line) (hide-mode-line-mode) nil) (shrink-window 7)))))
+
+
+
+  ;; nixos issue for loading mu4e
+  ;; (add-to-list 'load-path "/etc/profiles/per-user/i/share/emacs/site-lisp/mu4e/")
 #+end_src
-* 🧊 Cool Stuffs 
+* 🧊 Cool Stuffs
 Some small codes from good source.
 #+begin_src emacs-lisp
   (use-package reddigg
@@ -1703,7 +1913,7 @@ Some small codes from good source.
     :bind (("C-c d f" . reddigg-view-frontpage)
            ("C-c d r" . reddigg-view-sub))
     :config
-    (setq org-confirm-elisp-link-function nil)    
+    (setq org-confirm-elisp-link-function nil)
     (setq reddigg-subs '(bangalore india emacs fossdroid piracy aww)))
 
   (use-package hnreader
@@ -1756,8 +1966,8 @@ Some small codes from good source.
     :defer t
     :config
     (setq sdcv-say-word-p t)
-    (setq sdcv-dictionary-data-dir "~/d-git/d-bin/treasure/dict/") 
-    (setq sdcv-dictionary-simple-list   
+    (setq sdcv-dictionary-data-dir "~/d-git/d-bin/treasure/dict/")
+    (setq sdcv-dictionary-simple-list
           '("wn" "enjp" "thesaurus"))
     :bind ("C-c d d" . sdcv-search-input)
     (:map sdcv-mode-map
@@ -1768,7 +1978,7 @@ Some small codes from good source.
           ("p" . sdcv-previous-dictionary)))
 
 #+end_src
-* 📎 Document - The PDF 
+* 📎 Document - The PDF
 Pdf-tools is another great addition if you want to integrate well with Emacs.
 #+begin_src emacs-lisp
   (use-package pdf-tools
@@ -1828,7 +2038,7 @@ Pdf-tools is another great addition if you want to integrate well with Emacs.
 
 #+end_src
 
-* 🏅 Functions Mania 
+* 🏅 Functions Mania
 Some more functions copied and adapted well to my flow. You will also find it well.
 #+begin_src emacs-lisp
   (defun config-reload ()
@@ -1902,164 +2112,166 @@ Some more functions copied and adapted well to my flow. You will also find it we
 
 #+end_src
 
-* 📰 Rss - Better Web 
+* 📰 Rss - Better Web
 Use RSS, just switch to it, and save your time for other productive things. If you wanna follow lazy people and hit that 'like, share and subscribe button, and /ding/ the bell icon' and what not, go on.
 #+begin_src emacs-lisp
-  (use-package elfeed
-    :defer t
-    :hook (elfeed-show-mode . d/elfeed-ui)
-    :bind ("C-c d e" . elfeed)
-    ("C-c d b" . d/external-browser)
-    (:map elfeed-show-mode-map
-          ("e" . elfeed-open-in-eww)
-          ("i" . d/bionic-read)
-          ("r" . elfeed-open-in-reddit)
-          ("m" . elfeed-toggle-show-star)
-          ("b" . d/external-browser))
-    (:map elfeed-search-mode-map
-          ("m" . elfeed-toggle-star)
-          ("U" . elfeed-update)
-          ("u" . elfeed-update-feed))
-    :config
-    ;; (setq-default elfeed-search-filter "@1-week-ago--1-day-ago +unread -news +")
-    (setq-default elfeed-search-filter "+unread +")
-    (defalias 'elfeed-toggle-show-star
-      (elfeed-expose #'elfeed-show-tag 'star))    
-    (defalias 'elfeed-toggle-star
-      (elfeed-expose #'elfeed-search-toggle-all 'star))
+    (use-package elfeed
+      :defer t
+      :hook (elfeed-show-mode . d/elfeed-ui)
+      :bind ("C-c d e" . elfeed)
+      ("C-c d b" . d/external-browser)
+      (:map elfeed-show-mode-map
+            ("e" . elfeed-open-in-eww)
+            ("i" . d/bionic-read)
+            ("r" . elfeed-open-in-reddit)
+            ("m" . elfeed-toggle-show-star)
+            ("b" . d/external-browser))
+      (:map elfeed-search-mode-map
+            ("m" . elfeed-toggle-star)
+            ("U" . elfeed-update)
+            ("u" . elfeed-update-feed))
+      :config
+      ;; (setq-default elfeed-search-filter "@1-week-ago--1-day-ago +unread -news +")
+      (setq-default elfeed-search-filter "+unread +")
+      (setq elfeed-search-date-format `("%m-%d" 5 :left))
+      (defalias 'elfeed-toggle-show-star
+        (elfeed-expose #'elfeed-show-tag 'star))
+      (defalias 'elfeed-toggle-star
+        (elfeed-expose #'elfeed-search-toggle-all 'star))
 
-    (defun d/elfeed-ui ()
+      (defun d/elfeed-ui ()
+        (interactive)
+        (setq-local header-line-format " "))
+
+
+      ;; face for starred articles
+      (defface elfeed-search-star-title-face
+        '((t :foreground "#f77"))
+        "Marks a starred Elfeed entry.")
+
+      (push '(star elfeed-search-star-title-face) elfeed-search-face-alist))
+
+    (use-package link-hint
+      :defer t
+      :ensure t
+      :bind
+      ("C-c l o" . link-hint-open-link)
+      ("C-c l c" . link-hint-copy-link))
+
+    (use-package avy
+      :defer t
+      :bind
+      ("M-j" . avy-goto-char-timer)
+      ("M-K" . avy-kill-region)
+      ("C-S-k" . avy-kill-whole-line)
+      :config
+      (setq avy-background t))
+
+    (use-package elfeed-org
+      :after elfeed
+      :config
+      (elfeed-org)
+      (setq rmh-elfeed-org-files (list "~/.config/emacs/elfeed.org")))
+
+    (defun readable-article ()
       (interactive)
-      (setq-local header-line-format " ")
+      (eww-readable)
+      ;; (d/bionic-read)
+      (beginning-of-buffer)
+      (d/eww-rename-buffer))
 
-      (set-face-attribute 'header-line nil :background nil :height 0.9)
+    (defun elfeed-open-in-eww ()
+      "open in eww"
+      (interactive)
+      (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
+        (eww (elfeed-entry-link entry))
+        (add-hook 'eww-after-render-hook 'readable-article)))
 
-      ;; For sides
-      (set-face-attribute 'message-header-name nil :font d/header-font :height '0.8 :background)
-      ;; For Title
-      (set-face-attribute 'message-header-subject nil :font d/title-face :height '1.80 :background)
-      ;; For tags..
-      (set-face-attribute 'message-header-other nil :font d/jetb-font :height '1.0 :background)
-      ;; For Author
-      (set-face-attribute 'message-header-to nil :font d/sans-font :slant 'italic :height '1.50 :background)
-      (set-face-attribute 'shr-link nil :font d/link-font :slant 'italic :weight 'semibold :width 'medium :height '1.0 :background))
+    (defun elfeed-open-in-reddit ()
+      "open in reddit"
+      (interactive)
+      (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
+        (reddigg-view-comments (elfeed-entry-link entry))))
 
-    ;; face for starred articles
-    (defface elfeed-search-star-title-face
-      '((t :foreground "#f77"))
-      "Marks a starred Elfeed entry.")
+    (use-package eww
+      :bind (:map eww-mode-map
+                  ("e" . readable-article)
+                  ("Q" . d/kill-buffer)
+                  ("M-v" . d/scroll-up)
+                  ("C-v" . d/scroll-down)
+                  ("C-f" . shr-next-link)
+                  ("C-b" . shr-previous-link)
+                  ("F" . d/visit-urls)
+                  ("U" . elfeed-update)
+                  ("b" . d/external-browser)))
 
-    (push '(star elfeed-search-star-title-face) elfeed-search-face-alist))
-
-  (use-package link-hint
+  (use-package gnutls
     :defer t
-    :ensure t
-    :bind
-    ("C-c l o" . link-hint-open-link)
-    ("C-c l c" . link-hint-copy-link))
+    :custom
+    (gnutls-verify-error t))
 
-  (use-package avy
-    :defer t
-    :bind
-    ("M-j" . avy-goto-char-timer)
-    ("M-K" . avy-kill-region)
-    ("C-S-k" . avy-kill-whole-line))
+  (setq shr-bullet "• "
+        shr-folding-mode t
+        url-privacy-level '(email agent cookies lastloc))
 
-  (use-package elfeed-org
-    :after elfeed
-    :config
-    (elfeed-org)
-    (setq rmh-elfeed-org-files (list "~/.config/emacs/elfeed.org")))
+  (with-eval-after-load "shr"
+      (defun shr-put-image (spec alt &optional flags)
+        "Insert image SPEC with a string ALT.  Return image.
+  SPEC is either an image data blob, or a list where the first
+  element is the data blob and the second element is the content-type.
+  Hack to use `insert-sliced-image' to avoid jerky image scrolling."
+        (if (display-graphic-p)
+            (let* ((size (cdr (assq 'size flags)))
+                   (data (if (consp spec)
+                             (car spec)
+                           spec))
+                   (content-type (and (consp spec)
+                                      (cadr spec)))
+                   (start (point))
+                   (image (cond
+                           ((eq size 'original)
+                            (create-image data nil t :ascent 100
+                                          :format content-type))
+                           ((eq content-type 'image/svg+xml)
+                            (create-image data 'svg t :ascent 100))
+                           ((eq size 'full)
+                            (ignore-errors
+                              (shr-rescale-image data content-type
+                                                 (plist-get flags :width)
+                                                 (plist-get flags :height))))
+                           (t
+                            (ignore-errors
+                              (shr-rescale-image data content-type
+                                                 (plist-get flags :width)
+                                                 (plist-get flags :height)))))))
+              (when image
+                (let* ((image-pixel-cons (image-size image t))
+                       (image-pixel-width (car image-pixel-cons))
+                       (image-pixel-height (cdr image-pixel-cons))
+                       (image-scroll-rows (round (/ image-pixel-height (default-font-height)))))
+                  ;; When inserting big-ish pictures, put them at the
+                  ;; beginning of the line.
+                  (when (and (> (current-column) 0)
+                             (> (car (image-size image t)) 400))
+                    (insert "\n"))
 
-  (defun readable-article ()
-    (interactive)
-    (eww-readable)
-    ;; (d/bionic-read)
-    (beginning-of-buffer)
-    (d/eww-rename-buffer))
+                  (insert-sliced-image image (or alt "*") nil image-scroll-rows 1)
+                  ;; (if (eq size 'original)
+                  ;;     (insert-sliced-image image (or alt "*") nil image-scroll-rows 1)
+                  ;;   (insert-image image (or alt "*")))
 
-  (defun elfeed-open-in-eww ()
-    "open in eww"
-    (interactive)
-    (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
-      (eww (elfeed-entry-link entry))
-      (add-hook 'eww-after-render-hook 'readable-article)))
-
-  (defun elfeed-open-in-reddit ()
-    "open in reddit"
-    (interactive)
-    (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
-      (reddigg-view-comments (elfeed-entry-link entry))))
-
-  (use-package eww
-    :bind (:map eww-mode-map
-                ("e" . readable-article)
-                ("Q" . d/kill-buffer)
-                ("M-v" . d/scroll-up)
-                ("C-v" . d/scroll-down)
-                ("C-f" . shr-next-link)
-                ("C-b" . shr-previous-link)
-                ("F" . d/visit-urls)
-                ("U" . elfeed-update)
-                ("b" . d/external-browser)))
-(with-eval-after-load "shr"
-    (defun shr-put-image (spec alt &optional flags)
-      "Insert image SPEC with a string ALT.  Return image.
-SPEC is either an image data blob, or a list where the first
-element is the data blob and the second element is the content-type.
-Hack to use `insert-sliced-image' to avoid jerky image scrolling."
-      (if (display-graphic-p)
-          (let* ((size (cdr (assq 'size flags)))
-                 (data (if (consp spec)
-                           (car spec)
-                         spec))
-                 (content-type (and (consp spec)
-                                    (cadr spec)))
-                 (start (point))
-                 (image (cond
-                         ((eq size 'original)
-                          (create-image data nil t :ascent 100
-                                        :format content-type))
-                         ((eq content-type 'image/svg+xml)
-                          (create-image data 'svg t :ascent 100))
-                         ((eq size 'full)
-                          (ignore-errors
-                            (shr-rescale-image data content-type
-                                               (plist-get flags :width)
-                                               (plist-get flags :height))))
-                         (t
-                          (ignore-errors
-                            (shr-rescale-image data content-type
-                                               (plist-get flags :width)
-                                               (plist-get flags :height)))))))
-            (when image
-              (let* ((image-pixel-cons (image-size image t))
-                     (image-pixel-width (car image-pixel-cons))
-                     (image-pixel-height (cdr image-pixel-cons))
-                     (image-scroll-rows (round (/ image-pixel-height (default-font-height)))))
-                ;; When inserting big-ish pictures, put them at the
-                ;; beginning of the line.
-                (when (and (> (current-column) 0)
-                           (> (car (image-size image t)) 400))
-                  (insert "\n"))
-
-                (insert-sliced-image image (or alt "*") nil image-scroll-rows 1)
-                ;; (if (eq size 'original)
-                ;;     (insert-sliced-image image (or alt "*") nil image-scroll-rows 1)
-                ;;   (insert-image image (or alt "*")))
-
-                (put-text-property start (point) 'image-size size)
-                (when (and shr-image-animate
-                           (cond ((fboundp 'image-multi-frame-p)
-                                  ;; Only animate multi-frame things that specify a
-                                  ;; delay; eg animated gifs as opposed to
-                                  ;; multi-page tiffs.  FIXME?
-                                  (cdr (image-multi-frame-p image)))
-                                 ((fboundp 'image-animated-p)
-                                  (image-animated-p image))))
-                  (image-animate image nil 60))))
-            image)
-        (insert (or alt "")))))
+                  (put-text-property start (point) 'image-size size)
+                  (when (and shr-image-animate
+                             (cond ((fboundp 'image-multi-frame-p)
+                                    ;; Only animate multi-frame things that specify a
+                                    ;; delay; eg animated gifs as opposed to
+                                    ;; multi-page tiffs.  FIXME?
+                                    (cdr (image-multi-frame-p image)))
+                                   ((fboundp 'image-animated-p)
+                                    (image-animated-p image))))
+                    (image-animate image nil 60))))
+              image)
+          (insert (or alt "")))))
 
 
 #+end_src
@@ -2106,14 +2318,14 @@ Just to use matrix for some hacky nerds community
       (setq ement-room-list-avatars nil))
 
 #+end_src
-* 🌐 Good Site 
+* 🌐 Good Site
 Use ox-hugo to manage static site in Hugo.
 #+begin_src emacs-lisp
     (use-package ox-hugo
       :after ox)
 #+end_src
 
-* 💜 Lots of things, No need to talk 
+* 💜 Lots of things, No need to talk
 Idk why, but i guess these all should be the sane defaults.
 #+begin_src emacs-lisp
   (setq inhibit-startup-message t)
@@ -2131,11 +2343,14 @@ Idk why, but i guess these all should be the sane defaults.
 
   ;; Display messages when idle, without prompting
   (setq help-at-pt-display-when-idle t)
-
+  (setopt read-quoted-char-radix 16)
   (setq use-dialog-box nil)
+  (setopt set-mark-command-repeat-pop t)
   (setq sentence-end-double-space nil)
-  (setq sentence-end "[.?!] ")  
-
+  (setq sentence-end "[.?!] ")
+  (setq-default indent-tabs-mode nil)
+  (setq save-interprogram-paste-before-kill t)
+  (setq kill-do-not-save-duplicates t)
   (setq initial-scratch-message
         ";; Type to your Will !\n\n")
 
@@ -2152,7 +2367,7 @@ Idk why, but i guess these all should be the sane defaults.
   ;; Set up the visible bell
   (setq visible-bell nil)
 
-  ;; Wayland 
+  ;; Wayland
   (setq x-select-request-type 'text/plain\;charset=utf-8)
 
   (set-language-environment "UTF-8")
@@ -2231,19 +2446,17 @@ Idk why, but i guess these all should be the sane defaults.
 
 #+end_src
 
-* 🏍️ Run Always, and be Everywhere 
+* 🏍️ Run Always, and be Everywhere
 Run emacs as daemon and thank yourself for blazing fast clients of emacs.
 #+begin_src emacs-lisp
 
-(set-face-attribute 'corfu-border nil  :background "#bcd2ee")
-(setq doom-modeline-icon t)
-(if (daemonp)
-    (add-hook 'after-make-frame-functions
-              (lambda (frame)
-                (setq doom-modeline-icon t)
-                (with-selected-frame frame
-                  (d/set-font-faces))))
-    (d/set-font-faces))
- (put 'narrow-to-region 'disabled nil)
+  (if (daemonp)
+      (add-hook 'after-make-frame-functions
+                (lambda (frame)
+                  ;; (setq doom-modeline-icon t)
+                  (with-selected-frame frame
+                    (d/set-font-faces))))
+      (d/set-font-faces))
+   (put 'narrow-to-region 'disabled nil)
 
 #+end_src

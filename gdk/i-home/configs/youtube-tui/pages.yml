@@ -1,0 +1,62 @@
+main_menu:
+  layout:
+  - type: NonCenteredRow
+    items:
+    - SearchBar
+    - SearchFilters
+  - type: CenteredRow
+    items:
+    - Popular
+    - Library
+    - History
+  - type: NonCenteredRow
+    items:
+    - ItemList
+  - type: NonCenteredRow
+    items:
+    - MessageBar
+  message: Loading main menu...
+search:
+  layout:
+  - type: NonCenteredRow
+    items:
+    - SearchBar
+    - SearchFilters
+  - type: NonCenteredRow
+    items:
+    - ItemList
+  - type: NonCenteredRow
+    items:
+    - MessageBar
+  message: Loading search results...
+singleitem:
+  layout:
+  - type: NonCenteredRow
+    items:
+    - SearchBar
+    - SearchFilters
+  - type: NonCenteredRow
+    items:
+    - SingleItemInfo
+  - type: NonCenteredRow
+    items:
+    - MessageBar
+  message: Loading item details...
+channeldisplay:
+  layout:
+  - type: NonCenteredRow
+    items:
+    - SearchBar
+    - SearchFilters
+  - type: CenteredRow
+    items:
+    - ChannelMain
+    - ChannelVideos
+    - ChannelPlaylists
+  - type: NonCenteredRow
+    items:
+    - ChannelDisplay
+  - type: NonCenteredRow
+    items:
+    - MessageBar
+  message: Loading channel details...

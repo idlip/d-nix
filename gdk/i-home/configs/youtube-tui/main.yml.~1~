@@ -1,0 +1,16 @@
+mouse_support: true
+invidious_instance: https://vid.puffyan.us
+max_watch_history: 50
+allow_unicode: true
+message_bar_default: All good :)
+images: Sixels
+refresh_after_modifying_search_filters: true
+image_index: 1
+provider: YouTube
+env:
+  browser: firefox
+  terminal-emulator: footclient -e
+  youtube-downloader: yt-dlp
+  video-player: mpv
+  link-handler: d-stuff # my script
+# Set any env and use it as custom script!!!

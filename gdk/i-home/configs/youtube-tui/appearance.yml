@@ -1,0 +1,27 @@
+borders: Rounded
+colors:
+  text: Reset
+  text_special: Reset
+  text_secondary: Reset
+  text_error: LightRed
+  outline: Reset
+  outline_selected: LightBlue
+  outline_hover: LightRed
+  outline_secondary: LightYellow
+  message_outline: '#FF7F00'
+  message_error_outline: LightRed
+  message_success_outline: LightGreen
+  command_capture: '#64FF64'
+  item_info:
+    tag: Gray
+    title: LightBlue
+    description: Gray
+    author: LightGreen
+    viewcount: LightYellow
+    length: LightCyan
+    published: LightMagenta
+    video_count: '#838DFF'
+    sub_count: '#65FFBA'
+    likes: '#C8FF81'
+    genre: '#FF75D7'
+    page_turner: Gray

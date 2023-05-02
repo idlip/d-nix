@@ -1,34 +1,90 @@
-;;; Personal configuration -*- lexical-binding: t -*-
-
+;;; init.el --- Initialization file -*- lexical-binding: t; -*-
+;;
+;; Filename: init.el
+;; Description: Initialize Emacs (The GOAT-Editor)
+;; Author: Dilip
+;; Copyright © 2023 Dilip
+;; Version: 0.7
+;; URL: https://github.com/idlip/d-nix
+;; Keywords: init emacs
+;; Compatibility: emacs-version >= 29.1
+;;
+;; ---
+;;
 ;;; Commentary:
-
-;; No need write this file, do it in literate org file!
-
+;;
+;; This is the init.el file for Pgtk Emacs (wayland)
+;;
+;; ---
+;;
+;; This program is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or (at
+;; your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful, but
+;; WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;; General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.
+;;
+;; ---
+;;
 ;;; Code:
 
-;; Lets garbage collect to make emacs quicker! 
+
+;; BetterGC
+(defvar better-gc-cons-threshold 134217728 ; 128mb
+  "If you experience freezing, decrease this.
+If you experience stuttering, increase this.")
 
-(defun my-cleanup-gc ()
-  "Clean up gc."
-  (setq gc-cons-threshold  67108864) ; 64M
-  (setq gc-cons-percentage 0.1) ; original value
-  (garbage-collect))
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (setq gc-cons-threshold better-gc-cons-threshold)
+            (makunbound 'file-name-handler-alist-original)))
+;; -BetterGC
 
-(run-with-idle-timer 4 nil #'my-cleanup-gc)
+;; AutoGC
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (if (boundp 'after-focus-change-function)
+                (add-function :after after-focus-change-function
+                              (lambda ()
+                                (unless (frame-focus-state)
+                                  (garbage-collect))))
+              (add-hook 'after-focus-change-function 'garbage-collect))
+            (defun gc-minibuffer-setup-hook ()
+              (setq gc-cons-threshold (* better-gc-cons-threshold 2)))
 
-(message "  Emacs loaded in %s with %d garbage collections."
-         (format "%.2f seconds"
-                 (float-time (time-subtract after-init-time before-init-time)))
-         gcs-done)
+            (defun gc-minibuffer-exit-hook ()
+              (garbage-collect)
+              (setq gc-cons-threshold better-gc-cons-threshold))
+
+            (add-hook 'minibuffer-setup-hook #'gc-minibuffer-setup-hook)
+            (add-hook 'minibuffer-exit-hook #'gc-minibuffer-exit-hook)))
+;; -AutoGC
 
 ;; Initialize package sources
 (require 'package)
 
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("org" . "https://orgmode.org/elpa/")
-                         ("elpa" . "https://elpa.gnu.org/packages/")))
+(setq package-user-dir (expand-file-name "elpa" user-emacs-directory)
+      package-archives
+      '(("melpa" . "https://melpa.org/packages/")
+        ("org" . "https://orgmode.org/elpa/")
+        ("elpa" . "https://elpa.gnu.org/packages/"))
+      package-quickstart nil)
 
-(package-initialize)
+(setq package-archive-priorities
+      '(("melpa" .  3)
+        ("org" . 2)
+        ("elpa" . 1)))
+
+(unless (bound-and-true-p package--initialized)
+  (setq package-enable-at-startup nil) ; To prevent initializing twice
+  (package-initialize))
+
 (unless package-archive-contents
   (package-refresh-contents))
 
@@ -36,72 +92,106 @@
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
 
+(eval-and-compile
+  (setq use-package-verbose (not (bound-and-true-p byte-compile-current-file))))
+
 (require 'use-package)
-(setq use-package-always-ensure t)
+(use-package use-package
+  :custom
+  (use-package-verbose t)
+  (use-package-always-ensure t)  ; :ensure t by default
+  (use-package-always-defer nil) ; :defer t by default
+  (use-package-expand-minimally t)
+  (use-package-enable-imenu-support t))
+
+;; Thank you Likhon Sapiens, for your emacs config!
+
+;; ─────────────────── Additional Packages and Configurations ──────────────────
+;; Add `:doc' support for use-package so that we can use it like what a doc-strings is for
+(eval-and-compile
+  (add-to-list 'use-package-keywords :doc t)
+  (defun use-package-handler/:doc (name-symbol _keyword _docstring rest state)
+    "An identity handler for :doc.
+     Currently, the value for this keyword is being ignored.
+     This is done just to pass the compilation when :doc is
+     included Argument NAME-SYMBOL is the first argument to
+     `use-package' in a declaration.  Argument KEYWORD here is
+     simply :doc.  Argument DOCSTRING is the value supplied for
+     :doc keyword.  Argument REST is the list of rest of the
+     keywords.  Argument STATE is maintained by `use-package' as
+     it processes symbols."
+
+    ;; just process the next keywords
+    (use-package-process-keywords name-symbol rest state)))
 
 ;; You will most likely need to adjust this font size for your system!
-(defvar default-font-size 170)
-(defvar default-variable-font-size 170)
 
-;; Set reusable font name variables
-(defvar d/fixed-width-font "ComicCodeLigatures Nerd Font"
-  "The font to use for monospaced (fixed width) text.")
+  (defvar default-font-size 170)
+  (defvar default-variable-font-size 170)
 
-(defvar d/variable-width-font "ComicCodeLigatures Nerd Font"
-  "The font to use for variable-pitch (document) text.")
+  ;; Set reusable font name variables
+  (defvar d/fixed-width-font "ComicCodeLigatures Nerd Font"
+    "The font to use for monospaced (fixed width) text.")
 
-(defvar d/header-font "Comic Mono"
-  "Font for header level in org-mode." )
+  (defvar d/variable-width-font "ComicCodeLigatures Nerd Font"
+    "The font to use for variable-pitch (document) text.")
 
-(defvar d/sans-font "SF Pro Rounded"
-  "Sans font for reading docs or presentation")
-(defvar d/jetb-font "JetBrainsMono Nerd Font"
-  "Jetbrains font for code/verbatim" )
-(defvar d/title-face "Impress BT"
-  "Font for title")
-(defvar d/link-font "VictorMono Nerd Font"
-  "Font for links")
-(defvar d/code-font "VictorMono Nerd Font"
-  "Font for inline code")
+  (setq haki-heading-font "Comic Mono")
+  (setq haki-sans-font "Iosevka Comfy Motion")
+;;  (setq haki-code-font "JetBrainsMono Nerd Font")
+  (setq haki-title-font "Impress BT")
+  (setq haki-link-font "VictorMono Nerd Font")
+  (setq haki-code-font "Maple Mono NF")
 
 
-(setf use-default-font-for-symbols nil)
-(set-fontset-font t 'unicode "Noto Emoji" nil 'append)
 
-(defun d/set-font-faces ()
-  (message "Setting faces!")
-  (set-face-attribute 'default nil :font d/variable-width-font :weight 'medium :height default-font-size)
+  (setf use-default-font-for-symbols nil)
+  (set-fontset-font t 'unicode "Noto Emoji" nil 'append)
 
-  ;; Set the fixed pitch face (monospace)
-  (set-face-attribute 'fixed-pitch nil :font d/fixed-width-font :height default-font-size)
+  (defun d/set-font-faces ()
+    (message "Setting faces!")
+    (set-face-attribute 'default nil :family d/variable-width-font :weight 'medium :height default-font-size)
 
-  ;; Set the variable pitch face (document text)
-  (set-face-attribute 'variable-pitch nil :font d/variable-width-font :height default-variable-font-size :weight 'medium))
+    ;; Set the fixed pitch face (monospace)
+    (set-face-attribute 'fixed-pitch nil :family d/fixed-width-font :height default-font-size)
 
-(use-package no-littering
+    ;; Set the variable pitch face (document text)
+    (set-face-attribute 'variable-pitch nil :family d/variable-width-font :height default-variable-font-size :weight 'medium)
+    (global-font-lock-mode 1)
+    (setq font-lock-maximum-decoration t))
+
+(use-package no-littering               ; Keep .emacs.d clean
+  :doc "It’s good to have centralized working datasets storage, to prevent pollution of Emacs config directory."
+  :custom
+  (no-littering-var-directory (expand-file-name "data/" user-emacs-directory))
+  (no-littering-etc-directory (expand-file-name "config/" user-emacs-directory))
   :config
-  ;; no-littering doesn't set this by default so we must place
-  ;; auto save files in the same path as it uses for sessions
-  (setq auto-save-file-name-transforms
-        `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
-  ;;  (setq backup-directory-alist '(("." . "~/.config/emacs/backups")))
-  (setq delete-old-versions -1)
-  (setq version-control t)
-  (setq vc-make-backup-files t))
+  (require 'recentf)
+  (add-to-list 'recentf-exclude no-littering-var-directory)
+  (add-to-list 'recentf-exclude no-littering-etc-directory)
 
-(setq make-backup-files t          ; backup of a file the first time it is saved.
-      backup-by-copying t          ; don't clobber symlinks
-      version-control t            ; version numbers for backup files
-      vc-make-backup-files t       ; version control for git/vcs dirs
-      delete-old-versions t        ; delete excess backup files silently
-      delete-by-moving-to-trash t
-      kept-old-versions 2          ; oldest versions to keep when a new numbered backup is made 
-      kept-new-versions 2          ; newest versions to keep when a new numbered backup is made 
-      auto-save-default t          ; auto-save every buffer that visits a file
-      auto-save-timeout 20         ; number of seconds idle time before auto-save (default: 30)
-      auto-save-interval 200       ; number of keystrokes between auto-saves (default: 300)
-      create-lockfiles nil         ; don't use lockfiles (default: t)
-      )
+  ;; Move this in its own thing
+  (setq
+   create-lockfiles nil
+   delete-old-versions t
+   kept-new-versions 6
+   kept-old-versions 2
+   version-control t)
+
+  (setq
+   backup-directory-alist
+   `((".*" . ,(no-littering-expand-var-file-name "backup/")))
+   auto-save-file-name-transforms
+   `((".*" ,(no-littering-expand-var-file-name "auto-save/") t))))
+
+(use-package gcmh
+  :init (gcmh-mode 1)
+  :config
+  (setq
+   gcmh-idle-delay 'auto ; default is 15s
+   gcmh-auto-idle-delay-factor 10
+   gcmh-high-cons-threshold (* 16 1024 1024)) ; 16mb
+  :delight " Ⓖ")
 
 (use-package savehist
   :init
@@ -297,12 +387,12 @@
       completion-ignore-case t)
 ;; Use `consult-completion-in-region' if Vertico is enabled.
 ;; Otherwise use the default `completion--in-region' function.
-(setq completion-in-region-function
-      (lambda (&rest args)
-        (apply (if vertico-mode
-                   #'consult-completion-in-region
-                 #'completion--in-region)
-               args)))
+;; (setq completion-in-region-function
+;;       (lambda (&rest args)
+;;         (apply (if vertico-mode
+;;                    #'consult-completion-in-region
+;;                  #'completion--in-region)
+;;                args)))
 
 (use-package consult
   ;; Replace bindings. Lazily loaded due by `use-package'.
@@ -528,7 +618,7 @@ selected color."
               ("TAB" . corfu-insert)
               ("<escape>" . corfu-quit)
               ("C-j" . corfu-next)
-              ("C-k" . corfu-previous)                
+              ("C-k" . corfu-previous)
               ("RET" . corfu-insert))
   ;; Enable Corfu only for certain modes.
   ;; :hook ((prog-mode . corfu-mode)
@@ -666,7 +756,7 @@ selected color."
  org-modern-star '("◉" "✤" "◈" "✿" "✤")
  org-modern-hide-stars nil
  org-modern-table t
- org-modern-list 
+ org-modern-list
  '((?* . "❉")
    (?- . "❖")
    (?+ . "➤"))
@@ -685,125 +775,119 @@ selected color."
 
 (use-package jinx
   :hook (emacs-startup . global-jinx-mode)
-  :bind ("M-$". jinx-correct)
-  :config
-  (set-face-attribute 'jinx-misspelled nil :inherit nil :underline '(:color "gold" :style line :position t)))
+  :bind ("M-$". jinx-correct))
 
 (defun org-font-setup ()
-  ;; Replace list hyphen with dot
-  (font-lock-add-keywords 'org-mode
-                          '(("^ *\\([-]\\) "
-                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+    ;; Replace list hyphen with dot
+    (font-lock-add-keywords 'org-mode
+                            '(("^ *\\([-]\\) "
+                               (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
-  ;; Set faces for heading levels
-  (dolist (face '((org-level-1 . 1.3)
-                  (org-level-2 . 1.2)
-                  (org-level-3 . 1.1)
-                  (org-level-4 . 1.1)
-                  (org-level-5 . 1.1)
-                  (org-level-6 . 1.1)
-                  (org-level-7 . 1.1)
-                  (org-block-begin-line . 0.9)                    
-                  (org-level-8 . 1.1)))
-    (set-face-attribute 'org-document-title nil :font d/title-face :weight 'bold :height 2.5 :width 'extra-expanded)
-    (set-face-attribute 'org-level-1 nil :font d/header-font :weight 'medium :height 1.3 :foreground "#b6a0ff")
-    (set-face-attribute 'org-level-2 nil :font d/header-font :weight 'medium :height 1.2)
-    (set-face-attribute 'org-level-3 nil :font d/header-font :weight 'medium :height 1.1)
-    (set-face-attribute 'org-level-4 nil :font d/header-font :weight 'medium :height 1.1)
-    (set-face-attribute 'org-level-5 nil :font d/header-font :weight 'medium :height 1.15)
+      (dolist (face '((org-block . 1.0)
+                      (org-block-begin-line . 0.9)
+                      (org-document-info . 1.5)
+                      (org-document-title . 1.7)
+                      (org-level-1 . 1.4)
+                      (org-level-2 . 1.3)
+                      (org-level-3 . 1.2)
+                      (org-level-4 . 1.1)
+                      (org-level-5 . 1.1)
+                      (org-level-6 . 1.1)
+                      (org-code . 1.2)
+                      (header-line . 1.0)
+                      (org-verbatim . 1.15)
+                      (variable-pitch . 1.0)
+                      (org-level-7 . 1.1)))
+        (set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face))))
 
-    (set-face-attribute 'variable-pitch nil :height default-variable-font-size :weight 'medium)
-    (set-face-attribute 'org-verbatim nil :height '1.15 :font d/jetb-font :weight 'medium)
-    (set-face-attribute 'org-code nil :height '1.15 :font d/jetb-font :weight 'medium)
-    (set-face-attribute (car face) nil :font d/header-font :weight 'regular :height (cdr face)))
+    ;; Set faces for heading levels
 
-  ;; Ensure that anything that should be fixed-pitch in Org files appears that way
-  (set-face-attribute 'line-number nil :slant 'normal :weight 'semibold :inherit 'fixed-pitch)
-  (set-face-attribute 'line-number-current-line nil :weight 'ultrabold :slant 'normal :inherit 'fixed-pitch ))
-
-(defun org-mode-setup ()
-  (org-indent-mode 1)
-  (org-display-inline-images 1)
-  (variable-pitch-mode 1)
-  (org-font-setup)
-  (setq
-   org-startup-indented nil
-   org-image-actual-width 300
-   org-startup-folded t)
-  )
-
-(use-package org
-  :pin org
-  :commands (org-capture org-agenda)
-  :hook (org-mode . org-mode-setup)
-  (org-mode . org-modern-mode)
-
-  :bind (("C-c c c" . org-capture)
-         ("C-c c d" . calendar)
-         ("C-c t R" . d/bionic-region)
-         ("C-c d a" . org-agenda)
-         ("C-c t r" . d/bionic-read)
-         ("<f6>" . d/edit-src-block)
-         :map org-mode-map
-         ("C-c o b" . d/edit-src-block))
-  :config
-  (setq org-ellipsis " ▾")
-
-  (setq org-agenda-start-with-log-mode t)
-  ;; (setq org-log-done 'time)
-  (setq org-log-done 'note)
-  (setq org-log-into-drawer t)
-
-  ;; browser script
-  (setq browse-url-browser-function 'browse-url-generic
-        browse-url-generic-program "d-stuff")
-  (setq browse-url-secondary-browser-function 'browse-url-generic
-        browse-url-generic-program "d-stuff")
-
-  (setq org-agenda-files
-        '("~/sync/org/tasks.org"
-          "~/d-git/d-site/README.org"))
-
-  ;; (require 'org-habit)
-  ;; (add-to-list 'org-modules 'org-habit)
-  ;; (setq org-habit-graph-column 60)
-
-  (setq org-todo-keywords
-        '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
-          (sequence  "PLAN(p)" "REVIEW(v)" "|" "COMPLETED(c)" "CANC(k@)")))
-
-  (setq org-refile-targets
-        '(("Archive.org" :maxlevel . 1)
-          ("tasks.org" :maxlevel . 1)))
-
-  ;; Save Org buffers after refiling!
-  (advice-add 'org-refile :after 'org-save-all-org-buffers)
-
-  (setq org-tag-alist
-        '((:startgroup)
-          (:endgroup)
-          ("@work" . ?W)
-          ("agenda" . ?a)
-          ("linux" . ?l)
-          ("planning" . ?p)
-          ("note" . ?n)
-          ("idea" . ?i)))
+      ;; (set-face-attribute (car face) nil :font d/header-font :weight 'regular :height (cdr face)))
 
 
-  (setq org-capture-templates
-        `(
-          ("t" "Task" entry (file+olp "~/sync/org/tasks.org" "One-Timer")
-           "* TODO %?\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
-          ("w" "Website Todo" entry (file+headline "~/d-git/d-site/README.org" "Ideas - TODO")
-           "* TODO %?\n  SCHEDULED:%T\n " :empty-lines 1)            
+  (defun org-mode-setup ()
+    (org-indent-mode 1)
+    (org-display-inline-images 1)
+    (variable-pitch-mode 1)
+;;    (org-font-setup)
+    (setq
+     org-startup-indented nil
+     org-image-actual-width 300
+     org-startup-folded t)
+    )
 
-          ("j" "Journal Entries")
-          ("jj" "Journal" entry
-           (file+olp+datetree "~/docs/org/journal.org")
-           "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
-           ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
-           :clock-in :clock-resume
-           :empty-lines 1))))
+  (use-package org
+    :pin org
+    :commands (org-capture org-agenda)
+    :hook (org-mode . org-mode-setup)
+    (org-mode . org-modern-mode)
+
+    :bind (("C-c c c" . org-capture)
+           ("C-c c d" . calendar)
+           ("C-c t R" . d/bionic-region)
+           ("C-c d a" . org-agenda)
+           ("C-c t r" . d/bionic-read)
+           ("<f6>" . d/edit-src-block)
+           :map org-mode-map
+           ("C-c o b" . d/edit-src-block))
+    :config
+    (setq org-ellipsis " ▾")
+
+    (setq org-agenda-start-with-log-mode t)
+    ;; (setq org-log-done 'time)
+    (setq org-log-done 'note)
+    (setq org-log-into-drawer t)
+
+    ;; browser script
+    (setq browse-url-browser-function 'browse-url-generic
+          browse-url-generic-program "d-stuff")
+    (setq browse-url-secondary-browser-function 'browse-url-generic
+          browse-url-generic-program "d-stuff")
+
+    (setq org-agenda-files
+          '("~/sync/org/tasks.org"
+            "~/d-git/d-site/README.org"))
+
+    ;; (require 'org-habit)
+    ;; (add-to-list 'org-modules 'org-habit)
+    ;; (setq org-habit-graph-column 60)
+
+    (setq org-todo-keywords
+          '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
+            (sequence  "PLAN(p)" "REVIEW(v)" "|" "COMPLETED(c)" "CANC(k@)")))
+
+    (setq org-refile-targets
+          '(("Archive.org" :maxlevel . 1)
+            ("tasks.org" :maxlevel . 1)))
+
+    ;; Save Org buffers after refiling!
+    (advice-add 'org-refile :after 'org-save-all-org-buffers)
+
+    (setq org-tag-alist
+          '((:startgroup)
+            (:endgroup)
+            ("@work" . ?W)
+            ("agenda" . ?a)
+            ("linux" . ?l)
+            ("planning" . ?p)
+            ("note" . ?n)
+            ("idea" . ?i)))
+
+
+    (setq org-capture-templates
+          `(
+            ("t" "Task" entry (file+olp "~/sync/org/tasks.org" "One-Timer")
+             "* TODO %?\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
+            ("w" "Website Todo" entry (file+headline "~/d-git/d-site/README.org" "Ideas - TODO")
+             "* TODO %?\n  SCHEDULED:%T\n " :empty-lines 1)
+
+            ("j" "Journal Entries")
+            ("jj" "Journal" entry
+             (file+olp+datetree "~/docs/org/journal.org")
+             "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
+             ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
+             :clock-in :clock-resume
+             :empty-lines 1))))
 
 (with-eval-after-load 'org
   (org-babel-do-load-languages
@@ -825,7 +909,7 @@ selected color."
   (add-to-list 'org-structure-template-alist '("py" . "src python"))
   (add-to-list 'org-structure-template-alist '("txt" . "src text"))
   (add-to-list 'org-structure-template-alist '("conf" . "src conf"))
-  (add-to-list 'org-structure-template-alist '("nix" . "src nix"))    
+  (add-to-list 'org-structure-template-alist '("nix" . "src nix"))
   (add-to-list 'org-structure-template-alist '("lx" . "src latex"))
   (add-to-list 'org-structure-template-alist '("cal" . "src calc")))
 
@@ -896,23 +980,20 @@ selected color."
 
   (dolist (face '((org-block . 1.0)
                   (org-block-begin-line . 0.1)
-                  (org-level-7 . 1.1)
-                  (org-level-8 . 1.1)))
-    (set-face-attribute 'org-document-title nil :font d/title-face :weight 'bold :height 2.5 :width 'extra-expanded)
-    (set-face-attribute 'org-document-info nil :font d/link-font :slant 'italic :weight 'bold :height 2.5 :width 'extra-expanded)
-    (set-face-attribute 'org-level-1 nil :font d/header-font :weight 'medium :height 1.6 :foreground "#b6a0ff")
-    (set-face-attribute 'org-level-2 nil :font d/header-font :weight 'medium :height 1.5)
-    (set-face-attribute 'org-level-3 nil :font d/header-font :weight 'medium :height 1.4)
-    (set-face-attribute 'org-level-4 nil :font d/header-font :weight 'medium :height 1.3)
-    (set-face-attribute 'org-level-5 nil :font d/header-font :weight 'medium :height 1.25)
-
-    (set-face-attribute 'org-verbatim nil :font d/jetb-font :weight 'medium :height 1.3)
-    (set-face-attribute 'org-code nil :font d/code-font :weight 'medium :height 1.4)
-
-
-    (set-face-attribute 'header-line nil :background nil :height 2.5)
-    (set-face-attribute 'variable-pitch nil :font d/variable-width-font :height 1.2 :weight 'medium)
-    (set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face)))
+                  (org-document-info . 2.5)
+                  (org-document-title . 2.5)
+                  (org-level-1 . 1.6)
+                  (org-level-2 . 1.5)
+                  (org-level-3 . 1.4)
+                  (org-level-4 . 1.3)
+                  (org-level-5 . 1.2)
+                  (org-level-6 . 1.1)
+                  (org-code . 1.4)
+                  (header-line . 2.5)
+                  (org-verbatim . 1.3)
+                  (variable-pitch . 1.2)
+                  (org-level-7 . 1.1)))
+    (set-face-attribute (car face) nil :height (cdr face)))
 
 
   (if (package-installed-p 'hide-mode-line)
@@ -936,13 +1017,13 @@ selected color."
               echo-keystrokes d/org-present--echo-keystrokes)
   (org-present-small)
 
-  (set-face-attribute 'header-line nil :height '1.0 :background)
 
   (org-indent-mode d/org-present--org-indent-mode)
 
   (if (package-installed-p 'hide-mode-line)
       (hide-mode-line-mode 0))
 
+  (load-theme 'haki t)
   (org-mode-restart)
   (org-remove-inline-images))
 
@@ -972,7 +1053,7 @@ selected color."
 
 
 (defun d/org-present-previous-slide ()
-  "Go to next sibling."
+  "Go to previous sibling."
   (interactive)
   (widen)
   (when (org-current-level)
@@ -993,7 +1074,7 @@ selected color."
   :hook ((find-file-hook . denote-link-buttonize-buffer)
 
          (dired-mode . denote-dired-mode))
-  :bind 
+  :bind
   ("C-c n j" . d/my-journal)
   ("C-c n n" . denote)
   ("C-c n N" . denote-type)
@@ -1064,7 +1145,7 @@ selected color."
          (Info-mode         . olivetti-mode)
          (eshell-mode         . olivetti-mode)
          (helpful-mode         . olivetti-mode)
-         (Info-mode         . olivetti-mode)           
+         (Info-mode         . olivetti-mode)
          (org-mode          . olivetti-mode)
          (ement-room-mode   . olivetti-mode)
          (dashboard-mode    . olivetti-mode)
@@ -1113,7 +1194,10 @@ selected color."
         (agenda-date . (1.2))
         (agenda-structure . (variable-pitch light 1.8))
         (t . (1.1))))
-(load-theme 'modus-vivendi t)
+
+;; My own theme
+(add-to-list 'custom-theme-load-path "~/.config/emacs/var/theme/")
+(load-theme 'haki t)
 
 ;; For foot to show colors properly
 (add-to-list 'term-file-aliases '("foot" . "xterm"))
@@ -1280,14 +1364,14 @@ selected color."
    '("Q" . meow-goto-line)
    '("r" . meow-replace)
    '("R" . meow-swap-grab)
-   '("s" . meow-kill)
+   '("x" . meow-kill)
    '("t" . meow-till)
    '("u" . meow-undo)
    '("U" . meow-undo-in-selection)
    '("v" . meow-visit)
    '("w" . meow-mark-word)
    '("W" . meow-mark-symbol)
-   '("x" . meow-line)
+   '("s" . meow-line)
    '("X" . meow-goto-line)
    '("y" . meow-save)
    '("Y" . meow-sync-grab)
@@ -1297,19 +1381,23 @@ selected color."
 
 (setq meow-replace-state-name-list
       '((normal . "")
-        (motion . "󱖲")
-        (keypad . "󰥻")
+        (motion . "")
+        (keypad . "")
         (insert . "")
-        (beacon . "")))
+        (beacon . "")))
+
+(add-to-list 'meow-mode-state-list
+      '((fundamental-mode . normal)
+        (vterm-mode . insert)
+        (eww-mode . insert)
+        (text-mode . normal)
+        (prog-mode . normal)
+        (conf-mode . normal)
+        (json-mode . normal)))
 
 ;meow-thing-register THING INNER BOUNDS
 ;(meow-thing-register 'arrow '(pair ("<") (">")) '(pair ("<") (">")))
 ;(add-to-list 'meow-char-thing-table '(?a . arrow))
-(set-face-attribute 'meow-normal-indicator nil :foreground "#87ceeb" :height 1.0 :weight 'ultra-heavy)
-(set-face-attribute 'meow-motion-indicator nil :foreground "#ffd700" :height 1.0 :weight 'ultra-heavy)
-(set-face-attribute 'meow-keypad-indicator nil :foreground "#00ffff" :height 1.0 :weight 'ultra-heavy)
-(set-face-attribute 'meow-insert-indicator nil :foreground "#00ff00" :height 1.0 :weight 'ultra-heavy)
-(set-face-attribute 'meow-beacon-indicator nil :foreground "#ff00ff" :height 1.0 :weight 'ultra-heavy)
 
 (meow-setup)
 (meow-global-mode 1)
@@ -1346,17 +1434,33 @@ selected color."
   (dired-mode . all-the-icons-dired-mode))
 
 (use-package vterm
-  :defer t
-  :bind ("C-c d t" . vterm)
+  :bind
+  (("C-c d t" . vterm)
+   ("<f12>" . d/vt-toggle))
+  (:map vterm-mode-map
+        ("<f12>" . d/vt-toggle)
+        ("<f9>" . hide-mode-line-mode)
+        ("C-q" . vterm-send-next-key))
   :config
-  (setq vterm-shell "/etc/profiles/per-user/i/bin/zsh"))
+  (setq vterm-shell "/etc/profiles/per-user/i/bin/zsh")
+  (defun d/vt-toggle ()
+  "Minimal hack to toggle vterm."
+  (interactive)
+  (if (vterm--get-cursor-point)
+      (delete-window)
+    (progn (vterm-other-window) (if (package-installed-p 'hide-mode-line) (hide-mode-line-mode) nil) (shrink-window 7)))))
+
+
+
+;; nixos issue for loading mu4e
+;; (add-to-list 'load-path "/etc/profiles/per-user/i/share/emacs/site-lisp/mu4e/")
 
 (use-package reddigg
   :defer t
   :bind (("C-c d f" . reddigg-view-frontpage)
          ("C-c d r" . reddigg-view-sub))
   :config
-  (setq org-confirm-elisp-link-function nil)    
+  (setq org-confirm-elisp-link-function nil)
   (setq reddigg-subs '(bangalore india emacs fossdroid piracy aww)))
 
 (use-package hnreader
@@ -1409,8 +1513,8 @@ selected color."
   :defer t
   :config
   (setq sdcv-say-word-p t)
-  (setq sdcv-dictionary-data-dir "~/d-git/d-bin/treasure/dict/") 
-  (setq sdcv-dictionary-simple-list   
+  (setq sdcv-dictionary-data-dir "~/d-git/d-bin/treasure/dict/")
+  (setq sdcv-dictionary-simple-list
         '("wn" "enjp" "thesaurus"))
   :bind ("C-c d d" . sdcv-search-input)
   (:map sdcv-mode-map
@@ -1562,26 +1666,16 @@ selected color."
     :config
     ;; (setq-default elfeed-search-filter "@1-week-ago--1-day-ago +unread -news +")
     (setq-default elfeed-search-filter "+unread +")
+    (setq elfeed-search-date-format `("%m-%d" 5 :left))
     (defalias 'elfeed-toggle-show-star
-      (elfeed-expose #'elfeed-show-tag 'star))    
+      (elfeed-expose #'elfeed-show-tag 'star))
     (defalias 'elfeed-toggle-star
       (elfeed-expose #'elfeed-search-toggle-all 'star))
 
     (defun d/elfeed-ui ()
       (interactive)
-      (setq-local header-line-format " ")
+      (setq-local header-line-format " "))
 
-      (set-face-attribute 'header-line nil :background nil :height 0.9)
-
-      ;; For sides
-      (set-face-attribute 'message-header-name nil :font d/header-font :height '0.8 :background)
-      ;; For Title
-      (set-face-attribute 'message-header-subject nil :font d/title-face :height '1.80 :background)
-      ;; For tags..
-      (set-face-attribute 'message-header-other nil :font d/jetb-font :height '1.0 :background)
-      ;; For Author
-      (set-face-attribute 'message-header-to nil :font d/sans-font :slant 'italic :height '1.50 :background)
-      (set-face-attribute 'shr-link nil :font d/link-font :slant 'italic :weight 'semibold :width 'medium :height '1.0 :background))
 
     ;; face for starred articles
     (defface elfeed-search-star-title-face
@@ -1602,7 +1696,9 @@ selected color."
     :bind
     ("M-j" . avy-goto-char-timer)
     ("M-K" . avy-kill-region)
-    ("C-S-k" . avy-kill-whole-line))
+    ("C-S-k" . avy-kill-whole-line)
+    :config
+    (setq avy-background t))
 
   (use-package elfeed-org
     :after elfeed
@@ -1641,6 +1737,16 @@ selected color."
                 ("F" . d/visit-urls)
                 ("U" . elfeed-update)
                 ("b" . d/external-browser)))
+
+(use-package gnutls
+  :defer t
+  :custom
+  (gnutls-verify-error t))
+
+(setq shr-bullet "• "
+      shr-folding-mode t
+      url-privacy-level '(email agent cookies lastloc))
+
 (with-eval-after-load "shr"
     (defun shr-put-image (spec alt &optional flags)
       "Insert image SPEC with a string ALT.  Return image.
@@ -1750,11 +1856,14 @@ Hack to use `insert-sliced-image' to avoid jerky image scrolling."
 
 ;; Display messages when idle, without prompting
 (setq help-at-pt-display-when-idle t)
-
+(setopt read-quoted-char-radix 16)
 (setq use-dialog-box nil)
+(setopt set-mark-command-repeat-pop t)
 (setq sentence-end-double-space nil)
-(setq sentence-end "[.?!] ")  
-
+(setq sentence-end "[.?!] ")
+(setq-default indent-tabs-mode nil)
+(setq save-interprogram-paste-before-kill t)
+(setq kill-do-not-save-duplicates t)
 (setq initial-scratch-message
       ";; Type to your Will !\n\n")
 
@@ -1771,7 +1880,7 @@ Hack to use `insert-sliced-image' to avoid jerky image scrolling."
 ;; Set up the visible bell
 (setq visible-bell nil)
 
-;; Wayland 
+;; Wayland
 (setq x-select-request-type 'text/plain\;charset=utf-8)
 
 (set-language-environment "UTF-8")
@@ -1848,110 +1957,11 @@ Hack to use `insert-sliced-image' to avoid jerky image scrolling."
 
 (setq fill-column 100)
 
-(add-to-list 'custom-theme-load-path "~/d-git/d-theme/")
-
-(set-face-attribute 'corfu-border nil  :background "#bcd2ee")
-(setq doom-modeline-icon t)
 (if (daemonp)
     (add-hook 'after-make-frame-functions
               (lambda (frame)
-                (setq doom-modeline-icon t)
+                ;; (setq doom-modeline-icon t)
                 (with-selected-frame frame
                   (d/set-font-faces))))
     (d/set-font-faces))
  (put 'narrow-to-region 'disabled nil)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(connection-local-criteria-alist
-   '(((:application eshell)
-      eshell-connection-default-profile)
-     ((:application tramp)
-      tramp-connection-local-default-system-profile tramp-connection-local-default-shell-profile)))
- '(connection-local-profile-alist
-   '((eshell-connection-default-profile
-      (eshell-path-env-list))
-     (tramp-connection-local-darwin-ps-profile
-      (tramp-process-attributes-ps-args "-acxww" "-o" "pid,uid,user,gid,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state=abcde" "-o" "ppid,pgid,sess,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etime,pcpu,pmem,args")
-      (tramp-process-attributes-ps-format
-       (pid . number)
-       (euid . number)
-       (user . string)
-       (egid . number)
-       (comm . 52)
-       (state . 5)
-       (ppid . number)
-       (pgrp . number)
-       (sess . number)
-       (ttname . string)
-       (tpgid . number)
-       (minflt . number)
-       (majflt . number)
-       (time . tramp-ps-time)
-       (pri . number)
-       (nice . number)
-       (vsize . number)
-       (rss . number)
-       (etime . tramp-ps-time)
-       (pcpu . number)
-       (pmem . number)
-       (args)))
-     (tramp-connection-local-busybox-ps-profile
-      (tramp-process-attributes-ps-args "-o" "pid,user,group,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "stat=abcde" "-o" "ppid,pgid,tty,time,nice,etime,args")
-      (tramp-process-attributes-ps-format
-       (pid . number)
-       (user . string)
-       (group . string)
-       (comm . 52)
-       (state . 5)
-       (ppid . number)
-       (pgrp . number)
-       (ttname . string)
-       (time . tramp-ps-time)
-       (nice . number)
-       (etime . tramp-ps-time)
-       (args)))
-     (tramp-connection-local-bsd-ps-profile
-      (tramp-process-attributes-ps-args "-acxww" "-o" "pid,euid,user,egid,egroup,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" "-o" "state,ppid,pgid,sid,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etimes,pcpu,pmem,args")
-      (tramp-process-attributes-ps-format
-       (pid . number)
-       (euid . number)
-       (user . string)
-       (egid . number)
-       (group . string)
-       (comm . 52)
-       (state . string)
-       (ppid . number)
-       (pgrp . number)
-       (sess . number)
-       (ttname . string)
-       (tpgid . number)
-       (minflt . number)
-       (majflt . number)
-       (time . tramp-ps-time)
-       (pri . number)
-       (nice . number)
-       (vsize . number)
-       (rss . number)
-       (etime . number)
-       (pcpu . number)
-       (pmem . number)
-       (args)))
-     (tramp-connection-local-default-shell-profile
-      (shell-file-name . "/bin/sh")
-      (shell-command-switch . "-c"))
-     (tramp-connection-local-default-system-profile
-      (path-separator . ":")
-      (null-device . "/dev/null"))))
- '(custom-safe-themes
-   '("1021e43a7d494af9927db1531e10c2b168eedcaff0b7f510995db7d305288519" "6454421996f0508c38215a633256e36c19a28591542fb0946cfc40f1dceb89cf" default))
- '(package-selected-packages
-   '(nano-modeline ef-themes gruvbox-theme kaolin-themes doom-themes autothemer vterm vundo undo-fu-session flycheck helpful ox-pandoc no-littering rainbow-delimiters rainbow-mode vertico orderless consult marginalia embark olivetti org-modern cape markdown-mode nix-mode rust-mode lua-mode all-the-icons-dired async dired-hide-dotfiles dired-single reddigg hnreader mingus pdf-tools which-key magit org-present org-mime corfu-terminal beframe denote tempel-collection sdcv elfeed-org link-hint powerthesaurus jinx doom-modeline hide-mode-line el-fetch ox-hugo htmlize ement kind-icon speed-type aria2 meow webpaste hydra evil-collection treesit-auto modalka mini-frame nerd-icons-dired)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

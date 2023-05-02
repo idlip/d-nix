@@ -155,6 +155,12 @@ programs = {
               yt-dlp --embed-metadata --embed-subs -f 22 "$1"
           }
 
+          function vterm_prompt_end() {
+              printf "\e]%s\e\\" "$1" "51;A$(whoami)@$(hostname):$(pwd)"
+          }
+          setopt PROMPT_SUBST
+          PROMPT=$PROMPT'%{$(vterm_prompt_end)%}'
+
         '';
 
     history = {
@@ -215,15 +221,15 @@ home.packages = with pkgs; [
 
 # wayland
 libnotify libsixel wofi seatd bemenu hyprpicker fuzzel
-  wf-recorder brightnessctl pamixer slurp grim
+  wf-recorder brightnessctl pamixer slurp grim hyprland
   wl-clipboard rofi-wayland wtype swaybg swayidle gammastep
 
 # media
 mpc_cli pavucontrol pulsemixer imv
 
 # cli tools
-pcmanfm yt-dlp fzf neovim btop
-unzip aspell aspellDicts.en-science aspellDicts.en hunspell hunspellDicts.en-us enchant
+pcmanfm yt-dlp fzf neovim btop unzip
+aspell aspellDicts.en-science aspellDicts.en hunspell hunspellDicts.en-us
 ripgrep nitch libreoffice pandoc newsboat tmux
 rsync  ffmpeg sdcv imagemagick groff pciutils acpi
 wkhtmltopdf-bin
@@ -238,17 +244,18 @@ gruvbox-gtk-theme
   papirus-icon-theme
 
 # dl media
-yt-dlp jq ytfzf ani-cli qbittorrent
+yt-dlp jq ytfzf ani-cli qbittorrent youtube-tui
 
 # pioneer of web
 firefox librewolf brave ungoogled-chromium hugo
 
 nodePackages_latest.bash-language-server
   nodePackages_latest.vscode-langservers-extracted
-  # python39Packages.python-lsp-server
+  python311Packages.python-lsp-server
   python3
   marksman nil 
-  tree-sitter-grammars.tree-sitter-bash
+  tree-sitter
+  texlive.combined.scheme-full
 
 ];
 
@@ -485,12 +492,6 @@ programs.foot = {
       hide-when-typing = "yes";
     };
   };
-};
-
-programs.hyprland = {
-  enable = true;
-  xwayland.enable = false;
-  nvidiaPatches = false;
 };
 
 # Symlinking the file (hyprland.conf) from the path of repo so we can edit and have immediate effects without requiring to rebuild

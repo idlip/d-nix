@@ -200,7 +200,7 @@ services = {
   udisks2.enable = true;
   gnome.at-spi2-core.enable = true;
 
-  tlp.enable = true;     # TLP and auto-cpufreq for power management
+  # tlp.enable = true;     # TLP and auto-cpufreq for power management
   auto-cpufreq.enable = true;
 
   # For Laptop, make lid close and power buttom click to suspend
@@ -307,7 +307,8 @@ fonts = {
     noto-fonts
     #material-icons comic-mono material-design-icons
     # weather-icons font-awesome
-    symbola noto-fonts-emoji comic-mono
+    symbola noto-fonts-emoji comic-mono maple-mono-NF
+    iosevka-comfy.comfy iosevka-comfy.comfy-motion
     (nerdfonts.override {fonts = ["VictorMono" "FiraCode" "JetBrainsMono"];})
   ];
 

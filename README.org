@@ -100,7 +100,7 @@ If you are beginner, I'd recommend you to play with it in VM.
 4. Do rebuild of flake system.
 
       #+begin_src shell
-        sudo nixos-rebuild switch --flake .#HOSTNAME
+        sudo nixos-rebuild switch --flake .
       #+end_src
 
 --------------

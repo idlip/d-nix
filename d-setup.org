@@ -409,7 +409,7 @@ Certain services, just enable = true; gets the work done for most of the stuffs.
     udisks2.enable = true;
     gnome.at-spi2-core.enable = true;
 
-    tlp.enable = true;     # TLP and auto-cpufreq for power management
+    # tlp.enable = true;     # TLP and auto-cpufreq for power management
     auto-cpufreq.enable = true;
 
     # For Laptop, make lid close and power buttom click to suspend
@@ -504,6 +504,7 @@ Install packages need by all users system wide.
     ntfs3g
     neovim helix
   ];
+
 #+end_src
 
 *** Overlay
@@ -539,7 +540,8 @@ Enables additional fonts system wide
       noto-fonts
       #material-icons comic-mono material-design-icons
       # weather-icons font-awesome
-      symbola noto-fonts-emoji comic-mono
+      symbola noto-fonts-emoji comic-mono maple-mono-NF
+      iosevka-comfy.comfy iosevka-comfy.comfy-motion
       (nerdfonts.override {fonts = ["VictorMono" "FiraCode" "JetBrainsMono"];})
     ];
 
@@ -815,6 +817,12 @@ Opening brace that contains the rest of the configuration file.
                 yt-dlp --embed-metadata --embed-subs -f 22 "$1"
             }
 
+            function vterm_prompt_end() {
+                printf "\e]%s\e\\" "$1" "51;A$(whoami)@$(hostname):$(pwd)"
+            }
+            setopt PROMPT_SUBST
+            PROMPT=$PROMPT'%{$(vterm_prompt_end)%}'
+
           '';
 
       history = {
@@ -882,7 +890,7 @@ Installs packages for this user only.
 #+begin_src nix
   # wayland
   libnotify libsixel wofi seatd bemenu hyprpicker fuzzel
-    wf-recorder brightnessctl pamixer slurp grim
+    wf-recorder brightnessctl pamixer slurp grim hyprland
     wl-clipboard rofi-wayland wtype swaybg swayidle gammastep
 #+end_src
 ****** Media
@@ -893,8 +901,8 @@ Installs packages for this user only.
 ****** cli-tools
 #+begin_src nix
   # cli tools
-  pcmanfm yt-dlp fzf neovim btop
-  unzip aspell aspellDicts.en-science aspellDicts.en hunspell hunspellDicts.en-us enchant
+  pcmanfm yt-dlp fzf neovim btop unzip
+  aspell aspellDicts.en-science aspellDicts.en hunspell hunspellDicts.en-us
   ripgrep nitch libreoffice pandoc newsboat tmux
   rsync  ffmpeg sdcv imagemagick groff pciutils acpi
   wkhtmltopdf-bin
@@ -913,7 +921,7 @@ Installs packages for this user only.
 ****** Web-DL
 #+begin_src nix
   # dl media
-  yt-dlp jq ytfzf ani-cli qbittorrent
+  yt-dlp jq ytfzf ani-cli qbittorrent youtube-tui
 #+end_src
 ****** Browsers
 #+begin_src nix
@@ -924,10 +932,11 @@ Installs packages for this user only.
 #+begin_src nix
   nodePackages_latest.bash-language-server
     nodePackages_latest.vscode-langservers-extracted
-    # python39Packages.python-lsp-server
+    python311Packages.python-lsp-server
     python3
     marksman nil 
-    tree-sitter-grammars.tree-sitter-bash
+    tree-sitter
+    texlive.combined.scheme-full
 #+end_src
 ****** Closing Statement
 #+begin_src nix
@@ -1206,11 +1215,6 @@ There will be not much difference.
 ****** Hyprland
 #+begin_src nix :noweb yes
 
-  programs.hyprland = {
-    enable = true;
-    xwayland.enable = false;
-    nvidiaPatches = false;
-  };
 
   # Symlinking the file (hyprland.conf) from the path of repo so we can edit and have immediate effects without requiring to rebuild
     xdg.configFile."hypr/hyprland.conf".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/hypr/hyprland.conf";
@@ -3164,7 +3168,302 @@ listing menus
   #search_sort_by=upload_date
 
 #+end_src
+****** Youtube-tui
+:PROPERTIES:
+:header-args: :tangle-mode (identity #o777) :noweb yes :mkdirp yes
+:END:
+******* Main.yml
+#+begin_src nix :noweb yes
+  # We will tangle config files from git repo to home dir (Let nix manage the magics)
 
+  ## There is an issue where youtube-tui is not working with symlink or read-only config files
+
+  # home.file.".config/youtube-tui/main.yml".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/youtube-tui/main.yml";
+  # home.file.".config/youtube-tui/commands.yml".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/youtube-tui/commands.yml";
+  # home.file.".config/youtube-tui/keybindings.yml".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/youtube-tui/keybindings.yml";
+  # home.file.".config/youtube-tui/pages.yml".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/youtube-tui/pages.yml";
+  # home.file.".config/youtube-tui/appearance.yml".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/youtube-tui/appearance.yml";
+#+end_src
+
+#+begin_src yaml :tangle ~/.config/youtube-tui/main.yml
+  mouse_support: true
+  invidious_instance: https://vid.puffyan.us
+  max_watch_history: 50
+  allow_unicode: true
+  message_bar_default: All good :)
+  images: Sixels
+  refresh_after_modifying_search_filters: true
+  image_index: 1
+  provider: YouTube
+  env:
+    video-player: mpv
+    browser: firefox
+    download-path: ~/dloads/%(title)s-%(id)s.%(ext)s
+    terminal-emulator: footclient -e
+    youtube-downloader: yt-dlp
+    save-path: ~/.local/share/youtube-tui/saved/
+    link-hanlder: d-stuff
+#+end_src
+
+******* Commands.yml
+#+begin_src yaml :tangle  ~/.config/youtube-tui/commands.yml
+  launch_command: loadpage library ;; flush ;; history clear
+  video:
+  - Reload updated video: run rm '~/.cache/youtube-tui/info/${id}.json' ;; video ${id}
+  - Play video: run ${video-player} '${embed-url}'
+  - Play audio: run ${terminal-emulator} ${video-player} '${embed-url}' --no-video
+  - Play audio (loop): run ${terminal-emulator} ${video-player} '${embed-url}' --no-video --loop-file=inf
+  - View channel: channel ${channel-id}
+  - Link Handler: run d-stuff '${url}'
+  - Open in browser: run ${browser} '${url}'
+  - Toggle bookmark: togglemark ${id}
+  - Save video to library: bookmark ${id} ;; run rm -rf '${save-path}${id}.*' ;; run ${terminal-emulator} ${youtube-downloader} '${embed-url}' -o '${save-path}%(title)s[%(id)s].%(ext)s'
+  - Save audio to library: bookmark ${id} ;; run rm -rf '${save-path}${id}.*' ;; run ${terminal-emulator} ${youtube-downloader} '${embed-url}' -x -o '${save-path}%(title)s[%(id)s].%(ext)s'
+  - 'Mode: ${provider}': switchprovider
+  saved_video:
+  - Reload updated video: run rm '~/.cache/youtube-tui/info/${id}.json' ;; video ${id}
+  - '[Offline] Play saved file': run find ${save-path} | grep ${id} | ${video-player} --playlist=- --force-window
+  - '[Offline] Play saved file (audio)': run ${terminal-emulator} bash -c 'find ${save-path} | grep ${id} | ${video-player} --playlist=- --no-video'
+  - '[Offline] Play saved file (audio loop)': run ${terminal-emulator} bash -c 'find ${save-path} | grep ${id} | ${video-player} --playlist=- --no-video --loop'
+  - View channel: channel ${channel-id}
+  - Link Handler: run d-stuff '${url}'
+  - Open in browser: run ${browser} '${url}'
+  - Toggle bookmark: togglemark ${id}
+  - Redownload video to library: bookmark ${id} ;; run rm ${save-path}*${id}*.* ;; run ${terminal-emulator} ${youtube-downloader} ${embed-url} -o '${save-path}%(title)s[%(id)s].%(ext)s'
+  - Redownload audio to library: bookmark ${id} ;; run rm ${save-path}*${id}*.* ;; run ${terminal-emulator} ${youtube-downloader} ${embed-url} -x -o '${save-path}%(title)s[%(id)s].%(ext)s'
+  - Delete saved file: run rm ${save-path}*${id}*.*
+  playlist:
+  - Switch view: '%switch-view%'
+  - Reload updated playlist: run rm ~/.cache/youtube-tui/info/${id}.json ;; reload
+  - Play all (videos): run ${video-player} ${all-videos}
+  - Play all (audio): run ${terminal-emulator} ${video-player} ${all-videos} --no-video
+  - Shuffle play all (audio loop): run ${terminal-emulator} ${video-player} ${all-videos} --no-video --shuffle --loop-playlist=inf
+  - View channel: channel ${channel-id}
+  - Open in browser: run ${browser} '${url}'
+  - Link Handler: run d-stuff '${url}'
+  - Toggle bookmark: togglemark ${id}
+  - Save playlist videos to library: bookmark ${id} ;; run rm -rf '${save-path}*${id}*' ;; run ${terminal-emulator} bash -c "${youtube-downloader} ${all-videos} -o '"'${save-path}${title}[${id}]/%(title)s[%(id)s].%(ext)s'"'"
+  - Save playlist audio to library: bookmark ${id} ;; run rm -rf '${save-path}*${id}*' ;; run ${terminal-emulator} bash -c "${youtube-downloader} ${all-videos} -x -o '"'${save-path}${title}[${id}]/%(title)s[%(id)s].%(ext)s'"'"
+  - 'Mode: ${provider}': switchprovider
+  saved_playlist:
+  - Switch view: '%switch-view%'
+  - Reload updated playlist: run rm ~/.cache/youtube-tui/info/${id}.json ;; reload
+  - '[Offline] Play all (videos)': run find ${save-path} | grep ${id} | ${video-player} --playlist=- --force-window
+  - '[Offline] Play all (audio)': run ${terminal-emulator} bash -c 'find ${save-path} | grep ${id} | ${video-player} --playlist=- --no-video'
+  - '[Offline] Shuffle play all (audio loop)': run ${terminal-emulator} bash -c 'find ${save-path} | grep ${id} | ${video-player} --playlist=- --no-video --loop-playlist=inf'
+  - View channel: channel ${channel-id}
+  - Open in browser: run ${browser} '${url}'
+  - Toggle bookmark: togglemark ${id}
+  - Redownload playlist videos to library: bookmark ${id} ;; run rm -rf ${save-path}*${id}* ;; run ${terminal-emulator} bash -c "${youtube-downloader} ${all-videos} -o '"'${save-path}${title}[${id}]/%(title)s[%(id)s].%(ext)s'"'"
+  - Redownload playlist audio to library: bookmark ${id} ;; run rm -rf ${save-path}*${id}* ;; run ${terminal-emulator} bash -c "${youtube-downloader} ${all-videos} -x -o '"'${save-path}${title}[${id}]/%(title)s[%(id)s].%(ext)s'"'"
+  - Delete saved files: run rm -rf ${save-path}*${id}*
+#+end_src
+******* keybindings.yml
+#+begin_src yaml :tangle ~/.config/youtube-tui/keybindings.yml
+  End:
+    0: ClearHistory
+  Down:
+    0: MoveDown
+  Esc:
+    0: Deselect
+  'l':
+    0: MoveRight
+  Home:
+    0: FirstHistory
+  F5:
+    0: Reload
+  'q':
+    0: Exit
+  Left:
+    0: MoveLeft
+    4: Back
+  'r':
+    2: Reload
+  'h':
+    0: MoveLeft
+  'v':
+    2: Paste
+  ':':
+    0: StartCommandCapture
+  Backspace:
+    0: Back
+  'k':
+    0: MoveUp
+  Enter:
+    0: Select
+  Up:
+    0: MoveUp
+  'j':
+    0: MoveDown
+  Right:
+    0: MoveRight
+#+end_src
+******* Commandbindings.yml
+#+begin_src yaml :tangle ~/.config/youtube-tui/commandbindings.yml
+  global:
+    'f':
+      2: run ${browser} '${url}'
+    'c':
+      2: cp ${url}
+  search:
+    'a':
+      2: run ${terminal-emulator} mpv '${hover-url}' --no-video
+    'p':
+      2: run mpv '${hover-url}'
+    'A':
+      1: run ${terminal-emulator} mpv '${hover-url}' --no-video --loop-playlist=inf --shuffle
+    'd':
+      2: run d-stuff '${hover-url}'
+  popular:
+    'A':
+      1: run ${terminal-emulator} mpv '${hover-url}' --no-video --loop-playlist=inf --shuffle
+    'p':
+      2: run mpv '${hover-url}'
+    'a':
+      2: run ${terminal-emulator} mpv '${hover-url}' --no-video
+  trending:
+    'a':
+      2: run ${terminal-emulator} mpv '${hover-url}' --no-video
+    'A':
+      1: run ${terminal-emulator} mpv '${hover-url}' --no-video --loop-playlist=inf --shuffle
+    'p':
+      2: run mpv '${hover-url}'
+  video: {}
+  playlist:
+    'p':
+      2: run mpv '${hover-url}'
+    'a':
+      2: run ${terminal-emulator} mpv '${hover-url}' --no-video
+    'A':
+      1: run ${terminal-emulator} mpv '${hover-url}' --no-video --loop-playlist=inf --shuffle
+  channel_main: {}
+  channel_videos:
+    'p':
+      2: run mpv '${hover-url}'
+    'A':
+      1: run ${terminal-emulator} mpv '${hover-url}' --no-video --loop-playlist=inf --shuffle
+    'a':
+      2: run ${terminal-emulator} mpv '${hover-url}' --no-video
+  channel_playlists:
+    'A':
+      1: run ${terminal-emulator} mpv '${hover-url}' --no-video --loop-playlist=inf --shuffle
+    'p':
+      2: run mpv '${hover-url}'
+    'a':
+      2: run ${terminal-emulator} mpv '${hover-url}' --no-video
+  watchhistory:
+    'A':
+      1: run ${terminal-emulator} mpv '${hover-url}' --no-video --loop-playlist=inf --shuffle
+    'a':
+      2: run ${terminal-emulator} mpv '${hover-url}' --no-video
+    'p':
+      2: run mpv '${hover-url}'
+  subscriptions: {}
+  library:
+    'p':
+      2: run mpv '${hover-url}'
+    'a':
+      2: run ${terminal-emulator} mpv '${hover-url}' --no-video
+    'A':
+      1: run ${terminal-emulator} mpv '${hover-url}' --no-video --loop-playlist=inf --shuffle
+
+#+end_src
+
+******* Pages.yml
+#+begin_src yaml :tangle ~/.config/youtube-tui/pages.yml
+  main_menu:
+    layout:
+    - type: NonCenteredRow
+      items:
+      - SearchBar
+      - SearchFilters
+    - type: CenteredRow
+      items:
+      - Popular
+      - Library
+      - History
+    - type: NonCenteredRow
+      items:
+      - ItemList
+    - type: NonCenteredRow
+      items:
+      - MessageBar
+    message: Loading main menu...
+  search:
+    layout:
+    - type: NonCenteredRow
+      items:
+      - SearchBar
+      - SearchFilters
+    - type: NonCenteredRow
+      items:
+      - ItemList
+    - type: NonCenteredRow
+      items:
+      - MessageBar
+    message: Loading search results...
+  singleitem:
+    layout:
+    - type: NonCenteredRow
+      items:
+      - SearchBar
+      - SearchFilters
+    - type: NonCenteredRow
+      items:
+      - SingleItemInfo
+    - type: NonCenteredRow
+      items:
+      - MessageBar
+    message: Loading item details...
+  channeldisplay:
+    layout:
+    - type: NonCenteredRow
+      items:
+      - SearchBar
+      - SearchFilters
+    - type: CenteredRow
+      items:
+      - ChannelMain
+      - ChannelVideos
+      - ChannelPlaylists
+    - type: NonCenteredRow
+      items:
+      - ChannelDisplay
+    - type: NonCenteredRow
+      items:
+      - MessageBar
+    message: Loading channel details...
+#+end_src
+******* Appearance.yml
+#+begin_src yaml :tangle ~/.config/youtube-tui/appearance.yml
+  borders: Rounded
+  colors:
+    text: Reset
+    text_special: Reset
+    text_secondary: Reset
+    text_error: LightRed
+    outline: Reset
+    outline_selected: LightBlue
+    outline_hover: LightRed
+    outline_secondary: LightYellow
+    message_outline: '#FF7F00'
+    message_error_outline: LightRed
+    message_success_outline: LightGreen
+    command_capture: '#64FF64'
+    item_info:
+      tag: Gray
+      title: LightBlue
+      description: Gray
+      author: LightGreen
+      viewcount: LightYellow
+      length: LightCyan
+      published: LightMagenta
+      video_count: '#838DFF'
+      sub_count: '#65FFBA'
+      likes: '#C8FF81'
+      genre: '#FF75D7'
+      page_turner: Gray
+#+end_src
 ***** Closing Statement
 Closes the Main Body Block
 #+begin_src nix

@@ -333,6 +333,8 @@ If you experience stuttering, increase this.")
               ("RET" . vertico-directory-enter)
               ("DEL" . vertico-directory-delete-char)
               ("M-d" . vertico-directory-delete-char)
+              ("C-j" . vertico-next)
+              ("C-k" . vertico-previous)
               ("M-RET" . minibuffer-force-complete-and-exit)
               ("M-TAB" . minibuffer-complete))
 
@@ -1854,6 +1856,8 @@ Hack to use `insert-sliced-image' to avoid jerky image scrolling."
 
 ;; (server-start)
 
+(visual-line-mode 1)
+
 ;; Display messages when idle, without prompting
 (setq help-at-pt-display-when-idle t)
 (setopt read-quoted-char-radix 16)
@@ -1889,6 +1893,8 @@ Hack to use `insert-sliced-image' to avoid jerky image scrolling."
 (set-terminal-coding-system 'utf-8-unix)
 
 (electric-pair-mode t)
+(setq electric-pair-inhibit-predicate 'ignore)
+(setq electric-pair-skip-self t)
 
 (setq recenter-positions '(top middle bottom))
 (global-display-line-numbers-mode t)

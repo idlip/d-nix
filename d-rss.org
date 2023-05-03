@@ -1,19 +1,15 @@
 * Feeds :elfeed:
 ** Animalogy :animalogy:animal:zoo:
-*** [[https://yt.funami.tech/feed/channel/UCwmZiChSryoWQCZMIQezgTg][BBC Earth]]
 *** [[https://yt.funami.tech/feed/channel/UCwg6_F2hDHYrqbNSGjmar4w][Animalogic]]
 *** [[https://yt.funami.tech/feed/channel/UCG5_BraUMNcluZPZ__oOeKg][Natural World Facts]]
 *** [[https://yt.funami.tech/feed/channel/UCBbnbBWJtwsf0jLGUwX5Q3g][Journey to the Microcosmos]]
 *** [[https://yt.funami.tech/feed/channel/UCDSzwZqgtJEnUzacq3ddoOQ][Ben G Thomas]]
 *** [[https://yt.funami.tech/feed/channel/UC176GAQozKKjhz62H8u9vQQ][Real Science]]
-*** [[https://yt.funami.tech/feed/channel/UCpVm7bg6pXKo1Pr6k5kxG9A][Nat Geo]]
 ** Reads :blogs:read:
-*** [[https://www.psychologytoday.com/intl/front/feed][Psychology Today: The Latest]] :psych:psy:
 *** [[https://idlip.github.io/index.xml][Idlip]] :mine:idlip:
 *** [[https://syndication.howstuffworks.com/rss/HSW][HowStuffWorks]] :stuffs:how:
 ** News :news:
 *** [[https://www.wionews.com/feeds/india-news/rss.xml][Wion]] :india:
-
 ** Youtube-Time :youtube:yt:
 *** [[https://yt.funami.tech/feed/channel/UCUdettijNYvLAm4AixZv4RA][SciShow Psych]]
 *** [[https://yt.funami.tech/feed/channel/UCMlGmHokrQRp-RaNO7aq4Uw][TopThink]]
@@ -51,6 +47,7 @@
 ** Linux :linux:
 *** [[https://opensourcemusings.com/feed/ blog][opensource]]
 *** [[https://itsfoss.com/rss][itsfoss]]
+*** [[https://www.cyberciti.com/atom/atom.xml][nixCraft]]
 ** Music                                                              :music:
 *** [[https://www.reddit.com/r/listentothis/search.rss?q=classical&restrict_sr=on&sort=new&t=all/.rss][Classical]] :classical:
 *** [[https://www.reddit.com/r/listentothis/search.rss?q=instrument&restrict_sr=on&sort=new&t=all/.rss][Instrumental]] :intrumental:

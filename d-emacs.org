@@ -572,6 +572,8 @@ Just check the [[https://github.com/minad/vertico][Vertico github]] repo, you wi
                 ("RET" . vertico-directory-enter)
                 ("DEL" . vertico-directory-delete-char)
                 ("M-d" . vertico-directory-delete-char)
+                ("C-j" . vertico-next)
+                ("C-k" . vertico-previous)
                 ("M-RET" . minibuffer-force-complete-and-exit)
                 ("M-TAB" . minibuffer-complete))
 
@@ -2341,6 +2343,8 @@ Idk why, but i guess these all should be the sane defaults.
 
   ;; (server-start)
 
+  (visual-line-mode 1)
+
   ;; Display messages when idle, without prompting
   (setq help-at-pt-display-when-idle t)
   (setopt read-quoted-char-radix 16)
@@ -2376,6 +2380,8 @@ Idk why, but i guess these all should be the sane defaults.
   (set-terminal-coding-system 'utf-8-unix)
 
   (electric-pair-mode t)
+  (setq electric-pair-inhibit-predicate 'ignore)
+  (setq electric-pair-skip-self t)
 
   (setq recenter-positions '(top middle bottom))
   (global-display-line-numbers-mode t)

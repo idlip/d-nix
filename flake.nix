@@ -23,7 +23,8 @@
     };
 
     # Home to manage all user configs
-    # You can you use normal config files, just use a heading anc create block and tangle it directly to ~/.config/tool/file path (I use this for mpv, btop, hyprland..)
+    # You can you use normal config files,
+    # just use an org heading and create block and tangle it directly to ~/.config/tool/file path.
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";

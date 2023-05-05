@@ -65,7 +65,6 @@
               nil t)))
 
 (setq
- site-run-file nil ; unset SRF
  use-file-dialog nil
  mode-line-format nil ; don't want a mode line while loading init
  load-prefer-newer nil
@@ -77,7 +76,6 @@
  utf-translate-cjk-mode nil ; disable CJK coding/encoding (Chinese/Japanese/Korean characters)
  initial-scratch-message nil ; empty the initial *scratch* buffer.
  command-line-x-option-alist nil ; remove irreleant command line options for faster startup
- use-short-answers t ; y/n for yes/no
  vc-follow-symlinks t ; Do not ask about symlink following
  inhibit-default-init t
  inhibit-splash-screen t
@@ -86,6 +84,7 @@
  inhibit-startup-buffer-menu t  ; stop `list-buffers' from showing when opening multiple files
  fast-but-imprecise-scrolling t ; more performant rapid scrolling over unfontified regions
  frame-inhibit-implied-resize t ; do not resize the frame at this early stage
+ use-short-answers t
  ffap-machine-p-known 'reject   ; don't ping things that look like domain names
  inhibit-compacting-font-caches t ; Inhibit frame resizing for performance
  read-process-output-max (* 1024 1024) ; Increase how much is read from processes in a single chunk.
@@ -96,11 +95,6 @@
  initial-major-mode 'fundamental-mode
  inhibit-startup-echo-area-message user-login-name)
 
-;; UnsetFNHA
-(defvar file-name-handler-alist-original file-name-handler-alist)
-(setq file-name-handler-alist nil)
-;; -UnsetFNHA
-
 ;; Maximize the Emacs frame on startup
 (push '(fullscreen . maximized) initial-frame-alist)
 (push '(fullscreen . maximized) default-frame-alist)
@@ -110,36 +104,9 @@
 (push '(tool-bar-lines . 0) default-frame-alist)
 (push '(vertical-scroll-bars) default-frame-alist)
 
-;; Prevent unwanted runtime builds; packages are compiled ahead-of-time when
-;; they are installed and site files are compiled when gccemacs is installed.
-;; (setq comp-deferred-compilation nil)
-(setq native-comp-deferred-compilation nil)
-;; Suppress warnings and errors during asynchronous native compilation
-(setq native-comp-async-report-warnings-errors nil)
-(setq default-frame-alist
-      '((menu-bar-lines . 0)
-        (tool-bar-lines . 0)
-        (horizontal-scroll-bars)
-        (vertical-scroll-bars)))
-
 ;; Suppress warnings and errors during asynchronous native compilation
 (setq native-comp-async-report-warnings-errors nil)
 (setq native-comp-jit-compilation nil)
-
-;; Do not resize the frame at this early stage.
-(setq frame-inhibit-implied-resize t)
-;; Prevent unwanted runtime builds in gccemacs (native-comp); packages are
-;; compiled ahead-of-time when they are installed and site files are compiled
-;; when gccemacs is installed.
-(setq comp-deferred-compilation nil)
-
-;; Suppress warnings and errors during asynchronous native compilation
-(setq native-comp-async-report-warnings-errors nil)
-(setq native-comp-jit-compilation nil)
-
-;; Do not resize the frame at this early stage.
-(setq frame-inhibit-implied-resize t)
-
 
 (provide 'early-init)
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

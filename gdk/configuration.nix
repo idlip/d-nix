@@ -18,7 +18,7 @@ programs = {
 # compresses half the ram for use as swap
 zramSwap = {
   enable = true;
-  memoryPercent = 50 ;
+  memoryPercent = 50;
   algorithm = "zstd";
 };
 
@@ -27,7 +27,8 @@ zramSwap = {
 time.timeZone = "Asia/Kolkata";
 
 # This code is from nixos wiki for Btrfs. Depends on which file system you use.
-# Refer nixos wiki once.
+# Refer nixos wiki once. Might get error if not using btrfs
+# #FIXME 
 fileSystems = {
   "/".options = [ "compress=zstd" ];
   "/home".options = [ "compress=zstd" ];
@@ -36,7 +37,8 @@ fileSystems = {
 
 # Select internationalisation properties.
 i18n.defaultLocale = "en_US.UTF-8";
-# Sets big font for bootloader, as I have small laptop. You can remove font and packages line to have default vanilla font.
+# Sets big font for bootloader, as I have small laptop.
+# You can remove font and packages line to have default vanilla font.
 console = {
   earlySetup = true;
   font = "${pkgs.terminus_font}/share/consolefonts/ter-132n.psf.gz";
@@ -58,7 +60,6 @@ nixpkgs = {
     allowUnfree = true;
     allowBroken = false;
   };
-
 };
 
 # faster rebuilding
@@ -98,7 +99,10 @@ nix = {
   '';
 
   # substituters are cachix domain, where some package binaries are available (eg : Hyprland & Emacs 30)
-  # NOTE : You should do a simple rebuild with these substituters line and then install packages from there, as a rebuild will register these cachix into /etc/nix/nix.conf file. If you continue without rebuild, Hyprland and Emacs will start compiling. So rebuild and make sure you see these substituters in /etc/nix/nix.conf and then add packages.
+  # NOTE : You should do a simple rebuild with these substituters line first,
+  # and then install packages from there, as a rebuild will register these cachix into /etc/nix/nix.conf file.
+  # If you continue without a rebuild, Emacs will start compiling.
+  # So rebuild and make sure you see these substituters in /etc/nix/nix.conf and then add packages.
   settings = {
     auto-optimise-store = true;
     builders-use-substitutes = true;
@@ -107,16 +111,12 @@ nix = {
     # use binary cache, its not gentoo
     substituters = [
       "https://cache.nixos.org"
-      "https://nixpkgs-wayland.cachix.org"
       "https://nix-community.cachix.org"
-      "https://hyprland.cachix.org"
     ];
     # Keys for the sustituters cachix
     trusted-public-keys = [
       "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-      "nixpkgs-wayland.cachix.org-1:3lwxaILxMRkVhehr5StQprHdEo4IrE8sRho9R9HOLYA="
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-      "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
     ];
   };
 };
@@ -124,7 +124,7 @@ system.autoUpgrade.enable = false;
 system.stateVersion = "22.11"; # DONT TOUCH THIS (See about state version on nixos manual)
 
 boot = {
-  # Uses bleeding edge latest kernel. 
+  # Uses bleeding edge latest kernel.
   kernelPackages = pkgs.linuxPackages_latest;
 
   loader = {
@@ -133,7 +133,7 @@ boot = {
     efi.canTouchEfiVariables = true;
     timeout = 5;
   };
-
+  supportedFilesystems = [ "ntfs" ];
   tmp = {
     cleanOnBoot = true;
   };
@@ -211,6 +211,8 @@ services = {
   '';
   };
 
+  atd.enable = true;
+  fstrim.enable = true;
   # See if you want bluetooth setup
   # blueman.enable = true;
 
@@ -245,14 +247,9 @@ services = {
     };
   };
 
-  fstrim.enable = true;
-
   # This makes the user 'i' to autologin in all tty
   # Depends on you if you want login manager or prefer entering password manually
-
   getty.autologinUser = "i" ;
-
-  atd.enable = true;
 
   # Pipewire setup, just these lines enought to make sane default for it
   pipewire = {
@@ -266,6 +263,7 @@ services = {
 };
 
 systemd.services = {
+  # For wayland users
   seatd = {
     enable = true;
     description = "Seat management daemon";
@@ -280,16 +278,16 @@ systemd.services = {
 };
 
 environment.systemPackages = with pkgs; [
-  firefox
-  gitFull
-  ntfs3g
+  gitFull linux-firmware
   neovim helix
 ];
 
 # Add other overlays here
-nixpkgs.overlays = with inputs; [emacs-overlay.overlay  ];
+nixpkgs.overlays = with inputs; [emacs-overlay.overlay];
 
 hardware = {
+  enableAllFirmware = true;
+  uinput.enable = true;
   opengl = {
     enable = true;
     extraPackages = with pkgs; [
@@ -331,20 +329,13 @@ fonts = {
 };
 
 environment = {
-
   variables = {
     NIXOS_OZONE_WL = "1";
     EDITOR = "nvim";
     BROWSER = "firefox";
     MOZ_ENABLE_WAYLAND = "1";
-
   };
-
 };
-
-environment.interactiveShellInit = ''
-
-'';
 
 users.users.i = {
                               isNormalUser = true;

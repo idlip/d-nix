@@ -104,26 +104,6 @@ If you experience stuttering, increase this.")
   (use-package-expand-minimally t)
   (use-package-enable-imenu-support t))
 
-;; Thank you Likhon Sapiens, for your emacs config!
-
-;; ─────────────────── Additional Packages and Configurations ──────────────────
-;; Add `:doc' support for use-package so that we can use it like what a doc-strings is for
-(eval-and-compile
-  (add-to-list 'use-package-keywords :doc t)
-  (defun use-package-handler/:doc (name-symbol _keyword _docstring rest state)
-    "An identity handler for :doc.
-     Currently, the value for this keyword is being ignored.
-     This is done just to pass the compilation when :doc is
-     included Argument NAME-SYMBOL is the first argument to
-     `use-package' in a declaration.  Argument KEYWORD here is
-     simply :doc.  Argument DOCSTRING is the value supplied for
-     :doc keyword.  Argument REST is the list of rest of the
-     keywords.  Argument STATE is maintained by `use-package' as
-     it processes symbols."
-
-    ;; just process the next keywords
-    (use-package-process-keywords name-symbol rest state)))
-
 ;; You will most likely need to adjust this font size for your system!
 
   (defvar default-font-size 170)
@@ -161,7 +141,6 @@ If you experience stuttering, increase this.")
     (setq font-lock-maximum-decoration t))
 
 (use-package no-littering               ; Keep .emacs.d clean
-  :doc "It’s good to have centralized working datasets storage, to prevent pollution of Emacs config directory."
   :custom
   (no-littering-var-directory (expand-file-name "data/" user-emacs-directory))
   (no-littering-etc-directory (expand-file-name "config/" user-emacs-directory))
@@ -243,7 +222,7 @@ If you experience stuttering, increase this.")
           (selected-item (completing-read "Choose Icon 󰨈: " options))
           (fields (split-string selected-item)))
      (car fields))))
-(setq add-unicodes '("~/d-git/d-bin/treasure/unicodes/emoji" "~/d-git/d-bin/treasure/unicodes/icons"))
+(setq add-unicodes (directory-files "~/d-git/d-bin/treasure/unicodes/" t "i"))
 
 (defun org-archive-done-tasks ()
   (interactive)
@@ -279,8 +258,6 @@ If you experience stuttering, increase this.")
 (global-set-key (kbd "M-u") 'upcase-dwim)
 (global-set-key (kbd "M-l") 'downcase-dwim)
 (global-set-key (kbd "M-c") 'capitalize-dwim)
-
-(defalias 'yes-or-no-p 'y-or-n-p) ;; Make confirmation messages easy and not a pain.
 
 (use-package which-key
   :defer 0
@@ -333,32 +310,24 @@ If you experience stuttering, increase this.")
               ("RET" . vertico-directory-enter)
               ("DEL" . vertico-directory-delete-char)
               ("M-d" . vertico-directory-delete-char)
+              ("M-DEL" . vertico-directory-delete-word)
               ("C-j" . vertico-next)
               ("C-k" . vertico-previous)
+              ("M-j" . vertico-quick-exit)
+              ("C-v" . vertico-scroll-up)
+              ("M-v" . vertico-scroll-down)
               ("M-RET" . minibuffer-force-complete-and-exit)
               ("M-TAB" . minibuffer-complete))
 
   :init
   (vertico-mode)
-  ;; (vertico-flat-mode 1)
-  ;; Different scroll margin
-  (setq vertico-scroll-margin 1)
-
-  ;; Show more candidates
-  ;; (setq vertico-count 20)
-
-  ;; Grow and shrink the Vertico minibuffer
+  (setq vertico-scroll-margin 5)
+  ;; (setq vertico-count 10)
   (setq vertico-resize t)
+  (setq vertico-cycle t))
 
-  ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
-  ;; (setq vertico-cycle t)
-  )
-
-;; A few more useful configurations...
 (use-package emacs
   :init
-  ;; Add prompt indicator to `completing-read-multiple'.
-  ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
   (defun crm-indicator (args)
     (cons (format "[CRM%s] %s"
                   (replace-regexp-in-string
@@ -376,25 +345,6 @@ If you experience stuttering, increase this.")
   (setq completion-cycle-threshold 3)
   (setq tab-always-indent t)
   (setq enable-recursive-minibuffers t))
-
-;; Optionally use the `orderless' completion style.
-(use-package orderless
-  :init
-  (setq completion-styles '(orderless)
-        completion-category-defaults nil
-        completion-category-overrides '((file (styles partial-completion)))))
-(setq completion-styles '(orderless))
-(setq read-file-name-completion-ignore-case t
-      read-buffer-completion-ignore-case t
-      completion-ignore-case t)
-;; Use `consult-completion-in-region' if Vertico is enabled.
-;; Otherwise use the default `completion--in-region' function.
-;; (setq completion-in-region-function
-;;       (lambda (&rest args)
-;;         (apply (if vertico-mode
-;;                    #'consult-completion-in-region
-;;                  #'completion--in-region)
-;;                args)))
 
 (use-package consult
   ;; Replace bindings. Lazily loaded due by `use-package'.
@@ -419,7 +369,7 @@ If you experience stuttering, increase this.")
          ("M-y" . consult-yank-pop)                ;; orig. yank-pop
          ;; M-g bindings (goto-map)
          ("M-g e" . consult-compile-error)
-         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+         ("M-g f" . consult-flycheck)
          ("M-g g" . consult-goto-line)             ;; orig. goto-line
          ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
          ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
@@ -427,6 +377,7 @@ If you experience stuttering, increase this.")
          ("M-g k" . consult-global-mark)
          ("M-g i" . consult-imenu)
          ("M-g I" . consult-imenu-multi)
+         ("M-g s" . consult-eglot-symbols)
          ;; M-s bindings (search-map)
          ("M-s d" . consult-find)
          ("M-s D" . consult-locate)
@@ -434,6 +385,7 @@ If you experience stuttering, increase this.")
          ("M-s m" . consult-man)
          ("M-s G" . consult-git-grep)
          ("M-s r" . consult-ripgrep)
+         ("M-s i" . consult-info)
          ("M-s l" . consult-line)
          ("C-s" . consult-line)
          ("M-s L" . consult-line-multi)
@@ -451,11 +403,8 @@ If you experience stuttering, increase this.")
          ("M-s" . consult-history)                 ;; orig. next-matching-history-element
          ("M-r" . consult-history))                ;; orig. previous-matching-history-element
 
-  ;; Enable automatic preview at point in the *Completions* buffer. This is
-  ;; relevant when you use the default completion UI.
   :hook (completion-list-mode . consult-preview-at-point-mode)
 
-  ;; The :init configuration is always executed (Not lazy)
   :init
   (setq register-preview-delay 0.5
         register-preview-function #'consult-register-format)
@@ -487,40 +436,8 @@ If you experience stuttering, increase this.")
   (setq consult-narrow-key "<") ;; (kbd "C-+")
   )
 
-(defun d/consult-first-param-is-initial-text (consult-fn &rest rest)
-  "Advising function around CONSULT-FN.
-
-  The CONSULT-FN's first parameter should be the initial text.
-
-  When there's an active region, use that as the first parameter
-  for CONSULT-FN.  Otherwise, use an empty string the first
-  parameter.  This function handles the REST of the parameters."
-  (interactive)
-  (apply consult-fn
-         (when (use-region-p)
-           (buffer-substring
-            (region-beginning) (region-end)))
-         rest))
-
-(defun d/consult-ripgrep-wrapper (consult-fn &optional dir given-initial)
-  "Advising function around CONSULT-FN.
-
-  DIR and GIVEN-INITIAL match the method signature of `consult-wrapper'."
-  (interactive "P")
-  (let ((initial (list (or given-initial
-                           (when (use-region-p)
-                             (buffer-substring (region-beginning)
-                                               (region-end)))))))
-    (apply consult-fn dir initial)))
-(advice-add #'consult-line
-            :around #'d/consult-first-param-is-initial-text
-            '((name . "wrapper")))
-(advice-add #'consult-ripgrep
-            :around #'d/consult-ripgrep-wrapper
-            '((name . "wrapper")))
-
-(defun counsel-colors--web-list nil
-  "Return list of CSS colors for `counsult-colors-web'."
+(defun consult-colors--web-list nil
+  "Return list of CSS colors for `d/colors-web'."
   (require 'shr-color)
   (sort (mapcar #'downcase (mapcar #'car shr-color-html-colors-alist)) #'string-lessp))
 
@@ -530,7 +447,7 @@ If you experience stuttering, increase this.")
   You can insert the name (default), or insert or kill the hexadecimal or RGB value of the
   selected color."
   (interactive
-   (list (consult--read (counsel-colors--web-list)
+   (list (consult--read (consult-colors--web-list)
                         :prompt "Color: "
                         :require-match t
                         :category 'color
@@ -560,40 +477,71 @@ selected color."
                (hex (apply #'color-rgb-to-hex (append rgb '(2)))))
      hex)))
 
+(use-package orderless
+  :demand t
+  :config
+  (defun +orderless--consult-suffix ()
+    "Regexp which matches the end of string with Consult tofu support."
+    (if (and (boundp 'consult--tofu-char) (boundp 'consult--tofu-range))
+        (format "[%c-%c]*$"
+                consult--tofu-char
+                (+ consult--tofu-char consult--tofu-range -1))
+      "$"))
+  ;; Recognizes the following patterns:
+  ;; * .ext (file extension)
+  ;; * regexp$ (regexp matching at end)
+  (defun +orderless-consult-dispatch (word _index _total)
+    (cond
+     ;; Ensure that $ works with Consult commands, which add disambiguation suffixes
+     ((string-suffix-p "$" word)
+      `(orderless-regexp . ,(concat (substring word 0 -1) (+orderless--consult-suffix))))
+     ;; File extensions
+     ((and (or minibuffer-completing-file-name
+               (derived-mode-p 'eshell-mode))
+           (string-match-p "\\`\\.." word))
+      `(orderless-regexp . ,(concat "\\." (substring word 1) (+orderless--consult-suffix))))))
+
+  ;; Define orderless style with initialism by default
+  (orderless-define-completion-style +orderless-with-initialism
+    (orderless-matching-styles '(orderless-initialism orderless-literal orderless-regexp)))
+
+  (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
+        ;; completion-category-overrides '((file (styles orderless partial-completion))) ;; orderless is tried first
+        completion-category-overrides '((file (styles partial-completion)) ;; partial-completion is tried first
+                                        ;; enable initialism by default for symbols
+                                        (command (styles +orderless-with-initialism))
+                                        (variable (styles +orderless-with-initialism))
+                                        (symbol (styles +orderless-with-initialism)))
+        orderless-component-separator #'orderless-escapable-split-on-space ;; allow escaping space with backslash!
+        orderless-style-dispatchers (list #'+orderless-consult-dispatch
+                                          #'orderless-affix-dispatch)))
+
 ;; Enable rich annotations using the Marginalia package
 (use-package marginalia
-  ;; Either bind `marginalia-cycle' globally or only in the minibuffer
-  :bind (("M-A" . marginalia-cycle)
-         :map minibuffer-local-map
+  :bind (:map minibuffer-local-map
          ("M-A" . marginalia-cycle))
 
-  ;; The :init configuration is always executed (Not lazy!)
   :init
-
-  ;; Must be in the :init section of use-package such that the mode gets
-  ;; enabled right away. Note that this forces loading the package.
   (marginalia-mode))
 
 (use-package embark
   :ensure t
-
   :bind
   (("C-." . embark-act)         ;; pick some comfortable binding
    ("C-;" . embark-dwim)        ;; good alternative: M-.
    ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
-
   :init
-
-  ;; Optionally replace the key help with a completing-read interface
   (setq prefix-help-command #'embark-prefix-help-command)
-
   :config
-
-  ;; Hide the mode line of the Embark live/completions buffers
   (add-to-list 'display-buffer-alist
                '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
                  nil
                  (window-parameters (mode-line-format . none)))))
+(use-package embark-consult
+  :ensure t 
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode))
 
 (use-package corfu
   :defer 1
@@ -609,10 +557,8 @@ selected color."
   (corfu-quit-at-boundary 'separator)
   (corfu-popupinfo-resize t)
   (corfu-popupinfo-hide nil)
-  (corfu-echo-documentation 0.25)
   (corfu-preview-current 'insert)
-  (corfu-preselect-first t)
-  (corfu-popupinfo-delay 1.5)
+  (corfu-popupinfo-delay 1.0)
   (corfu-history 1)
   (corfu-scroll-margin 0)
   :bind (:map corfu-map
@@ -621,7 +567,7 @@ selected color."
               ("<escape>" . corfu-quit)
               ("C-j" . corfu-next)
               ("C-k" . corfu-previous)
-              ("RET" . corfu-insert))
+              ("M-j" . corfu-quick-insert))
   ;; Enable Corfu only for certain modes.
   ;; :hook ((prog-mode . corfu-mode)
   ;;        (shell-mode . corfu-mode)
@@ -630,11 +576,11 @@ selected color."
   :init
   (corfu-history-mode)
   (corfu-popupinfo-mode)
+  (corfu-echo-mode)
   (global-corfu-mode))
 
-(setq completion-category-overrides '((eglot (styles orderless))))
-
-
+(eldoc-add-command #'corfu-insert)
+(advice-add 'eglot-completion-at-point :around #'cape-wrap-buster)
 (unless (display-graphic-p)
   (corfu-terminal-mode +1))
 
@@ -684,7 +630,7 @@ selected color."
             completion-styles '(orderless))
 
 (defun corfu-enable-always-in-minibuffer ()
-  "Enable corfi in minibuffer, if vertico is not active"
+  "Enable corfu in minibuffer, if vertico is not active"
   (unless (or (bound-and-true-p mct--active)
               (bound-and-true-p vertico--input)
               (eq (current-local-map) read-passwd-map))
@@ -692,7 +638,7 @@ selected color."
                 corfu-popupinfo-delay nil
                 corfu-auto-delay 0
                 corfu-auto-prefix 0
-                completion-styles '(basic))
+                completion-styles '(orderless basic))
     (corfu-mode 1)))
 (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
 
@@ -700,8 +646,6 @@ selected color."
 (use-package tempel
   :after corfu
   :hook
-  (prog-mode . tempel-setup-capf)
-  (text-mode . tempel-setup-capf)
   (prog-mode . tempel-abbrev-mode)
 
   ;; Require trigger prefix before template name when completing.
@@ -709,16 +653,7 @@ selected color."
   (tempel-trigger-prefix "<")
 
   :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
-         ("M-*" . tempel-insert))
-
-  :init
-
-  ;; Setup completion at point
-  (defun tempel-setup-capf ()
-    (setq-local completion-at-point-functions
-                (cons #'tempel-expand
-                      completion-at-point-functions)))
-  )
+         ("M-*" . tempel-insert)))
 
 (use-package tempel-collection
   :ensure t
@@ -942,7 +877,8 @@ selected color."
 
 (define-minor-mode d/org-present-mode
   "Toggle Presentation Mode."
-  :lighter "d/org-present-mode"
+ :global nil
+ :lighter "d/org-present-mode"
   (if d/org-present-mode
       (org-present)
     (org-present-quit)))
@@ -995,7 +931,7 @@ selected color."
                   (org-verbatim . 1.3)
                   (variable-pitch . 1.2)
                   (org-level-7 . 1.1)))
-    (set-face-attribute (car face) nil :height (cdr face)))
+    (face-remap-add-relative (car face) :height (cdr face)))
 
 
   (if (package-installed-p 'hide-mode-line)
@@ -1166,9 +1102,9 @@ selected color."
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
   (setq doom-modeline-time-icon nil)
-  (setq doom-modeline-bar-width 2)
+  (setq doom-modeline-bar-width 7)
   (setq doom-modeline-major-mode-icon t)
-  :custom ((doom-modeline-height 8)
+  :custom ((doom-modeline-height 30)
            (doom-modeline-buffer-encoding nil)))
 
 ;; to hide during presentation and writing
@@ -1200,7 +1136,7 @@ selected color."
 ;; My own theme
 (add-to-list 'custom-theme-load-path "~/.config/emacs/var/theme/")
 (load-theme 'haki t)
-
+(add-hook 'post-command-hook #'haki-meow-mode-line)
 ;; For foot to show colors properly
 (add-to-list 'term-file-aliases '("foot" . "xterm"))
 
@@ -1220,57 +1156,70 @@ selected color."
   (pixel-scroll-precision-scroll-up 20))
 
 (use-package nix-mode
-  :mode "\\.nix\\'"
-  :defer t)
+    :mode "\\.nix\\'"
+    :defer t)
 
-(add-hook 'prog-mode-hook #'display-line-numbers-mode)
-;;(add-hook 'prog-mode-hook #'eglot-ensure)
-(add-hook 'prog-mode-hook #'flycheck-mode)
+  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+  ;;(add-hook 'prog-mode-hook #'eglot-ensure)
+  (add-hook 'prog-mode-hook #'flycheck-mode)
 
-(use-package markdown-mode
-  :defer t
-  :mode "\\.md\\'"
-  :config
-  (defun d/set-markdown-header-font-sizes ()
-    (dolist (face '((markdown-header-face-1 . 1.3)
-                    (markdown-header-face-2 . 1.2)
-                    (markdown-header-face-3 . 1.15)
-                    (markdown-header-face-4 . 1.1)
-                    (markdown-header-face-5 . 1.0)))
-      (set-face-attribute (car face) nil :weight 'normal :font d/header-font :height (cdr face))))
+  (use-package markdown-mode
+    :defer t
+    :mode "\\.md\\'"
+    :config
+    (defun d/set-markdown-header-font-sizes ()
+      (dolist (face '((markdown-header-face-1 . 1.3)
+                      (markdown-header-face-2 . 1.2)
+                      (markdown-header-face-3 . 1.15)
+                      (markdown-header-face-4 . 1.1)
+                      (markdown-header-face-5 . 1.0)))
+        (set-face-attribute (car face) nil :weight 'normal :font d/header-font :height (cdr face))))
 
-  (defun d/markdown-mode-hook ()
-    (d/set-markdown-header-font-sizes))
+    (defun d/markdown-mode-hook ()
+      (d/set-markdown-header-font-sizes))
 
-  (add-hook 'markdown-mode-hook 'd/markdown-mode-hook))
+    (add-hook 'markdown-mode-hook 'd/markdown-mode-hook))
 
-(use-package eglot
-  :init
-  (setq eglot-sync-connect 1
-        eglot-connect-timeout 10
-        eglot-autoshutdown t
-        eglot-send-changes-idle-time 0.5
-        ;; NOTE We disable eglot-auto-display-help-buffer because :select t in
-        ;;      its popup rule causes eglot to steal focus too often.
-        eglot-auto-display-help-buffer nil)
-  :config
-  (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
-  (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
-  (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
+  (use-package eglot
+    :init
+    (setq eglot-sync-connect 1
+          eglot-connect-timeout 10
+          eglot-autoshutdown t
+          eglot-send-changes-idle-time 0.5
+          ;; NOTE We disable eglot-auto-display-help-buffer because :select t in
+          ;;      its popup rule causes eglot to steal focus too often.
+          eglot-auto-display-help-buffer nil)
+    :config
+    (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
+    (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
+    (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
 
-  :hook
-  (nix-mode . eglot-ensure)
-  (bash-ts-mode . eglot-ensure)
-  (markdown-mode-hook . eglot-ensure))
+    :hook
+    (nix-mode . eglot-ensure)
+    (bash-ts-mode . eglot-ensure)
+    (markdown-mode-hook . eglot-ensure))
 
 (defun my/eglot-capf ()
-  (setq-local completion-at-point-functions
-              (list (cape-super-capf
-                     #'eglot-completion-at-point
-                     #'tempel-expand
-                     #'cape-file))))
+(setq-local completion-at-point-functions
+            (list
+             (cape-capf-buster
+              (cape-super-capf
+               #'eglot-completion-at-point
+               #'cape-ispell
+               #'cape-file
+               #'cape-dabbrev) 'equal))))
+(add-to-list 'completion-at-point-functions 
+             (cape-capf-buster
+              (cape-super-capf
+               #'cape-file
+               #'cape-dabbrev) 'equal))
 
 (add-hook 'eglot-managed-mode-hook #'my/eglot-capf)
+(setq-local completion-at-point-functions
+            (list (cape-capf-buster #'my/eglot-capf 'equal)))
+
+(use-package eglot-tempel
+  :load-path "~/.config/emacs/elpa/eglot-tempel")
 
 (use-package kind-icon
   :ensure t
@@ -1486,7 +1435,8 @@ selected color."
          ("C-M-r" . undo-redo)))
 
 (use-package flycheck
-  :defer t)
+  :defer t
+  :hook (prog-mode . flycheck-mode))
 ;; :init (global-flycheck-mode))
 
 (use-package mingus
@@ -1668,7 +1618,9 @@ selected color."
     :config
     ;; (setq-default elfeed-search-filter "@1-week-ago--1-day-ago +unread -news +")
     (setq-default elfeed-search-filter "+unread +")
-    (setq elfeed-search-date-format `("%m-%d" 5 :left))
+    (setq elfeed-search-date-format `("%m-%d 📰" 7 :left))
+    (setq elfeed-search-title-max-width 90
+          elfeed-search-trailing-width 0)
     (defalias 'elfeed-toggle-show-star
       (elfeed-expose #'elfeed-show-tag 'star))
     (defalias 'elfeed-toggle-star
@@ -1728,17 +1680,34 @@ selected color."
     (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
       (reddigg-view-comments (elfeed-entry-link entry))))
 
-  (use-package eww
-    :bind (:map eww-mode-map
-                ("e" . readable-article)
-                ("Q" . d/kill-buffer)
-                ("M-v" . d/scroll-up)
-                ("C-v" . d/scroll-down)
-                ("C-f" . shr-next-link)
-                ("C-b" . shr-previous-link)
-                ("F" . d/visit-urls)
-                ("U" . elfeed-update)
-                ("b" . d/external-browser)))
+(use-package eww
+  :bind (:map eww-mode-map
+              ("e" . readable-article)
+              ("Q" . d/kill-buffer)
+              ("M-v" . d/scroll-up)
+              ("C-v" . d/scroll-down)
+              ("C-f" . shr-next-link)
+              ("C-b" . shr-previous-link)
+              ("F" . d/visit-urls)
+              ("U" . elfeed-update)
+              ("b" . d/external-browser))
+  :config
+  (defvar consult--source-eww
+    (list
+     :name     "Eww"
+     :narrow   ?e
+     :action   (lambda (bm)
+                 (eww-browse-url (get-text-property 0 'url bm)))
+     :items    (lambda ()
+                 (eww-read-bookmarks)
+                 (mapcar (lambda (bm)
+                           (propertize
+                            (format "%s (%s)"
+                                    (plist-get bm :url)
+                                    (plist-get bm :title))
+                            'url (plist-get bm :url)))
+                         eww-bookmarks))))
+(add-to-list 'consult-buffer-sources 'consult--source-eww 'append))
 
 (use-package gnutls
   :defer t
@@ -1810,11 +1779,11 @@ Hack to use `insert-sliced-image' to avoid jerky image scrolling."
 
 (defun d/external-browser ()
   (interactive)
-  (cond ((or (thing-at-point-url-at-point) (shr-url-at-point nil) (dired-file-name-at-point) (link-hint--org-link-at-point-p))
-   (link-hint-copy-link-at-point))
-  (t (link-hint-copy-link)))
-(let ((url (current-kill 0)))
-  (browse-url-generic url)))
+  (if (or (thing-at-point 'url t) (thing-at-point 'filename t))
+      (link-hint-copy-link-at-point)
+    (link-hint-copy-link))
+  (let ((url (current-kill 0)))
+    (browse-url-generic url)))
 
 (defun d/eww-rename-buffer ()
   "Rename EWW buffer using page title or URL.
@@ -1924,8 +1893,8 @@ Hack to use `insert-sliced-image' to avoid jerky image scrolling."
  eww-search-prefix "https://lite.duckduckgo.com/lite/?q=")
 
 ;; Set frame transparency
-(set-frame-parameter (selected-frame) 'alpha-background 82)
-(add-to-list 'default-frame-alist `(alpha-background . 82))
+(set-frame-parameter (selected-frame) 'alpha-background 90)
+(add-to-list 'default-frame-alist `(alpha-background . 90))
 (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 

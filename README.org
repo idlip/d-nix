@@ -117,6 +117,10 @@ Before that I believe you are a tinkerer, I have a motto which goes like this
 I mean, that is how *Nix Philosophy or Linux users are, We understand each utility (grep, sed...) and make precise use of it, You can technically call it Magic of scripting.
 
 
+*** 📚 Nix Learning
+This repo has bunch of links for learning nix in every possible way.
+- https://github.com/humancalico/nix-learning
+
 *** 🎖️ Credits 
 
 These configs were the inspiration and helped to build this way.
@@ -132,3 +136,4 @@ I thank them sincerely.
 #+begin_center
 If you have reached here, I think you'd like to read more. I have made a static website, you can catch on some stuffs here ==> [[https://idlip.github.io]]
 #+end_center
+

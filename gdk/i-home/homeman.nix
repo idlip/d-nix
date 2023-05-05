@@ -9,6 +9,7 @@
 home.sessionVariables.STARSHIP_CACHE = "${config.xdg.cacheHome}/starship";
 programs = {
   exa.enable = true;
+
   starship = {
     enable = true;
     enableZshIntegration = true;
@@ -163,9 +164,10 @@ programs = {
 
         '';
 
+
     history = {
-      save = 1000;
-      size = 1000;
+      save = 10000;
+      size = 10000;
       expireDuplicatesFirst = true;
       ignoreDups = true;
     };
@@ -220,31 +222,28 @@ programs = {
 home.packages = with pkgs; [
 
 # wayland
-libnotify libsixel wofi seatd bemenu hyprpicker fuzzel
-  wf-recorder brightnessctl pamixer slurp grim hyprland
-  wl-clipboard rofi-wayland wtype swaybg swayidle gammastep
+libnotify libsixel bemenu hyprpicker fuzzel
+wf-recorder brightnessctl pamixer slurp grim hyprland
+wl-clipboard rofi-wayland wtype swaybg swayidle gammastep
 
 # media
-mpc_cli pavucontrol pulsemixer imv
+mpc_cli pulsemixer imv
+yt-dlp jq ytfzf ani-cli qbittorrent youtube-tui
 
 # cli tools
-pcmanfm yt-dlp fzf neovim btop unzip
+pcmanfm fzf neovim btop unzip
 aspell aspellDicts.en-science aspellDicts.en hunspell hunspellDicts.en-us
 ripgrep nitch libreoffice pandoc newsboat tmux
-rsync  ffmpeg sdcv imagemagick groff pciutils acpi
+rsync ffmpeg sdcv imagemagick groff
 wkhtmltopdf-bin
-# texlive.combined.scheme-full
-fd ncdu mu isync ts  syncthing dconf
-jq keepassxc figlet keepassxc
+fd ncdu mu isync ts syncthing dconf
+jq keepassxc figlet
 
 # themes
 gruvbox-gtk-theme
   orchis-theme
   bibata-cursors
   papirus-icon-theme
-
-# dl media
-yt-dlp jq ytfzf ani-cli qbittorrent youtube-tui
 
 # pioneer of web
 firefox librewolf brave ungoogled-chromium hugo
@@ -329,34 +328,7 @@ programs = {
   };
 };
 
-programs.bottom = {
-  enable = true;
-  settings = {
-    flags.group_processes = true;
-    row = [
-      {
-        ratio = 2;
-        child = [
-          {type = "cpu";}
-          {type = "mem";}
-        ];
-      }
-      {
-        ratio = 3;
-        child = [
-          {
-            type = "proc";
-            ratio = 1;
-            default = true;
-          }
-        ];
-      }
-    ];
-  };
-};
-
 # We will tangle config files from git repo to home dir (Let nix manage the magics)
-
 home.file.".config/btop/btop.conf".source = config.lib.file.mkOutOfStoreSymlink "/home/i/d-git/d-nix/gdk/i-home/configs/btop/btop.conf";
 
 services.dunst = {
@@ -368,8 +340,8 @@ services.dunst = {
   settings = {
     global = {
       monitor = 0;
-      background = "#1e1e2e";
-      frame_color = "#89AAEB";
+      background = "#050505";
+      frame_color = "#2e8b57";
       transparency = 0;
       follow = "none";
       width = 900;
@@ -428,18 +400,18 @@ services.dunst = {
     };
 
     urgency_low = {
-      background = "#1e1e2e";
-      foreground = "#cdd6f4";
+      background = "#050505";
+      foreground = "#ffffff";
       timeout = 5;
     };
     urgency_normal = {
-      background = "#1e1e2e";
-      foreground = "#cdd6f4";
+      background = "#050505";
+      foreground = "#ffffff";
       timeout = 6;
     };
     urgency_critical = {
-      background = "#1e1e2e";
-      foreground = "#cdd6f4";
+      background = "#050505";
+      foreground = "#ffffff";
       frame_color = "#f38ba8";
       timeout = 0;
     };
@@ -468,9 +440,9 @@ programs.foot = {
 
     };
     colors = {
-     background="000000";
+     background="050505";
      foreground="ffffff";
-     regular0="000000";
+     regular0="030303";
      regular1="ff8059";
      regular2="44bc44";
      regular3="d0bc00";
@@ -486,7 +458,7 @@ programs.foot = {
      bright5="b6a0ff";
      bright6="6ae4b9";
      bright7="ffffff";
-      alpha= "0.8";
+      alpha= "0.9";
     };
     mouse = {
       hide-when-typing = "yes";
@@ -523,7 +495,8 @@ programs.emacs = {
     vterm vundo undo-fu-session flycheck helpful ox-pandoc
     no-littering rainbow-delimiters rainbow-mode vertico 
     orderless consult marginalia embark org olivetti org-modern corfu
-    cape markdown-mode nix-mode rust-mode lua-mode
+    embark-consult consult-eglot consult-flycheck
+    cape markdown-mode nix-mode
     all-the-icons all-the-icons-dired async dired-hide-dotfiles dired-single
     reddigg hnreader mingus pdf-tools which-key magit webpaste org-present
     org-mime corfu-terminal beframe denote tempel tempel-collection
@@ -558,7 +531,7 @@ profiles.ihome = {
 settings = {
   "app.update.auto" = false;
   "browser.startup.homepage" = "about:blank";
-  "browser.urlbar.placeholderName" = "DuckDuckGo";
+  "browser.urlbar.placeholderName" = "Greeting You!";
   "privacy.webrtc.legacyGlobalIndicator" = true;
   "gfx.webrender.all" = true;
   "gfx.webrender.enabled" = true;
@@ -581,7 +554,6 @@ settings = {
   "browser.newtab.preload" = false;
   "browser.newtabpage.activity-stream.section.highlights.includePocket" = false;
   "extensions.pocket.enabled" = false;
-
   "browser.newtabpage.enhanced" = false;
   "browser.newtabpage.introShown" = true;
   "browser.safebrowsing.appRepURL" = "";
@@ -833,14 +805,24 @@ services.mpd = {
     '';
 };
 
-programs.ncmpcpp = {
-  enable = true;
-};
-
-programs = {
+programs= {
+  ncmpcpp = {
+    enable = true;
+  };
   mpv = {
     enable = true;
     scripts = with pkgs.mpvScripts; [ thumbnail sponsorblock];
+  };
+  yt-dlp = {
+    enable = true;
+    settings = {
+      embed-thumbnail = true;
+      embed-metadata = true;
+      embed-subs = true;
+      sub-langs = "all";
+      downloader = "aria2c";
+      downloader-args = "aria2c:'-c -x8 -s8 -k1M'";
+    };
   };
 };
 
@@ -911,21 +893,19 @@ programs = {
   #    enable = true;
   #    nix-direnv.enable = true;
   #  };
-  #  tealdeer = {
-  #    enable = true;
-  #    settings = {
-  #      display = {
-  #        compact = false;
-  #        use_pager = true;
-  #      };
-  #      updates = {
-  #        auto_update = true;
-  #      };
-  #    };
-  #  };
-  bat = {
-    enable = true;
-  };
+   tealdeer = {
+     enable = true;
+     settings = {
+       display = {
+         compact = false;
+         use_pager = true;
+       };
+       updates = {
+         auto_update = true;
+       };
+     };
+   };
+  bat.enable = true;
 };
 xdg = {
   userDirs = {
@@ -935,9 +915,6 @@ xdg = {
     videos = "$HOME/vids";
     music = "$HOME/music";
     pictures = "$HOME/pics";
-    desktop = "$HOME/other";
-    publicShare = "$HOME/other";
-    templates = "$HOME/other";
   };
   mimeApps.enable = true;
   mimeApps.associations.added = {
@@ -1042,9 +1019,9 @@ programs.waybar = {
       };
 
       "custom/launcher" = {
-        format = " ";
-        tooltip = false;
-        on-click = "rofi -show drun";
+        "format" = " ";
+        "tooltip" = false;
+        "on-click" = "rofi -show drun";
       };
 
       "battery" =  {
@@ -1116,14 +1093,6 @@ home.file.".config/waybar/style.css".source = config.lib.file.mkOutOfStoreSymlin
 # We will tangle config files from git repo to home dir (Let nix manage the magics)
 
 home.file.".config/waybar/modus.css".source = config.lib.file.mkOutOfStoreSymlink "/home/i/d-git/d-nix/gdk/i-home/configs/waybar/modus.css";
-
-# We will tangle config files from git repo to home dir (Let nix manage the magics)
-
-home.file.".config/wofi/config".source = config.lib.file.mkOutOfStoreSymlink "/home/i/d-git/d-nix/gdk/i-home/configs/wofi/config";
-
-# We will tangle config files from git repo to home dir (Let nix manage the magics)
-
-home.file.".config/wofi/style.css".source = config.lib.file.mkOutOfStoreSymlink "/home/i/d-git/d-nix/gdk/i-home/configs/wofi/style.css";
 
 # We will tangle config files from git repo to home dir (Let nix manage the magics)
 

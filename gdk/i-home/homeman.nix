@@ -8,8 +8,7 @@
 
 home.sessionVariables.STARSHIP_CACHE = "${config.xdg.cacheHome}/starship";
 programs = {
-  exa.enable = true;
-
+  # Starship
   starship = {
     enable = true;
     enableZshIntegration = true;
@@ -17,17 +16,17 @@ programs = {
       add_newline = true;
       scan_timeout = 5;
       character = {
-        error_symbol = " [](#df5b61)";
-        success_symbol = "[](#6791c9)";
+        error_symbol = " [](#df5b61)";
+        success_symbol = "[](#6791c9)";
         vicmd_symbol = "[](bold yellow)";
-        format = "[  $directory$all$character  ](bold)";
+        format = "[  ](bold blue)[$directory$all$character](bold)[  ](bold green)";
       };
       git_commit = {commit_hash_length = 4;};
       line_break.disabled = false;
-      lua.symbol = "[](blue) ";
+      lua.symbol = "[󰢱](blue) ";
       python.symbol = "[](blue) ";
       directory.read_only = " ";
-      nix_shell.symbol = " ";
+      nix_shell.symbol = " ";
       hostname = {
         ssh_only = true;
         format = "[$hostname](bold blue) ";
@@ -87,64 +86,29 @@ programs = {
       gc = "git clone --depth=1";
       sudo = "doas";
     };
-    plugins = with pkgs; [
-      {
-        name = "autopair.fish";
-        src = pkgs.fishPlugins.autopair-fish;
-      }
-    ];
   };
 
   zsh = {
     enable = true;
     dotDir = ".config/shell";
+    enableCompletion = true;
+    enableAutosuggestions = true;
+    history.extended = true;
     sessionVariables = {
       LC_ALL = "en_US.UTF-8";
       ZSH_AUTOSUGGEST_USE_ASYNC = "true";
-      BEMENU_OPTS = "-i -l 10 -p '  Apps : ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font  20' --nb '#00000099' --ab '#00000099' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#fff0f5' --hf '#000000' --fb '#00000099' --ff '#a6e3a1' --tb '#00000099' --tf '#f9e2af' ";
       NIXOS_OZONE_WL = "1";
       BROWSER = "librewolf";
       MOZ_ENABLE_WAYLAND = "1";
     };
 
-    completionInit = ''
-          eval "$(starship init zsh)"
-
-          autoload -U compinit && compinit
-
-          zstyle ':completion:*' list-colors "''${(s.:.)LS_COLORS}"
-
-          # preview directory's content with exa when completing cd
-          zstyle ':fzf-tab:complete:*:*' fzf-preview 'exa -1 --color=always $realpath'
-
-          # switch group using `,` and `.`
-          zstyle ':fzf-tab:*' switch-group ',' '.'
-
-          # give a preview of commandline arguments when completing `kill`
-          zstyle ':completion:*:*:*:*:processes' command "ps -u $USER -o pid,user,comm -w -w"
-          zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-preview \
-            '[[ $group == "[process ID]" ]] && ps --pid=$word -o cmd --no-headers -w -w'
-            zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-flags --preview-window=down:3:wrap
-
-          bindkey -e
-        '';
-
     envExtra = ''
-    export MANPAGER="sh -c 'col -bx | bat -l man -p'"
-    export PATH="$PATH:/home/i/d-git/d-bin/bin"
-    export PATH="$PATH:$HOME/.local/bin/d"
-    export EDITOR="emacsclient -nw -a 'nvim'"
-    export VISUAL=$EDITOR
-    export STARDICT_DATA_DIR="$HOME/.local/share/stardict"
-
-    export GRIM_DEFAULT_DIR="$HOME/pics/sshots/"
-
         if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
           exec Hyprland
         fi
-
         '';
-    initExtra = ''
+
+    initExtra = lib.mkAfter ''
         source "${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
         source "${pkgs.zsh-history-substring-search}/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
         source "${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
@@ -152,18 +116,15 @@ programs = {
         source "${pkgs.nix-zsh-completions}/share/zsh/plugins/nix/nix-zsh-completions.plugin.zsh"
         source "${pkgs.zsh-nix-shell}/share/zsh-nix-shell/nix-shell.plugin.zsh"
 
-          function ytdl() {
-              yt-dlp --embed-metadata --embed-subs -f 22 "$1"
-          }
+        source /home/i/d-git/d-nix/gdk/i-home/configs/sources.sh
 
-          function vterm_prompt_end() {
-              printf "\e]%s\e\\" "$1" "51;A$(whoami)@$(hostname):$(pwd)"
-          }
-          setopt PROMPT_SUBST
-          PROMPT=$PROMPT'%{$(vterm_prompt_end)%}'
-
+        # For vterm, needs to be at last!
+        function vterm_prompt_end() {
+            printf "\e]%s\e\\" "$1" "51;A$(whoami)@$(hostname):$(pwd)"
+            }
+            setopt PROMPT_SUBST
+            PROMPT=$PROMPT'%{$(vterm_prompt_end)%}'                       
         '';
-
 
     history = {
       save = 10000;
@@ -171,51 +132,6 @@ programs = {
       expireDuplicatesFirst = true;
       ignoreDups = true;
     };
-
-    shellAliases = let
-      # for setting up license in new projects
-
-    in
-      with pkgs; {
-        rebuild = "doas nix-store --verify; pushd ~dotfiles && doas nixos-rebuild switch --flake .# && notify-send \"Done\"&& bat cache --build; popd";
-        cleanup = "doas nix-collect-garbage --delete-older-than 7d";
-        bloat = "nix path-info -Sh /run/current-system";
-        ytmp3 = ''
-              ${lib.getExe yt-dlp} -x --continue --add-metadata --embed-thumbnail --audio-format mp3 --audio-quality 0 --metadata-from-title="%(artist)s - %(title)s" --prefer-ffmpeg -o "%(title)s.%(ext)s"'';
-        cat = "${lib.getExe bat} --style=plain";
-        grep = lib.getExe ripgrep;
-        du = lib.getExe du-dust;
-        ps = lib.getExe procs;
-        m = "mkdir -p";
-        fcd = "cd $(find -type d | fzf)";
-        ls = "${lib.getExe exa} -h --git --icons --color=auto --group-directories-first -s extension";
-        l = "ls -lF --time-style=long-iso --icons";
-        la = "${lib.getExe exa} -lah --tree";
-        tree = "${lib.getExe exa} --tree --icons --tree";
-        http = "${lib.getExe python3} -m http.server";
-        burn = "pkill -9";
-        diff = "diff --color=auto";
-        kys = "doas shutdown now";
-        killall = "pkill";
-        ".1" = "cd ..";
-        ".2" = "cd ../..";
-        ".3" = "cd ../../..";
-        c = "clear";
-
-        v = "nvim";
-        emd = "pkill emacs; emacs --daemon";
-
-        e = "emacsclient -t";
-        cp="cp -iv";
-        mv="mv -iv";
-        rm="rm -vI";
-        bc="bc -ql";
-        mkd="mkdir -pv";
-        ytfzf="ytfzf -D";
-        hyprcaps="hyprctl keyword input:kb_options caps:caps";
-        gc = "git clone --depth=1";
-        sudo = "doas";
-      };
   };
 };
 
@@ -324,6 +240,21 @@ programs = {
       auto-file-renaming = "false";
       continue = "true";
       rpc-save-upload-metadata = "false";
+    };
+  };
+};
+
+programs = {
+  exa = {
+    enable = true;
+    extraOptions = ["--group-directories-first" "--header"];
+    icons = true;
+  };
+  bat = {
+    enable = true;
+    extraPackages = with pkgs.bat-extras; [ batdiff batman batgrep batwatch ];
+    config = {
+      theme = "gruvbox-dark";
     };
   };
 };
@@ -497,7 +428,7 @@ programs.emacs = {
     orderless consult marginalia embark org olivetti org-modern corfu
     embark-consult consult-eglot consult-flycheck
     cape markdown-mode nix-mode
-    all-the-icons all-the-icons-dired async dired-hide-dotfiles dired-single
+    nerd-icons async dired-hide-dotfiles dired-single
     reddigg hnreader mingus pdf-tools which-key magit webpaste org-present
     org-mime corfu-terminal beframe denote tempel tempel-collection
     sdcv elfeed elfeed-org link-hint powerthesaurus jinx meow
@@ -820,8 +751,6 @@ programs= {
       embed-metadata = true;
       embed-subs = true;
       sub-langs = "all";
-      downloader = "aria2c";
-      downloader-args = "aria2c:'-c -x8 -s8 -k1M'";
     };
   };
 };
@@ -889,23 +818,22 @@ services = {
 programs = {
   gpg.enable = true;
   man.enable = true;
-  #  direnv = {
-  #    enable = true;
-  #    nix-direnv.enable = true;
-  #  };
-   tealdeer = {
-     enable = true;
-     settings = {
-       display = {
-         compact = false;
-         use_pager = true;
-       };
-       updates = {
-         auto_update = true;
-       };
-     };
-   };
-  bat.enable = true;
+  direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+  };
+  tealdeer = {
+    enable = true;
+    settings = {
+      display = {
+        compact = false;
+        use_pager = true;
+      };
+      updates = {
+        auto_update = true;
+      };
+    };
+  };
 };
 xdg = {
   userDirs = {
@@ -988,7 +916,7 @@ programs.waybar = {
         "hyprland/submap"
       ];
       modules-center = [
-        "clock"
+        "clock" "mpd"
       ];
       modules-right = ["network" "battery" "memory" "pulseaudio" "custom/power"];
       "wlr/workspaces" = {
@@ -1032,11 +960,25 @@ programs.waybar = {
           "critical" =  30;
         };
         "format" =  "{capacity}% {icon} ";
-        "format-icons" =  [" " "🔴 " "🪫 " " " " "];
+        "format-icons" =  [" " "🔴 " "🪫" " " " "];
         "max-length" =  25;
       };
 
-      "custom/power" = {
+      "mpd" = {
+        "format" = "{stateIcon} {title}  ";
+        "format-disconnected" = "  ";
+        "format-stopped" = "  ";
+        "title-len" = 20;
+        "interval" = 10;
+        "on-click" = "mpc toggle";
+        "state-icons" = {
+          "paused" = "";
+          "playing" = "";
+        };
+        "tooltip-format" = "Playing: {filename}";
+          "tooltip-format-disconnected" = "";
+      };
+        "custom/power" = {
         "format" = "⏻";
         "on-click" = "d-power";
         "tooltip" = false;
@@ -1054,7 +996,7 @@ programs.waybar = {
         "on-click" = "footclient -e btop";
       };
       "memory" = {
-        "format" = " {: >3}%";
+        "format" = " {: >3}% ";
         "on-click" = "foot -e btop";
       };
       "network" = {
@@ -1068,7 +1010,7 @@ programs.waybar = {
       };
       "pulseaudio" = {
         "scroll-step" = 2;
-        "format" = "{icon} {volume: >3}%";
+        "format" = "{icon} {volume: >3}% ";
         "format-bluetooth" = "{icon} {volume: >3}%";
         "format-muted" =" muted ";
         "on-click" = "pamixer -t";

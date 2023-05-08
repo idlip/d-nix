@@ -314,7 +314,7 @@ Opening brace that contains the rest of the configuration file.
     };
   };
   system.autoUpgrade.enable = false;
-  system.stateVersion = "22.11"; # DONT TOUCH THIS (See about state version on nixos manual)
+  system.stateVersion = "23.05"; # DONT TOUCH THIS (See about state version on nixos manual)
 
 #+end_src
 ** Boot loader
@@ -531,7 +531,7 @@ Enables additional fonts system wide. See how easy it is to manage fonts with ni
 #+begin_src nix
   fonts = {
     fonts = with pkgs; [
-      emacs-all-the-icons-fonts
+      #emacs-all-the-icons-fonts
       noto-fonts
       #material-icons comic-mono material-design-icons
       # weather-icons font-awesome
@@ -553,7 +553,7 @@ Enables additional fonts system wide. See how easy it is to manage fonts with ni
         ];
         sansSerif = [ "Gandhi Sans" "VictorMono Nerd Font" "Noto Sans"];
         serif = [ "Gandhi Sans" "Noto Sans" "VictorMono Nerd Font" "JetBrainsMono Nerd Font" "Noto Sans"];
-        emoji = ["ComicCodeLigatures Nerd Font" "Noto Color Emoji" "FiraCode Nerd Font" "Symbola" "all-the-icons" "Weather Icons" "Material Icons" ];
+        emoji = ["ComicCodeLigatures Nerd Font" "Noto Color Emoji" "FiraCode Nerd Font" "Symbola" ];
       };
     };
   };
@@ -619,7 +619,7 @@ Home config, and a pretty place (?)
   {
     inputs, pkgs, config, lib, self, ...}:
   {
-    config.home.stateVersion = "22.11";
+    config.home.stateVersion = "23.05";
     config.home.extraOutputsToInstall = ["doc" "devdoc"];
     imports = [
       ./homeman.nix
@@ -640,6 +640,7 @@ Places a warning at the top of the target file.
 **** Inherited Sources
 #+begin_src nix
   { inputs, pkgs, self, lib, config, ... }:
+
 #+end_src
 **** Opening Statement
 Opening brace that contains the rest of the configuration file.
@@ -651,8 +652,7 @@ Opening brace that contains the rest of the configuration file.
 #+begin_src nix :noweb yes
   home.sessionVariables.STARSHIP_CACHE = "${config.xdg.cacheHome}/starship";
   programs = {
-    exa.enable = true;
-
+    # Starship
     starship = {
       enable = true;
       enableZshIntegration = true;
@@ -660,17 +660,17 @@ Opening brace that contains the rest of the configuration file.
         add_newline = true;
         scan_timeout = 5;
         character = {
-          error_symbol = " [](#df5b61)";
-          success_symbol = "[](#6791c9)";
+          error_symbol = " [](#df5b61)";
+          success_symbol = "[](#6791c9)";
           vicmd_symbol = "[](bold yellow)";
-          format = "[  $directory$all$character  ](bold)";
+          format = "[  ](bold blue)[$directory$all$character](bold)[  ](bold green)";
         };
         git_commit = {commit_hash_length = 4;};
         line_break.disabled = false;
-        lua.symbol = "[](blue) ";
+        lua.symbol = "[󰢱](blue) ";
         python.symbol = "[](blue) ";
         directory.read_only = " ";
-        nix_shell.symbol = " ";
+        nix_shell.symbol = " ";
         hostname = {
           ssh_only = true;
           format = "[$hostname](bold blue) ";
@@ -730,64 +730,29 @@ Opening brace that contains the rest of the configuration file.
         gc = "git clone --depth=1";
         sudo = "doas";
       };
-      plugins = with pkgs; [
-        {
-          name = "autopair.fish";
-          src = pkgs.fishPlugins.autopair-fish;
-        }
-      ];
     };
 
     zsh = {
       enable = true;
       dotDir = ".config/shell";
+      enableCompletion = true;
+      enableAutosuggestions = true;
+      history.extended = true;
       sessionVariables = {
         LC_ALL = "en_US.UTF-8";
         ZSH_AUTOSUGGEST_USE_ASYNC = "true";
-        BEMENU_OPTS = "-i -l 10 -p '  Apps : ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font  20' --nb '#00000099' --ab '#00000099' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#fff0f5' --hf '#000000' --fb '#00000099' --ff '#a6e3a1' --tb '#00000099' --tf '#f9e2af' ";
         NIXOS_OZONE_WL = "1";
         BROWSER = "librewolf";
         MOZ_ENABLE_WAYLAND = "1";
       };
 
-      completionInit = ''
-            eval "$(starship init zsh)"
-
-            autoload -U compinit && compinit
-
-            zstyle ':completion:*' list-colors "''${(s.:.)LS_COLORS}"
-
-            # preview directory's content with exa when completing cd
-            zstyle ':fzf-tab:complete:*:*' fzf-preview 'exa -1 --color=always $realpath'
-
-            # switch group using `,` and `.`
-            zstyle ':fzf-tab:*' switch-group ',' '.'
-
-            # give a preview of commandline arguments when completing `kill`
-            zstyle ':completion:*:*:*:*:processes' command "ps -u $USER -o pid,user,comm -w -w"
-            zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-preview \
-              '[[ $group == "[process ID]" ]] && ps --pid=$word -o cmd --no-headers -w -w'
-              zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-flags --preview-window=down:3:wrap
-
-            bindkey -e
-          '';
-
       envExtra = ''
-      export MANPAGER="sh -c 'col -bx | bat -l man -p'"
-      export PATH="$PATH:<<my-bin>>"
-      export PATH="$PATH:$HOME/.local/bin/d"
-      export EDITOR="emacsclient -nw -a 'nvim'"
-      export VISUAL=$EDITOR
-      export STARDICT_DATA_DIR="$HOME/.local/share/stardict"
-
-      export GRIM_DEFAULT_DIR="$HOME/pics/sshots/"
-
           if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
             exec Hyprland
           fi
-
           '';
-      initExtra = ''
+
+      initExtra = lib.mkAfter ''
           source "${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
           source "${pkgs.zsh-history-substring-search}/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
           source "${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
@@ -795,18 +760,15 @@ Opening brace that contains the rest of the configuration file.
           source "${pkgs.nix-zsh-completions}/share/zsh/plugins/nix/nix-zsh-completions.plugin.zsh"
           source "${pkgs.zsh-nix-shell}/share/zsh-nix-shell/nix-shell.plugin.zsh"
 
-            function ytdl() {
-                yt-dlp --embed-metadata --embed-subs -f 22 "$1"
-            }
+          source <<my-config-path>>/sources.sh
 
-            function vterm_prompt_end() {
-                printf "\e]%s\e\\" "$1" "51;A$(whoami)@$(hostname):$(pwd)"
-            }
-            setopt PROMPT_SUBST
-            PROMPT=$PROMPT'%{$(vterm_prompt_end)%}'
-
+          # For vterm, needs to be at last!
+          function vterm_prompt_end() {
+              printf "\e]%s\e\\" "$1" "51;A$(whoami)@$(hostname):$(pwd)"
+              }
+              setopt PROMPT_SUBST
+              PROMPT=$PROMPT'%{$(vterm_prompt_end)%}'                       
           '';
-
 
       history = {
         save = 10000;
@@ -814,55 +776,73 @@ Opening brace that contains the rest of the configuration file.
         expireDuplicatesFirst = true;
         ignoreDups = true;
       };
-
-      shellAliases = let
-        # for setting up license in new projects
-
-      in
-        with pkgs; {
-          rebuild = "doas nix-store --verify; pushd ~dotfiles && doas nixos-rebuild switch --flake .# && notify-send \"Done\"&& bat cache --build; popd";
-          cleanup = "doas nix-collect-garbage --delete-older-than 7d";
-          bloat = "nix path-info -Sh /run/current-system";
-          ytmp3 = ''
-                ${lib.getExe yt-dlp} -x --continue --add-metadata --embed-thumbnail --audio-format mp3 --audio-quality 0 --metadata-from-title="%(artist)s - %(title)s" --prefer-ffmpeg -o "%(title)s.%(ext)s"'';
-          cat = "${lib.getExe bat} --style=plain";
-          grep = lib.getExe ripgrep;
-          du = lib.getExe du-dust;
-          ps = lib.getExe procs;
-          m = "mkdir -p";
-          fcd = "cd $(find -type d | fzf)";
-          ls = "${lib.getExe exa} -h --git --icons --color=auto --group-directories-first -s extension";
-          l = "ls -lF --time-style=long-iso --icons";
-          la = "${lib.getExe exa} -lah --tree";
-          tree = "${lib.getExe exa} --tree --icons --tree";
-          http = "${lib.getExe python3} -m http.server";
-          burn = "pkill -9";
-          diff = "diff --color=auto";
-          kys = "doas shutdown now";
-          killall = "pkill";
-          ".1" = "cd ..";
-          ".2" = "cd ../..";
-          ".3" = "cd ../../..";
-          c = "clear";
-
-          v = "nvim";
-          emd = "pkill emacs; emacs --daemon";
-
-          e = "emacsclient -t";
-          cp="cp -iv";
-          mv="mv -iv";
-          rm="rm -vI";
-          bc="bc -ql";
-          mkd="mkdir -pv";
-          ytfzf="ytfzf -D";
-          hyprcaps="hyprctl keyword input:kb_options caps:caps";
-          gc = "git clone --depth=1";
-          sudo = "doas";
-        };
     };
   };
 
       #+end_src
+***** Sources.sh
+This is easy to manage and also get the syntax highlighing for shell, as nix also paste same texts into path.
+#+begin_src shell :noweb yes :tangle (format "%s/sources.sh" (get-named-src-block-contents "my-configs" t))
+  # eval "$(starship init zsh)"
+  # eval "$(direnv hook zsh)"
+
+  # autoload -U compinit && compinit
+  bindkey -e
+
+  # Aliases
+  alias cleanup="doas nix-collect-garbage --delete-older-than 7d"
+  alias bloat="nix path-info -Sh /run/current-system"
+  alias ytmp3="yt-dlp -x --continue --add-metadata --embed-thumbnail --audio-format mp3 --audio-quality 0 --metadata-from-title='%(artist)s - %(title)s' --prefer-ffmpeg -o '%(title)s.%(ext)s' "
+  alias cat="bat --style=plain"
+  alias grep='ripgrep'
+  alias du='du-dust'
+  alias ps='procs'
+  alias m="mkdir -p"
+  alias ls="exa -h --git --icons --color=auto --group-directories-first -s extension"
+  alias l="ls -lF --time-style=long-iso --icons"
+  alias la="exa -lah --tree"
+  alias tree="exa --tree --icons --tree"
+  alias http="python3 -m http.server"
+  alias burn="pkill -9"
+  alias diff="diff --color=auto"
+  alias kys="doas shutdown now"
+  alias killall="pkill"
+  alias ".1"="cd .."
+  alias ".2"="cd ../.."
+  alias ".3"="cd ../../.."
+  alias c="clear"
+  alias v="nvim"
+  alias emd="pkill emacs; emacs --daemon"
+  alias e="emacsclient -t"
+  alias cp="cp -iv"
+  alias mv="mv -iv"
+  alias rm="rm -vI"
+  alias bc="bc -ql"
+  alias mkd="mkdir -pv"
+  alias ytfzf="ytfzf -D"
+  alias hyprcaps="hyprctl keyword input:kb_options caps:caps"
+  alias gc="git clone --depth=1"
+  alias sudo="doas"
+
+  # Functions
+  function ytdl() {
+      yt-dlp --embed-metadata --embed-subs -f 22 "$1"
+  }
+
+  function fcd() {
+      cd "$(find -type d | fzf)"
+  }
+
+  export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+  export PATH="$PATH:<<my-bin>>:$HOME/.local/bin/d"
+  export EDITOR="emacsclient -nw -a 'nvim'"
+  export VISUAL=$EDITOR
+  export STARDICT_DATA_DIR="$HOME/.local/share/stardict"
+
+  export GRIM_DEFAULT_DIR="$HOME/pics/sshots/"
+
+
+#+end_src
 **** User Packages
 Installs packages for this user only.
 ***** Opening Statement
@@ -996,6 +976,24 @@ There will be not much of a difference.
         auto-file-renaming = "false";
         continue = "true";
         rpc-save-upload-metadata = "false";
+      };
+    };
+  };
+#+end_src
+***** Cli tools
+The better cli alternative!
+#+begin_src nix
+  programs = {
+    exa = {
+      enable = true;
+      extraOptions = ["--group-directories-first" "--header"];
+      icons = true;
+    };
+    bat = {
+      enable = true;
+      extraPackages = with pkgs.bat-extras; [ batdiff batman batgrep batwatch ];
+      config = {
+        theme = "gruvbox-dark";
       };
     };
   };
@@ -1166,6 +1164,7 @@ There will be not much of a difference.
 #+end_src
 ****** Hyprland config
 #+begin_src conf  :tangle (format "%s/hypr/hyprland.conf" (get-named-src-block-contents "my-configs" t))
+
   monitor=,preferred,auto,1
   workspace=DP-1,1
   # ---- Autostart Apps ----
@@ -1185,7 +1184,7 @@ There will be not much of a difference.
 
   input {
   kb_layout=us
-  kb_options=caps:ctrl_modifier
+  kb_options=ctrl:nocaps
   follow_mouse=1
   #    repeat_delay=250
 
@@ -1220,7 +1219,6 @@ There will be not much of a difference.
   disable_hyprland_logo = true
   disable_splash_rendering = true
   mouse_move_enables_dpms = true
-  # no_vfr = false
   enable_swallow = true
   swallow_regex = ^(foot)$
   }
@@ -1492,7 +1490,7 @@ Its more mature than hyprland. So... better to have it! I dont use sway that muc
       orderless consult marginalia embark org olivetti org-modern corfu
       embark-consult consult-eglot consult-flycheck
       cape markdown-mode nix-mode
-      all-the-icons all-the-icons-dired async dired-hide-dotfiles dired-single
+      nerd-icons async dired-hide-dotfiles dired-single
       reddigg hnreader mingus pdf-tools which-key magit webpaste org-present
       org-mime corfu-terminal beframe denote tempel tempel-collection
       sdcv elfeed elfeed-org link-hint powerthesaurus jinx meow
@@ -1883,8 +1881,6 @@ Closes FireFox Block
         embed-metadata = true;
         embed-subs = true;
         sub-langs = "all";
-        downloader = "aria2c";
-        downloader-args = "aria2c:'-c -x8 -s8 -k1M'";
       };
     };
   };
@@ -1900,11 +1896,11 @@ mpv config which is tangled directly
 #+end_src
 
 #+begin_src conf :noweb yes :tangle (format "%s/mpv/mpv.conf" (get-named-src-block-contents "my-configs" t))
-  # hwdec=vaapi
-  # gpu-hwdec-interop=vaapi
-  # vo=gpu
-  # profile=gpu-hq
-  # gpu-context=wayland
+  hwdec=vaapi
+  gpu-hwdec-interop=vaapi
+  vo=gpu
+  profile=gpu-hq
+  gpu-context=wayland
   force-window=yes
   osc=no
   sub-border-size=4.0
@@ -2600,23 +2596,22 @@ listing menus
   programs = {
     gpg.enable = true;
     man.enable = true;
-    #  direnv = {
-    #    enable = true;
-    #    nix-direnv.enable = true;
-    #  };
-     tealdeer = {
-       enable = true;
-       settings = {
-         display = {
-           compact = false;
-           use_pager = true;
-         };
-         updates = {
-           auto_update = true;
-         };
-       };
-     };
-    bat.enable = true;
+    direnv = {
+      enable = true;
+      nix-direnv.enable = true;
+    };
+    tealdeer = {
+      enable = true;
+      settings = {
+        display = {
+          compact = false;
+          use_pager = true;
+        };
+        updates = {
+          auto_update = true;
+        };
+      };
+    };
   };
   xdg = {
     userDirs = {
@@ -2702,7 +2697,7 @@ listing menus
           "hyprland/submap"
         ];
         modules-center = [
-          "clock"
+          "clock" "mpd"
         ];
         modules-right = ["network" "battery" "memory" "pulseaudio" "custom/power"];
         "wlr/workspaces" = {
@@ -2746,11 +2741,25 @@ listing menus
             "critical" =  30;
           };
           "format" =  "{capacity}% {icon} ";
-          "format-icons" =  [" " "🔴 " "🪫 " " " " "];
+          "format-icons" =  [" " "🔴 " "🪫" " " " "];
           "max-length" =  25;
         };
 
-        "custom/power" = {
+        "mpd" = {
+          "format" = "{stateIcon} {title}  ";
+          "format-disconnected" = "  ";
+          "format-stopped" = "  ";
+          "title-len" = 20;
+          "interval" = 10;
+          "on-click" = "mpc toggle";
+          "state-icons" = {
+            "paused" = "";
+            "playing" = "";
+          };
+          "tooltip-format" = "Playing: {filename}";
+            "tooltip-format-disconnected" = "";
+        };
+          "custom/power" = {
           "format" = "⏻";
           "on-click" = "d-power";
           "tooltip" = false;
@@ -2768,7 +2777,7 @@ listing menus
           "on-click" = "footclient -e btop";
         };
         "memory" = {
-          "format" = " {: >3}%";
+          "format" = " {: >3}% ";
           "on-click" = "foot -e btop";
         };
         "network" = {
@@ -2782,7 +2791,7 @@ listing menus
         };
         "pulseaudio" = {
           "scroll-step" = 2;
-          "format" = "{icon} {volume: >3}%";
+          "format" = "{icon} {volume: >3}% ";
           "format-bluetooth" = "{icon} {volume: >3}%";
           "format-muted" =" muted ";
           "on-click" = "pamixer -t";
@@ -2816,7 +2825,7 @@ listing menus
       color: @fg-alt;
       border: 0;
       border-radius: 10px;
-      padding: 0 2;
+      padding: 0 2px;
       font-family:ComicCodeLigatures Nerd Font;
       font-size: 24px;
       margin-right: 5px;
@@ -2875,13 +2884,14 @@ listing menus
 
   #mpd {
       color: @lavender;
+      font-family:Maple Mono NF;
+      font-style: italic;
   }
 
 
   #cpu {
       color: @blue-faint;
   }
-
 
   #memory {
       color: @blue-faint;

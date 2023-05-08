@@ -280,7 +280,7 @@ If you experience stuttering, increase this.")
   (setq which-key-idle-delay 1))
 
 (use-package helpful
-  :defer t
+  :hook (helpful-mode . hide-mode-line-mode)
   :bind
   ("C-h f" . helpful-callable)
   ("C-h v" . helpful-variable)
@@ -314,17 +314,29 @@ If you experience stuttering, increase this.")
               ("C-j" . vertico-next)
               ("C-k" . vertico-previous)
               ("M-j" . vertico-quick-exit)
+              ("'" . vertico-quick-exit)
               ("C-v" . vertico-scroll-up)
               ("M-v" . vertico-scroll-down)
+              ("M-q" . d/vertico-toggle)
               ("M-RET" . minibuffer-force-complete-and-exit)
               ("M-TAB" . minibuffer-complete))
 
   :init
   (vertico-mode)
   (setq vertico-scroll-margin 5)
-  ;; (setq vertico-count 10)
+  (setq vertico-count 10)
   (setq vertico-resize t)
-  (setq vertico-cycle t))
+  (setq vertico-cycle t)
+  :config
+  (setq vertico-multiform-categories
+      '((consult-ripgrep buffer)
+        (file )
+        (t unobtrusive))))
+
+(defun d/vertico-toggle ()
+  "Toggle between vertico-unobtrusive and vertico-mode."
+  (interactive)
+  (vertico-multiform-vertical 'vertico-unobtrusive-mode))
 
 (use-package emacs
   :init
@@ -691,7 +703,7 @@ selected color."
  ;;   org-ellipsis "…"
 
  org-modern-star '("◉" "✤" "◈" "✿" "✤")
- org-modern-hide-stars nil
+ org-modern-hide-stars 'leading
  org-modern-table t
  org-modern-list
  '((?* . "❉")
@@ -715,116 +727,116 @@ selected color."
   :bind ("M-$". jinx-correct))
 
 (defun org-font-setup ()
-    ;; Replace list hyphen with dot
-    (font-lock-add-keywords 'org-mode
-                            '(("^ *\\([-]\\) "
-                               (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+  ;; Replace list hyphen with dot
+  (font-lock-add-keywords 'org-mode
+                          '(("^ *\\([-]\\) "
+                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
-      (dolist (face '((org-block . 1.0)
-                      (org-block-begin-line . 0.9)
-                      (org-document-info . 1.5)
-                      (org-document-title . 1.7)
-                      (org-level-1 . 1.4)
-                      (org-level-2 . 1.3)
-                      (org-level-3 . 1.2)
-                      (org-level-4 . 1.1)
-                      (org-level-5 . 1.1)
-                      (org-level-6 . 1.1)
-                      (org-code . 1.2)
-                      (header-line . 1.0)
-                      (org-verbatim . 1.15)
-                      (variable-pitch . 1.0)
-                      (org-level-7 . 1.1)))
-        (set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face))))
+    (dolist (face '((org-block . 1.0)
+                    (org-block-begin-line . 0.9)
+                    (org-document-info . 1.5)
+                    (org-document-title . 1.7)
+                    (org-level-1 . 1.4)
+                    (org-level-2 . 1.3)
+                    (org-level-3 . 1.2)
+                    (org-level-4 . 1.1)
+                    (org-level-5 . 1.1)
+                    (org-level-6 . 1.1)
+                    (org-code . 1.2)
+                    (header-line . 1.0)
+                    (org-verbatim . 1.15)
+                    (variable-pitch . 1.0)
+                    (org-level-7 . 1.1)))
+      (set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face))))
 
-    ;; Set faces for heading levels
+  ;; Set faces for heading levels
 
-      ;; (set-face-attribute (car face) nil :font d/header-font :weight 'regular :height (cdr face)))
-
-
-  (defun org-mode-setup ()
-    (org-indent-mode 1)
-    (org-display-inline-images 1)
-    (variable-pitch-mode 1)
-;;    (org-font-setup)
-    (setq
-     org-startup-indented nil
-     org-image-actual-width 300
-     org-startup-folded t)
-    )
-
-  (use-package org
-    :pin org
-    :commands (org-capture org-agenda)
-    :hook (org-mode . org-mode-setup)
-    (org-mode . org-modern-mode)
-
-    :bind (("C-c c c" . org-capture)
-           ("C-c c d" . calendar)
-           ("C-c t R" . d/bionic-region)
-           ("C-c d a" . org-agenda)
-           ("C-c t r" . d/bionic-read)
-           ("<f6>" . d/edit-src-block)
-           :map org-mode-map
-           ("C-c o b" . d/edit-src-block))
-    :config
-    (setq org-ellipsis " ▾")
-
-    (setq org-agenda-start-with-log-mode t)
-    ;; (setq org-log-done 'time)
-    (setq org-log-done 'note)
-    (setq org-log-into-drawer t)
-
-    ;; browser script
-    (setq browse-url-browser-function 'browse-url-generic
-          browse-url-generic-program "d-stuff")
-    (setq browse-url-secondary-browser-function 'browse-url-generic
-          browse-url-generic-program "d-stuff")
-
-    (setq org-agenda-files
-          '("~/sync/org/tasks.org"
-            "~/d-git/d-site/README.org"))
-
-    ;; (require 'org-habit)
-    ;; (add-to-list 'org-modules 'org-habit)
-    ;; (setq org-habit-graph-column 60)
-
-    (setq org-todo-keywords
-          '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
-            (sequence  "PLAN(p)" "REVIEW(v)" "|" "COMPLETED(c)" "CANC(k@)")))
-
-    (setq org-refile-targets
-          '(("Archive.org" :maxlevel . 1)
-            ("tasks.org" :maxlevel . 1)))
-
-    ;; Save Org buffers after refiling!
-    (advice-add 'org-refile :after 'org-save-all-org-buffers)
-
-    (setq org-tag-alist
-          '((:startgroup)
-            (:endgroup)
-            ("@work" . ?W)
-            ("agenda" . ?a)
-            ("linux" . ?l)
-            ("planning" . ?p)
-            ("note" . ?n)
-            ("idea" . ?i)))
+    ;; (set-face-attribute (car face) nil :font d/header-font :weight 'regular :height (cdr face)))
 
 
-    (setq org-capture-templates
-          `(
-            ("t" "Task" entry (file+olp "~/sync/org/tasks.org" "One-Timer")
-             "* TODO %?\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
-            ("w" "Website Todo" entry (file+headline "~/d-git/d-site/README.org" "Ideas - TODO")
-             "* TODO %?\n  SCHEDULED:%T\n " :empty-lines 1)
+(defun org-mode-setup ()
+  ;; (org-indent-mode 1)
+  (org-display-inline-images 1)
+  (variable-pitch-mode 1)
+  ;; (org-font-setup)
+  (setq
+   org-startup-indented nil
+   org-image-actual-width 300
+   org-startup-folded t)
+  )
 
-            ("j" "Journal Entries")
-            ("jj" "Journal" entry
-             (file+olp+datetree "~/docs/org/journal.org")
-             "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
-             ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
-             :clock-in :clock-resume
-             :empty-lines 1))))
+(use-package org
+  :pin org
+  :commands (org-capture org-agenda)
+  :hook (org-mode . org-mode-setup)
+  (org-mode . org-modern-mode)
+
+  :bind (("C-c c c" . org-capture)
+         ("C-c c d" . calendar)
+         ("C-c t R" . d/bionic-region)
+         ("C-c d a" . org-agenda)
+         ("C-c t r" . d/bionic-read)
+         ("<f6>" . d/edit-src-block)
+         :map org-mode-map
+         ("C-c o b" . d/edit-src-block))
+  :config
+  (setq org-ellipsis " ▾")
+
+  (setq org-agenda-start-with-log-mode t)
+  ;; (setq org-log-done 'time)
+  (setq org-log-done 'note)
+  (setq org-log-into-drawer t)
+
+  ;; browser script
+  (setq browse-url-browser-function 'browse-url-generic
+        browse-url-generic-program "d-stuff")
+  (setq browse-url-secondary-browser-function 'browse-url-generic
+        browse-url-generic-program "d-stuff")
+
+  (setq org-agenda-files
+        '("~/sync/org/tasks.org"
+          "~/d-git/d-site/README.org"))
+
+  ;; (require 'org-habit)
+  ;; (add-to-list 'org-modules 'org-habit)
+  ;; (setq org-habit-graph-column 60)
+
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
+          (sequence  "PLAN(p)" "REVIEW(v)" "|" "COMPLETED(c)" "CANC(k@)")))
+
+  (setq org-refile-targets
+        '(("Archive.org" :maxlevel . 1)
+          ("tasks.org" :maxlevel . 1)))
+
+  ;; Save Org buffers after refiling!
+  (advice-add 'org-refile :after 'org-save-all-org-buffers)
+
+  (setq org-tag-alist
+        '((:startgroup)
+          (:endgroup)
+          ("@work" . ?W)
+          ("agenda" . ?a)
+          ("linux" . ?l)
+          ("planning" . ?p)
+          ("note" . ?n)
+          ("idea" . ?i)))
+
+
+  (setq org-capture-templates
+        `(
+          ("t" "Task" entry (file+olp "~/sync/org/tasks.org" "One-Timer")
+           "* TODO %?\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
+          ("w" "Website Todo" entry (file+headline "~/d-git/d-site/README.org" "Ideas - TODO")
+           "* TODO %?\n  SCHEDULED:%T\n " :empty-lines 1)
+
+          ("j" "Journal Entries")
+          ("jj" "Journal" entry
+           (file+olp+datetree "~/docs/org/journal.org")
+           "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
+           ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
+           :clock-in :clock-resume
+           :empty-lines 1))))
 
 (with-eval-after-load 'org
   (org-babel-do-load-languages
@@ -1104,6 +1116,7 @@ selected color."
   (setq doom-modeline-time-icon nil)
   (setq doom-modeline-bar-width 7)
   (setq doom-modeline-major-mode-icon t)
+  (setq inhibit-compacting-font-caches t)
   :custom ((doom-modeline-height 30)
            (doom-modeline-buffer-encoding nil)))
 
@@ -1228,7 +1241,46 @@ selected color."
   (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly
   :config
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
-  (setq kind-icon-default-style '(:padding -0.5 :stroke 0 :margin 0 :radius 0 :height 0.6 :scale 1.0)))
+  (setq kind-icon-default-style '(:padding -0.5 :stroke 0 :margin 0 :radius 0 :height 0.6 :scale 1.0))
+  (setq kind-icon-use-icons nil)
+  (setq kind-icon-mapping
+        `(
+          (array ,(nerd-icons-codicon "nf-cod-symbol_array") :face font-lock-type-face)
+          (boolean ,(nerd-icons-codicon "nf-cod-symbol_boolean") :face font-lock-builtin-face)
+          (class ,(nerd-icons-codicon "nf-cod-symbol_class") :face font-lock-type-face)
+          (color ,(nerd-icons-codicon "nf-cod-symbol_color") :face success)
+          (command ,(nerd-icons-codicon "nf-cod-terminal") :face default)
+          (constant ,(nerd-icons-codicon "nf-cod-symbol_constant") :face font-lock-constant-face)
+          (constructor ,(nerd-icons-codicon "nf-cod-triangle_right") :face font-lock-function-name-face)
+          (enummember ,(nerd-icons-codicon "nf-cod-symbol_enum_member") :face font-lock-builtin-face)
+          (enum-member ,(nerd-icons-codicon "nf-cod-symbol_enum_member") :face font-lock-builtin-face)
+          (enum ,(nerd-icons-codicon "nf-cod-symbol_enum") :face font-lock-builtin-face)
+          (event ,(nerd-icons-codicon "nf-cod-symbol_event") :face font-lock-warning-face)
+          (field ,(nerd-icons-codicon "nf-cod-symbol_field") :face font-lock-variable-name-face)
+          (file ,(nerd-icons-codicon "nf-cod-symbol_file") :face font-lock-string-face)
+          (folder ,(nerd-icons-codicon "nf-cod-folder") :face font-lock-doc-face)
+          (interface ,(nerd-icons-codicon "nf-cod-symbol_interface") :face font-lock-type-face)
+          (keyword ,(nerd-icons-codicon "nf-cod-symbol_keyword") :face font-lock-keyword-face)
+          (macro ,(nerd-icons-codicon "nf-cod-symbol_misc") :face font-lock-keyword-face)
+          (magic ,(nerd-icons-codicon "nf-cod-wand") :face font-lock-builtin-face)
+          (method ,(nerd-icons-codicon "nf-cod-symbol_method") :face font-lock-function-name-face)
+          (function ,(nerd-icons-codicon "nf-cod-symbol_method") :face font-lock-function-name-face)
+          (module ,(nerd-icons-codicon "nf-cod-file_submodule") :face font-lock-preprocessor-face)
+          (numeric ,(nerd-icons-codicon "nf-cod-symbol_numeric") :face font-lock-builtin-face)
+          (operator ,(nerd-icons-codicon "nf-cod-symbol_operator") :face font-lock-comment-delimiter-face)
+          (param ,(nerd-icons-codicon "nf-cod-symbol_parameter") :face default)
+          (property ,(nerd-icons-codicon "nf-cod-symbol_property") :face font-lock-variable-name-face)
+          (reference ,(nerd-icons-codicon "nf-cod-references") :face font-lock-variable-name-face)
+          (snippet ,(nerd-icons-codicon "nf-cod-symbol_snippet") :face font-lock-string-face)
+          (string ,(nerd-icons-codicon "nf-cod-symbol_string") :face font-lock-string-face)
+          (struct ,(nerd-icons-codicon "nf-cod-symbol_structure") :face font-lock-variable-name-face)
+          (text ,(nerd-icons-codicon "nf-cod-text_size") :face font-lock-doc-face)
+          (typeparameter ,(nerd-icons-codicon "nf-cod-list_unordered") :face font-lock-type-face)
+          (type-parameter ,(nerd-icons-codicon "nf-cod-list_unordered") :face font-lock-type-face)
+          (unit ,(nerd-icons-codicon "nf-cod-symbol_ruler") :face font-lock-constant-face)
+          (value ,(nerd-icons-codicon "nf-cod-symbol_field") :face font-lock-builtin-face)
+          (variable ,(nerd-icons-codicon "nf-cod-symbol_variable") :face font-lock-variable-name-face)
+          (t ,(nerd-icons-codicon "nf-cod-code") :face font-lock-warning-face))))
 
 (use-package magit
   :defer t
@@ -1337,18 +1389,9 @@ selected color."
         (insert . "")
         (beacon . "")))
 
-(add-to-list 'meow-mode-state-list
-      '((fundamental-mode . normal)
-        (vterm-mode . insert)
-        (eww-mode . insert)
-        (text-mode . normal)
-        (prog-mode . normal)
-        (conf-mode . normal)
-        (json-mode . normal)))
-
 ;meow-thing-register THING INNER BOUNDS
-;(meow-thing-register 'arrow '(pair ("<") (">")) '(pair ("<") (">")))
-;(add-to-list 'meow-char-thing-table '(?a . arrow))
+(meow-thing-register 'arrow '(pair ("<") (">")) '(pair ("<") (">")))
+(add-to-list 'meow-char-thing-table '(?a . arrow))
 
 (meow-setup)
 (meow-global-mode 1)
@@ -1376,13 +1419,6 @@ selected color."
 (setq dired-listing-switches "-alt --dired --group-directories-first -h -G")
 (add-hook 'dired-mode-hook 'dired-hide-details-mode)
 (add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))
-
-(use-package all-the-icons
-  :bind ("C-x 8 i" . all-the-icons-insert))
-
-(use-package all-the-icons-dired
-  :hook
-  (dired-mode . all-the-icons-dired-mode))
 
 (use-package vterm
   :bind
@@ -1462,13 +1498,16 @@ selected color."
   (setq webpaste-paste-confirmation t))
 
 (use-package sdcv
-  :defer t
+  :hook (sdcv-mode . hide-mode-line-mode)
   :config
-  (setq sdcv-say-word-p t)
-  (setq sdcv-dictionary-data-dir "~/d-git/d-bin/treasure/dict/")
-  (setq sdcv-dictionary-simple-list
-        '("wn" "enjp" "thesaurus"))
-  :bind ("C-c d d" . sdcv-search-input)
+  (setq sdcv-say-word-p t
+        sdcv-dictionary-data-dir "~/d-git/d-bin/treasure/dict/"
+        sdcv-dictionary-simple-list
+        '("wn" "mw-thesaurus" "enjp")
+        sdcv-popup-function 'popup-tip
+        sdcv-buffer-name "StarDict")
+  :bind (("C-c d w" . sdcv-search-input)
+         ("C-c d d" . sdcv-search-input+))
   (:map sdcv-mode-map
         ("q" . kill-buffer-and-window)
         ("n" . sdcv-next-dictionary)
@@ -1779,7 +1818,7 @@ Hack to use `insert-sliced-image' to avoid jerky image scrolling."
 
 (defun d/external-browser ()
   (interactive)
-  (if (or (thing-at-point 'url t) (thing-at-point 'filename t))
+  (if (or (thing-at-point 'url t) (thing-at-point 'filename t) (shr-url-at-point nil) (image-at-point-p))
       (link-hint-copy-link-at-point)
     (link-hint-copy-link))
   (let ((url (current-kill 0)))
@@ -1935,8 +1974,9 @@ Hack to use `insert-sliced-image' to avoid jerky image scrolling."
 (if (daemonp)
     (add-hook 'after-make-frame-functions
               (lambda (frame)
-                ;; (setq doom-modeline-icon t)
+                (setq doom-modeline-icon t)
                 (with-selected-frame frame
                   (d/set-font-faces))))
     (d/set-font-faces))
+(setq doom-modeline-icon t)
  (put 'narrow-to-region 'disabled nil)

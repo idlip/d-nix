@@ -5,7 +5,7 @@
     color: @fg-alt;
     border: 0;
     border-radius: 10px;
-    padding: 0 2;
+    padding: 0 2px;
     font-family:ComicCodeLigatures Nerd Font;
     font-size: 24px;
     margin-right: 5px;
@@ -64,13 +64,14 @@ window#waybar {
 
 #mpd {
     color: @lavender;
+    font-family:Maple Mono NF;
+    font-style: italic;
 }
 
 
 #cpu {
     color: @blue-faint;
 }
-
 
 #memory {
     color: @blue-faint;

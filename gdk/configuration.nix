@@ -121,7 +121,7 @@ nix = {
   };
 };
 system.autoUpgrade.enable = false;
-system.stateVersion = "22.11"; # DONT TOUCH THIS (See about state version on nixos manual)
+system.stateVersion = "23.05"; # DONT TOUCH THIS (See about state version on nixos manual)
 
 boot = {
   # Uses bleeding edge latest kernel.
@@ -278,7 +278,7 @@ systemd.services = {
 };
 
 environment.systemPackages = with pkgs; [
-  gitFull linux-firmware
+  gitFull
   neovim helix
 ];
 
@@ -286,8 +286,6 @@ environment.systemPackages = with pkgs; [
 nixpkgs.overlays = with inputs; [emacs-overlay.overlay];
 
 hardware = {
-  enableAllFirmware = true;
-  uinput.enable = true;
   opengl = {
     enable = true;
     extraPackages = with pkgs; [
@@ -301,7 +299,7 @@ hardware = {
 
 fonts = {
   fonts = with pkgs; [
-    emacs-all-the-icons-fonts
+    #emacs-all-the-icons-fonts
     noto-fonts
     #material-icons comic-mono material-design-icons
     # weather-icons font-awesome
@@ -323,7 +321,7 @@ fonts = {
       ];
       sansSerif = [ "Gandhi Sans" "VictorMono Nerd Font" "Noto Sans"];
       serif = [ "Gandhi Sans" "Noto Sans" "VictorMono Nerd Font" "JetBrainsMono Nerd Font" "Noto Sans"];
-      emoji = ["ComicCodeLigatures Nerd Font" "Noto Color Emoji" "FiraCode Nerd Font" "Symbola" "all-the-icons" "Weather Icons" "Material Icons" ];
+      emoji = ["ComicCodeLigatures Nerd Font" "Noto Color Emoji" "FiraCode Nerd Font" "Symbola" ];
     };
   };
 };

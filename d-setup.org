@@ -654,7 +654,7 @@ Opening brace that contains the rest of the configuration file.
   programs = {
     # Starship
     starship = {
-      enable = true;
+      enable = false;
       enableZshIntegration = true;
       settings = {
         add_newline = true;
@@ -747,6 +747,13 @@ Opening brace that contains the rest of the configuration file.
       };
 
       envExtra = ''
+          export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+          export PATH="$PATH:<<my-bin>>:$HOME/.local/bin/d"
+          export EDITOR="emacsclient -nw -a 'nvim'"
+          export VISUAL=$EDITOR
+          export STARDICT_DATA_DIR="$HOME/.local/share/stardict"
+          export GRIM_DEFAULT_DIR="$HOME/pics/sshots/"
+
           if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
             exec Hyprland
           fi
@@ -786,6 +793,30 @@ This is easy to manage and also get the syntax highlighing for shell, as nix als
   # eval "$(starship init zsh)"
   # eval "$(direnv hook zsh)"
 
+  # Removed starship and going default minimal way!
+
+  # Make zsh better simply
+  autoload -U colors && colors  # Load colors
+  PS1="%B%{$fg[yellow]%}[%{$fg[cyan]%}%~%{$fg[yellow]%}]$fg[blue]   %b%{$reset_color%}%b"
+  # setopt autocd		# Auto cd
+  stty stop undef		# Disable ctrl-s to freeze terminal.
+  setopt interactive_comments
+
+  # Basic auto/tab complete:
+  autoload -U compinit
+  zstyle ':completion:*' menu select
+  zmodload zsh/complist
+  compinit
+  _comp_options+=(globdots)		# Include hidden files.
+
+  # Use vim keys in tab complete menu:
+  bindkey -M menuselect 'h' vi-backward-char
+  bindkey -M menuselect 'k' vi-up-line-or-history
+  bindkey -M menuselect 'l' vi-forward-char
+  bindkey -M menuselect 'j' vi-down-line-or-history
+  bindkey -v '^?' backward-delete-char
+
+
   # autoload -U compinit && compinit
   bindkey -e
 
@@ -794,7 +825,7 @@ This is easy to manage and also get the syntax highlighing for shell, as nix als
   alias bloat="nix path-info -Sh /run/current-system"
   alias ytmp3="yt-dlp -x --continue --add-metadata --embed-thumbnail --audio-format mp3 --audio-quality 0 --metadata-from-title='%(artist)s - %(title)s' --prefer-ffmpeg -o '%(title)s.%(ext)s' "
   alias cat="bat --style=plain"
-  alias grep='ripgrep'
+  alias grep='rg'
   alias du='du-dust'
   alias ps='procs'
   alias m="mkdir -p"
@@ -833,14 +864,7 @@ This is easy to manage and also get the syntax highlighing for shell, as nix als
       cd "$(find -type d | fzf)"
   }
 
-  export MANPAGER="sh -c 'col -bx | bat -l man -p'"
-  export PATH="$PATH:<<my-bin>>:$HOME/.local/bin/d"
-  export EDITOR="emacsclient -nw -a 'nvim'"
-  export VISUAL=$EDITOR
-  export STARDICT_DATA_DIR="$HOME/.local/share/stardict"
-
-  export GRIM_DEFAULT_DIR="$HOME/pics/sshots/"
-
+  precmd() { print "" }
 
 #+end_src
 **** User Packages
@@ -1338,6 +1362,8 @@ The better cli alternative!
   bind=SUPERSHIFT,z,movetoworkspace,special
   bind=SUPER,z,togglespecialworkspace,
 
+  bind=SUPER,tab,workspace,e+1
+
   bind=SUPER,1,movetoworkspace,1
   bind=SUPER,2,movetoworkspace,2
   bind=SUPER,3,movetoworkspace,3
@@ -1490,8 +1516,9 @@ Its more mature than hyprland. So... better to have it! I dont use sway that muc
       orderless consult marginalia embark org olivetti org-modern corfu
       embark-consult consult-eglot consult-flycheck
       cape markdown-mode nix-mode
-      nerd-icons async dired-hide-dotfiles dired-single
-      reddigg hnreader mingus pdf-tools which-key magit webpaste org-present
+      nerd-icons async dirvish
+      reddigg hnreader mingus which-key magit webpaste org-present
+      pdf-tools nov shrface shr-tag-pre-highlight
       org-mime corfu-terminal beframe denote tempel tempel-collection
       sdcv elfeed elfeed-org link-hint powerthesaurus jinx meow
       doom-modeline hide-mode-line el-fetch ox-hugo htmlize
@@ -2596,10 +2623,10 @@ listing menus
   programs = {
     gpg.enable = true;
     man.enable = true;
-    direnv = {
-      enable = true;
-      nix-direnv.enable = true;
-    };
+    # direnv = {
+    #   enable = true;
+    #   nix-direnv.enable = true;
+    # };
     tealdeer = {
       enable = true;
       settings = {

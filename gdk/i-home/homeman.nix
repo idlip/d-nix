@@ -10,7 +10,7 @@ home.sessionVariables.STARSHIP_CACHE = "${config.xdg.cacheHome}/starship";
 programs = {
   # Starship
   starship = {
-    enable = true;
+    enable = false;
     enableZshIntegration = true;
     settings = {
       add_newline = true;
@@ -103,6 +103,13 @@ programs = {
     };
 
     envExtra = ''
+        export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+        export PATH="$PATH:/home/i/d-git/d-bin/bin:$HOME/.local/bin/d"
+        export EDITOR="emacsclient -nw -a 'nvim'"
+        export VISUAL=$EDITOR
+        export STARDICT_DATA_DIR="$HOME/.local/share/stardict"
+        export GRIM_DEFAULT_DIR="$HOME/pics/sshots/"
+
         if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
           exec Hyprland
         fi
@@ -428,8 +435,9 @@ programs.emacs = {
     orderless consult marginalia embark org olivetti org-modern corfu
     embark-consult consult-eglot consult-flycheck
     cape markdown-mode nix-mode
-    nerd-icons async dired-hide-dotfiles dired-single
-    reddigg hnreader mingus pdf-tools which-key magit webpaste org-present
+    nerd-icons async dirvish
+    reddigg hnreader mingus which-key magit webpaste org-present
+    pdf-tools nov shrface shr-tag-pre-highlight
     org-mime corfu-terminal beframe denote tempel tempel-collection
     sdcv elfeed elfeed-org link-hint powerthesaurus jinx meow
     doom-modeline hide-mode-line el-fetch ox-hugo htmlize
@@ -818,10 +826,10 @@ services = {
 programs = {
   gpg.enable = true;
   man.enable = true;
-  direnv = {
-    enable = true;
-    nix-direnv.enable = true;
-  };
+  # direnv = {
+  #   enable = true;
+  #   nix-direnv.enable = true;
+  # };
   tealdeer = {
     enable = true;
     settings = {

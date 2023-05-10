@@ -114,7 +114,7 @@ If you experience stuttering, increase this.")
     "The font to use for monospaced (fixed width) text.")
 
   (defvar d/variable-width-font "ComicCodeLigatures Nerd Font"
-    "The font to use for variable-pitch (document) text.")
+    "The font to use for variable-pitch (documents) text.")
 
   (setq haki-heading-font "Comic Mono")
   (setq haki-sans-font "Iosevka Comfy Motion")
@@ -232,32 +232,35 @@ If you experience stuttering, increase this.")
      (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
    "/DONE" 'tree))
 
-(global-set-key (kbd "M-v") #'d/scroll-up)
-(global-set-key (kbd "C-v") #'d/scroll-down)
-(global-set-key (kbd "<f5>") #'d/refresh-buffer)
-(global-set-key (kbd "C-c d i") #'d/insert-unicodes)
-(global-set-key (kbd "C-c d c") #'d/insert-colors)
+(dolist (keybind '(("M-o" . other-window)
+
+                   ;; Better scrolling (emacs 29)
+                   ("M-v" . d/scroll-up)
+                   ("C-v" . d/scroll-down)
+                   ;; refresh/re-read buffer
+                   ("<f5>" . d/refresh-buffer)
+                   ;; insert color or nerd icons
+                   ("C-c d i" . d/insert-unicodes)
+                   ("C-c d c" . d/insert-colors)
+                   ;; better splits
+                   ("C-x 2" . split-and-follow-horizontally)
+                   ("C-x 3" . split-and-follow-vertically)
+                   ;; regex replace
+                   ("M-%" . query-replace-regexp)
+                   ;; quick kill
+                   ("C-x C-k" . d/kill-buffer)
+                   ("C-x k" . kill-buffer)
+                   ("<escape>" . keyboard-escape-quit)
+                   ;; handy editing
+                   ("M-z" . zap-up-to-char)
+                   ("M-u" . upcase-dwim)
+                   ("M-l" . downcase-dwim)
+                   ("M-c" . capitalize-dwim)))
+  (global-set-key (kbd (car keybind)) (cdr keybind)))
 
 ;; Get rid of annoyance
 (global-unset-key (kbd "C-x C-z"))
 (global-unset-key (kbd "C-z"))
-
-;;(define-key org-mode-map (kbd "C-c C-x C-s") #'org-archive-done-tasks)
-(global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
-(global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
-(global-set-key [C-tab] 'other-window)
-
-(global-set-key (kbd "C-x C-k") 'd/kill-buffer) ;; My func to clear cache along killing buffer
-(global-set-key (kbd "C-x k") 'kill-buffer)
-(global-set-key (kbd "M-%") 'query-replace-regexp) ;; Hail regexp searching!
-
-;; Make ESC quit prompts
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-(global-set-key (kbd "M-z") 'zap-up-to-char)
-
-(global-set-key (kbd "M-u") 'upcase-dwim)
-(global-set-key (kbd "M-l") 'downcase-dwim)
-(global-set-key (kbd "M-c") 'capitalize-dwim)
 
 (use-package which-key
   :defer 0
@@ -328,10 +331,15 @@ If you experience stuttering, increase this.")
   (setq vertico-resize t)
   (setq vertico-cycle t)
   :config
+  (setq vertico-buffer-display-action '(display-buffer-in-direction
+                                        (direction . right)
+                                        (window-width . 0.45)))
   (setq vertico-multiform-categories
-      '((consult-ripgrep buffer)
-        (file )
-        (t unobtrusive))))
+      '((file )
+        (consult-location buffer)
+        (t unobtrusive)))
+  (setq vertico-multiform-commands
+        '((consult-ripgrep buffer))))
 
 (defun d/vertico-toggle ()
   "Toggle between vertico-unobtrusive and vertico-mode."
@@ -724,7 +732,11 @@ selected color."
 
 (use-package jinx
   :hook (emacs-startup . global-jinx-mode)
-  :bind ("M-$". jinx-correct))
+  :bind ("M-$". jinx-correct)
+  :config
+  (add-to-list 'vertico-multiform-categories
+               '(jinx grid indexed))
+  (vertico-multiform-mode 1))
 
 (defun org-font-setup ()
   ;; Replace list hyphen with dot
@@ -1205,34 +1217,16 @@ selected color."
     :config
     (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
     (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
-    (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
+    (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman"))))
 
-    :hook
-    (nix-mode . eglot-ensure)
-    (bash-ts-mode . eglot-ensure)
-    (markdown-mode-hook . eglot-ensure))
+    ;; :hook
+    ;; (nix-mode . eglot-ensure)
+    ;; (bash-ts-mode . eglot-ensure)
+    ;; (markdown-mode-hook . eglot-ensure))
 
-(defun my/eglot-capf ()
-(setq-local completion-at-point-functions
-            (list
-             (cape-capf-buster
-              (cape-super-capf
-               #'eglot-completion-at-point
-               #'cape-ispell
-               #'cape-file
-               #'cape-dabbrev) 'equal))))
-(add-to-list 'completion-at-point-functions 
-             (cape-capf-buster
-              (cape-super-capf
-               #'cape-file
-               #'cape-dabbrev) 'equal))
-
-(add-hook 'eglot-managed-mode-hook #'my/eglot-capf)
-(setq-local completion-at-point-functions
-            (list (cape-capf-buster #'my/eglot-capf 'equal)))
-
-(use-package eglot-tempel
-  :load-path "~/.config/emacs/elpa/eglot-tempel")
+;; (use-package eglot-tempel
+;;   :disabled t
+;;   :load-path "~/.config/emacs/elpa/eglot-tempel")
 
 (use-package kind-icon
   :ensure t
@@ -1397,6 +1391,7 @@ selected color."
 (meow-global-mode 1)
 
 (use-package dired
+  :init (dirvish-override-dired-mode)
   :ensure nil
   :commands (dired dired-jump)
   :bind (("C-x C-j" . dired-jump)
@@ -1404,15 +1399,14 @@ selected color."
          ("C-c f e" . (lambda () (interactive) (find-file (expand-file-name "~/d-git/d-nix/d-emacs.org"))))
          ("C-c f s" . (lambda () (interactive) (find-file (expand-file-name "~/d-git/d-nix/d-setup.org"))))
          ("C-c f m" . (lambda () (interactive) (find-file (expand-file-name "~/d-git/d-nix/README.org"))))
-         ("C-x C-d" . dired))
+         ("C-x C-d" . dirvish))
   (:map dired-mode-map
         ("q" . kill-buffer-and-window)
-        ("l" . dired-single-buffer)
-        ("n" . dired-single-buffer)
-        ("p" . dired-single-up-directory)
-        ("h" . dired-single-up-directory)
         ("j" . dired-next-line)
         ("k" . dired-previous-line)
+        ("l" . dired-find-file)
+        ("h" . dired-up-directory)
+        ("C-x C-k" . dirvish-quit)
         ("b" . d/external-browser))
 
   :custom ((dired-listing-switches "-agho --group-directories-first")))
@@ -1514,6 +1508,96 @@ selected color."
         ("TAB" . hide-entry)
         ("<backtab>" . show-entry)
         ("p" . sdcv-previous-dictionary)))
+
+(use-package nov
+  :config
+  (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
+  (setq nov-text-width t))
+
+(defun shrface-default-keybindings ()
+  (interactive)
+  "Sets up the default keybindings for `shrface-mode'."
+  (define-key shrface-mode-map (kbd "TAB") 'shrface-outline-cycle)
+  (define-key shrface-mode-map (kbd "<backtab>") 'shrface-outline-cycle-buffer)
+  (define-key shrface-mode-map (kbd "C-t") 'shrface-toggle-bullets)
+  (define-key shrface-mode-map (kbd "C-j") 'shrface-next-headline)
+  (define-key shrface-mode-map (kbd "C-k") 'shrface-previous-headline)
+  (define-key shrface-mode-map (kbd "M-l") 'shrface-links-consult)
+  (define-key shrface-mode-map (kbd "M-h") 'shrface-headline-consult))
+
+(use-package shrface
+  :defer t
+  :init
+  (setq shrface-item-bullet 8226)
+  :bind (:map shrface-mode-map
+              ("<tab>" . shrface-outline-cycle)
+              ("<backtab>" . shrface-outline-cycle-buffer)
+              ("M-l" . shrface-links-consult)
+              ("M-h" . shrface-headline-consult)
+              ("C-j" . shrface-next-headline)
+              ("C-k" . shrface-previous-headline))
+  :config
+  (shrface-basic)
+  (shrface-trial)
+  (setq shrface-bullets-bullet-list org-modern-star)
+  (setq shrface-href-versatile t))
+
+(use-package eww
+  :defer t
+  :init
+  (add-hook 'eww-after-render-hook #'shrface-mode))
+
+(use-package nov
+  :defer t
+  :init
+  (add-hook 'nov-mode-hook #'shrface-mode)
+  :config
+  (setq nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title)))
+  (setq nov-shr-rendering-functions (append nov-shr-rendering-functions shr-external-rendering-functions)))
+
+;; To highligh src blocks in eww
+(use-package shr-tag-pre-highlight
+  :ensure t
+  :after shr
+  :config
+
+(defun shrface-shr-tag-pre-highlight (pre)
+    "Highlighting code in PRE."
+    (let* ((shr-folding-mode 'none)
+           (shr-current-font 'default)
+           (code (with-temp-buffer
+                   (shr-generic pre)
+                   ;; (indent-rigidly (point-min) (point-max) 2)
+                   (buffer-string)))
+           (lang (or (shr-tag-pre-highlight-guess-language-attr pre)
+                     (let ((sym (language-detection-string code)))
+                       (and sym (symbol-name sym)))))
+           (mode (and lang
+                      (shr-tag-pre-highlight--get-lang-mode lang))))
+      (shr-ensure-newline)
+      (shr-ensure-newline)
+      (setq start (point))
+      (insert
+       (propertize (concat "#+BEGIN_SRC " lang "\n") 'face 'org-block-begin-line)
+       (or (and (fboundp mode)
+                (with-demoted-errors "Error while fontifying: %S"
+                  (shr-tag-pre-highlight-fontify code mode)))
+           code)
+       (propertize "#+END_SRC" 'face 'org-block-end-line ))
+      (shr-ensure-newline)
+      (setq end (point))
+      (if light
+          (add-face-text-property start end '(:background "#D8DEE9" :extend t))
+        (add-face-text-property start end '(:background "#292b2e" :extend t)))
+      (shr-ensure-newline)
+      (insert "\n")))
+
+  (add-to-list 'shr-external-rendering-functions
+               '(pre . shr-tag-pre-highlight))
+  (when (version< emacs-version "26")
+    (with-eval-after-load 'eww
+      (advice-add 'eww-display-html :around
+                  'eww-display-html--override-shr-external-rendering-functions))))
 
 (use-package pdf-tools
   :defer t
@@ -1725,12 +1809,13 @@ selected color."
               ("Q" . d/kill-buffer)
               ("M-v" . d/scroll-up)
               ("C-v" . d/scroll-down)
-              ("C-f" . shr-next-link)
-              ("C-b" . shr-previous-link)
               ("F" . d/visit-urls)
-              ("U" . elfeed-update)
               ("b" . d/external-browser))
   :config
+  (setq shr-bullet "• "
+        shr-folding-mode t
+        url-privacy-level '(email agent cookies lastloc))
+
   (defvar consult--source-eww
     (list
      :name     "Eww"
@@ -1753,9 +1838,6 @@ selected color."
   :custom
   (gnutls-verify-error t))
 
-(setq shr-bullet "• "
-      shr-folding-mode t
-      url-privacy-level '(email agent cookies lastloc))
 
 (with-eval-after-load "shr"
     (defun shr-put-image (spec alt &optional flags)
@@ -1864,7 +1946,7 @@ Hack to use `insert-sliced-image' to avoid jerky image scrolling."
 
 ;; (server-start)
 
-(visual-line-mode 1)
+(global-visual-line-mode 1)
 
 ;; Display messages when idle, without prompting
 (setq help-at-pt-display-when-idle t)

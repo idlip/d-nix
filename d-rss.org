@@ -36,7 +36,6 @@
 *** [[https://rupress.org/rss/site_1000001/LatestArticles_1000003.xml][Rupress]]
 *** [[https://journals.biologists.com/rss/site_1000009/1000007.xml][Jour-Bio]]
 *** [[https://www.biologycorner.com/feed/][BioCorner]]
-*** [[https://www.onlinebiologynotes.com/feed/][OnlineBio]]
 *** [[https://bitesizebio.com/feed/][BiteSize]]
 *** [[http://feeds.feedburner.com/BiologyExams4U][Bioexam]]
 *** [[https://journals.biologists.com/rss/site_1000001/1000003.xml][Journal-bio]]
@@ -45,7 +44,6 @@
 ** Emacs                                                              :emacs:
 *** [[https://planet.emacslife.com/atom.xml][Planet-Emacs]]
 ** Linux :linux:
-*** [[https://opensourcemusings.com/feed/ blog][opensource]]
 *** [[https://itsfoss.com/rss][itsfoss]]
 *** [[https://www.cyberciti.com/atom/atom.xml][nixCraft]]
 ** Media :media:

@@ -279,7 +279,7 @@ Fonts are crucial to read.
       "The font to use for monospaced (fixed width) text.")
 
     (defvar d/variable-width-font "ComicCodeLigatures Nerd Font"
-      "The font to use for variable-pitch (document) text.")
+      "The font to use for variable-pitch (documents) text.")
 
     (setq haki-heading-font "Comic Mono")
     (setq haki-sans-font "Iosevka Comfy Motion")
@@ -408,33 +408,35 @@ Keep folders and backuping files clean!
         #+end_src
 ** Respected binds
 #+begin_src emacs-lisp
+  (dolist (keybind '(("M-o" . other-window)
 
-  (global-set-key (kbd "M-v") #'d/scroll-up)
-  (global-set-key (kbd "C-v") #'d/scroll-down)
-  (global-set-key (kbd "<f5>") #'d/refresh-buffer)
-  (global-set-key (kbd "C-c d i") #'d/insert-unicodes)
-  (global-set-key (kbd "C-c d c") #'d/insert-colors)
+                     ;; Better scrolling (emacs 29)
+                     ("M-v" . d/scroll-up)
+                     ("C-v" . d/scroll-down)
+                     ;; refresh/re-read buffer
+                     ("<f5>" . d/refresh-buffer)
+                     ;; insert color or nerd icons
+                     ("C-c d i" . d/insert-unicodes)
+                     ("C-c d c" . d/insert-colors)
+                     ;; better splits
+                     ("C-x 2" . split-and-follow-horizontally)
+                     ("C-x 3" . split-and-follow-vertically)
+                     ;; regex replace
+                     ("M-%" . query-replace-regexp)
+                     ;; quick kill
+                     ("C-x C-k" . d/kill-buffer)
+                     ("C-x k" . kill-buffer)
+                     ("<escape>" . keyboard-escape-quit)
+                     ;; handy editing
+                     ("M-z" . zap-up-to-char)
+                     ("M-u" . upcase-dwim)
+                     ("M-l" . downcase-dwim)
+                     ("M-c" . capitalize-dwim)))
+    (global-set-key (kbd (car keybind)) (cdr keybind)))
 
   ;; Get rid of annoyance
   (global-unset-key (kbd "C-x C-z"))
   (global-unset-key (kbd "C-z"))
-
-  ;;(define-key org-mode-map (kbd "C-c C-x C-s") #'org-archive-done-tasks)
-  (global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
-  (global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
-  (global-set-key [C-tab] 'other-window)
-
-  (global-set-key (kbd "C-x C-k") 'd/kill-buffer) ;; My func to clear cache along killing buffer
-  (global-set-key (kbd "C-x k") 'kill-buffer)
-  (global-set-key (kbd "M-%") 'query-replace-regexp) ;; Hail regexp searching!
-
-  ;; Make ESC quit prompts
-  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-  (global-set-key (kbd "M-z") 'zap-up-to-char)
-
-  (global-set-key (kbd "M-u") 'upcase-dwim)
-  (global-set-key (kbd "M-l") 'downcase-dwim)
-  (global-set-key (kbd "M-c") 'capitalize-dwim)
 
 #+end_src
 * 🎹 What Key?

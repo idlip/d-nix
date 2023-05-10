@@ -1,6 +1,30 @@
 # eval "$(starship init zsh)"
 # eval "$(direnv hook zsh)"
 
+# Removed starship and going default minimal way!
+
+# Make zsh better simply
+autoload -U colors && colors  # Load colors
+PS1="%B%{$fg[yellow]%}[%{$fg[cyan]%}%~%{$fg[yellow]%}]$fg[blue]   %b%{$reset_color%}%b"
+# setopt autocd		# Auto cd
+stty stop undef		# Disable ctrl-s to freeze terminal.
+setopt interactive_comments
+
+# Basic auto/tab complete:
+autoload -U compinit
+zstyle ':completion:*' menu select
+zmodload zsh/complist
+compinit
+_comp_options+=(globdots)		# Include hidden files.
+
+# Use vim keys in tab complete menu:
+bindkey -M menuselect 'h' vi-backward-char
+bindkey -M menuselect 'k' vi-up-line-or-history
+bindkey -M menuselect 'l' vi-forward-char
+bindkey -M menuselect 'j' vi-down-line-or-history
+bindkey -v '^?' backward-delete-char
+
+
 # autoload -U compinit && compinit
 bindkey -e
 
@@ -9,7 +33,7 @@ alias cleanup="doas nix-collect-garbage --delete-older-than 7d"
 alias bloat="nix path-info -Sh /run/current-system"
 alias ytmp3="yt-dlp -x --continue --add-metadata --embed-thumbnail --audio-format mp3 --audio-quality 0 --metadata-from-title='%(artist)s - %(title)s' --prefer-ffmpeg -o '%(title)s.%(ext)s' "
 alias cat="bat --style=plain"
-alias grep='ripgrep'
+alias grep='rg'
 alias du='du-dust'
 alias ps='procs'
 alias m="mkdir -p"
@@ -48,10 +72,4 @@ function fcd() {
     cd "$(find -type d | fzf)"
 }
 
-export MANPAGER="sh -c 'col -bx | bat -l man -p'"
-export PATH="$PATH:/home/i/d-git/d-bin/bin:$HOME/.local/bin/d"
-export EDITOR="emacsclient -nw -a 'nvim'"
-export VISUAL=$EDITOR
-export STARDICT_DATA_DIR="$HOME/.local/share/stardict"
-
-export GRIM_DEFAULT_DIR="$HOME/pics/sshots/"
+precmd() { print "" }

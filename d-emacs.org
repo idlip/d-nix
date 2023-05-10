@@ -1041,8 +1041,11 @@ Jinx is another cool new package for spell corrections
 #+begin_src emacs-lisp
   (use-package jinx
     :hook (emacs-startup . global-jinx-mode)
-    :bind ("M-$". jinx-correct))
-
+    :bind ("M-$". jinx-correct)
+    :config
+    (add-to-list 'vertico-multiform-categories
+                 '(jinx grid indexed))
+    (vertico-multiform-mode 1))
 #+end_src
 
 * 🗄️ Organize Life
@@ -1631,34 +1634,16 @@ I'm not a programmer, maybe will be expanded in future..
       :config
       (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
       (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
-      (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
+      (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman"))))
 
-      :hook
-      (nix-mode . eglot-ensure)
-      (bash-ts-mode . eglot-ensure)
-      (markdown-mode-hook . eglot-ensure))
+      ;; :hook
+      ;; (nix-mode . eglot-ensure)
+      ;; (bash-ts-mode . eglot-ensure)
+      ;; (markdown-mode-hook . eglot-ensure))
 
-  (defun my/eglot-capf ()
-  (setq-local completion-at-point-functions
-              (list
-               (cape-capf-buster
-                (cape-super-capf
-                 #'eglot-completion-at-point
-                 #'cape-ispell
-                 #'cape-file
-                 #'cape-dabbrev) 'equal))))
-  (add-to-list 'completion-at-point-functions 
-               (cape-capf-buster
-                (cape-super-capf
-                 #'cape-file
-                 #'cape-dabbrev) 'equal))
-
-  (add-hook 'eglot-managed-mode-hook #'my/eglot-capf)
-  (setq-local completion-at-point-functions
-              (list (cape-capf-buster #'my/eglot-capf 'equal)))
-
-  (use-package eglot-tempel
-    :load-path "~/.config/emacs/elpa/eglot-tempel")
+  ;; (use-package eglot-tempel
+  ;;   :disabled t
+  ;;   :load-path "~/.config/emacs/elpa/eglot-tempel")
 #+end_src
 ** ⚡ Kind Icons
 Icons to prettify the corfu popup
@@ -1839,6 +1824,7 @@ It is one of the package I wish I had soon discovered it.
 Not that intuitive to use as file manager, once you get a hand of emacs. You will thank for this.
 #+begin_src emacs-lisp
   (use-package dired
+    :init (dirvish-override-dired-mode)
     :ensure nil
     :commands (dired dired-jump)
     :bind (("C-x C-j" . dired-jump)

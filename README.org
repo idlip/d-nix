@@ -35,6 +35,13 @@ Feel free to open an issue and ask me doubts or about some improvements, you wan
 If you really wanna talk/discuss with me, open an issue so I will join on some media (Irc/matrix or telegram)
 
 
+** 🚔 Speculation
+  | CPU                | Intel(R) Core(TM) i3-6006U CPU @ 2.00GHz |
+  | RAM (startup)      | 343MB/4GB (16%)                          |
+  | Swap               | 50% (2GB) zram                           |
+  | Pkgs               | 691                                      |
+  | Nix current-system | 12.7GB                                   |
+
 * ✨ Illustrations - Unix Way
 
 + 🐧 *Desktop Rice*

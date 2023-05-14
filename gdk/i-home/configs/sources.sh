@@ -1,11 +1,11 @@
 # eval "$(starship init zsh)"
 # eval "$(direnv hook zsh)"
-
 # Removed starship and going default minimal way!
 
 # Make zsh better simply
 autoload -U colors && colors  # Load colors
-PS1="%B%{$fg[yellow]%}[%{$fg[cyan]%}%~%{$fg[yellow]%}]$fg[blue]   %b%{$reset_color%}%b"
+PS1="%B%{$fg[yellow]%}[%{$fg[cyan]%}%~%{$fg[yellow]%}]
+ %{$fg[blue]%} %b%{$reset_color%}%b"
 # setopt autocd		# Auto cd
 stty stop undef		# Disable ctrl-s to freeze terminal.
 setopt interactive_comments
@@ -22,11 +22,10 @@ bindkey -M menuselect 'h' vi-backward-char
 bindkey -M menuselect 'k' vi-up-line-or-history
 bindkey -M menuselect 'l' vi-forward-char
 bindkey -M menuselect 'j' vi-down-line-or-history
-bindkey -v '^?' backward-delete-char
 
-
-# autoload -U compinit && compinit
 bindkey -e
+# This already is in hm module
+# autoload -U compinit && compinit
 
 # Aliases
 alias cleanup="doas nix-collect-garbage --delete-older-than 7d"

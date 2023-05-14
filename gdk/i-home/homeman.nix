@@ -119,7 +119,6 @@ programs = {
         source "${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
         source "${pkgs.zsh-history-substring-search}/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
         source "${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-        source "${pkgs.zsh-autopair}/share/zsh/zsh-autopair/autopair.zsh"
         source "${pkgs.nix-zsh-completions}/share/zsh/plugins/nix/nix-zsh-completions.plugin.zsh"
         source "${pkgs.zsh-nix-shell}/share/zsh-nix-shell/nix-shell.plugin.zsh"
 
@@ -171,11 +170,12 @@ gruvbox-gtk-theme
 # pioneer of web
 firefox librewolf brave ungoogled-chromium hugo
 
-nodePackages_latest.bash-language-server
-  nodePackages_latest.vscode-langservers-extracted
-  python311Packages.python-lsp-server
+nodePackages.bash-language-server
+  nodePackages.vscode-langservers-extracted
+  # python311Packages.python-lsp-server
+  nodePackages.pyright
   python3
-  marksman nil 
+  nil 
   tree-sitter
   texlive.combined.scheme-full
 

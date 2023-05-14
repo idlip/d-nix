@@ -116,7 +116,7 @@ If you experience stuttering, increase this.")
   (defvar d/variable-width-font "ComicCodeLigatures Nerd Font"
     "The font to use for variable-pitch (documents) text.")
 
-  (setq haki-heading-font "Comic Mono")
+  (setq haki-heading-font "Iosevka Comfy Motion")
   (setq haki-sans-font "Iosevka Comfy Motion")
 ;;  (setq haki-code-font "JetBrainsMono Nerd Font")
   (setq haki-title-font "Impress BT")
@@ -233,6 +233,7 @@ If you experience stuttering, increase this.")
    "/DONE" 'tree))
 
 (dolist (keybind '(("M-o" . other-window)
+                   ("C-<tab>" . tab-next)
 
                    ;; Better scrolling (emacs 29)
                    ("M-v" . d/scroll-up)
@@ -290,6 +291,7 @@ If you experience stuttering, increase this.")
   ("C-h k" . helpful-key)
   ("C-h x" . helpful-command)
   ("C-c C-d" . helpful-at-point)
+  ("C-h o" . helpful-symbol)
   ("C-h F" . helpful-function)
   (:map helpful-mode-map
         ("q" . kill-buffer-and-window)))
@@ -307,15 +309,34 @@ If you experience stuttering, increase this.")
 (setq mouse-wheel-progressive-speed t) ;; accelerate scrolling
 (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
 
+
+;; For wayland Pgtk build
+;; credit: yorickvP on Github
+(setq wl-copy-process nil)
+
+(defun wl-copy (text)
+  (setq wl-copy-process (make-process :name "wl-copy"
+                                      :buffer nil
+                                      :noquery t
+                                      :command '("wl-copy" "-f" "-n")
+                                      :connection-type 'pipe))
+  (process-send-string wl-copy-process text)
+  (process-send-eof wl-copy-process))
+
+(defun wl-paste ()
+  (if (and wl-copy-process (process-live-p wl-copy-process))
+      nil ; should return nil if we're the current paste owner
+    (shell-command-to-string "wl-paste -n | tr -d \r")))
+
+(setq interprogram-cut-function 'wl-copy)
+(setq interprogram-paste-function 'wl-paste)
+
 (use-package vertico
   :bind (:map vertico-map
               ("?" . minibuffer-completion-help)
               ("RET" . vertico-directory-enter)
               ("DEL" . vertico-directory-delete-char)
-              ("M-d" . vertico-directory-delete-char)
               ("M-DEL" . vertico-directory-delete-word)
-              ("C-j" . vertico-next)
-              ("C-k" . vertico-previous)
               ("M-j" . vertico-quick-exit)
               ("'" . vertico-quick-exit)
               ("C-v" . vertico-scroll-up)
@@ -600,7 +621,6 @@ selected color."
   (global-corfu-mode))
 
 (eldoc-add-command #'corfu-insert)
-(advice-add 'eglot-completion-at-point :around #'cape-wrap-buster)
 (unless (display-graphic-p)
   (corfu-terminal-mode +1))
 
@@ -637,17 +657,18 @@ selected color."
   ;; (add-to-list 'completion-at-point-functions #'cape-line)
   )
 
+;; Silence the pcomplete capf, no errors or messages!
+;; Important for corfu
+(advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
+
+;; Ensure that pcomplete does not write to the buffer
+;; and behaves as a pure `completion-at-point-function'.
+(advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify)
+
 ;; Add your own file with all words
 (defcustom cape-dict-file "~/.local/share/dict/vocab"
   "Dictionary word list file."
   :type 'string)
-
-(setq-local corfu-auto t
-            corfu-auto-delay 1
-            corfu-auto-prefix 0
-            completion-category-defaults nil
-            completion-category-overrides '((file (styles partial-completion)))
-            completion-styles '(orderless))
 
 (defun corfu-enable-always-in-minibuffer ()
   "Enable corfu in minibuffer, if vertico is not active"
@@ -1181,48 +1202,51 @@ selected color."
   (pixel-scroll-precision-scroll-up 20))
 
 (use-package nix-mode
-    :mode "\\.nix\\'"
-    :defer t)
+  :mode "\\.nix\\'"
+  :defer t)
 
-  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
-  ;;(add-hook 'prog-mode-hook #'eglot-ensure)
-  (add-hook 'prog-mode-hook #'flycheck-mode)
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+;;(add-hook 'prog-mode-hook #'eglot-ensure)
+(add-hook 'prog-mode-hook #'flycheck-mode)
 
-  (use-package markdown-mode
-    :defer t
-    :mode "\\.md\\'"
-    :config
-    (defun d/set-markdown-header-font-sizes ()
-      (dolist (face '((markdown-header-face-1 . 1.3)
-                      (markdown-header-face-2 . 1.2)
-                      (markdown-header-face-3 . 1.15)
-                      (markdown-header-face-4 . 1.1)
-                      (markdown-header-face-5 . 1.0)))
-        (set-face-attribute (car face) nil :weight 'normal :font d/header-font :height (cdr face))))
+(use-package markdown-mode
+  :defer t
+  :mode "\\.md\\'"
+  :config
+  (defun d/set-markdown-header-font-sizes ()
+    (dolist (face '((markdown-header-face-1 . 1.3)
+                    (markdown-header-face-2 . 1.2)
+                    (markdown-header-face-3 . 1.15)
+                    (markdown-header-face-4 . 1.1)
+                    (markdown-header-face-5 . 1.0)))
+      (set-face-attribute (car face) nil :weight 'normal :font d/header-font :height (cdr face))))
 
-    (defun d/markdown-mode-hook ()
-      (d/set-markdown-header-font-sizes))
+  (defun d/markdown-mode-hook ()
+    (d/set-markdown-header-font-sizes))
 
-    (add-hook 'markdown-mode-hook 'd/markdown-mode-hook))
+  (add-hook 'markdown-mode-hook 'd/markdown-mode-hook))
 
-  (use-package eglot
-    :init
-    (setq eglot-sync-connect 1
-          eglot-connect-timeout 10
-          eglot-autoshutdown t
-          eglot-send-changes-idle-time 0.5
-          ;; NOTE We disable eglot-auto-display-help-buffer because :select t in
-          ;;      its popup rule causes eglot to steal focus too often.
-          eglot-auto-display-help-buffer nil)
-    :config
-    (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
-    (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
-    (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman"))))
-
-    ;; :hook
-    ;; (nix-mode . eglot-ensure)
-    ;; (bash-ts-mode . eglot-ensure)
-    ;; (markdown-mode-hook . eglot-ensure))
+(use-package eglot
+  :commands (eglot eglot-format eglot-managed-p eglot--major-mode)
+  ;; (((web-mode rust-mode python-mode sh-mode c-mode c++-mode nix-mode) .
+  ;; eglot-ensure)
+  :init
+  (setq eglot-sync-connect 1
+        eglot-connect-timeout 5
+        eglot-autoshutdown t
+        eglot-send-changes-idle-time 45
+        ;; NOTE We disable eglot-auto-display-help-buffer because :select t in
+        ;;      its popup rule causes eglot to steal focus too often.
+        eglot-auto-display-help-buffer nil)
+  :bind
+  (:map eglot-mode-map
+        ("C-c l r" . eglot-rename)
+        ("C-c l a" . eglot-code-actions)
+        ("C-c l i" . consult-eglot-symbols)))
+;;   :config
+;;   (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
+;;   (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
+;;   (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman"))))
 
 ;; (use-package eglot-tempel
 ;;   :disabled t
@@ -1510,8 +1534,9 @@ selected color."
         ("p" . sdcv-previous-dictionary)))
 
 (use-package nov
+  :hook (nov-mode . hide-mode-line-mode)
+  :mode "\\.epub\\'"
   :config
-  (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
   (setq nov-text-width t))
 
 (defun shrface-default-keybindings ()
@@ -1526,7 +1551,7 @@ selected color."
   (define-key shrface-mode-map (kbd "M-h") 'shrface-headline-consult))
 
 (use-package shrface
-  :defer t
+  :hook (eww-mode . shrface-mode)
   :init
   (setq shrface-item-bullet 8226)
   :bind (:map shrface-mode-map
@@ -1541,11 +1566,6 @@ selected color."
   (shrface-trial)
   (setq shrface-bullets-bullet-list org-modern-star)
   (setq shrface-href-versatile t))
-
-(use-package eww
-  :defer t
-  :init
-  (add-hook 'eww-after-render-hook #'shrface-mode))
 
 (use-package nov
   :defer t
@@ -1900,9 +1920,9 @@ Hack to use `insert-sliced-image' to avoid jerky image scrolling."
 
 (defun d/external-browser ()
   (interactive)
-  (if (or (thing-at-point 'url t) (thing-at-point 'filename t) (shr-url-at-point nil) (image-at-point-p))
-      (link-hint-copy-link-at-point)
-    (link-hint-copy-link))
+  (cond ((image-at-point-p) (kill-new (or (shr-url-at-point nil) (plist-get (cdr (image--get-image)) :file))))
+        ((or (thing-at-point 'url t) (thing-at-point 'filename t) (shr-url-at-point nil)) (link-hint-copy-link-at-point))
+        (t (link-hint-copy-link)))
   (let ((url (current-kill 0)))
     (browse-url-generic url)))
 
@@ -1956,7 +1976,7 @@ Hack to use `insert-sliced-image' to avoid jerky image scrolling."
 (setq sentence-end-double-space nil)
 (setq sentence-end "[.?!] ")
 (setq-default indent-tabs-mode nil)
-(setq save-interprogram-paste-before-kill t)
+(setq save-interprogram-paste-before-kill nil) ;; #FIXE
 (setq kill-do-not-save-duplicates t)
 (setq initial-scratch-message
       ";; Type to your Will !\n\n")
@@ -2051,7 +2071,7 @@ Hack to use `insert-sliced-image' to avoid jerky image scrolling."
 (setq window-resize-pixelwise t)
 (setq frame-resize-pixelwise t)
 
-(setq fill-column 100)
+(setq fill-column 80)
 
 (if (daemonp)
     (add-hook 'after-make-frame-functions

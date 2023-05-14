@@ -534,8 +534,8 @@ Enables additional fonts system wide. See how easy it is to manage fonts with ni
       #emacs-all-the-icons-fonts
       noto-fonts
       #material-icons comic-mono material-design-icons
-      # weather-icons font-awesome
-      symbola noto-fonts-emoji comic-mono maple-mono-NF
+      # weather-icons font-awesome comicshaansmono
+      symbola noto-fonts-emoji maple-mono-NF
       iosevka-comfy.comfy iosevka-comfy.comfy-motion
       (nerdfonts.override {fonts = ["VictorMono" "FiraCode" "JetBrainsMono"];})
     ];
@@ -763,7 +763,6 @@ Opening brace that contains the rest of the configuration file.
           source "${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
           source "${pkgs.zsh-history-substring-search}/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
           source "${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-          source "${pkgs.zsh-autopair}/share/zsh/zsh-autopair/autopair.zsh"
           source "${pkgs.nix-zsh-completions}/share/zsh/plugins/nix/nix-zsh-completions.plugin.zsh"
           source "${pkgs.zsh-nix-shell}/share/zsh-nix-shell/nix-shell.plugin.zsh"
 
@@ -792,12 +791,12 @@ This is easy to manage and also get the syntax highlighing for shell, as nix als
 #+begin_src shell :noweb yes :tangle (format "%s/sources.sh" (get-named-src-block-contents "my-configs" t))
   # eval "$(starship init zsh)"
   # eval "$(direnv hook zsh)"
-
   # Removed starship and going default minimal way!
 
   # Make zsh better simply
   autoload -U colors && colors  # Load colors
-  PS1="%B%{$fg[yellow]%}[%{$fg[cyan]%}%~%{$fg[yellow]%}]$fg[blue]   %b%{$reset_color%}%b"
+  PS1="%B%{$fg[yellow]%}[%{$fg[cyan]%}%~%{$fg[yellow]%}]
+   %{$fg[blue]%} %b%{$reset_color%}%b"
   # setopt autocd		# Auto cd
   stty stop undef		# Disable ctrl-s to freeze terminal.
   setopt interactive_comments
@@ -814,11 +813,10 @@ This is easy to manage and also get the syntax highlighing for shell, as nix als
   bindkey -M menuselect 'k' vi-up-line-or-history
   bindkey -M menuselect 'l' vi-forward-char
   bindkey -M menuselect 'j' vi-down-line-or-history
-  bindkey -v '^?' backward-delete-char
 
-
-  # autoload -U compinit && compinit
   bindkey -e
+  # This already is in hm module
+  # autoload -U compinit && compinit
 
   # Aliases
   alias cleanup="doas nix-collect-garbage --delete-older-than 7d"
@@ -866,6 +864,7 @@ This is easy to manage and also get the syntax highlighing for shell, as nix als
 
   precmd() { print "" }
 
+
 #+end_src
 **** User Packages
 Installs packages for this user only.
@@ -912,11 +911,12 @@ Installs packages for this user only.
 #+end_src
 ***** LSP -IDE
 #+begin_src nix
-  nodePackages_latest.bash-language-server
-    nodePackages_latest.vscode-langservers-extracted
-    python311Packages.python-lsp-server
+  nodePackages.bash-language-server
+    nodePackages.vscode-langservers-extracted
+    # python311Packages.python-lsp-server
+    nodePackages.pyright
     python3
-    marksman nil 
+    nil 
     tree-sitter
     texlive.combined.scheme-full
 #+end_src

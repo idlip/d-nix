@@ -52,7 +52,7 @@ If you really wanna talk/discuss with me, open an issue so I will join on some m
   #+ATTR_HTML: width="100px"
   [[file:assets/nix-rof.png]]
 
-+ 📖 *Org and eww*
++ 📖 *Eww and Org*
   #+attr_html: :width 500
   [[file:assets/org-eww.png]]
 

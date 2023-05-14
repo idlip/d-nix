@@ -302,8 +302,8 @@ fonts = {
     #emacs-all-the-icons-fonts
     noto-fonts
     #material-icons comic-mono material-design-icons
-    # weather-icons font-awesome
-    symbola noto-fonts-emoji comic-mono maple-mono-NF
+    # weather-icons font-awesome comicshaansmono
+    symbola noto-fonts-emoji maple-mono-NF
     iosevka-comfy.comfy iosevka-comfy.comfy-motion
     (nerdfonts.override {fonts = ["VictorMono" "FiraCode" "JetBrainsMono"];})
   ];

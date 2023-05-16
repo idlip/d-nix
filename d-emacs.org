@@ -281,7 +281,7 @@ Fonts are crucial to read.
     (defvar d/variable-width-font "ComicCodeLigatures Nerd Font"
       "The font to use for variable-pitch (documents) text.")
 
-    (setq haki-heading-font "Iosevka Comfy Motion")
+    (setq haki-heading-font "FiraCode Nerd Font")
     (setq haki-sans-font "Iosevka Comfy Motion")
   ;;  (setq haki-code-font "JetBrainsMono Nerd Font")
     (setq haki-title-font "Impress BT")
@@ -342,6 +342,7 @@ Keep folders and backuping files clean!
     :delight " Ⓖ")
 
   (use-package savehist
+    :defer 2
     :init
     (savehist-mode)
     :custom
@@ -351,14 +352,14 @@ Keep folders and backuping files clean!
 * ⌨️ Better Bindings
 ** Custom functions
 #+begin_src emacs-lisp
-  (defun split-and-follow-horizontally ()
+  (defun split-and-follow-below ()
     "Basically to balance and change cursor to split window"
     (interactive)
     (split-window-below)
     (balance-windows)
     (other-window 1))
 
-  (defun split-and-follow-vertically ()
+  (defun split-and-follow-right ()
     "Basically to balance and change cursor to split window"
     (interactive)
     (split-window-right)
@@ -420,8 +421,8 @@ Keep folders and backuping files clean!
                      ("C-c d i" . d/insert-unicodes)
                      ("C-c d c" . d/insert-colors)
                      ;; better splits
-                     ("C-x 2" . split-and-follow-horizontally)
-                     ("C-x 3" . split-and-follow-vertically)
+                     ("C-x 2" . split-and-follow-below)
+                     ("C-x 3" . split-and-follow-right)
                      ;; regex replace
                      ("M-%" . query-replace-regexp)
                      ;; quick kill
@@ -444,7 +445,7 @@ Keep folders and backuping files clean!
 Many people know that emacs has lot of keychords, which aren't easy to remember, ~which-key~ is a package which shows cheatsheet for the keychords you press. Mostly will find helpful for ~C-x~ or ~C-c~ or (yours general key/leader key)
 #+begin_src emacs-lisp
   (use-package which-key
-    :defer 0
+    :defer 2
     :init
     (setq which-key-side-window-location 'bottom
           which-key-sort-order #'which-key-key-order-alpha
@@ -728,7 +729,7 @@ Another, one which make certain pains of emacs , so good that you will fall i
        hex)))
 #+end_src
 ** Orderless
-This is by Oantlin Orderless to make it more than fuzzy!
+This is by Oantolin. Orderless makes it more than fuzzy!
 #+begin_src emacs-lisp
   (use-package orderless
     :demand t
@@ -782,10 +783,10 @@ Gives good annotations for vertico and help menu. Good!
     (marginalia-mode))
 #+end_src
 ** Embark - Just Bark
-Really gets handy for experienced users, maybe difficult to understand for Beginners, but on thing you can try is embark act and export it. I also dont use this much (yea, a Newbie in some areas..)
+This is also by Oantolin .Really gets handy for experienced users, maybe difficult to understand for Beginners, but on thing you can try is embark act and export it. I also dont use this much (yea, a Newbie in some areas..)
 #+begin_src emacs-lisp
   (use-package embark
-    :ensure t
+    :defer t
     :bind
     (("C-." . embark-act)         ;; pick some comfortable binding
      ("C-;" . embark-dwim)        ;; good alternative: M-.
@@ -798,7 +799,7 @@ Really gets handy for experienced users, maybe difficult to understand for Begin
                    nil
                    (window-parameters (mode-line-format . none)))))
   (use-package embark-consult
-    :ensure t 
+    :defer t
     :hook
     (embark-collect-mode . consult-preview-at-point-mode))
 
@@ -852,6 +853,7 @@ Cape for Rescue! Feel the power of Emacs Extensibility
 #+begin_src emacs-lisp
   ;; Add extensions
   (use-package cape
+    :after corfu
     :bind (("C-c p p" . completion-at-point) ;; capf
            ("C-c p t" . complete-tag)        ;; etags
            ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
@@ -928,7 +930,6 @@ Another, minimal and DIY snippets for any buffer!
            ("M-*" . tempel-insert)))
 
   (use-package tempel-collection
-    :ensure t
     :after tempel
     )
 #+end_src
@@ -1061,6 +1062,7 @@ You will see org just below this, this package helps make Org-Mode looks eye-can
 Jinx is another cool new package for spell corrections
 #+begin_src emacs-lisp
   (use-package jinx
+    :defer t
     :hook (emacs-startup . global-jinx-mode)
     :bind ("M-$". jinx-correct)
     :config
@@ -1075,117 +1077,118 @@ Plain (naked) simple file can help maintain GTD, even hell lot more many people 
 Don't compare Notion or Logseq, Org-mode is on different league. These no match for it yet ( actually from 20 years lol). If you know Org, you know it. If not, go check YT.
 ** Good Org
 #+begin_src emacs-lisp
-    (defun org-font-setup ()
-      ;; Replace list hyphen with dot
-      (font-lock-add-keywords 'org-mode
-                              '(("^ *\\([-]\\) "
-                                 (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+  (defun org-font-setup ()
+    ;; Replace list hyphen with dot
+    (font-lock-add-keywords 'org-mode
+                            '(("^ *\\([-]\\) "
+                               (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
-        (dolist (face '((org-block . 1.0)
-                        (org-block-begin-line . 0.9)
-                        (org-document-info . 1.5)
-                        (org-document-title . 1.7)
-                        (org-level-1 . 1.4)
-                        (org-level-2 . 1.3)
-                        (org-level-3 . 1.2)
-                        (org-level-4 . 1.1)
-                        (org-level-5 . 1.1)
-                        (org-level-6 . 1.1)
-                        (org-code . 1.2)
-                        (header-line . 1.0)
-                        (org-verbatim . 1.15)
-                        (variable-pitch . 1.0)
-                        (org-level-7 . 1.1)))
-          (set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face))))
+      (dolist (face '((org-block . 1.0)
+                      (org-block-begin-line . 0.9)
+                      (org-document-info . 1.5)
+                      (org-document-title . 1.7)
+                      (org-level-1 . 1.4)
+                      (org-level-2 . 1.3)
+                      (org-level-3 . 1.2)
+                      (org-level-4 . 1.1)
+                      (org-level-5 . 1.1)
+                      (org-level-6 . 1.1)
+                      (org-code . 1.2)
+                      (header-line . 1.0)
+                      (org-verbatim . 1.15)
+                      (variable-pitch . 1.0)
+                      (org-level-7 . 1.1)))
+        (set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face))))
 
-      ;; Set faces for heading levels
+    ;; Set faces for heading levels
 
-        ;; (set-face-attribute (car face) nil :font d/header-font :weight 'regular :height (cdr face)))
-
-
-    (defun org-mode-setup ()
-      ;; (org-indent-mode 1)
-      (org-display-inline-images 1)
-      (variable-pitch-mode 1)
-      ;; (org-font-setup)
-      (setq
-       org-startup-indented nil
-       org-image-actual-width 300
-       org-startup-folded t)
-      )
-
-    (use-package org
-      :pin org
-      :commands (org-capture org-agenda)
-      :hook (org-mode . org-mode-setup)
-      (org-mode . org-modern-mode)
-
-      :bind (("C-c c c" . org-capture)
-             ("C-c c d" . calendar)
-             ("C-c t R" . d/bionic-region)
-             ("C-c d a" . org-agenda)
-             ("C-c t r" . d/bionic-read)
-             ("<f6>" . d/edit-src-block)
-             :map org-mode-map
-             ("C-c o b" . d/edit-src-block))
-      :config
-      (setq org-ellipsis " ▾")
-
-      (setq org-agenda-start-with-log-mode t)
-      ;; (setq org-log-done 'time)
-      (setq org-log-done 'note)
-      (setq org-log-into-drawer t)
-
-      ;; browser script
-      (setq browse-url-browser-function 'browse-url-generic
-            browse-url-generic-program "d-stuff")
-      (setq browse-url-secondary-browser-function 'browse-url-generic
-            browse-url-generic-program "d-stuff")
-
-      (setq org-agenda-files
-            '("~/sync/org/tasks.org"
-              "~/d-git/d-site/README.org"))
-
-      ;; (require 'org-habit)
-      ;; (add-to-list 'org-modules 'org-habit)
-      ;; (setq org-habit-graph-column 60)
-
-      (setq org-todo-keywords
-            '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
-              (sequence  "PLAN(p)" "REVIEW(v)" "|" "COMPLETED(c)" "CANC(k@)")))
-
-      (setq org-refile-targets
-            '(("Archive.org" :maxlevel . 1)
-              ("tasks.org" :maxlevel . 1)))
-
-      ;; Save Org buffers after refiling!
-      (advice-add 'org-refile :after 'org-save-all-org-buffers)
-
-      (setq org-tag-alist
-            '((:startgroup)
-              (:endgroup)
-              ("@work" . ?W)
-              ("agenda" . ?a)
-              ("linux" . ?l)
-              ("planning" . ?p)
-              ("note" . ?n)
-              ("idea" . ?i)))
+      ;; (set-face-attribute (car face) nil :font d/header-font :weight 'regular :height (cdr face)))
 
 
-      (setq org-capture-templates
-            `(
-              ("t" "Task" entry (file+olp "~/sync/org/tasks.org" "One-Timer")
-               "* TODO %?\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
-              ("w" "Website Todo" entry (file+headline "~/d-git/d-site/README.org" "Ideas - TODO")
-               "* TODO %?\n  SCHEDULED:%T\n " :empty-lines 1)
+  (defun org-mode-setup ()
+    ;; (org-indent-mode 1)
+    (org-display-inline-images 1)
+    (variable-pitch-mode 1)
+    ;; (org-font-setup)
+    (setq
+     org-startup-indented nil
+     org-image-actual-width 400
+     org-startup-folded t)
+    )
 
-              ("j" "Journal Entries")
-              ("jj" "Journal" entry
-               (file+olp+datetree "~/docs/org/journal.org")
-               "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
-               ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
-               :clock-in :clock-resume
-               :empty-lines 1))))
+  (use-package org
+    :pin org
+    :defer t
+    :commands (org-capture org-agenda)
+    :hook (org-mode . org-mode-setup)
+    (org-mode . org-modern-mode)
+
+    :bind (("C-c c c" . org-capture)
+           ("C-c c d" . calendar)
+           ("C-c t R" . d/bionic-region)
+           ("C-c d a" . org-agenda)
+           ("C-c t r" . d/bionic-read)
+           ("<f6>" . d/edit-src-block)
+           :map org-mode-map
+           ("C-c o b" . d/edit-src-block))
+    :config
+    (setq org-ellipsis " ▾")
+
+    (setq org-agenda-start-with-log-mode t)
+    ;; (setq org-log-done 'time)
+    (setq org-log-done 'note)
+    (setq org-log-into-drawer t)
+
+    ;; browser script
+    (setq browse-url-browser-function 'browse-url-generic
+          browse-url-generic-program "d-stuff")
+    (setq browse-url-secondary-browser-function 'browse-url-generic
+          browse-url-generic-program "d-stuff")
+
+    (setq org-agenda-files
+          '("~/sync/org/tasks.org"
+            "~/d-git/d-site/README.org"))
+
+    ;; (require 'org-habit)
+    ;; (add-to-list 'org-modules 'org-habit)
+    ;; (setq org-habit-graph-column 60)
+
+    (setq org-todo-keywords
+          '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
+            (sequence  "PLAN(p)" "REVIEW(v)" "|" "COMPLETED(c)" "CANC(k@)")))
+
+    (setq org-refile-targets
+          '(("Archive.org" :maxlevel . 1)
+            ("tasks.org" :maxlevel . 1)))
+
+    ;; Save Org buffers after refiling!
+    (advice-add 'org-refile :after 'org-save-all-org-buffers)
+
+    (setq org-tag-alist
+          '((:startgroup)
+            (:endgroup)
+            ("@work" . ?W)
+            ("agenda" . ?a)
+            ("linux" . ?l)
+            ("planning" . ?p)
+            ("note" . ?n)
+            ("idea" . ?i)))
+
+
+    (setq org-capture-templates
+          `(
+            ("t" "Task" entry (file+olp "~/sync/org/tasks.org" "One-Timer")
+             "* TODO %?\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
+            ("w" "Website Todo" entry (file+headline "~/d-git/d-site/README.org" "Ideas - TODO")
+             "* TODO %?\n  SCHEDULED:%T\n " :empty-lines 1)
+
+            ("j" "Journal Entries")
+            ("jj" "Journal" entry
+             (file+olp+datetree "~/docs/org/journal.org")
+             "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
+             ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
+             :clock-in :clock-resume
+             :empty-lines 1))))
 
 
            #+end_src
@@ -1409,6 +1412,7 @@ Prot's package which might come handy to take notes and connect them.
 TODO : Learn more on this
 #+begin_src emacs-lisp
   (use-package denote
+    :defer t
     :hook ((find-file-hook . denote-link-buttonize-buffer)
 
            (dired-mode . denote-dired-mode))
@@ -1481,12 +1485,12 @@ TODO : Learn more on this
 ** 🫒 Olive Etiquette
 All texts from left is not intuitive, Spoils GUI end of emacs, feels like you are on Terminal all time. Also, the space on right side will be wasted, unless you use split window vertically. Centering content helps focus and make things look tidy.
 #+begin_src emacs-lisp
-  (use-package olivetti
+i  (use-package olivetti
     :defer t
     :hook ((text-mode         . olivetti-mode)
            ;; (prog-mode         . olivetti-mode)
            (Info-mode         . olivetti-mode)
-           (eshell-mode         . olivetti-mode)
+           ;; (eshell-mode         . olivetti-mode)
            (helpful-mode         . olivetti-mode)
            (Info-mode         . olivetti-mode)
            (org-mode          . olivetti-mode)
@@ -1521,6 +1525,7 @@ Mode-line to make stuff easy to use
 
   ;; to hide during presentation and writing
   (use-package hide-mode-line
+    :defer t
     :bind
     ("<f9>" . hide-mode-line-mode))
 
@@ -1644,6 +1649,7 @@ I'm not a programmer, maybe will be expanded in future..
     (add-hook 'markdown-mode-hook 'd/markdown-mode-hook))
 
   (use-package eglot
+    :defer t
     :commands (eglot eglot-format eglot-managed-p eglot--major-mode)
     ;; (((web-mode rust-mode python-mode sh-mode c-mode c++-mode nix-mode) .
     ;; eglot-ensure)
@@ -1837,10 +1843,16 @@ It is one of the package I wish I had soon discovered it.
           (insert . "")
           (beacon . "")))
 
+  (add-to-list 'meow-mode-state-list '(vterm-mode . insert))
+  (add-to-list 'meow-mode-state-list '(eshell-mode . insert))
+  (add-to-list 'meow-mode-state-list '(eww-mode . insert))
+  (add-to-list 'meow-mode-state-list '(sdcv-mode . motion))
+
   ;meow-thing-register THING INNER BOUNDS
   (meow-thing-register 'arrow '(pair ("<") (">")) '(pair ("<") (">")))
   (add-to-list 'meow-char-thing-table '(?a . arrow))
 
+  (setq meow-use-clipboard t)
   (meow-setup)
   (meow-global-mode 1)
 #+end_src
@@ -1848,6 +1860,7 @@ It is one of the package I wish I had soon discovered it.
 Not that intuitive to use as file manager, once you get a hand of emacs. You will thank for this.
 #+begin_src emacs-lisp
   (use-package dired
+    :defer t
     :init (dirvish-override-dired-mode)
     :ensure nil
     :commands (dired dired-jump)
@@ -1876,8 +1889,9 @@ Not that intuitive to use as file manager, once you get a hand of emacs. You wil
 Vterm to replace terminal emulator.
 #+begin_src emacs-lisp
   (use-package vterm
+    :defer t
     :bind
-    (("C-c d t" . vterm)
+    (("C-c d t" . multi-vterm)
      ("<f12>" . d/vt-toggle))
     (:map vterm-mode-map
           ("<f12>" . d/vt-toggle)
@@ -1886,13 +1900,22 @@ Vterm to replace terminal emulator.
     :config
     (setq vterm-shell "/etc/profiles/per-user/i/bin/zsh")
     (defun d/vt-toggle ()
-    "Minimal hack to toggle vterm."
-    (interactive)
-    (if (vterm--get-cursor-point)
-        (delete-window)
-      (progn (vterm-other-window) (if (package-installed-p 'hide-mode-line) (hide-mode-line-mode) nil) (shrink-window 7)))))
+      "Minimal hack to toggle vterm."
+      (interactive)
+      (cond
+       ((derived-mode-p 'vterm-mode) (delete-window))
+       ((one-window-p) (progn (split-and-follow-below) (multi-vterm-next)
+                              (if (package-installed-p 'hide-mode-line) (hide-mode-line-mode) nil) (shrink-window 7)))
+       (t (progn (other-window 1)
+                 (if (derived-mode-p 'vterm-mode) (delete-window) 
+                   (progn (split-and-follow-below) (multi-vterm-next) (if (package-installed-p 'hide-mode-line) (hide-mode-line-mode) nil) (shrink-window 7))))))))
 
-
+  (use-package multi-vterm
+    :bind (:map vterm-mode-map
+                ("M-n" . multi-vterm-next)
+                ("M-p" . multi-vterm-prev))
+    :config
+    (setq multi-vterm-dedicated-window-height-percent 30))
 
   ;; nixos issue for loading mu4e
   ;; (add-to-list 'load-path "/etc/profiles/per-user/i/share/emacs/site-lisp/mu4e/")
@@ -1923,6 +1946,7 @@ Some small codes from good source.
     (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'")))
 
   (use-package vundo
+    :defer t
     :bind (("C-x u" . vundo)
            ("C-z" . undo-only)
            ("C-S-z" . undo-redo)
@@ -1946,7 +1970,6 @@ Some small codes from good source.
 
   (use-package webpaste
     :defer t
-    :ensure t
     :bind (("C-c C-p C-b" . webpaste-paste-buffer)
            ("C-c C-p C-r" . webpaste-paste-region)
            ("C-c C-p C-p" . webpaste-paste-buffer-or-region))
@@ -1956,6 +1979,7 @@ Some small codes from good source.
     (setq webpaste-paste-confirmation t))
 
   (use-package sdcv
+    :defer t
     :hook (sdcv-mode . hide-mode-line-mode)
     :config
     (setq sdcv-say-word-p t
@@ -1981,6 +2005,7 @@ Nov is one of the gem which really makes epub reading more sense in emacs; Embra
 You dont have to learn another software or ask for features, get it in emacs-way.
 #+begin_src emacs-lisp
   (use-package nov
+    :defer t
     :hook (nov-mode . hide-mode-line-mode)
     :mode "\\.epub\\'"
     :config
@@ -2002,7 +2027,9 @@ To make eww and shr elements org-like and make emacs even more Unified!
     (define-key shrface-mode-map (kbd "M-h") 'shrface-headline-consult))
 
   (use-package shrface
-    :hook (eww-mode . shrface-mode)
+    :defer t
+    :hook ((eww-mode . shrface-mode)
+           (elfeed-show-mode . shrface-mode))
     :init
     (setq shrface-item-bullet 8226)
     :bind (:map shrface-mode-map
@@ -2104,7 +2131,7 @@ Pdf-tools is another great addition if you want to integrate well with Emacs.
     (setq image-cache-eviction-delay 3)
     (setq pdf-annot-activate-created-annotations t)
     (setq pdf-view-use-dedicated-register nil)
-    (setq pdf-view-max-image-width 2000)
+    (setq pdf-view-max-image-width 1000)
     (add-hook 'pdf-view-mode-hook (lambda () (cua-mode 0)))
     (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
     (define-key pdf-view-mode-map (kbd "M-g g") 'pdf-view-goto-page)
@@ -2274,8 +2301,7 @@ Use RSS, just switch to it, and save your time for other productive things. If y
       (interactive)
       (eww-readable)
       ;; (d/bionic-read)
-      (beginning-of-buffer)
-      (d/eww-rename-buffer))
+      (beginning-of-buffer))
 
     (defun elfeed-open-in-eww ()
       "open in eww"
@@ -2400,17 +2426,6 @@ Congratulations, if you are already using Rss, if not, don't worry, you can get 
     (let ((url (current-kill 0)))
       (browse-url-generic url)))
 
-  (defun d/eww-rename-buffer ()
-    "Rename EWW buffer using page title or URL.
-      To be used by `eww-after-render-hook'."
-    (let ((name (if (eq "" (plist-get eww-data :title))
-                    (plist-get eww-data :url)
-                  (plist-get eww-data :title))))
-      (rename-buffer (substring (format "*%s # eww*" name)0 32) t)))
-
-  (add-hook 'eww-after-render-hook #'d/eww-rename-buffer)
-  (advice-add 'eww-back-url :after #'d/eww-rename-buffer)
-  (advice-add 'eww-forward-url :after #'d/eww-rename-buffer)
   ;; (advice-add 'eww-readable :after #'d/bionic-read)
 
 #+end_src
@@ -2418,16 +2433,17 @@ Congratulations, if you are already using Rss, if not, don't worry, you can get 
 * 🐲 Matrix
 Just to use matrix for some hacky nerds community
 #+begin_src emacs-lisp
-    (use-package ement
-      :hook (ement-room-compose . ement-room-compose-org)
-      :bind (:map ement-room-minibuffer-map
-                  ("<f6>" . ement-room-compose-from-minibuffer))
-      (:map ement-room-mode-map
-            ("M-<" . ement-room-scroll-down-command))
-      :config
-      (setq ement-room-send-message-filter 'ement-room-send-org-filter)
-      (setq ement-room-message-format-spec "%S> %L%B%r%R%t")
-      (setq ement-room-list-avatars nil))
+  (use-package ement
+    :defer t
+    :hook (ement-room-compose . ement-room-compose-org)
+    :bind (:map ement-room-minibuffer-map
+                ("<f6>" . ement-room-compose-from-minibuffer))
+    (:map ement-room-mode-map
+          ("M-<" . ement-room-scroll-down-command))
+    :config
+    (setq ement-room-send-message-filter 'ement-room-send-org-filter)
+    (setq ement-room-message-format-spec "%S> %L%B%r%R%t")
+    (setq ement-room-list-avatars nil))
 
 #+end_src
 * 🌐 Good Site
@@ -2453,7 +2469,7 @@ Idk why, but i guess these all should be the sane defaults.
 
   ;; (server-start)
 
-  (global-visual-line-mode 1)
+  (visual-line-mode 1)
 
   ;; Display messages when idle, without prompting
   (setq help-at-pt-display-when-idle t)
@@ -2516,13 +2532,14 @@ Idk why, but i guess these all should be the sane defaults.
    shr-use-colors t                          ; No colours
    shr-indentation 4                           ; Left-side margin
    shr-max-width fill-column
-   shr-max-image-proportion 0.2
+   shr-max-image-proportion 0.4
    shr-width 100                                ; Fold text to 70 columns
+   url-privacy-level '(email agent cookies lastloc)
    eww-search-prefix "https://lite.duckduckgo.com/lite/?q=")
 
   ;; Set frame transparency
-  (set-frame-parameter (selected-frame) 'alpha-background 90)
-  (add-to-list 'default-frame-alist `(alpha-background . 90))
+  (set-frame-parameter (selected-frame) 'alpha-background 100)
+  (add-to-list 'default-frame-alist `(alpha-background . 100))
   (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
   (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
@@ -2553,7 +2570,7 @@ Idk why, but i guess these all should be the sane defaults.
   ;; Don't resize the frames in steps; it looks weird, especially in tiling window
   ;; managers, where it can leave unseemly gaps.
   (setq frame-resize-pixelwise t)
-  (setq pixel-dead-time 10000)
+  (setq pixel-dead-time 1)
   (setq confirm-kill-emacs #'yes-or-no-p)
   (setq window-resize-pixelwise t)
   (setq frame-resize-pixelwise t)

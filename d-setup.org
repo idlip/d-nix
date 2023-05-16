@@ -760,13 +760,14 @@ Opening brace that contains the rest of the configuration file.
           '';
 
       initExtra = lib.mkAfter ''
+          source <<my-config-path>>/sources.sh
+
           source "${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
           source "${pkgs.zsh-history-substring-search}/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
           source "${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
           source "${pkgs.nix-zsh-completions}/share/zsh/plugins/nix/nix-zsh-completions.plugin.zsh"
           source "${pkgs.zsh-nix-shell}/share/zsh-nix-shell/nix-shell.plugin.zsh"
-
-          source <<my-config-path>>/sources.sh
+          source "${pkgs.zsh-autopair}/share/zsh/zsh-autopair/autopair.zsh"
 
           # For vterm, needs to be at last!
           function vterm_prompt_end() {
@@ -842,7 +843,6 @@ This is easy to manage and also get the syntax highlighing for shell, as nix als
   alias c="clear"
   alias v="nvim"
   alias emd="pkill emacs; emacs --daemon"
-  alias e="emacsclient -t"
   alias cp="cp -iv"
   alias mv="mv -iv"
   alias rm="rm -vI"
@@ -862,7 +862,21 @@ This is easy to manage and also get the syntax highlighing for shell, as nix als
       cd "$(find -type d | fzf)"
   }
 
-  precmd() { print "" }
+  function shellnix() {
+      nix shell nixpkgs#"$1"
+  }
+
+  function {e,'emacsclient -t','emacsclient -nw'} () {
+      if [ "$INSIDE_EMACS" = "vterm" ]; then
+          emacsclient $1 >/dev/null 2>&1 || echo "Give a file to open"
+      else
+          emacsclient -t $1 || echo "Start emacs daemon"
+      fi
+  }
+
+  precmd() {
+      print ""
+  }
 
 
 #+end_src
@@ -1229,8 +1243,8 @@ The better cli alternative!
   }
 
   general {
-  gaps_in=5
-  gaps_out=15
+  gaps_in=2
+  gaps_out=0
   border_size=2
   col.active_border=rgb(ffe4b5)
   col.inactive_border=rgb(313244)
@@ -1248,13 +1262,13 @@ The better cli alternative!
   }
 
   decoration {
-  rounding=16
+  # rounding=16
   multisample_edges = true
-  inactive_opacity=0.9
-  active_opacity=0.9
+  # inactive_opacity=0.9
+  # active_opacity=0.9
   # fullscreen_opacity=0.9
   dim_inactive = false
-  blur=1
+  blur=0
   blur_size=5
   blur_passes=4
   blur_new_optimizations=1
@@ -1290,8 +1304,8 @@ The better cli alternative!
   #windowrule=pseudo,abc
   #windowrule=monitor 0,xyz
   #--------window rules---------
-  windowrule=opacity 0.9,pcmanfm
-  windowrule=opacity 0.95,firefox
+  # windowrule=opacity 0.9,pcmanfm
+  # windowrule=opacity 0.95,firefox
 
   windowrule=float,rofi
   windowrule=float,ncmpcpp
@@ -1511,7 +1525,7 @@ Its more mature than hyprland. So... better to have it! I dont use sway that muc
     enable = true;
     package = pkgs.emacsPgtk;
     extraPackages = (epkgs: (with epkgs; [
-      vterm vundo undo-fu-session flycheck helpful ox-pandoc
+      vterm multi-vterm vundo undo-fu-session flycheck helpful ox-pandoc
       no-littering rainbow-delimiters rainbow-mode vertico 
       orderless consult marginalia embark org olivetti org-modern corfu
       embark-consult consult-eglot consult-flycheck
@@ -1899,7 +1913,7 @@ Closes FireFox Block
     };
     mpv = {
       enable = true;
-      scripts = with pkgs.mpvScripts; [ thumbnail sponsorblock];
+      # scripts = with pkgs.mpvScripts; [ thumbnail sponsorblock];
     };
     yt-dlp = {
       enable = true;

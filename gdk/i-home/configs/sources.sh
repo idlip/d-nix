@@ -51,7 +51,6 @@ alias ".3"="cd ../../.."
 alias c="clear"
 alias v="nvim"
 alias emd="pkill emacs; emacs --daemon"
-alias e="emacsclient -t"
 alias cp="cp -iv"
 alias mv="mv -iv"
 alias rm="rm -vI"
@@ -71,4 +70,18 @@ function fcd() {
     cd "$(find -type d | fzf)"
 }
 
-precmd() { print "" }
+function shellnix() {
+    nix shell nixpkgs#"$1"
+}
+
+function {e,'emacsclient -t','emacsclient -nw'} () {
+    if [ "$INSIDE_EMACS" = "vterm" ]; then
+        emacsclient $1 >/dev/null 2>&1 || echo "Give a file to open"
+    else
+        emacsclient -t $1
+    fi
+}
+
+precmd() {
+    print ""
+}

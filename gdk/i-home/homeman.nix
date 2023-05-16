@@ -116,13 +116,14 @@ programs = {
         '';
 
     initExtra = lib.mkAfter ''
+        source /home/i/d-git/d-nix/gdk/i-home/configs/sources.sh
+
         source "${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
         source "${pkgs.zsh-history-substring-search}/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
         source "${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
         source "${pkgs.nix-zsh-completions}/share/zsh/plugins/nix/nix-zsh-completions.plugin.zsh"
         source "${pkgs.zsh-nix-shell}/share/zsh-nix-shell/nix-shell.plugin.zsh"
-
-        source /home/i/d-git/d-nix/gdk/i-home/configs/sources.sh
+        source "${pkgs.zsh-autopair}/share/zsh/zsh-autopair/autopair.zsh"
 
         # For vterm, needs to be at last!
         function vterm_prompt_end() {
@@ -750,7 +751,7 @@ programs= {
   };
   mpv = {
     enable = true;
-    scripts = with pkgs.mpvScripts; [ thumbnail sponsorblock];
+    # scripts = with pkgs.mpvScripts; [ thumbnail sponsorblock];
   };
   yt-dlp = {
     enable = true;

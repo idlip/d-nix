@@ -116,7 +116,7 @@ If you experience stuttering, increase this.")
   (defvar d/variable-width-font "ComicCodeLigatures Nerd Font"
     "The font to use for variable-pitch (documents) text.")
 
-  (setq haki-heading-font "Iosevka Comfy Motion")
+  (setq haki-heading-font "FiraCode Nerd Font")
   (setq haki-sans-font "Iosevka Comfy Motion")
 ;;  (setq haki-code-font "JetBrainsMono Nerd Font")
   (setq haki-title-font "Impress BT")
@@ -173,19 +173,20 @@ If you experience stuttering, increase this.")
   :delight " Ⓖ")
 
 (use-package savehist
+  :defer 2
   :init
   (savehist-mode)
   :custom
   (setq savehist-additional-variables '(kill-ring search-ring regexp-search-ring)))
 
-(defun split-and-follow-horizontally ()
+(defun split-and-follow-below ()
   "Basically to balance and change cursor to split window"
   (interactive)
   (split-window-below)
   (balance-windows)
   (other-window 1))
 
-(defun split-and-follow-vertically ()
+(defun split-and-follow-right ()
   "Basically to balance and change cursor to split window"
   (interactive)
   (split-window-right)
@@ -244,8 +245,8 @@ If you experience stuttering, increase this.")
                    ("C-c d i" . d/insert-unicodes)
                    ("C-c d c" . d/insert-colors)
                    ;; better splits
-                   ("C-x 2" . split-and-follow-horizontally)
-                   ("C-x 3" . split-and-follow-vertically)
+                   ("C-x 2" . split-and-follow-below)
+                   ("C-x 3" . split-and-follow-right)
                    ;; regex replace
                    ("M-%" . query-replace-regexp)
                    ;; quick kill
@@ -264,7 +265,7 @@ If you experience stuttering, increase this.")
 (global-unset-key (kbd "C-z"))
 
 (use-package which-key
-  :defer 0
+  :defer 2
   :init
   (setq which-key-side-window-location 'bottom
         which-key-sort-order #'which-key-key-order-alpha
@@ -567,7 +568,7 @@ selected color."
   (marginalia-mode))
 
 (use-package embark
-  :ensure t
+  :defer t
   :bind
   (("C-." . embark-act)         ;; pick some comfortable binding
    ("C-;" . embark-dwim)        ;; good alternative: M-.
@@ -580,7 +581,7 @@ selected color."
                  nil
                  (window-parameters (mode-line-format . none)))))
 (use-package embark-consult
-  :ensure t 
+  :defer t
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
@@ -626,6 +627,7 @@ selected color."
 
 ;; Add extensions
 (use-package cape
+  :after corfu
   :bind (("C-c p p" . completion-at-point) ;; capf
          ("C-c p t" . complete-tag)        ;; etags
          ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
@@ -697,7 +699,6 @@ selected color."
          ("M-*" . tempel-insert)))
 
 (use-package tempel-collection
-  :ensure t
   :after tempel
   )
 
@@ -752,6 +753,7 @@ selected color."
 (global-org-modern-mode)
 
 (use-package jinx
+  :defer t
   :hook (emacs-startup . global-jinx-mode)
   :bind ("M-$". jinx-correct)
   :config
@@ -794,12 +796,13 @@ selected color."
   ;; (org-font-setup)
   (setq
    org-startup-indented nil
-   org-image-actual-width 300
+   org-image-actual-width 400
    org-startup-folded t)
   )
 
 (use-package org
   :pin org
+  :defer t
   :commands (org-capture org-agenda)
   :hook (org-mode . org-mode-setup)
   (org-mode . org-modern-mode)
@@ -1054,6 +1057,7 @@ selected color."
   (d/org-present-mode))
 
 (use-package denote
+  :defer t
   :hook ((find-file-hook . denote-link-buttonize-buffer)
 
          (dired-mode . denote-dired-mode))
@@ -1121,28 +1125,28 @@ selected color."
                  :kill-buffer t
                  :jump-to-captured t)))
 
-(use-package olivetti
-  :defer t
-  :hook ((text-mode         . olivetti-mode)
-         ;; (prog-mode         . olivetti-mode)
-         (Info-mode         . olivetti-mode)
-         (eshell-mode         . olivetti-mode)
-         (helpful-mode         . olivetti-mode)
-         (Info-mode         . olivetti-mode)
-         (org-mode          . olivetti-mode)
-         (ement-room-mode   . olivetti-mode)
-         (dashboard-mode    . olivetti-mode)
-         (eww-mode          . olivetti-mode)
-         (sdcv-mode         . olivetti-mode)
-         (fundamental-mode  . olivetti-mode)
-         (nov-mode          . olivetti-mode)
-         (markdown-mode     . olivetti-mode)
-         (mu4e-view-mode    . olivetti-mode)
-         (elfeed-show-mode  . olivetti-mode)
-         (mu4e-compose-mode . olivetti-mode))
-  :custom
-  (olivetti-body-width 0.8)
-  :delight " ⊛")
+i  (use-package olivetti
+    :defer t
+    :hook ((text-mode         . olivetti-mode)
+           ;; (prog-mode         . olivetti-mode)
+           (Info-mode         . olivetti-mode)
+           ;; (eshell-mode         . olivetti-mode)
+           (helpful-mode         . olivetti-mode)
+           (Info-mode         . olivetti-mode)
+           (org-mode          . olivetti-mode)
+           (ement-room-mode   . olivetti-mode)
+           (dashboard-mode    . olivetti-mode)
+           (eww-mode          . olivetti-mode)
+           (sdcv-mode         . olivetti-mode)
+           (fundamental-mode  . olivetti-mode)
+           (nov-mode          . olivetti-mode)
+           (markdown-mode     . olivetti-mode)
+           (mu4e-view-mode    . olivetti-mode)
+           (elfeed-show-mode  . olivetti-mode)
+           (mu4e-compose-mode . olivetti-mode))
+    :custom
+    (olivetti-body-width 0.8)
+    :delight " ⊛")
 
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
@@ -1155,6 +1159,7 @@ selected color."
 
 ;; to hide during presentation and writing
 (use-package hide-mode-line
+  :defer t
   :bind
   ("<f9>" . hide-mode-line-mode))
 
@@ -1227,6 +1232,7 @@ selected color."
   (add-hook 'markdown-mode-hook 'd/markdown-mode-hook))
 
 (use-package eglot
+  :defer t
   :commands (eglot eglot-format eglot-managed-p eglot--major-mode)
   ;; (((web-mode rust-mode python-mode sh-mode c-mode c++-mode nix-mode) .
   ;; eglot-ensure)
@@ -1407,14 +1413,21 @@ selected color."
         (insert . "")
         (beacon . "")))
 
+(add-to-list 'meow-mode-state-list '(vterm-mode . insert))
+(add-to-list 'meow-mode-state-list '(eshell-mode . insert))
+(add-to-list 'meow-mode-state-list '(eww-mode . insert))
+(add-to-list 'meow-mode-state-list '(sdcv-mode . motion))
+
 ;meow-thing-register THING INNER BOUNDS
 (meow-thing-register 'arrow '(pair ("<") (">")) '(pair ("<") (">")))
 (add-to-list 'meow-char-thing-table '(?a . arrow))
 
+(setq meow-use-clipboard t)
 (meow-setup)
 (meow-global-mode 1)
 
 (use-package dired
+  :defer t
   :init (dirvish-override-dired-mode)
   :ensure nil
   :commands (dired dired-jump)
@@ -1439,8 +1452,9 @@ selected color."
 (add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))
 
 (use-package vterm
+  :defer t
   :bind
-  (("C-c d t" . vterm)
+  (("C-c d t" . multi-vterm)
    ("<f12>" . d/vt-toggle))
   (:map vterm-mode-map
         ("<f12>" . d/vt-toggle)
@@ -1449,13 +1463,22 @@ selected color."
   :config
   (setq vterm-shell "/etc/profiles/per-user/i/bin/zsh")
   (defun d/vt-toggle ()
-  "Minimal hack to toggle vterm."
-  (interactive)
-  (if (vterm--get-cursor-point)
-      (delete-window)
-    (progn (vterm-other-window) (if (package-installed-p 'hide-mode-line) (hide-mode-line-mode) nil) (shrink-window 7)))))
+    "Minimal hack to toggle vterm."
+    (interactive)
+    (cond
+     ((derived-mode-p 'vterm-mode) (delete-window))
+     ((one-window-p) (progn (split-and-follow-below) (multi-vterm-next)
+                            (if (package-installed-p 'hide-mode-line) (hide-mode-line-mode) nil) (shrink-window 7)))
+     (t (progn (other-window 1)
+               (if (derived-mode-p 'vterm-mode) (delete-window) 
+                 (progn (split-and-follow-below) (multi-vterm-next) (if (package-installed-p 'hide-mode-line) (hide-mode-line-mode) nil) (shrink-window 7))))))))
 
-
+(use-package multi-vterm
+  :bind (:map vterm-mode-map
+              ("M-n" . multi-vterm-next)
+              ("M-p" . multi-vterm-prev))
+  :config
+  (setq multi-vterm-dedicated-window-height-percent 30))
 
 ;; nixos issue for loading mu4e
 ;; (add-to-list 'load-path "/etc/profiles/per-user/i/share/emacs/site-lisp/mu4e/")
@@ -1483,6 +1506,7 @@ selected color."
   (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'")))
 
 (use-package vundo
+  :defer t
   :bind (("C-x u" . vundo)
          ("C-z" . undo-only)
          ("C-S-z" . undo-redo)
@@ -1506,7 +1530,6 @@ selected color."
 
 (use-package webpaste
   :defer t
-  :ensure t
   :bind (("C-c C-p C-b" . webpaste-paste-buffer)
          ("C-c C-p C-r" . webpaste-paste-region)
          ("C-c C-p C-p" . webpaste-paste-buffer-or-region))
@@ -1516,6 +1539,7 @@ selected color."
   (setq webpaste-paste-confirmation t))
 
 (use-package sdcv
+  :defer t
   :hook (sdcv-mode . hide-mode-line-mode)
   :config
   (setq sdcv-say-word-p t
@@ -1534,6 +1558,7 @@ selected color."
         ("p" . sdcv-previous-dictionary)))
 
 (use-package nov
+  :defer t
   :hook (nov-mode . hide-mode-line-mode)
   :mode "\\.epub\\'"
   :config
@@ -1551,7 +1576,9 @@ selected color."
   (define-key shrface-mode-map (kbd "M-h") 'shrface-headline-consult))
 
 (use-package shrface
-  :hook (eww-mode . shrface-mode)
+  :defer t
+  :hook ((eww-mode . shrface-mode)
+         (elfeed-show-mode . shrface-mode))
   :init
   (setq shrface-item-bullet 8226)
   :bind (:map shrface-mode-map
@@ -1646,7 +1673,7 @@ selected color."
   (setq image-cache-eviction-delay 3)
   (setq pdf-annot-activate-created-annotations t)
   (setq pdf-view-use-dedicated-register nil)
-  (setq pdf-view-max-image-width 2000)
+  (setq pdf-view-max-image-width 1000)
   (add-hook 'pdf-view-mode-hook (lambda () (cua-mode 0)))
   (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
   (define-key pdf-view-mode-map (kbd "M-g g") 'pdf-view-goto-page)
@@ -1807,8 +1834,7 @@ selected color."
     (interactive)
     (eww-readable)
     ;; (d/bionic-read)
-    (beginning-of-buffer)
-    (d/eww-rename-buffer))
+    (beginning-of-buffer))
 
   (defun elfeed-open-in-eww ()
     "open in eww"
@@ -1926,20 +1952,10 @@ Hack to use `insert-sliced-image' to avoid jerky image scrolling."
   (let ((url (current-kill 0)))
     (browse-url-generic url)))
 
-(defun d/eww-rename-buffer ()
-  "Rename EWW buffer using page title or URL.
-    To be used by `eww-after-render-hook'."
-  (let ((name (if (eq "" (plist-get eww-data :title))
-                  (plist-get eww-data :url)
-                (plist-get eww-data :title))))
-    (rename-buffer (substring (format "*%s # eww*" name)0 32) t)))
-
-(add-hook 'eww-after-render-hook #'d/eww-rename-buffer)
-(advice-add 'eww-back-url :after #'d/eww-rename-buffer)
-(advice-add 'eww-forward-url :after #'d/eww-rename-buffer)
 ;; (advice-add 'eww-readable :after #'d/bionic-read)
 
 (use-package ement
+  :defer t
   :hook (ement-room-compose . ement-room-compose-org)
   :bind (:map ement-room-minibuffer-map
               ("<f6>" . ement-room-compose-from-minibuffer))
@@ -1966,7 +1982,7 @@ Hack to use `insert-sliced-image' to avoid jerky image scrolling."
 
 ;; (server-start)
 
-(global-visual-line-mode 1)
+(visual-line-mode 1)
 
 ;; Display messages when idle, without prompting
 (setq help-at-pt-display-when-idle t)
@@ -2029,13 +2045,14 @@ Hack to use `insert-sliced-image' to avoid jerky image scrolling."
  shr-use-colors t                          ; No colours
  shr-indentation 4                           ; Left-side margin
  shr-max-width fill-column
- shr-max-image-proportion 0.2
+ shr-max-image-proportion 0.4
  shr-width 100                                ; Fold text to 70 columns
+ url-privacy-level '(email agent cookies lastloc)
  eww-search-prefix "https://lite.duckduckgo.com/lite/?q=")
 
 ;; Set frame transparency
-(set-frame-parameter (selected-frame) 'alpha-background 90)
-(add-to-list 'default-frame-alist `(alpha-background . 90))
+(set-frame-parameter (selected-frame) 'alpha-background 100)
+(add-to-list 'default-frame-alist `(alpha-background . 100))
 (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
@@ -2066,7 +2083,7 @@ Hack to use `insert-sliced-image' to avoid jerky image scrolling."
 ;; Don't resize the frames in steps; it looks weird, especially in tiling window
 ;; managers, where it can leave unseemly gaps.
 (setq frame-resize-pixelwise t)
-(setq pixel-dead-time 10000)
+(setq pixel-dead-time 1)
 (setq confirm-kill-emacs #'yes-or-no-p)
 (setq window-resize-pixelwise t)
 (setq frame-resize-pixelwise t)

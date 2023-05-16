@@ -9,16 +9,14 @@
 *** [[https://idlip.github.io/index.xml][Idlip]] :mine:idlip:
 *** [[https://syndication.howstuffworks.com/rss/HSW][HowStuffWorks]] :stuffs:how:
 ** News :news:
-*** [[https://www.wionews.com/feeds/india-news/rss.xml][Wion]] :india:
 ** Youtube-Time :youtube:yt:
 *** [[https://yt.funami.tech/feed/channel/UCUdettijNYvLAm4AixZv4RA][SciShow Psych]]
-*** [[https://yt.funami.tech/feed/channel/UCMlGmHokrQRp-RaNO7aq4Uw][TopThink]]
 *** [[https://yt.funami.tech/feed/channel/UCHL9bfHTxCMi-7vfxQ-AYtg][Abroad in Japan]]
 *** [[https://yt.funami.tech/feed/channel/UCZYTClx2T1of7BRZ86-8fow][SciShow]]
 *** [[https://yt.funami.tech/feed/channel/UCzWQYUVCpZqtN93H8RR44Qw][Seeker]]
-*** [[https://yt.funami.tech/feed/channel/UC4Tklxku1yPcRIH0VVCKoeA][Quantum Tech HD]]
+*** [[https://yt.funami.tech/feed/channel/UC4Tklxku1yPcRIH0VVCKoeA][Quantum Tech HD]] :quantum:
 *** [[https://yt.funami.tech/feed/channel/UC1xNraQytCPsaoO5N7_YABw][Koranos]]
-*** [[https://yt.funami.tech/feed/channel/UC3CBOpT2-NRvoc2ecFMDCsA][Crime Pays But Botany Doesn't]]
+*** [[https://yt.funami.tech/feed/channel/UC3CBOpT2-NRvoc2ecFMDCsA][Crime Pays But Botany Doesn't]] :botany:
 *** [[https://yt.funami.tech/feed/channel/UCOh5Ht3eB4914hMUfJkKa9g][Moth Light Media]]
 *** [[https://yt.funami.tech/feed/channel/UCHsRtomD4twRf5WVHHk-cMw][TierZoo]]
 *** [[https://yt.funami.tech/feed/channel/UCVpankR4HtoAVtYnFDUieYA][zefrank1]]
@@ -41,11 +39,10 @@
 *** [[https://journals.biologists.com/rss/site_1000001/1000003.xml][Journal-bio]]
 ** Edu :edu:
 *** [[https://nitter.net/official_ibab/rss][Ibab]] :ibab:
-** Emacs                                                              :emacs:
+** Emacs :emacs:
 *** [[https://planet.emacslife.com/atom.xml][Planet-Emacs]]
 ** Linux :linux:
 *** [[https://itsfoss.com/rss][itsfoss]]
-*** [[https://www.cyberciti.com/atom/atom.xml][nixCraft]]
 ** Media :media:
 *** [[https://yt.funami.tech/feed/channel/UCSV81Z2v0KMzDtH6SFQ62YQ][Movie Ape]]
 *** [[https://yt.funami.tech/feed/channel/UCyXD1jAZBdZ4u0K-GLYC77Q][Movie Recaps]] :gist:

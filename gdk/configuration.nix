@@ -187,7 +187,7 @@ security.doas = {
 
 services = {
   dbus = {
-    packages = with pkgs; [dconf udisks2 gcr];
+    packages = with pkgs; [dconf udisks2];
     enable = true;
   };
   # udev.packages = with pkgs; [gnome.gnome-settings-daemon];
@@ -198,7 +198,7 @@ services = {
   '';
   # To mount drives with udiskctl command
   udisks2.enable = true;
-  gnome.at-spi2-core.enable = true;
+  # gnome.at-spi2-core.enable = true;
 
   # tlp.enable = true;     # TLP and auto-cpufreq for power management
   auto-cpufreq.enable = true;
@@ -226,23 +226,29 @@ services = {
     configDir = "/home/i/.config/syncthing";
     overrideDevices = true;     # overrides any devices added or deleted through the WebUI
     overrideFolders = true;     # overrides any folders added or deleted through the WebUI
-    devices = {
-      "realme" = { id = "5ZNAQ2Z-T2DD757-6JK53J6-4NFMMGG-ETTFU5W-UNAMYLV-XM3P6CZ-ERSRTQX"; };
-      #"device2" = { id = "DEVICE-ID-GOES-HERE"; };
-    };
-    folders = {
-      "music-jazz" = {        # Name of folder in Syncthing, also the folder ID
-        path = "/home/i/music";    # Which folder to add to Syncthing
-        devices = [ "realme" ];      # Which devices to share the folder with
+    settings = {
+      devices = {
+        "realme" = { id = "5ZNAQ2Z-T2DD757-6JK53J6-4NFMMGG-ETTFU5W-UNAMYLV-XM3P6CZ-ERSRTQX"; };
+        #"device2" = { id = "DEVICE-ID-GOES-HERE"; };
       };
-      "syncs" = {
-        path = "/home/i/sync";
-        devices = [ "realme" ];
-        ignorePerms = false; 
-      };
-      "essentials" = {
-        path = "/home/i/d/Essentials";
-        devices = [ "realme" ];
+      folders = {
+        "music-jazz" = {        # Name of folder in Syncthing, also the folder ID
+          path = "/home/i/music";    # Which folder to add to Syncthing
+          devices = [ "realme" ];      # Which devices to share the folder with
+        };
+        "syncs" = {
+          path = "/home/i/sync";
+          devices = [ "realme" ];
+          ignorePerms = false; 
+        };
+        "essentials" = {
+          path = "/home/i/d/Essentials";
+          devices = [ "realme" ];
+        };
+        "reads" = {
+          path = "/home/i/d/reads";
+          devices = [ "realme" ];
+        };
       };
     };
   };

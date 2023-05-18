@@ -101,14 +101,6 @@ Why not have a block for flake.nix too?
       # For Adblocking and making internet usable
       hosts.url = "github:StevenBlack/hosts";
 
-      # Oh yeah, the best wayland compositor out there
-      # Now hyprland is back in nixos unstable
-      # hyprland = {  
-      #   url = "github:hyprwm/Hyprland";
-      #   inputs.nixpkgs.follows = "nixpkgs";
-      # };
-      # xdg-portal-hyprland.url = "github:hyprwm/xdg-desktop-portal-hyprland";
-
       # Greatest Editor of all time. (if you shill on vim, give emacs a try and see first, although it is objective to individual)
       emacs-overlay = {   
         url = "github:nix-community/emacs-overlay";
@@ -124,7 +116,7 @@ Why not have a block for flake.nix too?
 
     };
 
-    outputs = inputs @ {self, hyprland, hosts, home-manager, nixpkgs, ...} :
+    outputs = inputs @ {self, hosts, home-manager, nixpkgs, ...} :
       let
         # You might check on darwin, or its this is enough
         system = "x86_64-linux";
@@ -394,7 +386,7 @@ Certain services, just enable = true; gets the work done for most of the stuffs.
 #+begin_src nix :noweb yes
   services = {
     dbus = {
-      packages = with pkgs; [dconf udisks2 gcr];
+      packages = with pkgs; [dconf udisks2];
       enable = true;
     };
     # udev.packages = with pkgs; [gnome.gnome-settings-daemon];
@@ -405,7 +397,7 @@ Certain services, just enable = true; gets the work done for most of the stuffs.
     '';
     # To mount drives with udiskctl command
     udisks2.enable = true;
-    gnome.at-spi2-core.enable = true;
+    # gnome.at-spi2-core.enable = true;
 
     # tlp.enable = true;     # TLP and auto-cpufreq for power management
     auto-cpufreq.enable = true;
@@ -433,23 +425,29 @@ Certain services, just enable = true; gets the work done for most of the stuffs.
       configDir = "/home/<<my-username>>/.config/syncthing";
       overrideDevices = true;     # overrides any devices added or deleted through the WebUI
       overrideFolders = true;     # overrides any folders added or deleted through the WebUI
-      devices = {
-        "realme" = { id = "5ZNAQ2Z-T2DD757-6JK53J6-4NFMMGG-ETTFU5W-UNAMYLV-XM3P6CZ-ERSRTQX"; };
-        #"device2" = { id = "DEVICE-ID-GOES-HERE"; };
-      };
-      folders = {
-        "music-jazz" = {        # Name of folder in Syncthing, also the folder ID
-          path = "/home/<<my-username>>/music";    # Which folder to add to Syncthing
-          devices = [ "realme" ];      # Which devices to share the folder with
+      settings = {
+        devices = {
+          "realme" = { id = "5ZNAQ2Z-T2DD757-6JK53J6-4NFMMGG-ETTFU5W-UNAMYLV-XM3P6CZ-ERSRTQX"; };
+          #"device2" = { id = "DEVICE-ID-GOES-HERE"; };
         };
-        "syncs" = {
-          path = "/home/<<my-username>>/sync";
-          devices = [ "realme" ];
-          ignorePerms = false; 
-        };
-        "essentials" = {
-          path = "/home/<<my-username>>/d/Essentials";
-          devices = [ "realme" ];
+        folders = {
+          "music-jazz" = {        # Name of folder in Syncthing, also the folder ID
+            path = "/home/<<my-username>>/music";    # Which folder to add to Syncthing
+            devices = [ "realme" ];      # Which devices to share the folder with
+          };
+          "syncs" = {
+            path = "/home/<<my-username>>/sync";
+            devices = [ "realme" ];
+            ignorePerms = false; 
+          };
+          "essentials" = {
+            path = "/home/<<my-username>>/d/Essentials";
+            devices = [ "realme" ];
+          };
+          "reads" = {
+            path = "/home/<<my-username>>/d/reads";
+            devices = [ "realme" ];
+          };
         };
       };
     };
@@ -750,6 +748,7 @@ Opening brace that contains the rest of the configuration file.
           export MANPAGER="sh -c 'col -bx | bat -l man -p'"
           export PATH="$PATH:<<my-bin>>:$HOME/.local/bin/d"
           export EDITOR="emacsclient -nw -a 'nvim'"
+          export BEMENU_OPTS="-i -l 10 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
           export VISUAL=$EDITOR
           export STARDICT_DATA_DIR="$HOME/.local/share/stardict"
           export GRIM_DEFAULT_DIR="$HOME/pics/sshots/"
@@ -853,6 +852,9 @@ This is easy to manage and also get the syntax highlighing for shell, as nix als
   alias gc="git clone --depth=1"
   alias sudo="doas"
 
+  # export BEMENU_OPTS="-i -l 10 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
+
+
   # Functions
   function ytdl() {
       yt-dlp --embed-metadata --embed-subs -f 22 "$1"
@@ -863,7 +865,7 @@ This is easy to manage and also get the syntax highlighing for shell, as nix als
   }
 
   function shellnix() {
-      nix shell nixpkgs#"$1"
+      nix shell nixpkgs#"$1" nixpkgs#"$2" nixpkgs#"$3"
   }
 
   function {e,'emacsclient -t','emacsclient -nw'} () {
@@ -889,9 +891,9 @@ Installs packages for this user only.
 ***** Wayland
 #+begin_src nix
   # wayland
-  libnotify libsixel bemenu hyprpicker fuzzel
+  libnotify libsixel bemenu hyprpicker
   wf-recorder brightnessctl pamixer slurp grim hyprland
-  wl-clipboard rofi-wayland wtype swaybg swayidle gammastep
+  wl-clipboard wtype swaybg swayidle gammastep
 #+end_src
 ***** Media
 #+begin_src nix
@@ -1185,7 +1187,7 @@ The better cli alternative!
        bright5="b6a0ff";
        bright6="6ae4b9";
        bright7="ffffff";
-        alpha= "0.9";
+        alpha= "1.0";
       };
       mouse = {
         hide-when-typing = "yes";
@@ -1262,7 +1264,7 @@ The better cli alternative!
   }
 
   decoration {
-  # rounding=16
+  rounding=16
   multisample_edges = true
   # inactive_opacity=0.9
   # active_opacity=0.9
@@ -1307,10 +1309,8 @@ The better cli alternative!
   # windowrule=opacity 0.9,pcmanfm
   # windowrule=opacity 0.95,firefox
 
-  windowrule=float,rofi
   windowrule=float,ncmpcpp
   windowrule=float,viewnior
-  windowrule=float,feh
 
   windowrule=float,mpv
   windowrule=opaque,mpv
@@ -1320,16 +1320,15 @@ The better cli alternative!
   windowrulev2 = float, class:^(firefox)$, title:^(Firefox — Sharing Indicator)$
   windowrule=opaque,imv
 
-
   windowrulev2 = size 50% 50%,title:^(BrowserInput.*)$
   windowrulev2=center,title:^(BrowserInput.*)
   windowrulev2 = float,title:^(BrowserInput.*)
 
   #blurls=waybar
-  blurls=wofi
-  blurls=rofi
-  blurls=launcher
-  blurls=menu
+  # blurls=wofi
+  # blurls=rofi
+  # blurls=launcher
+  # blurls=menu
   blurls=gtk-layer-shell
   blurls=notifications
 
@@ -1338,14 +1337,14 @@ The better cli alternative!
   bindm=SUPER,mouse:273,resizewindow
 
   # example binds
-  bind=SUPER,RETURN,exec,emacsclient -c -e "(vterm 1)"
+  bind=SUPER,RETURN,exec,emacsclient -c -e "(multi-vterm-next)"
   bind=SUPERSHIFT,RETURN,exec,footclient
   bind=SUPERSHIFT,Q,killactive,
   bind=SUPERSHIFT,R,exec,hyprctl reload
   bind=SUPERCONTROL,Q,exit,
   bind=SUPER,F12,exec,uxterm
   bind=SUPER,SPACE,togglefloating,
-  bind=SUPER,d,exec,rofi -show drun
+  bind=SUPER,d,exec,bemenu-run
   bind=SUPER,b,exec,pkill -SIGUSR1 waybar
   bind=SUPER,P,pseudo,
   bind=SUPER,F,fullscreen,
@@ -1420,7 +1419,7 @@ The better cli alternative!
   bind=,a,exec,d-vocab
   bind=,a,submap,reset
 
-  bind=,v,exec,wtype "$(cat ~/.local/share/dict/myglossary | rofi -dmenuxss | awk '{print $1}')"
+  bind=,v,exec,wtype "$(cat ~/.local/share/dict/myglossary | bemenu | awk '{print $1}')"
   bind=,v,submap,reset
 
   bind=,escape,submap,reset
@@ -1532,7 +1531,7 @@ Its more mature than hyprland. So... better to have it! I dont use sway that muc
       cape markdown-mode nix-mode
       nerd-icons async dirvish
       reddigg hnreader mingus which-key magit webpaste org-present
-      pdf-tools nov shrface shr-tag-pre-highlight
+      pdf-tools nov shrface shr-tag-pre-highlight gcmh
       org-mime corfu-terminal beframe denote tempel tempel-collection
       sdcv elfeed elfeed-org link-hint powerthesaurus jinx meow
       doom-modeline hide-mode-line el-fetch ox-hugo htmlize
@@ -2629,7 +2628,7 @@ listing menus
     # };
     gpg-agent = {
       enable = true;
-      pinentryFlavor = "gnome3";
+      pinentryFlavor = "curses";
       enableSshSupport = true;
       enableZshIntegration = true;
     };
@@ -2771,7 +2770,7 @@ listing menus
         "custom/launcher" = {
           "format" = " ";
           "tooltip" = false;
-          "on-click" = "rofi -show drun";
+          "on-click" = "bemenu-run";
         };
 
         "battery" =  {
@@ -3036,12 +3035,11 @@ listing menus
   ##}}}
 
   external_menu () {
-      #use rofi instead of dmenu
   #    rofi -dmenu -i -theme-str '@import "menu.rasi" window {height:60%;width: 70%;}' -p "$1"
-    rofi -dmenu -i -config ~/.config/rofi/list.rasi -p "  Play "  
+       #  rofi -dmenu -i -config ~/.config/rofi/list.rasi -p "  Play "  
        # fuzzel -d -p " 磊 Play " -w 90 -l 22
       # wofi -dib -W 90% -H 80% 
-       # bemenu -W 0.98 -l 22 -p '  Play '
+       bemenu -W 0.98 -l 24 -p '  Play '
   #    dmenu -i -l 20
   }
 

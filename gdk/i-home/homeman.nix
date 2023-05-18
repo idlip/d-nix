@@ -106,6 +106,7 @@ programs = {
         export MANPAGER="sh -c 'col -bx | bat -l man -p'"
         export PATH="$PATH:/home/i/d-git/d-bin/bin:$HOME/.local/bin/d"
         export EDITOR="emacsclient -nw -a 'nvim'"
+        export BEMENU_OPTS="-i -l 10 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
         export VISUAL=$EDITOR
         export STARDICT_DATA_DIR="$HOME/.local/share/stardict"
         export GRIM_DEFAULT_DIR="$HOME/pics/sshots/"
@@ -145,9 +146,9 @@ programs = {
 home.packages = with pkgs; [
 
 # wayland
-libnotify libsixel bemenu hyprpicker fuzzel
+libnotify libsixel bemenu hyprpicker
 wf-recorder brightnessctl pamixer slurp grim hyprland
-wl-clipboard rofi-wayland wtype swaybg swayidle gammastep
+wl-clipboard wtype swaybg swayidle gammastep
 
 # media
 mpc_cli pulsemixer imv
@@ -397,7 +398,7 @@ programs.foot = {
      bright5="b6a0ff";
      bright6="6ae4b9";
      bright7="ffffff";
-      alpha= "0.9";
+      alpha= "1.0";
     };
     mouse = {
       hide-when-typing = "yes";
@@ -431,14 +432,14 @@ programs.emacs = {
   enable = true;
   package = pkgs.emacsPgtk;
   extraPackages = (epkgs: (with epkgs; [
-    vterm vundo undo-fu-session flycheck helpful ox-pandoc
+    vterm multi-vterm vundo undo-fu-session flycheck helpful ox-pandoc
     no-littering rainbow-delimiters rainbow-mode vertico 
     orderless consult marginalia embark org olivetti org-modern corfu
     embark-consult consult-eglot consult-flycheck
     cape markdown-mode nix-mode
     nerd-icons async dirvish
     reddigg hnreader mingus which-key magit webpaste org-present
-    pdf-tools nov shrface shr-tag-pre-highlight
+    pdf-tools nov shrface shr-tag-pre-highlight gcmh
     org-mime corfu-terminal beframe denote tempel tempel-collection
     sdcv elfeed elfeed-org link-hint powerthesaurus jinx meow
     doom-modeline hide-mode-line el-fetch ox-hugo htmlize
@@ -819,7 +820,7 @@ services = {
   # };
   gpg-agent = {
     enable = true;
-    pinentryFlavor = "gnome3";
+    pinentryFlavor = "curses";
     enableSshSupport = true;
     enableZshIntegration = true;
   };
@@ -958,7 +959,7 @@ programs.waybar = {
       "custom/launcher" = {
         "format" = " ";
         "tooltip" = false;
-        "on-click" = "rofi -show drun";
+        "on-click" = "bemenu-run";
       };
 
       "battery" =  {

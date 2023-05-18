@@ -358,10 +358,10 @@ If you experience stuttering, increase this.")
                                         (window-width . 0.45)))
   (setq vertico-multiform-categories
       '((file )
-        (consult-location buffer)
+        (consult-location )
         (t unobtrusive)))
   (setq vertico-multiform-commands
-        '((consult-ripgrep buffer))))
+        '((consult-ripgrep ))))
 
 (defun d/vertico-toggle ()
   "Toggle between vertico-unobtrusive and vertico-mode."
@@ -1125,28 +1125,28 @@ selected color."
                  :kill-buffer t
                  :jump-to-captured t)))
 
-i  (use-package olivetti
-    :defer t
-    :hook ((text-mode         . olivetti-mode)
-           ;; (prog-mode         . olivetti-mode)
-           (Info-mode         . olivetti-mode)
-           ;; (eshell-mode         . olivetti-mode)
-           (helpful-mode         . olivetti-mode)
-           (Info-mode         . olivetti-mode)
-           (org-mode          . olivetti-mode)
-           (ement-room-mode   . olivetti-mode)
-           (dashboard-mode    . olivetti-mode)
-           (eww-mode          . olivetti-mode)
-           (sdcv-mode         . olivetti-mode)
-           (fundamental-mode  . olivetti-mode)
-           (nov-mode          . olivetti-mode)
-           (markdown-mode     . olivetti-mode)
-           (mu4e-view-mode    . olivetti-mode)
-           (elfeed-show-mode  . olivetti-mode)
-           (mu4e-compose-mode . olivetti-mode))
-    :custom
-    (olivetti-body-width 0.8)
-    :delight " ⊛")
+(use-package olivetti
+  :defer t
+  :hook ((text-mode         . olivetti-mode)
+         ;; (prog-mode         . olivetti-mode)
+         (Info-mode         . olivetti-mode)
+         ;; (eshell-mode         . olivetti-mode)
+         (helpful-mode         . olivetti-mode)
+         (Info-mode         . olivetti-mode)
+         (org-mode          . olivetti-mode)
+         (ement-room-mode   . olivetti-mode)
+         (dashboard-mode    . olivetti-mode)
+         (eww-mode          . olivetti-mode)
+         (sdcv-mode         . olivetti-mode)
+         (fundamental-mode  . olivetti-mode)
+         (nov-mode          . olivetti-mode)
+         (markdown-mode     . olivetti-mode)
+         (mu4e-view-mode    . olivetti-mode)
+         (elfeed-show-mode  . olivetti-mode)
+         (mu4e-compose-mode . olivetti-mode))
+  :custom
+  (olivetti-body-width 0.8)
+  :delight " ⊛")
 
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
@@ -1224,7 +1224,7 @@ i  (use-package olivetti
                     (markdown-header-face-3 . 1.15)
                     (markdown-header-face-4 . 1.1)
                     (markdown-header-face-5 . 1.0)))
-      (set-face-attribute (car face) nil :weight 'normal :font d/header-font :height (cdr face))))
+      (set-face-attribute (car face) nil :weight 'normal :font haki-heading-font :height (cdr face))))
 
   (defun d/markdown-mode-hook ()
     (d/set-markdown-header-font-sizes))
@@ -1466,7 +1466,7 @@ i  (use-package olivetti
     "Minimal hack to toggle vterm."
     (interactive)
     (cond
-     ((derived-mode-p 'vterm-mode) (delete-window))
+     ((derived-mode-p 'vterm-mode) (if (one-window-p) (switch-to-prev-buffer) (delete-window)))
      ((one-window-p) (progn (split-and-follow-below) (multi-vterm-next)
                             (if (package-installed-p 'hide-mode-line) (hide-mode-line-mode) nil) (shrink-window 7)))
      (t (progn (other-window 1)
@@ -1558,11 +1558,12 @@ i  (use-package olivetti
         ("p" . sdcv-previous-dictionary)))
 
 (use-package nov
-  :defer t
-  :hook (nov-mode . hide-mode-line-mode)
-  :mode "\\.epub\\'"
+  :hook ((nov-mode . hide-mode-line-mode))
+  :mode ("\\.epub\\'" . nov-mode)
   :config
-  (setq nov-text-width t))
+  (setq nov-text-width t)
+  (setq nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title)))
+  (setq nov-shr-rendering-functions (append nov-shr-rendering-functions shr-external-rendering-functions)))
 
 (defun shrface-default-keybindings ()
   (interactive)
@@ -1578,7 +1579,8 @@ i  (use-package olivetti
 (use-package shrface
   :defer t
   :hook ((eww-mode . shrface-mode)
-         (elfeed-show-mode . shrface-mode))
+         (elfeed-show-mode . shrface-mode)
+         (nov-mode . shrface-mode))
   :init
   (setq shrface-item-bullet 8226)
   :bind (:map shrface-mode-map
@@ -1594,21 +1596,13 @@ i  (use-package olivetti
   (setq shrface-bullets-bullet-list org-modern-star)
   (setq shrface-href-versatile t))
 
-(use-package nov
-  :defer t
-  :init
-  (add-hook 'nov-mode-hook #'shrface-mode)
-  :config
-  (setq nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title)))
-  (setq nov-shr-rendering-functions (append nov-shr-rendering-functions shr-external-rendering-functions)))
-
 ;; To highligh src blocks in eww
 (use-package shr-tag-pre-highlight
   :ensure t
   :after shr
   :config
 
-(defun shrface-shr-tag-pre-highlight (pre)
+  (defun shrface-shr-tag-pre-highlight (pre)
     "Highlighting code in PRE."
     (let* ((shr-folding-mode 'none)
            (shr-current-font 'default)

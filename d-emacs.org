@@ -563,10 +563,10 @@ Just check the [[https://github.com/minad/vertico][Vertico github]] repo, you wi
                                           (window-width . 0.45)))
     (setq vertico-multiform-categories
         '((file )
-          (consult-location buffer)
+          (consult-location )
           (t unobtrusive)))
     (setq vertico-multiform-commands
-          '((consult-ripgrep buffer))))
+          '((consult-ripgrep ))))
 
   (defun d/vertico-toggle ()
     "Toggle between vertico-unobtrusive and vertico-mode."
@@ -1485,7 +1485,7 @@ TODO : Learn more on this
 ** 🫒 Olive Etiquette
 All texts from left is not intuitive, Spoils GUI end of emacs, feels like you are on Terminal all time. Also, the space on right side will be wasted, unless you use split window vertically. Centering content helps focus and make things look tidy.
 #+begin_src emacs-lisp
-i  (use-package olivetti
+  (use-package olivetti
     :defer t
     :hook ((text-mode         . olivetti-mode)
            ;; (prog-mode         . olivetti-mode)
@@ -1641,7 +1641,7 @@ I'm not a programmer, maybe will be expanded in future..
                       (markdown-header-face-3 . 1.15)
                       (markdown-header-face-4 . 1.1)
                       (markdown-header-face-5 . 1.0)))
-        (set-face-attribute (car face) nil :weight 'normal :font d/header-font :height (cdr face))))
+        (set-face-attribute (car face) nil :weight 'normal :font haki-heading-font :height (cdr face))))
 
     (defun d/markdown-mode-hook ()
       (d/set-markdown-header-font-sizes))
@@ -1903,7 +1903,7 @@ Vterm to replace terminal emulator.
       "Minimal hack to toggle vterm."
       (interactive)
       (cond
-       ((derived-mode-p 'vterm-mode) (delete-window))
+       ((derived-mode-p 'vterm-mode) (if (one-window-p) (switch-to-prev-buffer) (delete-window)))
        ((one-window-p) (progn (split-and-follow-below) (multi-vterm-next)
                               (if (package-installed-p 'hide-mode-line) (hide-mode-line-mode) nil) (shrink-window 7)))
        (t (progn (other-window 1)
@@ -2005,97 +2005,92 @@ Nov is one of the gem which really makes epub reading more sense in emacs; Embra
 You dont have to learn another software or ask for features, get it in emacs-way.
 #+begin_src emacs-lisp
   (use-package nov
-    :defer t
-    :hook (nov-mode . hide-mode-line-mode)
-    :mode "\\.epub\\'"
+    :hook ((nov-mode . hide-mode-line-mode))
+    :mode ("\\.epub\\'" . nov-mode)
     :config
-    (setq nov-text-width t))
+    (setq nov-text-width t)
+    (setq nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title)))
+    (setq nov-shr-rendering-functions (append nov-shr-rendering-functions shr-external-rendering-functions)))
+
 #+end_src
 
 ** </> Shrface - Orgify
 To make eww and shr elements org-like and make emacs even more Unified!
 #+begin_src emacs-lisp
-  (defun shrface-default-keybindings ()
-    (interactive)
-    "Sets up the default keybindings for `shrface-mode'."
-    (define-key shrface-mode-map (kbd "TAB") 'shrface-outline-cycle)
-    (define-key shrface-mode-map (kbd "<backtab>") 'shrface-outline-cycle-buffer)
-    (define-key shrface-mode-map (kbd "C-t") 'shrface-toggle-bullets)
-    (define-key shrface-mode-map (kbd "C-j") 'shrface-next-headline)
-    (define-key shrface-mode-map (kbd "C-k") 'shrface-previous-headline)
-    (define-key shrface-mode-map (kbd "M-l") 'shrface-links-consult)
-    (define-key shrface-mode-map (kbd "M-h") 'shrface-headline-consult))
+    (defun shrface-default-keybindings ()
+      (interactive)
+      "Sets up the default keybindings for `shrface-mode'."
+      (define-key shrface-mode-map (kbd "TAB") 'shrface-outline-cycle)
+      (define-key shrface-mode-map (kbd "<backtab>") 'shrface-outline-cycle-buffer)
+      (define-key shrface-mode-map (kbd "C-t") 'shrface-toggle-bullets)
+      (define-key shrface-mode-map (kbd "C-j") 'shrface-next-headline)
+      (define-key shrface-mode-map (kbd "C-k") 'shrface-previous-headline)
+      (define-key shrface-mode-map (kbd "M-l") 'shrface-links-consult)
+      (define-key shrface-mode-map (kbd "M-h") 'shrface-headline-consult))
 
-  (use-package shrface
-    :defer t
-    :hook ((eww-mode . shrface-mode)
-           (elfeed-show-mode . shrface-mode))
-    :init
-    (setq shrface-item-bullet 8226)
-    :bind (:map shrface-mode-map
-                ("<tab>" . shrface-outline-cycle)
-                ("<backtab>" . shrface-outline-cycle-buffer)
-                ("M-l" . shrface-links-consult)
-                ("M-h" . shrface-headline-consult)
-                ("C-j" . shrface-next-headline)
-                ("C-k" . shrface-previous-headline))
-    :config
-    (shrface-basic)
-    (shrface-trial)
-    (setq shrface-bullets-bullet-list org-modern-star)
-    (setq shrface-href-versatile t))
+    (use-package shrface
+      :defer t
+      :hook ((eww-mode . shrface-mode)
+             (elfeed-show-mode . shrface-mode)
+             (nov-mode . shrface-mode))
+      :init
+      (setq shrface-item-bullet 8226)
+      :bind (:map shrface-mode-map
+                  ("<tab>" . shrface-outline-cycle)
+                  ("<backtab>" . shrface-outline-cycle-buffer)
+                  ("M-l" . shrface-links-consult)
+                  ("M-h" . shrface-headline-consult)
+                  ("C-j" . shrface-next-headline)
+                  ("C-k" . shrface-previous-headline))
+      :config
+      (shrface-basic)
+      (shrface-trial)
+      (setq shrface-bullets-bullet-list org-modern-star)
+      (setq shrface-href-versatile t))
 
-  (use-package nov
-    :defer t
-    :init
-    (add-hook 'nov-mode-hook #'shrface-mode)
-    :config
-    (setq nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title)))
-    (setq nov-shr-rendering-functions (append nov-shr-rendering-functions shr-external-rendering-functions)))
+    ;; To highligh src blocks in eww
+    (use-package shr-tag-pre-highlight
+      :ensure t
+      :after shr
+      :config
 
-  ;; To highligh src blocks in eww
-  (use-package shr-tag-pre-highlight
-    :ensure t
-    :after shr
-    :config
+      (defun shrface-shr-tag-pre-highlight (pre)
+        "Highlighting code in PRE."
+        (let* ((shr-folding-mode 'none)
+               (shr-current-font 'default)
+               (code (with-temp-buffer
+                       (shr-generic pre)
+                       ;; (indent-rigidly (point-min) (point-max) 2)
+                       (buffer-string)))
+               (lang (or (shr-tag-pre-highlight-guess-language-attr pre)
+                         (let ((sym (language-detection-string code)))
+                           (and sym (symbol-name sym)))))
+               (mode (and lang
+                          (shr-tag-pre-highlight--get-lang-mode lang))))
+          (shr-ensure-newline)
+          (shr-ensure-newline)
+          (setq start (point))
+          (insert
+           (propertize (concat "#+BEGIN_SRC " lang "\n") 'face 'org-block-begin-line)
+           (or (and (fboundp mode)
+                    (with-demoted-errors "Error while fontifying: %S"
+                      (shr-tag-pre-highlight-fontify code mode)))
+               code)
+           (propertize "#+END_SRC" 'face 'org-block-end-line ))
+          (shr-ensure-newline)
+          (setq end (point))
+          (if light
+              (add-face-text-property start end '(:background "#D8DEE9" :extend t))
+            (add-face-text-property start end '(:background "#292b2e" :extend t)))
+          (shr-ensure-newline)
+          (insert "\n")))
 
-  (defun shrface-shr-tag-pre-highlight (pre)
-      "Highlighting code in PRE."
-      (let* ((shr-folding-mode 'none)
-             (shr-current-font 'default)
-             (code (with-temp-buffer
-                     (shr-generic pre)
-                     ;; (indent-rigidly (point-min) (point-max) 2)
-                     (buffer-string)))
-             (lang (or (shr-tag-pre-highlight-guess-language-attr pre)
-                       (let ((sym (language-detection-string code)))
-                         (and sym (symbol-name sym)))))
-             (mode (and lang
-                        (shr-tag-pre-highlight--get-lang-mode lang))))
-        (shr-ensure-newline)
-        (shr-ensure-newline)
-        (setq start (point))
-        (insert
-         (propertize (concat "#+BEGIN_SRC " lang "\n") 'face 'org-block-begin-line)
-         (or (and (fboundp mode)
-                  (with-demoted-errors "Error while fontifying: %S"
-                    (shr-tag-pre-highlight-fontify code mode)))
-             code)
-         (propertize "#+END_SRC" 'face 'org-block-end-line ))
-        (shr-ensure-newline)
-        (setq end (point))
-        (if light
-            (add-face-text-property start end '(:background "#D8DEE9" :extend t))
-          (add-face-text-property start end '(:background "#292b2e" :extend t)))
-        (shr-ensure-newline)
-        (insert "\n")))
-
-    (add-to-list 'shr-external-rendering-functions
-                 '(pre . shr-tag-pre-highlight))
-    (when (version< emacs-version "26")
-      (with-eval-after-load 'eww
-        (advice-add 'eww-display-html :around
-                    'eww-display-html--override-shr-external-rendering-functions))))
+      (add-to-list 'shr-external-rendering-functions
+                   '(pre . shr-tag-pre-highlight))
+      (when (version< emacs-version "26")
+        (with-eval-after-load 'eww
+          (advice-add 'eww-display-html :around
+                      'eww-display-html--override-shr-external-rendering-functions))))
 
 
 

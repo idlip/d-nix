@@ -9,14 +9,6 @@
     # For Adblocking and making internet usable
     hosts.url = "github:StevenBlack/hosts";
 
-    # Oh yeah, the best wayland compositor out there
-    # Now hyprland is back in nixos unstable
-    # hyprland = {  
-    #   url = "github:hyprwm/Hyprland";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
-    # xdg-portal-hyprland.url = "github:hyprwm/xdg-desktop-portal-hyprland";
-
     # Greatest Editor of all time. (if you shill on vim, give emacs a try and see first, although it is objective to individual)
     emacs-overlay = {   
       url = "github:nix-community/emacs-overlay";
@@ -32,7 +24,7 @@
 
   };
 
-  outputs = inputs @ {self, hyprland, hosts, home-manager, nixpkgs, ...} :
+  outputs = inputs @ {self, hosts, home-manager, nixpkgs, ...} :
     let
       # You might check on darwin, or its this is enough
       system = "x86_64-linux";

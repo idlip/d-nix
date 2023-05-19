@@ -74,7 +74,7 @@ function fcd() {
 }
 
 function shellnix() {
-    nix shell nixpkgs#"$1" nixpkgs#"$2" nixpkgs#"$3"
+    nix shell nixpkgs#"$1"
 }
 
 function {e,'emacsclient -t','emacsclient -nw'} () {

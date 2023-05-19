@@ -316,17 +316,65 @@ Configure the boot loader to use UEFI.
   boot = {
     # Uses bleeding edge latest kernel.
     kernelPackages = pkgs.linuxPackages_latest;
+    kernelModules = ["tcp_bbr" "acpi_call"];
+    kernelParams = [
+      "pti=auto"
+      "acpi=on"
+      "processor.max_cstate=5"
+      "module.sig_enforce=1"
+      "lockdown=confidentiality"
+    ];
+
+    kernel.sysctl = {
+      # The Magic SysRq key is a key combo that allows users connected to the
+      # system console of a Linux kernel to perform some low-level commands.
+      # Disable it, since we don't need it, and is a potential security concern.
+      "kernel.sysrq" = 0;
+
+      ## TCP hardening
+      # Prevent bogus ICMP errors from filling up logs.
+      "net.ipv4.icmp_ignore_bogus_error_responses" = 1;
+      # Reverse path filtering causes the kernel to do source validation of
+      # packets received from all interfaces. This can mitigate IP spoofing.
+      "net.ipv4.conf.default.rp_filter" = 1;
+      "net.ipv4.conf.all.rp_filter" = 1;
+      # Do not accept IP source route packets (we're not a router)
+      "net.ipv4.conf.all.accept_source_route" = 0;
+      "net.ipv6.conf.all.accept_source_route" = 0;
+      # Don't send ICMP redirects (again, we're on a router)
+      "net.ipv4.conf.all.send_redirects" = 0;
+      "net.ipv4.conf.default.send_redirects" = 0;
+      # Refuse ICMP redirects (MITM mitigations)
+      "net.ipv4.conf.all.accept_redirects" = 0;
+      "net.ipv4.conf.default.accept_redirects" = 0;
+      "net.ipv4.conf.all.secure_redirects" = 0;
+      "net.ipv4.conf.default.secure_redirects" = 0;
+      "net.ipv6.conf.all.accept_redirects" = 0;
+      "net.ipv6.conf.default.accept_redirects" = 0;
+      # Protects against SYN flood attacks
+      "net.ipv4.tcp_syncookies" = 1;
+      # Incomplete protection again TIME-WAIT assassination
+      "net.ipv4.tcp_rfc1337" = 1;
+
+      ## TCP optimization
+      # TCP Fast Open is a TCP extension that reduces network latency by packing
+      # data in the sender’s initial TCP SYN. Setting 3 = enable TCP Fast Open for
+      # both incoming and outgoing connections:
+      "net.ipv4.tcp_fastopen" = 3;
+      # Bufferbloat mitigations + slight improvement in throughput & latency
+      "net.ipv4.tcp_congestion_control" = "bbr";
+      "net.core.default_qdisc" = "cake";
+    };
 
     loader = {
       # FIXME change first line if you want to use Grub
       systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
-      timeout = 5;
+      timeout = 1;
     };
+
     supportedFilesystems = [ "ntfs" ];
-    tmp = {
-      cleanOnBoot = true;
-    };
+    tmp.cleanOnBoot = true;
   };
 #+end_src
 ** Network
@@ -386,7 +434,7 @@ Certain services, just enable = true; gets the work done for most of the stuffs.
 #+begin_src nix :noweb yes
   services = {
     dbus = {
-      packages = with pkgs; [dconf udisks2];
+      packages = with pkgs; [dconf udisks2 gcr];
       enable = true;
     };
     # udev.packages = with pkgs; [gnome.gnome-settings-daemon];
@@ -518,6 +566,7 @@ When i removed this block, wayland (sway and hyprland) did not open at all.
       extraPackages = with pkgs; [
         vaapiVdpau
         libvdpau-va-gl
+        intel-compute-runtime
         intel-media-driver
         vaapiIntel
       ];
@@ -748,7 +797,7 @@ Opening brace that contains the rest of the configuration file.
           export MANPAGER="sh -c 'col -bx | bat -l man -p'"
           export PATH="$PATH:<<my-bin>>:$HOME/.local/bin/d"
           export EDITOR="emacsclient -nw -a 'nvim'"
-          export BEMENU_OPTS="-i -l 10 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
+          export BEMENU_OPTS="-i -s -l 10 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
           export VISUAL=$EDITOR
           export STARDICT_DATA_DIR="$HOME/.local/share/stardict"
           export GRIM_DEFAULT_DIR="$HOME/pics/sshots/"
@@ -865,7 +914,7 @@ This is easy to manage and also get the syntax highlighing for shell, as nix als
   }
 
   function shellnix() {
-      nix shell nixpkgs#"$1" nixpkgs#"$2" nixpkgs#"$3"
+      nix shell nixpkgs#"$1"
   }
 
   function {e,'emacsclient -t','emacsclient -nw'} () {
@@ -1344,7 +1393,7 @@ The better cli alternative!
   bind=SUPERCONTROL,Q,exit,
   bind=SUPER,F12,exec,uxterm
   bind=SUPER,SPACE,togglefloating,
-  bind=SUPER,d,exec,bemenu-run
+  bind=SUPER,d,exec,bemenu-run -W 0.25 -l 8
   bind=SUPER,b,exec,pkill -SIGUSR1 waybar
   bind=SUPER,P,pseudo,
   bind=SUPER,F,fullscreen,
@@ -1522,8 +1571,14 @@ Its more mature than hyprland. So... better to have it! I dont use sway that muc
 
   programs.emacs = {
     enable = true;
-    package = pkgs.emacsPgtk;
+    # package = pkgs.emacsPgtk;
+    package = pkgs.emacsPgtk.overrideAttrs (old: {
+      passthru = old.passthru // {
+        treeSitter = true;
+      };
+    });
     extraPackages = (epkgs: (with epkgs; [
+      treesit-grammars.with-all-grammars
       vterm multi-vterm vundo undo-fu-session flycheck helpful ox-pandoc
       no-littering rainbow-delimiters rainbow-mode vertico 
       orderless consult marginalia embark org olivetti org-modern corfu
@@ -2628,7 +2683,7 @@ listing menus
     # };
     gpg-agent = {
       enable = true;
-      pinentryFlavor = "curses";
+      pinentryFlavor = "gnome3";
       enableSshSupport = true;
       enableZshIntegration = true;
     };

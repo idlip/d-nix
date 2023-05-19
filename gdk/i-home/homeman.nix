@@ -106,7 +106,7 @@ programs = {
         export MANPAGER="sh -c 'col -bx | bat -l man -p'"
         export PATH="$PATH:/home/i/d-git/d-bin/bin:$HOME/.local/bin/d"
         export EDITOR="emacsclient -nw -a 'nvim'"
-        export BEMENU_OPTS="-i -l 10 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
+        export BEMENU_OPTS="-i -s -l 10 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
         export VISUAL=$EDITOR
         export STARDICT_DATA_DIR="$HOME/.local/share/stardict"
         export GRIM_DEFAULT_DIR="$HOME/pics/sshots/"
@@ -430,8 +430,14 @@ home.file.".config/emacs/elfeed.org".source = config.lib.file.mkOutOfStoreSymlin
 
 programs.emacs = {
   enable = true;
-  package = pkgs.emacsPgtk;
+  # package = pkgs.emacsPgtk;
+  package = pkgs.emacsPgtk.overrideAttrs (old: {
+    passthru = old.passthru // {
+      treeSitter = true;
+    };
+  });
   extraPackages = (epkgs: (with epkgs; [
+    treesit-grammars.with-all-grammars
     vterm multi-vterm vundo undo-fu-session flycheck helpful ox-pandoc
     no-littering rainbow-delimiters rainbow-mode vertico 
     orderless consult marginalia embark org olivetti org-modern corfu
@@ -820,7 +826,7 @@ services = {
   # };
   gpg-agent = {
     enable = true;
-    pinentryFlavor = "curses";
+    pinentryFlavor = "gnome3";
     enableSshSupport = true;
     enableZshIntegration = true;
   };

@@ -157,7 +157,7 @@ yt-dlp jq ytfzf ani-cli qbittorrent youtube-tui
 # cli tools
 pcmanfm fzf neovim btop unzip
 aspell aspellDicts.en-science aspellDicts.en hunspell hunspellDicts.en-us
-ripgrep nitch libreoffice pandoc newsboat tmux
+ripgrep nitch libreoffice pandoc newsboat
 rsync ffmpeg sdcv imagemagick groff
 wkhtmltopdf-bin
 fd ncdu mu isync ts syncthing dconf
@@ -478,7 +478,7 @@ profiles.ihome = {
 settings = {
   "app.update.auto" = false;
   "browser.startup.homepage" = "about:blank";
-  "browser.urlbar.placeholderName" = "Greeting You!";
+  "browser.urlbar.placeholderName" = "Brain";
   "privacy.webrtc.legacyGlobalIndicator" = true;
   "gfx.webrender.all" = true;
   "gfx.webrender.enabled" = true;

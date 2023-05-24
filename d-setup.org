@@ -265,13 +265,11 @@ Opening brace that contains the rest of the configuration file.
     };
 
     # pin the registry to avoid downloading and evaling a new nixpkgs version every time
-    registry = lib.mapAttrs (_: v: {flake = v;}) inputs;
-
-    # set the path for channels compat
-    nixPath = [
-      "nixpkgs=/etc/nix/flake-channels/nixpkgs"
-      "home-manager=/etc/nix/flake-channels/home-manager"
-    ];
+    registry = lib.mapAttrs (_: value: { flake = value; }) inputs;  
+      
+    # This will additionally add your inputs to the system's legacy channels  
+    # Making legacy nix commands consistent as well, awesome!  
+    nixPath = lib.mapAttrsToList (key: value: "${key}=${value.to.path}") config.nix.registry;  
 
     # Free up to 1GiB whenever there is less than 100MiB left.
     extraOptions = ''
@@ -316,14 +314,7 @@ Configure the boot loader to use UEFI.
   boot = {
     # Uses bleeding edge latest kernel.
     kernelPackages = pkgs.linuxPackages_latest;
-    kernelModules = ["tcp_bbr" "acpi_call"];
-    kernelParams = [
-      "pti=auto"
-      "acpi=on"
-      "processor.max_cstate=5"
-      "module.sig_enforce=1"
-      "lockdown=confidentiality"
-    ];
+    kernelModules = ["tcp_bbr"];
 
     kernel.sysctl = {
       # The Magic SysRq key is a key combo that allows users connected to the
@@ -475,7 +466,7 @@ Certain services, just enable = true; gets the work done for most of the stuffs.
       overrideFolders = true;     # overrides any folders added or deleted through the WebUI
       settings = {
         devices = {
-          "realme" = { id = "5ZNAQ2Z-T2DD757-6JK53J6-4NFMMGG-ETTFU5W-UNAMYLV-XM3P6CZ-ERSRTQX"; };
+          "realme" = { id = "CEV3U3M-EJFLUJ3-UXFBEPG-KHX5EVK-3MSYH2W-BRNZEDH-TVJ4QWZ-X3G2CAW"; };
           #"device2" = { id = "DEVICE-ID-GOES-HERE"; };
         };
         folders = {
@@ -494,6 +485,26 @@ Certain services, just enable = true; gets the work done for most of the stuffs.
           };
           "reads" = {
             path = "/home/<<my-username>>/d/reads";
+            devices = [ "realme" ];
+          };
+          "fonts" = {
+            path = "/home/<<my-username>>/d/fonts";
+            devices = [ "realme" ];
+          };
+          "emacs" = {
+            path = "<<my-git-path>>";
+            devices = [ "realme" ];
+          };
+          "news" = {
+            path = "/home/<<my-username>>/.config/emacs/var/elfeed";
+            devices = [ "realme" ];
+          };
+          "theme" = {
+            path = "/home/<<my-username>>/d-git/d-theme";
+            devices = [ "realme" ];
+          };
+          "site" = {
+            path = "/home/<<my-username>>/d-git/d-site";
             devices = [ "realme" ];
           };
         };
@@ -566,7 +577,6 @@ When i removed this block, wayland (sway and hyprland) did not open at all.
       extraPackages = with pkgs; [
         vaapiVdpau
         libvdpau-va-gl
-        intel-compute-runtime
         intel-media-driver
         vaapiIntel
       ];
@@ -581,8 +591,8 @@ Enables additional fonts system wide. See how easy it is to manage fonts with ni
       #emacs-all-the-icons-fonts
       noto-fonts
       #material-icons comic-mono material-design-icons
-      # weather-icons font-awesome comicshaansmono
-      symbola noto-fonts-emoji maple-mono-NF
+      # weather-icons font-awesome 
+      symbola noto-fonts-emoji maple-mono
       iosevka-comfy.comfy iosevka-comfy.comfy-motion
       (nerdfonts.override {fonts = ["VictorMono" "FiraCode" "JetBrainsMono"];})
     ];
@@ -955,7 +965,7 @@ Installs packages for this user only.
   # cli tools
   pcmanfm fzf neovim btop unzip
   aspell aspellDicts.en-science aspellDicts.en hunspell hunspellDicts.en-us
-  ripgrep nitch libreoffice pandoc newsboat tmux
+  ripgrep nitch libreoffice pandoc newsboat
   rsync ffmpeg sdcv imagemagick groff
   wkhtmltopdf-bin
   fd ncdu mu isync ts syncthing dconf
@@ -1673,7 +1683,7 @@ creates profile settings specific to a user, and sets my profile as the default
   settings = {
     "app.update.auto" = false;
     "browser.startup.homepage" = "about:blank";
-    "browser.urlbar.placeholderName" = "Greeting You!";
+    "browser.urlbar.placeholderName" = "Brain";
     "privacy.webrtc.legacyGlobalIndicator" = true;
     "gfx.webrender.all" = true;
     "gfx.webrender.enabled" = true;
@@ -2979,7 +2989,7 @@ listing menus
 
   #mpd {
       color: @lavender;
-      font-family:Maple Mono NF;
+      font-family:Maple Mono;
       font-style: italic;
   }
 

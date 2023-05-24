@@ -40,6 +40,10 @@
 (unless (daemonp)
   (advice-add #'display-startup-echo-area-message :override #'ignore))
 
+(defvar d/on-droid
+  (string-suffix-p "Toybox" (string-trim (shell-command-to-string "uname -o")))
+  "Check if running on android phone")
+
 (setq
  package-enable-at-startup nil ; don't auto-initialize!
  package--init-file-ensured t ; don't add that `custom-set-variables' block to init
@@ -64,8 +68,9 @@
                  (org-babel-tangle))
               nil t)))
 
+(setq use-file-dialog (if d/on-droid t nil))
+
 (setq
- use-file-dialog nil
  mode-line-format nil ; don't want a mode line while loading init
  load-prefer-newer nil
  create-lockfiles nil ; disable lockfiles
@@ -100,7 +105,7 @@
 (push '(fullscreen . maximized) default-frame-alist)
 
 ;; Prevent the glimpse of un-styled Emacs by disabling these UI elements early.
-(push '(menu-bar-lines . 0) default-frame-alist)
+(push '(menu-bar-lines . 1) default-frame-alist)
 (push '(tool-bar-lines . 0) default-frame-alist)
 (push '(vertical-scroll-bars) default-frame-alist)
 

@@ -2,7 +2,6 @@
 #+PROPERTY: header-args:emacs-lisp :tangle ./gdk/i-home/configs/emacs/init.el :tangle-mode (identity #o444) :mkdirp yes
 #+TOC: tables
 
-
 ** Todo Stuffs (Feel free to say/add something. I will be glad!
 **** 😄 Finally Done.. Ooof
 CLOSED: [2023-03-07 Tue 14:27]
@@ -11,18 +10,19 @@ CLOSED: [2023-03-07 Tue 14:27]
 :END:
 - [X] Ditch evil-mode, go pure Emacs way!
 - [X] No need modeline nor dashboard, go zen-mode with minimal distraction
-    PS : Used ~olivetti-mode~ and ~hide-mode-line-mode~
+  PS : Used ~olivetti-mode~ and ~hide-mode-line-mode~
 - [X] Clean and minimise unnecessary package/bloat
 - [X] No need doom-themes too, use one theme (Either vivendi or Catppuccin)
 - [X] Setup robust and extensive use for Rss feeds
 - [X] Manage emacs nix-way.
   PS : Just managing packages in nix style. Init file is good enough as such.
-    Benefits are :
+  Benefits are :
   + package management becomes easy with just ~nixos-rebuild~
   + You get vterm, which wont build that easily in normal emacs config under nixos
 - [X] Make README.org or improve this Config.org so it is informational to all
 - [X] Share some cool stuffs with others and explain it very crisp and clearly
 - [X] Learn elisp for enhancing some more stuffs
+- [X] Support for Android Emacs
 
 **** 😴 Planning  [1/3]
 - [ ] Add daily quotes for ~initial-scratch-message~
@@ -34,9 +34,11 @@ CLOSED: [2023-03-07 Tue 14:27]
 Some of the highlights which you might wanna copy or take from this config :
 
 1. RSS focused, has good workflow to read. You have bionic-reading too!
-2. Smoother experience and made for Pure-Gtk, Wayland use
-3. Zen, Distraction free text viewing experience (No mode-line)
-
+2. Smoother experience and made for Pure-Gtk, Wayland use.
+3. Zen, Distraction free text viewing experience.
+4. Uses various fonts.
+5. Tries to keep it simple and efficient for its purpose.
+   
 
 * 🌅 Early-Init
 #+begin_src emacs-lisp :noweb yes :tangle ./gdk/i-home/configs/emacs/early-init.el :tangle-mode (identity #o444) :mkdirp yes
@@ -82,6 +84,10 @@ Some of the highlights which you might wanna copy or take from this config :
   (unless (daemonp)
     (advice-add #'display-startup-echo-area-message :override #'ignore))
 
+  (defvar d/on-droid
+    (string-suffix-p "Toybox" (string-trim (shell-command-to-string "uname -o")))
+    "Check if running on android phone")
+
   (setq
    package-enable-at-startup nil ; don't auto-initialize!
    package--init-file-ensured t ; don't add that `custom-set-variables' block to init
@@ -106,8 +112,9 @@ Some of the highlights which you might wanna copy or take from this config :
                    (org-babel-tangle))
                 nil t)))
 
+  (setq use-file-dialog (if d/on-droid t nil))
+
   (setq
-   use-file-dialog nil
    mode-line-format nil ; don't want a mode line while loading init
    load-prefer-newer nil
    create-lockfiles nil ; disable lockfiles
@@ -142,7 +149,7 @@ Some of the highlights which you might wanna copy or take from this config :
   (push '(fullscreen . maximized) default-frame-alist)
 
   ;; Prevent the glimpse of un-styled Emacs by disabling these UI elements early.
-  (push '(menu-bar-lines . 0) default-frame-alist)
+  (push '(menu-bar-lines . 1) default-frame-alist)
   (push '(tool-bar-lines . 0) default-frame-alist)
   (push '(vertical-scroll-bars) default-frame-alist)
 
@@ -153,7 +160,7 @@ Some of the highlights which you might wanna copy or take from this config :
   (provide 'early-init)
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;;; early-init.el ends here
-    #+end_src
+   #+end_src
 
 * 🔰 Start-ify
 Manage Font size, Initialize Package setup and sends you startup time (Daemonize 👹 your Emacs)
@@ -255,8 +262,8 @@ Manage Font size, Initialize Package setup and sends you startup time (Daemonize
   (eval-and-compile
     (setq use-package-verbose (not (bound-and-true-p byte-compile-current-file))))
 
-  (require 'use-package)
   (use-package use-package
+    :ensure nil
     :custom
     (use-package-verbose t)
     (use-package-always-ensure t)  ; :ensure t by default
@@ -269,42 +276,40 @@ Manage Font size, Initialize Package setup and sends you startup time (Daemonize
 * 🔤 Fontify
 Fonts are crucial to read.
 #+begin_src emacs-lisp
-    ;; You will most likely need to adjust this font size for your system!
+  ;; You will most likely need to adjust this font size for your system!
 
-    (defvar default-font-size 170)
-    (defvar default-variable-font-size 170)
+  (defvar default-font-size (if d/on-droid 140 170))
+  (defvar default-variable-font-size (if d/on-droid 140 170))
 
-    ;; Set reusable font name variables
-    (defvar d/fixed-width-font "ComicCodeLigatures Nerd Font"
-      "The font to use for monospaced (fixed width) text.")
+  ;; Set reusable font name variables
+  (defvar d/fixed-width-font "ComicCodeLigatures Nerd Font"
+    "The font to use for monospaced (fixed width) text.")
 
-    (defvar d/variable-width-font "ComicCodeLigatures Nerd Font"
-      "The font to use for variable-pitch (documents) text.")
+  (defvar d/variable-width-font "ComicCodeLigatures Nerd Font"
+    "The font to use for variable-pitch (documents) text.")
 
-    (setq haki-heading-font "FiraCode Nerd Font")
-    (setq haki-sans-font "Iosevka Comfy Motion")
+  (setq haki-heading-font "FiraCode Nerd Font")
+  (setq haki-sans-font (if d/on-droid "FiraCode Nerd Font" "Iosevka Comfy Motion"))
   ;;  (setq haki-code-font "JetBrainsMono Nerd Font")
-    (setq haki-title-font "Impress BT")
-    (setq haki-link-font "VictorMono Nerd Font")
-    (setq haki-code-font "Maple Mono NF")
+  (setq haki-title-font "FiraCode Nerd Font")
+  (setq haki-link-font "VictorMono NF")
+  (setq haki-code-font "Maple Mono")
 
+  (setf use-default-font-for-symbols nil)
+  (set-fontset-font t 'unicode "Noto Color Emoji" nil 'append)
 
+  (defun d/set-font-faces ()
+    (message "Setting faces!")
+    (set-face-attribute 'default nil :family d/variable-width-font :weight 'medium :height default-font-size)
 
-    (setf use-default-font-for-symbols nil)
-    (set-fontset-font t 'unicode "Noto Emoji" nil 'append)
+    ;; Set the fixed pitch face (monospace)
+    (set-face-attribute 'fixed-pitch nil :family d/fixed-width-font :height default-font-size)
 
-    (defun d/set-font-faces ()
-      (message "Setting faces!")
-      (set-face-attribute 'default nil :family d/variable-width-font :weight 'medium :height default-font-size)
-
-      ;; Set the fixed pitch face (monospace)
-      (set-face-attribute 'fixed-pitch nil :family d/fixed-width-font :height default-font-size)
-
-      ;; Set the variable pitch face (document text)
-      (set-face-attribute 'variable-pitch nil :family d/variable-width-font :height default-variable-font-size :weight 'medium)
-      (global-font-lock-mode 1)
-      (setq font-lock-maximum-decoration t))
-#+end_src
+    ;; Set the variable pitch face (document text)
+    (set-face-attribute 'variable-pitch nil :family d/variable-width-font :height default-variable-font-size :weight 'medium)
+    (global-font-lock-mode 1)
+    (setq font-lock-maximum-decoration t))
+  #+end_src
 
 * 📑 Cleanliness
 Keep folders and backuping files clean!
@@ -384,7 +389,7 @@ Keep folders and backuping files clean!
     "Makes editing src block focused in its respective major mode"
     (interactive)
     (if (org-src-edit-buffer-p)         (org-edit-src-abort)
-    (progn (org-edit-special) (window-focus-mode))))
+      (progn (org-edit-special) (window-focus-mode))))
 
   (defun d/insert-unicodes (add-unicodes)
     "Inserts unicode character (emoji/icons) from given files"
@@ -396,7 +401,7 @@ Keep folders and backuping files clean!
             (selected-item (completing-read "Choose Icon 󰨈: " options))
             (fields (split-string selected-item)))
        (car fields))))
-  (setq add-unicodes (directory-files "~/d-git/d-bin/treasure/unicodes/" t "i"))
+  (setq add-unicodes (unless d/on-droid (directory-files "~/d-git/d-bin/treasure/unicodes/" t "i")))
 
   (defun org-archive-done-tasks ()
     (interactive)
@@ -501,32 +506,33 @@ Coloured parentheses or hex values are really needed for some usecases, obviousl
 Just don't use mouse, try to stay with keyboard, feel like *Pro*!
 But if you like clicks, tacks and ticks of you mouse, then go with it. (Mouse is a good invention lol)
 #+begin_src emacs-lisp
-  (setq scroll-conservatively 101) ;; value greater than 100 gets rid of half page jumping
-  (setq mouse-wheel-scroll-amount nil)
-  (setq mouse-wheel-progressive-speed t) ;; accelerate scrolling
-  (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+  (unless d/on-droid
+    (setq scroll-conservatively 101) ;; value greater than 100 gets rid of half page jumping
+    (setq mouse-wheel-scroll-amount nil)
+    (setq mouse-wheel-progressive-speed t) ;; accelerate scrolling
+    (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
 
 
-  ;; For wayland Pgtk build
-  ;; credit: yorickvP on Github
-  (setq wl-copy-process nil)
+    ;; For wayland Pgtk build
+    ;; credit: yorickvP on Github
+    (setq wl-copy-process nil)
 
-  (defun wl-copy (text)
-    (setq wl-copy-process (make-process :name "wl-copy"
-                                        :buffer nil
-                                        :noquery t
-                                        :command '("wl-copy" "-f" "-n")
-                                        :connection-type 'pipe))
-    (process-send-string wl-copy-process text)
-    (process-send-eof wl-copy-process))
+    (defun wl-copy (text)
+      (setq wl-copy-process (make-process :name "wl-copy"
+                                          :buffer nil
+                                          :noquery t
+                                          :command '("wl-copy" "-f" "-n")
+                                          :connection-type 'pipe))
+      (process-send-string wl-copy-process text)
+      (process-send-eof wl-copy-process))
 
-  (defun wl-paste ()
-    (if (and wl-copy-process (process-live-p wl-copy-process))
-        nil ; should return nil if we're the current paste owner
-      (shell-command-to-string "wl-paste -n | tr -d \r")))
+    (defun wl-paste ()
+      (if (and wl-copy-process (process-live-p wl-copy-process))
+          nil ; should return nil if we're the current paste owner
+        (shell-command-to-string "wl-paste -n | tr -d \r")))
 
-  (setq interprogram-cut-function 'wl-copy)
-  (setq interprogram-paste-function 'wl-paste)
+    (setq interprogram-cut-function 'wl-copy)
+    (setq interprogram-paste-function 'wl-paste))
 #+end_src
 
 * 😇 Minad - The Messiah
@@ -562,9 +568,9 @@ Just check the [[https://github.com/minad/vertico][Vertico github]] repo, you wi
                                           (direction . right)
                                           (window-width . 0.45)))
     (setq vertico-multiform-categories
-        '((file )
-          (consult-location )
-          (t unobtrusive)))
+          '((file )
+            (consult-location )
+            (t unobtrusive)))
     (setq vertico-multiform-commands
           '((consult-ripgrep ))))
 
@@ -777,7 +783,7 @@ Gives good annotations for vertico and help menu. Good!
   ;; Enable rich annotations using the Marginalia package
   (use-package marginalia
     :bind (:map minibuffer-local-map
-           ("M-A" . marginalia-cycle))
+                ("M-A" . marginalia-cycle))
 
     :init
     (marginalia-mode))
@@ -909,7 +915,7 @@ Cape for Rescue! Feel the power of Emacs Extensibility
                   corfu-auto-prefix 0
                   completion-styles '(orderless basic))
       (corfu-mode 1)))
-  (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
+  ;; (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
 
 #+end_src
 ** Tempel Snip
@@ -956,7 +962,7 @@ Making snippets/templates is so easy with this package.
               "maintainers = with maintainers; [ " (s own) " ];" n>
               "platforms = platforms." 
               (p (completing-read "Platform: " '("all" "allBut" "arm" "cygwin" "darwin" "freebsd" "gnu" "i686" "illumos" "linux" "mesaPlatforms" "mips" "netbsd" "none" "openbsd" "unix" "x86"))) ";" n> q "};" n> "}"
-  )
+              )
 
   org-mode
 
@@ -1008,59 +1014,60 @@ Making snippets/templates is so easy with this package.
 You will see org just below this, this package helps make Org-Mode looks eye-candy and how it reached average audience.
 #+begin_src emacs-lisp
   (use-package org-modern
-    :defer t)
-  ;; (add-hook 'org-mode-hook #'org-modern-mode)
-  (add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
+    :after org
+    :config
+    ;; (add-hook 'org-mode-hook #'org-modern-mode)
+    (add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
 
-  ;; (set-face-attribute 'org-modern-symbol nil :family "Iosevka")
+    ;; (set-face-attribute 'org-modern-symbol nil :family "Iosevka")
 
-  ;; Add frame borders and window dividers
-  (modify-all-frames-parameters
-   '((right-divider-width . 1)
-     (bottom-divider-width . 0)
-     (internal-border-width . 5)))
-  (dolist (face '(window-divider
-                  window-divider-first-pixel
-                  window-divider-last-pixel))
-    (face-spec-reset-face face)
-    (set-face-foreground face (face-attribute 'default :background)))
-  (setq
-   ;; Edit settings
-   org-auto-align-tags nil
-   org-tags-column 0
-   org-catch-invisible-edits 'show-and-error
-   org-special-ctrl-a/e t
-   org-insert-heading-respect-content t
+    ;; Add frame borders and window dividers
+    (modify-all-frames-parameters
+     '((right-divider-width . 1)
+       (bottom-divider-width . 0)
+       (internal-border-width . 5)))
+    (dolist (face '(window-divider
+                    window-divider-first-pixel
+                    window-divider-last-pixel))
+      (face-spec-reset-face face)
+      (set-face-foreground face (face-attribute 'default :background)))
+    (setq
+     ;; Edit settings
+     org-auto-align-tags nil
+     org-tags-column 0
+     org-catch-invisible-edits 'show-and-error
+     org-special-ctrl-a/e t
+     org-insert-heading-respect-content t
 
-   ;; Org styling, hide markup etc.
-   org-hide-emphasis-markers t
-   org-pretty-entities t
-   ;;   org-ellipsis "…"
+     ;; Org styling, hide markup etc.
+     org-hide-emphasis-markers t
+     org-pretty-entities t
+     ;;   org-ellipsis "…"
 
-   org-modern-star '("◉" "✤" "◈" "✿" "✤")
-   org-modern-hide-stars 'leading
-   org-modern-table t
-   org-modern-list
-   '((?* . "❉")
-     (?- . "❖")
-     (?+ . "➤"))
+     org-modern-star '("" "󰓏" "☘" "✿" "󱨧")
+     org-modern-hide-stars 'leading
+     org-modern-table t
+     org-modern-list
+     '((?* . "󰸷")
+       (?- . "󰣏")
+       (?+ . ""))
 
-   ;; Agenda styling
-   org-agenda-tags-column 0
-   org-agenda-block-separator ?─
-   org-agenda-time-grid
-   '((daily today require-timed)
-     (800 1000 1200 1400 1600 1800 2000)
-     " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
-   org-agenda-current-time-string
-   "⭠ now ─────────────────────────────────────────────────")
+     ;; Agenda styling
+     org-agenda-tags-column 0
+     org-agenda-block-separator ?─
+     org-agenda-time-grid
+     '((daily today require-timed)
+       (800 1000 1200 1400 1600 1800 2000)
+       " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+     org-agenda-current-time-string
+     "⭠ now ─────────────────────────────────────────────────")
 
-  (global-org-modern-mode)
-
+    (global-org-modern-mode))
 #+end_src
 ** Jinxed Correction
 Jinx is another cool new package for spell corrections
 #+begin_src emacs-lisp
+  (unless d/on-droid
   (use-package jinx
     :defer t
     :hook (emacs-startup . global-jinx-mode)
@@ -1069,6 +1076,7 @@ Jinx is another cool new package for spell corrections
     (add-to-list 'vertico-multiform-categories
                  '(jinx grid indexed))
     (vertico-multiform-mode 1))
+  )
 #+end_src
 
 * 🗄️ Organize Life
@@ -1083,30 +1091,30 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
                             '(("^ *\\([-]\\) "
                                (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
-      (dolist (face '((org-block . 1.0)
-                      (org-block-begin-line . 0.9)
-                      (org-document-info . 1.5)
-                      (org-document-title . 1.7)
-                      (org-level-1 . 1.4)
-                      (org-level-2 . 1.3)
-                      (org-level-3 . 1.2)
-                      (org-level-4 . 1.1)
-                      (org-level-5 . 1.1)
-                      (org-level-6 . 1.1)
-                      (org-code . 1.2)
-                      (header-line . 1.0)
-                      (org-verbatim . 1.15)
-                      (variable-pitch . 1.0)
-                      (org-level-7 . 1.1)))
-        (set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face))))
+    (dolist (face '((org-block . 1.0)
+                    (org-block-begin-line . 0.9)
+                    (org-document-info . 1.5)
+                    (org-document-title . 1.7)
+                    (org-level-1 . 1.4)
+                    (org-level-2 . 1.3)
+                    (org-level-3 . 1.2)
+                    (org-level-4 . 1.1)
+                    (org-level-5 . 1.1)
+                    (org-level-6 . 1.1)
+                    (org-code . 1.2)
+                    (header-line . 1.0)
+                    (org-verbatim . 1.15)
+                    (variable-pitch . 1.0)
+                    (org-level-7 . 1.1)))
+      (set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face))))
 
-    ;; Set faces for heading levels
+  ;; Set faces for heading levels
 
-      ;; (set-face-attribute (car face) nil :font d/header-font :weight 'regular :height (cdr face)))
+  ;; (set-face-attribute (car face) nil :font d/header-font :weight 'regular :height (cdr face)))
 
 
   (defun org-mode-setup ()
-    ;; (org-indent-mode 1)
+    (org-indent-mode 1)
     (org-display-inline-images 1)
     (variable-pitch-mode 1)
     ;; (org-font-setup)
@@ -1132,7 +1140,7 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
            :map org-mode-map
            ("C-c o b" . d/edit-src-block))
     :config
-    (setq org-ellipsis " ▾")
+    (setq org-ellipsis " 樂")
 
     (setq org-agenda-start-with-log-mode t)
     ;; (setq org-log-done 'time)
@@ -1140,14 +1148,16 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
     (setq org-log-into-drawer t)
 
     ;; browser script
-    (setq browse-url-browser-function 'browse-url-generic
-          browse-url-generic-program "d-stuff")
-    (setq browse-url-secondary-browser-function 'browse-url-generic
-          browse-url-generic-program "d-stuff")
+    (unless d/on-droid
+      (setq browse-url-browser-function 'browse-url-generic
+            browse-url-generic-program "d-stuff")
+      (setq browse-url-secondary-browser-function 'browse-url-generic
+            browse-url-generic-program "d-stuff"))
 
     (setq org-agenda-files
-          '("~/sync/org/tasks.org"
-            "~/d-git/d-site/README.org"))
+          (if d/on-droid "/storage/emulated/0/sync/org/tasks.org"
+            '("~/sync/org/tasks.org"
+              "~/d-git/d-site/README.org")))
 
     ;; (require 'org-habit)
     ;; (add-to-list 'org-modules 'org-habit)
@@ -1191,7 +1201,7 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
              :empty-lines 1))))
 
 
-           #+end_src
+#+end_src
 ** Handy Org
 #+begin_src emacs-lisp
   (with-eval-after-load 'org
@@ -1223,7 +1233,7 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
 ** Spell Org
 Lets try ~ispell~ paired with ~aspell~ so its better writing.
 #+begin_src emacs-lisp :tangle no
-;;  Replaced this with minad's jinx package.
+  ;;  Replaced this with minad's jinx package.
 
   (use-package ispell
     :no-require t
@@ -1246,171 +1256,174 @@ Lets try ~ispell~ paired with ~aspell~ so its better writing.
 ** Present Org
 How amazing it is to do presentation with power of org? Yes its possible (need olivetti to center)
 #+begin_src emacs-lisp
-
-  (use-package org-present
-    :defer t
-    :after org
-    :bind (:map org-present-mode-keymap
-                ("<right>" . d/org-present-next-slide)
-                ("<left>" . d/org-present-previous-slide)
-                ("<up>" . d/org-present-up)
-                ("<f5>" . d/org-present-refresh))
-    (:map org-mode-map
-          ("<f8>" . d/org-present-mode))
-    :hook ((org-present-mode . d/org-present-enable-hook)
-           (org-present-mode-quit . d/org-present-disable-hook)
-           (org-present-after-navigate-functions . d/org-present-prepare-slide)))
-
-
-  (defvar d/org-present-org-modern-keyword '(("title"       . "")
-                                             ("description" . "")
-                                             ("subtitle"    . "")
-                                             ("date"        . "")
-                                             ("author"      . "")
-                                             ("email"       . "")
-                                             ("language"    . "")
-                                             ("options"     . "")
-                                             (t . t)))
-
-  (define-minor-mode d/org-present-mode
-    "Toggle Presentation Mode."
-   :global nil
-   :lighter "d/org-present-mode"
-    (if d/org-present-mode
-        (org-present)
-      (org-present-quit)))
-
-  (defun d/org-present-enable-hook ()
-    (setq d/org-present--inhibit-message inhibit-message
-          d/org-present--echo-keystrokes echo-keystrokes
-          d/org-present--visual-line-mode visual-line-mode
-          d/org-present--org-ellipsis org-ellipsis
-          d/org-present--org-indent-mode org-indent-mode)
-    (org-indent-mode 1)
-
-    ;; Disable 'org-modern-mode' to setup adjustment if it's installed
-    (if (package-installed-p 'org-modern)
-        (org-modern-mode 0))
-
-    (if (package-installed-p 'org-modern)
-        (setq-local d/org-present--org-modern-hide-stars org-modern-hide-stars
-                    d/org-present--org-modern-keyword org-modern-keyword
-                    d/org-present--org-modern-block-fringe org-modern-block-fringe
-
-                    org-modern-hide-stars 'leading
-                    org-modern-block-fringe t
-                    org-modern-keyword d/org-present-org-modern-keyword))
-
-    (display-line-numbers-mode 0)
-
-    (if (package-installed-p 'org-modern)
-        (org-modern-mode 1))
-
-    (setq-local inhibit-message t
-                echo-keystrokes nil
-                cursor-type t
-                org-image-actual-width 300
-                header-line-format " "
-                org-ellipsis "⤵")
-
-    (dolist (face '((org-block . 1.0)
-                    (org-block-begin-line . 0.1)
-                    (org-document-info . 2.5)
-                    (org-document-title . 2.5)
-                    (org-level-1 . 1.6)
-                    (org-level-2 . 1.5)
-                    (org-level-3 . 1.4)
-                    (org-level-4 . 1.3)
-                    (org-level-5 . 1.2)
-                    (org-level-6 . 1.1)
-                    (org-code . 1.4)
-                    (header-line . 2.5)
-                    (org-verbatim . 1.3)
-                    (variable-pitch . 1.2)
-                    (org-level-7 . 1.1)))
-      (face-remap-add-relative (car face) :height (cdr face)))
+  (unless d/on-droid
+    (use-package org-present
+      :defer t
+      :after org
+      :bind (:map org-present-mode-keymap
+                  ("<right>" . d/org-present-next-slide)
+                  ("<left>" . d/org-present-previous-slide)
+                  ("<up>" . d/org-present-up)
+                  ("<f5>" . d/org-present-refresh))
+      (:map org-mode-map
+            ("<f8>" . d/org-present-mode))
+      :hook ((org-present-mode . d/org-present-enable-hook)
+             (org-present-mode-quit . d/org-present-disable-hook)
+             (org-present-after-navigate-functions . d/org-present-prepare-slide))
+      :config
 
 
-    (if (package-installed-p 'hide-mode-line)
-        (hide-mode-line-mode 1))
+      (defvar d/org-present-org-modern-keyword '(("title"       . "")
+                                                 ("description" . "")
+                                                 ("subtitle"    . "")
+                                                 ("date"        . "")
+                                                 ("author"      . "")
+                                                 ("email"       . "")
+                                                 ("language"    . "")
+                                                 ("options"     . "")
+                                                 (t . t)))
 
-    (org-display-inline-images)
-    (read-only-mode 1))
+      (define-minor-mode d/org-present-mode
+        "Toggle Presentation Mode."
+        :global nil
+        :lighter "d/org-present-mode"
+        (if d/org-present-mode
+            (org-present)
+          (org-present-quit)))
 
-  (defun d/org-present-prepare-slide (buffer-name heading)
-    (org-overview)
-    (org-show-entry)
-    (org-show-children))
+      (defun d/org-present-enable-hook ()
+        (setq d/org-present--inhibit-message inhibit-message
+              d/org-present--echo-keystrokes echo-keystrokes
+              d/org-present--visual-line-mode visual-line-mode
+              d/org-present--org-ellipsis org-ellipsis)
+        ;; d/org-present--org-indent-mode org-indent-mode)
+        ;; (org-indent-mode 1)
 
-  (defun d/org-present-disable-hook ()
-    (setq-local header-line-format nil
-                face-remapping-alist '((default variable-pitch default))
-                org-adapt-indentation nil
-                visual-line-mode d/org-present--visual-line-mode
-                org-ellipsis d/org-present--org-ellipsis
-                inhibit-message d/org-present--inhibit-message
-                echo-keystrokes d/org-present--echo-keystrokes)
-    (org-present-small)
+        ;; Disable 'org-modern-mode' to setup adjustment if it's installed
+        (if (package-installed-p 'org-modern)
+            (org-modern-mode 0))
 
+        (if (package-installed-p 'org-modern)
+            (setq-local d/org-present--org-modern-hide-stars org-modern-hide-stars
+                        d/org-present--org-modern-keyword org-modern-keyword
+                        d/org-present--org-modern-block-fringe org-modern-block-fringe
 
-    (org-indent-mode d/org-present--org-indent-mode)
+                        org-modern-hide-stars 'leading
+                        org-modern-block-fringe t
+                        org-modern-keyword d/org-present-org-modern-keyword))
 
-    (if (package-installed-p 'hide-mode-line)
-        (hide-mode-line-mode 0))
+        (display-line-numbers-mode 0)
 
-    (load-theme 'haki t)
-    (org-mode-restart)
-    (org-remove-inline-images))
+        (if (package-installed-p 'org-modern)
+            (org-modern-mode 1))
 
-  (defun d/org-present-up ()
-    "Go to higher heading from current heading."
-    (interactive)
-    (widen)
-    (org-up-heading-safe)
-    (org-present-narrow)
-    (org-present-run-after-navigate-functions))
+        (setq-local inhibit-message t
+                    echo-keystrokes nil
+                    cursor-type t
+                    org-image-actual-width 300
+                    header-line-format " "
+                    org-ellipsis "󱞤")
 
-
-  (defun d/org-present-next-slide ()
-    "Go to next sibling."
-    (interactive)
-    (widen)
-    (unless (org-goto-first-child)
-      (org-get-next-sibling))
-    (org-present-narrow)
-    (org-present-run-after-navigate-functions))
-
-
-  (defun d/org-present--last-child ()
-    "Find last child of current heading."
-    (when (org-goto-sibling) (d/org-present--last-child))
-    (when (org-goto-first-child) (d/org-present--last-child)))
-
-
-  (defun d/org-present-previous-slide ()
-    "Go to previous sibling."
-    (interactive)
-    (widen)
-    (when (org-current-level)
-      (org-back-to-heading)
-      (if (and (org-get-previous-sibling) (org-current-level))
-          (when (org-goto-first-child)
-            (d/org-present--last-child))))
-    (org-present-narrow)
-    (org-present-run-after-navigate-functions))
-
-
-  (defun d/org-present-refresh ()
-    (interactive)
-    (d/org-present-mode)
-    (d/org-present-mode))
+        (dolist (face '((org-block . 1.0)
+                        (org-block-begin-line . 0.1)
+                        (org-document-info . 2.5)
+                        (org-document-title . 2.5)
+                        (org-level-1 . 1.6)
+                        (org-level-2 . 1.5)
+                        (org-level-3 . 1.4)
+                        (org-level-4 . 1.3)
+                        (org-level-5 . 1.2)
+                        (org-level-6 . 1.1)
+                        (org-code . 1.4)
+                        (header-line . 2.5)
+                        (org-verbatim . 1.3)
+                        (variable-pitch . 1.2)
+                        (org-level-7 . 1.1)))
+          (face-remap-add-relative (car face) :height (cdr face)))
 
 
-        #+end_src
+        (if (package-installed-p 'hide-mode-line)
+            (hide-mode-line-mode 1))
+
+        (org-display-inline-images)
+        (read-only-mode 1))
+
+      (defun d/org-present-prepare-slide (buffer-name heading)
+        (org-overview)
+        (org-show-entry)
+        (org-show-children))
+
+      (defun d/org-present-disable-hook ()
+        (setq-local header-line-format nil
+                    face-remapping-alist '((default variable-pitch default))
+                    org-adapt-indentation nil
+                    visual-line-mode d/org-present--visual-line-mode
+                    org-ellipsis d/org-present--org-ellipsis
+                    inhibit-message d/org-present--inhibit-message
+                    echo-keystrokes d/org-present--echo-keystrokes)
+        (org-present-small)
+
+
+        ;; (org-indent-mode d/org-present--org-indent-mode)
+
+        (if (package-installed-p 'hide-mode-line)
+            (hide-mode-line-mode 0))
+
+        (load-theme 'haki t)
+        (org-mode-restart)
+        (org-remove-inline-images))
+
+      (defun d/org-present-up ()
+        "Go to higher heading from current heading."
+        (interactive)
+        (widen)
+        (org-up-heading-safe)
+        (org-present-narrow)
+        (org-present-run-after-navigate-functions))
+
+
+      (defun d/org-present-next-slide ()
+        "Go to next sibling."
+        (interactive)
+        (widen)
+        (unless (org-goto-first-child)
+          (org-get-next-sibling))
+        (org-present-narrow)
+        (org-present-run-after-navigate-functions))
+
+
+      (defun d/org-present--last-child ()
+        "Find last child of current heading."
+        (when (org-goto-sibling) (d/org-present--last-child))
+        (when (org-goto-first-child) (d/org-present--last-child)))
+
+
+      (defun d/org-present-previous-slide ()
+        "Go to previous sibling."
+        (interactive)
+        (widen)
+        (when (org-current-level)
+          (org-back-to-heading)
+          (if (and (org-get-previous-sibling) (org-current-level))
+              (when (org-goto-first-child)
+                (d/org-present--last-child))))
+        (org-present-narrow)
+        (org-present-run-after-navigate-functions))
+
+
+      (defun d/org-present-refresh ()
+        (interactive)
+        (d/org-present-mode)
+        (d/org-present-mode))
+
+      )
+    )
+#+end_src
 ** Denote
 Prot's package which might come handy to take notes and connect them.
 TODO : Learn more on this
 #+begin_src emacs-lisp
+  (unless d/on-droid
   (use-package denote
     :defer t
     :hook ((find-file-hook . denote-link-buttonize-buffer)
@@ -1452,39 +1465,41 @@ TODO : Learn more on this
     denote-dired-directories
     (list denote-directory
           (thread-last denote-directory (expand-file-name "attachments"))
-          (expand-file-name "~/sync/org/books/")))
+          (expand-file-name "~/sync/org/books/"))
 
-  (defun d/my-journal ()
-    (interactive)
-    (let* ((date (org-read-date))
-           (time (org-time-string-to-time date))
-           (title (format-time-string "%A %d %B %Y" time))
-           (initial (denote-sluggify title))
-           (target (read-file-name "Select note: " (denote-directory) nil nil initial
-                                   (lambda (f)
-                                     (or (denote-file-has-identifier-p f)
-                                         (file-directory-p f))))))
-      (if (file-exists-p target)
-          (find-file target)
-        (denote title '("journal") denote-file-type nil date))))
+    (defun d/my-journal ()
+      (interactive)
+      (let* ((date (org-read-date))
+             (time (org-time-string-to-time date))
+             (title (format-time-string "%A %d %B %Y" time))
+             (initial (denote-sluggify title))
+             (target (read-file-name "Select note: " (denote-directory) nil nil initial
+                                     (lambda (f)
+                                       (or (denote-file-has-identifier-p f)
+                                           (file-directory-p f))))))
+        (if (file-exists-p target)
+            (find-file target)
+          (denote title '("journal") denote-file-type nil date))))
 
 
-  (with-eval-after-load 'org-capture
-    (setq denote-org-capture-specifiers "%l\n%i\n%?")
-    (add-to-list 'org-capture-templates
-                 '("n" "New note (with denote.el)" plain
-                   (file denote-last-path)
-                   #'denote-org-capture
-                   :no-save t
-                   :immediate-finish nil
-                   :kill-buffer t
-                   :jump-to-captured t)))
+    (with-eval-after-load 'org-capture
+      (setq denote-org-capture-specifiers "%l\n%i\n%?")
+      (add-to-list 'org-capture-templates
+                   '("n" "New note (with denote.el)" plain
+                     (file denote-last-path)
+                     #'denote-org-capture
+                     :no-save t
+                     :immediate-finish nil
+                     :kill-buffer t
+                     :jump-to-captured t)))
 
+    ))
 #+end_src
 * 🍭 Eye Candy Looks
 ** 🫒 Olive Etiquette
 All texts from left is not intuitive, Spoils GUI end of emacs, feels like you are on Terminal all time. Also, the space on right side will be wasted, unless you use split window vertically. Centering content helps focus and make things look tidy.
 #+begin_src emacs-lisp
+  (unless d/on-droid
   (use-package olivetti
     :defer t
     :hook ((text-mode         . olivetti-mode)
@@ -1507,13 +1522,14 @@ All texts from left is not intuitive, Spoils GUI end of emacs, feels like you ar
     :custom
     (olivetti-body-width 0.8)
     :delight " ⊛")
-
+  )
 
 #+end_src
 ** Mode line
 Mode-line to make stuff easy to use
 #+begin_src emacs-lisp
 
+  (unless d/on-droid
   (use-package doom-modeline
     :init (doom-modeline-mode 1)
     (setq doom-modeline-time-icon nil)
@@ -1522,6 +1538,7 @@ Mode-line to make stuff easy to use
     (setq inhibit-compacting-font-caches t)
     :custom ((doom-modeline-height 30)
              (doom-modeline-buffer-encoding nil)))
+  )
 
   ;; to hide during presentation and writing
   (use-package hide-mode-line
@@ -1573,6 +1590,7 @@ After long  usage, you will realize that Modus-themes is a *masterpiece* made by
 Managing frames and their buffers handy way. Gets rid of using tab-bar or windows
 
 #+begin_src emacs-lisp :tangle no
+  ;; Not tangled
   (use-package beframe)
   (setq beframe-global-buffers '("*scratch*"))
   (setq beframe-create-frame-scratch-buffer nil)
@@ -1623,13 +1641,13 @@ With emacs 29, we have ~pixel-scroll-precision-mode~
 * 💻 IDE like Lsp
 I'm not a programmer, maybe will be expanded in future..
 #+begin_src emacs-lisp
-  (use-package nix-mode
-    :mode "\\.nix\\'"
-    :defer t)
+  (unless d/on-droid
+    (use-package nix-mode
+      :mode "\\.nix\\'"
+      :defer t))
 
   (add-hook 'prog-mode-hook #'display-line-numbers-mode)
   ;;(add-hook 'prog-mode-hook #'eglot-ensure)
-  (add-hook 'prog-mode-hook #'flycheck-mode)
 
   (use-package markdown-mode
     :defer t
@@ -1644,12 +1662,14 @@ I'm not a programmer, maybe will be expanded in future..
         (set-face-attribute (car face) nil :weight 'normal :font haki-heading-font :height (cdr face))))
 
     (defun d/markdown-mode-hook ()
-      (d/set-markdown-header-font-sizes))
+      (d/set-markdown-header-font-sizes)))
 
-    (add-hook 'markdown-mode-hook 'd/markdown-mode-hook))
+  ;; (add-hook 'markdown-mode-hook 'd/markdown-mode-hook)
 
   (use-package eglot
     :defer t
+    :ensure nil
+    :unless d/on-droid
     :commands (eglot eglot-format eglot-managed-p eglot--major-mode)
     ;; (((web-mode rust-mode python-mode sh-mode c-mode c++-mode nix-mode) .
     ;; eglot-ensure)
@@ -1675,11 +1695,38 @@ I'm not a programmer, maybe will be expanded in future..
   ;;   :disabled t
   ;;   :load-path "~/.config/emacs/elpa/eglot-tempel")
 #+end_src
+** 🌳 Treesit
+#+begin_src emacs-lisp
+  (use-package treesit
+    :ensure nil
+    :custom
+    (major-mode-remap-alist
+     '((c-mode . c-ts-mode)
+       (c++-mode . c++-ts-mode)
+       (csharp-mode . csharp-ts-mode)
+       (css-mode . css-ts-mode)
+       (html-mode . html-ts-mode)
+       (java-mode . java-ts-mode)
+       (js-mode . js-ts-mode)
+       (json-mode . json-ts-mode)
+       (makefile-mode . makefile-ts-mode)
+       ;; (org-mode . org-ts-mode) ;; not mature yet
+       (python-mode . python-ts-mode)
+       (typescript-mode . typescript-ts-mode)
+       (sh-mode . bash-ts-mode)
+       (ruby-mode . ruby-ts-mode)
+       (rust-mode . rust-ts-mode)
+       (toml-mode . toml-ts-mode)
+       (yaml-mode . yaml-ts-mode))))
+#+end_src
 ** ⚡ Kind Icons
 Icons to prettify the corfu popup
 #+begin_src emacs-lisp
+  (use-package nerd-icons
+    :custom
+    (nerd-icons-font-family d/fixed-width-font))
+
   (use-package kind-icon
-    :ensure t
     :after corfu
     :custom
     (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly
@@ -1730,6 +1777,7 @@ Icons to prettify the corfu popup
 *  Git Controrller
 Magit the killer beast after org-mode.
 #+begin_src emacs-lisp
+  (unless d/on-droid
   (use-package magit
     :defer t
     :config
@@ -1738,137 +1786,138 @@ Magit the killer beast after org-mode.
     :commands (magit-status magit-get-current-branch)
     :custom
     (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
-
+  )
 
 #+end_src
 * 😸 Modal Meow
 Meow, the most definite modal editing experience for Emacs. It is nice ;)
 It is one of the package I wish I had soon discovered it.
 #+begin_src emacs-lisp
-  ;; We need to define setup for keyboard layout
 
-  (require 'meow)
+  (unless d/on-droid
+  (use-package meow
+    :defer 2
+    :config
+    (defun meow-setup ()
+      (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
+      (setq meow-use-cursor-position-hack t)
+      (meow-motion-overwrite-define-key
+       '("j" . meow-next)
+       '("k" . meow-prev)
+       '("<escape>" . ignore))
+      (meow-leader-define-key
+       ;; SPC j/k will run the original command in MOTION state.
+       '("j" . "H-j")
+       '("k" . "H-k")
+       ;; Use SPC (0-9) for digit arguments.
+       '("1" . meow-digit-argument)
+       '("2" . meow-digit-argument)
+       '("3" . meow-digit-argument)
+       '("4" . meow-digit-argument)
+       '("5" . meow-digit-argument)
+       '("6" . meow-digit-argument)
+       '("7" . meow-digit-argument)
+       '("8" . meow-digit-argument)
+       '("9" . meow-digit-argument)
+       '("0" . meow-digit-argument)
+       '("/" . meow-keypad-describe-key)
+       '("?" . meow-cheatsheet))
+      (meow-normal-define-key
+       '("0" . meow-expand-0)
+       '("9" . meow-expand-9)
+       '("8" . meow-expand-8)
+       '("7" . meow-expand-7)
+       '("6" . meow-expand-6)
+       '("5" . meow-expand-5)
+       '("4" . meow-expand-4)
+       '("3" . meow-expand-3)
+       '("2" . meow-expand-2)
+       '("1" . meow-expand-1)
+       '("-" . negative-argument)
+       '(";" . meow-reverse)
+       '("," . meow-inner-of-thing)
+       '("." . meow-bounds-of-thing)
+       '("[" . meow-beginning-of-thing)
+       '("]" . meow-end-of-thing)
+       '("a" . meow-append)
+       '("A" . meow-open-below)
+       '("b" . meow-back-word)
+       '("B" . meow-back-symbol)
+       '("c" . meow-change)
+       '("d" . meow-delete)
+       '("D" . meow-backward-delete)
+       '("e" . meow-next-word)
+       '("E" . meow-next-symbol)
+       '("f" . meow-find)
+       '("g" . meow-cancel-selection)
+       '("G" . meow-grab)
+       '("h" . meow-left)
+       '("H" . meow-left-expand)
+       '("i" . meow-insert)
+       '("I" . meow-open-above)
+       '("j" . meow-next)
+       '("J" . meow-next-expand)
+       '("k" . meow-prev)
+       '("K" . meow-prev-expand)
+       '("l" . meow-right)
+       '("L" . meow-right-expand)
+       '("m" . meow-join)
+       '("n" . meow-search)
+       '("o" . meow-block)
+       '("O" . meow-to-block)
+       '("p" . meow-yank)
+       '("q" . meow-quit)
+       '("Q" . meow-goto-line)
+       '("r" . meow-replace)
+       '("R" . meow-swap-grab)
+       '("x" . meow-kill)
+       '("t" . meow-till)
+       '("u" . meow-undo)
+       '("U" . meow-undo-in-selection)
+       '("v" . meow-visit)
+       '("w" . meow-mark-word)
+       '("W" . meow-mark-symbol)
+       '("s" . meow-line)
+       '("X" . meow-goto-line)
+       '("y" . meow-save)
+       '("Y" . meow-sync-grab)
+       '("z" . meow-pop-selection)
+       '("'" . repeat)
+       '("<escape>" . ignore)))
 
-  (defun meow-setup ()
-    (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
-    (setq meow-use-cursor-position-hack t)
-    (meow-motion-overwrite-define-key
-     '("j" . meow-next)
-     '("k" . meow-prev)
-     '("<escape>" . ignore))
-    (meow-leader-define-key
-     ;; SPC j/k will run the original command in MOTION state.
-     '("j" . "H-j")
-     '("k" . "H-k")
-     ;; Use SPC (0-9) for digit arguments.
-     '("1" . meow-digit-argument)
-     '("2" . meow-digit-argument)
-     '("3" . meow-digit-argument)
-     '("4" . meow-digit-argument)
-     '("5" . meow-digit-argument)
-     '("6" . meow-digit-argument)
-     '("7" . meow-digit-argument)
-     '("8" . meow-digit-argument)
-     '("9" . meow-digit-argument)
-     '("0" . meow-digit-argument)
-     '("/" . meow-keypad-describe-key)
-     '("?" . meow-cheatsheet))
-    (meow-normal-define-key
-     '("0" . meow-expand-0)
-     '("9" . meow-expand-9)
-     '("8" . meow-expand-8)
-     '("7" . meow-expand-7)
-     '("6" . meow-expand-6)
-     '("5" . meow-expand-5)
-     '("4" . meow-expand-4)
-     '("3" . meow-expand-3)
-     '("2" . meow-expand-2)
-     '("1" . meow-expand-1)
-     '("-" . negative-argument)
-     '(";" . meow-reverse)
-     '("," . meow-inner-of-thing)
-     '("." . meow-bounds-of-thing)
-     '("[" . meow-beginning-of-thing)
-     '("]" . meow-end-of-thing)
-     '("a" . meow-append)
-     '("A" . meow-open-below)
-     '("b" . meow-back-word)
-     '("B" . meow-back-symbol)
-     '("c" . meow-change)
-     '("d" . meow-delete)
-     '("D" . meow-backward-delete)
-     '("e" . meow-next-word)
-     '("E" . meow-next-symbol)
-     '("f" . meow-find)
-     '("g" . meow-cancel-selection)
-     '("G" . meow-grab)
-     '("h" . meow-left)
-     '("H" . meow-left-expand)
-     '("i" . meow-insert)
-     '("I" . meow-open-above)
-     '("j" . meow-next)
-     '("J" . meow-next-expand)
-     '("k" . meow-prev)
-     '("K" . meow-prev-expand)
-     '("l" . meow-right)
-     '("L" . meow-right-expand)
-     '("m" . meow-join)
-     '("n" . meow-search)
-     '("o" . meow-block)
-     '("O" . meow-to-block)
-     '("p" . meow-yank)
-     '("q" . meow-quit)
-     '("Q" . meow-goto-line)
-     '("r" . meow-replace)
-     '("R" . meow-swap-grab)
-     '("x" . meow-kill)
-     '("t" . meow-till)
-     '("u" . meow-undo)
-     '("U" . meow-undo-in-selection)
-     '("v" . meow-visit)
-     '("w" . meow-mark-word)
-     '("W" . meow-mark-symbol)
-     '("s" . meow-line)
-     '("X" . meow-goto-line)
-     '("y" . meow-save)
-     '("Y" . meow-sync-grab)
-     '("z" . meow-pop-selection)
-     '("'" . repeat)
-     '("<escape>" . ignore)))
+    (setq meow-replace-state-name-list
+          '((normal . "")
+            (motion . "")
+            (keypad . "")
+            (insert . "")
+            (beacon . "")))
 
-  (setq meow-replace-state-name-list
-        '((normal . "")
-          (motion . "")
-          (keypad . "")
-          (insert . "")
-          (beacon . "")))
+    (add-to-list 'meow-mode-state-list '(vterm-mode . insert))
+    (add-to-list 'meow-mode-state-list '(eshell-mode . insert))
+    (add-to-list 'meow-mode-state-list '(eww-mode . insert))
+    (add-to-list 'meow-mode-state-list '(sdcv-mode . motion))
 
-  (add-to-list 'meow-mode-state-list '(vterm-mode . insert))
-  (add-to-list 'meow-mode-state-list '(eshell-mode . insert))
-  (add-to-list 'meow-mode-state-list '(eww-mode . insert))
-  (add-to-list 'meow-mode-state-list '(sdcv-mode . motion))
+                                          ;meow-thing-register THING INNER BOUNDS
+    (meow-thing-register 'arrow '(pair ("<") (">")) '(pair ("<") (">")))
+    (add-to-list 'meow-char-thing-table '(?a . arrow))
 
-  ;meow-thing-register THING INNER BOUNDS
-  (meow-thing-register 'arrow '(pair ("<") (">")) '(pair ("<") (">")))
-  (add-to-list 'meow-char-thing-table '(?a . arrow))
-
-  (setq meow-use-clipboard t)
-  (meow-setup)
-  (meow-global-mode 1)
+    (setq meow-use-clipboard t)
+    (meow-setup)
+    (meow-global-mode 1))
+  )
 #+end_src
 * 📂 File Manager
 Not that intuitive to use as file manager, once you get a hand of emacs. You will thank for this.
 #+begin_src emacs-lisp
   (use-package dired
     :defer t
-    :init (dirvish-override-dired-mode)
     :ensure nil
     :commands (dired dired-jump)
     :bind (("C-x C-j" . dired-jump)
            ("C-c f f" . window-focus-mode)
-           ("C-c f e" . (lambda () (interactive) (find-file (expand-file-name "~/d-git/d-nix/d-emacs.org"))))
-           ("C-c f s" . (lambda () (interactive) (find-file (expand-file-name "~/d-git/d-nix/d-setup.org"))))
-           ("C-c f m" . (lambda () (interactive) (find-file (expand-file-name "~/d-git/d-nix/README.org"))))
+           ("C-c f e" . (lambda () (interactive) (find-file (if d/on-droid "~/.config/emacs/init.el" "~/d-git/d-nix/d-emacs.org"))))
+           ("C-c f s" . (lambda () (interactive) (find-file "~/d-git/d-nix/d-setup.org")))
+           ("C-c f m" . (lambda () (interactive) (find-file "~/d-git/d-nix/README.org")))
            ("C-x C-d" . dirvish))
     (:map dired-mode-map
           ("q" . kill-buffer-and-window)
@@ -1876,7 +1925,6 @@ Not that intuitive to use as file manager, once you get a hand of emacs. You wil
           ("k" . dired-previous-line)
           ("l" . dired-find-file)
           ("h" . dired-up-directory)
-          ("C-x C-k" . dirvish-quit)
           ("b" . d/external-browser))
 
     :custom ((dired-listing-switches "-agho --group-directories-first")))
@@ -1884,10 +1932,85 @@ Not that intuitive to use as file manager, once you get a hand of emacs. You wil
   (add-hook 'dired-mode-hook 'dired-hide-details-mode)
   (add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))
 
+  ;; Battery pack
+  (unless d/on-droid
+  (use-package dirvish
+    :init
+    (dirvish-override-dired-mode)
+    :custom
+    (dirvish-quick-access-entries
+     '(("h" "~/"                          "Home")
+       ("d" "~/dloads/"                "Downloads")
+       ;; ("m" "/mnt/"                       "Drives")
+       ("t" "~/.local/share/Trash/files/" "TrashCan")))
+    :config
+    ;; (dirvish-peek-mode) ; Preview files in minibuffer
+    (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
+    (setq dirvish-mode-line-format
+          '(:left (sort symlink) :right (omit yank index)))
+    (setq dirvish-attributes
+          '(file-time file-size collapse subtree-state vc-state git-msg))
+    (setq delete-by-moving-to-trash t)
+    (setq dired-listing-switches
+          "-l --almost-all --human-readable --group-directories-first --no-group")
+
+    ;; with emacs29
+    (setq dired-mouse-drag-files t)
+    (setq mouse-drag-and-drop-region-cross-program t)
+    (setq mouse-1-click-follows-link nil)
+
+    :bind
+    (("C-c f d" . dirvish-fd)
+     ("C-c f t" . dirvish-side)
+     :map dirvish-mode-map
+     ("<mouse-1>" . 'dirvish-subtree-toggle-or-open)    
+     ("<mouse-2>" . 'dired-mouse-find-file-other-window)
+     ("<mouse-3>" . 'dired-mouse-find-file)
+     ("a"   . dirvish-quick-access)
+     ("C-x C-k" . dirvish-quit)
+     ("f"   . dirvish-file-info-menu)
+     ("y"   . dirvish-yank-menu)
+     ("N"   . dirvish-narrow)
+     ("^"   . dirvish-history-last)
+     ("h"   . dirvish-history-jump) ; remapped `describe-mode'
+     ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
+     ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
+     ("TAB" . dirvish-subtree-toggle)
+     ("M-f" . dirvish-history-go-forward)
+     ("M-b" . dirvish-history-go-backward)
+     ("M-l" . dirvish-ls-switches-menu)
+     ("M-m" . dirvish-mark-menu)
+     ("M-t" . dirvish-layout-toggle)
+     ("M-s" . dirvish-setup-menu)
+     ("M-e" . dirvish-emerge-menu)
+     ("M-j" . dirvish-fd-jump)))
+  )
+
+
+  (use-package tramp
+    :config
+    ;; Enable full-featured Dirvish over TRAMP on certain connections
+    ;; https://www.gnu.org/software/tramp/#Improving-performance-of-asynchronous-remote-processes-1.
+    (add-to-list 'tramp-connection-properties
+                 (list (regexp-quote "/ssh:YOUR_HOSTNAME:")
+                       "direct-async-process" t))
+    ;; Tips to speed up connections
+    (setq tramp-verbose 0)
+    (setq tramp-chunksize 2000)
+    (setq tramp-use-ssh-controlmaster-options nil))
+
+
+  (use-package dired-x
+    :ensure nil
+    :config
+    ;; Make dired-omit-mode hide all "dotfiles"
+    (setq dired-omit-files
+          (concat dired-omit-files "\\|^\\..*$")))
 #+end_src
 *  Terminal
 Vterm to replace terminal emulator.
 #+begin_src emacs-lisp
+  (unless d/on-droid
   (use-package vterm
     :defer t
     :bind
@@ -1916,6 +2039,7 @@ Vterm to replace terminal emulator.
                 ("M-p" . multi-vterm-prev))
     :config
     (setq multi-vterm-dedicated-window-height-percent 30))
+  )
 
   ;; nixos issue for loading mu4e
   ;; (add-to-list 'load-path "/etc/profiles/per-user/i/share/emacs/site-lisp/mu4e/")
@@ -1923,22 +2047,69 @@ Vterm to replace terminal emulator.
 * 🧊 Cool Stuffs
 Some small codes from good source.
 #+begin_src emacs-lisp
-  (use-package reddigg
-    :defer t
-    :bind (("C-c d f" . reddigg-view-frontpage)
-           ("C-c d r" . reddigg-view-sub))
-    :config
-    (setq org-confirm-elisp-link-function nil)
-    (setq reddigg-subs '(bangalore india emacs fossdroid piracy aww)))
+  (unless d/on-droid
+    (use-package reddigg
+      :defer t
+      :bind (("C-c d f" . reddigg-view-frontpage)
+             ("C-c d r" . reddigg-view-sub))
+      :config
+      (setq org-confirm-elisp-link-function nil)
+      (setq reddigg-subs '(bangalore india emacs fossdroid piracy aww)))
 
-  (use-package hnreader
-    :defer t)
+    (use-package hnreader
+      :defer t)
 
-  ;; (use-package howdoyou)
-  ;; (use-package undo-fu
-  ;;   :bind ("C-M-r" . undo-fu-only-redo)
-  ;;   ("C-z" . undo-fu-only-undo)
-  ;;   ("C-S-z" . undo-fu-only-redo-all))
+    ;; (use-package howdoyou)
+    ;; (use-package undo-fu
+    ;;   :bind ("C-M-r" . undo-fu-only-redo)
+    ;;   ("C-z" . undo-fu-only-undo)
+    ;;   ("C-S-z" . undo-fu-only-redo-all))
+
+    (use-package flycheck
+      :defer t
+      :hook (prog-mode . flycheck-mode))
+    ;; :init (global-flycheck-mode))
+
+    (use-package mingus
+      :defer t
+      :bind ("C-c d m" . mingus-browse)
+      (:map mingus-browse-mode-map
+            ("h" . mingus-browse-top-level)
+            ("l" . mingus-down-dir-or-play-song))
+      :config
+      (advice-add 'mingus-playlist-mode :after #'olivetti-mode)
+      (advice-add 'mingus-browse-mode :after #'olivetti-mode))
+    ;; (use-package wikinforg)
+
+    (use-package webpaste
+      :defer t
+      :bind (("C-c C-p C-b" . webpaste-paste-buffer)
+             ("C-c C-p C-r" . webpaste-paste-region)
+             ("C-c C-p C-p" . webpaste-paste-buffer-or-region))
+      :config
+      (setq webpaste-provider-priority '("dpaste.org" "dpaste.com" "paste.mozilla.org"))
+      ;; Require confirmation before doing paste
+      (setq webpaste-paste-confirmation t))
+
+    (use-package sdcv
+      :defer t
+      :hook (sdcv-mode . hide-mode-line-mode)
+      :config
+      (setq sdcv-say-word-p t
+            sdcv-dictionary-data-dir "~/d-git/d-bin/treasure/dict/"
+            sdcv-dictionary-simple-list
+            '("wn" "mw-thesaurus" "enjp")
+            sdcv-popup-function 'popup-tip
+            sdcv-buffer-name "StarDict")
+      :bind (("C-c d w" . sdcv-search-input)
+             ("C-c d d" . sdcv-search-input+))
+      (:map sdcv-mode-map
+            ("q" . kill-buffer-and-window)
+            ("n" . sdcv-next-dictionary)
+            ("TAB" . hide-entry)
+            ("<backtab>" . show-entry)
+            ("p" . sdcv-previous-dictionary)))
+    )
 
   (use-package undo-fu-session
     :init (undo-fu-session-global-mode)
@@ -1952,51 +2123,6 @@ Some small codes from good source.
            ("C-S-z" . undo-redo)
            ("C-M-r" . undo-redo)))
 
-  (use-package flycheck
-    :defer t
-    :hook (prog-mode . flycheck-mode))
-  ;; :init (global-flycheck-mode))
-
-  (use-package mingus
-    :defer t
-    :bind ("C-c d m" . mingus-browse)
-    (:map mingus-browse-mode-map
-          ("h" . mingus-browse-top-level)
-          ("l" . mingus-down-dir-or-play-song))
-    :config
-    (advice-add 'mingus-playlist-mode :after #'olivetti-mode)
-    (advice-add 'mingus-browse-mode :after #'olivetti-mode))
-  ;; (use-package wikinforg)
-
-  (use-package webpaste
-    :defer t
-    :bind (("C-c C-p C-b" . webpaste-paste-buffer)
-           ("C-c C-p C-r" . webpaste-paste-region)
-           ("C-c C-p C-p" . webpaste-paste-buffer-or-region))
-    :config
-    (setq webpaste-provider-priority '("dpaste.org" "dpaste.com" "paste.mozilla.org"))
-    ;; Require confirmation before doing paste
-    (setq webpaste-paste-confirmation t))
-
-  (use-package sdcv
-    :defer t
-    :hook (sdcv-mode . hide-mode-line-mode)
-    :config
-    (setq sdcv-say-word-p t
-          sdcv-dictionary-data-dir "~/d-git/d-bin/treasure/dict/"
-          sdcv-dictionary-simple-list
-          '("wn" "mw-thesaurus" "enjp")
-          sdcv-popup-function 'popup-tip
-          sdcv-buffer-name "StarDict")
-    :bind (("C-c d w" . sdcv-search-input)
-           ("C-c d d" . sdcv-search-input+))
-    (:map sdcv-mode-map
-          ("q" . kill-buffer-and-window)
-          ("n" . sdcv-next-dictionary)
-          ("TAB" . hide-entry)
-          ("<backtab>" . show-entry)
-          ("p" . sdcv-previous-dictionary)))
-
 
 #+end_src
 * ✨ Apps
@@ -2004,6 +2130,7 @@ Some small codes from good source.
 Nov is one of the gem which really makes epub reading more sense in emacs; Embrace the Text!
 You dont have to learn another software or ask for features, get it in emacs-way.
 #+begin_src emacs-lisp
+  (unless d/on-droid
   (use-package nov
     :hook ((nov-mode . hide-mode-line-mode))
     :mode ("\\.epub\\'" . nov-mode)
@@ -2011,86 +2138,86 @@ You dont have to learn another software or ask for features, get it in emacs-way
     (setq nov-text-width t)
     (setq nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title)))
     (setq nov-shr-rendering-functions (append nov-shr-rendering-functions shr-external-rendering-functions)))
+  )
 
 #+end_src
 
 ** </> Shrface - Orgify
 To make eww and shr elements org-like and make emacs even more Unified!
 #+begin_src emacs-lisp
-    (defun shrface-default-keybindings ()
-      (interactive)
-      "Sets up the default keybindings for `shrface-mode'."
-      (define-key shrface-mode-map (kbd "TAB") 'shrface-outline-cycle)
-      (define-key shrface-mode-map (kbd "<backtab>") 'shrface-outline-cycle-buffer)
-      (define-key shrface-mode-map (kbd "C-t") 'shrface-toggle-bullets)
-      (define-key shrface-mode-map (kbd "C-j") 'shrface-next-headline)
-      (define-key shrface-mode-map (kbd "C-k") 'shrface-previous-headline)
-      (define-key shrface-mode-map (kbd "M-l") 'shrface-links-consult)
-      (define-key shrface-mode-map (kbd "M-h") 'shrface-headline-consult))
+  (defun shrface-default-keybindings ()
+    (interactive)
+    "Sets up the default keybindings for `shrface-mode'."
+    (define-key shrface-mode-map (kbd "TAB") 'shrface-outline-cycle)
+    (define-key shrface-mode-map (kbd "<backtab>") 'shrface-outline-cycle-buffer)
+    (define-key shrface-mode-map (kbd "C-t") 'shrface-toggle-bullets)
+    (define-key shrface-mode-map (kbd "C-j") 'shrface-next-headline)
+    (define-key shrface-mode-map (kbd "C-k") 'shrface-previous-headline)
+    (define-key shrface-mode-map (kbd "M-l") 'shrface-links-consult)
+    (define-key shrface-mode-map (kbd "M-h") 'shrface-headline-consult))
 
-    (use-package shrface
-      :defer t
-      :hook ((eww-mode . shrface-mode)
-             (elfeed-show-mode . shrface-mode)
-             (nov-mode . shrface-mode))
-      :init
-      (setq shrface-item-bullet 8226)
-      :bind (:map shrface-mode-map
-                  ("<tab>" . shrface-outline-cycle)
-                  ("<backtab>" . shrface-outline-cycle-buffer)
-                  ("M-l" . shrface-links-consult)
-                  ("M-h" . shrface-headline-consult)
-                  ("C-j" . shrface-next-headline)
-                  ("C-k" . shrface-previous-headline))
-      :config
-      (shrface-basic)
-      (shrface-trial)
-      (setq shrface-bullets-bullet-list org-modern-star)
-      (setq shrface-href-versatile t))
+  (use-package shrface
+    :defer t
+    :hook ((eww-mode . shrface-mode)
+           (elfeed-show-mode . shrface-mode)
+           (nov-mode . shrface-mode))
+    :init
+    (setq shrface-item-bullet 8226)
+    :bind (:map shrface-mode-map
+                ("<tab>" . shrface-outline-cycle)
+                ("<backtab>" . shrface-outline-cycle-buffer)
+                ("M-l" . shrface-links-consult)
+                ("M-h" . shrface-headline-consult)
+                ("C-j" . shrface-next-headline)
+                ("C-k" . shrface-previous-headline))
+    :config
+    (shrface-basic)
+    (shrface-trial)
+    (setq shrface-bullets-bullet-list org-modern-star)
+    (setq shrface-href-versatile t))
 
-    ;; To highligh src blocks in eww
-    (use-package shr-tag-pre-highlight
-      :ensure t
-      :after shr
-      :config
+  ;; To highligh src blocks in eww
+  (use-package shr-tag-pre-highlight
+    :after shr
+    :config
 
-      (defun shrface-shr-tag-pre-highlight (pre)
-        "Highlighting code in PRE."
-        (let* ((shr-folding-mode 'none)
-               (shr-current-font 'default)
-               (code (with-temp-buffer
-                       (shr-generic pre)
-                       ;; (indent-rigidly (point-min) (point-max) 2)
-                       (buffer-string)))
-               (lang (or (shr-tag-pre-highlight-guess-language-attr pre)
-                         (let ((sym (language-detection-string code)))
-                           (and sym (symbol-name sym)))))
-               (mode (and lang
-                          (shr-tag-pre-highlight--get-lang-mode lang))))
-          (shr-ensure-newline)
-          (shr-ensure-newline)
-          (setq start (point))
-          (insert
-           (propertize (concat "#+BEGIN_SRC " lang "\n") 'face 'org-block-begin-line)
-           (or (and (fboundp mode)
-                    (with-demoted-errors "Error while fontifying: %S"
-                      (shr-tag-pre-highlight-fontify code mode)))
-               code)
-           (propertize "#+END_SRC" 'face 'org-block-end-line ))
-          (shr-ensure-newline)
-          (setq end (point))
-          (if light
-              (add-face-text-property start end '(:background "#D8DEE9" :extend t))
-            (add-face-text-property start end '(:background "#292b2e" :extend t)))
-          (shr-ensure-newline)
-          (insert "\n")))
+    (defun shrface-shr-tag-pre-highlight (pre)
+      "Highlighting code in PRE."
+      (let* ((shr-folding-mode 'none)
+             (shr-current-font 'default)
+             (code (with-temp-buffer
+                     (shr-generic pre)
+                     ;; (indent-rigidly (point-min) (point-max) 2)
+                     (buffer-string)))
+             (lang (or (shr-tag-pre-highlight-guess-language-attr pre)
+                       (let ((sym (language-detection-string code)))
+                         (and sym (symbol-name sym)))))
+             (mode (and lang
+                        (shr-tag-pre-highlight--get-lang-mode lang))))
+        (shr-ensure-newline)
+        (shr-ensure-newline)
+        (setq start (point))
+        (insert
+         (propertize (concat "#+BEGIN_SRC " lang "\n") 'face 'org-block-begin-line)
+         (or (and (fboundp mode)
+                  (with-demoted-errors "Error while fontifying: %S"
+                    (shr-tag-pre-highlight-fontify code mode)))
+             code)
+         (propertize "#+END_SRC" 'face 'org-block-end-line ))
+        (shr-ensure-newline)
+        (setq end (point))
+        (if light
+            (add-face-text-property start end '(:background "#D8DEE9" :extend t))
+          (add-face-text-property start end '(:background "#292b2e" :extend t)))
+        (shr-ensure-newline)
+        (insert "\n")))
 
-      (add-to-list 'shr-external-rendering-functions
-                   '(pre . shr-tag-pre-highlight))
-      (when (version< emacs-version "26")
-        (with-eval-after-load 'eww
-          (advice-add 'eww-display-html :around
-                      'eww-display-html--override-shr-external-rendering-functions))))
+    (add-to-list 'shr-external-rendering-functions
+                 '(pre . shr-tag-pre-highlight))
+    (when (version< emacs-version "26")
+      (with-eval-after-load 'eww
+        (advice-add 'eww-display-html :around
+                    'eww-display-html--override-shr-external-rendering-functions))))
 
 
 
@@ -2099,6 +2226,7 @@ To make eww and shr elements org-like and make emacs even more Unified!
 ** 📎 Document - The PDF
 Pdf-tools is another great addition if you want to integrate well with Emacs.
 #+begin_src emacs-lisp
+  (unless d/on-droid
   (use-package pdf-tools
     :defer t
     :init
@@ -2132,22 +2260,23 @@ Pdf-tools is another great addition if you want to integrate well with Emacs.
     (define-key pdf-view-mode-map (kbd "M-g g") 'pdf-view-goto-page)
     (setq pdf-outline-imenu-use-flat-menus t)
     (setq pdf-view-resize-factor 1.1))
-
+  )
 
   (defun d/kill-buffer ()
     "Clear the image cache (to release memory) after killing a pdf buffer."
     (interactive)
     (if (one-window-p) (kill-this-buffer)
       (kill-buffer-and-window))
-    (clear-image-cache t)
-    (pdf-cache-clear-data))
+    (clear-image-cache)
+    (unless d/on-droid (pdf-cache-clear-data)))
 
-  (define-key image-mode-map (kbd "q") 'd/kill-buffer)
+  (unless d/on-droid
+    (define-key image-mode-map (kbd "q") 'd/kill-buffer)
 
-  ;; For Comic Manga
-  (add-hook 'image-mode-hook (lambda ()
-                               (olivetti-mode)
-                               (setq olivetti-body-width 0.45)))
+    ;; For Comic Manga
+    (add-hook 'image-mode-hook (lambda ()
+                                 (olivetti-mode)
+                                 (setq olivetti-body-width 0.45))))
 
   (use-package man
     :bind (("C-c m" . consult-man)
@@ -2209,107 +2338,122 @@ Some more functions copied and adapted well to my flow. You will also find it we
                 (keymap (copy-keymap orig-keymap))
                 (exit-func (set-transient-map keymap t #'which-key-abort)))
       (define-key keymap [remap keyboard-quit]
-        (lambda () (interactive) (funcall exit-func)))
+                  (lambda () (interactive) (funcall exit-func)))
       (which-key--create-buffer-and-show nil keymap)))
 
   (setq prefix-help-command #'repeated-prefix-help-command)
 
   ;; This is for managing nixos config
   (defun get-named-src-block-contents (name &optional trim)
-  "Return the contents of the named Org source block."
-  (let* ((block (org-element-map (org-element-parse-buffer) 'src-block
-                  (lambda (src-block)
-                    (when (string= name (org-element-property :name src-block))
+    "Return the contents of the named Org source block."
+    (let* ((block (org-element-map (org-element-parse-buffer) 'src-block
+                    (lambda (src-block)
+                      (when (string= name (org-element-property :name src-block))
                         src-block))
-                  nil t))
-         (source (org-element-property :value block)))
-    (if trim
-        (string-trim source)
-      source)))
+                    nil t))
+           (source (org-element-property :value block)))
+      (if trim
+          (string-trim source)
+        source)))
 
 #+end_src
 
 * 📰 Rss - Better Web
 Use RSS, just switch to it, and save your time for other productive things. If you wanna follow lazy people and hit that 'like, share and subscribe button, and /ding/ the bell icon' and what not, go on.
 #+begin_src emacs-lisp
-    (use-package elfeed
-      :defer t
-      :hook (elfeed-show-mode . d/elfeed-ui)
-      :bind ("C-c d e" . elfeed)
-      ("C-c d b" . d/external-browser)
-      (:map elfeed-show-mode-map
-            ("e" . elfeed-open-in-eww)
-            ("i" . d/bionic-read)
-            ("r" . elfeed-open-in-reddit)
-            ("m" . elfeed-toggle-show-star)
-            ("b" . d/external-browser))
-      (:map elfeed-search-mode-map
-            ("m" . elfeed-toggle-star)
-            ("U" . elfeed-update)
-            ("u" . elfeed-update-feed))
-      :config
-      ;; (setq-default elfeed-search-filter "@1-week-ago--1-day-ago +unread -news +")
-      (setq-default elfeed-search-filter "+unread +")
-      (setq elfeed-search-date-format `("%m-%d 📰" 7 :left))
-      (setq elfeed-search-title-max-width 90
-            elfeed-search-trailing-width 0)
-      (defalias 'elfeed-toggle-show-star
-        (elfeed-expose #'elfeed-show-tag 'star))
-      (defalias 'elfeed-toggle-star
-        (elfeed-expose #'elfeed-search-toggle-all 'star))
+  (use-package elfeed
+    :defer t
+    :hook (elfeed-show-mode . d/elfeed-ui)
+    :bind ("C-c d e" . d/elfeed-open)
+    ("C-c d b" . d/external-browser)
+    (:map elfeed-show-mode-map
+          ("e" . elfeed-open-in-eww)
+          ("i" . d/bionic-read)
+          ("r" . elfeed-open-in-reddit)
+          ("m" . elfeed-toggle-show-star)
+          ("b" . d/external-browser))
+    (:map elfeed-search-mode-map
+          ("m" . elfeed-toggle-star)
+          ("q" . d/elfeed-quit)
+          ("C-x C-k" . d/elfeed-quit)
+          ("U" . elfeed-update)
+          ("u" . elfeed-update-feed))
+    :config
+    ;; (setq-default elfeed-search-filter "@1-week-ago--1-day-ago +unread -news +")
+    (setq-default elfeed-search-filter "+unread +")
+    (setq elfeed-search-date-format `("%m-%d " 7 :left))
+    (setq elfeed-search-title-max-width 90
+          elfeed-search-trailing-width 0)
+    (defalias 'elfeed-toggle-show-star
+      (elfeed-expose #'elfeed-show-tag 'star))
+    (defalias 'elfeed-toggle-star
+      (elfeed-expose #'elfeed-search-toggle-all 'star))
 
-      (defun d/elfeed-ui ()
-        (interactive)
-        (setq-local header-line-format " "))
-
-
-      ;; face for starred articles
-      (defface elfeed-search-star-title-face
-        '((t :foreground "#f77"))
-        "Marks a starred Elfeed entry.")
-
-      (push '(star elfeed-search-star-title-face) elfeed-search-face-alist))
-
-    (use-package link-hint
-      :defer t
-      :ensure t
-      :bind
-      ("C-c l o" . link-hint-open-link)
-      ("C-c l c" . link-hint-copy-link))
-
-    (use-package avy
-      :defer t
-      :bind
-      ("M-j" . avy-goto-char-timer)
-      ("M-K" . avy-kill-region)
-      ("C-S-k" . avy-kill-whole-line)
-      :config
-      (setq avy-background t))
-
-    (use-package elfeed-org
-      :after elfeed
-      :config
-      (elfeed-org)
-      (setq rmh-elfeed-org-files (list "~/.config/emacs/elfeed.org")))
-
-    (defun readable-article ()
+    (defun d/elfeed-ui ()
       (interactive)
-      (eww-readable)
-      ;; (d/bionic-read)
-      (beginning-of-buffer))
+      (setq-local header-line-format " "))
 
-    (defun elfeed-open-in-eww ()
-      "open in eww"
+    (defun d/elfeed-open ()
+      "Wrapper to load the elfeed db from disk before opening"
       (interactive)
-      (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
-        (eww (elfeed-entry-link entry))
-        (add-hook 'eww-after-render-hook 'readable-article)))
+      (elfeed-db-load)
+      (elfeed)
+      (elfeed-search-update--force))
+      ;; (elfeed-update))
 
-    (defun elfeed-open-in-reddit ()
-      "open in reddit"
+    ;;write to disk when quiting
+    (defun d/elfeed-quit ()
+      "Wrapper to save the elfeed db to disk before burying buffer"
       (interactive)
-      (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
-        (reddigg-view-comments (elfeed-entry-link entry))))
+      (elfeed-db-save)
+      (quit-window))
+
+    ;; face for starred articles
+    (defface elfeed-search-star-title-face
+      '((t :foreground "#f77"))
+      "Marks a starred Elfeed entry.")
+
+    (push '(star elfeed-search-star-title-face) elfeed-search-face-alist))
+
+  (use-package link-hint
+    :defer t
+    :bind
+    ("C-c l o" . link-hint-open-link)
+    ("C-c l c" . link-hint-copy-link))
+
+  (use-package avy
+    :defer t
+    :bind
+    ("M-j" . avy-goto-char-timer)
+    ("M-K" . avy-kill-region)
+    ("C-S-k" . avy-kill-whole-line)
+    :config
+    (setq avy-background t))
+
+  (use-package elfeed-org
+    :after elfeed
+    :config
+    (elfeed-org)
+    (setq rmh-elfeed-org-files (list "~/.config/emacs/elfeed.org")))
+
+  (defun readable-article ()
+    (interactive)
+    (eww-readable)
+    ;; (d/bionic-read)
+    (beginning-of-buffer))
+
+  (defun elfeed-open-in-eww ()
+    "open in eww"
+    (interactive)
+    (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
+      (eww (elfeed-entry-link entry))
+      (add-hook 'eww-after-render-hook 'readable-article)))
+
+  (defun elfeed-open-in-reddit ()
+    "open in reddit"
+    (interactive)
+    (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
+      (reddigg-view-comments (elfeed-entry-link entry))))
 
   (use-package eww
     :bind (:map eww-mode-map
@@ -2339,7 +2483,7 @@ Use RSS, just switch to it, and save your time for other productive things. If y
                                       (plist-get bm :title))
                               'url (plist-get bm :url)))
                            eww-bookmarks))))
-  (add-to-list 'consult-buffer-sources 'consult--source-eww 'append))
+    (add-to-list 'consult-buffer-sources 'consult--source-eww 'append))
 
   (use-package gnutls
     :defer t
@@ -2356,7 +2500,7 @@ Congratulations, if you are already using Rss, if not, don't worry, you can get 
   (defun d/external-browser ()
     (interactive)
     (cond ((image-at-point-p) (kill-new (or (shr-url-at-point nil) (plist-get (cdr (image--get-image)) :file))))
-          ((or (thing-at-point 'url t) (thing-at-point 'filename t) (shr-url-at-point nil)) (link-hint-copy-link-at-point))
+          ((or (thing-at-point 'url t) (dired-file-name-at-point) (shr-url-at-point nil)) (link-hint-copy-link-at-point))
           (t (link-hint-copy-link)))
     (let ((url (current-kill 0)))
       (browse-url-generic url)))
@@ -2368,6 +2512,7 @@ Congratulations, if you are already using Rss, if not, don't worry, you can get 
 * 🐲 Matrix
 Just to use matrix for some hacky nerds community
 #+begin_src emacs-lisp
+  (unless d/on-droid
   (use-package ement
     :bind (:map ement-room-minibuffer-map
                 ("<f6>" . ement-room-compose-from-minibuffer))
@@ -2392,16 +2537,19 @@ Just to use matrix for some hacky nerds community
                (password (funcall (plist-get entry :secret)))
                (user (plist-get entry :user)))
           (ement-connect :user-id user :password password)))))
+  )
 
 #+end_src
 * 🌐 Good Site
 Use ox-hugo to manage static site in Hugo.
 #+begin_src emacs-lisp
-    (use-package ox-hugo
-      :after ox)
+  (use-package ox-hugo
+    :ensure nil
+    :unless d/on-droid
+    :after ox)
 #+end_src
 
-* 💜 Lots of things, No need to talk
+* 💜 Goodies
 Idk why, but i guess these all should be the sane defaults.
 #+begin_src emacs-lisp
   (setq inhibit-startup-message t)
@@ -2411,18 +2559,15 @@ Idk why, but i guess these all should be the sane defaults.
   (tooltip-mode -1)           ; Disable tooltips
   (setq set-fringe-style "default")        ; Give some breathing room
 
-  (menu-bar-mode -1)            ; Disable the menu bar
-
   ;; (setq-default mode-line-format nil)
 
   ;; (server-start)
 
-  (visual-line-mode 1)
+  (global-visual-line-mode 1)
 
   ;; Display messages when idle, without prompting
   (setq help-at-pt-display-when-idle t)
   (setopt read-quoted-char-radix 16)
-  (setq use-dialog-box nil)
   (setopt set-mark-command-repeat-pop t)
   (setq sentence-end-double-space nil)
   (setq sentence-end "[.?!] ")
@@ -2468,6 +2613,7 @@ Idk why, but i guess these all should be the sane defaults.
   (delete-selection-mode +1)
   (save-place-mode t)
 
+  (setq reb-re-syntax 'string)
   ;;(display-battery-mode t)
   ;;(setq display-time;5;9~-default-load-average nil)
   ;;(setq display-time-24hr-format t)
@@ -2527,6 +2673,17 @@ Idk why, but i guess these all should be the sane defaults.
 
 #+end_src
 
+* 📲 Android
+Emacs is officially supports Android an an app, now you know which is the org-mode reader on android
+#+begin_src emacs-lisp
+  (when d/on-droid
+    ;; access phone storage as default
+    (setq default-directory "/storage/emulated/0/")
+    (setq touch-screen-precision-scroll t)
+    (setq touch-screen-display-keyboard t)
+    ;; (setq use-dialog-box nil)
+    )
+#+end_src
 * 🏍️ Run Always, and be Everywhere
 Run emacs as daemon and thank yourself for blazing fast clients of emacs.
 #+begin_src emacs-lisp
@@ -2537,8 +2694,8 @@ Run emacs as daemon and thank yourself for blazing fast clients of emacs.
                   (setq doom-modeline-icon t)
                   (with-selected-frame frame
                     (d/set-font-faces))))
-      (d/set-font-faces))
+    (d/set-font-faces))
   (setq doom-modeline-icon t)
-   (put 'narrow-to-region 'disabled nil)
+  (put 'narrow-to-region 'disabled nil)
 
 #+end_src

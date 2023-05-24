@@ -64,7 +64,7 @@ window#waybar {
 
 #mpd {
     color: @lavender;
-    font-family:Maple Mono NF;
+    font-family:Maple Mono;
     font-style: italic;
 }
 

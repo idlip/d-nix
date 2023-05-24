@@ -80,13 +80,11 @@ nix = {
   };
 
   # pin the registry to avoid downloading and evaling a new nixpkgs version every time
-  registry = lib.mapAttrs (_: v: {flake = v;}) inputs;
+  registry = lib.mapAttrs (_: value: { flake = value; }) inputs;  
 
-  # set the path for channels compat
-  nixPath = [
-    "nixpkgs=/etc/nix/flake-channels/nixpkgs"
-    "home-manager=/etc/nix/flake-channels/home-manager"
-  ];
+  # This will additionally add your inputs to the system's legacy channels  
+  # Making legacy nix commands consistent as well, awesome!  
+  nixPath = lib.mapAttrsToList (key: value: "${key}=${value.to.path}") config.nix.registry;  
 
   # Free up to 1GiB whenever there is less than 100MiB left.
   extraOptions = ''
@@ -126,14 +124,7 @@ system.stateVersion = "23.05"; # DONT TOUCH THIS (See about state version on nix
 boot = {
   # Uses bleeding edge latest kernel.
   kernelPackages = pkgs.linuxPackages_latest;
-  kernelModules = ["tcp_bbr" "acpi_call"];
-  kernelParams = [
-    "pti=auto"
-    "acpi=on"
-    "processor.max_cstate=5"
-    "module.sig_enforce=1"
-    "lockdown=confidentiality"
-  ];
+  kernelModules = ["tcp_bbr"];
 
   kernel.sysctl = {
     # The Magic SysRq key is a key combo that allows users connected to the
@@ -276,7 +267,7 @@ services = {
     overrideFolders = true;     # overrides any folders added or deleted through the WebUI
     settings = {
       devices = {
-        "realme" = { id = "5ZNAQ2Z-T2DD757-6JK53J6-4NFMMGG-ETTFU5W-UNAMYLV-XM3P6CZ-ERSRTQX"; };
+        "realme" = { id = "CEV3U3M-EJFLUJ3-UXFBEPG-KHX5EVK-3MSYH2W-BRNZEDH-TVJ4QWZ-X3G2CAW"; };
         #"device2" = { id = "DEVICE-ID-GOES-HERE"; };
       };
       folders = {
@@ -295,6 +286,26 @@ services = {
         };
         "reads" = {
           path = "/home/i/d/reads";
+          devices = [ "realme" ];
+        };
+        "fonts" = {
+          path = "/home/i/d/fonts";
+          devices = [ "realme" ];
+        };
+        "emacs" = {
+          path = "/home/i/d-git/d-nix";
+          devices = [ "realme" ];
+        };
+        "news" = {
+          path = "/home/i/.config/emacs/var/elfeed";
+          devices = [ "realme" ];
+        };
+        "theme" = {
+          path = "/home/i/d-git/d-theme";
+          devices = [ "realme" ];
+        };
+        "site" = {
+          path = "/home/i/d-git/d-site";
           devices = [ "realme" ];
         };
       };
@@ -345,7 +356,6 @@ hardware = {
     extraPackages = with pkgs; [
       vaapiVdpau
       libvdpau-va-gl
-      intel-compute-runtime
       intel-media-driver
       vaapiIntel
     ];
@@ -357,8 +367,8 @@ fonts = {
     #emacs-all-the-icons-fonts
     noto-fonts
     #material-icons comic-mono material-design-icons
-    # weather-icons font-awesome comicshaansmono
-    symbola noto-fonts-emoji maple-mono-NF
+    # weather-icons font-awesome 
+    symbola noto-fonts-emoji maple-mono
     iosevka-comfy.comfy iosevka-comfy.comfy-motion
     (nerdfonts.override {fonts = ["VictorMono" "FiraCode" "JetBrainsMono"];})
   ];

@@ -95,8 +95,8 @@ If you experience stuttering, increase this.")
 (eval-and-compile
   (setq use-package-verbose (not (bound-and-true-p byte-compile-current-file))))
 
-(require 'use-package)
 (use-package use-package
+  :ensure nil
   :custom
   (use-package-verbose t)
   (use-package-always-ensure t)  ; :ensure t by default
@@ -106,39 +106,37 @@ If you experience stuttering, increase this.")
 
 ;; You will most likely need to adjust this font size for your system!
 
-  (defvar default-font-size 170)
-  (defvar default-variable-font-size 170)
+(defvar default-font-size (if d/on-droid 140 170))
+(defvar default-variable-font-size (if d/on-droid 140 170))
 
-  ;; Set reusable font name variables
-  (defvar d/fixed-width-font "ComicCodeLigatures Nerd Font"
-    "The font to use for monospaced (fixed width) text.")
+;; Set reusable font name variables
+(defvar d/fixed-width-font "ComicCodeLigatures Nerd Font"
+  "The font to use for monospaced (fixed width) text.")
 
-  (defvar d/variable-width-font "ComicCodeLigatures Nerd Font"
-    "The font to use for variable-pitch (documents) text.")
+(defvar d/variable-width-font "ComicCodeLigatures Nerd Font"
+  "The font to use for variable-pitch (documents) text.")
 
-  (setq haki-heading-font "FiraCode Nerd Font")
-  (setq haki-sans-font "Iosevka Comfy Motion")
+(setq haki-heading-font "FiraCode Nerd Font")
+(setq haki-sans-font (if d/on-droid "FiraCode Nerd Font" "Iosevka Comfy Motion"))
 ;;  (setq haki-code-font "JetBrainsMono Nerd Font")
-  (setq haki-title-font "Impress BT")
-  (setq haki-link-font "VictorMono Nerd Font")
-  (setq haki-code-font "Maple Mono NF")
+(setq haki-title-font "FiraCode Nerd Font")
+(setq haki-link-font "VictorMono NF")
+(setq haki-code-font "Maple Mono")
 
+(setf use-default-font-for-symbols nil)
+(set-fontset-font t 'unicode "Noto Color Emoji" nil 'append)
 
+(defun d/set-font-faces ()
+  (message "Setting faces!")
+  (set-face-attribute 'default nil :family d/variable-width-font :weight 'medium :height default-font-size)
 
-  (setf use-default-font-for-symbols nil)
-  (set-fontset-font t 'unicode "Noto Emoji" nil 'append)
+  ;; Set the fixed pitch face (monospace)
+  (set-face-attribute 'fixed-pitch nil :family d/fixed-width-font :height default-font-size)
 
-  (defun d/set-font-faces ()
-    (message "Setting faces!")
-    (set-face-attribute 'default nil :family d/variable-width-font :weight 'medium :height default-font-size)
-
-    ;; Set the fixed pitch face (monospace)
-    (set-face-attribute 'fixed-pitch nil :family d/fixed-width-font :height default-font-size)
-
-    ;; Set the variable pitch face (document text)
-    (set-face-attribute 'variable-pitch nil :family d/variable-width-font :height default-variable-font-size :weight 'medium)
-    (global-font-lock-mode 1)
-    (setq font-lock-maximum-decoration t))
+  ;; Set the variable pitch face (document text)
+  (set-face-attribute 'variable-pitch nil :family d/variable-width-font :height default-variable-font-size :weight 'medium)
+  (global-font-lock-mode 1)
+  (setq font-lock-maximum-decoration t))
 
 (use-package no-littering               ; Keep .emacs.d clean
   :custom
@@ -211,7 +209,7 @@ If you experience stuttering, increase this.")
   "Makes editing src block focused in its respective major mode"
   (interactive)
   (if (org-src-edit-buffer-p)         (org-edit-src-abort)
-  (progn (org-edit-special) (window-focus-mode))))
+    (progn (org-edit-special) (window-focus-mode))))
 
 (defun d/insert-unicodes (add-unicodes)
   "Inserts unicode character (emoji/icons) from given files"
@@ -223,7 +221,7 @@ If you experience stuttering, increase this.")
           (selected-item (completing-read "Choose Icon 󰨈: " options))
           (fields (split-string selected-item)))
      (car fields))))
-(setq add-unicodes (directory-files "~/d-git/d-bin/treasure/unicodes/" t "i"))
+(setq add-unicodes (unless d/on-droid (directory-files "~/d-git/d-bin/treasure/unicodes/" t "i")))
 
 (defun org-archive-done-tasks ()
   (interactive)
@@ -305,32 +303,33 @@ If you experience stuttering, increase this.")
   :hook (prog-mode . rainbow-mode)
   :bind ("C-c t c" . rainbow-mode))
 
-(setq scroll-conservatively 101) ;; value greater than 100 gets rid of half page jumping
-(setq mouse-wheel-scroll-amount nil)
-(setq mouse-wheel-progressive-speed t) ;; accelerate scrolling
-(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+(unless d/on-droid
+  (setq scroll-conservatively 101) ;; value greater than 100 gets rid of half page jumping
+  (setq mouse-wheel-scroll-amount nil)
+  (setq mouse-wheel-progressive-speed t) ;; accelerate scrolling
+  (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
 
 
-;; For wayland Pgtk build
-;; credit: yorickvP on Github
-(setq wl-copy-process nil)
+  ;; For wayland Pgtk build
+  ;; credit: yorickvP on Github
+  (setq wl-copy-process nil)
 
-(defun wl-copy (text)
-  (setq wl-copy-process (make-process :name "wl-copy"
-                                      :buffer nil
-                                      :noquery t
-                                      :command '("wl-copy" "-f" "-n")
-                                      :connection-type 'pipe))
-  (process-send-string wl-copy-process text)
-  (process-send-eof wl-copy-process))
+  (defun wl-copy (text)
+    (setq wl-copy-process (make-process :name "wl-copy"
+                                        :buffer nil
+                                        :noquery t
+                                        :command '("wl-copy" "-f" "-n")
+                                        :connection-type 'pipe))
+    (process-send-string wl-copy-process text)
+    (process-send-eof wl-copy-process))
 
-(defun wl-paste ()
-  (if (and wl-copy-process (process-live-p wl-copy-process))
-      nil ; should return nil if we're the current paste owner
-    (shell-command-to-string "wl-paste -n | tr -d \r")))
+  (defun wl-paste ()
+    (if (and wl-copy-process (process-live-p wl-copy-process))
+        nil ; should return nil if we're the current paste owner
+      (shell-command-to-string "wl-paste -n | tr -d \r")))
 
-(setq interprogram-cut-function 'wl-copy)
-(setq interprogram-paste-function 'wl-paste)
+  (setq interprogram-cut-function 'wl-copy)
+  (setq interprogram-paste-function 'wl-paste))
 
 (use-package vertico
   :bind (:map vertico-map
@@ -357,9 +356,9 @@ If you experience stuttering, increase this.")
                                         (direction . right)
                                         (window-width . 0.45)))
   (setq vertico-multiform-categories
-      '((file )
-        (consult-location )
-        (t unobtrusive)))
+        '((file )
+          (consult-location )
+          (t unobtrusive)))
   (setq vertico-multiform-commands
         '((consult-ripgrep ))))
 
@@ -562,7 +561,7 @@ selected color."
 ;; Enable rich annotations using the Marginalia package
 (use-package marginalia
   :bind (:map minibuffer-local-map
-         ("M-A" . marginalia-cycle))
+              ("M-A" . marginalia-cycle))
 
   :init
   (marginalia-mode))
@@ -683,7 +682,7 @@ selected color."
                 corfu-auto-prefix 0
                 completion-styles '(orderless basic))
     (corfu-mode 1)))
-(add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
+;; (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
 
 ;; Configure Tempel
 (use-package tempel
@@ -703,55 +702,57 @@ selected color."
   )
 
 (use-package org-modern
-  :defer t)
-;; (add-hook 'org-mode-hook #'org-modern-mode)
-(add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
+  :after org
+  :config
+  ;; (add-hook 'org-mode-hook #'org-modern-mode)
+  (add-hook 'org-agenda-finalize-hook #'org-modern-agenda)
 
-;; (set-face-attribute 'org-modern-symbol nil :family "Iosevka")
+  ;; (set-face-attribute 'org-modern-symbol nil :family "Iosevka")
 
-;; Add frame borders and window dividers
-(modify-all-frames-parameters
- '((right-divider-width . 1)
-   (bottom-divider-width . 0)
-   (internal-border-width . 5)))
-(dolist (face '(window-divider
-                window-divider-first-pixel
-                window-divider-last-pixel))
-  (face-spec-reset-face face)
-  (set-face-foreground face (face-attribute 'default :background)))
-(setq
- ;; Edit settings
- org-auto-align-tags nil
- org-tags-column 0
- org-catch-invisible-edits 'show-and-error
- org-special-ctrl-a/e t
- org-insert-heading-respect-content t
+  ;; Add frame borders and window dividers
+  (modify-all-frames-parameters
+   '((right-divider-width . 1)
+     (bottom-divider-width . 0)
+     (internal-border-width . 5)))
+  (dolist (face '(window-divider
+                  window-divider-first-pixel
+                  window-divider-last-pixel))
+    (face-spec-reset-face face)
+    (set-face-foreground face (face-attribute 'default :background)))
+  (setq
+   ;; Edit settings
+   org-auto-align-tags nil
+   org-tags-column 0
+   org-catch-invisible-edits 'show-and-error
+   org-special-ctrl-a/e t
+   org-insert-heading-respect-content t
 
- ;; Org styling, hide markup etc.
- org-hide-emphasis-markers t
- org-pretty-entities t
- ;;   org-ellipsis "…"
+   ;; Org styling, hide markup etc.
+   org-hide-emphasis-markers t
+   org-pretty-entities t
+   ;;   org-ellipsis "…"
 
- org-modern-star '("◉" "✤" "◈" "✿" "✤")
- org-modern-hide-stars 'leading
- org-modern-table t
- org-modern-list
- '((?* . "❉")
-   (?- . "❖")
-   (?+ . "➤"))
+   org-modern-star '("" "󰓏" "☘" "✿" "󱨧")
+   org-modern-hide-stars 'leading
+   org-modern-table t
+   org-modern-list
+   '((?* . "󰸷")
+     (?- . "󰣏")
+     (?+ . ""))
 
- ;; Agenda styling
- org-agenda-tags-column 0
- org-agenda-block-separator ?─
- org-agenda-time-grid
- '((daily today require-timed)
-   (800 1000 1200 1400 1600 1800 2000)
-   " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
- org-agenda-current-time-string
- "⭠ now ─────────────────────────────────────────────────")
+   ;; Agenda styling
+   org-agenda-tags-column 0
+   org-agenda-block-separator ?─
+   org-agenda-time-grid
+   '((daily today require-timed)
+     (800 1000 1200 1400 1600 1800 2000)
+     " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
+   org-agenda-current-time-string
+   "⭠ now ─────────────────────────────────────────────────")
 
-(global-org-modern-mode)
+  (global-org-modern-mode))
 
+(unless d/on-droid
 (use-package jinx
   :defer t
   :hook (emacs-startup . global-jinx-mode)
@@ -760,6 +761,7 @@ selected color."
   (add-to-list 'vertico-multiform-categories
                '(jinx grid indexed))
   (vertico-multiform-mode 1))
+)
 
 (defun org-font-setup ()
   ;; Replace list hyphen with dot
@@ -767,30 +769,30 @@ selected color."
                           '(("^ *\\([-]\\) "
                              (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
-    (dolist (face '((org-block . 1.0)
-                    (org-block-begin-line . 0.9)
-                    (org-document-info . 1.5)
-                    (org-document-title . 1.7)
-                    (org-level-1 . 1.4)
-                    (org-level-2 . 1.3)
-                    (org-level-3 . 1.2)
-                    (org-level-4 . 1.1)
-                    (org-level-5 . 1.1)
-                    (org-level-6 . 1.1)
-                    (org-code . 1.2)
-                    (header-line . 1.0)
-                    (org-verbatim . 1.15)
-                    (variable-pitch . 1.0)
-                    (org-level-7 . 1.1)))
-      (set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face))))
+  (dolist (face '((org-block . 1.0)
+                  (org-block-begin-line . 0.9)
+                  (org-document-info . 1.5)
+                  (org-document-title . 1.7)
+                  (org-level-1 . 1.4)
+                  (org-level-2 . 1.3)
+                  (org-level-3 . 1.2)
+                  (org-level-4 . 1.1)
+                  (org-level-5 . 1.1)
+                  (org-level-6 . 1.1)
+                  (org-code . 1.2)
+                  (header-line . 1.0)
+                  (org-verbatim . 1.15)
+                  (variable-pitch . 1.0)
+                  (org-level-7 . 1.1)))
+    (set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face))))
 
-  ;; Set faces for heading levels
+;; Set faces for heading levels
 
-    ;; (set-face-attribute (car face) nil :font d/header-font :weight 'regular :height (cdr face)))
+;; (set-face-attribute (car face) nil :font d/header-font :weight 'regular :height (cdr face)))
 
 
 (defun org-mode-setup ()
-  ;; (org-indent-mode 1)
+  (org-indent-mode 1)
   (org-display-inline-images 1)
   (variable-pitch-mode 1)
   ;; (org-font-setup)
@@ -816,7 +818,7 @@ selected color."
          :map org-mode-map
          ("C-c o b" . d/edit-src-block))
   :config
-  (setq org-ellipsis " ▾")
+  (setq org-ellipsis " 樂")
 
   (setq org-agenda-start-with-log-mode t)
   ;; (setq org-log-done 'time)
@@ -824,14 +826,16 @@ selected color."
   (setq org-log-into-drawer t)
 
   ;; browser script
-  (setq browse-url-browser-function 'browse-url-generic
-        browse-url-generic-program "d-stuff")
-  (setq browse-url-secondary-browser-function 'browse-url-generic
-        browse-url-generic-program "d-stuff")
+  (unless d/on-droid
+    (setq browse-url-browser-function 'browse-url-generic
+          browse-url-generic-program "d-stuff")
+    (setq browse-url-secondary-browser-function 'browse-url-generic
+          browse-url-generic-program "d-stuff"))
 
   (setq org-agenda-files
-        '("~/sync/org/tasks.org"
-          "~/d-git/d-site/README.org"))
+        (if d/on-droid "/storage/emulated/0/sync/org/tasks.org"
+          '("~/sync/org/tasks.org"
+            "~/d-git/d-site/README.org")))
 
   ;; (require 'org-habit)
   ;; (add-to-list 'org-modules 'org-habit)
@@ -898,164 +902,170 @@ selected color."
   (add-to-list 'org-structure-template-alist '("lx" . "src latex"))
   (add-to-list 'org-structure-template-alist '("cal" . "src calc")))
 
-(use-package org-present
-  :defer t
-  :after org
-  :bind (:map org-present-mode-keymap
-              ("<right>" . d/org-present-next-slide)
-              ("<left>" . d/org-present-previous-slide)
-              ("<up>" . d/org-present-up)
-              ("<f5>" . d/org-present-refresh))
-  (:map org-mode-map
-        ("<f8>" . d/org-present-mode))
-  :hook ((org-present-mode . d/org-present-enable-hook)
-         (org-present-mode-quit . d/org-present-disable-hook)
-         (org-present-after-navigate-functions . d/org-present-prepare-slide)))
+(unless d/on-droid
+  (use-package org-present
+    :defer t
+    :after org
+    :bind (:map org-present-mode-keymap
+                ("<right>" . d/org-present-next-slide)
+                ("<left>" . d/org-present-previous-slide)
+                ("<up>" . d/org-present-up)
+                ("<f5>" . d/org-present-refresh))
+    (:map org-mode-map
+          ("<f8>" . d/org-present-mode))
+    :hook ((org-present-mode . d/org-present-enable-hook)
+           (org-present-mode-quit . d/org-present-disable-hook)
+           (org-present-after-navigate-functions . d/org-present-prepare-slide))
+    :config
 
 
-(defvar d/org-present-org-modern-keyword '(("title"       . "")
-                                           ("description" . "")
-                                           ("subtitle"    . "")
-                                           ("date"        . "")
-                                           ("author"      . "")
-                                           ("email"       . "")
-                                           ("language"    . "")
-                                           ("options"     . "")
-                                           (t . t)))
+    (defvar d/org-present-org-modern-keyword '(("title"       . "")
+                                               ("description" . "")
+                                               ("subtitle"    . "")
+                                               ("date"        . "")
+                                               ("author"      . "")
+                                               ("email"       . "")
+                                               ("language"    . "")
+                                               ("options"     . "")
+                                               (t . t)))
 
-(define-minor-mode d/org-present-mode
-  "Toggle Presentation Mode."
- :global nil
- :lighter "d/org-present-mode"
-  (if d/org-present-mode
-      (org-present)
-    (org-present-quit)))
+    (define-minor-mode d/org-present-mode
+      "Toggle Presentation Mode."
+      :global nil
+      :lighter "d/org-present-mode"
+      (if d/org-present-mode
+          (org-present)
+        (org-present-quit)))
 
-(defun d/org-present-enable-hook ()
-  (setq d/org-present--inhibit-message inhibit-message
-        d/org-present--echo-keystrokes echo-keystrokes
-        d/org-present--visual-line-mode visual-line-mode
-        d/org-present--org-ellipsis org-ellipsis
-        d/org-present--org-indent-mode org-indent-mode)
-  (org-indent-mode 1)
+    (defun d/org-present-enable-hook ()
+      (setq d/org-present--inhibit-message inhibit-message
+            d/org-present--echo-keystrokes echo-keystrokes
+            d/org-present--visual-line-mode visual-line-mode
+            d/org-present--org-ellipsis org-ellipsis)
+      ;; d/org-present--org-indent-mode org-indent-mode)
+      ;; (org-indent-mode 1)
 
-  ;; Disable 'org-modern-mode' to setup adjustment if it's installed
-  (if (package-installed-p 'org-modern)
-      (org-modern-mode 0))
+      ;; Disable 'org-modern-mode' to setup adjustment if it's installed
+      (if (package-installed-p 'org-modern)
+          (org-modern-mode 0))
 
-  (if (package-installed-p 'org-modern)
-      (setq-local d/org-present--org-modern-hide-stars org-modern-hide-stars
-                  d/org-present--org-modern-keyword org-modern-keyword
-                  d/org-present--org-modern-block-fringe org-modern-block-fringe
+      (if (package-installed-p 'org-modern)
+          (setq-local d/org-present--org-modern-hide-stars org-modern-hide-stars
+                      d/org-present--org-modern-keyword org-modern-keyword
+                      d/org-present--org-modern-block-fringe org-modern-block-fringe
 
-                  org-modern-hide-stars 'leading
-                  org-modern-block-fringe t
-                  org-modern-keyword d/org-present-org-modern-keyword))
+                      org-modern-hide-stars 'leading
+                      org-modern-block-fringe t
+                      org-modern-keyword d/org-present-org-modern-keyword))
 
-  (display-line-numbers-mode 0)
+      (display-line-numbers-mode 0)
 
-  (if (package-installed-p 'org-modern)
-      (org-modern-mode 1))
+      (if (package-installed-p 'org-modern)
+          (org-modern-mode 1))
 
-  (setq-local inhibit-message t
-              echo-keystrokes nil
-              cursor-type t
-              org-image-actual-width 300
-              header-line-format " "
-              org-ellipsis "⤵")
+      (setq-local inhibit-message t
+                  echo-keystrokes nil
+                  cursor-type t
+                  org-image-actual-width 300
+                  header-line-format " "
+                  org-ellipsis "󱞤")
 
-  (dolist (face '((org-block . 1.0)
-                  (org-block-begin-line . 0.1)
-                  (org-document-info . 2.5)
-                  (org-document-title . 2.5)
-                  (org-level-1 . 1.6)
-                  (org-level-2 . 1.5)
-                  (org-level-3 . 1.4)
-                  (org-level-4 . 1.3)
-                  (org-level-5 . 1.2)
-                  (org-level-6 . 1.1)
-                  (org-code . 1.4)
-                  (header-line . 2.5)
-                  (org-verbatim . 1.3)
-                  (variable-pitch . 1.2)
-                  (org-level-7 . 1.1)))
-    (face-remap-add-relative (car face) :height (cdr face)))
-
-
-  (if (package-installed-p 'hide-mode-line)
-      (hide-mode-line-mode 1))
-
-  (org-display-inline-images)
-  (read-only-mode 1))
-
-(defun d/org-present-prepare-slide (buffer-name heading)
-  (org-overview)
-  (org-show-entry)
-  (org-show-children))
-
-(defun d/org-present-disable-hook ()
-  (setq-local header-line-format nil
-              face-remapping-alist '((default variable-pitch default))
-              org-adapt-indentation nil
-              visual-line-mode d/org-present--visual-line-mode
-              org-ellipsis d/org-present--org-ellipsis
-              inhibit-message d/org-present--inhibit-message
-              echo-keystrokes d/org-present--echo-keystrokes)
-  (org-present-small)
+      (dolist (face '((org-block . 1.0)
+                      (org-block-begin-line . 0.1)
+                      (org-document-info . 2.5)
+                      (org-document-title . 2.5)
+                      (org-level-1 . 1.6)
+                      (org-level-2 . 1.5)
+                      (org-level-3 . 1.4)
+                      (org-level-4 . 1.3)
+                      (org-level-5 . 1.2)
+                      (org-level-6 . 1.1)
+                      (org-code . 1.4)
+                      (header-line . 2.5)
+                      (org-verbatim . 1.3)
+                      (variable-pitch . 1.2)
+                      (org-level-7 . 1.1)))
+        (face-remap-add-relative (car face) :height (cdr face)))
 
 
-  (org-indent-mode d/org-present--org-indent-mode)
+      (if (package-installed-p 'hide-mode-line)
+          (hide-mode-line-mode 1))
 
-  (if (package-installed-p 'hide-mode-line)
-      (hide-mode-line-mode 0))
+      (org-display-inline-images)
+      (read-only-mode 1))
 
-  (load-theme 'haki t)
-  (org-mode-restart)
-  (org-remove-inline-images))
+    (defun d/org-present-prepare-slide (buffer-name heading)
+      (org-overview)
+      (org-show-entry)
+      (org-show-children))
 
-(defun d/org-present-up ()
-  "Go to higher heading from current heading."
-  (interactive)
-  (widen)
-  (org-up-heading-safe)
-  (org-present-narrow)
-  (org-present-run-after-navigate-functions))
-
-
-(defun d/org-present-next-slide ()
-  "Go to next sibling."
-  (interactive)
-  (widen)
-  (unless (org-goto-first-child)
-    (org-get-next-sibling))
-  (org-present-narrow)
-  (org-present-run-after-navigate-functions))
+    (defun d/org-present-disable-hook ()
+      (setq-local header-line-format nil
+                  face-remapping-alist '((default variable-pitch default))
+                  org-adapt-indentation nil
+                  visual-line-mode d/org-present--visual-line-mode
+                  org-ellipsis d/org-present--org-ellipsis
+                  inhibit-message d/org-present--inhibit-message
+                  echo-keystrokes d/org-present--echo-keystrokes)
+      (org-present-small)
 
 
-(defun d/org-present--last-child ()
-  "Find last child of current heading."
-  (when (org-goto-sibling) (d/org-present--last-child))
-  (when (org-goto-first-child) (d/org-present--last-child)))
+      ;; (org-indent-mode d/org-present--org-indent-mode)
+
+      (if (package-installed-p 'hide-mode-line)
+          (hide-mode-line-mode 0))
+
+      (load-theme 'haki t)
+      (org-mode-restart)
+      (org-remove-inline-images))
+
+    (defun d/org-present-up ()
+      "Go to higher heading from current heading."
+      (interactive)
+      (widen)
+      (org-up-heading-safe)
+      (org-present-narrow)
+      (org-present-run-after-navigate-functions))
 
 
-(defun d/org-present-previous-slide ()
-  "Go to previous sibling."
-  (interactive)
-  (widen)
-  (when (org-current-level)
-    (org-back-to-heading)
-    (if (and (org-get-previous-sibling) (org-current-level))
-        (when (org-goto-first-child)
-          (d/org-present--last-child))))
-  (org-present-narrow)
-  (org-present-run-after-navigate-functions))
+    (defun d/org-present-next-slide ()
+      "Go to next sibling."
+      (interactive)
+      (widen)
+      (unless (org-goto-first-child)
+        (org-get-next-sibling))
+      (org-present-narrow)
+      (org-present-run-after-navigate-functions))
 
 
-(defun d/org-present-refresh ()
-  (interactive)
-  (d/org-present-mode)
-  (d/org-present-mode))
+    (defun d/org-present--last-child ()
+      "Find last child of current heading."
+      (when (org-goto-sibling) (d/org-present--last-child))
+      (when (org-goto-first-child) (d/org-present--last-child)))
 
+
+    (defun d/org-present-previous-slide ()
+      "Go to previous sibling."
+      (interactive)
+      (widen)
+      (when (org-current-level)
+        (org-back-to-heading)
+        (if (and (org-get-previous-sibling) (org-current-level))
+            (when (org-goto-first-child)
+              (d/org-present--last-child))))
+      (org-present-narrow)
+      (org-present-run-after-navigate-functions))
+
+
+    (defun d/org-present-refresh ()
+      (interactive)
+      (d/org-present-mode)
+      (d/org-present-mode))
+
+    )
+  )
+
+(unless d/on-droid
 (use-package denote
   :defer t
   :hook ((find-file-hook . denote-link-buttonize-buffer)
@@ -1097,34 +1107,37 @@ selected color."
   denote-dired-directories
   (list denote-directory
         (thread-last denote-directory (expand-file-name "attachments"))
-        (expand-file-name "~/sync/org/books/")))
+        (expand-file-name "~/sync/org/books/"))
 
-(defun d/my-journal ()
-  (interactive)
-  (let* ((date (org-read-date))
-         (time (org-time-string-to-time date))
-         (title (format-time-string "%A %d %B %Y" time))
-         (initial (denote-sluggify title))
-         (target (read-file-name "Select note: " (denote-directory) nil nil initial
-                                 (lambda (f)
-                                   (or (denote-file-has-identifier-p f)
-                                       (file-directory-p f))))))
-    (if (file-exists-p target)
-        (find-file target)
-      (denote title '("journal") denote-file-type nil date))))
+  (defun d/my-journal ()
+    (interactive)
+    (let* ((date (org-read-date))
+           (time (org-time-string-to-time date))
+           (title (format-time-string "%A %d %B %Y" time))
+           (initial (denote-sluggify title))
+           (target (read-file-name "Select note: " (denote-directory) nil nil initial
+                                   (lambda (f)
+                                     (or (denote-file-has-identifier-p f)
+                                         (file-directory-p f))))))
+      (if (file-exists-p target)
+          (find-file target)
+        (denote title '("journal") denote-file-type nil date))))
 
 
-(with-eval-after-load 'org-capture
-  (setq denote-org-capture-specifiers "%l\n%i\n%?")
-  (add-to-list 'org-capture-templates
-               '("n" "New note (with denote.el)" plain
-                 (file denote-last-path)
-                 #'denote-org-capture
-                 :no-save t
-                 :immediate-finish nil
-                 :kill-buffer t
-                 :jump-to-captured t)))
+  (with-eval-after-load 'org-capture
+    (setq denote-org-capture-specifiers "%l\n%i\n%?")
+    (add-to-list 'org-capture-templates
+                 '("n" "New note (with denote.el)" plain
+                   (file denote-last-path)
+                   #'denote-org-capture
+                   :no-save t
+                   :immediate-finish nil
+                   :kill-buffer t
+                   :jump-to-captured t)))
 
+  ))
+
+(unless d/on-droid
 (use-package olivetti
   :defer t
   :hook ((text-mode         . olivetti-mode)
@@ -1147,7 +1160,9 @@ selected color."
   :custom
   (olivetti-body-width 0.8)
   :delight " ⊛")
+)
 
+(unless d/on-droid
 (use-package doom-modeline
   :init (doom-modeline-mode 1)
   (setq doom-modeline-time-icon nil)
@@ -1156,6 +1171,7 @@ selected color."
   (setq inhibit-compacting-font-caches t)
   :custom ((doom-modeline-height 30)
            (doom-modeline-buffer-encoding nil)))
+)
 
 ;; to hide during presentation and writing
 (use-package hide-mode-line
@@ -1206,13 +1222,13 @@ selected color."
   (interactive)
   (pixel-scroll-precision-scroll-up 20))
 
-(use-package nix-mode
-  :mode "\\.nix\\'"
-  :defer t)
+(unless d/on-droid
+  (use-package nix-mode
+    :mode "\\.nix\\'"
+    :defer t))
 
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 ;;(add-hook 'prog-mode-hook #'eglot-ensure)
-(add-hook 'prog-mode-hook #'flycheck-mode)
 
 (use-package markdown-mode
   :defer t
@@ -1227,12 +1243,14 @@ selected color."
       (set-face-attribute (car face) nil :weight 'normal :font haki-heading-font :height (cdr face))))
 
   (defun d/markdown-mode-hook ()
-    (d/set-markdown-header-font-sizes))
+    (d/set-markdown-header-font-sizes)))
 
-  (add-hook 'markdown-mode-hook 'd/markdown-mode-hook))
+;; (add-hook 'markdown-mode-hook 'd/markdown-mode-hook)
 
 (use-package eglot
   :defer t
+  :ensure nil
+  :unless d/on-droid
   :commands (eglot eglot-format eglot-managed-p eglot--major-mode)
   ;; (((web-mode rust-mode python-mode sh-mode c-mode c++-mode nix-mode) .
   ;; eglot-ensure)
@@ -1258,8 +1276,33 @@ selected color."
 ;;   :disabled t
 ;;   :load-path "~/.config/emacs/elpa/eglot-tempel")
 
+(use-package treesit
+  :ensure nil
+  :custom
+  (major-mode-remap-alist
+   '((c-mode . c-ts-mode)
+     (c++-mode . c++-ts-mode)
+     (csharp-mode . csharp-ts-mode)
+     (css-mode . css-ts-mode)
+     (html-mode . html-ts-mode)
+     (java-mode . java-ts-mode)
+     (js-mode . js-ts-mode)
+     (json-mode . json-ts-mode)
+     (makefile-mode . makefile-ts-mode)
+     ;; (org-mode . org-ts-mode) ;; not mature yet
+     (python-mode . python-ts-mode)
+     (typescript-mode . typescript-ts-mode)
+     (sh-mode . bash-ts-mode)
+     (ruby-mode . ruby-ts-mode)
+     (rust-mode . rust-ts-mode)
+     (toml-mode . toml-ts-mode)
+     (yaml-mode . yaml-ts-mode))))
+
+(use-package nerd-icons
+  :custom
+  (nerd-icons-font-family d/fixed-width-font))
+
 (use-package kind-icon
-  :ensure t
   :after corfu
   :custom
   (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly
@@ -1306,6 +1349,7 @@ selected color."
           (variable ,(nerd-icons-codicon "nf-cod-symbol_variable") :face font-lock-variable-name-face)
           (t ,(nerd-icons-codicon "nf-cod-code") :face font-lock-warning-face))))
 
+(unless d/on-droid
 (use-package magit
   :defer t
   :config
@@ -1314,128 +1358,129 @@ selected color."
   :commands (magit-status magit-get-current-branch)
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+)
 
-;; We need to define setup for keyboard layout
+(unless d/on-droid
+(use-package meow
+  :defer 2
+  :config
+  (defun meow-setup ()
+    (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
+    (setq meow-use-cursor-position-hack t)
+    (meow-motion-overwrite-define-key
+     '("j" . meow-next)
+     '("k" . meow-prev)
+     '("<escape>" . ignore))
+    (meow-leader-define-key
+     ;; SPC j/k will run the original command in MOTION state.
+     '("j" . "H-j")
+     '("k" . "H-k")
+     ;; Use SPC (0-9) for digit arguments.
+     '("1" . meow-digit-argument)
+     '("2" . meow-digit-argument)
+     '("3" . meow-digit-argument)
+     '("4" . meow-digit-argument)
+     '("5" . meow-digit-argument)
+     '("6" . meow-digit-argument)
+     '("7" . meow-digit-argument)
+     '("8" . meow-digit-argument)
+     '("9" . meow-digit-argument)
+     '("0" . meow-digit-argument)
+     '("/" . meow-keypad-describe-key)
+     '("?" . meow-cheatsheet))
+    (meow-normal-define-key
+     '("0" . meow-expand-0)
+     '("9" . meow-expand-9)
+     '("8" . meow-expand-8)
+     '("7" . meow-expand-7)
+     '("6" . meow-expand-6)
+     '("5" . meow-expand-5)
+     '("4" . meow-expand-4)
+     '("3" . meow-expand-3)
+     '("2" . meow-expand-2)
+     '("1" . meow-expand-1)
+     '("-" . negative-argument)
+     '(";" . meow-reverse)
+     '("," . meow-inner-of-thing)
+     '("." . meow-bounds-of-thing)
+     '("[" . meow-beginning-of-thing)
+     '("]" . meow-end-of-thing)
+     '("a" . meow-append)
+     '("A" . meow-open-below)
+     '("b" . meow-back-word)
+     '("B" . meow-back-symbol)
+     '("c" . meow-change)
+     '("d" . meow-delete)
+     '("D" . meow-backward-delete)
+     '("e" . meow-next-word)
+     '("E" . meow-next-symbol)
+     '("f" . meow-find)
+     '("g" . meow-cancel-selection)
+     '("G" . meow-grab)
+     '("h" . meow-left)
+     '("H" . meow-left-expand)
+     '("i" . meow-insert)
+     '("I" . meow-open-above)
+     '("j" . meow-next)
+     '("J" . meow-next-expand)
+     '("k" . meow-prev)
+     '("K" . meow-prev-expand)
+     '("l" . meow-right)
+     '("L" . meow-right-expand)
+     '("m" . meow-join)
+     '("n" . meow-search)
+     '("o" . meow-block)
+     '("O" . meow-to-block)
+     '("p" . meow-yank)
+     '("q" . meow-quit)
+     '("Q" . meow-goto-line)
+     '("r" . meow-replace)
+     '("R" . meow-swap-grab)
+     '("x" . meow-kill)
+     '("t" . meow-till)
+     '("u" . meow-undo)
+     '("U" . meow-undo-in-selection)
+     '("v" . meow-visit)
+     '("w" . meow-mark-word)
+     '("W" . meow-mark-symbol)
+     '("s" . meow-line)
+     '("X" . meow-goto-line)
+     '("y" . meow-save)
+     '("Y" . meow-sync-grab)
+     '("z" . meow-pop-selection)
+     '("'" . repeat)
+     '("<escape>" . ignore)))
 
-(require 'meow)
+  (setq meow-replace-state-name-list
+        '((normal . "")
+          (motion . "")
+          (keypad . "")
+          (insert . "")
+          (beacon . "")))
 
-(defun meow-setup ()
-  (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
-  (setq meow-use-cursor-position-hack t)
-  (meow-motion-overwrite-define-key
-   '("j" . meow-next)
-   '("k" . meow-prev)
-   '("<escape>" . ignore))
-  (meow-leader-define-key
-   ;; SPC j/k will run the original command in MOTION state.
-   '("j" . "H-j")
-   '("k" . "H-k")
-   ;; Use SPC (0-9) for digit arguments.
-   '("1" . meow-digit-argument)
-   '("2" . meow-digit-argument)
-   '("3" . meow-digit-argument)
-   '("4" . meow-digit-argument)
-   '("5" . meow-digit-argument)
-   '("6" . meow-digit-argument)
-   '("7" . meow-digit-argument)
-   '("8" . meow-digit-argument)
-   '("9" . meow-digit-argument)
-   '("0" . meow-digit-argument)
-   '("/" . meow-keypad-describe-key)
-   '("?" . meow-cheatsheet))
-  (meow-normal-define-key
-   '("0" . meow-expand-0)
-   '("9" . meow-expand-9)
-   '("8" . meow-expand-8)
-   '("7" . meow-expand-7)
-   '("6" . meow-expand-6)
-   '("5" . meow-expand-5)
-   '("4" . meow-expand-4)
-   '("3" . meow-expand-3)
-   '("2" . meow-expand-2)
-   '("1" . meow-expand-1)
-   '("-" . negative-argument)
-   '(";" . meow-reverse)
-   '("," . meow-inner-of-thing)
-   '("." . meow-bounds-of-thing)
-   '("[" . meow-beginning-of-thing)
-   '("]" . meow-end-of-thing)
-   '("a" . meow-append)
-   '("A" . meow-open-below)
-   '("b" . meow-back-word)
-   '("B" . meow-back-symbol)
-   '("c" . meow-change)
-   '("d" . meow-delete)
-   '("D" . meow-backward-delete)
-   '("e" . meow-next-word)
-   '("E" . meow-next-symbol)
-   '("f" . meow-find)
-   '("g" . meow-cancel-selection)
-   '("G" . meow-grab)
-   '("h" . meow-left)
-   '("H" . meow-left-expand)
-   '("i" . meow-insert)
-   '("I" . meow-open-above)
-   '("j" . meow-next)
-   '("J" . meow-next-expand)
-   '("k" . meow-prev)
-   '("K" . meow-prev-expand)
-   '("l" . meow-right)
-   '("L" . meow-right-expand)
-   '("m" . meow-join)
-   '("n" . meow-search)
-   '("o" . meow-block)
-   '("O" . meow-to-block)
-   '("p" . meow-yank)
-   '("q" . meow-quit)
-   '("Q" . meow-goto-line)
-   '("r" . meow-replace)
-   '("R" . meow-swap-grab)
-   '("x" . meow-kill)
-   '("t" . meow-till)
-   '("u" . meow-undo)
-   '("U" . meow-undo-in-selection)
-   '("v" . meow-visit)
-   '("w" . meow-mark-word)
-   '("W" . meow-mark-symbol)
-   '("s" . meow-line)
-   '("X" . meow-goto-line)
-   '("y" . meow-save)
-   '("Y" . meow-sync-grab)
-   '("z" . meow-pop-selection)
-   '("'" . repeat)
-   '("<escape>" . ignore)))
+  (add-to-list 'meow-mode-state-list '(vterm-mode . insert))
+  (add-to-list 'meow-mode-state-list '(eshell-mode . insert))
+  (add-to-list 'meow-mode-state-list '(eww-mode . insert))
+  (add-to-list 'meow-mode-state-list '(sdcv-mode . motion))
 
-(setq meow-replace-state-name-list
-      '((normal . "")
-        (motion . "")
-        (keypad . "")
-        (insert . "")
-        (beacon . "")))
+                                        ;meow-thing-register THING INNER BOUNDS
+  (meow-thing-register 'arrow '(pair ("<") (">")) '(pair ("<") (">")))
+  (add-to-list 'meow-char-thing-table '(?a . arrow))
 
-(add-to-list 'meow-mode-state-list '(vterm-mode . insert))
-(add-to-list 'meow-mode-state-list '(eshell-mode . insert))
-(add-to-list 'meow-mode-state-list '(eww-mode . insert))
-(add-to-list 'meow-mode-state-list '(sdcv-mode . motion))
-
-;meow-thing-register THING INNER BOUNDS
-(meow-thing-register 'arrow '(pair ("<") (">")) '(pair ("<") (">")))
-(add-to-list 'meow-char-thing-table '(?a . arrow))
-
-(setq meow-use-clipboard t)
-(meow-setup)
-(meow-global-mode 1)
+  (setq meow-use-clipboard t)
+  (meow-setup)
+  (meow-global-mode 1))
+)
 
 (use-package dired
   :defer t
-  :init (dirvish-override-dired-mode)
   :ensure nil
   :commands (dired dired-jump)
   :bind (("C-x C-j" . dired-jump)
          ("C-c f f" . window-focus-mode)
-         ("C-c f e" . (lambda () (interactive) (find-file (expand-file-name "~/d-git/d-nix/d-emacs.org"))))
-         ("C-c f s" . (lambda () (interactive) (find-file (expand-file-name "~/d-git/d-nix/d-setup.org"))))
-         ("C-c f m" . (lambda () (interactive) (find-file (expand-file-name "~/d-git/d-nix/README.org"))))
+         ("C-c f e" . (lambda () (interactive) (find-file (if d/on-droid "~/.config/emacs/init.el" "~/d-git/d-nix/d-emacs.org"))))
+         ("C-c f s" . (lambda () (interactive) (find-file "~/d-git/d-nix/d-setup.org")))
+         ("C-c f m" . (lambda () (interactive) (find-file "~/d-git/d-nix/README.org")))
          ("C-x C-d" . dirvish))
   (:map dired-mode-map
         ("q" . kill-buffer-and-window)
@@ -1443,7 +1488,6 @@ selected color."
         ("k" . dired-previous-line)
         ("l" . dired-find-file)
         ("h" . dired-up-directory)
-        ("C-x C-k" . dirvish-quit)
         ("b" . d/external-browser))
 
   :custom ((dired-listing-switches "-agho --group-directories-first")))
@@ -1451,6 +1495,82 @@ selected color."
 (add-hook 'dired-mode-hook 'dired-hide-details-mode)
 (add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))
 
+;; Battery pack
+(unless d/on-droid
+(use-package dirvish
+  :init
+  (dirvish-override-dired-mode)
+  :custom
+  (dirvish-quick-access-entries
+   '(("h" "~/"                          "Home")
+     ("d" "~/dloads/"                "Downloads")
+     ;; ("m" "/mnt/"                       "Drives")
+     ("t" "~/.local/share/Trash/files/" "TrashCan")))
+  :config
+  ;; (dirvish-peek-mode) ; Preview files in minibuffer
+  (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
+  (setq dirvish-mode-line-format
+        '(:left (sort symlink) :right (omit yank index)))
+  (setq dirvish-attributes
+        '(file-time file-size collapse subtree-state vc-state git-msg))
+  (setq delete-by-moving-to-trash t)
+  (setq dired-listing-switches
+        "-l --almost-all --human-readable --group-directories-first --no-group")
+
+  ;; with emacs29
+  (setq dired-mouse-drag-files t)
+  (setq mouse-drag-and-drop-region-cross-program t)
+  (setq mouse-1-click-follows-link nil)
+
+  :bind
+  (("C-c f d" . dirvish-fd)
+   ("C-c f t" . dirvish-side)
+   :map dirvish-mode-map
+   ("<mouse-1>" . 'dirvish-subtree-toggle-or-open)    
+   ("<mouse-2>" . 'dired-mouse-find-file-other-window)
+   ("<mouse-3>" . 'dired-mouse-find-file)
+   ("a"   . dirvish-quick-access)
+   ("C-x C-k" . dirvish-quit)
+   ("f"   . dirvish-file-info-menu)
+   ("y"   . dirvish-yank-menu)
+   ("N"   . dirvish-narrow)
+   ("^"   . dirvish-history-last)
+   ("h"   . dirvish-history-jump) ; remapped `describe-mode'
+   ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
+   ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
+   ("TAB" . dirvish-subtree-toggle)
+   ("M-f" . dirvish-history-go-forward)
+   ("M-b" . dirvish-history-go-backward)
+   ("M-l" . dirvish-ls-switches-menu)
+   ("M-m" . dirvish-mark-menu)
+   ("M-t" . dirvish-layout-toggle)
+   ("M-s" . dirvish-setup-menu)
+   ("M-e" . dirvish-emerge-menu)
+   ("M-j" . dirvish-fd-jump)))
+)
+
+
+(use-package tramp
+  :config
+  ;; Enable full-featured Dirvish over TRAMP on certain connections
+  ;; https://www.gnu.org/software/tramp/#Improving-performance-of-asynchronous-remote-processes-1.
+  (add-to-list 'tramp-connection-properties
+               (list (regexp-quote "/ssh:YOUR_HOSTNAME:")
+                     "direct-async-process" t))
+  ;; Tips to speed up connections
+  (setq tramp-verbose 0)
+  (setq tramp-chunksize 2000)
+  (setq tramp-use-ssh-controlmaster-options nil))
+
+
+(use-package dired-x
+  :ensure nil
+  :config
+  ;; Make dired-omit-mode hide all "dotfiles"
+  (setq dired-omit-files
+        (concat dired-omit-files "\\|^\\..*$")))
+
+(unless d/on-droid
 (use-package vterm
   :defer t
   :bind
@@ -1479,26 +1599,74 @@ selected color."
               ("M-p" . multi-vterm-prev))
   :config
   (setq multi-vterm-dedicated-window-height-percent 30))
+)
 
 ;; nixos issue for loading mu4e
 ;; (add-to-list 'load-path "/etc/profiles/per-user/i/share/emacs/site-lisp/mu4e/")
 
-(use-package reddigg
-  :defer t
-  :bind (("C-c d f" . reddigg-view-frontpage)
-         ("C-c d r" . reddigg-view-sub))
-  :config
-  (setq org-confirm-elisp-link-function nil)
-  (setq reddigg-subs '(bangalore india emacs fossdroid piracy aww)))
+(unless d/on-droid
+  (use-package reddigg
+    :defer t
+    :bind (("C-c d f" . reddigg-view-frontpage)
+           ("C-c d r" . reddigg-view-sub))
+    :config
+    (setq org-confirm-elisp-link-function nil)
+    (setq reddigg-subs '(bangalore india emacs fossdroid piracy aww)))
 
-(use-package hnreader
-  :defer t)
+  (use-package hnreader
+    :defer t)
 
-;; (use-package howdoyou)
-;; (use-package undo-fu
-;;   :bind ("C-M-r" . undo-fu-only-redo)
-;;   ("C-z" . undo-fu-only-undo)
-;;   ("C-S-z" . undo-fu-only-redo-all))
+  ;; (use-package howdoyou)
+  ;; (use-package undo-fu
+  ;;   :bind ("C-M-r" . undo-fu-only-redo)
+  ;;   ("C-z" . undo-fu-only-undo)
+  ;;   ("C-S-z" . undo-fu-only-redo-all))
+
+  (use-package flycheck
+    :defer t
+    :hook (prog-mode . flycheck-mode))
+  ;; :init (global-flycheck-mode))
+
+  (use-package mingus
+    :defer t
+    :bind ("C-c d m" . mingus-browse)
+    (:map mingus-browse-mode-map
+          ("h" . mingus-browse-top-level)
+          ("l" . mingus-down-dir-or-play-song))
+    :config
+    (advice-add 'mingus-playlist-mode :after #'olivetti-mode)
+    (advice-add 'mingus-browse-mode :after #'olivetti-mode))
+  ;; (use-package wikinforg)
+
+  (use-package webpaste
+    :defer t
+    :bind (("C-c C-p C-b" . webpaste-paste-buffer)
+           ("C-c C-p C-r" . webpaste-paste-region)
+           ("C-c C-p C-p" . webpaste-paste-buffer-or-region))
+    :config
+    (setq webpaste-provider-priority '("dpaste.org" "dpaste.com" "paste.mozilla.org"))
+    ;; Require confirmation before doing paste
+    (setq webpaste-paste-confirmation t))
+
+  (use-package sdcv
+    :defer t
+    :hook (sdcv-mode . hide-mode-line-mode)
+    :config
+    (setq sdcv-say-word-p t
+          sdcv-dictionary-data-dir "~/d-git/d-bin/treasure/dict/"
+          sdcv-dictionary-simple-list
+          '("wn" "mw-thesaurus" "enjp")
+          sdcv-popup-function 'popup-tip
+          sdcv-buffer-name "StarDict")
+    :bind (("C-c d w" . sdcv-search-input)
+           ("C-c d d" . sdcv-search-input+))
+    (:map sdcv-mode-map
+          ("q" . kill-buffer-and-window)
+          ("n" . sdcv-next-dictionary)
+          ("TAB" . hide-entry)
+          ("<backtab>" . show-entry)
+          ("p" . sdcv-previous-dictionary)))
+  )
 
 (use-package undo-fu-session
   :init (undo-fu-session-global-mode)
@@ -1512,51 +1680,7 @@ selected color."
          ("C-S-z" . undo-redo)
          ("C-M-r" . undo-redo)))
 
-(use-package flycheck
-  :defer t
-  :hook (prog-mode . flycheck-mode))
-;; :init (global-flycheck-mode))
-
-(use-package mingus
-  :defer t
-  :bind ("C-c d m" . mingus-browse)
-  (:map mingus-browse-mode-map
-        ("h" . mingus-browse-top-level)
-        ("l" . mingus-down-dir-or-play-song))
-  :config
-  (advice-add 'mingus-playlist-mode :after #'olivetti-mode)
-  (advice-add 'mingus-browse-mode :after #'olivetti-mode))
-;; (use-package wikinforg)
-
-(use-package webpaste
-  :defer t
-  :bind (("C-c C-p C-b" . webpaste-paste-buffer)
-         ("C-c C-p C-r" . webpaste-paste-region)
-         ("C-c C-p C-p" . webpaste-paste-buffer-or-region))
-  :config
-  (setq webpaste-provider-priority '("dpaste.org" "dpaste.com" "paste.mozilla.org"))
-  ;; Require confirmation before doing paste
-  (setq webpaste-paste-confirmation t))
-
-(use-package sdcv
-  :defer t
-  :hook (sdcv-mode . hide-mode-line-mode)
-  :config
-  (setq sdcv-say-word-p t
-        sdcv-dictionary-data-dir "~/d-git/d-bin/treasure/dict/"
-        sdcv-dictionary-simple-list
-        '("wn" "mw-thesaurus" "enjp")
-        sdcv-popup-function 'popup-tip
-        sdcv-buffer-name "StarDict")
-  :bind (("C-c d w" . sdcv-search-input)
-         ("C-c d d" . sdcv-search-input+))
-  (:map sdcv-mode-map
-        ("q" . kill-buffer-and-window)
-        ("n" . sdcv-next-dictionary)
-        ("TAB" . hide-entry)
-        ("<backtab>" . show-entry)
-        ("p" . sdcv-previous-dictionary)))
-
+(unless d/on-droid
 (use-package nov
   :hook ((nov-mode . hide-mode-line-mode))
   :mode ("\\.epub\\'" . nov-mode)
@@ -1564,6 +1688,7 @@ selected color."
   (setq nov-text-width t)
   (setq nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title)))
   (setq nov-shr-rendering-functions (append nov-shr-rendering-functions shr-external-rendering-functions)))
+)
 
 (defun shrface-default-keybindings ()
   (interactive)
@@ -1598,7 +1723,6 @@ selected color."
 
 ;; To highligh src blocks in eww
 (use-package shr-tag-pre-highlight
-  :ensure t
   :after shr
   :config
 
@@ -1640,6 +1764,7 @@ selected color."
       (advice-add 'eww-display-html :around
                   'eww-display-html--override-shr-external-rendering-functions))))
 
+(unless d/on-droid
 (use-package pdf-tools
   :defer t
   :init
@@ -1673,22 +1798,23 @@ selected color."
   (define-key pdf-view-mode-map (kbd "M-g g") 'pdf-view-goto-page)
   (setq pdf-outline-imenu-use-flat-menus t)
   (setq pdf-view-resize-factor 1.1))
-
+)
 
 (defun d/kill-buffer ()
   "Clear the image cache (to release memory) after killing a pdf buffer."
   (interactive)
   (if (one-window-p) (kill-this-buffer)
     (kill-buffer-and-window))
-  (clear-image-cache t)
-  (pdf-cache-clear-data))
+  (clear-image-cache)
+  (unless d/on-droid (pdf-cache-clear-data)))
 
-(define-key image-mode-map (kbd "q") 'd/kill-buffer)
+(unless d/on-droid
+  (define-key image-mode-map (kbd "q") 'd/kill-buffer)
 
-;; For Comic Manga
-(add-hook 'image-mode-hook (lambda ()
-                             (olivetti-mode)
-                             (setq olivetti-body-width 0.45)))
+  ;; For Comic Manga
+  (add-hook 'image-mode-hook (lambda ()
+                               (olivetti-mode)
+                               (setq olivetti-body-width 0.45))))
 
 (use-package man
   :bind (("C-c m" . consult-man)
@@ -1746,102 +1872,117 @@ selected color."
               (keymap (copy-keymap orig-keymap))
               (exit-func (set-transient-map keymap t #'which-key-abort)))
     (define-key keymap [remap keyboard-quit]
-      (lambda () (interactive) (funcall exit-func)))
+                (lambda () (interactive) (funcall exit-func)))
     (which-key--create-buffer-and-show nil keymap)))
 
 (setq prefix-help-command #'repeated-prefix-help-command)
 
 ;; This is for managing nixos config
 (defun get-named-src-block-contents (name &optional trim)
-"Return the contents of the named Org source block."
-(let* ((block (org-element-map (org-element-parse-buffer) 'src-block
-                (lambda (src-block)
-                  (when (string= name (org-element-property :name src-block))
+  "Return the contents of the named Org source block."
+  (let* ((block (org-element-map (org-element-parse-buffer) 'src-block
+                  (lambda (src-block)
+                    (when (string= name (org-element-property :name src-block))
                       src-block))
-                nil t))
-       (source (org-element-property :value block)))
-  (if trim
-      (string-trim source)
-    source)))
+                  nil t))
+         (source (org-element-property :value block)))
+    (if trim
+        (string-trim source)
+      source)))
 
 (use-package elfeed
-    :defer t
-    :hook (elfeed-show-mode . d/elfeed-ui)
-    :bind ("C-c d e" . elfeed)
-    ("C-c d b" . d/external-browser)
-    (:map elfeed-show-mode-map
-          ("e" . elfeed-open-in-eww)
-          ("i" . d/bionic-read)
-          ("r" . elfeed-open-in-reddit)
-          ("m" . elfeed-toggle-show-star)
-          ("b" . d/external-browser))
-    (:map elfeed-search-mode-map
-          ("m" . elfeed-toggle-star)
-          ("U" . elfeed-update)
-          ("u" . elfeed-update-feed))
-    :config
-    ;; (setq-default elfeed-search-filter "@1-week-ago--1-day-ago +unread -news +")
-    (setq-default elfeed-search-filter "+unread +")
-    (setq elfeed-search-date-format `("%m-%d 📰" 7 :left))
-    (setq elfeed-search-title-max-width 90
-          elfeed-search-trailing-width 0)
-    (defalias 'elfeed-toggle-show-star
-      (elfeed-expose #'elfeed-show-tag 'star))
-    (defalias 'elfeed-toggle-star
-      (elfeed-expose #'elfeed-search-toggle-all 'star))
+  :defer t
+  :hook (elfeed-show-mode . d/elfeed-ui)
+  :bind ("C-c d e" . d/elfeed-open)
+  ("C-c d b" . d/external-browser)
+  (:map elfeed-show-mode-map
+        ("e" . elfeed-open-in-eww)
+        ("i" . d/bionic-read)
+        ("r" . elfeed-open-in-reddit)
+        ("m" . elfeed-toggle-show-star)
+        ("b" . d/external-browser))
+  (:map elfeed-search-mode-map
+        ("m" . elfeed-toggle-star)
+        ("q" . d/elfeed-quit)
+        ("C-x C-k" . d/elfeed-quit)
+        ("U" . elfeed-update)
+        ("u" . elfeed-update-feed))
+  :config
+  ;; (setq-default elfeed-search-filter "@1-week-ago--1-day-ago +unread -news +")
+  (setq-default elfeed-search-filter "+unread +")
+  (setq elfeed-search-date-format `("%m-%d " 7 :left))
+  (setq elfeed-search-title-max-width 90
+        elfeed-search-trailing-width 0)
+  (defalias 'elfeed-toggle-show-star
+    (elfeed-expose #'elfeed-show-tag 'star))
+  (defalias 'elfeed-toggle-star
+    (elfeed-expose #'elfeed-search-toggle-all 'star))
 
-    (defun d/elfeed-ui ()
-      (interactive)
-      (setq-local header-line-format " "))
-
-
-    ;; face for starred articles
-    (defface elfeed-search-star-title-face
-      '((t :foreground "#f77"))
-      "Marks a starred Elfeed entry.")
-
-    (push '(star elfeed-search-star-title-face) elfeed-search-face-alist))
-
-  (use-package link-hint
-    :defer t
-    :ensure t
-    :bind
-    ("C-c l o" . link-hint-open-link)
-    ("C-c l c" . link-hint-copy-link))
-
-  (use-package avy
-    :defer t
-    :bind
-    ("M-j" . avy-goto-char-timer)
-    ("M-K" . avy-kill-region)
-    ("C-S-k" . avy-kill-whole-line)
-    :config
-    (setq avy-background t))
-
-  (use-package elfeed-org
-    :after elfeed
-    :config
-    (elfeed-org)
-    (setq rmh-elfeed-org-files (list "~/.config/emacs/elfeed.org")))
-
-  (defun readable-article ()
+  (defun d/elfeed-ui ()
     (interactive)
-    (eww-readable)
-    ;; (d/bionic-read)
-    (beginning-of-buffer))
+    (setq-local header-line-format " "))
 
-  (defun elfeed-open-in-eww ()
-    "open in eww"
+  (defun d/elfeed-open ()
+    "Wrapper to load the elfeed db from disk before opening"
     (interactive)
-    (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
-      (eww (elfeed-entry-link entry))
-      (add-hook 'eww-after-render-hook 'readable-article)))
+    (elfeed-db-load)
+    (elfeed)
+    (elfeed-search-update--force))
+    ;; (elfeed-update))
 
-  (defun elfeed-open-in-reddit ()
-    "open in reddit"
+  ;;write to disk when quiting
+  (defun d/elfeed-quit ()
+    "Wrapper to save the elfeed db to disk before burying buffer"
     (interactive)
-    (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
-      (reddigg-view-comments (elfeed-entry-link entry))))
+    (elfeed-db-save)
+    (quit-window))
+
+  ;; face for starred articles
+  (defface elfeed-search-star-title-face
+    '((t :foreground "#f77"))
+    "Marks a starred Elfeed entry.")
+
+  (push '(star elfeed-search-star-title-face) elfeed-search-face-alist))
+
+(use-package link-hint
+  :defer t
+  :bind
+  ("C-c l o" . link-hint-open-link)
+  ("C-c l c" . link-hint-copy-link))
+
+(use-package avy
+  :defer t
+  :bind
+  ("M-j" . avy-goto-char-timer)
+  ("M-K" . avy-kill-region)
+  ("C-S-k" . avy-kill-whole-line)
+  :config
+  (setq avy-background t))
+
+(use-package elfeed-org
+  :after elfeed
+  :config
+  (elfeed-org)
+  (setq rmh-elfeed-org-files (list "~/.config/emacs/elfeed.org")))
+
+(defun readable-article ()
+  (interactive)
+  (eww-readable)
+  ;; (d/bionic-read)
+  (beginning-of-buffer))
+
+(defun elfeed-open-in-eww ()
+  "open in eww"
+  (interactive)
+  (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
+    (eww (elfeed-entry-link entry))
+    (add-hook 'eww-after-render-hook 'readable-article)))
+
+(defun elfeed-open-in-reddit ()
+  "open in reddit"
+  (interactive)
+  (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
+    (reddigg-view-comments (elfeed-entry-link entry))))
 
 (use-package eww
   :bind (:map eww-mode-map
@@ -1871,7 +2012,7 @@ selected color."
                                     (plist-get bm :title))
                             'url (plist-get bm :url)))
                          eww-bookmarks))))
-(add-to-list 'consult-buffer-sources 'consult--source-eww 'append))
+  (add-to-list 'consult-buffer-sources 'consult--source-eww 'append))
 
 (use-package gnutls
   :defer t
@@ -1881,13 +2022,14 @@ selected color."
 (defun d/external-browser ()
   (interactive)
   (cond ((image-at-point-p) (kill-new (or (shr-url-at-point nil) (plist-get (cdr (image--get-image)) :file))))
-        ((or (thing-at-point 'url t) (thing-at-point 'filename t) (shr-url-at-point nil)) (link-hint-copy-link-at-point))
+        ((or (thing-at-point 'url t) (dired-file-name-at-point) (shr-url-at-point nil)) (link-hint-copy-link-at-point))
         (t (link-hint-copy-link)))
   (let ((url (current-kill 0)))
     (browse-url-generic url)))
 
 ;; (advice-add 'eww-readable :after #'d/bionic-read)
 
+(unless d/on-droid
 (use-package ement
   :bind (:map ement-room-minibuffer-map
               ("<f6>" . ement-room-compose-from-minibuffer))
@@ -1912,8 +2054,11 @@ selected color."
              (password (funcall (plist-get entry :secret)))
              (user (plist-get entry :user)))
         (ement-connect :user-id user :password password)))))
+)
 
 (use-package ox-hugo
+  :ensure nil
+  :unless d/on-droid
   :after ox)
 
 (setq inhibit-startup-message t)
@@ -1923,18 +2068,15 @@ selected color."
 (tooltip-mode -1)           ; Disable tooltips
 (setq set-fringe-style "default")        ; Give some breathing room
 
-(menu-bar-mode -1)            ; Disable the menu bar
-
 ;; (setq-default mode-line-format nil)
 
 ;; (server-start)
 
-(visual-line-mode 1)
+(global-visual-line-mode 1)
 
 ;; Display messages when idle, without prompting
 (setq help-at-pt-display-when-idle t)
 (setopt read-quoted-char-radix 16)
-(setq use-dialog-box nil)
 (setopt set-mark-command-repeat-pop t)
 (setq sentence-end-double-space nil)
 (setq sentence-end "[.?!] ")
@@ -1980,6 +2122,7 @@ selected color."
 (delete-selection-mode +1)
 (save-place-mode t)
 
+(setq reb-re-syntax 'string)
 ;;(display-battery-mode t)
 ;;(setq display-time;5;9~-default-load-average nil)
 ;;(setq display-time-24hr-format t)
@@ -2037,12 +2180,20 @@ selected color."
 
 (setq fill-column 80)
 
+(when d/on-droid
+  ;; access phone storage as default
+  (setq default-directory "/storage/emulated/0/")
+  (setq touch-screen-precision-scroll t)
+  (setq touch-screen-display-keyboard t)
+  ;; (setq use-dialog-box nil)
+  )
+
 (if (daemonp)
     (add-hook 'after-make-frame-functions
               (lambda (frame)
                 (setq doom-modeline-icon t)
                 (with-selected-frame frame
                   (d/set-font-faces))))
-    (d/set-font-faces))
+  (d/set-font-faces))
 (setq doom-modeline-icon t)
- (put 'narrow-to-region 'disabled nil)
+(put 'narrow-to-region 'disabled nil)

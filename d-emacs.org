@@ -27,7 +27,7 @@ CLOSED: [2023-03-07 Tue 14:27]
 **** 😴 Planning  [1/3]
 - [ ] Add daily quotes for ~initial-scratch-message~
 - [ ] Learn more stuffs from Experienced and Master Users, like Purcell, bbsatov and others
-
+  
 ** ✨ TLDWR - Features
 /too long, don't wanna read/
 
@@ -1044,13 +1044,13 @@ You will see org just below this, this package helps make Org-Mode looks eye-can
      org-pretty-entities t
      ;;   org-ellipsis "…"
 
-     org-modern-star '("" "󰓏" "☘" "✿" "󱨧")
+     org-modern-star '("◉" "✪" "◈" "✿" "❂")
      org-modern-hide-stars 'leading
      org-modern-table t
      org-modern-list
-     '((?* . "󰸷")
-       (?- . "󰣏")
-       (?+ . ""))
+     '((?* . "⁍")
+       (?- . "❖")
+       (?+ . "➤"))
 
      ;; Agenda styling
      org-agenda-tags-column 0
@@ -1140,7 +1140,7 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
            :map org-mode-map
            ("C-c o b" . d/edit-src-block))
     :config
-    (setq org-ellipsis " 樂")
+    (setq org-ellipsis " ▾")
 
     (setq org-agenda-start-with-log-mode t)
     ;; (setq org-log-done 'time)
@@ -1915,10 +1915,9 @@ Not that intuitive to use as file manager, once you get a hand of emacs. You wil
     :commands (dired dired-jump)
     :bind (("C-x C-j" . dired-jump)
            ("C-c f f" . window-focus-mode)
-           ("C-c f e" . (lambda () (interactive) (find-file (if d/on-droid "~/.config/emacs/init.el" "~/d-git/d-nix/d-emacs.org"))))
+           ("C-c f e" . (lambda () (interactive) (find-file "~/d-git/d-nix/d-emacs.org")))
            ("C-c f s" . (lambda () (interactive) (find-file "~/d-git/d-nix/d-setup.org")))
-           ("C-c f m" . (lambda () (interactive) (find-file "~/d-git/d-nix/README.org")))
-           ("C-x C-d" . dirvish))
+           ("C-c f m" . (lambda () (interactive) (find-file "~/d-git/d-nix/README.org"))))
     (:map dired-mode-map
           ("q" . kill-buffer-and-window)
           ("j" . dired-next-line)
@@ -1927,10 +1926,11 @@ Not that intuitive to use as file manager, once you get a hand of emacs. You wil
           ("h" . dired-up-directory)
           ("b" . d/external-browser))
 
-    :custom ((dired-listing-switches "-agho --group-directories-first")))
-  (setq dired-listing-switches "-alt --dired --group-directories-first -h -G")
-  (add-hook 'dired-mode-hook 'dired-hide-details-mode)
-  (add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))
+    :custom (dired-listing-switches "-agho --group-directories-first")
+    :config
+    (setq dired-listing-switches "-alt --dired --group-directories-first -h -G")
+    (add-hook 'dired-mode-hook 'dired-hide-details-mode)
+    (add-hook 'dired-mode-hook (lambda () (dired-omit-mode))))
 
   ;; Battery pack
   (unless d/on-droid
@@ -1961,6 +1961,7 @@ Not that intuitive to use as file manager, once you get a hand of emacs. You wil
 
     :bind
     (("C-c f d" . dirvish-fd)
+     ("C-x C-d" . dirvish)
      ("C-c f t" . dirvish-side)
      :map dirvish-mode-map
      ("<mouse-1>" . 'dirvish-subtree-toggle-or-open)    
@@ -2129,7 +2130,7 @@ Some small codes from good source.
 ** 📚 Epub - Nov
 Nov is one of the gem which really makes epub reading more sense in emacs; Embrace the Text!
 You dont have to learn another software or ask for features, get it in emacs-way.
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (unless d/on-droid
   (use-package nov
     :hook ((nov-mode . hide-mode-line-mode))
@@ -2225,7 +2226,8 @@ To make eww and shr elements org-like and make emacs even more Unified!
 
 ** 📎 Document - The PDF
 Pdf-tools is another great addition if you want to integrate well with Emacs.
-#+begin_src emacs-lisp
+Experimenting with ~doc-view-mode~ which is is revamped in emacs29 and sufficient to view docs!
+#+begin_src emacs-lisp :tangle no
   (unless d/on-droid
   (use-package pdf-tools
     :defer t
@@ -2262,27 +2264,17 @@ Pdf-tools is another great addition if you want to integrate well with Emacs.
     (setq pdf-view-resize-factor 1.1))
   )
 
-  (defun d/kill-buffer ()
-    "Clear the image cache (to release memory) after killing a pdf buffer."
-    (interactive)
-    (if (one-window-p) (kill-this-buffer)
-      (kill-buffer-and-window))
-    (clear-image-cache)
-    (unless d/on-droid (pdf-cache-clear-data)))
+#+end_src
 
-  (unless d/on-droid
-    (define-key image-mode-map (kbd "q") 'd/kill-buffer)
-
-    ;; For Comic Manga
-    (add-hook 'image-mode-hook (lambda ()
-                                 (olivetti-mode)
-                                 (setq olivetti-body-width 0.45))))
-
-  (use-package man
-    :bind (("C-c m" . consult-man)
-           :map Man-mode-map
-           ("q" . kill-buffer-and-window)))
-
+** Doc-view
+This is inside emacs29 itself.
+#+begin_src emacs-lisp
+  (use-package doc-view
+    :ensure nil
+    :mode ("\\.epub\\'" . doc-view-mode)
+    :custom
+    (doc-view-continuous t)
+    (doc-view-image-width 900))
 #+end_src
 * 🏅 Functions Mania
 Some more functions copied and adapted well to my flow. You will also find it well.
@@ -2291,6 +2283,29 @@ Some more functions copied and adapted well to my flow. You will also find it we
     "Uncle dev created a function to reload Emacs config."
     (interactive)
     (load-file (expand-file-name "~/.config/emacs/init.el")))
+
+
+  (defun d/kill-buffer ()
+    "Clear the image cache (to release memory) after killing a pdf buffer."
+    (interactive)
+    (if (one-window-p) (kill-this-buffer)
+      (kill-buffer-and-window))
+    (clear-image-cache)
+    (doc-view-clear-cache))
+    ;; (unless d/on-droid (pdf-cache-clear-data)))
+
+  (use-package image-mode
+    :ensure nil
+    :unless d/on-droid
+    :bind (:map image-mode-map
+                ("q" . d/kill-buffer))
+    :hook
+    (image-mode . (lambda () (olivetti-mode) (setq olivetti-body-width 0.45))))
+
+  (use-package man
+    :bind (("C-c m" . consult-man)
+           :map Man-mode-map
+           ("q" . kill-buffer-and-window)))
 
   ;; Bionic Reading
 
@@ -2381,7 +2396,7 @@ Use RSS, just switch to it, and save your time for other productive things. If y
     :config
     ;; (setq-default elfeed-search-filter "@1-week-ago--1-day-ago +unread -news +")
     (setq-default elfeed-search-filter "+unread +")
-    (setq elfeed-search-date-format `("%m-%d " 7 :left))
+    (setq elfeed-search-date-format `("%m-%d 📰" 7 :left))
     (setq elfeed-search-title-max-width 90
           elfeed-search-trailing-width 0)
     (defalias 'elfeed-toggle-show-star
@@ -2643,8 +2658,9 @@ Idk why, but i guess these all should be the sane defaults.
                   term-mode-hook
                   shell-mode-hook
                   olivetti-mode-hook
+                  eww-mode-hook
                   treemacs-mode-hook
-                  pdf-view-mode-hook
+                  doc-view-mode-hook
                   archive-mode-hook
                   image-mode-hook
                   elfeed-show-mode-hook
@@ -2679,7 +2695,7 @@ Emacs is officially supports Android an an app, now you know which is the org-mo
   (when d/on-droid
     ;; access phone storage as default
     (setq default-directory "/storage/emulated/0/")
-    (setq touch-screen-precision-scroll t)
+    (setq touch-screen-precision-scroll nil)
     (setq touch-screen-display-keyboard t)
     ;; (setq use-dialog-box nil)
     )

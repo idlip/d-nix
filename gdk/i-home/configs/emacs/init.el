@@ -732,13 +732,13 @@ selected color."
    org-pretty-entities t
    ;;   org-ellipsis "…"
 
-   org-modern-star '("" "󰓏" "☘" "✿" "󱨧")
+   org-modern-star '("◉" "✪" "◈" "✿" "❂")
    org-modern-hide-stars 'leading
    org-modern-table t
    org-modern-list
-   '((?* . "󰸷")
-     (?- . "󰣏")
-     (?+ . ""))
+   '((?* . "⁍")
+     (?- . "❖")
+     (?+ . "➤"))
 
    ;; Agenda styling
    org-agenda-tags-column 0
@@ -818,7 +818,7 @@ selected color."
          :map org-mode-map
          ("C-c o b" . d/edit-src-block))
   :config
-  (setq org-ellipsis " 樂")
+  (setq org-ellipsis " ▾")
 
   (setq org-agenda-start-with-log-mode t)
   ;; (setq org-log-done 'time)
@@ -1478,10 +1478,9 @@ selected color."
   :commands (dired dired-jump)
   :bind (("C-x C-j" . dired-jump)
          ("C-c f f" . window-focus-mode)
-         ("C-c f e" . (lambda () (interactive) (find-file (if d/on-droid "~/.config/emacs/init.el" "~/d-git/d-nix/d-emacs.org"))))
+         ("C-c f e" . (lambda () (interactive) (find-file "~/d-git/d-nix/d-emacs.org")))
          ("C-c f s" . (lambda () (interactive) (find-file "~/d-git/d-nix/d-setup.org")))
-         ("C-c f m" . (lambda () (interactive) (find-file "~/d-git/d-nix/README.org")))
-         ("C-x C-d" . dirvish))
+         ("C-c f m" . (lambda () (interactive) (find-file "~/d-git/d-nix/README.org"))))
   (:map dired-mode-map
         ("q" . kill-buffer-and-window)
         ("j" . dired-next-line)
@@ -1490,10 +1489,11 @@ selected color."
         ("h" . dired-up-directory)
         ("b" . d/external-browser))
 
-  :custom ((dired-listing-switches "-agho --group-directories-first")))
-(setq dired-listing-switches "-alt --dired --group-directories-first -h -G")
-(add-hook 'dired-mode-hook 'dired-hide-details-mode)
-(add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))
+  :custom (dired-listing-switches "-agho --group-directories-first")
+  :config
+  (setq dired-listing-switches "-alt --dired --group-directories-first -h -G")
+  (add-hook 'dired-mode-hook 'dired-hide-details-mode)
+  (add-hook 'dired-mode-hook (lambda () (dired-omit-mode))))
 
 ;; Battery pack
 (unless d/on-droid
@@ -1524,6 +1524,7 @@ selected color."
 
   :bind
   (("C-c f d" . dirvish-fd)
+   ("C-x C-d" . dirvish)
    ("C-c f t" . dirvish-side)
    :map dirvish-mode-map
    ("<mouse-1>" . 'dirvish-subtree-toggle-or-open)    
@@ -1680,16 +1681,6 @@ selected color."
          ("C-S-z" . undo-redo)
          ("C-M-r" . undo-redo)))
 
-(unless d/on-droid
-(use-package nov
-  :hook ((nov-mode . hide-mode-line-mode))
-  :mode ("\\.epub\\'" . nov-mode)
-  :config
-  (setq nov-text-width t)
-  (setq nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title)))
-  (setq nov-shr-rendering-functions (append nov-shr-rendering-functions shr-external-rendering-functions)))
-)
-
 (defun shrface-default-keybindings ()
   (interactive)
   "Sets up the default keybindings for `shrface-mode'."
@@ -1764,41 +1755,18 @@ selected color."
       (advice-add 'eww-display-html :around
                   'eww-display-html--override-shr-external-rendering-functions))))
 
-(unless d/on-droid
-(use-package pdf-tools
-  :defer t
-  :init
-  (pdf-tools-install)
-  :bind (:map pdf-view-mode-map
-              ("h" . pdf-annot-add-highlight-markup-annotation)
-              ("t" . pdf-annot-add-text-annotation)
-              ("D" . pdf-annot-delete)
-              ("i" . pdf-view-midnight-minor-mode)
-              ("Q" . d/kill-buffer))
+(use-package doc-view
+  :ensure nil
+  :mode ("\\.epub\\'" . doc-view-mode)
+  :custom
+  (doc-view-continuous t)
+  (doc-view-image-width 900))
 
-  :config
-  (setq pdf-tools-enabled-modes         ; simplified from the defaults
-        '(pdf-history-minor-mode
-          pdf-isearch-minor-mode
-          pdf-links-minor-mode
-          pdf-outline-minor-mode
-          pdf-misc-size-indication-minor-mode
-          pdf-occur-global-minor-mode))
-  (setq pdf-view-display-size 'fit-page) ;;fit-height
-  (setq pdf-view-continuous t)
-  (setq pdf-cache-image-limit 3)
-  (setq large-file-warning-threshold 700000000)
-  (setq pdf-cache-prefetch-delay 0.5)
-  (setq image-cache-eviction-delay 3)
-  (setq pdf-annot-activate-created-annotations t)
-  (setq pdf-view-use-dedicated-register nil)
-  (setq pdf-view-max-image-width 1000)
-  (add-hook 'pdf-view-mode-hook (lambda () (cua-mode 0)))
-  (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
-  (define-key pdf-view-mode-map (kbd "M-g g") 'pdf-view-goto-page)
-  (setq pdf-outline-imenu-use-flat-menus t)
-  (setq pdf-view-resize-factor 1.1))
-)
+(defun config-reload ()
+  "Uncle dev created a function to reload Emacs config."
+  (interactive)
+  (load-file (expand-file-name "~/.config/emacs/init.el")))
+
 
 (defun d/kill-buffer ()
   "Clear the image cache (to release memory) after killing a pdf buffer."
@@ -1806,25 +1774,21 @@ selected color."
   (if (one-window-p) (kill-this-buffer)
     (kill-buffer-and-window))
   (clear-image-cache)
-  (unless d/on-droid (pdf-cache-clear-data)))
+  (doc-view-clear-cache))
+  ;; (unless d/on-droid (pdf-cache-clear-data)))
 
-(unless d/on-droid
-  (define-key image-mode-map (kbd "q") 'd/kill-buffer)
-
-  ;; For Comic Manga
-  (add-hook 'image-mode-hook (lambda ()
-                               (olivetti-mode)
-                               (setq olivetti-body-width 0.45))))
+(use-package image-mode
+  :ensure nil
+  :unless d/on-droid
+  :bind (:map image-mode-map
+              ("q" . d/kill-buffer))
+  :hook
+  (image-mode . (lambda () (olivetti-mode) (setq olivetti-body-width 0.45))))
 
 (use-package man
   :bind (("C-c m" . consult-man)
          :map Man-mode-map
          ("q" . kill-buffer-and-window)))
-
-(defun config-reload ()
-  "Uncle dev created a function to reload Emacs config."
-  (interactive)
-  (load-file (expand-file-name "~/.config/emacs/init.el")))
 
 ;; Bionic Reading
 
@@ -1910,7 +1874,7 @@ selected color."
   :config
   ;; (setq-default elfeed-search-filter "@1-week-ago--1-day-ago +unread -news +")
   (setq-default elfeed-search-filter "+unread +")
-  (setq elfeed-search-date-format `("%m-%d " 7 :left))
+  (setq elfeed-search-date-format `("%m-%d 📰" 7 :left))
   (setq elfeed-search-title-max-width 90
         elfeed-search-trailing-width 0)
   (defalias 'elfeed-toggle-show-star
@@ -2152,8 +2116,9 @@ selected color."
                 term-mode-hook
                 shell-mode-hook
                 olivetti-mode-hook
+                eww-mode-hook
                 treemacs-mode-hook
-                pdf-view-mode-hook
+                doc-view-mode-hook
                 archive-mode-hook
                 image-mode-hook
                 elfeed-show-mode-hook
@@ -2183,7 +2148,7 @@ selected color."
 (when d/on-droid
   ;; access phone storage as default
   (setq default-directory "/storage/emulated/0/")
-  (setq touch-screen-precision-scroll t)
+  (setq touch-screen-precision-scroll nil)
   (setq touch-screen-display-keyboard t)
   ;; (setq use-dialog-box nil)
   )

@@ -8,6 +8,7 @@
 ** Reads :blogs:read:
 *** [[https://idlip.github.io/index.xml][Idlip]] :mine:idlip:
 *** [[https://syndication.howstuffworks.com/rss/HSW][HowStuffWorks]] :stuffs:how:
+*** [[http://feeds.feedburner.com/GeneExpressionBlog][Discover]]
 ** News :news:
 ** Youtube-Time :youtube:yt:
 *** [[https://yt.funami.tech/feed/channel/UCUdettijNYvLAm4AixZv4RA][SciShow Psych]]
@@ -34,13 +35,21 @@
 *** [[https://rupress.org/rss/site_1000001/LatestArticles_1000003.xml][Rupress]]
 *** [[https://journals.biologists.com/rss/site_1000009/1000007.xml][Jour-Bio]]
 *** [[https://www.biologycorner.com/feed/][BioCorner]]
+*** [[https://www.cell.com/current-biology/inpress.rss][cell-bio]]
 *** [[https://bitesizebio.com/feed/][BiteSize]]
 *** [[http://feeds.feedburner.com/BiologyExams4U][Bioexam]]
 *** [[https://journals.biologists.com/rss/site_1000001/1000003.xml][Journal-bio]]
+** Research :research:
+*** [[https://www.companionanimalpsychology.com/feeds/posts/default][Companion Animal Psychology]]
+*** [[http://sharpbrains.com/feed/][SharpBrains]]
 ** Edu :edu:
 *** [[https://nitter.net/official_ibab/rss][Ibab]] :ibab:
 ** Emacs :emacs:
 *** [[https://planet.emacslife.com/atom.xml][Planet-Emacs]]
+** Daily :daily:
+*** [[http://feeds.feedburner.com/quotationspage/qotd][Quotes of the Day]]
+*** [[http://feeds.feedburner.com/brainyquote/QUOTEBR][Today's Quote]]
+*** [[https://xkcd.com/rss.xml][xkcd.com]]
 ** Linux :linux:
 *** [[https://itsfoss.com/rss][itsfoss]]
 ** Media :media:

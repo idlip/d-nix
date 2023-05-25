@@ -978,6 +978,9 @@ Making snippets/templates is so easy with this package.
                "<summary>" (p "Sub Heading")  "</summary>" n n
                (r "Insert Link or comments") n n "</details>")
   (bolditalics "***" p "***")
+
+  (androidfoss "* [**" (p "pname") "**](" (p "Git") ") <sup>**[[F-Droid](" (p "Fdroid") ")]**</sup>")
+
   (srcblock (call-interactively #'markdown-insert-gfm-code-block))
   (src "'" p "'")
   (unorderlist "- " (p "First") n> "- " (p "Second") n> "- " (p "Third"))
@@ -1043,6 +1046,13 @@ You will see org just below this, this package helps make Org-Mode looks eye-can
      org-hide-emphasis-markers t
      org-pretty-entities t
      ;;   org-ellipsis "…"
+
+     ;; Reference:
+     ;; Heading: "◉ ○ ✸ ✿"
+     ;; Cool-Heading: ♥ ● ◇ ✚ ✜ ☯ ◆ ♠ ♣ ♦ ☢ ❀ ◆ ◖ ▶
+     ;; Small: ► • ★ ▸
+     ;; others: ▼, ↴, ⬎, ⤷,…, and ⋱.
+     ;; (org-ellipsis "⤵")
 
      org-modern-star '("◉" "✪" "◈" "✿" "❂")
      org-modern-hide-stars 'leading
@@ -2414,7 +2424,7 @@ Use RSS, just switch to it, and save your time for other productive things. If y
       (elfeed-db-load)
       (elfeed)
       (elfeed-search-update--force))
-      ;; (elfeed-update))
+    ;; (elfeed-update))
 
     ;;write to disk when quiting
     (defun d/elfeed-quit ()
@@ -2482,6 +2492,13 @@ Use RSS, just switch to it, and save your time for other productive things. If y
     (setq shr-bullet "• "
           shr-folding-mode t
           url-privacy-level '(email agent cookies lastloc))
+    (setq url-user-agent "")
+    (setq url-privacy-level 'paranoid)
+    (url-setup-privacy-info) 
+    (setq url-mime-accept-string "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8 ")
+    (setq url-mime-charset-string nil)
+    (setq url-mime-language-string "en-US,en;q=0.5")
+    (setq url-mime-encoding-string "gzip, deflate")
 
     (defvar consult--source-eww
       (list

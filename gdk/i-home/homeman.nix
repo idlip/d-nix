@@ -147,7 +147,7 @@ home.packages = with pkgs; [
 
 # wayland
 libnotify libsixel bemenu hyprpicker
-wf-recorder brightnessctl pamixer slurp grim hyprland
+wf-recorder brightnessctl pamixer slurp grim 
 wl-clipboard wtype swaybg swayidle gammastep
 
 # media

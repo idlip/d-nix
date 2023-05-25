@@ -13,6 +13,7 @@ imports = [
 # Should move this line probably, it only does make use of starship to bash shell init
 programs = {
   bash.promptInit = ''eval "$(${pkgs.starship}/bin/starship init bash)"'';
+  hyprland.enable = true;
 };
 
 # compresses half the ram for use as swap

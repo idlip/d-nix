@@ -732,6 +732,13 @@ selected color."
    org-pretty-entities t
    ;;   org-ellipsis "…"
 
+   ;; Reference:
+   ;; Heading: "◉ ○ ✸ ✿"
+   ;; Cool-Heading: ♥ ● ◇ ✚ ✜ ☯ ◆ ♠ ♣ ♦ ☢ ❀ ◆ ◖ ▶
+   ;; Small: ► • ★ ▸
+   ;; others: ▼, ↴, ⬎, ⤷,…, and ⋱.
+   ;; (org-ellipsis "⤵")
+
    org-modern-star '("◉" "✪" "◈" "✿" "❂")
    org-modern-hide-stars 'leading
    org-modern-table t
@@ -1892,7 +1899,7 @@ selected color."
     (elfeed-db-load)
     (elfeed)
     (elfeed-search-update--force))
-    ;; (elfeed-update))
+  ;; (elfeed-update))
 
   ;;write to disk when quiting
   (defun d/elfeed-quit ()
@@ -1960,6 +1967,13 @@ selected color."
   (setq shr-bullet "• "
         shr-folding-mode t
         url-privacy-level '(email agent cookies lastloc))
+  (setq url-user-agent "")
+  (setq url-privacy-level 'paranoid)
+  (url-setup-privacy-info) 
+  (setq url-mime-accept-string "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8 ")
+  (setq url-mime-charset-string nil)
+  (setq url-mime-language-string "en-US,en;q=0.5")
+  (setq url-mime-encoding-string "gzip, deflate")
 
   (defvar consult--source-eww
     (list

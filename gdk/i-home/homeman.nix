@@ -157,7 +157,7 @@ yt-dlp jq ytfzf ani-cli qbittorrent youtube-tui
 # cli tools
 pcmanfm fzf neovim btop unzip
 aspell aspellDicts.en-science aspellDicts.en hunspell hunspellDicts.en-us
-ripgrep nitch libreoffice pandoc newsboat
+ripgrep nitch libreoffice pandoc newsboat mupdf
 rsync ffmpeg sdcv imagemagick groff
 wkhtmltopdf-bin
 fd ncdu mu isync ts syncthing dconf
@@ -445,7 +445,8 @@ programs.emacs = {
     cape markdown-mode nix-mode
     nerd-icons async dirvish
     reddigg hnreader mingus which-key magit webpaste org-present
-    pdf-tools nov shrface shr-tag-pre-highlight gcmh
+    # pdf-tools nov
+    shrface shr-tag-pre-highlight gcmh
     org-mime corfu-terminal beframe denote tempel tempel-collection
     sdcv elfeed elfeed-org link-hint powerthesaurus jinx meow
     doom-modeline hide-mode-line el-fetch ox-hugo htmlize

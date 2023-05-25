@@ -194,6 +194,7 @@ Opening brace that contains the rest of the configuration file.
   # Should move this line probably, it only does make use of starship to bash shell init
   programs = {
     bash.promptInit = ''eval "$(${pkgs.starship}/bin/starship init bash)"'';
+    hyprland.enable = true;
   };
 
   # compresses half the ram for use as swap
@@ -673,8 +674,8 @@ User specific configuration
 Home config, and a pretty place (?)
 *** Default-nix
 #+begin_src nix :tangle-mode  (identity #o444) :mkdirp yes :tangle (format "./%s/i-home/default.nix" (get-named-src-block-contents "my-hostname" t))
-  {
-    inputs, pkgs, config, lib, self, ...}:
+
+  { inputs, pkgs, config, lib, self, ...}:
   {
     config.home.stateVersion = "23.05";
     config.home.extraOutputsToInstall = ["doc" "devdoc"];
@@ -951,7 +952,7 @@ Installs packages for this user only.
 #+begin_src nix
   # wayland
   libnotify libsixel bemenu hyprpicker
-  wf-recorder brightnessctl pamixer slurp grim hyprland
+  wf-recorder brightnessctl pamixer slurp grim 
   wl-clipboard wtype swaybg swayidle gammastep
 #+end_src
 ***** Media
@@ -1410,6 +1411,7 @@ The better cli alternative!
 
   bind=,Print,exec,d-sshot
   bind=CONTROL,Insert,exec,d-sshot
+  bind=SUPER,a,exec,d-sendnow
 
   bind=SUPER,left,movefocus,l
   bind=SUPER,right,movefocus,r

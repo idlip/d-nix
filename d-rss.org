@@ -8,7 +8,6 @@
 ** Reads :blogs:read:
 *** [[https://idlip.github.io/index.xml][Idlip]] :mine:idlip:
 *** [[https://syndication.howstuffworks.com/rss/HSW][HowStuffWorks]] :stuffs:how:
-*** [[http://feeds.feedburner.com/GeneExpressionBlog][Discover]]
 ** News :news:
 ** Youtube-Time :youtube:yt:
 *** [[https://yt.funami.tech/feed/channel/UCUdettijNYvLAm4AixZv4RA][SciShow Psych]]

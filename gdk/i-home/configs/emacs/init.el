@@ -106,8 +106,8 @@ If you experience stuttering, increase this.")
 
 ;; You will most likely need to adjust this font size for your system!
 
-(defvar default-font-size (if d/on-droid 140 170))
-(defvar default-variable-font-size (if d/on-droid 140 170))
+(defvar default-font-size (if d/on-droid 150 170))
+(defvar default-variable-font-size (if d/on-droid 150 170))
 
 ;; Set reusable font name variables
 (defvar d/fixed-width-font "ComicCodeLigatures Nerd Font"
@@ -116,12 +116,11 @@ If you experience stuttering, increase this.")
 (defvar d/variable-width-font "ComicCodeLigatures Nerd Font"
   "The font to use for variable-pitch (documents) text.")
 
-(setq haki-heading-font "FiraCode Nerd Font")
-(setq haki-sans-font (if d/on-droid "FiraCode Nerd Font" "Iosevka Comfy Motion"))
-;;  (setq haki-code-font "JetBrainsMono Nerd Font")
-(setq haki-title-font "FiraCode Nerd Font")
-(setq haki-link-font "VictorMono NF")
-(setq haki-code-font "Maple Mono")
+(setq haki-heading-font (if d/on-droid d/fixed-width-font "Comic Mono"))
+(setq haki-sans-font "Maple Mono")
+(setq haki-title-font "Unifont")
+(setq haki-link-font "Maple Mono")
+(setq haki-code-font "JetBrainsMono NF")
 
 (setf use-default-font-for-symbols nil)
 (set-fontset-font t 'unicode "Noto Color Emoji" nil 'append)
@@ -766,7 +765,8 @@ selected color."
   :bind ("M-$". jinx-correct)
   :config
   (add-to-list 'vertico-multiform-categories
-               '(jinx grid indexed))
+               '(jinx grid (vertico-grid-annotate . 20)))
+
   (vertico-multiform-mode 1))
 )
 
@@ -876,7 +876,8 @@ selected color."
            "* TODO %?\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
           ("w" "Website Todo" entry (file+headline "~/d-git/d-site/README.org" "Ideas - TODO")
            "* TODO %?\n  SCHEDULED:%T\n " :empty-lines 1)
-
+          ("l" "Link" entry
+             (file+headline "~/sync/org/bookmarks.org" "elfeed") "* %a\n")
           ("j" "Journal Entries")
           ("jj" "Journal" entry
            (file+olp+datetree "~/docs/org/journal.org")
@@ -1286,6 +1287,8 @@ selected color."
 (use-package treesit
   :ensure nil
   :custom
+  (treesit-font-lock-level 4)
+  (treesit-font-lock-feature-list t)
   (major-mode-remap-alist
    '((c-mode . c-ts-mode)
      (c++-mode . c++-ts-mode)
@@ -1523,6 +1526,7 @@ selected color."
   (setq delete-by-moving-to-trash t)
   (setq dired-listing-switches
         "-l --almost-all --human-readable --group-directories-first --no-group")
+  (setq dirvish-hide-cursor nil)
 
   ;; with emacs29
   (setq dired-mouse-drag-files t)
@@ -1538,7 +1542,6 @@ selected color."
    ("<mouse-2>" . 'dired-mouse-find-file-other-window)
    ("<mouse-3>" . 'dired-mouse-find-file)
    ("a"   . dirvish-quick-access)
-   ("C-x C-k" . dirvish-quit)
    ("f"   . dirvish-file-info-menu)
    ("y"   . dirvish-yank-menu)
    ("N"   . dirvish-narrow)
@@ -1688,19 +1691,8 @@ selected color."
          ("C-S-z" . undo-redo)
          ("C-M-r" . undo-redo)))
 
-(defun shrface-default-keybindings ()
-  (interactive)
-  "Sets up the default keybindings for `shrface-mode'."
-  (define-key shrface-mode-map (kbd "TAB") 'shrface-outline-cycle)
-  (define-key shrface-mode-map (kbd "<backtab>") 'shrface-outline-cycle-buffer)
-  (define-key shrface-mode-map (kbd "C-t") 'shrface-toggle-bullets)
-  (define-key shrface-mode-map (kbd "C-j") 'shrface-next-headline)
-  (define-key shrface-mode-map (kbd "C-k") 'shrface-previous-headline)
-  (define-key shrface-mode-map (kbd "M-l") 'shrface-links-consult)
-  (define-key shrface-mode-map (kbd "M-h") 'shrface-headline-consult))
-
 (use-package shrface
-  :defer t
+  :after shr
   :hook ((eww-mode . shrface-mode)
          (elfeed-show-mode . shrface-mode)
          (nov-mode . shrface-mode))
@@ -1709,8 +1701,6 @@ selected color."
   :bind (:map shrface-mode-map
               ("<tab>" . shrface-outline-cycle)
               ("<backtab>" . shrface-outline-cycle-buffer)
-              ("M-l" . shrface-links-consult)
-              ("M-h" . shrface-headline-consult)
               ("C-j" . shrface-next-headline)
               ("C-k" . shrface-previous-headline))
   :config
@@ -1780,8 +1770,7 @@ selected color."
   (interactive)
   (if (one-window-p) (kill-this-buffer)
     (kill-buffer-and-window))
-  (clear-image-cache)
-  (doc-view-clear-cache))
+  (when (derived-mode-p 'doc-view-mode) (progn (clear-image-cache) (doc-view-clear-cache))))
   ;; (unless d/on-droid (pdf-cache-clear-data)))
 
 (use-package image-mode
@@ -1881,13 +1870,17 @@ selected color."
   :config
   ;; (setq-default elfeed-search-filter "@1-week-ago--1-day-ago +unread -news +")
   (setq-default elfeed-search-filter "+unread +")
-  (setq elfeed-search-date-format `("%m-%d 📰" 7 :left))
+  (setq elfeed-search-date-format (if d/on-droid `("" 0 :left)  `("%m-%d 📰" 7 :left)))
   (setq elfeed-search-title-max-width 90
         elfeed-search-trailing-width 0)
-  (defalias 'elfeed-toggle-show-star
-    (elfeed-expose #'elfeed-show-tag 'star))
-  (defalias 'elfeed-toggle-star
-    (elfeed-expose #'elfeed-search-toggle-all 'star))
+  (defun elfeed-toggle-show-star ()
+    (interactive)
+    (elfeed-show-tag 'star)
+    (org-capture nil "l"))
+  (defun elfeed-toggle-star ()
+    (interactive)
+    (elfeed-search-toggle-all 'star)
+    (org-capture nil "l"))
 
   (defun d/elfeed-ui ()
     (interactive)
@@ -1913,7 +1906,19 @@ selected color."
     '((t :foreground "#f77"))
     "Marks a starred Elfeed entry.")
 
-  (push '(star elfeed-search-star-title-face) elfeed-search-face-alist))
+  (push '(star elfeed-search-star-title-face) elfeed-search-face-alist)
+  (defun d/elfeed-org-mark ()
+    "use org file as bookmark for elfeed entries.
+Usable as favorites or bookmark."
+    (when elfeed-show-entry
+      (let* ((link (elfeed-entry-link elfeed-show-entry))
+             (title (elfeed-entry-title elfeed-show-entry)))
+        (org-store-link-props
+         :link link
+         :description title))))
+
+  (add-hook 'org-store-link-functions
+            'private/org-elfeed-entry-store-link))
 
 (use-package link-hint
   :defer t
@@ -1934,7 +1939,7 @@ selected color."
   :after elfeed
   :config
   (elfeed-org)
-  (setq rmh-elfeed-org-files (list "~/.config/emacs/elfeed.org")))
+  (setq rmh-elfeed-org-files (list "~/d-git/d-nix/d-emacs.org")))
 
 (defun readable-article ()
   (interactive)
@@ -1956,13 +1961,15 @@ selected color."
     (reddigg-view-comments (elfeed-entry-link entry))))
 
 (use-package eww
-  :bind (:map eww-mode-map
-              ("e" . readable-article)
-              ("Q" . d/kill-buffer)
-              ("M-v" . d/scroll-up)
-              ("C-v" . d/scroll-down)
-              ("F" . d/visit-urls)
-              ("b" . d/external-browser))
+  :bind ("M-s M-w" . eww-search-words)
+  (:map eww-mode-map
+        ("e" . readable-article)
+        ("Q" . d/kill-buffer)
+        ("M-v" . d/scroll-up)
+        ("RET" . eww-follow-link)
+        ("C-v" . d/scroll-down)
+        ("m" . elfeed-toggle-star)
+        ("b" . d/external-browser))
   :config
   (setq shr-bullet "• "
         shr-folding-mode t
@@ -2008,30 +2015,31 @@ selected color."
 ;; (advice-add 'eww-readable :after #'d/bionic-read)
 
 (unless d/on-droid
-(use-package ement
-  :bind (:map ement-room-minibuffer-map
-              ("<f6>" . ement-room-compose-from-minibuffer))
-  (:map ement-room-mode-map
-        ("M-<" . ement-room-scroll-down-command))
-  :custom
-  (ement-room-send-message-filter 'ement-room-send-org-filter)
-  (ement-room-message-format-spec "%S> %L%B%r%R%t")
-  (ement-room-list-avatars nil)
-  (ement-save-sessions t)
-  :config
-  ;; copied from viru (ement github)
-  (defun d/ement-connect ()
-    (interactive)
-    (if (ement--read-sessions)
-        (call-interactively #'ement-connect)
-      (let* ((found (auth-source-search :max 1
-                                        :host "matrix.org"
-                                        :port "8448"
-                                        :require '(:user :secret)))
-             (entry (nth 0 found))
-             (password (funcall (plist-get entry :secret)))
-             (user (plist-get entry :user)))
-        (ement-connect :user-id user :password password)))))
+  (use-package ement
+    :bind ("C-c a m" . d/ement-connect)
+    (:map ement-room-minibuffer-map
+          ("<f6>" . ement-room-compose-from-minibuffer))
+    (:map ement-room-mode-map
+          ("M-<" . ement-room-scroll-down-command))
+    :custom
+    (ement-room-send-message-filter 'ement-room-send-org-filter)
+    (ement-room-message-format-spec "%S> %L%B%r%R%t")
+    (ement-room-list-avatars nil)
+    (ement-save-sessions t)
+    :config
+    ;; copied from viru (ement github)
+    (defun d/ement-connect ()
+      (interactive)
+      (if (ement--read-sessions)
+          (call-interactively #'ement-connect)
+        (let* ((found (auth-source-search :max 1
+                                          :host "matrix.org"
+                                          :port "8448"
+                                          :require '(:user :secret)))
+               (entry (nth 0 found))
+               (password (funcall (plist-get entry :secret)))
+               (user (plist-get entry :user)))
+          (ement-connect :user-id user :password password)))))
 )
 
 (use-package ox-hugo
@@ -2062,7 +2070,7 @@ selected color."
 (setq save-interprogram-paste-before-kill nil) ;; #FIXE
 (setq kill-do-not-save-duplicates t)
 (setq initial-scratch-message
-      ";; Type to your Will !\n\n")
+      "--- Scratch Buffer ---\n\n\n")
 
 (setq frame-inhibit-implied-resize t)
 ;;(global-prettify-symbols-mode t)
@@ -2161,8 +2169,9 @@ selected color."
 
 (when d/on-droid
   ;; access phone storage as default
-  (setq default-directory "/storage/emulated/0/")
-  (setq touch-screen-precision-scroll nil)
+  ;; Better is to symlink file to ~/ itself
+  ;;(setq default-directory "/storage/emulated/0/")
+  (setq touch-screen-precision-scroll t)
   (setq touch-screen-display-keyboard t)
   ;; (setq use-dialog-box nil)
   )

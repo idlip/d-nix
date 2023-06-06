@@ -430,12 +430,7 @@ home.file.".config/emacs/elfeed.org".source = config.lib.file.mkOutOfStoreSymlin
 
 programs.emacs = {
   enable = true;
-  # package = pkgs.emacsPgtk;
-  package = pkgs.emacsPgtk.overrideAttrs (old: {
-    passthru = old.passthru // {
-      treeSitter = true;
-    };
-  });
+  package = pkgs.emacs-pgtk;
   extraPackages = (epkgs: (with epkgs; [
     treesit-grammars.with-all-grammars
     vterm multi-vterm vundo undo-fu-session flycheck helpful ox-pandoc
@@ -634,8 +629,11 @@ userChrome = ''
 .tabbrowser-tab[fadein]:not([pinned]) {
         max-width: var(--max-tab-width) !important;
 }
-.tab-close-button, .new-tab-button, #firefox-view-button, #scrollbutton-up, .tab-secondary-label {
+.tab-close-button, #firefox-view-button, #scrollbutton-up, .tab-secondary-label {
         display: none !important;
+}
+.new-tab-button {
+        display: right !important;
 }
 .tab-icon-image {
         height: auto !important;

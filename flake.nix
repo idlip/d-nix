@@ -3,7 +3,7 @@
 
   inputs = {
 
-    # Change it to stable, if you want stable channel
+    # Change it to stable, if you want stable channel (23.05)
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     # For Adblocking and making internet usable
@@ -26,7 +26,7 @@
 
   outputs = inputs @ {self, hosts, home-manager, nixpkgs, ...} :
     let
-      # You might check on darwin, or its this is enough
+      # You might check on darwin for macos
       system = "x86_64-linux";
       pkgs = import nixpkgs {
         inherit system;

@@ -278,8 +278,8 @@ Fonts are crucial to read.
 #+begin_src emacs-lisp
   ;; You will most likely need to adjust this font size for your system!
 
-  (defvar default-font-size (if d/on-droid 140 170))
-  (defvar default-variable-font-size (if d/on-droid 140 170))
+  (defvar default-font-size (if d/on-droid 150 170))
+  (defvar default-variable-font-size (if d/on-droid 150 170))
 
   ;; Set reusable font name variables
   (defvar d/fixed-width-font "ComicCodeLigatures Nerd Font"
@@ -288,12 +288,11 @@ Fonts are crucial to read.
   (defvar d/variable-width-font "ComicCodeLigatures Nerd Font"
     "The font to use for variable-pitch (documents) text.")
 
-  (setq haki-heading-font "FiraCode Nerd Font")
-  (setq haki-sans-font (if d/on-droid "FiraCode Nerd Font" "Iosevka Comfy Motion"))
-  ;;  (setq haki-code-font "JetBrainsMono Nerd Font")
-  (setq haki-title-font "FiraCode Nerd Font")
-  (setq haki-link-font "VictorMono NF")
-  (setq haki-code-font "Maple Mono")
+  (setq haki-heading-font (if d/on-droid d/fixed-width-font "Comic Mono"))
+  (setq haki-sans-font "Maple Mono")
+  (setq haki-title-font "Unifont")
+  (setq haki-link-font "Maple Mono")
+  (setq haki-code-font "JetBrainsMono NF")
 
   (setf use-default-font-for-symbols nil)
   (set-fontset-font t 'unicode "Noto Color Emoji" nil 'append)
@@ -411,7 +410,7 @@ Keep folders and backuping files clean!
        (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
      "/DONE" 'tree))
 
-        #+end_src
+#+end_src
 ** Respected binds
 #+begin_src emacs-lisp
   (dolist (keybind '(("M-o" . other-window)
@@ -1084,7 +1083,8 @@ Jinx is another cool new package for spell corrections
     :bind ("M-$". jinx-correct)
     :config
     (add-to-list 'vertico-multiform-categories
-                 '(jinx grid indexed))
+                 '(jinx grid (vertico-grid-annotate . 20)))
+
     (vertico-multiform-mode 1))
   )
 #+end_src
@@ -1201,7 +1201,8 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
              "* TODO %?\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
             ("w" "Website Todo" entry (file+headline "~/d-git/d-site/README.org" "Ideas - TODO")
              "* TODO %?\n  SCHEDULED:%T\n " :empty-lines 1)
-
+            ("l" "Link" entry
+               (file+headline "~/sync/org/bookmarks.org" "elfeed") "* %a\n")
             ("j" "Journal Entries")
             ("jj" "Journal" entry
              (file+olp+datetree "~/docs/org/journal.org")
@@ -1710,6 +1711,8 @@ I'm not a programmer, maybe will be expanded in future..
   (use-package treesit
     :ensure nil
     :custom
+    (treesit-font-lock-level 4)
+    (treesit-font-lock-feature-list t)
     (major-mode-remap-alist
      '((c-mode . c-ts-mode)
        (c++-mode . c++-ts-mode)
@@ -1784,7 +1787,7 @@ Icons to prettify the corfu popup
             (t ,(nerd-icons-codicon "nf-cod-code") :face font-lock-warning-face))))
 
 #+end_src
-*  Git Controrller
+*  Git Controller
 Magit the killer beast after org-mode.
 #+begin_src emacs-lisp
   (unless d/on-droid
@@ -1963,6 +1966,7 @@ Not that intuitive to use as file manager, once you get a hand of emacs. You wil
     (setq delete-by-moving-to-trash t)
     (setq dired-listing-switches
           "-l --almost-all --human-readable --group-directories-first --no-group")
+    (setq dirvish-hide-cursor nil)
 
     ;; with emacs29
     (setq dired-mouse-drag-files t)
@@ -1978,7 +1982,6 @@ Not that intuitive to use as file manager, once you get a hand of emacs. You wil
      ("<mouse-2>" . 'dired-mouse-find-file-other-window)
      ("<mouse-3>" . 'dired-mouse-find-file)
      ("a"   . dirvish-quick-access)
-     ("C-x C-k" . dirvish-quit)
      ("f"   . dirvish-file-info-menu)
      ("y"   . dirvish-yank-menu)
      ("N"   . dirvish-narrow)
@@ -2156,19 +2159,8 @@ You dont have to learn another software or ask for features, get it in emacs-way
 ** </> Shrface - Orgify
 To make eww and shr elements org-like and make emacs even more Unified!
 #+begin_src emacs-lisp
-  (defun shrface-default-keybindings ()
-    (interactive)
-    "Sets up the default keybindings for `shrface-mode'."
-    (define-key shrface-mode-map (kbd "TAB") 'shrface-outline-cycle)
-    (define-key shrface-mode-map (kbd "<backtab>") 'shrface-outline-cycle-buffer)
-    (define-key shrface-mode-map (kbd "C-t") 'shrface-toggle-bullets)
-    (define-key shrface-mode-map (kbd "C-j") 'shrface-next-headline)
-    (define-key shrface-mode-map (kbd "C-k") 'shrface-previous-headline)
-    (define-key shrface-mode-map (kbd "M-l") 'shrface-links-consult)
-    (define-key shrface-mode-map (kbd "M-h") 'shrface-headline-consult))
-
   (use-package shrface
-    :defer t
+    :after shr
     :hook ((eww-mode . shrface-mode)
            (elfeed-show-mode . shrface-mode)
            (nov-mode . shrface-mode))
@@ -2177,8 +2169,6 @@ To make eww and shr elements org-like and make emacs even more Unified!
     :bind (:map shrface-mode-map
                 ("<tab>" . shrface-outline-cycle)
                 ("<backtab>" . shrface-outline-cycle-buffer)
-                ("M-l" . shrface-links-consult)
-                ("M-h" . shrface-headline-consult)
                 ("C-j" . shrface-next-headline)
                 ("C-k" . shrface-previous-headline))
     :config
@@ -2300,8 +2290,7 @@ Some more functions copied and adapted well to my flow. You will also find it we
     (interactive)
     (if (one-window-p) (kill-this-buffer)
       (kill-buffer-and-window))
-    (clear-image-cache)
-    (doc-view-clear-cache))
+    (when (derived-mode-p 'doc-view-mode) (progn (clear-image-cache) (doc-view-clear-cache))))
     ;; (unless d/on-droid (pdf-cache-clear-data)))
 
   (use-package image-mode
@@ -2384,7 +2373,7 @@ Some more functions copied and adapted well to my flow. You will also find it we
 #+end_src
 
 * 📰 Rss - Better Web
-Use RSS, just switch to it, and save your time for other productive things. If you wanna follow lazy people and hit that 'like, share and subscribe button, and /ding/ the bell icon' and what not, go on.
+Use RSS, just switch to it, and save your time for other productive things. If you wanna follow lazy people and hit that 'like, share and subscribe button, and /ding/ the bell icon' and what not, go on as you wish.
 #+begin_src emacs-lisp
   (use-package elfeed
     :defer t
@@ -2406,13 +2395,17 @@ Use RSS, just switch to it, and save your time for other productive things. If y
     :config
     ;; (setq-default elfeed-search-filter "@1-week-ago--1-day-ago +unread -news +")
     (setq-default elfeed-search-filter "+unread +")
-    (setq elfeed-search-date-format `("%m-%d 📰" 7 :left))
+    (setq elfeed-search-date-format (if d/on-droid `("" 0 :left)  `("%m-%d 📰" 7 :left)))
     (setq elfeed-search-title-max-width 90
           elfeed-search-trailing-width 0)
-    (defalias 'elfeed-toggle-show-star
-      (elfeed-expose #'elfeed-show-tag 'star))
-    (defalias 'elfeed-toggle-star
-      (elfeed-expose #'elfeed-search-toggle-all 'star))
+    (defun elfeed-toggle-show-star ()
+      (interactive)
+      (elfeed-show-tag 'star)
+      (org-capture nil "l"))
+    (defun elfeed-toggle-star ()
+      (interactive)
+      (elfeed-search-toggle-all 'star)
+      (org-capture nil "l"))
 
     (defun d/elfeed-ui ()
       (interactive)
@@ -2438,7 +2431,19 @@ Use RSS, just switch to it, and save your time for other productive things. If y
       '((t :foreground "#f77"))
       "Marks a starred Elfeed entry.")
 
-    (push '(star elfeed-search-star-title-face) elfeed-search-face-alist))
+    (push '(star elfeed-search-star-title-face) elfeed-search-face-alist)
+    (defun d/elfeed-org-mark ()
+      "use org file as bookmark for elfeed entries.
+  Usable as favorites or bookmark."
+      (when elfeed-show-entry
+        (let* ((link (elfeed-entry-link elfeed-show-entry))
+               (title (elfeed-entry-title elfeed-show-entry)))
+          (org-store-link-props
+           :link link
+           :description title))))
+
+    (add-hook 'org-store-link-functions
+              'private/org-elfeed-entry-store-link))
 
   (use-package link-hint
     :defer t
@@ -2459,7 +2464,7 @@ Use RSS, just switch to it, and save your time for other productive things. If y
     :after elfeed
     :config
     (elfeed-org)
-    (setq rmh-elfeed-org-files (list "~/.config/emacs/elfeed.org")))
+    (setq rmh-elfeed-org-files (list "~/d-git/d-nix/d-emacs.org")))
 
   (defun readable-article ()
     (interactive)
@@ -2481,13 +2486,15 @@ Use RSS, just switch to it, and save your time for other productive things. If y
       (reddigg-view-comments (elfeed-entry-link entry))))
 
   (use-package eww
-    :bind (:map eww-mode-map
-                ("e" . readable-article)
-                ("Q" . d/kill-buffer)
-                ("M-v" . d/scroll-up)
-                ("C-v" . d/scroll-down)
-                ("F" . d/visit-urls)
-                ("b" . d/external-browser))
+    :bind ("M-s M-w" . eww-search-words)
+    (:map eww-mode-map
+          ("e" . readable-article)
+          ("Q" . d/kill-buffer)
+          ("M-v" . d/scroll-up)
+          ("RET" . eww-follow-link)
+          ("C-v" . d/scroll-down)
+          ("m" . elfeed-toggle-star)
+          ("b" . d/external-browser))
     :config
     (setq shr-bullet "• "
           shr-folding-mode t
@@ -2541,34 +2548,124 @@ Congratulations, if you are already using Rss, if not, don't worry, you can get 
 
 #+end_src
 
+** Feeds :elfeed:
+*** Animalogy :animalogy:animal:zoo:
+**** [[https://yt.funami.tech/feed/channel/UCwg6_F2hDHYrqbNSGjmar4w][Animalogic]]
+**** [[https://yt.funami.tech/feed/channel/UCG5_BraUMNcluZPZ__oOeKg][Natural World Facts]]
+**** [[https://yt.funami.tech/feed/channel/UCBbnbBWJtwsf0jLGUwX5Q3g][Journey to the Microcosmos]]
+**** [[https://yt.funami.tech/feed/channel/UCDSzwZqgtJEnUzacq3ddoOQ][Ben G Thomas]]
+**** [[https://yt.funami.tech/feed/channel/UC176GAQozKKjhz62H8u9vQQ][Real Science]]
+*** Reads :blogs:read:
+**** [[https://idlip.github.io/index.xml][Idlip]] :mine:idlip:
+**** [[https://syndication.howstuffworks.com/rss/HSW][HowStuffWorks]] :stuffs:how:
+**** [[https://tinybuddha.com/emailrss][tiny buddha]]
+**** [[https://follow.it/thecreativepenn][creative pen]]
+*** News :news:
+*** Youtube-Time :youtube:yt:
+**** [[https://yt.funami.tech/feed/channel/UCUdettijNYvLAm4AixZv4RA][SciShow Psych]]
+**** [[https://yt.funami.tech/feed/channel/UCHL9bfHTxCMi-7vfxQ-AYtg][Abroad in Japan]]
+**** [[https://yt.funami.tech/feed/channel/UCZYTClx2T1of7BRZ86-8fow][SciShow]]
+**** [[https://yt.funami.tech/feed/channel/UCzWQYUVCpZqtN93H8RR44Qw][Seeker]]
+**** [[https://yt.funami.tech/feed/channel/UC4Tklxku1yPcRIH0VVCKoeA][Quantum Tech HD]] :quantum:
+**** [[https://yt.funami.tech/feed/channel/UC1xNraQytCPsaoO5N7_YABw][Koranos]]
+**** [[https://yt.funami.tech/feed/channel/UC3CBOpT2-NRvoc2ecFMDCsA][Crime Pays But Botany Doesn't]] :botany:
+**** [[https://yt.funami.tech/feed/channel/UCOh5Ht3eB4914hMUfJkKa9g][Moth Light Media]]
+**** [[https://yt.funami.tech/feed/channel/UCHsRtomD4twRf5WVHHk-cMw][TierZoo]]
+**** [[https://yt.funami.tech/feed/channel/UCVpankR4HtoAVtYnFDUieYA][zefrank1]]
+**** [[https://yt.funami.tech/feed/channel/UCH4BNI0-FOK2dMXoFtViWHw][Be Smart]]
+**** [[https://yt.funami.tech/feed/channel/UCb2GCoLSBXjmI_Qj1vk-44g][Amoeba Sisters]]
+**** [[https://yt.funami.tech/feed/channel/UCEik-U3T6u6JA0XiHLbNbOw][Bozeman Science]]
+**** [[https://yt.funami.tech/feed/channel/UC-3SbfTPJsL8fJAPKiVqBLg][Deep Look]]
+**** [[https://yt.funami.tech/feed/channel/UCsXVk37bltHxD1rDPwtNM8Q][Kurzgesagt – In a Nutshell]]
+**** [[https://yt.funami.tech/feed/channel/UCzR-rom72PHN9Zg7RML9EbA][PBS Eons]]
+**** [[https://yt.funami.tech/feed/channel/UCqYPhGiB9tkShZorfgcL2lA][What I've Learned]]
+**** [[https://yt.funami.tech/feed/channel/UCL8w_A8p8P1HWI3k6PR5Z6w][Two Cents]]
+*** Bio Data :bio:inf:
+**** [[https://journals.plos.org/plosbiology/feed/atom][Plos]]
+**** [[http://blogs.biomedcentral.com/feed/][BioMed]]
+**** [[https://rupress.org/rss/site_1000001/LatestArticles_1000003.xml][Rupress]]
+**** [[https://journals.biologists.com/rss/site_1000009/1000007.xml][Jour-Bio]]
+**** [[https://www.biologycorner.com/feed/][BioCorner]]
+**** [[https://www.cell.com/current-biology/inpress.rss][cell-bio]]
+**** [[https://bitesizebio.com/feed/][BiteSize]]
+**** [[http://feeds.feedburner.com/BiologyExams4U][Bioexam]]
+**** [[https://journals.biologists.com/rss/site_1000001/1000003.xml][Journal-bio]]
+*** Science Spectacular :sci:science:
+**** [[http://rss.sciam.com/ScientificAmerican-Global?format=xml][Scientific American Content: Global]]
+**** [[http://feeds.feedburner.com/BodyHorrors][Body Horrors]]
+**** [[https://what-if.xkcd.com/feed.atom][What If?]]
+**** [[https://www.nasa.gov/rss/dyn/lg_image_of_the_day.rss][NASA Image of the Day]]
+**** [[https://www.newscientist.com/feed/home?cmpid=RSS|NSNS-Home&utm_medium=RSS&utm_source=NSNS&utm_campaign=Home&utm_content=Home][New Scientist - Home]]
+**** [[https://www.popsci.com/rss.xml][Popular Science]]
+**** [[http://sharpbrains.com/feed/][SharpBrains]]
+*** Edu :edu:
+**** [[https://nitter.net/official_ibab/rss][Ibab]] :ibab:
+*** Emacs :emacs:
+**** [[https://planet.emacslife.com/atom.xml][Planet-Emacs]]
+*** Daily :daily:
+**** [[http://feeds.feedburner.com/quotationspage/qotd][Quotes of the Day]]
+**** [[http://feeds.feedburner.com/brainyquote/QUOTEBR][Today's Quote]]
+**** [[https://xkcd.com/rss.xml][xkcd.com]]
+*** Podcast :pod:
+**** [[https://podcasts.files.bbci.co.uk/p02pc9tn.rss][6 Minute English]]
+**** [[https://podcasts.files.bbci.co.uk/p02pc9xz.rss][6 Minute Vocabulary]]
+**** [[https://omnycontent.com/d/playlist/e73c998e-6e60-432f-8610-ae210140c5b1/91C26F87-AA4E-4E61-816B-AE320005BE01/5CA66D21-7139-45EE-8D4E-AE320005BE14/podcast.rss][BrainStuff]]
+**** [[https://audioboom.com/channels/4940872.rss][Casefile True Crime]]
+**** [[https://feeds.simplecast.com/Hqm9LIRP][Curiosity Daily]]
+**** [[https://feeds.acast.com/public/shows/5ec24883bab33c11af39f705][Daily Dose]]
+**** [[https://anchor.fm/s/1b98ea5c/podcast/rss][DH Radio]]
+**** [[https://feeds.buzzsprout.com/2134279.rss][Discovering Emacs]]
+**** [[https://anchor.fm/s/37a76020/podcast/rss][Finshots Daily]]
+**** [[https://feeds.feedburner.com/HowToBeABetterHuman][How to Be a Better Human]]
+**** [[https://www.omnycontent.com/d/playlist/6244f5b5-c2fb-44f4-86cd-ab6b008158ba/afe8be3a-9549-4489-b9de-ad1900d5af58/d4f4211f-5a9f-42ac-9e0c-ad1900d71527/podcast.rss][Insightful in 3 Minutes]]
+**** [[https://linuxunplugged.com/rss][LINUX Unplugged]]
+**** [[https://feeds.acast.com/public/shows/5ec246dc70f8f107de229629][Reporters Without Orders]]
+**** [[https://www.omnycontent.com/d/playlist/e73c998e-6e60-432f-8610-ae210140c5b1/a91018a4-ea4f-4130-bf55-ae270180c327/44710ecc-10bb-48d1-93c7-ae270180c33e/podcast.rss][Stuff You Should Know]]
+**** [[http://feeds.feedburner.com/TEDxSHORTS][TEDx SHORTS]]
+**** [[https://www.omnycontent.com/d/playlist/e0dce4b3-2eb8-48cb-822c-af1d00e03e20/7dbb4b1f-5aa0-480d-96ef-af4f00c6b5f7/f98e9677-a6e2-423b-80b1-af4f00c6b621/podcast.rss][The Habit Coach with Ashdin Doctor]]
+**** [[https://rss.art19.com/think-fast-talk-smart][Think Fast, Talk Smart: Communication Techniques]]
+*** Linux :linux:
+**** [[https://itsfoss.com/rss][itsfoss]]
+*** Media :media:
+**** [[https://yt.funami.tech/feed/channel/UCSV81Z2v0KMzDtH6SFQ62YQ][Movie Ape]]
+**** [[https://yt.funami.tech/feed/channel/UCyXD1jAZBdZ4u0K-GLYC77Q][Movie Recaps]] :gist:
+**** [[https://yt.funami.tech/feed/channel/UCjyv8n7SQOXD75SW0EiAYxA][Film Recaps]]
+**** [[https://yt.funami.tech/feed/channel/UCEmig2PwKGUmaQ9xzFWJ_xA][Mystery Recapped]]
+*** Music Hotline :jazz:music:
+**** [[https://daily.bandcamp.com/feed/][Bandcamp Daily]]
+**** [[https://pitchfork.com/rss/reviews/best/albums/][Best New Albums - Pitchfork]]
+**** [[https://www.stereogum.com/feed/][Stereogum]]
+**** [[https://3hive.com/feed/][3hive]]
+**** [[https://www.nme.com/feed][NME]]
 * 🐲 Matrix
 Just to use matrix for some hacky nerds community
 #+begin_src emacs-lisp
   (unless d/on-droid
-  (use-package ement
-    :bind (:map ement-room-minibuffer-map
-                ("<f6>" . ement-room-compose-from-minibuffer))
-    (:map ement-room-mode-map
-          ("M-<" . ement-room-scroll-down-command))
-    :custom
-    (ement-room-send-message-filter 'ement-room-send-org-filter)
-    (ement-room-message-format-spec "%S> %L%B%r%R%t")
-    (ement-room-list-avatars nil)
-    (ement-save-sessions t)
-    :config
-    ;; copied from viru (ement github)
-    (defun d/ement-connect ()
-      (interactive)
-      (if (ement--read-sessions)
-          (call-interactively #'ement-connect)
-        (let* ((found (auth-source-search :max 1
-                                          :host "matrix.org"
-                                          :port "8448"
-                                          :require '(:user :secret)))
-               (entry (nth 0 found))
-               (password (funcall (plist-get entry :secret)))
-               (user (plist-get entry :user)))
-          (ement-connect :user-id user :password password)))))
+    (use-package ement
+      :bind ("C-c a m" . d/ement-connect)
+      (:map ement-room-minibuffer-map
+            ("<f6>" . ement-room-compose-from-minibuffer))
+      (:map ement-room-mode-map
+            ("M-<" . ement-room-scroll-down-command))
+      :custom
+      (ement-room-send-message-filter 'ement-room-send-org-filter)
+      (ement-room-message-format-spec "%S> %L%B%r%R%t")
+      (ement-room-list-avatars nil)
+      (ement-save-sessions t)
+      :config
+      ;; copied from viru (ement github)
+      (defun d/ement-connect ()
+        (interactive)
+        (if (ement--read-sessions)
+            (call-interactively #'ement-connect)
+          (let* ((found (auth-source-search :max 1
+                                            :host "matrix.org"
+                                            :port "8448"
+                                            :require '(:user :secret)))
+                 (entry (nth 0 found))
+                 (password (funcall (plist-get entry :secret)))
+                 (user (plist-get entry :user)))
+            (ement-connect :user-id user :password password)))))
   )
 
 #+end_src
@@ -2607,7 +2704,7 @@ Idk why, but i guess these all should be the sane defaults.
   (setq save-interprogram-paste-before-kill nil) ;; #FIXE
   (setq kill-do-not-save-duplicates t)
   (setq initial-scratch-message
-        ";; Type to your Will !\n\n")
+        "--- Scratch Buffer ---\n\n\n")
 
   (setq frame-inhibit-implied-resize t)
   ;;(global-prettify-symbols-mode t)
@@ -2707,12 +2804,13 @@ Idk why, but i guess these all should be the sane defaults.
 #+end_src
 
 * 📲 Android
-Emacs is officially supports Android an an app, now you know which is the org-mode reader on android
+Emacs is available for Android as an app, now you know which is the best org-mode reader on android?
 #+begin_src emacs-lisp
   (when d/on-droid
     ;; access phone storage as default
-    (setq default-directory "/storage/emulated/0/")
-    (setq touch-screen-precision-scroll nil)
+    ;; Better is to symlink file to ~/ itself
+    ;;(setq default-directory "/storage/emulated/0/")
+    (setq touch-screen-precision-scroll t)
     (setq touch-screen-display-keyboard t)
     ;; (setq use-dialog-box nil)
     )

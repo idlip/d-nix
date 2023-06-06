@@ -95,7 +95,7 @@ Why not have a block for flake.nix too?
 
     inputs = {
 
-      # Change it to stable, if you want stable channel
+      # Change it to stable, if you want stable channel (23.05)
       nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
       # For Adblocking and making internet usable
@@ -118,7 +118,7 @@ Why not have a block for flake.nix too?
 
     outputs = inputs @ {self, hosts, home-manager, nixpkgs, ...} :
       let
-        # You might check on darwin, or its this is enough
+        # You might check on darwin for macos
         system = "x86_64-linux";
         pkgs = import nixpkgs {
           inherit system;
@@ -220,9 +220,11 @@ Opening brace that contains the rest of the configuration file.
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
   # Sets big font for bootloader, as I have small laptop.
-  # You can remove font and packages line to have default vanilla font.
+  # You can remove font and packages line to have default font kernel chooses.
   console = {
     earlySetup = true;
+    # font = "${pkgs.unifont}/share/fonts/unifont.pcf.gz";
+    # packages = with pkgs; [ unifont ];
     font = "${pkgs.terminus_font}/share/consolefonts/ter-132n.psf.gz";
     packages = with pkgs; [ terminus_font ];
     keyMap = "us";
@@ -243,6 +245,10 @@ Opening brace that contains the rest of the configuration file.
   # As name implies, allows Unfree packages. You can enable in case you wanna install non-free tools (eg: some fonts lol)
   nixpkgs = {
     config = {
+      # keep a check and remove it asap
+      permittedInsecurePackages = [
+        "openssl-1.1.1t"
+      ];
       allowUnfree = true;
       allowBroken = false;
     };
@@ -267,7 +273,7 @@ Opening brace that contains the rest of the configuration file.
 
     # pin the registry to avoid downloading and evaling a new nixpkgs version every time
     registry = lib.mapAttrs (_: value: { flake = value; }) inputs;  
-      
+
     # This will additionally add your inputs to the system's legacy channels  
     # Making legacy nix commands consistent as well, awesome!  
     nixPath = lib.mapAttrsToList (key: value: "${key}=${value.to.path}") config.nix.registry;  
@@ -465,49 +471,47 @@ Certain services, just enable = true; gets the work done for most of the stuffs.
       configDir = "/home/<<my-username>>/.config/syncthing";
       overrideDevices = true;     # overrides any devices added or deleted through the WebUI
       overrideFolders = true;     # overrides any folders added or deleted through the WebUI
-      settings = {
-        devices = {
-          "realme" = { id = "CEV3U3M-EJFLUJ3-UXFBEPG-KHX5EVK-3MSYH2W-BRNZEDH-TVJ4QWZ-X3G2CAW"; };
-          #"device2" = { id = "DEVICE-ID-GOES-HERE"; };
+      devices = {
+        "realme" = { id = "CEV3U3M-EJFLUJ3-UXFBEPG-KHX5EVK-3MSYH2W-BRNZEDH-TVJ4QWZ-X3G2CAW"; };
+        #"device2" = { id = "DEVICE-ID-GOES-HERE"; };
+      };
+      folders = {
+        "music-jazz" = {        # Name of folder in Syncthing, also the folder ID
+          path = "/home/<<my-username>>/music";    # Which folder to add to Syncthing
+          devices = [ "realme" ];      # Which devices to share the folder with
         };
-        folders = {
-          "music-jazz" = {        # Name of folder in Syncthing, also the folder ID
-            path = "/home/<<my-username>>/music";    # Which folder to add to Syncthing
-            devices = [ "realme" ];      # Which devices to share the folder with
-          };
-          "syncs" = {
-            path = "/home/<<my-username>>/sync";
-            devices = [ "realme" ];
-            ignorePerms = false; 
-          };
-          "essentials" = {
-            path = "/home/<<my-username>>/d/Essentials";
-            devices = [ "realme" ];
-          };
-          "reads" = {
-            path = "/home/<<my-username>>/d/reads";
-            devices = [ "realme" ];
-          };
-          "fonts" = {
-            path = "/home/<<my-username>>/d/fonts";
-            devices = [ "realme" ];
-          };
-          "emacs" = {
-            path = "<<my-git-path>>";
-            devices = [ "realme" ];
-          };
-          "news" = {
-            path = "/home/<<my-username>>/.config/emacs/var/elfeed";
-            devices = [ "realme" ];
-          };
-          "theme" = {
-            path = "/home/<<my-username>>/d-git/d-theme";
-            devices = [ "realme" ];
-          };
-          "site" = {
-            path = "/home/<<my-username>>/d-git/d-site";
-            devices = [ "realme" ];
-          };
+        "syncs" = {
+          path = "/home/<<my-username>>/sync";
+          devices = [ "realme" ];
+          ignorePerms = false; 
+        };
+        "essentials" = {
+          path = "/home/<<my-username>>/d/Essentials";
+          devices = [ "realme" ];
+        };
+        "reads" = {
+          path = "/home/<<my-username>>/d/reads";
+          devices = [ "realme" ];
+        };
+        "fonts" = {
+          path = "/home/<<my-username>>/d/fonts";
+          devices = [ "realme" ];
+        };
+        "emacs" = {
+          path = "<<my-git-path>>";
+          devices = [ "realme" ];
+        };
+        "news" = {
+          path = "/home/<<my-username>>/.config/emacs/var/elfeed";
+          devices = [ "realme" ];
+        };
+        "theme" = {
+          path = "/home/<<my-username>>/d-git/d-theme";
+          devices = [ "realme" ];
+        };
+        "site" = {
+          path = "/home/<<my-username>>/d-git/d-site";
+          devices = [ "realme" ];
         };
       };
     };
@@ -589,13 +593,9 @@ Enables additional fonts system wide. See how easy it is to manage fonts with ni
 #+begin_src nix
   fonts = {
     fonts = with pkgs; [
-      #emacs-all-the-icons-fonts
-      noto-fonts
-      #material-icons comic-mono material-design-icons
-      # weather-icons font-awesome 
-      symbola noto-fonts-emoji maple-mono
-      iosevka-comfy.comfy iosevka-comfy.comfy-motion
-      (nerdfonts.override {fonts = ["VictorMono" "FiraCode" "JetBrainsMono"];})
+      noto-fonts unifont
+      symbola noto-fonts-emoji maple-mono comic-mono
+      (nerdfonts.override {fonts = [ "JetBrainsMono" ];})
     ];
 
     enableDefaultFonts = false;
@@ -605,13 +605,12 @@ Enables additional fonts system wide. See how easy it is to manage fonts with ni
       defaultFonts = {
         monospace = [
           "ComicCodeLigatures Nerd Font"
-          "FiraCode Nerd Font"
           "JetBrainsMono Nerd Font"
           "Noto Color Emoji"
         ];
-        sansSerif = [ "Gandhi Sans" "VictorMono Nerd Font" "Noto Sans"];
-        serif = [ "Gandhi Sans" "Noto Sans" "VictorMono Nerd Font" "JetBrainsMono Nerd Font" "Noto Sans"];
-        emoji = ["ComicCodeLigatures Nerd Font" "Noto Color Emoji" "FiraCode Nerd Font" "Symbola" ];
+        sansSerif = [ "JetBrainsMono Nerd Font" "Unifont"];
+        serif = [ "JetBrainsMono Nerd Font" "ComicCodeLigatures Nerd Font" "Unifont" ];
+        emoji = [ "Noto Color Emoji" "ComicCodeLigatures Nerd Font" "Symbola" "Unifont" ];
       };
     };
   };
@@ -1264,7 +1263,6 @@ The better cli alternative!
 #+end_src
 ****** Hyprland config
 #+begin_src conf  :tangle (format "%s/hypr/hyprland.conf" (get-named-src-block-contents "my-configs" t))
-
   monitor=,preferred,auto,1
   workspace=DP-1,1
   # ---- Autostart Apps ----
@@ -1411,7 +1409,6 @@ The better cli alternative!
 
   bind=,Print,exec,d-sshot
   bind=CONTROL,Insert,exec,d-sshot
-  bind=SUPER,a,exec,d-sendnow
 
   bind=SUPER,left,movefocus,l
   bind=SUPER,right,movefocus,r
@@ -1583,12 +1580,7 @@ Its more mature than hyprland. So... better to have it! I dont use sway that muc
 
   programs.emacs = {
     enable = true;
-    # package = pkgs.emacsPgtk;
-    package = pkgs.emacsPgtk.overrideAttrs (old: {
-      passthru = old.passthru // {
-        treeSitter = true;
-      };
-    });
+    package = pkgs.emacs-pgtk;
     extraPackages = (epkgs: (with epkgs; [
       treesit-grammars.with-all-grammars
       vterm multi-vterm vundo undo-fu-session flycheck helpful ox-pandoc
@@ -1846,8 +1838,11 @@ creates profile settings specific to a user, and sets my profile as the default
   .tabbrowser-tab[fadein]:not([pinned]) {
           max-width: var(--max-tab-width) !important;
   }
-  .tab-close-button, .new-tab-button, #firefox-view-button, #scrollbutton-up, .tab-secondary-label {
+  .tab-close-button, #firefox-view-button, #scrollbutton-up, .tab-secondary-label {
           display: none !important;
+  }
+  .new-tab-button {
+          display: right !important;
   }
   .tab-icon-image {
           height: auto !important;

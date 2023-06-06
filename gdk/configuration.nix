@@ -39,9 +39,11 @@ fileSystems = {
 # Select internationalisation properties.
 i18n.defaultLocale = "en_US.UTF-8";
 # Sets big font for bootloader, as I have small laptop.
-# You can remove font and packages line to have default vanilla font.
+# You can remove font and packages line to have default font kernel chooses.
 console = {
   earlySetup = true;
+  # font = "${pkgs.unifont}/share/fonts/unifont.pcf.gz";
+  # packages = with pkgs; [ unifont ];
   font = "${pkgs.terminus_font}/share/consolefonts/ter-132n.psf.gz";
   packages = with pkgs; [ terminus_font ];
   keyMap = "us";
@@ -58,6 +60,10 @@ environment = {
 # As name implies, allows Unfree packages. You can enable in case you wanna install non-free tools (eg: some fonts lol)
 nixpkgs = {
   config = {
+    # keep a check and remove it asap
+    permittedInsecurePackages = [
+      "openssl-1.1.1t"
+    ];
     allowUnfree = true;
     allowBroken = false;
   };
@@ -266,49 +272,47 @@ services = {
     configDir = "/home/i/.config/syncthing";
     overrideDevices = true;     # overrides any devices added or deleted through the WebUI
     overrideFolders = true;     # overrides any folders added or deleted through the WebUI
-    settings = {
-      devices = {
-        "realme" = { id = "CEV3U3M-EJFLUJ3-UXFBEPG-KHX5EVK-3MSYH2W-BRNZEDH-TVJ4QWZ-X3G2CAW"; };
-        #"device2" = { id = "DEVICE-ID-GOES-HERE"; };
+    devices = {
+      "realme" = { id = "CEV3U3M-EJFLUJ3-UXFBEPG-KHX5EVK-3MSYH2W-BRNZEDH-TVJ4QWZ-X3G2CAW"; };
+      #"device2" = { id = "DEVICE-ID-GOES-HERE"; };
+    };
+    folders = {
+      "music-jazz" = {        # Name of folder in Syncthing, also the folder ID
+        path = "/home/i/music";    # Which folder to add to Syncthing
+        devices = [ "realme" ];      # Which devices to share the folder with
       };
-      folders = {
-        "music-jazz" = {        # Name of folder in Syncthing, also the folder ID
-          path = "/home/i/music";    # Which folder to add to Syncthing
-          devices = [ "realme" ];      # Which devices to share the folder with
-        };
-        "syncs" = {
-          path = "/home/i/sync";
-          devices = [ "realme" ];
-          ignorePerms = false; 
-        };
-        "essentials" = {
-          path = "/home/i/d/Essentials";
-          devices = [ "realme" ];
-        };
-        "reads" = {
-          path = "/home/i/d/reads";
-          devices = [ "realme" ];
-        };
-        "fonts" = {
-          path = "/home/i/d/fonts";
-          devices = [ "realme" ];
-        };
-        "emacs" = {
-          path = "/home/i/d-git/d-nix";
-          devices = [ "realme" ];
-        };
-        "news" = {
-          path = "/home/i/.config/emacs/var/elfeed";
-          devices = [ "realme" ];
-        };
-        "theme" = {
-          path = "/home/i/d-git/d-theme";
-          devices = [ "realme" ];
-        };
-        "site" = {
-          path = "/home/i/d-git/d-site";
-          devices = [ "realme" ];
-        };
+      "syncs" = {
+        path = "/home/i/sync";
+        devices = [ "realme" ];
+        ignorePerms = false; 
+      };
+      "essentials" = {
+        path = "/home/i/d/Essentials";
+        devices = [ "realme" ];
+      };
+      "reads" = {
+        path = "/home/i/d/reads";
+        devices = [ "realme" ];
+      };
+      "fonts" = {
+        path = "/home/i/d/fonts";
+        devices = [ "realme" ];
+      };
+      "emacs" = {
+        path = "/home/i/d-git/d-nix";
+        devices = [ "realme" ];
+      };
+      "news" = {
+        path = "/home/i/.config/emacs/var/elfeed";
+        devices = [ "realme" ];
+      };
+      "theme" = {
+        path = "/home/i/d-git/d-theme";
+        devices = [ "realme" ];
+      };
+      "site" = {
+        path = "/home/i/d-git/d-site";
+        devices = [ "realme" ];
       };
     };
   };
@@ -365,13 +369,9 @@ hardware = {
 
 fonts = {
   fonts = with pkgs; [
-    #emacs-all-the-icons-fonts
-    noto-fonts
-    #material-icons comic-mono material-design-icons
-    # weather-icons font-awesome 
-    symbola noto-fonts-emoji maple-mono
-    iosevka-comfy.comfy iosevka-comfy.comfy-motion
-    (nerdfonts.override {fonts = ["VictorMono" "FiraCode" "JetBrainsMono"];})
+    noto-fonts unifont
+    symbola noto-fonts-emoji maple-mono comic-mono
+    (nerdfonts.override {fonts = [ "JetBrainsMono" ];})
   ];
 
   enableDefaultFonts = false;
@@ -381,13 +381,12 @@ fonts = {
     defaultFonts = {
       monospace = [
         "ComicCodeLigatures Nerd Font"
-        "FiraCode Nerd Font"
         "JetBrainsMono Nerd Font"
         "Noto Color Emoji"
       ];
-      sansSerif = [ "Gandhi Sans" "VictorMono Nerd Font" "Noto Sans"];
-      serif = [ "Gandhi Sans" "Noto Sans" "VictorMono Nerd Font" "JetBrainsMono Nerd Font" "Noto Sans"];
-      emoji = ["ComicCodeLigatures Nerd Font" "Noto Color Emoji" "FiraCode Nerd Font" "Symbola" ];
+      sansSerif = [ "JetBrainsMono Nerd Font" "Unifont"];
+      serif = [ "JetBrainsMono Nerd Font" "ComicCodeLigatures Nerd Font" "Unifont" ];
+      emoji = [ "Noto Color Emoji" "ComicCodeLigatures Nerd Font" "Symbola" "Unifont" ];
     };
   };
 };

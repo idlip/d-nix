@@ -343,7 +343,6 @@ If you experience stuttering, increase this.")
               ("M-q" . d/vertico-toggle)
               ("M-RET" . minibuffer-force-complete-and-exit)
               ("M-TAB" . minibuffer-complete))
-
   :init
   (vertico-mode)
   (setq vertico-scroll-margin 5)
@@ -2012,7 +2011,7 @@ Usable as favorites or bookmark."
         ((or (thing-at-point 'url t) (dired-file-name-at-point) (shr-url-at-point nil)) (link-hint-copy-link-at-point))
         (t (link-hint-copy-link)))
   (let ((url (current-kill 0)))
-    (browse-url url)))
+    (browse-url-generic url)))
 
 ;; (advice-add 'eww-readable :after #'d/bionic-read)
 

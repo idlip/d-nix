@@ -102,9 +102,9 @@ Why not have a block for flake.nix too?
       hosts.url = "github:StevenBlack/hosts";
 
       # Greatest Editor of all time. (if you shill on vim, give emacs a try and see first, although it is objective to individual)
-      emacs-overlay = {   
-        url = "github:nix-community/emacs-overlay";
-      };
+      # emacs-overlay = {   
+      #   url = "github:nix-community/emacs-overlay";
+      # };
 
       # Home to manage all user configs
       # You can you use normal config files,
@@ -247,7 +247,7 @@ Opening brace that contains the rest of the configuration file.
     config = {
       # keep a check and remove it asap
       permittedInsecurePackages = [
-        "openssl-1.1.1t"
+        "openssl-1.1.1u"
       ];
       allowUnfree = true;
       allowBroken = false;
@@ -301,12 +301,12 @@ Opening brace that contains the rest of the configuration file.
       # use binary cache, its not gentoo
       substituters = [
         "https://cache.nixos.org"
-        "https://nix-community.cachix.org"
+        # "https://nix-community.cachix.org"
       ];
       # Keys for the sustituters cachix
       trusted-public-keys = [
         "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+        # "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
       ];
     };
   };
@@ -568,7 +568,7 @@ Use overlay for emacs and Nix user repo (firefox extensions)
 You can add your choice of overlay (eg: Discord, helix...)
 #+begin_src nix
   # Add other overlays here
-  nixpkgs.overlays = with inputs; [emacs-overlay.overlay];
+  # nixpkgs.overlays = with inputs; [emacs-overlay.overlay];
 #+end_src
 ** Opengl Hardware
 To use Opengl hardware acceleration using VA-API.
@@ -608,8 +608,8 @@ Enables additional fonts system wide. See how easy it is to manage fonts with ni
           "JetBrainsMono Nerd Font"
           "Noto Color Emoji"
         ];
-        sansSerif = [ "JetBrainsMono Nerd Font" "Unifont"];
-        serif = [ "JetBrainsMono Nerd Font" "ComicCodeLigatures Nerd Font" "Unifont" ];
+        sansSerif = [ "Noto Sans" "JetBrainsMono Nerd Font" "Unifont"];
+        serif = [ "Noto Sans" "JetBrainsMono Nerd Font" "ComicCodeLigatures Nerd Font" "Unifont" ];
         emoji = [ "Noto Color Emoji" "ComicCodeLigatures Nerd Font" "Symbola" "Unifont" ];
       };
     };
@@ -1213,8 +1213,8 @@ The better cli alternative!
     settings = {
       main = {
         term = "xterm-256color";
-        font = "ComicCodeLigatures Nerd Font:size=12, Noto Color Emoji:size=15, FiraCode Nerd Font:size=12";
-        font-bold = "ComicCodeLigatures Nerd Font:size=12, Noto Color Emoji:size=15, FiraCode Nerd Font:size=12";
+        font = "ComicCodeLigatures Nerd Font:size=12, Noto Color Emoji:size=15, JetBrainsMono Nerd Font:size=12";
+        font-bold = "ComicCodeLigatures Nerd Font:size=12, Noto Color Emoji:size=15, JetBrainsMono Nerd Font:size=12";
         letter-spacing = "1";
          box-drawings-uses-font-glyphs = "no";
       };
@@ -1374,6 +1374,7 @@ The better cli alternative!
   windowrule=opaque,mpv
   windowrule=noanim,mpv
   windowrule=noblur,mpv
+  windowrulev2 = move 80% 65%, class:^(mpv)$, title:^(podcast)$
 
   windowrulev2 = float, class:^(firefox)$, title:^(Firefox — Sharing Indicator)$
   windowrule=opaque,imv
@@ -1580,7 +1581,7 @@ Its more mature than hyprland. So... better to have it! I dont use sway that muc
 
   programs.emacs = {
     enable = true;
-    package = pkgs.emacs-pgtk;
+    package = pkgs.emacs29-pgtk;
     extraPackages = (epkgs: (with epkgs; [
       treesit-grammars.with-all-grammars
       vterm multi-vterm vundo undo-fu-session flycheck helpful ox-pandoc
@@ -1999,11 +2000,11 @@ mpv config which is tangled directly
 #+end_src
 
 #+begin_src conf :noweb yes :tangle (format "%s/mpv/mpv.conf" (get-named-src-block-contents "my-configs" t))
-  hwdec=vaapi
-  gpu-hwdec-interop=vaapi
-  vo=gpu
-  profile=gpu-hq
-  gpu-context=wayland
+  # hwdec=vaapi
+  # gpu-hwdec-interop=vaapi
+  # vo=gpu
+  # profile=gpu-hq
+  # gpu-context=wayland
   force-window=yes
   osc=no
   sub-border-size=4.0

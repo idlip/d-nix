@@ -1701,6 +1701,8 @@ selected color."
   :bind (:map shrface-mode-map
               ("<tab>" . shrface-outline-cycle)
               ("<backtab>" . shrface-outline-cycle-buffer)
+              ("M-n" . shr-next-link)
+              ("M-p" . shr-previous-link)
               ("C-j" . shrface-next-headline)
               ("C-k" . shrface-previous-headline))
   :config
@@ -2010,7 +2012,7 @@ Usable as favorites or bookmark."
         ((or (thing-at-point 'url t) (dired-file-name-at-point) (shr-url-at-point nil)) (link-hint-copy-link-at-point))
         (t (link-hint-copy-link)))
   (let ((url (current-kill 0)))
-    (browse-url-generic url)))
+    (browse-url url)))
 
 ;; (advice-add 'eww-readable :after #'d/bionic-read)
 
@@ -2171,7 +2173,7 @@ Usable as favorites or bookmark."
   ;; access phone storage as default
   ;; Better is to symlink file to ~/ itself
   ;;(setq default-directory "/storage/emulated/0/")
-  (setq touch-screen-precision-scroll t)
+  (setq touch-screen-precision-scroll nil)
   (setq touch-screen-display-keyboard t)
   ;; (setq use-dialog-box nil)
   )

@@ -10,9 +10,9 @@
     hosts.url = "github:StevenBlack/hosts";
 
     # Greatest Editor of all time. (if you shill on vim, give emacs a try and see first, although it is objective to individual)
-    emacs-overlay = {   
-      url = "github:nix-community/emacs-overlay";
-    };
+    # emacs-overlay = {   
+    #   url = "github:nix-community/emacs-overlay";
+    # };
 
     # Home to manage all user configs
     # You can you use normal config files,

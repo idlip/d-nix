@@ -365,8 +365,8 @@ programs.foot = {
   settings = {
     main = {
       term = "xterm-256color";
-      font = "ComicCodeLigatures Nerd Font:size=12, Noto Color Emoji:size=15, FiraCode Nerd Font:size=12";
-      font-bold = "ComicCodeLigatures Nerd Font:size=12, Noto Color Emoji:size=15, FiraCode Nerd Font:size=12";
+      font = "ComicCodeLigatures Nerd Font:size=12, Noto Color Emoji:size=15, JetBrainsMono Nerd Font:size=12";
+      font-bold = "ComicCodeLigatures Nerd Font:size=12, Noto Color Emoji:size=15, JetBrainsMono Nerd Font:size=12";
       letter-spacing = "1";
        box-drawings-uses-font-glyphs = "no";
     };
@@ -430,7 +430,7 @@ home.file.".config/emacs/elfeed.org".source = config.lib.file.mkOutOfStoreSymlin
 
 programs.emacs = {
   enable = true;
-  package = pkgs.emacs-pgtk;
+  package = pkgs.emacs29-pgtk;
   extraPackages = (epkgs: (with epkgs; [
     treesit-grammars.with-all-grammars
     vterm multi-vterm vundo undo-fu-session flycheck helpful ox-pandoc

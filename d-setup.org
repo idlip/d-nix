@@ -1,9 +1,36 @@
 #+TITLE: 🧬 D Nixyfied Flaky Station
 #+AUTHOR: iDlip
 #+STARTUP: overview hideblocks
-#+OPTIONS: num:nil author:nil
+#+OPTIONS: num:nil author:nil toc:3
 #+PROPERTY: header-args :tangle-mode (identity #o444) :mkdirp yes
 
+* Table of Contents :toc:
+- [[#-description][📑 Description]]
+- [[#-pre-requisites][📜 Pre-requisites]]
+- [[#-flake][🧊 Flake]]
+- [[#-system-configuration][💻 System Configuration]]
+  - [[#tangled-file-warning][Tangled File Warning]]
+  - [[#inherited-sources][Inherited Sources]]
+  - [[#opening-statement][Opening Statement]]
+  - [[#imports][Imports]]
+  - [[#system-core][System core]]
+  - [[#nix-settings][Nix Settings]]
+  - [[#boot-loader][Boot loader]]
+  - [[#network][Network]]
+  - [[#secure-core][Secure core]]
+  - [[#services][Services]]
+  - [[#system-packages][System Packages]]
+  - [[#overlay][Overlay]]
+  - [[#opengl-hardware][Opengl Hardware]]
+  - [[#system-fonts][System Fonts]]
+  - [[#env][Env]]
+  - [[#system-users][System Users]]
+  - [[#closing-statement][Closing Statement]]
+- [[#-user-configurations][👤 User Configurations]]
+  - [[#i-home][i-home]]
+- [[#-additional-files][📂 Additional FIles]]
+  - [[#first-time-set-up-script][First Time Set Up Script]]
+  - [[#manual-set-up-instructions][Manual Set Up Instructions]]
 
 * 📑 Description
 --------

@@ -1,7 +1,68 @@
 ﻿#+TITLE: 🧬 D Emacs Station
 #+PROPERTY: header-args:emacs-lisp :tangle ./gdk/i-home/configs/emacs/init.el :tangle-mode (identity #o444) :mkdirp yes
-#+TOC: tables
+#+OPTIONS: toc:2
 
+* Table of Contents :toc:
+- [[#misc][Misc]]
+  - [[#stuffs-feel-free-to-sayadd-something-i-will-be-glad][Stuffs (Feel free to say/add something. I will be glad!]]
+  - [[#-tldwr---features][✨ TLDWR - Features]]
+- [[#-early-init][🌅 Early-Init]]
+- [[#-start-ify][🔰 Start-ify]]
+- [[#-fontify][🔤 Fontify]]
+- [[#-cleanliness][📑 Cleanliness]]
+- [[#️-better-bindings][⌨️ Better Bindings]]
+  - [[#custom-functions][Custom functions]]
+  - [[#respected-binds][Respected binds]]
+- [[#-what-key][🎹 What Key?]]
+- [[#-helpful][🍁 Helpful]]
+- [[#-color-ify][🎨 Color-ify]]
+- [[#️-good-mouse-use][🖱️ Good Mouse use?]]
+- [[#-minad---the-messiah][😇 Minad - The Messiah]]
+  - [[#️-vertico---the-first][❤️ Vertico - The first]]
+  - [[#doctor-consultancy][Doctor Consultancy]]
+  - [[#orderless][Orderless]]
+  - [[#info--marginalia][Info = Marginalia]]
+  - [[#embark---just-bark][Embark - Just Bark]]
+  - [[#corfu---the-required-love][Corfu - The Required Love]]
+  - [[#tempel-snip][Tempel Snip]]
+  - [[#modernize---organize][Modernize - Organize]]
+  - [[#jinxed-correction][Jinxed Correction]]
+- [[#️-organize-life][🗄️ Organize Life]]
+  - [[#good-org][Good Org]]
+  - [[#handy-org][Handy Org]]
+  - [[#spell-org][Spell Org]]
+  - [[#present-org][Present Org]]
+  - [[#denote][Denote]]
+- [[#-eye-candy-looks][🍭 Eye Candy Looks]]
+  - [[#-olive-etiquette][🫒 Olive Etiquette]]
+  - [[#mode-line][Mode line]]
+  - [[#-theme][😻 Theme]]
+  - [[#beframe][Beframe]]
+  - [[#smooth-scrolling][Smooth Scrolling]]
+- [[#-ide-like-lsp][💻 IDE like Lsp]]
+  - [[#-treesit][🌳 Treesit]]
+  - [[#-kind-icons][⚡ Kind Icons]]
+- [[#-git-controller][ Git Controller]]
+- [[#-modal-meow][😸 Modal Meow]]
+- [[#-file-manager][📂 File Manager]]
+- [[#-terminal][ Terminal]]
+- [[#-cool-stuffs][🧊 Cool Stuffs]]
+- [[#-apps][✨ Apps]]
+  - [[#-epub---nov][📚 Epub - Nov]]
+  - [[#-shrface---orgify][</> Shrface - Orgify]]
+  - [[#-document---the-pdf][📎 Document - The PDF]]
+  - [[#doc-view][Doc-view]]
+- [[#-functions-mania][🏅 Functions Mania]]
+- [[#-rss---better-web][📰 Rss - Better Web]]
+  - [[#enhanced-rss-experience][Enhanced Rss experience]]
+  - [[#feeds][Feeds]]
+- [[#-matrix][🐲 Matrix]]
+- [[#-good-site][🌐 Good Site]]
+- [[#-goodies][💜 Goodies]]
+- [[#-android][📲 Android]]
+- [[#️-run-always-and-be-everywhere][🏍️ Run Always, and be Everywhere]]
+
+* Misc
 ** Todo Stuffs (Feel free to say/add something. I will be glad!
 **** 😄 Finally Done.. Ooof
 CLOSED: [2023-03-07 Tue 14:27]
@@ -555,7 +616,6 @@ Just check the [[https://github.com/minad/vertico][Vertico github]] repo, you wi
                 ("M-q" . d/vertico-toggle)
                 ("M-RET" . minibuffer-force-complete-and-exit)
                 ("M-TAB" . minibuffer-complete))
-
     :init
     (vertico-mode)
     (setq vertico-scroll-margin 5)
@@ -2544,7 +2604,7 @@ Congratulations, if you are already using Rss, if not, don't worry, you can get 
           ((or (thing-at-point 'url t) (dired-file-name-at-point) (shr-url-at-point nil)) (link-hint-copy-link-at-point))
           (t (link-hint-copy-link)))
     (let ((url (current-kill 0)))
-      (browse-url url)))
+      (browse-url-generic url)))
 
   ;; (advice-add 'eww-readable :after #'d/bionic-read)
 

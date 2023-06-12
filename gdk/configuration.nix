@@ -62,7 +62,7 @@ nixpkgs = {
   config = {
     # keep a check and remove it asap
     permittedInsecurePackages = [
-      "openssl-1.1.1t"
+      "openssl-1.1.1u"
     ];
     allowUnfree = true;
     allowBroken = false;
@@ -116,12 +116,12 @@ nix = {
     # use binary cache, its not gentoo
     substituters = [
       "https://cache.nixos.org"
-      "https://nix-community.cachix.org"
+      # "https://nix-community.cachix.org"
     ];
     # Keys for the sustituters cachix
     trusted-public-keys = [
       "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+      # "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
     ];
   };
 };
@@ -353,7 +353,7 @@ environment.systemPackages = with pkgs; [
 ];
 
 # Add other overlays here
-nixpkgs.overlays = with inputs; [emacs-overlay.overlay];
+# nixpkgs.overlays = with inputs; [emacs-overlay.overlay];
 
 hardware = {
   opengl = {
@@ -384,8 +384,8 @@ fonts = {
         "JetBrainsMono Nerd Font"
         "Noto Color Emoji"
       ];
-      sansSerif = [ "JetBrainsMono Nerd Font" "Unifont"];
-      serif = [ "JetBrainsMono Nerd Font" "ComicCodeLigatures Nerd Font" "Unifont" ];
+      sansSerif = [ "Noto Sans" "JetBrainsMono Nerd Font" "Unifont"];
+      serif = [ "Noto Sans" "JetBrainsMono Nerd Font" "ComicCodeLigatures Nerd Font" "Unifont" ];
       emoji = [ "Noto Color Emoji" "ComicCodeLigatures Nerd Font" "Symbola" "Unifont" ];
     };
   };

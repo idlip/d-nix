@@ -1684,11 +1684,8 @@ Mode-line to make stuff easy to use
 
 #+end_src
 ** 😻 Theme
-I was using =doom-themes= actually, but they are not that good, tho I like doom-gruvbox alot. modus-vivendi is also well made, dedicatingly for emacs.
-After long  usage, you will realize that Modus-themes is a *masterpiece* made by Protesilaos (Prot).
-+ Works very well with eww browser too, url bar looks fine.
-  Its subjective to you!
-+ I have made my own theme now!
+After using modus-vivendi, I thought i settled on it, but by time, i got itched with it.
++ So now I have made my own theme. Check it here: https://github.com/idlip/haki
       #+begin_src emacs-lisp
 
         (setq modus-themes-italic-constructs t

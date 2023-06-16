@@ -207,7 +207,7 @@ If you experience stuttering, increase this.")
 (defun d/edit-src-block ()
   "Makes editing src block focused in its respective major mode"
   (interactive)
-  (if (org-src-edit-buffer-p)         (org-edit-src-abort)
+  (if (org-src-edit-buffer-p) (org-edit-src-abort)
     (progn (org-edit-special) (window-focus-mode))))
 
 (defun d/insert-unicodes (add-unicodes)
@@ -229,6 +229,32 @@ If you experience stuttering, increase this.")
      (org-archive-subtree)
      (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
    "/DONE" 'tree))
+
+(defun d/join-lines (specify-separator)
+  "Join lines in the active region by a separator, by default a comma.
+Specify the separator by typing C-u before executing this command."
+  (interactive "P")
+  (require 's)
+  (unless (region-active-p)
+    (message "select a region of lines first."))
+  (let* ((separator (if (not specify-separator)
+                        ","
+                      (read-string "Separator: ")))
+         (text (buffer-substring-no-properties
+                (region-beginning)
+                (region-end)))
+         (lines (split-string text "\n"))
+         (result (s-join separator lines)))
+    (delete-region (region-beginning) (region-end))
+    (insert result)))
+
+(defun d/narrow-or-widen-dwim ()  
+  "If the buffer is narrowed, it widens. Otherwise, it narrows to region, or Org subtree."  
+  (interactive)  
+  (cond ((buffer-narrowed-p) (widen))  
+        ((region-active-p) (narrow-to-region (region-beginning) (region-end)))  
+        ((equal major-mode 'org-mode) (org-narrow-to-subtree))  
+        (t (error "Please select a region to narrow to"))))
 
 (dolist (keybind '(("M-o" . other-window)
                    ("C-<tab>" . tab-next)
@@ -358,7 +384,13 @@ If you experience stuttering, increase this.")
           (consult-location )
           (t unobtrusive)))
   (setq vertico-multiform-commands
-        '((consult-ripgrep ))))
+        '((consult-ripgrep )))
+  (setq completion-in-region-function
+        (lambda (&rest args)
+          (apply (if vertico-mode
+                     #'consult-completion-in-region
+                   #'completion--in-region)
+                 args))))
 
 (defun d/vertico-toggle ()
   "Toggle between vertico-unobtrusive and vertico-mode."
@@ -798,7 +830,7 @@ selected color."
 
 
 (defun org-mode-setup ()
-  (org-indent-mode 1)
+  ;; (org-indent-mode 1)
   (org-display-inline-images 1)
   (variable-pitch-mode 1)
   ;; (org-font-setup)
@@ -1170,15 +1202,48 @@ selected color."
 )
 
 (unless d/on-droid
-(use-package doom-modeline
-  :init (doom-modeline-mode 1)
-  (setq doom-modeline-time-icon nil)
-  (setq doom-modeline-bar-width 7)
-  (setq doom-modeline-major-mode-icon t)
-  (setq inhibit-compacting-font-caches t)
-  :custom ((doom-modeline-height 30)
-           (doom-modeline-buffer-encoding nil)))
-)
+  (use-package doom-modeline
+    :init (doom-modeline-mode 1)
+    :custom
+    (doom-modeline-time-icon nil)
+    (doom-modeline-bar-width 7)
+    (doom-modeline-major-mode-icon t)
+    (inhibit-compacting-font-caches t)
+    (doom-modeline-support-imenu t)
+    (doom-modeline-icon t)
+    (doom-modeline-major-mode-icon t)
+    (doom-modeline-major-mode-color-icon t)
+    (doom-modeline-buffer-state-icon t)
+    (doom-modeline-buffer-modification-icon t)
+    (doom-modeline-time-icon t)
+    (doom-modeline-unicode-fallback t)
+    (doom-modeline-buffer-name t)
+    (doom-modeline-highlight-modified-buffer-name t)
+    (doom-modeline-minor-modes nil)
+    (doom-modeline-enable-word-count t)
+    (doom-modeline-continuous-word-count-modes '(markdown-mode gfm-mode org-mode))
+    (doom-modeline-buffer-encoding nil)
+    (doom-modeline-indent-info nil)
+    (doom-modeline-checker-simple-format t)
+    (doom-modeline-number-limit 99)
+    (doom-modeline-vcs-max-length 12)
+    (doom-modeline-workspace-name nil)
+    (doom-modeline-persp-name nil)
+    (doom-modeline-display-default-persp-name nil)
+    (doom-modeline-persp-icon t)
+    (doom-modeline-lsp t)
+    (doom-modeline-github nil)
+    (doom-modeline-modal t)
+    (doom-modeline-modal-icon t)
+    (doom-modeline-battery nil)
+    (doom-modeline-time nil)
+    (doom-modeline-env-version t)
+    (doom-modeline-env-python-executable "python") ; or `python-shell-interpreter'
+    (doom-modeline-env-load-string "...")
+
+    (doom-modeline-height 30)
+    (doom-modeline-buffer-encoding nil)))
+
 
 ;; to hide during presentation and writing
 (use-package hide-mode-line
@@ -1210,7 +1275,7 @@ selected color."
 ;; My own theme
 (add-to-list 'custom-theme-load-path "~/.config/emacs/var/theme/")
 (load-theme 'haki t)
-(add-hook 'post-command-hook #'haki-meow-mode-line)
+(add-hook 'post-command-hook #'haki-modal-mode-line)
 ;; For foot to show colors properly
 (add-to-list 'term-file-aliases '("foot" . "xterm"))
 
@@ -1307,9 +1372,9 @@ selected color."
      (toml-mode . toml-ts-mode)
      (yaml-mode . yaml-ts-mode))))
 
-(use-package nerd-icons
-  :custom
-  (nerd-icons-font-family d/fixed-width-font))
+(use-package nerd-icons)
+  ;; :custom
+  ;; (nerd-icons-font-family d/fixed-width-font))
 
 (use-package kind-icon
   :after corfu
@@ -1758,6 +1823,7 @@ selected color."
   :mode ("\\.epub\\'" . doc-view-mode)
   :custom
   (doc-view-continuous t)
+  (doc-view-mupdf-use-svg t)
   (doc-view-image-width 900))
 
 (defun config-reload ()
@@ -1861,6 +1927,8 @@ selected color."
         ("i" . d/bionic-read)
         ("r" . elfeed-open-in-reddit)
         ("m" . elfeed-toggle-show-star)
+        ("q" . d/elfeed-quit)
+        ("C-x C-k" . d/elfeed-quit)
         ("b" . d/external-browser))
   (:map elfeed-search-mode-map
         ("m" . elfeed-toggle-star)
@@ -1871,17 +1939,19 @@ selected color."
   :config
   ;; (setq-default elfeed-search-filter "@1-week-ago--1-day-ago +unread -news +")
   (setq-default elfeed-search-filter "+unread +")
-  (setq elfeed-search-date-format (if d/on-droid `("" 0 :left)  `("%m-%d 📰" 7 :left)))
+  (setq elfeed-search-date-format (if d/on-droid `("" 0 :left)  `("%d-%m 📰" 7 :left)))
   (setq elfeed-search-title-max-width 90
         elfeed-search-trailing-width 0)
   (defun elfeed-toggle-show-star ()
     (interactive)
-    (elfeed-show-tag 'star)
-    (org-capture nil "l"))
+    (if (elfeed-tagged-p 'star elfeed-show-entry)
+        (elfeed-show-untag 'star)
+      (elfeed-show-tag 'star)))
+    ;; (org-capture nil "l"))
   (defun elfeed-toggle-star ()
     (interactive)
-    (elfeed-search-toggle-all 'star)
-    (org-capture nil "l"))
+    (elfeed-search-toggle-all 'star))
+    ;; (org-capture nil "l"))
 
   (defun d/elfeed-ui ()
     (interactive)

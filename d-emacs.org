@@ -146,7 +146,7 @@ Some of the highlights which you might wanna copy or take from this config :
     (advice-add #'display-startup-echo-area-message :override #'ignore))
 
   (defvar d/on-droid
-    (string-suffix-p "Toybox" (string-trim (shell-command-to-string "uname -o")))
+    (memq system-type '(android))
     "Check if running on android phone")
 
   (setq
@@ -268,6 +268,11 @@ Manage Font size, Initialize Package setup and sends you startup time (Daemonize
     "If you experience freezing, decrease this.
   If you experience stuttering, increase this.")
 
+  ;; to throw custom.el separely
+  (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+  (when (file-exists-p custom-file)
+    (load custom-file 'noerror))
+
   (add-hook 'emacs-startup-hook
             (lambda ()
               (setq gc-cons-threshold better-gc-cons-threshold)
@@ -366,9 +371,15 @@ Fonts are crucial to read.
     (set-face-attribute 'fixed-pitch nil :family d/fixed-width-font :height default-font-size)
 
     ;; Set the variable pitch face (document text)
-    (set-face-attribute 'variable-pitch nil :family d/variable-width-font :height default-variable-font-size :weight 'medium)
-    (global-font-lock-mode 1)
-    (setq font-lock-maximum-decoration t))
+    (set-face-attribute 'variable-pitch nil :family d/variable-width-font :height default-variable-font-size :weight 'medium))
+
+  (use-package font-lock
+    :ensure nil
+    :custom ((font-lock-maximum-decoration t)
+             (font-lock-global-modes '(not shell-mode text-mode))
+             (font-lock-verbose t))
+    :config
+    (global-font-lock-mode 1))
   #+end_src
 
 * 📑 Cleanliness
@@ -510,6 +521,7 @@ Keep folders and backuping files clean!
                      ;; insert color or nerd icons
                      ("C-c d i" . d/insert-unicodes)
                      ("C-c d c" . d/insert-colors)
+                     ("C-x n n" . d/narrow-or-widen-dwim)
                      ;; better splits
                      ("C-x 2" . split-and-follow-below)
                      ("C-x 3" . split-and-follow-right)
@@ -1826,6 +1838,24 @@ I'm not a programmer, maybe will be expanded in future..
   ;; (use-package eglot-tempel
   ;;   :disabled t
   ;;   :load-path "~/.config/emacs/elpa/eglot-tempel")
+
+  ;; taken from Robb Enzmann
+  (defun d/pyrightconfig-write (virtualenv)
+    "Write a `pyrightconfig.json' file at the Git root of a project
+  with `venvPath' and `venv' set to the absolute path of
+  `virtualenv'.  When run interactively, prompts for a directory to
+  select."
+    (interactive "DEnv: ")
+    ;; Naming convention for venvPath matches the field for pyrightconfig.json
+    (let* ((venv-dir (tramp-file-local-name (file-truename virtualenv)))
+           (venv-file-name (directory-file-name venv-dir))
+           (venvPath (file-name-directory venv-file-name))
+           (venv (file-name-base venv-file-name))
+           (base-dir (vc-git-root default-directory))
+           (out-file (expand-file-name "pyrightconfig.json" base-dir))
+           (out-contents (json-encode (list :venvPath venvPath :venv venv))))
+      (with-temp-file out-file (insert out-contents))
+      (message (concat "Configured `" out-file "` to use environment `" venv-dir))))
 #+end_src
 ** 🌳 Treesit
 #+begin_src emacs-lisp
@@ -2571,7 +2601,11 @@ Use RSS, just switch to it, and save your time for other productive things. If y
            :description title))))
 
     (add-hook 'org-store-link-functions
-              'private/org-elfeed-entry-store-link))
+              'private/org-elfeed-entry-store-link)
+
+    (when d/on-droid
+  (define-key elfeed-show-mode-map (kbd "<volume-up>") #'elfeed-show-next)
+  (define-key elfeed-show-mode-map (kbd "<volume-down>") #'elfeed-show-prev)))
 
   (use-package link-hint
     :defer t
@@ -2686,9 +2720,6 @@ Congratulations, if you are already using Rss, if not, don't worry, you can get 
 *** Reads :blogs:read:
 **** [[https://idlip.github.io/index.xml][Idlip]] :mine:idlip:
 **** [[https://syndication.howstuffworks.com/rss/HSW][HowStuffWorks]] :stuffs:how:
-**** [[https://tinybuddha.com/emailrss][tiny buddha]]
-**** [[https://follow.it/thecreativepenn][creative pen]]
-*** News :news:
 *** Youtube-Time :youtube:yt:
 **** [[https://yt.funami.tech/feed/channel/UCUdettijNYvLAm4AixZv4RA][SciShow Psych]]
 **** [[https://yt.funami.tech/feed/channel/UCHL9bfHTxCMi-7vfxQ-AYtg][Abroad in Japan]]
@@ -2708,27 +2739,16 @@ Congratulations, if you are already using Rss, if not, don't worry, you can get 
 **** [[https://yt.funami.tech/feed/channel/UCzR-rom72PHN9Zg7RML9EbA][PBS Eons]]
 **** [[https://yt.funami.tech/feed/channel/UCqYPhGiB9tkShZorfgcL2lA][What I've Learned]]
 **** [[https://yt.funami.tech/feed/channel/UCL8w_A8p8P1HWI3k6PR5Z6w][Two Cents]]
-*** Bio Data :bio:inf:
-**** [[https://journals.plos.org/plosbiology/feed/atom][Plos]]
-**** [[http://blogs.biomedcentral.com/feed/][BioMed]]
-**** [[https://rupress.org/rss/site_1000001/LatestArticles_1000003.xml][Rupress]]
-**** [[https://journals.biologists.com/rss/site_1000009/1000007.xml][Jour-Bio]]
-**** [[https://www.biologycorner.com/feed/][BioCorner]]
-**** [[https://www.cell.com/current-biology/inpress.rss][cell-bio]]
-**** [[https://bitesizebio.com/feed/][BiteSize]]
-**** [[http://feeds.feedburner.com/BiologyExams4U][Bioexam]]
-**** [[https://journals.biologists.com/rss/site_1000001/1000003.xml][Journal-bio]]
-*** Science Spectacular :sci:science:
-**** [[http://rss.sciam.com/ScientificAmerican-Global?format=xml][Scientific American Content: Global]]
-**** [[http://feeds.feedburner.com/BodyHorrors][Body Horrors]]
-**** [[https://what-if.xkcd.com/feed.atom][What If?]]
-**** [[https://www.nasa.gov/rss/dyn/lg_image_of_the_day.rss][NASA Image of the Day]]
-**** [[https://www.popsci.com/rss.xml][Popular Science]]
-**** [[http://sharpbrains.com/feed/][SharpBrains]]
 *** Edu :edu:
 **** [[https://nitter.net/official_ibab/rss][Ibab]] :ibab:
+*** Bioinf :bioinf:
+**** [[http://www.bio-itworld.com/RSS/BioIT_WorldNews_RSS.aspx][bio-it]] 
+**** [[https://bmcbioinformatics.biomedcentral.com/articles/most-recent/rss.xml][bmc-bioinf]]
+**** [[https://www.rna-seqblog.com/feed/][rna-seq]]
+**** [[https://www.nature.com/subjects/computational-biology-and-bioinformatics.rss][nature]]
 *** Emacs :emacs:
 **** [[https://planet.emacslife.com/atom.xml][Planet-Emacs]]
+**** [[https://systemcrafters.net/rss/news.xml][system-crafters]]
 *** Daily :daily:
 **** [[http://feeds.feedburner.com/quotationspage/qotd][Quotes of the Day]]
 **** [[http://feeds.feedburner.com/brainyquote/QUOTEBR][Today's Quote]]
@@ -2814,6 +2834,10 @@ Idk why, but i guess these all should be the sane defaults.
   ;; (server-start)
 
   (global-visual-line-mode 1)
+  (global-so-long-mode t)
+
+  (recentf-mode t)
+  (global-auto-revert-mode)
 
   ;; Display messages when idle, without prompting
   (setq help-at-pt-display-when-idle t)
@@ -2857,7 +2881,7 @@ Idk why, but i guess these all should be the sane defaults.
   (setq  display-line-numbers-type 'relative)
   (setq text-scale-mode-step 1.1)
   (setq frame-resize-pixelwise t)
-  (global-hl-line-mode 1)
+  (global-hl-line-mode 0)
   (column-number-mode -1)
   (line-number-mode 1)
   (delete-selection-mode +1)

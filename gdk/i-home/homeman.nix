@@ -159,8 +159,8 @@ pcmanfm fzf neovim btop unzip
 aspell aspellDicts.en-science aspellDicts.en hunspell hunspellDicts.en-us
 ripgrep nitch libreoffice pandoc newsboat mupdf
 rsync ffmpeg sdcv imagemagick groff
-wkhtmltopdf-bin
-fd ncdu mu isync ts syncthing dconf
+wkhtmltopdf-bin 
+fd ncdu mu isync nq syncthing dconf
 jq keepassxc figlet
 
 # themes
@@ -178,6 +178,7 @@ nodePackages.bash-language-server
   nodePackages.pyright
   python3
   nil 
+  R rPackages.languageserver
   tree-sitter
   texlive.combined.scheme-full
 

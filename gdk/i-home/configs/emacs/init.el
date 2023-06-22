@@ -40,6 +40,11 @@
   "If you experience freezing, decrease this.
 If you experience stuttering, increase this.")
 
+;; to throw custom.el separely
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(when (file-exists-p custom-file)
+  (load custom-file 'noerror))
+
 (add-hook 'emacs-startup-hook
           (lambda ()
             (setq gc-cons-threshold better-gc-cons-threshold)
@@ -133,9 +138,15 @@ If you experience stuttering, increase this.")
   (set-face-attribute 'fixed-pitch nil :family d/fixed-width-font :height default-font-size)
 
   ;; Set the variable pitch face (document text)
-  (set-face-attribute 'variable-pitch nil :family d/variable-width-font :height default-variable-font-size :weight 'medium)
-  (global-font-lock-mode 1)
-  (setq font-lock-maximum-decoration t))
+  (set-face-attribute 'variable-pitch nil :family d/variable-width-font :height default-variable-font-size :weight 'medium))
+
+(use-package font-lock
+  :ensure nil
+  :custom ((font-lock-maximum-decoration t)
+           (font-lock-global-modes '(not shell-mode text-mode))
+           (font-lock-verbose t))
+  :config
+  (global-font-lock-mode 1))
 
 (use-package no-littering               ; Keep .emacs.d clean
   :custom
@@ -267,6 +278,7 @@ Specify the separator by typing C-u before executing this command."
                    ;; insert color or nerd icons
                    ("C-c d i" . d/insert-unicodes)
                    ("C-c d c" . d/insert-colors)
+                   ("C-x n n" . d/narrow-or-widen-dwim)
                    ;; better splits
                    ("C-x 2" . split-and-follow-below)
                    ("C-x 3" . split-and-follow-right)
@@ -359,7 +371,7 @@ Specify the separator by typing C-u before executing this command."
 (use-package vertico
   :bind (:map vertico-map
               ("?" . minibuffer-completion-help)
-              ("RET" . vertico-directory-enter)
+              ("<return>" . vertico-directory-enter)
               ("DEL" . vertico-directory-delete-char)
               ("M-DEL" . vertico-directory-delete-word)
               ("M-j" . vertico-quick-exit)
@@ -1348,6 +1360,24 @@ selected color."
 ;;   :disabled t
 ;;   :load-path "~/.config/emacs/elpa/eglot-tempel")
 
+;; taken from Robb Enzmann
+(defun d/pyrightconfig-write (virtualenv)
+  "Write a `pyrightconfig.json' file at the Git root of a project
+with `venvPath' and `venv' set to the absolute path of
+`virtualenv'.  When run interactively, prompts for a directory to
+select."
+  (interactive "DEnv: ")
+  ;; Naming convention for venvPath matches the field for pyrightconfig.json
+  (let* ((venv-dir (tramp-file-local-name (file-truename virtualenv)))
+         (venv-file-name (directory-file-name venv-dir))
+         (venvPath (file-name-directory venv-file-name))
+         (venv (file-name-base venv-file-name))
+         (base-dir (vc-git-root default-directory))
+         (out-file (expand-file-name "pyrightconfig.json" base-dir))
+         (out-contents (json-encode (list :venvPath venvPath :venv venv))))
+    (with-temp-file out-file (insert out-contents))
+    (message (concat "Configured `" out-file "` to use environment `" venv-dir))))
+
 (use-package treesit
   :ensure nil
   :custom
@@ -1758,17 +1788,17 @@ selected color."
 (use-package shrface
   :after shr
   :hook ((eww-mode . shrface-mode)
-         (elfeed-show-mode . shrface-mode)
-         (nov-mode . shrface-mode))
+	 (elfeed-show-mode . shrface-mode)
+	 (nov-mode . shrface-mode))
   :init
   (setq shrface-item-bullet 8226)
   :bind (:map shrface-mode-map
-              ("<tab>" . shrface-outline-cycle)
-              ("<backtab>" . shrface-outline-cycle-buffer)
-              ("M-n" . shr-next-link)
-              ("M-p" . shr-previous-link)
-              ("C-j" . shrface-next-headline)
-              ("C-k" . shrface-previous-headline))
+	      ("<tab>" . shrface-outline-cycle)
+	      ("<backtab>" . shrface-outline-cycle-buffer)
+	      ("M-n" . shr-next-link)
+	      ("M-p" . shr-previous-link)
+	      ("C-j" . shrface-next-headline)
+	      ("C-k" . shrface-previous-headline))
   :config
   (shrface-basic)
   (shrface-trial)
@@ -1783,40 +1813,40 @@ selected color."
   (defun shrface-shr-tag-pre-highlight (pre)
     "Highlighting code in PRE."
     (let* ((shr-folding-mode 'none)
-           (shr-current-font 'default)
-           (code (with-temp-buffer
-                   (shr-generic pre)
-                   ;; (indent-rigidly (point-min) (point-max) 2)
-                   (buffer-string)))
-           (lang (or (shr-tag-pre-highlight-guess-language-attr pre)
-                     (let ((sym (language-detection-string code)))
-                       (and sym (symbol-name sym)))))
-           (mode (and lang
-                      (shr-tag-pre-highlight--get-lang-mode lang))))
+	   (shr-current-font 'default)
+	   (code (with-temp-buffer
+		   (shr-generic pre)
+		   ;; (indent-rigidly (point-min) (point-max) 2)
+		   (buffer-string)))
+	   (lang (or (shr-tag-pre-highlight-guess-language-attr pre)
+		     (let ((sym (language-detection-string code)))
+		       (and sym (symbol-name sym)))))
+	   (mode (and lang
+		      (shr-tag-pre-highlight--get-lang-mode lang))))
       (shr-ensure-newline)
       (shr-ensure-newline)
       (setq start (point))
       (insert
        (propertize (concat "#+BEGIN_SRC " lang "\n") 'face 'org-block-begin-line)
        (or (and (fboundp mode)
-                (with-demoted-errors "Error while fontifying: %S"
-                  (shr-tag-pre-highlight-fontify code mode)))
-           code)
+		(with-demoted-errors "Error while fontifying: %S"
+		  (shr-tag-pre-highlight-fontify code mode)))
+	   code)
        (propertize "#+END_SRC" 'face 'org-block-end-line ))
       (shr-ensure-newline)
       (setq end (point))
       (if light
-          (add-face-text-property start end '(:background "#D8DEE9" :extend t))
-        (add-face-text-property start end '(:background "#292b2e" :extend t)))
+	  (add-face-text-property start end '(:background "#D8DEE9" :extend t))
+	(add-face-text-property start end '(:background "#292b2e" :extend t)))
       (shr-ensure-newline)
       (insert "\n")))
 
   (add-to-list 'shr-external-rendering-functions
-               '(pre . shr-tag-pre-highlight))
+	       '(pre . shr-tag-pre-highlight))
   (when (version< emacs-version "26")
     (with-eval-after-load 'eww
       (advice-add 'eww-display-html :around
-                  'eww-display-html--override-shr-external-rendering-functions))))
+		  'eww-display-html--override-shr-external-rendering-functions))))
 
 (use-package doc-view
   :ensure nil
@@ -1923,29 +1953,29 @@ selected color."
   :bind ("C-c d e" . d/elfeed-open)
   ("C-c d b" . d/external-browser)
   (:map elfeed-show-mode-map
-        ("e" . elfeed-open-in-eww)
-        ("i" . d/bionic-read)
-        ("r" . elfeed-open-in-reddit)
-        ("m" . elfeed-toggle-show-star)
-        ("q" . d/elfeed-quit)
-        ("C-x C-k" . d/elfeed-quit)
-        ("b" . d/external-browser))
+	("e" . elfeed-open-in-eww)
+	("i" . d/bionic-read)
+	("r" . elfeed-open-in-reddit)
+	("m" . elfeed-toggle-show-star)
+	("q" . d/elfeed-quit)
+	("C-x C-k" . d/elfeed-quit)
+	("b" . d/external-browser))
   (:map elfeed-search-mode-map
-        ("m" . elfeed-toggle-star)
-        ("q" . d/elfeed-quit)
-        ("C-x C-k" . d/elfeed-quit)
-        ("U" . elfeed-update)
-        ("u" . elfeed-update-feed))
+	("m" . elfeed-toggle-star)
+	("q" . d/elfeed-quit)
+	("C-x C-k" . d/elfeed-quit)
+	("U" . elfeed-update)
+	("u" . elfeed-update-feed))
   :config
   ;; (setq-default elfeed-search-filter "@1-week-ago--1-day-ago +unread -news +")
   (setq-default elfeed-search-filter "+unread +")
   (setq elfeed-search-date-format (if d/on-droid `("" 0 :left)  `("%d-%m 📰" 7 :left)))
   (setq elfeed-search-title-max-width 90
-        elfeed-search-trailing-width 0)
+	elfeed-search-trailing-width 0)
   (defun elfeed-toggle-show-star ()
     (interactive)
     (if (elfeed-tagged-p 'star elfeed-show-entry)
-        (elfeed-show-untag 'star)
+	(elfeed-show-untag 'star)
       (elfeed-show-tag 'star)))
     ;; (org-capture nil "l"))
   (defun elfeed-toggle-star ()
@@ -1983,13 +2013,17 @@ selected color."
 Usable as favorites or bookmark."
     (when elfeed-show-entry
       (let* ((link (elfeed-entry-link elfeed-show-entry))
-             (title (elfeed-entry-title elfeed-show-entry)))
-        (org-store-link-props
-         :link link
-         :description title))))
+	     (title (elfeed-entry-title elfeed-show-entry)))
+	(org-store-link-props
+	 :link link
+	 :description title))))
 
   (add-hook 'org-store-link-functions
-            'private/org-elfeed-entry-store-link))
+	    'private/org-elfeed-entry-store-link)
+
+  (when d/on-droid
+(define-key elfeed-show-mode-map (kbd "<volume-up>") #'elfeed-show-next)
+(define-key elfeed-show-mode-map (kbd "<volume-down>") #'elfeed-show-prev)))
 
 (use-package link-hint
   :defer t
@@ -2022,7 +2056,7 @@ Usable as favorites or bookmark."
   "open in eww"
   (interactive)
   (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
-    (eww (elfeed-entry-link entry))
+    (eww-open-in-new-buffer (elfeed-entry-link entry))
     (add-hook 'eww-after-render-hook 'readable-article)))
 
 (defun elfeed-open-in-reddit ()
@@ -2034,17 +2068,17 @@ Usable as favorites or bookmark."
 (use-package eww
   :bind ("M-s M-w" . eww-search-words)
   (:map eww-mode-map
-        ("e" . readable-article)
-        ("Q" . d/kill-buffer)
-        ("M-v" . d/scroll-up)
-        ("RET" . eww-follow-link)
-        ("C-v" . d/scroll-down)
-        ("m" . elfeed-toggle-star)
-        ("b" . d/external-browser))
+	("e" . readable-article)
+	("Q" . d/kill-buffer)
+	("M-v" . d/scroll-up)
+	("<return>" . eww-follow-link)
+	("C-v" . d/scroll-down)
+	("m" . elfeed-toggle-star)
+	("b" . d/external-browser))
   :config
   (setq shr-bullet "• "
-        shr-folding-mode t
-        url-privacy-level '(email agent cookies lastloc))
+	shr-folding-mode t
+	url-privacy-level '(email agent cookies lastloc))
   (setq url-user-agent "")
   (setq url-privacy-level 'paranoid)
   (url-setup-privacy-info) 
@@ -2058,16 +2092,16 @@ Usable as favorites or bookmark."
      :name     "Eww"
      :narrow   ?e
      :action   (lambda (bm)
-                 (eww-browse-url (get-text-property 0 'url bm)))
+		 (eww-browse-url (get-text-property 0 'url bm)))
      :items    (lambda ()
-                 (eww-read-bookmarks)
-                 (mapcar (lambda (bm)
-                           (propertize
-                            (format "%s (%s)"
-                                    (plist-get bm :url)
-                                    (plist-get bm :title))
-                            'url (plist-get bm :url)))
-                         eww-bookmarks))))
+		 (eww-read-bookmarks)
+		 (mapcar (lambda (bm)
+			   (propertize
+			    (format "%s (%s)"
+				    (plist-get bm :url)
+				    (plist-get bm :title))
+			    'url (plist-get bm :url)))
+			 eww-bookmarks))))
   (add-to-list 'consult-buffer-sources 'consult--source-eww 'append))
 
 (use-package gnutls
@@ -2130,6 +2164,10 @@ Usable as favorites or bookmark."
 ;; (server-start)
 
 (global-visual-line-mode 1)
+(global-so-long-mode t)
+
+(recentf-mode t)
+(global-auto-revert-mode)
 
 ;; Display messages when idle, without prompting
 (setq help-at-pt-display-when-idle t)
@@ -2137,13 +2175,14 @@ Usable as favorites or bookmark."
 (setopt set-mark-command-repeat-pop t)
 (setq sentence-end-double-space nil)
 (setq sentence-end "[.?!] ")
-(setq-default indent-tabs-mode nil)
+(setq indent-tabs-mode nil)
 (setq save-interprogram-paste-before-kill nil) ;; #FIXE
 (setq kill-do-not-save-duplicates t)
 (setq initial-scratch-message
       "--- Scratch Buffer ---\n\n\n")
 
 (setq frame-inhibit-implied-resize t)
+(setq jit-lock-defer-time 0.25)
 ;;(global-prettify-symbols-mode t)
 
 ;; tabs
@@ -2173,7 +2212,7 @@ Usable as favorites or bookmark."
 (setq  display-line-numbers-type 'relative)
 (setq text-scale-mode-step 1.1)
 (setq frame-resize-pixelwise t)
-(global-hl-line-mode 1)
+(global-hl-line-mode 0)
 (column-number-mode -1)
 (line-number-mode 1)
 (delete-selection-mode +1)
@@ -2205,18 +2244,18 @@ Usable as favorites or bookmark."
 
 ;; Disable line numbers for some modes
 (dolist (mode '(org-mode-hook
-                vterm-mode-hook
-                term-mode-hook
-                shell-mode-hook
-                olivetti-mode-hook
-                eww-mode-hook
-                treemacs-mode-hook
-                doc-view-mode-hook
-                archive-mode-hook
-                image-mode-hook
-                elfeed-show-mode-hook
-                elfeed-search-mode-hook
-                eshell-mode-hook))
+		vterm-mode-hook
+		term-mode-hook
+		shell-mode-hook
+		olivetti-mode-hook
+		eww-mode-hook
+		treemacs-mode-hook
+		doc-view-mode-hook
+		archive-mode-hook
+		image-mode-hook
+		elfeed-show-mode-hook
+		elfeed-search-mode-hook
+		eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 (blink-cursor-mode -1)

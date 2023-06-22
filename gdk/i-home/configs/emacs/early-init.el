@@ -41,7 +41,7 @@
   (advice-add #'display-startup-echo-area-message :override #'ignore))
 
 (defvar d/on-droid
-  (string-suffix-p "Toybox" (string-trim (shell-command-to-string "uname -o")))
+  (memq system-type '(android))
   "Check if running on android phone")
 
 (setq

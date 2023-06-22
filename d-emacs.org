@@ -643,7 +643,7 @@ Just check the [[https://github.com/minad/vertico][Vertico github]] repo, you wi
   (use-package vertico
     :bind (:map vertico-map
                 ("?" . minibuffer-completion-help)
-                ("RET" . vertico-directory-enter)
+                ("<return>" . vertico-directory-enter)
                 ("DEL" . vertico-directory-delete-char)
                 ("M-DEL" . vertico-directory-delete-word)
                 ("M-j" . vertico-quick-exit)
@@ -1053,18 +1053,18 @@ Making snippets/templates is so easy with this package.
   nix-mode
 
   (gitpackage "{ lib" n ", stdenv" n ", fetchFromGitHub" n ", " (p "inputs") n ", " (p "inputs") n "}:" n n>
-              "stdenv.mkDerivation rec {" n> "pname = \"" (p "" pkgn nil) "\";" n> "version = \"" p "\";" n n>
-              "src = fetchFromGitHub {" n> "owner = \"" (p "" own) "\";" n> "repo = \"" (s pkgn) "\";" n>
-              "rev = \"" "v${version}" "\";" n> "sha256 = \"" "${lib.fakeSha256}" "\";" n> "};" n n>
-              "nativeBuildInputs = [ " (p "makeWrapper") " ];" n n> "BuildInputs = [ " (p) " ];" n n>
-              "meta = with lib; {" n>
-              "homepage = \"" "https://github.com/" (s own) "/" (s pkgn) "\";" n>
-              "description = \"" (p) "\";" n>
-              "license = licenses." (p (completing-read "License: " '("agpl3" "asl20" "bsd1" "bsd2" "bsd3" "free" "gpl2" "gpl2Only" "gpl2Plus" "gpl3" "gpl3Only" "gpl3Plus" "isc" "lgpl21Only" "lgpl21Plus" "lgpl2Only" "lgpl2Plus" "lgpl3" "lgpl3Only" "mit" "mpl20" "ofl" "unfree"))) ";" n>
-              "maintainers = with maintainers; [ " (s own) " ];" n>
-              "platforms = platforms." 
-              (p (completing-read "Platform: " '("all" "allBut" "arm" "cygwin" "darwin" "freebsd" "gnu" "i686" "illumos" "linux" "mesaPlatforms" "mips" "netbsd" "none" "openbsd" "unix" "x86"))) ";" n> q "};" n> "}"
-              )
+	      "stdenv.mkDerivation rec {" n> "pname = \"" (p "" pkgn nil) "\";" n> "version = \"" p "\";" n n>
+	      "src = fetchFromGitHub {" n> "owner = \"" (p "" own) "\";" n> "repo = \"" (s pkgn) "\";" n>
+	      "rev = \"" "v${version}" "\";" n> "sha256 = \"" "${lib.fakeSha256}" "\";" n> "};" n n>
+	      "nativeBuildInputs = [ " (p "makeWrapper") " ];" n n> "BuildInputs = [ " (p) " ];" n n>
+	      "meta = with lib; {" n>
+	      "homepage = \"" "https://github.com/" (s own) "/" (s pkgn) "\";" n>
+	      "description = \"" (p) "\";" n>
+	      "license = licenses." (p (completing-read "License: " '("agpl3" "asl20" "bsd1" "bsd2" "bsd3" "free" "gpl2" "gpl2Only" "gpl2Plus" "gpl3" "gpl3Only" "gpl3Plus" "isc" "lgpl21Only" "lgpl21Plus" "lgpl2Only" "lgpl2Plus" "lgpl3" "lgpl3Only" "mit" "mpl20" "ofl" "unfree"))) ";" n>
+	      "maintainers = with maintainers; [ " (s own) " ];" n>
+	      "platforms = platforms." 
+	      (p (completing-read "Platform: " '("all" "allBut" "arm" "cygwin" "darwin" "freebsd" "gnu" "i686" "illumos" "linux" "mesaPlatforms" "mips" "netbsd" "none" "openbsd" "unix" "x86"))) ";" n> q "};" n> "}"
+	      )
 
   org-mode
 
@@ -1073,12 +1073,13 @@ Making snippets/templates is so easy with this package.
   (variablweb "#+name: " (p "noweb-ref") n "#+begin_src " p n> r> n> "#+end_src" :post (org-edit-src-code))
   (datime (format-time-string "%Y-%m-%d %A %d %B %Y"))
   (gitcollapse  "*** " p n "#+begin_html" n "<details>" n "<summary> " (p "heading")  " </summary>" n "#+end_html" n (p "link or any comments") n n "#+begin_html" n "</details>" n "#+end_html" n n)
+  (eval "#+begin_src " p " :results output drawer" n> r> n> "#+end_src" :post (org-edit-src-code))
 
   markdown-mode
 
   (gitcollapse "## " (p "Heading") n n "<details>" n n
-               "<summary>" (p "Sub Heading")  "</summary>" n n
-               (r "Insert Link or comments") n n "</details>")
+	       "<summary>" (p "Sub Heading")  "</summary>" n n
+	       (r "Insert Link or comments") n n "</details>")
   (bolditalics "***" p "***")
 
   (androidfoss "* [**" (p "pname") "**](" (p "Git") ") <sup>**[[F-Droid](" (p "Fdroid") ")]**</sup>")
@@ -2313,17 +2314,17 @@ To make eww and shr elements org-like and make emacs even more Unified!
   (use-package shrface
     :after shr
     :hook ((eww-mode . shrface-mode)
-           (elfeed-show-mode . shrface-mode)
-           (nov-mode . shrface-mode))
+	   (elfeed-show-mode . shrface-mode)
+	   (nov-mode . shrface-mode))
     :init
     (setq shrface-item-bullet 8226)
     :bind (:map shrface-mode-map
-                ("<tab>" . shrface-outline-cycle)
-                ("<backtab>" . shrface-outline-cycle-buffer)
-                ("M-n" . shr-next-link)
-                ("M-p" . shr-previous-link)
-                ("C-j" . shrface-next-headline)
-                ("C-k" . shrface-previous-headline))
+		("<tab>" . shrface-outline-cycle)
+		("<backtab>" . shrface-outline-cycle-buffer)
+		("M-n" . shr-next-link)
+		("M-p" . shr-previous-link)
+		("C-j" . shrface-next-headline)
+		("C-k" . shrface-previous-headline))
     :config
     (shrface-basic)
     (shrface-trial)
@@ -2338,40 +2339,40 @@ To make eww and shr elements org-like and make emacs even more Unified!
     (defun shrface-shr-tag-pre-highlight (pre)
       "Highlighting code in PRE."
       (let* ((shr-folding-mode 'none)
-             (shr-current-font 'default)
-             (code (with-temp-buffer
-                     (shr-generic pre)
-                     ;; (indent-rigidly (point-min) (point-max) 2)
-                     (buffer-string)))
-             (lang (or (shr-tag-pre-highlight-guess-language-attr pre)
-                       (let ((sym (language-detection-string code)))
-                         (and sym (symbol-name sym)))))
-             (mode (and lang
-                        (shr-tag-pre-highlight--get-lang-mode lang))))
-        (shr-ensure-newline)
-        (shr-ensure-newline)
-        (setq start (point))
-        (insert
-         (propertize (concat "#+BEGIN_SRC " lang "\n") 'face 'org-block-begin-line)
-         (or (and (fboundp mode)
-                  (with-demoted-errors "Error while fontifying: %S"
-                    (shr-tag-pre-highlight-fontify code mode)))
-             code)
-         (propertize "#+END_SRC" 'face 'org-block-end-line ))
-        (shr-ensure-newline)
-        (setq end (point))
-        (if light
-            (add-face-text-property start end '(:background "#D8DEE9" :extend t))
-          (add-face-text-property start end '(:background "#292b2e" :extend t)))
-        (shr-ensure-newline)
-        (insert "\n")))
+	     (shr-current-font 'default)
+	     (code (with-temp-buffer
+		     (shr-generic pre)
+		     ;; (indent-rigidly (point-min) (point-max) 2)
+		     (buffer-string)))
+	     (lang (or (shr-tag-pre-highlight-guess-language-attr pre)
+		       (let ((sym (language-detection-string code)))
+			 (and sym (symbol-name sym)))))
+	     (mode (and lang
+			(shr-tag-pre-highlight--get-lang-mode lang))))
+	(shr-ensure-newline)
+	(shr-ensure-newline)
+	(setq start (point))
+	(insert
+	 (propertize (concat "#+BEGIN_SRC " lang "\n") 'face 'org-block-begin-line)
+	 (or (and (fboundp mode)
+		  (with-demoted-errors "Error while fontifying: %S"
+		    (shr-tag-pre-highlight-fontify code mode)))
+	     code)
+	 (propertize "#+END_SRC" 'face 'org-block-end-line ))
+	(shr-ensure-newline)
+	(setq end (point))
+	(if light
+	    (add-face-text-property start end '(:background "#D8DEE9" :extend t))
+	  (add-face-text-property start end '(:background "#292b2e" :extend t)))
+	(shr-ensure-newline)
+	(insert "\n")))
 
     (add-to-list 'shr-external-rendering-functions
-                 '(pre . shr-tag-pre-highlight))
+		 '(pre . shr-tag-pre-highlight))
     (when (version< emacs-version "26")
       (with-eval-after-load 'eww
-        (advice-add 'eww-display-html :around
-                    'eww-display-html--override-shr-external-rendering-functions))))
+	(advice-add 'eww-display-html :around
+		    'eww-display-html--override-shr-external-rendering-functions))))
 
 
 
@@ -2535,30 +2536,30 @@ Use RSS, just switch to it, and save your time for other productive things. If y
     :bind ("C-c d e" . d/elfeed-open)
     ("C-c d b" . d/external-browser)
     (:map elfeed-show-mode-map
-          ("e" . elfeed-open-in-eww)
-          ("i" . d/bionic-read)
-          ("r" . elfeed-open-in-reddit)
-          ("m" . elfeed-toggle-show-star)
-          ("q" . d/elfeed-quit)
-          ("C-x C-k" . d/elfeed-quit)
-          ("b" . d/external-browser))
+	  ("e" . elfeed-open-in-eww)
+	  ("i" . d/bionic-read)
+	  ("r" . elfeed-open-in-reddit)
+	  ("m" . elfeed-toggle-show-star)
+	  ("q" . d/elfeed-quit)
+	  ("C-x C-k" . d/elfeed-quit)
+	  ("b" . d/external-browser))
     (:map elfeed-search-mode-map
-          ("m" . elfeed-toggle-star)
-          ("q" . d/elfeed-quit)
-          ("C-x C-k" . d/elfeed-quit)
-          ("U" . elfeed-update)
-          ("u" . elfeed-update-feed))
+	  ("m" . elfeed-toggle-star)
+	  ("q" . d/elfeed-quit)
+	  ("C-x C-k" . d/elfeed-quit)
+	  ("U" . elfeed-update)
+	  ("u" . elfeed-update-feed))
     :config
     ;; (setq-default elfeed-search-filter "@1-week-ago--1-day-ago +unread -news +")
     (setq-default elfeed-search-filter "+unread +")
     (setq elfeed-search-date-format (if d/on-droid `("" 0 :left)  `("%d-%m 📰" 7 :left)))
     (setq elfeed-search-title-max-width 90
-          elfeed-search-trailing-width 0)
+	  elfeed-search-trailing-width 0)
     (defun elfeed-toggle-show-star ()
       (interactive)
       (if (elfeed-tagged-p 'star elfeed-show-entry)
-          (elfeed-show-untag 'star)
-        (elfeed-show-tag 'star)))
+	  (elfeed-show-untag 'star)
+	(elfeed-show-tag 'star)))
       ;; (org-capture nil "l"))
     (defun elfeed-toggle-star ()
       (interactive)
@@ -2594,14 +2595,14 @@ Use RSS, just switch to it, and save your time for other productive things. If y
       "use org file as bookmark for elfeed entries.
   Usable as favorites or bookmark."
       (when elfeed-show-entry
-        (let* ((link (elfeed-entry-link elfeed-show-entry))
-               (title (elfeed-entry-title elfeed-show-entry)))
-          (org-store-link-props
-           :link link
-           :description title))))
+	(let* ((link (elfeed-entry-link elfeed-show-entry))
+	       (title (elfeed-entry-title elfeed-show-entry)))
+	  (org-store-link-props
+	   :link link
+	   :description title))))
 
     (add-hook 'org-store-link-functions
-              'private/org-elfeed-entry-store-link)
+	      'private/org-elfeed-entry-store-link)
 
     (when d/on-droid
   (define-key elfeed-show-mode-map (kbd "<volume-up>") #'elfeed-show-next)
@@ -2638,7 +2639,7 @@ Use RSS, just switch to it, and save your time for other productive things. If y
     "open in eww"
     (interactive)
     (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
-      (eww (elfeed-entry-link entry))
+      (eww-open-in-new-buffer (elfeed-entry-link entry))
       (add-hook 'eww-after-render-hook 'readable-article)))
 
   (defun elfeed-open-in-reddit ()
@@ -2650,17 +2651,17 @@ Use RSS, just switch to it, and save your time for other productive things. If y
   (use-package eww
     :bind ("M-s M-w" . eww-search-words)
     (:map eww-mode-map
-          ("e" . readable-article)
-          ("Q" . d/kill-buffer)
-          ("M-v" . d/scroll-up)
-          ("RET" . eww-follow-link)
-          ("C-v" . d/scroll-down)
-          ("m" . elfeed-toggle-star)
-          ("b" . d/external-browser))
+	  ("e" . readable-article)
+	  ("Q" . d/kill-buffer)
+	  ("M-v" . d/scroll-up)
+	  ("<return>" . eww-follow-link)
+	  ("C-v" . d/scroll-down)
+	  ("m" . elfeed-toggle-star)
+	  ("b" . d/external-browser))
     :config
     (setq shr-bullet "• "
-          shr-folding-mode t
-          url-privacy-level '(email agent cookies lastloc))
+	  shr-folding-mode t
+	  url-privacy-level '(email agent cookies lastloc))
     (setq url-user-agent "")
     (setq url-privacy-level 'paranoid)
     (url-setup-privacy-info) 
@@ -2674,16 +2675,16 @@ Use RSS, just switch to it, and save your time for other productive things. If y
        :name     "Eww"
        :narrow   ?e
        :action   (lambda (bm)
-                   (eww-browse-url (get-text-property 0 'url bm)))
+		   (eww-browse-url (get-text-property 0 'url bm)))
        :items    (lambda ()
-                   (eww-read-bookmarks)
-                   (mapcar (lambda (bm)
-                             (propertize
-                              (format "%s (%s)"
-                                      (plist-get bm :url)
-                                      (plist-get bm :title))
-                              'url (plist-get bm :url)))
-                           eww-bookmarks))))
+		   (eww-read-bookmarks)
+		   (mapcar (lambda (bm)
+			     (propertize
+			      (format "%s (%s)"
+				      (plist-get bm :url)
+				      (plist-get bm :title))
+			      'url (plist-get bm :url)))
+			   eww-bookmarks))))
     (add-to-list 'consult-buffer-sources 'consult--source-eww 'append))
 
   (use-package gnutls
@@ -2845,19 +2846,20 @@ Idk why, but i guess these all should be the sane defaults.
   (setopt set-mark-command-repeat-pop t)
   (setq sentence-end-double-space nil)
   (setq sentence-end "[.?!] ")
-  (setq-default indent-tabs-mode nil)
+  (setq indent-tabs-mode nil)
   (setq save-interprogram-paste-before-kill nil) ;; #FIXE
   (setq kill-do-not-save-duplicates t)
   (setq initial-scratch-message
-        "--- Scratch Buffer ---\n\n\n")
+	"--- Scratch Buffer ---\n\n\n")
 
   (setq frame-inhibit-implied-resize t)
+  (setq jit-lock-defer-time 0.25)
   ;;(global-prettify-symbols-mode t)
 
   ;; tabs
   (setq tab-bar-new-tab-choice "*scratch")
   (setq tab-bar-close-button-show nil
-        tab-bar-new-button-show nil)
+	tab-bar-new-button-show nil)
 
   (setq vc-follow-symlinks t)
 
@@ -2913,18 +2915,18 @@ Idk why, but i guess these all should be the sane defaults.
 
   ;; Disable line numbers for some modes
   (dolist (mode '(org-mode-hook
-                  vterm-mode-hook
-                  term-mode-hook
-                  shell-mode-hook
-                  olivetti-mode-hook
-                  eww-mode-hook
-                  treemacs-mode-hook
-                  doc-view-mode-hook
-                  archive-mode-hook
-                  image-mode-hook
-                  elfeed-show-mode-hook
-                  elfeed-search-mode-hook
-                  eshell-mode-hook))
+		  vterm-mode-hook
+		  term-mode-hook
+		  shell-mode-hook
+		  olivetti-mode-hook
+		  eww-mode-hook
+		  treemacs-mode-hook
+		  doc-view-mode-hook
+		  archive-mode-hook
+		  image-mode-hook
+		  elfeed-show-mode-hook
+		  elfeed-search-mode-hook
+		  eshell-mode-hook))
     (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
   (blink-cursor-mode -1)
@@ -2934,7 +2936,7 @@ Idk why, but i guess these all should be the sane defaults.
 
   ;; A simple frame title
   (setq frame-title-format '("%b")
-        icon-title-format frame-title-format)
+	icon-title-format frame-title-format)
 
   ;; Don't resize the frames in steps; it looks weird, especially in tiling window
   ;; managers, where it can leave unseemly gaps.

@@ -59,8 +59,5 @@
 			};
       };
 
-      packages.${system} = {
-	code-d-font = pkgs.callPackage ./gdk/pkgs/code-d-font.nix {};
-      };
     };
 }

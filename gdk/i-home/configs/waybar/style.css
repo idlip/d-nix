@@ -1,128 +1,105 @@
 @import "modus.css";
-/* @import "catppuccin.css"; */
 
  * {
-    color: @fg-alt;
-    border: 0;
-    border-radius: 10px;
-    padding: 0 2px;
-    font-family:ComicCodeLigatures Nerd Font;
-    font-size: 24px;
-    margin-right: 5px;
-    margin-left: 5px;
-    padding-bottom:3px;
-    min-height: 15px;
-}
+     font-family:Code D Haki;
+     font-weight: bold;
+     font-size: 20px;
+     /* padding-bottom:3px; */
+     border-style: solid;
+     border-radius: 15px 15px 15px 15px;
+     opacity: 1.0;
+     border-color: @fg-alt;
+     margin-top: 0px;
+     margin-left: 8px;
+     margin-bottom: 0px;
+     padding-left: 10px;
+     padding-right: 10px;
+     transition: none;
+     /* color: transparent; */
+     color: @bg-main;
+
+ }
 
 window#waybar {
-    background: inherit;
+    background: transparent;
+}
 
+window#waybar.hidden {
+    opacity: 0.2;
 }
 
 #workspaces button {
     border-radius: 20px;
-    color: @yellow;
+    color: @link;
 
 }
 
 #workspaces button.active {
-    border-color: @magenta;
+    border-color: @title;
     padding-bottom:1px ;
 }
 
 #mode {
-    color: @pink;
-}
-
-#battery, #mpd,#workspaces, #submap, #clock, #cpu, #memory,#network, #pulseaudio, #window,#custom-launcher,#custom-power{
-    border-style: solid;
-    border-radius: 15px 15px 15px 15px;
-    background-color: rgba(00, 00, 00, 0.7);
-    padding: 0 3px;
-    border-bottom: 2px;
-    margin-top: 3px;
-    padding-top: 1px;
-    padding-left: 13px;
-    padding-right: 3px;
-    opacity: 1.0;
-    font-size: 20px;
-
-}
-
-#window {
-    border-radius: 20px;
-    padding-left: 10px;
-    padding-right: 10px;
-    color: @fg-alt;
-    margin-top:1px;
-    border-color: @fg-alt;
+    background: @heading-8;
 }
 
 #clock {
-    color: @magenta;
+    background: @clock;
 }
 
 #mpd {
-    color: @lavender;
+    background: @heading-3;
     font-family:Maple Mono;
     font-style: italic;
 }
 
 
 #cpu {
-    color: @blue-faint;
+    background: @heading-4;
 }
 
 #memory {
-    color: @blue-faint;
+    background: @heading-5;
 }
 
 #network.disabled {
-    color: @rust;
+    background: @done;
 }
 
 #network{
-    color: @teal;
+    background: @heading-6;
 }
 
 #battery {
-    color: @yellow;
+    background: @heading-7;
 }
 
 #network.disconnected {
-    color: @rust;
+    background: @done;
 }
 
 #pulseaudio {
-    color: @peach;
+    background: @heading-9;
 }
 
 #pulseaudio.muted {
-    color: @rust;
+    background: @done;
 }
 
 #custom-launcher {
-    font-family:ComicCodeLigatures Nerd Font;
-    font-size: 40px;
-    color: @bg-main;
-    border-color: @bg-dim;
-    border-radius: 20px 20px 20px 20px;
-    background: linear-gradient(90deg, @blue 28%, @peach 85%, @pink 100%);
-
+    background: linear-gradient(90deg, @title 28%, @heading-5 85%, @title 100%);
 }
 
 #custom-power {
-    font-family:ComicCodeLigatures Nerd Font;
-    font-size: 22px;
-    color: @red;
-    border-radius: 30px 30px 30px 30px;
-    background: linear-gradient(90deg, @bg-dim 28%, @bg-main 85%, @bg-dim 100%);
-    padding-right: 15px;
+    /* background: linear-gradient(90deg, @error 28%, @error 85%, @error 100%); */
+    background: @todo;
 }
 
 #submap {
-    color: @cyan;
+    background: @code;
 }
-#mode{
-    margin-bottom:3px;
+
+#window {
+    background: @fg-region;
+    color: @fg-main;
 }

@@ -112,27 +112,29 @@ If you experience stuttering, increase this.")
 ;; You will most likely need to adjust this font size for your system!
 
 (defvar default-font-size (if d/on-droid 150 170))
-(defvar default-variable-font-size (if d/on-droid 150 170))
+(defvar default-variable-font-size (if d/on-droid 160 180))
+
+;; Dont worry about the font name, its fork of Recursive font
 
 ;; Set reusable font name variables
-(defvar d/fixed-width-font "ComicCodeLigatures Nerd Font"
+(defvar d/fixed-width-font "Code D OnePiece"
   "The font to use for monospaced (fixed width) text.")
 
-(defvar d/variable-width-font "ComicCodeLigatures Nerd Font"
+(defvar d/variable-width-font "Code D Haki"
   "The font to use for variable-pitch (documents) text.")
 
-(setq haki-heading-font (if d/on-droid d/fixed-width-font "Comic Mono"))
-(setq haki-sans-font "Maple Mono")
-(setq haki-title-font "Unifont")
+(setq haki-heading-font "Code D Lip")
+(setq haki-sans-font "Code D Law")
+(setq haki-title-font "Code D Lip")
 (setq haki-link-font "Maple Mono")
-(setq haki-code-font "JetBrainsMono NF")
+(setq haki-code-font "ComicCodeLigatures Nerd Font")
 
 (setf use-default-font-for-symbols nil)
 (set-fontset-font t 'unicode "Noto Color Emoji" nil 'append)
 
 (defun d/set-font-faces ()
   (message "Setting faces!")
-  (set-face-attribute 'default nil :family d/variable-width-font :weight 'medium :height default-font-size)
+  (set-face-attribute 'default nil :family d/fixed-width-font :weight 'medium :height default-font-size)
 
   ;; Set the fixed pitch face (monospace)
   (set-face-attribute 'fixed-pitch nil :family d/fixed-width-font :height default-font-size)
@@ -143,8 +145,8 @@ If you experience stuttering, increase this.")
 (use-package font-lock
   :ensure nil
   :custom ((font-lock-maximum-decoration t)
-           (font-lock-global-modes '(not shell-mode text-mode))
-           (font-lock-verbose t))
+	   (font-lock-global-modes '(not shell-mode text-mode))
+	   (font-lock-verbose t))
   :config
   (global-font-lock-mode 1))
 
@@ -215,21 +217,15 @@ If you experience stuttering, increase this.")
       (set-register '_ (list (current-window-configuration)))
       (delete-other-windows))))
 
-(defun d/edit-src-block ()
-  "Makes editing src block focused in its respective major mode"
-  (interactive)
-  (if (org-src-edit-buffer-p) (org-edit-src-abort)
-    (progn (org-edit-special) (window-focus-mode))))
-
 (defun d/insert-unicodes (add-unicodes)
   "Inserts unicode character (emoji/icons) from given files"
   (interactive (list add-unicodes))
   (insert
    (let* ((content
-           (mapcar #'(lambda (file) (with-temp-buffer (insert-file-contents file) (split-string (buffer-string) "\n" t))) add-unicodes))
-          (options (apply #'append content))
-          (selected-item (completing-read "Choose Icon 󰨈: " options))
-          (fields (split-string selected-item)))
+	   (mapcar #'(lambda (file) (with-temp-buffer (insert-file-contents file) (split-string (buffer-string) "\n" t))) add-unicodes))
+	  (options (apply #'append content))
+	  (selected-item (completing-read "Choose Icon 󰨈: " options))
+	  (fields (split-string selected-item)))
      (car fields))))
 (setq add-unicodes (unless d/on-droid (directory-files "~/d-git/d-bin/treasure/unicodes/" t "i")))
 
@@ -249,13 +245,13 @@ Specify the separator by typing C-u before executing this command."
   (unless (region-active-p)
     (message "select a region of lines first."))
   (let* ((separator (if (not specify-separator)
-                        ","
-                      (read-string "Separator: ")))
-         (text (buffer-substring-no-properties
-                (region-beginning)
-                (region-end)))
-         (lines (split-string text "\n"))
-         (result (s-join separator lines)))
+			","
+		      (read-string "Separator: ")))
+	 (text (buffer-substring-no-properties
+		(region-beginning)
+		(region-end)))
+	 (lines (split-string text "\n"))
+	 (result (s-join separator lines)))
     (delete-region (region-beginning) (region-end))
     (insert result)))
 
@@ -263,9 +259,9 @@ Specify the separator by typing C-u before executing this command."
   "If the buffer is narrowed, it widens. Otherwise, it narrows to region, or Org subtree."  
   (interactive)  
   (cond ((buffer-narrowed-p) (widen))  
-        ((region-active-p) (narrow-to-region (region-beginning) (region-end)))  
-        ((equal major-mode 'org-mode) (org-narrow-to-subtree))  
-        (t (error "Please select a region to narrow to"))))
+	((region-active-p) (narrow-to-region (region-beginning) (region-end)))  
+	((equal major-mode 'org-mode) (org-narrow-to-subtree))  
+	(t (error "Please select a region to narrow to"))))
 
 (dolist (keybind '(("M-o" . other-window)
                    ("C-<tab>" . tab-next)
@@ -301,19 +297,20 @@ Specify the separator by typing C-u before executing this command."
 
 (use-package which-key
   :defer 2
+  :unless d/on-droid
   :init
   (setq which-key-side-window-location 'bottom
-        which-key-sort-order #'which-key-key-order-alpha
-        which-key-sort-uppercase-first nil
-        which-key-add-column-padding 1
-        which-key-max-display-columns nil
-        which-key-min-display-lines 6
-        which-key-side-window-slot -10
-        which-key-side-window-max-height 0.25
-        which-key-idle-delay 0.8
-        which-key-max-description-length 25
-        which-key-allow-imprecise-window-fit t
-        which-key-separator " → " )
+	which-key-sort-order #'which-key-key-order-alpha
+	which-key-sort-uppercase-first nil
+	which-key-add-column-padding 1
+	which-key-max-display-columns nil
+	which-key-min-display-lines 6
+	which-key-side-window-slot -10
+	which-key-side-window-max-height 0.25
+	which-key-idle-delay 0.8
+	which-key-max-description-length 25
+	which-key-allow-imprecise-window-fit t
+	which-key-separator " → " )
   :diminish which-key-mode
   :config
   (which-key-mode)
@@ -432,69 +429,69 @@ Specify the separator by typing C-u before executing this command."
 (use-package consult
   ;; Replace bindings. Lazily loaded due by `use-package'.
   :bind (;; C-c bindings (mode-specific-map)
-         ("C-c h" . consult-history)
-         ("C-c m" . consult-mode-command)
-         ("C-c k" . consult-kmacro)
-         ("C-c t t" . consult-theme)
-         ;; C-x bindings (ctl-x-map)
-         ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
-         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
-         ("C-x C-b" . consult-buffer)                ;; orig. switch-to-buffer
-         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
-         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
-         ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
-         ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
-         ;; Custom M-# bindings for fast register access
-         ("M-#" . consult-register-load)
-         ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
-         ("C-M-#" . consult-register)
-         ;; Other custom bindings
-         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
-         ;; M-g bindings (goto-map)
-         ("M-g e" . consult-compile-error)
-         ("M-g f" . consult-flycheck)
-         ("M-g g" . consult-goto-line)             ;; orig. goto-line
-         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
-         ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
-         ("M-g m" . consult-mark)
-         ("M-g k" . consult-global-mark)
-         ("M-g i" . consult-imenu)
-         ("M-g I" . consult-imenu-multi)
-         ("M-g s" . consult-eglot-symbols)
-         ;; M-s bindings (search-map)
-         ("M-s d" . consult-find)
-         ("M-s D" . consult-locate)
-         ("M-s g" . consult-ripgrep)
-         ("M-s m" . consult-man)
-         ("M-s G" . consult-git-grep)
-         ("M-s r" . consult-ripgrep)
-         ("M-s i" . consult-info)
-         ("M-s l" . consult-line)
-         ("C-s" . consult-line)
-         ("M-s L" . consult-line-multi)
-         ("M-s k" . consult-keep-lines)
-         ("M-s u" . consult-focus-lines)
-         ;; Isearch integration
-         ("M-s e" . consult-isearch-history)
-         :map isearch-mode-map
-         ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
-         ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
-         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
-         ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
-         ;; Minibuffer history
-         :map minibuffer-local-map
-         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
-         ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+	 ("C-c h" . consult-history)
+	 ("C-c m" . consult-mode-command)
+	 ("C-c k" . consult-kmacro)
+	 ("C-c t t" . consult-theme)
+	 ;; C-x bindings (ctl-x-map)
+	 ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+	 ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+	 ("C-x C-b" . consult-buffer)                ;; orig. switch-to-buffer
+	 ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+	 ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+	 ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+	 ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+	 ;; Custom M-# bindings for fast register access
+	 ("M-#" . consult-register-load)
+	 ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+	 ("C-M-#" . consult-register)
+	 ;; Other custom bindings
+	 ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+	 ;; M-g bindings (goto-map)
+	 ("M-g e" . consult-compile-error)
+	 ("M-g f" . consult-flycheck)
+	 ("M-g g" . consult-goto-line)             ;; orig. goto-line
+	 ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+	 ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+	 ("M-g m" . consult-mark)
+	 ("M-g k" . consult-global-mark)
+	 ("M-g i" . consult-imenu)
+	 ("M-g I" . consult-imenu-multi)
+	 ("M-g s" . consult-eglot-symbols)
+	 ;; M-s bindings (search-map)
+	 ("M-s d" . consult-find)
+	 ("M-s D" . consult-locate)
+	 ("M-s g" . consult-ripgrep)
+	 ("M-s m" . consult-man)
+	 ("M-s G" . consult-git-grep)
+	 ("M-s r" . consult-ripgrep)
+	 ("M-s i" . consult-info)
+	 ("M-s l" . consult-line)
+	 ("C-s" . consult-line)
+	 ("M-s L" . consult-line-multi)
+	 ("M-s k" . consult-keep-lines)
+	 ("M-s u" . consult-focus-lines)
+	 ;; Isearch integration
+	 ("M-s e" . consult-isearch-history)
+	 :map isearch-mode-map
+	 ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+	 ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+	 ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+	 ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+	 ;; Minibuffer history
+	 :map minibuffer-local-map
+	 ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+	 ("M-r" . consult-history))                ;; orig. previous-matching-history-element
 
   :hook (completion-list-mode . consult-preview-at-point-mode)
 
   :init
   (setq register-preview-delay 0.5
-        register-preview-function #'consult-register-format)
+	register-preview-function #'consult-register-format)
   (advice-add #'register-preview :override #'consult-register-window)
 
   (setq xref-show-xrefs-function #'consult-xref
-        xref-show-definitions-function #'consult-xref)
+	xref-show-definitions-function #'consult-xref)
 
   :config
 
@@ -517,7 +514,23 @@ Specify the separator by typing C-u before executing this command."
   ;; Optionally configure the narrowing key.
   ;; Both  and C-+ work reasonably well.
   (setq consult-narrow-key "<") ;; (kbd "C-+")
-  )
+
+    (defvar consult--source-eww
+      (list
+       :name     "Eww"
+       :narrow   ?e
+       :action   (lambda (bm)
+		   (eww-browse-url (get-text-property 0 'url bm)))
+       :items    (lambda ()
+		   (eww-read-bookmarks)
+		   (mapcar (lambda (bm)
+			     (propertize
+			      (format "%s (%s)"
+				      (plist-get bm :url)
+				      (plist-get bm :title))
+			      'url (plist-get bm :url)))
+			   eww-bookmarks))))
+    (add-to-list 'consult-buffer-sources 'consult--source-eww 'append))
 
 (defun consult-colors--web-list nil
   "Return list of CSS colors for `d/colors-web'."
@@ -531,15 +544,15 @@ Specify the separator by typing C-u before executing this command."
   selected color."
   (interactive
    (list (consult--read (consult-colors--web-list)
-                        :prompt "Color: "
-                        :require-match t
-                        :category 'color
-                        :history '(:input consult-colors-history)
-                        )))
+			:prompt "Color: "
+			:require-match t
+			:category 'color
+			:history '(:input consult-colors-history)
+			)))
   (insert
    (when-let* ((rgb (color-name-to-rgb color))
-               ;; Sets 2 digits per component.
-               (hex (apply #'color-rgb-to-hex (append rgb '(2)))))
+	       ;; Sets 2 digits per component.
+	       (hex (apply #'color-rgb-to-hex (append rgb '(2)))))
      hex)))
 
 (defun d/insert-colors (color)
@@ -549,15 +562,15 @@ You can insert the name (default), or insert or kill the hexadecimal or RGB valu
 selected color."
   (interactive
    (list (consult--read (list-colors-duplicates (defined-colors))
-                        :prompt "Emacs color: "
-                        :require-match t
-                        :category 'color
-                        :history '(:input consult-colors-history)
-                        )))
+			:prompt "Emacs color: "
+			:require-match t
+			:category 'color
+			:history '(:input consult-colors-history)
+			)))
   (insert
    (when-let* ((rgb (color-name-to-rgb color))
-               ;; Sets 2 digits per component.
-               (hex (apply #'color-rgb-to-hex (append rgb '(2)))))
+	       ;; Sets 2 digits per component.
+	       (hex (apply #'color-rgb-to-hex (append rgb '(2)))))
      hex)))
 
 (use-package orderless
@@ -816,24 +829,24 @@ selected color."
 (defun org-font-setup ()
   ;; Replace list hyphen with dot
   (font-lock-add-keywords 'org-mode
-                          '(("^ *\\([-]\\) "
-                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+			  '(("^ *\\([-]\\) "
+			     (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
   (dolist (face '((org-block . 1.0)
-                  (org-block-begin-line . 0.9)
-                  (org-document-info . 1.5)
-                  (org-document-title . 1.7)
-                  (org-level-1 . 1.4)
-                  (org-level-2 . 1.3)
-                  (org-level-3 . 1.2)
-                  (org-level-4 . 1.1)
-                  (org-level-5 . 1.1)
-                  (org-level-6 . 1.1)
-                  (org-code . 1.2)
-                  (header-line . 1.0)
-                  (org-verbatim . 1.15)
-                  (variable-pitch . 1.0)
-                  (org-level-7 . 1.1)))
+		  (org-block-begin-line . 0.9)
+		  (org-document-info . 1.5)
+		  (org-document-title . 1.7)
+		  (org-level-1 . 1.4)
+		  (org-level-2 . 1.3)
+		  (org-level-3 . 1.2)
+		  (org-level-4 . 1.1)
+		  (org-level-5 . 1.1)
+		  (org-level-6 . 1.1)
+		  (org-code . 1.2)
+		  (header-line . 1.0)
+		  (org-verbatim . 1.15)
+		  (variable-pitch . 1.0)
+		  (org-level-7 . 1.1)))
     (set-face-attribute (car face) nil :font d/fixed-width-font :weight 'medium :height (cdr face))))
 
 ;; Set faces for heading levels
@@ -860,13 +873,12 @@ selected color."
   (org-mode . org-modern-mode)
 
   :bind (("C-c c c" . org-capture)
-         ("C-c c d" . calendar)
-         ("C-c t R" . d/bionic-region)
-         ("C-c d a" . org-agenda)
-         ("C-c t r" . d/bionic-read)
-         ("<f6>" . d/edit-src-block)
-         :map org-mode-map
-         ("C-c o b" . d/edit-src-block))
+	 ("C-c c d" . calendar)
+	 ("C-c t R" . d/bionic-region)
+	 ("C-c d a" . org-agenda)
+	 ("C-c t r" . d/bionic-read))
+  :custom
+  (org-src-window-setup 'current-window)
   :config
   (setq org-ellipsis " ▾")
 
@@ -878,56 +890,56 @@ selected color."
   ;; browser script
   (unless d/on-droid
     (setq browse-url-browser-function 'browse-url-generic
-          browse-url-generic-program "d-stuff")
+	  browse-url-generic-program "d-stuff")
     (setq browse-url-secondary-browser-function 'browse-url-generic
-          browse-url-generic-program "d-stuff"))
+	  browse-url-generic-program "d-stuff"))
 
   (setq org-agenda-files
-        (if d/on-droid "/storage/emulated/0/sync/org/tasks.org"
-          '("~/sync/org/tasks.org"
-            "~/d-git/d-site/README.org")))
+	(if d/on-droid "/storage/emulated/0/sync/org/tasks.org"
+	  '("~/sync/org/tasks.org"
+	    "~/d-git/d-site/README.org")))
 
   ;; (require 'org-habit)
   ;; (add-to-list 'org-modules 'org-habit)
   ;; (setq org-habit-graph-column 60)
 
   (setq org-todo-keywords
-        '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
-          (sequence  "PLAN(p)" "REVIEW(v)" "|" "COMPLETED(c)" "CANC(k@)")))
+	'((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
+	  (sequence  "PLAN(p)" "REVIEW(v)" "|" "COMPLETED(c)" "CANC(k@)")))
 
   (setq org-refile-targets
-        '(("Archive.org" :maxlevel . 1)
-          ("tasks.org" :maxlevel . 1)))
+	'(("Archive.org" :maxlevel . 1)
+	  ("tasks.org" :maxlevel . 1)))
 
   ;; Save Org buffers after refiling!
   (advice-add 'org-refile :after 'org-save-all-org-buffers)
 
   (setq org-tag-alist
-        '((:startgroup)
-          (:endgroup)
-          ("@work" . ?W)
-          ("agenda" . ?a)
-          ("linux" . ?l)
-          ("planning" . ?p)
-          ("note" . ?n)
-          ("idea" . ?i)))
+	'((:startgroup)
+	  (:endgroup)
+	  ("@work" . ?W)
+	  ("agenda" . ?a)
+	  ("linux" . ?l)
+	  ("planning" . ?p)
+	  ("note" . ?n)
+	  ("idea" . ?i)))
 
 
   (setq org-capture-templates
-        `(
-          ("t" "Task" entry (file+olp "~/sync/org/tasks.org" "One-Timer")
-           "* TODO %?\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
-          ("w" "Website Todo" entry (file+headline "~/d-git/d-site/README.org" "Ideas - TODO")
-           "* TODO %?\n  SCHEDULED:%T\n " :empty-lines 1)
-          ("l" "Link" entry
-             (file+headline "~/sync/org/bookmarks.org" "elfeed") "* %a\n")
-          ("j" "Journal Entries")
-          ("jj" "Journal" entry
-           (file+olp+datetree "~/docs/org/journal.org")
-           "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
-           ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
-           :clock-in :clock-resume
-           :empty-lines 1))))
+	`(
+	  ("t" "Task" entry (file+olp "~/sync/org/tasks.org" "One-Timer")
+	   "* TODO %?\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
+	  ("w" "Website Todo" entry (file+headline "~/d-git/d-site/README.org" "Ideas - TODO")
+	   "* TODO %?\n  SCHEDULED:%T\n " :empty-lines 1)
+	  ("l" "Link" entry
+	     (file+headline "~/sync/org/bookmarks.org" "elfeed") "* %a\n")
+	  ("j" "Journal Entries")
+	  ("jj" "Journal" entry
+	   (file+olp+datetree "~/docs/org/journal.org")
+	   "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
+	   ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
+	   :clock-in :clock-resume
+	   :empty-lines 1))))
 
 (with-eval-after-load 'org
   (org-babel-do-load-languages
@@ -935,8 +947,7 @@ selected color."
    '((emacs-lisp . t)
      (calc . t)
      (latex . t)
-     (shell .t)
-     (python . t)))
+     (R . t) (shell . t) (python . t)))
 
   (push '("conf-unix" . conf-unix) org-src-lang-modes))
 
@@ -1306,31 +1317,6 @@ selected color."
   (interactive)
   (pixel-scroll-precision-scroll-up 20))
 
-(unless d/on-droid
-  (use-package nix-mode
-    :mode "\\.nix\\'"
-    :defer t))
-
-(add-hook 'prog-mode-hook #'display-line-numbers-mode)
-;;(add-hook 'prog-mode-hook #'eglot-ensure)
-
-(use-package markdown-mode
-  :defer t
-  :mode "\\.md\\'"
-  :config
-  (defun d/set-markdown-header-font-sizes ()
-    (dolist (face '((markdown-header-face-1 . 1.3)
-                    (markdown-header-face-2 . 1.2)
-                    (markdown-header-face-3 . 1.15)
-                    (markdown-header-face-4 . 1.1)
-                    (markdown-header-face-5 . 1.0)))
-      (set-face-attribute (car face) nil :weight 'normal :font haki-heading-font :height (cdr face))))
-
-  (defun d/markdown-mode-hook ()
-    (d/set-markdown-header-font-sizes)))
-
-;; (add-hook 'markdown-mode-hook 'd/markdown-mode-hook)
-
 (use-package eglot
   :defer t
   :ensure nil
@@ -1340,17 +1326,17 @@ selected color."
   ;; eglot-ensure)
   :init
   (setq eglot-sync-connect 1
-        eglot-connect-timeout 5
-        eglot-autoshutdown t
-        eglot-send-changes-idle-time 45
-        ;; NOTE We disable eglot-auto-display-help-buffer because :select t in
-        ;;      its popup rule causes eglot to steal focus too often.
-        eglot-auto-display-help-buffer nil)
+	eglot-connect-timeout 5
+	eglot-autoshutdown t
+	eglot-send-changes-idle-time 45
+	;; NOTE We disable eglot-auto-display-help-buffer because :select t in
+	;;      its popup rule causes eglot to steal focus too often.
+	eglot-auto-display-help-buffer nil)
   :bind
   (:map eglot-mode-map
-        ("C-c l r" . eglot-rename)
-        ("C-c l a" . eglot-code-actions)
-        ("C-c l i" . consult-eglot-symbols)))
+	("C-c l r" . eglot-rename)
+	("C-c l a" . eglot-code-actions)
+	("C-c l i" . consult-eglot-symbols)))
 ;;   :config
 ;;   (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
 ;;   (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
@@ -1369,14 +1355,85 @@ select."
   (interactive "DEnv: ")
   ;; Naming convention for venvPath matches the field for pyrightconfig.json
   (let* ((venv-dir (tramp-file-local-name (file-truename virtualenv)))
-         (venv-file-name (directory-file-name venv-dir))
-         (venvPath (file-name-directory venv-file-name))
-         (venv (file-name-base venv-file-name))
-         (base-dir (vc-git-root default-directory))
-         (out-file (expand-file-name "pyrightconfig.json" base-dir))
-         (out-contents (json-encode (list :venvPath venvPath :venv venv))))
+	 (venv-file-name (directory-file-name venv-dir))
+	 (venvPath (file-name-directory venv-file-name))
+	 (venv (file-name-base venv-file-name))
+	 (base-dir (vc-git-root default-directory))
+	 (out-file (expand-file-name "pyrightconfig.json" base-dir))
+	 (out-contents (json-encode (list :venvPath venvPath :venv venv))))
     (with-temp-file out-file (insert out-contents))
     (message (concat "Configured `" out-file "` to use environment `" venv-dir))))
+
+(unless d/on-droid
+  (use-package nix-mode
+    :mode ("\\.nix\\'" "\\.nix.in\\'")
+    :bind (:map nix-mode-map
+		("C-c C-e" . nix-eval-line))
+    :config
+    (defun nix-eval-dwim ()
+      (interactive)
+      (let* ((start (line-beginning-position))
+	     (end (line-end-position))
+	     (region-string (buffer-substring (region-beginning) (region-end)))
+	     (msg (format "%s" (if (use-region-p) region-string (buffer-substring start end)))))
+	(pop-to-buffer "*Nix-REPL*")
+	(insert msg)
+	(comint-send-input)
+	(other-window 1))))
+  (use-package nix-drv-mode
+    :ensure nix-mode
+    :mode "\\.drv\\'")
+  (use-package nix-shell
+    :ensure nix-mode
+    :commands (nix-shell-unpack nix-shell-configure nix-shell-build))
+  (use-package nix-repl
+    :ensure nix-mode
+    :commands (nix-repl)))
+
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+
+(use-package markdown-mode
+  :defer t
+  :mode "\\.md\\'"
+  :bind (:map markdown-mode-map
+	      ("<f8>" . d/markdown-toggle))
+  :config
+  (defun d/set-markdown-header-font-sizes ()
+    (dolist (face '((markdown-header-face-1 . 1.3)
+		    (markdown-header-face-2 . 1.2)
+		    (markdown-header-face-3 . 1.15)
+		    (markdown-header-face-4 . 1.1)
+		    (markdown-header-face-5 . 1.0)))
+      (set-face-attribute (car face) nil :weight 'normal :font haki-heading-font :height (cdr face))))
+
+  (defun d/markdown-mode-hook ()
+    (d/set-markdown-header-font-sizes))
+
+  (defun d/markdown-toggle ()
+    "Toggle view mode and editing mode"
+    (interactive)
+    (if (derived-mode-p 'markdown-view-mode) (markdown-mode) (markdown-view-mode))))
+
+;; (add-hook 'markdown-mode-hook 'd/markdown-mode-hook)
+
+
+(unless d/on-droid
+  (use-package ess
+    :defer t
+    :custom
+    (ess-use-flymake nil)
+    (ess-R-font-lock-keywords '((ess-R-fl-keyword:keywords . t)
+				(ess-R-fl-keyword:constants . t)
+				(ess-R-fl-keyword:modifiers . t)
+				(ess-R-fl-keyword:fun-defs . t)
+				(ess-R-fl-keyword:assign-ops . t)
+				(ess-R-fl-keyword:%op% . t)
+				(ess-fl-keyword:fun-calls . t)
+				(ess-fl-keyword:numbers . t)
+				(ess-fl-keyword:operators . t)
+				(ess-fl-keyword:delimiters . t)
+				(ess-fl-keyword:= . t)
+				(ess-R-fl-keyword:F&T . t)))))
 
 (use-package treesit
   :ensure nil
@@ -1467,6 +1524,8 @@ select."
 (unless d/on-droid
 (use-package meow
   :defer 2
+  :custom
+  (meow-expand-exclude-mode-list `(org-mode markdown-mode vterm-mode))
   :config
   (defun meow-setup ()
     (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
@@ -1556,18 +1615,19 @@ select."
      '("<escape>" . ignore)))
 
   (setq meow-replace-state-name-list
-        '((normal . "")
-          (motion . "")
-          (keypad . "")
-          (insert . "")
-          (beacon . "")))
+	'((normal . "")
+	  (motion . "")
+	  (keypad . "")
+	  (insert . "")
+	  (beacon . "")))
 
   (add-to-list 'meow-mode-state-list '(vterm-mode . insert))
   (add-to-list 'meow-mode-state-list '(eshell-mode . insert))
   (add-to-list 'meow-mode-state-list '(eww-mode . insert))
   (add-to-list 'meow-mode-state-list '(sdcv-mode . motion))
 
-                                        ;meow-thing-register THING INNER BOUNDS
+
+  ;;meow-thing-register THING INNER BOUNDS
   (meow-thing-register 'arrow '(pair ("<") (">")) '(pair ("<") (">")))
   (add-to-list 'meow-char-thing-table '(?a . arrow))
 
@@ -1578,22 +1638,26 @@ select."
 
 (use-package dired
   :defer t
+  :init (file-name-shadow-mode 1)
   :ensure nil
   :commands (dired dired-jump)
   :bind (("C-x C-j" . dired-jump)
-         ("C-c f f" . window-focus-mode)
-         ("C-c f e" . (lambda () (interactive) (find-file "~/d-git/d-nix/d-emacs.org")))
-         ("C-c f s" . (lambda () (interactive) (find-file "~/d-git/d-nix/d-setup.org")))
-         ("C-c f m" . (lambda () (interactive) (find-file "~/d-git/d-nix/README.org"))))
+	 ("C-c f f" . window-focus-mode)
+	 ("C-c f e" . (lambda () (interactive) (find-file "~/d-git/d-nix/d-emacs.org")))
+	 ("C-c f s" . (lambda () (interactive) (find-file "~/d-git/d-nix/d-setup.org")))
+	 ("C-c f m" . (lambda () (interactive) (find-file "~/d-git/d-nix/README.org"))))
   (:map dired-mode-map
-        ("q" . kill-buffer-and-window)
-        ("j" . dired-next-line)
-        ("k" . dired-previous-line)
-        ("l" . dired-find-file)
-        ("h" . dired-up-directory)
-        ("b" . d/external-browser))
+	("q" . kill-buffer-and-window)
+	("j" . dired-next-line)
+	("k" . dired-previous-line)
+	("l" . dired-find-file)
+	("h" . dired-up-directory)
+	("b" . d/external-browser))
 
-  :custom (dired-listing-switches "-agho --group-directories-first")
+  :custom 
+  (dired-listing-switches "-agho --group-directories-first")
+  (delete-by-moving-to-trash t)
+  (dired-dwim-target t)
   :config
   (setq dired-listing-switches "-alt --dired --group-directories-first -h -G")
   (add-hook 'dired-mode-hook 'dired-hide-details-mode)
@@ -1614,12 +1678,12 @@ select."
   ;; (dirvish-peek-mode) ; Preview files in minibuffer
   (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
   (setq dirvish-mode-line-format
-        '(:left (sort symlink) :right (omit yank index)))
+	'(:left (sort symlink) :right (omit yank index)))
   (setq dirvish-attributes
-        '(file-time file-size collapse subtree-state vc-state git-msg))
+	'(file-time file-size collapse subtree-state vc-state git-msg))
   (setq delete-by-moving-to-trash t)
   (setq dired-listing-switches
-        "-l --almost-all --human-readable --group-directories-first --no-group")
+	"-l --almost-all --human-readable --group-directories-first --no-group")
   (setq dirvish-hide-cursor nil)
 
   ;; with emacs29
@@ -1660,8 +1724,8 @@ select."
   ;; Enable full-featured Dirvish over TRAMP on certain connections
   ;; https://www.gnu.org/software/tramp/#Improving-performance-of-asynchronous-remote-processes-1.
   (add-to-list 'tramp-connection-properties
-               (list (regexp-quote "/ssh:YOUR_HOSTNAME:")
-                     "direct-async-process" t))
+	       (list (regexp-quote "/ssh:YOUR_HOSTNAME:")
+		     "direct-async-process" t))
   ;; Tips to speed up connections
   (setq tramp-verbose 0)
   (setq tramp-chunksize 2000)
@@ -1673,38 +1737,44 @@ select."
   :config
   ;; Make dired-omit-mode hide all "dotfiles"
   (setq dired-omit-files
-        (concat dired-omit-files "\\|^\\..*$")))
+	(concat dired-omit-files "\\|^\\..*$")))
 
 (unless d/on-droid
-(use-package vterm
-  :defer t
-  :bind
-  (("C-c d t" . multi-vterm)
-   ("<f12>" . d/vt-toggle))
-  (:map vterm-mode-map
-        ("<f12>" . d/vt-toggle)
-        ("<f9>" . hide-mode-line-mode)
-        ("C-q" . vterm-send-next-key))
-  :config
-  (setq vterm-shell "/etc/profiles/per-user/i/bin/zsh")
-  (defun d/vt-toggle ()
-    "Minimal hack to toggle vterm."
-    (interactive)
-    (cond
-     ((derived-mode-p 'vterm-mode) (if (one-window-p) (switch-to-prev-buffer) (delete-window)))
-     ((one-window-p) (progn (split-and-follow-below) (multi-vterm-next)
-                            (if (package-installed-p 'hide-mode-line) (hide-mode-line-mode) nil) (shrink-window 7)))
-     (t (progn (other-window 1)
-               (if (derived-mode-p 'vterm-mode) (delete-window) 
-                 (progn (split-and-follow-below) (multi-vterm-next) (if (package-installed-p 'hide-mode-line) (hide-mode-line-mode) nil) (shrink-window 7))))))))
+  (use-package vterm
+    :defer t
+    :hook (vterm-mode-hook .
+			   (lambda ()
+			     (set (make-local-variable 'buffer-face-mode-face) 'fixed-pitch)
+			     (buffer-face-mode t)))
+    :bind
+    (("C-c d t" . multi-vterm)
+     ("<f12>" . d/vt-toggle)
+     ("C-c t v" . d/vt-toggle))
+    (:map vterm-mode-map
+	  ("<f12>" . d/vt-toggle)
+	  ("C-c t v" . d/vt-toggle)
+	  ("<f9>" . hide-mode-line-mode)
+	  ("C-q" . vterm-send-next-key))
+    :config
+    (setq vterm-shell "/etc/profiles/per-user/i/bin/zsh")
+    (defun d/vt-toggle ()
+      "Minimal hack to toggle vterm."
+      (interactive)
+      (cond
+       ((derived-mode-p 'vterm-mode) (if (one-window-p) (switch-to-prev-buffer) (delete-window)))
+       ((one-window-p) (progn (split-and-follow-below) (multi-vterm-next)
+			      (if (package-installed-p 'hide-mode-line) (hide-mode-line-mode) nil) (shrink-window 7)))
+       (t (progn (other-window 1)
+		 (if (derived-mode-p 'vterm-mode) (delete-window) 
+		   (progn (split-and-follow-below) (multi-vterm-next) (if (package-installed-p 'hide-mode-line) (hide-mode-line-mode) nil) (shrink-window 7))))))))
 
-(use-package multi-vterm
-  :bind (:map vterm-mode-map
-              ("M-n" . multi-vterm-next)
-              ("M-p" . multi-vterm-prev))
-  :config
-  (setq multi-vterm-dedicated-window-height-percent 30))
-)
+  (use-package multi-vterm
+    :bind (:map vterm-mode-map
+		("M-n" . multi-vterm-next)
+		("M-p" . multi-vterm-prev))
+    :config
+    (setq multi-vterm-dedicated-window-height-percent 30))
+  )
 
 ;; nixos issue for loading mu4e
 ;; (add-to-list 'load-path "/etc/profiles/per-user/i/share/emacs/site-lisp/mu4e/")
@@ -1713,7 +1783,7 @@ select."
   (use-package reddigg
     :defer t
     :bind (("C-c d f" . reddigg-view-frontpage)
-           ("C-c d r" . reddigg-view-sub))
+	   ("C-c d r" . reddigg-view-sub))
     :config
     (setq org-confirm-elisp-link-function nil)
     (setq reddigg-subs '(bangalore india emacs fossdroid piracy aww)))
@@ -1736,8 +1806,8 @@ select."
     :defer t
     :bind ("C-c d m" . mingus-browse)
     (:map mingus-browse-mode-map
-          ("h" . mingus-browse-top-level)
-          ("l" . mingus-down-dir-or-play-song))
+	  ("h" . mingus-browse-top-level)
+	  ("l" . mingus-down-dir-or-play-song))
     :config
     (advice-add 'mingus-playlist-mode :after #'olivetti-mode)
     (advice-add 'mingus-browse-mode :after #'olivetti-mode))
@@ -1746,8 +1816,8 @@ select."
   (use-package webpaste
     :defer t
     :bind (("C-c C-p C-b" . webpaste-paste-buffer)
-           ("C-c C-p C-r" . webpaste-paste-region)
-           ("C-c C-p C-p" . webpaste-paste-buffer-or-region))
+	   ("C-c C-p C-r" . webpaste-paste-region)
+	   ("C-c C-p C-p" . webpaste-paste-buffer-or-region))
     :config
     (setq webpaste-provider-priority '("dpaste.org" "dpaste.com" "paste.mozilla.org"))
     ;; Require confirmation before doing paste
@@ -1758,19 +1828,19 @@ select."
     :hook (sdcv-mode . hide-mode-line-mode)
     :config
     (setq sdcv-say-word-p t
-          sdcv-dictionary-data-dir "~/d-git/d-bin/treasure/dict/"
-          sdcv-dictionary-simple-list
-          '("wn" "mw-thesaurus" "enjp")
-          sdcv-popup-function 'popup-tip
-          sdcv-buffer-name "StarDict")
+	  sdcv-dictionary-data-dir "~/d-git/d-bin/treasure/dict/"
+	  sdcv-dictionary-simple-list
+	  '("wn" "mw-thesaurus" "dict")
+	  sdcv-popup-function 'popup-tip
+	  sdcv-buffer-name "StarDict")
     :bind (("C-c d w" . sdcv-search-input)
-           ("C-c d d" . sdcv-search-input+))
+	   ("C-c d d" . sdcv-search-input+))
     (:map sdcv-mode-map
-          ("q" . kill-buffer-and-window)
-          ("n" . sdcv-next-dictionary)
-          ("TAB" . hide-entry)
-          ("<backtab>" . show-entry)
-          ("p" . sdcv-previous-dictionary)))
+	  ("q" . kill-buffer-and-window)
+	  ("n" . sdcv-next-dictionary)
+	  ("TAB" . hide-entry)
+	  ("<backtab>" . show-entry)
+	  ("p" . sdcv-previous-dictionary)))
   )
 
 (use-package undo-fu-session
@@ -1781,9 +1851,9 @@ select."
 (use-package vundo
   :defer t
   :bind (("C-x u" . vundo)
-         ("C-z" . undo-only)
-         ("C-S-z" . undo-redo)
-         ("C-M-r" . undo-redo)))
+	 ("C-z" . undo-only)
+	 ("C-S-z" . undo-redo)
+	 ("C-M-r" . undo-redo)))
 
 (use-package shrface
   :after shr
@@ -1851,10 +1921,14 @@ select."
 (use-package doc-view
   :ensure nil
   :mode ("\\.epub\\'" . doc-view-mode)
+  :bind (:map doc-view-mode-map
+	      ("M-g M-g" . doc-view-goto-page))
   :custom
   (doc-view-continuous t)
   (doc-view-mupdf-use-svg t)
-  (doc-view-image-width 900))
+  (doc-view-image-width 900)
+  (large-file-warning-threshold 700000000)
+  (image-cache-eviction-delay 3))
 
 (defun config-reload ()
   "Uncle dev created a function to reload Emacs config."
@@ -2022,8 +2096,8 @@ Usable as favorites or bookmark."
 	    'private/org-elfeed-entry-store-link)
 
   (when d/on-droid
-(define-key elfeed-show-mode-map (kbd "<volume-up>") #'elfeed-show-next)
-(define-key elfeed-show-mode-map (kbd "<volume-down>") #'elfeed-show-prev)))
+(define-key elfeed-show-mode-map (kbd "<volume-up>") #'elfeed-show-prev)
+(define-key elfeed-show-mode-map (kbd "<volume-down>") #'elfeed-show-next)))
 
 (use-package link-hint
   :defer t
@@ -2056,7 +2130,7 @@ Usable as favorites or bookmark."
   "open in eww"
   (interactive)
   (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
-    (eww-open-in-new-buffer (elfeed-entry-link entry))
+    (eww (elfeed-entry-link entry))
     (add-hook 'eww-after-render-hook 'readable-article)))
 
 (defun elfeed-open-in-reddit ()
@@ -2085,24 +2159,7 @@ Usable as favorites or bookmark."
   (setq url-mime-accept-string "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8 ")
   (setq url-mime-charset-string nil)
   (setq url-mime-language-string "en-US,en;q=0.5")
-  (setq url-mime-encoding-string "gzip, deflate")
-
-  (defvar consult--source-eww
-    (list
-     :name     "Eww"
-     :narrow   ?e
-     :action   (lambda (bm)
-		 (eww-browse-url (get-text-property 0 'url bm)))
-     :items    (lambda ()
-		 (eww-read-bookmarks)
-		 (mapcar (lambda (bm)
-			   (propertize
-			    (format "%s (%s)"
-				    (plist-get bm :url)
-				    (plist-get bm :title))
-			    'url (plist-get bm :url)))
-			 eww-bookmarks))))
-  (add-to-list 'consult-buffer-sources 'consult--source-eww 'append))
+  (setq url-mime-encoding-string "gzip, deflate"))
 
 (use-package gnutls
   :defer t
@@ -2112,10 +2169,10 @@ Usable as favorites or bookmark."
 (defun d/external-browser ()
   (interactive)
   (cond ((image-at-point-p) (kill-new (or (shr-url-at-point nil) (plist-get (cdr (image--get-image)) :file))))
-        ((or (thing-at-point 'url t) (dired-file-name-at-point) (shr-url-at-point nil)) (link-hint-copy-link-at-point))
-        (t (link-hint-copy-link)))
+	((or (thing-at-point 'url t) (dired-file-name-at-point) (shr-url-at-point nil)) (link-hint-copy-link-at-point))
+	(t (link-hint-copy-link)))
   (let ((url (current-kill 0)))
-    (browse-url-generic url)))
+    (if d/on-droid (browse-url url) (browse-url-generic url))))
 
 ;; (advice-add 'eww-readable :after #'d/bionic-read)
 
@@ -2166,8 +2223,10 @@ Usable as favorites or bookmark."
 (global-visual-line-mode 1)
 (global-so-long-mode t)
 
+(unless d/on-droid
+(global-auto-revert-mode))
+
 (recentf-mode t)
-(global-auto-revert-mode)
 
 ;; Display messages when idle, without prompting
 (setq help-at-pt-display-when-idle t)

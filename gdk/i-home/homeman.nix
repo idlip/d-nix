@@ -16,10 +16,10 @@ programs = {
       add_newline = true;
       scan_timeout = 5;
       character = {
-        error_symbol = " [](#df5b61)";
-        success_symbol = "[](#6791c9)";
-        vicmd_symbol = "[](bold yellow)";
-        format = "[  ](bold blue)[$directory$all$character](bold)[  ](bold green)";
+	error_symbol = " [](#df5b61)";
+	success_symbol = "[](#6791c9)";
+	vicmd_symbol = "[](bold yellow)";
+	format = "[  ](bold blue)[$directory$all$character](bold)[  ](bold green)";
       };
       git_commit = {commit_hash_length = 4;};
       line_break.disabled = false;
@@ -28,9 +28,9 @@ programs = {
       directory.read_only = " ";
       nix_shell.symbol = " ";
       hostname = {
-        ssh_only = true;
-        format = "[$hostname](bold blue) ";
-        disabled = false;
+	ssh_only = true;
+	format = "[$hostname](bold blue) ";
+	disabled = false;
       };
     };
   };
@@ -38,20 +38,20 @@ programs = {
   fish = {
     enable = true;
     shellInit = ''
-        starship init fish | source
-        set -x FZF_DEFAULT_OPTS "--preview='bat {} --color=always'" \n
+	starship init fish | source
+	set -x FZF_DEFAULT_OPTS "--preview='bat {} --color=always'" \n
   set -x SKIM_DEFAULT_COMMAND "rg --files || fd || find ."
   set -g theme_nerd_fonts yes
   set -g theme_newline_cursor yes
   set fish_greeting
-        '';
+	'';
 
     shellAliases = with pkgs; {
       rebuild = "doas nix-store --verify; pushd ~dotfiles && doas nixos-rebuild switch --flake .# && notify-send \"Done\"&& bat cache --build; popd";
       cleanup = "doas nix-collect-garbage --delete-older-than 7d";
       bloat = "nix path-info -Sh /run/current-system";
       ytmp3 = ''
-              ${lib.getExe yt-dlp} -x --continue --add-metadata --embed-thumbnail --audio-format mp3 --audio-quality 0 --metadata-from-title="%(artist)s - %(title)s" --prefer-ffmpeg -o "%(title)s.%(ext)s"'';
+	      ${lib.getExe yt-dlp} -x --continue --add-metadata --embed-thumbnail --audio-format mp3 --audio-quality 0 --metadata-from-title="%(artist)s - %(title)s" --prefer-ffmpeg -o "%(title)s.%(ext)s"'';
       cat = "${lib.getExe bat} --style=plain";
       grep = lib.getExe ripgrep;
       du = lib.getExe du-dust;
@@ -103,36 +103,36 @@ programs = {
     };
 
     envExtra = ''
-        export MANPAGER="sh -c 'col -bx | bat -l man -p'"
-        export PATH="$PATH:/home/i/d-git/d-bin/bin:$HOME/.local/bin/d"
-        export EDITOR="emacsclient -nw -a 'nvim'"
-        export BEMENU_OPTS="-i -s -l 10 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
-        export VISUAL=$EDITOR
-        export STARDICT_DATA_DIR="$HOME/.local/share/stardict"
-        export GRIM_DEFAULT_DIR="$HOME/pics/sshots/"
+	export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+	export PATH="$PATH:/home/i/d-git/d-bin/bin:$HOME/.local/bin/d"
+	export EDITOR="emacsclient -nw -a 'nvim'"
+	export BEMENU_OPTS="-i -s -l 10 -R 20 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'Code D Lip 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
+	export VISUAL=$EDITOR
+	export STARDICT_DATA_DIR="$HOME/.local/share/stardict"
+	export GRIM_DEFAULT_DIR="$HOME/pics/sshots/"
 
-        if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
-          exec Hyprland
-        fi
-        '';
+	if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
+	  exec Hyprland
+	fi
+	'';
 
     initExtra = lib.mkAfter ''
-        source /home/i/d-git/d-nix/gdk/i-home/configs/sources.sh
+	source /home/i/d-git/d-nix/gdk/i-home/configs/sources.sh
 
-        source "${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-        source "${pkgs.zsh-history-substring-search}/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
-        source "${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-        source "${pkgs.nix-zsh-completions}/share/zsh/plugins/nix/nix-zsh-completions.plugin.zsh"
-        source "${pkgs.zsh-nix-shell}/share/zsh-nix-shell/nix-shell.plugin.zsh"
-        source "${pkgs.zsh-autopair}/share/zsh/zsh-autopair/autopair.zsh"
+	source "${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+	source "${pkgs.zsh-history-substring-search}/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
+	source "${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+	source "${pkgs.nix-zsh-completions}/share/zsh/plugins/nix/nix-zsh-completions.plugin.zsh"
+	source "${pkgs.zsh-nix-shell}/share/zsh-nix-shell/nix-shell.plugin.zsh"
+	source "${pkgs.zsh-autopair}/share/zsh/zsh-autopair/autopair.zsh"
 
-        # For vterm, needs to be at last!
-        function vterm_prompt_end() {
-            printf "\e]%s\e\\" "$1" "51;A$(whoami)@$(hostname):$(pwd)"
-            }
-            setopt PROMPT_SUBST
-            PROMPT=$PROMPT'%{$(vterm_prompt_end)%}'                       
-        '';
+	# For vterm, needs to be at last!
+	function vterm_prompt_end() {
+	    printf "\e]%s\e\\" "$1" "51;A$(whoami)@$(hostname):$(pwd)"
+	    }
+	    setopt PROMPT_SUBST
+	    PROMPT=$PROMPT'%{$(vterm_prompt_end)%}'                       
+	'';
 
     history = {
       save = 10000;
@@ -170,7 +170,7 @@ gruvbox-gtk-theme
   papirus-icon-theme
 
 # pioneer of web
-firefox librewolf brave ungoogled-chromium hugo
+firefox librewolf brave ungoogled-chromium hugo nyxt
 
 nodePackages.bash-language-server
   nodePackages.vscode-langservers-extracted
@@ -178,7 +178,7 @@ nodePackages.bash-language-server
   nodePackages.pyright
   python3
   nil 
-  R rPackages.languageserver
+  R rPackages.languageserver rPackages.lintr
   tree-sitter
   texlive.combined.scheme-full
 
@@ -193,7 +193,7 @@ gtk = {
     name = "Papirus";
   };
   font = {
-    name = "ComicCodeLigatures Nerd Font";
+    name = "Code D Haki";
     size = 17;
   };
   gtk3.extraConfig = {
@@ -263,9 +263,9 @@ programs = {
   bat = {
     enable = true;
     extraPackages = with pkgs.bat-extras; [ batdiff batman batgrep batwatch ];
-    config = {
-      theme = "gruvbox-dark";
-    };
+    # config = {
+    #   theme = "gruvbox-dark";
+    # };
   };
 };
 
@@ -306,7 +306,7 @@ services.dunst = {
       frame_width = 3;
       separator_color = "frame";
       sort = "yes";
-      font = "ComicCodeLigatures Nerd Font 20";
+      font = "Code D Haki 20";
       line_height = 0;
       markup = "full";
       stack_duplicates = "true";
@@ -366,8 +366,8 @@ programs.foot = {
   settings = {
     main = {
       term = "xterm-256color";
-      font = "ComicCodeLigatures Nerd Font:size=12, Noto Color Emoji:size=15, JetBrainsMono Nerd Font:size=12";
-      font-bold = "ComicCodeLigatures Nerd Font:size=12, Noto Color Emoji:size=15, JetBrainsMono Nerd Font:size=12";
+      font = "Code D OnePiece:size=12, Noto Color Emoji:size=15";
+      font-bold = "Code D Lip:size=12, Noto Color Emoji:size=15";
       letter-spacing = "1";
        box-drawings-uses-font-glyphs = "no";
     };
@@ -427,7 +427,6 @@ xwayland disable
 
 home.file.".config/emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/i/d-git/d-nix/gdk/i-home/configs/emacs/early-init.el";
 home.file.".config/emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/i/d-git/d-nix/gdk/i-home/configs/emacs/init.el";
-home.file.".config/emacs/elfeed.org".source = config.lib.file.mkOutOfStoreSymlink "/home/i/d-git/d-nix/d-rss.org";
 
 programs.emacs = {
   enable = true;
@@ -435,18 +434,17 @@ programs.emacs = {
   extraPackages = (epkgs: (with epkgs; [
     treesit-grammars.with-all-grammars
     vterm multi-vterm vundo undo-fu-session flycheck helpful ox-pandoc
-    no-littering rainbow-delimiters rainbow-mode vertico 
-    orderless consult marginalia embark org olivetti org-modern corfu
-    embark-consult consult-eglot consult-flycheck
-    cape markdown-mode nix-mode
-    nerd-icons async dirvish
+    no-littering rainbow-delimiters rainbow-mode
+    vertico orderless consult marginalia embark org-modern corfu cape corfu-terminal
+    org olivetti nerd-icons async dirvish
+    embark-consult consult-eglot consult-flycheck markdown-mode nix-mode
     reddigg hnreader mingus which-key magit webpaste org-present
-    # pdf-tools nov
+    # pdf-tools nov (using in-built doc-view)
     shrface shr-tag-pre-highlight gcmh
-    org-mime corfu-terminal beframe denote tempel tempel-collection
+    org-mime beframe denote tempel tempel-collection
     sdcv elfeed elfeed-org link-hint powerthesaurus jinx meow
-    doom-modeline hide-mode-line el-fetch ox-hugo htmlize
-    ement kind-icon speed-type
+    doom-modeline hide-mode-line el-fetch ox-hugo
+    ement kind-icon speed-type ess vc-backup aria2
   ])
   );
 };
@@ -743,10 +741,11 @@ services.mpd = {
     listenAddress = "any";
     port = 6600;
   };
+  musicDirectory = "~/d-sync/music";
   extraConfig = ''
       audio_output {
-        type    "pipewire"
-        name    "pipewire"
+	type    "pipewire"
+	name    "pipewire"
       }
       auto_update "yes"
     '';
@@ -926,119 +925,119 @@ programs.waybar = {
       fixed-center = true;
       exclusive = true;
       modules-left = [
-        "custom/launcher"
-        "wlr/workspaces"
-        "hyprland/window"
-        "hyprland/submap"
+	"custom/launcher"
+	"wlr/workspaces"
+	"hyprland/window"
+	"hyprland/submap"
       ];
       modules-center = [
-        "clock" "mpd"
+	"clock" "mpd"
       ];
       modules-right = ["network" "battery" "memory" "pulseaudio" "custom/power"];
       "wlr/workspaces" = {
-        format = "{icon}";
-        active-only = false;
-        on-click = "activate";
-        format-icons = {
-          active = "";
-          default = "";
-          "1" = "1";
-          "2" = "2";
-          "3" = "3";
-          "4" = "4";
-          "5" = "5";
-          "6" = "6";
-        };
+	format = "{icon}";
+	active-only = false;
+	on-click = "activate";
+	format-icons = {
+	  active = "";
+	  default = "";
+	  "1" = "1";
+	  "2" = "2";
+	  "3" = "3";
+	  "4" = "4";
+	  "5" = "5";
+	  "6" = "6";
+	};
       };
 
       "hyprland/window" = {
-        "format" = "👁{}";
-        "separate-outputs" = true;
+	"format" = "👁{}";
+	"separate-outputs" = true;
       };
 
       "hyprland/submap" = {
-        "format" = " {}";
-        "max-length" = 14;
-        "tooltip" = false;
+	"format" = " {}";
+	"max-length" = 14;
+	"tooltip" = false;
       };
 
       "custom/launcher" = {
-        "format" = " ";
-        "tooltip" = false;
-        "on-click" = "bemenu-run";
+	"format" = " ";
+	"tooltip" = false;
+	"on-click" = "bemenu-run";
       };
 
       "battery" =  {
-        "bat" =  "BAT0";
-        "interval" =  30;
-        "states" =  {
-          "warning" =  50;
-          "critical" =  30;
-        };
-        "format" =  "{capacity}% {icon} ";
-        "format-icons" =  [" " "🔴 " "🪫" " " " "];
-        "max-length" =  25;
+	"bat" =  "BAT0";
+	"interval" =  30;
+	"states" =  {
+	  "warning" =  50;
+	  "critical" =  30;
+	};
+	"format" =  "{capacity}% {icon}";
+	"format-icons" =  [" " "🔴" "🪫" " " " "];
+	"max-length" =  25;
       };
 
       "mpd" = {
-        "format" = "{stateIcon} {title}  ";
-        "format-disconnected" = "  ";
-        "format-stopped" = "  ";
-        "title-len" = 20;
-        "interval" = 10;
-        "on-click" = "mpc toggle";
-        "state-icons" = {
-          "paused" = "";
-          "playing" = "";
-        };
-        "tooltip-format" = "Playing: {filename}";
-          "tooltip-format-disconnected" = "";
+	"format" = "{stateIcon} {title}  ";
+	"format-disconnected" = "  ";
+	"format-stopped" = "  ";
+	"title-len" = 20;
+	"interval" = 10;
+	"on-click" = "mpc toggle";
+	"state-icons" = {
+	  "paused" = "";
+	  "playing" = "";
+	};
+	"tooltip-format" = "Playing: {filename}";
+	  "tooltip-format-disconnected" = "";
       };
-        "custom/power" = {
-        "format" = "⏻";
-        "on-click" = "d-power";
-        "tooltip" = false;
+	"custom/power" = {
+	"format" = "⏻";
+	"on-click" = "d-power";
+	"tooltip" = false;
       };
       "clock" = {
-        "tooltip-format" = "{:%A %B %d %Y | %H:%M}";
-        "format-alt" = " {:%a %d %b  %I:%M %p}";
-        "format" = " {:%H:%M} ";
-        ##"timezones" = [ "Kolkata" ];
-        ##"max-length" = 200;
-        "interval" = 1;
+	"tooltip-format" = "{:%A %B %d %Y | %H:%M}";
+	"format-alt" = " {:%a %d %b  %I:%M %p}";
+	"format" = " {:%H:%M} ";
+	##"timezones" = [ "Kolkata" ];
+	##"max-length" = 200;
+	"interval" = 1;
       };
       "cpu" = {
-        "format" = "﬙ {usage: >3}%";
-        "on-click" = "footclient -e btop";
+	"format" = "﬙ {usage: >3}%";
+	"on-click" = "footclient -e btop";
       };
       "memory" = {
-        "format" = " {: >3}% ";
-        "on-click" = "foot -e btop";
+	"format" = " {: >3}%";
+	"on-click" = "foot -e btop";
       };
       "network" = {
-        "interface" = "wlp2s0";
-        "format" = "⚠ Disabled";
-        "format-wifi" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
-        "format-ethernet" = " {ifname}: {ipaddr}/{cidr}";
-        "format-disconnected" = "⚠ Disconnected";
-        "on-click" = "foot -e nmtui";
-        "interval" = 2;
+	"interface" = "wlp2s0";
+	"format" = "⚠ Disabled";
+	"format-wifi" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
+	"format-ethernet" = " {ifname}: {ipaddr}/{cidr}";
+	"format-disconnected" = "⚠ Disconnected";
+	"on-click" = "foot -e nmtui";
+	"interval" = 2;
       };
       "pulseaudio" = {
-        "scroll-step" = 2;
-        "format" = "{icon} {volume: >3}% ";
-        "format-bluetooth" = "{icon} {volume: >3}%";
-        "format-muted" =" muted ";
-        "on-click" = "pamixer -t";
-        "format-icons" = {
-          "headphones" = "";
-          "handsfree" = "";
-          "headset" = "";
-          "phone" = "";
-          "portable" = "";
-          "car" = "";
-          "default" = ["" ""];
-        };
+	"scroll-step" = 2;
+	"format" = "{icon} {volume: >3}% ";
+	"format-bluetooth" = "{icon} {volume: >3}%";
+	"format-muted" =" muted ";
+	"on-click" = "pamixer -t";
+	"format-icons" = {
+	  "headphones" = "";
+	  "handsfree" = "";
+	  "headset" = "";
+	  "phone" = "";
+	  "portable" = "";
+	  "car" = "";
+	  "default" = ["" ""];
+	};
       };
     };
   };
@@ -1050,7 +1049,7 @@ home.file.".config/waybar/style.css".source = config.lib.file.mkOutOfStoreSymlin
 
 # We will tangle config files from git repo to home dir (Let nix manage the magics)
 
-home.file.".config/waybar/modus.css".source = config.lib.file.mkOutOfStoreSymlink "/home/i/d-git/d-nix/gdk/i-home/configs/waybar/modus.css";
+home.file.".config/waybar/haki.css".source = config.lib.file.mkOutOfStoreSymlink "/home/i/d-git/d-nix/gdk/i-home/configs/waybar/haki.css";
 
 # We will tangle config files from git repo to home dir (Let nix manage the magics)
 

@@ -277,42 +277,21 @@ services = {
       #"device2" = { id = "DEVICE-ID-GOES-HERE"; };
     };
     folders = {
-      "music-jazz" = {        # Name of folder in Syncthing, also the folder ID
-        path = "/home/i/music";    # Which folder to add to Syncthing
-        devices = [ "realme" ];      # Which devices to share the folder with
-      };
-      "syncs" = {
-        path = "/home/i/sync";
-        devices = [ "realme" ];
-        ignorePerms = false; 
-      };
-      "essentials" = {
-        path = "/home/i/d/Essentials";
-        devices = [ "realme" ];
-      };
-      "reads" = {
-        path = "/home/i/d/reads";
-        devices = [ "realme" ];
-      };
-      "fonts" = {
-        path = "/home/i/d/fonts";
-        devices = [ "realme" ];
+      "sync" = {
+	path = "/home/i/d-sync";
+	devices = [ "realme" ];
       };
       "emacs" = {
-        path = "/home/i/d-git/d-nix";
-        devices = [ "realme" ];
-      };
-      "news" = {
-        path = "/home/i/.config/emacs/var/elfeed";
-        devices = [ "realme" ];
+	path = "/home/i/d-git/d-nix";
+	devices = [ "realme" ];
       };
       "theme" = {
-        path = "/home/i/d-git/d-theme";
-        devices = [ "realme" ];
+	path = "/home/i/d-git/d-theme";
+	devices = [ "realme" ];
       };
       "site" = {
-        path = "/home/i/d-git/d-site";
-        devices = [ "realme" ];
+	path = "/home/i/d-git/d-site";
+	devices = [ "realme" ];
       };
     };
   };
@@ -370,23 +349,25 @@ hardware = {
 fonts = {
   fonts = with pkgs; [
     noto-fonts unifont
-    symbola noto-fonts-emoji maple-mono comic-mono
-    (nerdfonts.override {fonts = [ "JetBrainsMono" ];})
+    symbola noto-fonts-emoji maple-mono
+    (callPackage ./pkgs/code-d-font.nix {})
+
+    (nerdfonts.override {fonts = [ "JetBrainsMono"  ];})
   ];
 
-  enableDefaultFonts = false;
+  enableDefaultFonts = true;
 
   # this fixes emoji stuff
   fontconfig = {
     defaultFonts = {
       monospace = [
-        "ComicCodeLigatures Nerd Font"
-        "JetBrainsMono Nerd Font"
-        "Noto Color Emoji"
+	      "Code D OnePiece"
+	      "JetBrainsMono Nerd Font"
+	      "Noto Color Emoji"
       ];
-      sansSerif = [ "Noto Sans" "JetBrainsMono Nerd Font" "Unifont"];
-      serif = [ "Noto Sans" "JetBrainsMono Nerd Font" "ComicCodeLigatures Nerd Font" "Unifont" ];
-      emoji = [ "Noto Color Emoji" "ComicCodeLigatures Nerd Font" "Symbola" "Unifont" ];
+      sansSerif = [ "Code D Haki" "Noto Sans" "Unifont"];
+      serif = [ "Code D Haki" "Noto Sans" "Unifont" ];
+      emoji = [ "Noto Color Emoji" "Code D Lip" "Symbola" "Noto Sans" "Unifont" ];
     };
   };
 };

@@ -57,47 +57,33 @@
       gc-cons-percentage 0.6)
 
 (add-hook 'emacs-startup-hook
-          (lambda ()
-            (setq gc-cons-threshold 16777216 ; 16mb
-                  gc-cons-percentage 0.1)))
+	  (lambda ()
+	    (setq gc-cons-threshold 16777216 ; 16mb
+		  gc-cons-percentage 0.1)))
 
 (setq safe-local-variable-values
       '((org-src-preserve-indentation . t)
-        (eval add-hook 'after-save-hook
-              '(lambda nil
-                 (org-babel-tangle))
-              nil t)))
+	(eval add-hook 'after-save-hook
+	      '(lambda nil
+		 (org-babel-tangle))
+	      nil t)))
 
 (setq use-file-dialog (if d/on-droid t nil))
 
 (setq
- mode-line-format nil ; don't want a mode line while loading init
- load-prefer-newer nil
- create-lockfiles nil ; disable lockfiles
- make-backup-files nil ; disable backup files
- auto-save-list-file-prefix nil ; disable auto-save
- auto-mode-case-fold nil ; use case-sensitive `auto-mode-alist' for performance
- default-input-method nil
- utf-translate-cjk-mode nil ; disable CJK coding/encoding (Chinese/Japanese/Korean characters)
  initial-scratch-message nil ; empty the initial *scratch* buffer.
- command-line-x-option-alist nil ; remove irreleant command line options for faster startup
- vc-follow-symlinks t ; Do not ask about symlink following
  inhibit-default-init t
  inhibit-splash-screen t
  inhibit-startup-screen t 		; do not show the startup message
  inhibit-startup-message t      ; reduce noise at startup
  inhibit-startup-buffer-menu t  ; stop `list-buffers' from showing when opening multiple files
- fast-but-imprecise-scrolling t ; more performant rapid scrolling over unfontified regions
  frame-inhibit-implied-resize t ; do not resize the frame at this early stage
  use-short-answers t
  ffap-machine-p-known 'reject   ; don't ping things that look like domain names
  inhibit-compacting-font-caches t ; Inhibit frame resizing for performance
- read-process-output-max (* 1024 1024) ; Increase how much is read from processes in a single chunk.
- redisplay-skip-fontification-on-input t ; Inhibits it for better scrolling performance.
- idle-update-delay 1.0 ; slow down UI updates down
  select-active-regions 'only ; Emacs hangs when large selections contain mixed line endings
  ad-redefinition-action 'accept ; disable warnings from legacy advice system
- initial-major-mode 'fundamental-mode
+ initial-major-mode 'org-mode
  inhibit-startup-echo-area-message user-login-name)
 
 ;; Maximize the Emacs frame on startup

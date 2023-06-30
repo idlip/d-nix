@@ -77,11 +77,11 @@ function shellnix() {
     nix shell nixpkgs#"$1"
 }
 
-function {e,'emacsclient -t','emacsclient -nw'} () {
+function {e,find-file,'emacsclient -t','emacsclient -nw'} () {
     if [ "$INSIDE_EMACS" = "vterm" ]; then
-        emacsclient $1 >/dev/null 2>&1 || echo "Give a file to open"
+	emacsclient $1 >/dev/null 2>&1 || echo "Give a file to open"
     else
-        emacsclient -t $1 || echo "Start emacs daemon"
+	emacsclient -t $1 || echo "Start emacs daemon"
     fi
 }
 

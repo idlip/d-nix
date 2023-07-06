@@ -35,41 +35,12 @@
 ;;; Code:
 
 
-;; BetterGC
-(defvar better-gc-cons-threshold 134217728 ; 128mb
-  "If you experience freezing, decrease this.
-If you experience stuttering, increase this.")
 
 ;; to throw custom.el separely
+;; useful to use same config for android/pc
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (when (file-exists-p custom-file)
   (load custom-file 'noerror))
-
-(add-hook 'emacs-startup-hook
-          (lambda ()
-            (setq gc-cons-threshold better-gc-cons-threshold)
-            (makunbound 'file-name-handler-alist-original)))
-;; -BetterGC
-
-;; AutoGC
-(add-hook 'emacs-startup-hook
-          (lambda ()
-            (if (boundp 'after-focus-change-function)
-                (add-function :after after-focus-change-function
-                              (lambda ()
-                                (unless (frame-focus-state)
-                                  (garbage-collect))))
-              (add-hook 'after-focus-change-function 'garbage-collect))
-            (defun gc-minibuffer-setup-hook ()
-              (setq gc-cons-threshold (* better-gc-cons-threshold 2)))
-
-            (defun gc-minibuffer-exit-hook ()
-              (garbage-collect)
-              (setq gc-cons-threshold better-gc-cons-threshold))
-
-            (add-hook 'minibuffer-setup-hook #'gc-minibuffer-setup-hook)
-            (add-hook 'minibuffer-exit-hook #'gc-minibuffer-exit-hook)))
-;; -AutoGC
 
 ;; Initialize package sources
 (require 'package)
@@ -77,14 +48,14 @@ If you experience stuttering, increase this.")
 (setq package-user-dir (expand-file-name "elpa" user-emacs-directory)
       package-archives
       '(("melpa" . "https://melpa.org/packages/")
-        ("org" . "https://orgmode.org/elpa/")
-        ("elpa" . "https://elpa.gnu.org/packages/"))
+	("org" . "https://orgmode.org/elpa/")
+	("elpa" . "https://elpa.gnu.org/packages/"))
       package-quickstart nil)
 
 (setq package-archive-priorities
       '(("melpa" .  3)
-        ("org" . 2)
-        ("elpa" . 1)))
+	("org" . 2)
+	("elpa" . 1)))
 
 (unless (bound-and-true-p package--initialized)
   (setq package-enable-at-startup nil) ; To prevent initializing twice
@@ -120,11 +91,11 @@ If you experience stuttering, increase this.")
 (defvar d/fixed-width-font "Code D OnePiece"
   "The font to use for monospaced (fixed width) text.")
 
-(defvar d/variable-width-font "Code D Haki"
+(defvar d/variable-width-font "Code D Ace"
   "The font to use for variable-pitch (documents) text.")
 
-(setq haki-heading-font "Code D Lip")
-(setq haki-sans-font "Code D Law")
+(setq haki-heading-font "Code D Ace")
+(setq haki-sans-font "Code D Haki")
 (setq haki-title-font "Code D Lip")
 (setq haki-link-font "Maple Mono")
 (setq haki-code-font "ComicCodeLigatures Nerd Font")
@@ -145,7 +116,7 @@ If you experience stuttering, increase this.")
 (use-package font-lock
   :ensure nil
   :custom ((font-lock-maximum-decoration t)
-	   (font-lock-global-modes '(not shell-mode text-mode))
+	   (font-lock-global-modes '(not text-mode))
 	   (font-lock-verbose t))
   :config
   (global-font-lock-mode 1))
@@ -173,14 +144,9 @@ If you experience stuttering, increase this.")
    auto-save-file-name-transforms
    `((".*" ,(no-littering-expand-var-file-name "auto-save/") t))))
 
-(use-package gcmh
-  :init (gcmh-mode 1)
-  :config
-  (setq
-   gcmh-idle-delay 'auto ; default is 15s
-   gcmh-auto-idle-delay-factor 10
-   gcmh-high-cons-threshold (* 16 1024 1024)) ; 16mb
-  :delight " Ⓖ")
+(use-package vc-backup
+  :custom
+  (vc-make-backup-files t))
 
 (use-package savehist
   :defer 2
@@ -209,7 +175,7 @@ If you experience stuttering, increase this.")
   (revert-buffer :ignore-auto :noconfirm))
 
 (defun window-focus-mode ()
-  "Make the window focused, it can toggled in and out"
+  "Make the window focused, it can toggle in and out"
   (interactive)
   (if (= 1 (length (window-list)))
       (jump-to-register '_)
@@ -218,7 +184,7 @@ If you experience stuttering, increase this.")
       (delete-other-windows))))
 
 (defun d/insert-unicodes (add-unicodes)
-  "Inserts unicode character (emoji/icons) from given files"
+  "Insert unicode character (emoji/icons) from given files."
   (interactive (list add-unicodes))
   (insert
    (let* ((content
@@ -230,6 +196,7 @@ If you experience stuttering, increase this.")
 (setq add-unicodes (unless d/on-droid (directory-files "~/d-git/d-bin/treasure/unicodes/" t "i")))
 
 (defun org-archive-done-tasks ()
+  "From the org-heading, it throws all the Done tasks to filename_archive.org"
   (interactive)
   (org-map-entries
    (lambda ()
@@ -264,31 +231,32 @@ Specify the separator by typing C-u before executing this command."
 	(t (error "Please select a region to narrow to"))))
 
 (dolist (keybind '(("M-o" . other-window)
-                   ("C-<tab>" . tab-next)
+		   ("C-<tab>" . tab-next)
+		   ("M-^" . d/join-lines)
 
-                   ;; Better scrolling (emacs 29)
-                   ("M-v" . d/scroll-up)
-                   ("C-v" . d/scroll-down)
-                   ;; refresh/re-read buffer
-                   ("<f5>" . d/refresh-buffer)
-                   ;; insert color or nerd icons
-                   ("C-c d i" . d/insert-unicodes)
-                   ("C-c d c" . d/insert-colors)
-                   ("C-x n n" . d/narrow-or-widen-dwim)
-                   ;; better splits
-                   ("C-x 2" . split-and-follow-below)
-                   ("C-x 3" . split-and-follow-right)
-                   ;; regex replace
-                   ("M-%" . query-replace-regexp)
-                   ;; quick kill
-                   ("C-x C-k" . d/kill-buffer)
-                   ("C-x k" . kill-buffer)
-                   ("<escape>" . keyboard-escape-quit)
-                   ;; handy editing
-                   ("M-z" . zap-up-to-char)
-                   ("M-u" . upcase-dwim)
-                   ("M-l" . downcase-dwim)
-                   ("M-c" . capitalize-dwim)))
+		   ;; Better scrolling (emacs 29)
+		   ("M-v" . d/scroll-up)
+		   ("C-v" . d/scroll-down)
+		   ;; refresh/re-read buffer
+		   ("<f5>" . d/refresh-buffer)
+		   ;; insert color or nerd icons
+		   ("C-c d i" . d/insert-unicodes)
+		   ("C-c d c" . d/insert-colors)
+		   ("C-x n n" . d/narrow-or-widen-dwim)
+		   ;; better splits
+		   ("C-x 2" . split-and-follow-below)
+		   ("C-x 3" . split-and-follow-right)
+		   ;; regex replace
+		   ("M-%" . query-replace-regexp)
+		   ;; quick kill
+		   ("C-x C-k" . d/kill-buffer)
+		   ("C-x k" . kill-buffer)
+		   ("<escape>" . keyboard-escape-quit)
+		   ;; handy editing
+		   ("M-z" . zap-up-to-char)
+		   ("M-u" . upcase-dwim)
+		   ("M-l" . downcase-dwim)
+		   ("M-c" . capitalize-dwim)))
   (global-set-key (kbd (car keybind)) (cdr keybind)))
 
 ;; Get rid of annoyance
@@ -367,17 +335,17 @@ Specify the separator by typing C-u before executing this command."
 
 (use-package vertico
   :bind (:map vertico-map
-              ("?" . minibuffer-completion-help)
-              ("<return>" . vertico-directory-enter)
-              ("DEL" . vertico-directory-delete-char)
-              ("M-DEL" . vertico-directory-delete-word)
-              ("M-j" . vertico-quick-exit)
-              ("'" . vertico-quick-exit)
-              ("C-v" . vertico-scroll-up)
-              ("M-v" . vertico-scroll-down)
-              ("M-q" . d/vertico-toggle)
-              ("M-RET" . minibuffer-force-complete-and-exit)
-              ("M-TAB" . minibuffer-complete))
+	      ("?" . minibuffer-completion-help)
+	      ("<return>" . vertico-directory-enter)
+	      ("DEL" . vertico-directory-delete-char)
+	      ("M-DEL" . vertico-directory-delete-word)
+	      ("M-j" . vertico-quick-exit)
+	      ("'" . vertico-quick-exit)
+	      ("C-v" . vertico-scroll-up)
+	      ("M-v" . vertico-scroll-down)
+	      ("M-q" . d/vertico-toggle)
+	      ("M-RET" . minibuffer-force-complete-and-exit)
+	      ("M-TAB" . minibuffer-complete))
   :init
   (vertico-mode)
   (setq vertico-scroll-margin 5)
@@ -386,40 +354,41 @@ Specify the separator by typing C-u before executing this command."
   (setq vertico-cycle t)
   :config
   (setq vertico-buffer-display-action '(display-buffer-in-direction
-                                        (direction . right)
-                                        (window-width . 0.45)))
+					(direction . right)
+					(window-width . 0.45)))
   (setq vertico-multiform-categories
-        '((file )
-          (consult-location )
-          (t unobtrusive)))
+	'((file )
+	  (consult-location )
+	  (t unobtrusive)))
   (setq vertico-multiform-commands
-        '((consult-ripgrep )))
+	'((consult-ripgrep )))
   (setq completion-in-region-function
-        (lambda (&rest args)
-          (apply (if vertico-mode
-                     #'consult-completion-in-region
-                   #'completion--in-region)
-                 args))))
+	(lambda (&rest args)
+	  (apply (if vertico-mode
+		     #'consult-completion-in-region
+		   #'completion--in-region)
+		 args))))
 
 (defun d/vertico-toggle ()
   "Toggle between vertico-unobtrusive and vertico-mode."
   (interactive)
-  (vertico-multiform-vertical 'vertico-unobtrusive-mode))
+  (vertico-multiform-vertical 'vertico-unobtrusive-mode)
+  (vertico-multiform-mode 1))
 
 (use-package emacs
   :init
   (defun crm-indicator (args)
     (cons (format "[CRM%s] %s"
-                  (replace-regexp-in-string
-                   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
-                   crm-separator)
-                  (car args))
-          (cdr args)))
+		  (replace-regexp-in-string
+		   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+		   crm-separator)
+		  (car args))
+	  (cdr args)))
   (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
 
   ;; Do not allow the cursor in the minibuffer prompt
   (setq minibuffer-prompt-properties
-        '(read-only t cursor-intangible t face minibuffer-prompt))
+	'(read-only t cursor-intangible t face minibuffer-prompt))
   (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
   (setq completion-cycle-threshold 3)
@@ -796,7 +765,7 @@ selected color."
 
    org-modern-star '("◉" "✪" "◈" "✿" "❂")
    org-modern-hide-stars 'leading
-   org-modern-table t
+   org-modern-table nil
    org-modern-list
    '((?* . "⁍")
      (?- . "❖")
@@ -821,10 +790,7 @@ selected color."
   :bind ("M-$". jinx-correct)
   :config
   (add-to-list 'vertico-multiform-categories
-               '(jinx grid (vertico-grid-annotate . 20)))
-
-  (vertico-multiform-mode 1))
-)
+	       '(jinx grid (vertico-grid-annotate . 20)))))
 
 (defun org-font-setup ()
   ;; Replace list hyphen with dot
@@ -895,9 +861,8 @@ selected color."
 	  browse-url-generic-program "d-stuff"))
 
   (setq org-agenda-files
-	(if d/on-droid "/storage/emulated/0/sync/org/tasks.org"
-	  '("~/sync/org/tasks.org"
-	    "~/d-git/d-site/README.org")))
+	  '("~/d-sync/notes/tasks.org"
+	    "~/d-git/d-site/README.org"))
 
   ;; (require 'org-habit)
   ;; (add-to-list 'org-modules 'org-habit)
@@ -927,15 +892,15 @@ selected color."
 
   (setq org-capture-templates
 	`(
-	  ("t" "Task" entry (file+olp "~/sync/org/tasks.org" "One-Timer")
+	  ("t" "Task" entry (file+olp "~/d-sync/notes/tasks.org" "One-Timer")
 	   "* TODO %?\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
 	  ("w" "Website Todo" entry (file+headline "~/d-git/d-site/README.org" "Ideas - TODO")
 	   "* TODO %?\n  SCHEDULED:%T\n " :empty-lines 1)
 	  ("l" "Link" entry
-	     (file+headline "~/sync/org/bookmarks.org" "elfeed") "* %a\n")
+	     (file+headline "~/d-sync/notes/bookmarks.org" "elfeed") "* %a\n")
 	  ("j" "Journal Entries")
 	  ("jj" "Journal" entry
-	   (file+olp+datetree "~/docs/org/journal.org")
+	   (file+olp+datetree "~/d-sync/notes/journal.org")
 	   "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
 	   ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
 	   :clock-in :clock-resume
@@ -1154,7 +1119,7 @@ selected color."
 
   :config
   (setq
-   denote-directory (expand-file-name "~/sync/denote")
+   denote-directory (expand-file-name "~/d-sync/connect/denote")
    denote-known-keywords '("emacs" "blogs" "article")
    denote-infer-keywords t
    denote-sort-keywords t
@@ -1169,7 +1134,7 @@ selected color."
   denote-dired-directories
   (list denote-directory
         (thread-last denote-directory (expand-file-name "attachments"))
-        (expand-file-name "~/sync/org/books/"))
+        (expand-file-name "~/d-sync/notes/books/"))
 
   (defun d/my-journal ()
     (interactive)
@@ -1437,6 +1402,7 @@ select."
 
 (use-package treesit
   :ensure nil
+  :mode ("\\.yaml\\'" . yaml-ts-mode)
   :custom
   (treesit-font-lock-level 4)
   (treesit-font-lock-feature-list t)
@@ -1459,9 +1425,9 @@ select."
      (toml-mode . toml-ts-mode)
      (yaml-mode . yaml-ts-mode))))
 
-(use-package nerd-icons)
-  ;; :custom
-  ;; (nerd-icons-font-family d/fixed-width-font))
+(use-package nerd-icons
+  :custom
+  (nerd-icons-font-family d/fixed-width-font))
 
 (use-package kind-icon
   :after corfu
@@ -1472,43 +1438,43 @@ select."
   (setq kind-icon-default-style '(:padding -0.5 :stroke 0 :margin 0 :radius 0 :height 0.6 :scale 1.0))
   (setq kind-icon-use-icons nil)
   (setq kind-icon-mapping
-        `(
-          (array ,(nerd-icons-codicon "nf-cod-symbol_array") :face font-lock-type-face)
-          (boolean ,(nerd-icons-codicon "nf-cod-symbol_boolean") :face font-lock-builtin-face)
-          (class ,(nerd-icons-codicon "nf-cod-symbol_class") :face font-lock-type-face)
-          (color ,(nerd-icons-codicon "nf-cod-symbol_color") :face success)
-          (command ,(nerd-icons-codicon "nf-cod-terminal") :face default)
-          (constant ,(nerd-icons-codicon "nf-cod-symbol_constant") :face font-lock-constant-face)
-          (constructor ,(nerd-icons-codicon "nf-cod-triangle_right") :face font-lock-function-name-face)
-          (enummember ,(nerd-icons-codicon "nf-cod-symbol_enum_member") :face font-lock-builtin-face)
-          (enum-member ,(nerd-icons-codicon "nf-cod-symbol_enum_member") :face font-lock-builtin-face)
-          (enum ,(nerd-icons-codicon "nf-cod-symbol_enum") :face font-lock-builtin-face)
-          (event ,(nerd-icons-codicon "nf-cod-symbol_event") :face font-lock-warning-face)
-          (field ,(nerd-icons-codicon "nf-cod-symbol_field") :face font-lock-variable-name-face)
-          (file ,(nerd-icons-codicon "nf-cod-symbol_file") :face font-lock-string-face)
-          (folder ,(nerd-icons-codicon "nf-cod-folder") :face font-lock-doc-face)
-          (interface ,(nerd-icons-codicon "nf-cod-symbol_interface") :face font-lock-type-face)
-          (keyword ,(nerd-icons-codicon "nf-cod-symbol_keyword") :face font-lock-keyword-face)
-          (macro ,(nerd-icons-codicon "nf-cod-symbol_misc") :face font-lock-keyword-face)
-          (magic ,(nerd-icons-codicon "nf-cod-wand") :face font-lock-builtin-face)
-          (method ,(nerd-icons-codicon "nf-cod-symbol_method") :face font-lock-function-name-face)
-          (function ,(nerd-icons-codicon "nf-cod-symbol_method") :face font-lock-function-name-face)
-          (module ,(nerd-icons-codicon "nf-cod-file_submodule") :face font-lock-preprocessor-face)
-          (numeric ,(nerd-icons-codicon "nf-cod-symbol_numeric") :face font-lock-builtin-face)
-          (operator ,(nerd-icons-codicon "nf-cod-symbol_operator") :face font-lock-comment-delimiter-face)
-          (param ,(nerd-icons-codicon "nf-cod-symbol_parameter") :face default)
-          (property ,(nerd-icons-codicon "nf-cod-symbol_property") :face font-lock-variable-name-face)
-          (reference ,(nerd-icons-codicon "nf-cod-references") :face font-lock-variable-name-face)
-          (snippet ,(nerd-icons-codicon "nf-cod-symbol_snippet") :face font-lock-string-face)
-          (string ,(nerd-icons-codicon "nf-cod-symbol_string") :face font-lock-string-face)
-          (struct ,(nerd-icons-codicon "nf-cod-symbol_structure") :face font-lock-variable-name-face)
-          (text ,(nerd-icons-codicon "nf-cod-text_size") :face font-lock-doc-face)
-          (typeparameter ,(nerd-icons-codicon "nf-cod-list_unordered") :face font-lock-type-face)
-          (type-parameter ,(nerd-icons-codicon "nf-cod-list_unordered") :face font-lock-type-face)
-          (unit ,(nerd-icons-codicon "nf-cod-symbol_ruler") :face font-lock-constant-face)
-          (value ,(nerd-icons-codicon "nf-cod-symbol_field") :face font-lock-builtin-face)
-          (variable ,(nerd-icons-codicon "nf-cod-symbol_variable") :face font-lock-variable-name-face)
-          (t ,(nerd-icons-codicon "nf-cod-code") :face font-lock-warning-face))))
+	`(
+	  (array ,(nerd-icons-codicon "nf-cod-symbol_array") :face font-lock-type-face)
+	  (boolean ,(nerd-icons-codicon "nf-cod-symbol_boolean") :face font-lock-builtin-face)
+	  (class ,(nerd-icons-codicon "nf-cod-symbol_class") :face font-lock-type-face)
+	  (color ,(nerd-icons-codicon "nf-cod-symbol_color") :face success)
+	  (command ,(nerd-icons-codicon "nf-cod-terminal") :face default)
+	  (constant ,(nerd-icons-codicon "nf-cod-symbol_constant") :face font-lock-constant-face)
+	  (constructor ,(nerd-icons-codicon "nf-cod-triangle_right") :face font-lock-function-name-face)
+	  (enummember ,(nerd-icons-codicon "nf-cod-symbol_enum_member") :face font-lock-builtin-face)
+	  (enum-member ,(nerd-icons-codicon "nf-cod-symbol_enum_member") :face font-lock-builtin-face)
+	  (enum ,(nerd-icons-codicon "nf-cod-symbol_enum") :face font-lock-builtin-face)
+	  (event ,(nerd-icons-codicon "nf-cod-symbol_event") :face font-lock-warning-face)
+	  (field ,(nerd-icons-codicon "nf-cod-symbol_field") :face font-lock-variable-name-face)
+	  (file ,(nerd-icons-codicon "nf-cod-symbol_file") :face font-lock-string-face)
+	  (folder ,(nerd-icons-codicon "nf-cod-folder") :face font-lock-doc-face)
+	  (interface ,(nerd-icons-codicon "nf-cod-symbol_interface") :face font-lock-type-face)
+	  (keyword ,(nerd-icons-codicon "nf-cod-symbol_keyword") :face font-lock-keyword-face)
+	  (macro ,(nerd-icons-codicon "nf-cod-symbol_misc") :face font-lock-keyword-face)
+	  (magic ,(nerd-icons-codicon "nf-cod-wand") :face font-lock-builtin-face)
+	  (method ,(nerd-icons-codicon "nf-cod-symbol_method") :face font-lock-function-name-face)
+	  (function ,(nerd-icons-codicon "nf-cod-symbol_method") :face font-lock-function-name-face)
+	  (module ,(nerd-icons-codicon "nf-cod-file_submodule") :face font-lock-preprocessor-face)
+	  (numeric ,(nerd-icons-codicon "nf-cod-symbol_numeric") :face font-lock-builtin-face)
+	  (operator ,(nerd-icons-codicon "nf-cod-symbol_operator") :face font-lock-comment-delimiter-face)
+	  (param ,(nerd-icons-codicon "nf-cod-symbol_parameter") :face default)
+	  (property ,(nerd-icons-codicon "nf-cod-symbol_property") :face font-lock-variable-name-face)
+	  (reference ,(nerd-icons-codicon "nf-cod-references") :face font-lock-variable-name-face)
+	  (snippet ,(nerd-icons-codicon "nf-cod-symbol_snippet") :face font-lock-string-face)
+	  (string ,(nerd-icons-codicon "nf-cod-symbol_string") :face font-lock-string-face)
+	  (struct ,(nerd-icons-codicon "nf-cod-symbol_structure") :face font-lock-variable-name-face)
+	  (text ,(nerd-icons-codicon "nf-cod-text_size") :face font-lock-doc-face)
+	  (typeparameter ,(nerd-icons-codicon "nf-cod-list_unordered") :face font-lock-type-face)
+	  (type-parameter ,(nerd-icons-codicon "nf-cod-list_unordered") :face font-lock-type-face)
+	  (unit ,(nerd-icons-codicon "nf-cod-symbol_ruler") :face font-lock-constant-face)
+	  (value ,(nerd-icons-codicon "nf-cod-symbol_field") :face font-lock-builtin-face)
+	  (variable ,(nerd-icons-codicon "nf-cod-symbol_variable") :face font-lock-variable-name-face)
+	  (t ,(nerd-icons-codicon "nf-cod-code") :face font-lock-warning-face))))
 
 (unless d/on-droid
 (use-package magit
@@ -1856,7 +1822,6 @@ select."
 	 ("C-M-r" . undo-redo)))
 
 (use-package shrface
-  :after shr
   :hook ((eww-mode . shrface-mode)
 	 (elfeed-show-mode . shrface-mode)
 	 (nov-mode . shrface-mode))
@@ -2127,11 +2092,11 @@ Usable as favorites or bookmark."
   (beginning-of-buffer))
 
 (defun elfeed-open-in-eww ()
-  "open in eww"
+  "open elfeed entry in eww."
   (interactive)
   (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
     (eww (elfeed-entry-link entry))
-    (add-hook 'eww-after-render-hook 'readable-article)))
+    (add-hook 'eww-after-render-hook #'readable-article)))
 
 (defun elfeed-open-in-reddit ()
   "open in reddit"
@@ -2140,6 +2105,8 @@ Usable as favorites or bookmark."
     (reddigg-view-comments (elfeed-entry-link entry))))
 
 (use-package eww
+  :commands (eww eww-search-words)
+  :hook (variable-pitch-mode)
   :bind ("M-s M-w" . eww-search-words)
   (:map eww-mode-map
 	("e" . readable-article)
@@ -2215,6 +2182,7 @@ Usable as favorites or bookmark."
 (tool-bar-mode -1)          ; Disable the toolbar
 (tooltip-mode -1)           ; Disable tooltips
 (setq set-fringe-style "default")        ; Give some breathing room
+(setq use-file-dialog t)
 
 ;; (setq-default mode-line-format nil)
 
@@ -2270,7 +2238,6 @@ Usable as favorites or bookmark."
 (global-display-line-numbers-mode t)
 (setq  display-line-numbers-type 'relative)
 (setq text-scale-mode-step 1.1)
-(setq frame-resize-pixelwise t)
 (global-hl-line-mode 0)
 (column-number-mode -1)
 (line-number-mode 1)
@@ -2328,11 +2295,9 @@ Usable as favorites or bookmark."
 
 ;; Don't resize the frames in steps; it looks weird, especially in tiling window
 ;; managers, where it can leave unseemly gaps.
-(setq frame-resize-pixelwise t)
 (setq pixel-dead-time 1)
 (setq confirm-kill-emacs #'yes-or-no-p)
 (setq window-resize-pixelwise t)
-(setq frame-resize-pixelwise t)
 
 (setq fill-column 80)
 

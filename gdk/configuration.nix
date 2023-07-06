@@ -366,7 +366,7 @@ fonts = {
 	      "Noto Color Emoji"
       ];
       sansSerif = [ "Code D Haki" "Noto Sans" "Unifont"];
-      serif = [ "Code D Haki" "Noto Sans" "Unifont" ];
+      serif = [ "Code D Ace" "Noto Sans" "Unifont" ];
       emoji = [ "Noto Color Emoji" "Code D Lip" "Symbola" "Noto Sans" "Unifont" ];
     };
   };

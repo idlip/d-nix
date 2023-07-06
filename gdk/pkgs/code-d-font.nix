@@ -9,7 +9,7 @@ stdenvNoCC.mkDerivation rec {
     sparseCheckout = [
       "fonts"
     ];
-    sha256 = "sha256-u4ZzBk00X/IreGb5kLMe3lQIBawfRq+Ss0oZaVAZpt4=";
+    sha256 = "sha256-PkJOX+zYQYs0J+T92y4oTXsYXKJ960/TSELDjykw52Q=";
   };
 
   installPhase = ''

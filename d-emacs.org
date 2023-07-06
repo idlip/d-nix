@@ -103,110 +103,115 @@ Some of the highlights which you might wanna copy or take from this config :
    
 * 🌅 Early-Init
 #+begin_src emacs-lisp :noweb yes :tangle ./gdk/i-home/configs/emacs/early-init.el :tangle-mode (identity #o444) :mkdirp yes
-  ;;; early-init.el --- Early initialization file -*- lexical-binding: t; -*-
-  ;; ---
-  ;; Filename: early-init.el
-  ;; Description: Make emacs quicky
+  ;;; early-init.el --- Early Init File -*- lexical-binding: t -*-
+
+  ;; Copyright (c) 2023  Dilip
+
   ;; Author: Dilip
-  ;; Copyright © 2023 Dilip
-  ;; Version: 0.3
   ;; URL: https://github.com/idlip/d-nix
-  ;; Keywords: Emacs early-init
-  ;; Compatibility: emacs-version >= 29.1
-  ;;
-  ;; ---
-  ;;
-    ;;; Commentary:
-  ;;
-  ;; Emacs27 introduces early-init.el, which is run before init.el,
-  ;; before package and UI initialization happens.
-  ;;
-  ;; ---
-  ;;
-  ;; This program is free software: you can redistribute it and/or modify
-  ;; it under the terms of the GNU General Public License as published by
-  ;; the Free Software Foundation, either version 3 of the License, or (at
+  ;; Version: 0.1.0
+  ;; Package-Requires: ((emacs "29.1"))
+
+  ;; This file is NOT part of GNU Emacs.
+
+  ;; This file is free software: you can redistribute it and/or modify it
+  ;; under the terms of the GNU General Public License as published by the
+  ;; Free Software Foundation, either version 3 of the License, or (at
   ;; your option) any later version.
   ;;
-  ;; This program is distributed in the hope that it will be useful, but
+  ;; This file is distributed in the hope that it will be useful, but
   ;; WITHOUT ANY WARRANTY; without even the implied warranty of
   ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
   ;; General Public License for more details.
   ;;
   ;; You should have received a copy of the GNU General Public License
-  ;; along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.
-  ;;
-  ;; ---
-  ;;
-    ;;; Code:
+  ;; along with this file.  If not, see <https://www.gnu.org/licenses/>.
 
-  
+  ;;; Commentary:
 
-  (unless (daemonp)
-    (advice-add #'display-startup-echo-area-message :override #'ignore))
+  ;; See my dotfiles: https://github.com/idlip/d-nix (NixOS + Emacs)
 
+  ;;; Code:
+
+  ;; I use emacs on android too.
   (defvar d/on-droid
     (memq system-type '(android))
-    "Check if running on android phone")
+    "Check if running on android phone.")
 
   (setq
+   frame-resize-pixelwise t
+   frame-inhibit-implied-resize t
+   use-dialog-box t ; only for mouse events, which I seldom use
+   use-file-dialog t
+   inhibit-splash-screen t
+   inhibit-startup-screen t
+   inhibit-x-resources t
+   inhibit-startup-echo-area-message user-login-name ; read the docstring
+   inhibit-startup-buffer-menu t
    package-enable-at-startup nil ; don't auto-initialize!
-   package--init-file-ensured t ; don't add that `custom-set-variables' block to init
-   package-quickstart nil ; prevent `package.el' loading packages prior to their init-file
-   package-archives nil)
-
-  (setq gc-cons-threshold (expt 2 32)) ; you can remove it
-
-  ;; Defer garbage collection further back in the startup process
-  (setq gc-cons-threshold most-positive-fixnum ; 2^61 bytes
-	gc-cons-percentage 0.6)
-
-  (add-hook 'emacs-startup-hook
-	    (lambda ()
-	      (setq gc-cons-threshold 16777216 ; 16mb
-		    gc-cons-percentage 0.1)))
-
-  (setq safe-local-variable-values
-	'((org-src-preserve-indentation . t)
-	  (eval add-hook 'after-save-hook
-		'(lambda nil
-		   (org-babel-tangle))
-		nil t)))
-
-  (setq use-file-dialog (if d/on-droid t nil))
-
-  (setq
    initial-scratch-message nil ; empty the initial *scratch* buffer.
    inhibit-default-init t
-   inhibit-splash-screen t
-   inhibit-startup-screen t 		; do not show the startup message
-   inhibit-startup-message t      ; reduce noise at startup
    inhibit-startup-buffer-menu t  ; stop `list-buffers' from showing when opening multiple files
    frame-inhibit-implied-resize t ; do not resize the frame at this early stage
    use-short-answers t
-   ffap-machine-p-known 'reject   ; don't ping things that look like domain names
    inhibit-compacting-font-caches t ; Inhibit frame resizing for performance
    select-active-regions 'only ; Emacs hangs when large selections contain mixed line endings
    ad-redefinition-action 'accept ; disable warnings from legacy advice system
-   initial-major-mode 'org-mode
-   inhibit-startup-echo-area-message user-login-name)
+   initial-major-mode 'org-mode) ;; gimme org-mode as Scratch buffer
 
-  ;; Maximize the Emacs frame on startup
-  (push '(fullscreen . maximized) initial-frame-alist)
-  (push '(fullscreen . maximized) default-frame-alist)
+  (unless d/on-droid (menu-bar-mode -1))
+  (scroll-bar-mode -1)
+  (tool-bar-mode -1)
 
-  ;; Prevent the glimpse of un-styled Emacs by disabling these UI elements early.
-  (push '(menu-bar-lines . 1) default-frame-alist)
-  (push '(tool-bar-lines . 0) default-frame-alist)
-  (push '(vertical-scroll-bars) default-frame-alist)
-
+  (custom-set-variables '(native-comp-async-report-warnings-errors 'silent) ; Emacs 28 with native compilation
+  '(native-compile-prune-cache t) ; Emacs 29
   ;; Suppress warnings and errors during asynchronous native compilation
-  (setq native-comp-async-report-warnings-errors nil)
-  (setq native-comp-jit-compilation nil)
+  '(native-comp-async-report-warnings-errors nil)
+  '(native-comp-jit-compilation nil))
 
-  (provide 'early-init)
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ;;; early-init.el ends here
+  ;; Temporarily increase the garbage collection threshold.  These
+  ;; changes help shave off about half a second of startup time.
+  (defvar d-emacs--gc-cons-threshold gc-cons-threshold)
+
+  (setq gc-cons-threshold most-positive-fixnum)
+
+  ;; Same idea as above for the `file-name-handler-alist'.
+  (defvar d-emacs--file-name-handler-alist file-name-handler-alist)
+
+  (setq file-name-handler-alist nil)
+
+  (add-hook 'emacs-startup-hook
+	    (lambda ()
+	      (setq gc-cons-threshold d-emacs--gc-cons-threshold
+		    file-name-handler-alist d-emacs--file-name-handler-alist)))
+
+
+  (defun d-emacs-re-enable-frame-theme (_frame)
+    "Re-enable active theme, if any, upon FRAME creation.
+  Add this to `after-make-frame-functions' so that new frames do
+  not retain the generic background set by the function
+  `d-emacs-avoid-initial-flash-of-light'."
+    (when-let ((theme (car custom-enabled-themes)))
+      (enable-theme theme)))
+
+  ;; NOTE 2023-02-05: The reason the following works is because (i) the
+  ;; `mode-line-format' is specified again and (ii) the
+  ;; `d-emacs-theme-gsettings-dark-p' will load a dark theme.
+  (defun d-emacs-avoid-initial-flash-of-light ()
+    "Avoid flash of light when starting Emacs, if needed.
+  New frames are instructed to call `d-emacs-re-enable-frame-theme'."
+    ;; (when (d-emacs-theme-environment-dark-p)
+      (setq mode-line-format nil)
+      (set-face-attribute 'default nil :background "#000000" :foreground "#ffffff")
+      (set-face-attribute 'mode-line nil :background "#000000" :foreground "#ffffff" :box 'unspecified)
+      (add-hook 'after-make-frame-functions #'d-emacs-re-enable-frame-theme))
+
+  (d-emacs-avoid-initial-flash-of-light)
+
+  (add-hook 'after-init-hook (lambda () (set-frame-name "home")))
+
+  ;;; early-init.el ends here
+
    #+end_src
 
 * 🔰 Start-ify
@@ -249,56 +254,27 @@ Manage Font size, Initialize Package setup and sends you startup time (Daemonize
   ;;; Code:
 
   
-  ;; BetterGC
-  (defvar better-gc-cons-threshold 134217728 ; 128mb
-    "If you experience freezing, decrease this.
-  If you experience stuttering, increase this.")
 
   ;; to throw custom.el separely
+  ;; useful to use same config for android/pc
   (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
   (when (file-exists-p custom-file)
     (load custom-file 'noerror))
-
-  (add-hook 'emacs-startup-hook
-            (lambda ()
-              (setq gc-cons-threshold better-gc-cons-threshold)
-              (makunbound 'file-name-handler-alist-original)))
-  ;; -BetterGC
-
-  ;; AutoGC
-  (add-hook 'emacs-startup-hook
-            (lambda ()
-              (if (boundp 'after-focus-change-function)
-                  (add-function :after after-focus-change-function
-                                (lambda ()
-                                  (unless (frame-focus-state)
-                                    (garbage-collect))))
-                (add-hook 'after-focus-change-function 'garbage-collect))
-              (defun gc-minibuffer-setup-hook ()
-                (setq gc-cons-threshold (* better-gc-cons-threshold 2)))
-
-              (defun gc-minibuffer-exit-hook ()
-                (garbage-collect)
-                (setq gc-cons-threshold better-gc-cons-threshold))
-
-              (add-hook 'minibuffer-setup-hook #'gc-minibuffer-setup-hook)
-              (add-hook 'minibuffer-exit-hook #'gc-minibuffer-exit-hook)))
-  ;; -AutoGC
 
   ;; Initialize package sources
   (require 'package)
 
   (setq package-user-dir (expand-file-name "elpa" user-emacs-directory)
-        package-archives
-        '(("melpa" . "https://melpa.org/packages/")
-          ("org" . "https://orgmode.org/elpa/")
-          ("elpa" . "https://elpa.gnu.org/packages/"))
-        package-quickstart nil)
+	package-archives
+	'(("melpa" . "https://melpa.org/packages/")
+	  ("org" . "https://orgmode.org/elpa/")
+	  ("elpa" . "https://elpa.gnu.org/packages/"))
+	package-quickstart nil)
 
   (setq package-archive-priorities
-        '(("melpa" .  3)
-          ("org" . 2)
-          ("elpa" . 1)))
+	'(("melpa" .  3)
+	  ("org" . 2)
+	  ("elpa" . 1)))
 
   (unless (bound-and-true-p package--initialized)
     (setq package-enable-at-startup nil) ; To prevent initializing twice
@@ -339,11 +315,11 @@ Fonts choice is crucial to read. I use a forked recursive font with nerd font pa
   (defvar d/fixed-width-font "Code D OnePiece"
     "The font to use for monospaced (fixed width) text.")
 
-  (defvar d/variable-width-font "Code D Haki"
+  (defvar d/variable-width-font "Code D Ace"
     "The font to use for variable-pitch (documents) text.")
 
-  (setq haki-heading-font "Code D Lip")
-  (setq haki-sans-font "Code D Law")
+  (setq haki-heading-font "Code D Ace")
+  (setq haki-sans-font "Code D Haki")
   (setq haki-title-font "Code D Lip")
   (setq haki-link-font "Maple Mono")
   (setq haki-code-font "ComicCodeLigatures Nerd Font")
@@ -364,7 +340,7 @@ Fonts choice is crucial to read. I use a forked recursive font with nerd font pa
   (use-package font-lock
     :ensure nil
     :custom ((font-lock-maximum-decoration t)
-	     (font-lock-global-modes '(not shell-mode text-mode))
+	     (font-lock-global-modes '(not text-mode))
 	     (font-lock-verbose t))
     :config
     (global-font-lock-mode 1))
@@ -396,14 +372,9 @@ Keep folders and backuping files clean!
      auto-save-file-name-transforms
      `((".*" ,(no-littering-expand-var-file-name "auto-save/") t))))
 
-  (use-package gcmh
-    :init (gcmh-mode 1)
-    :config
-    (setq
-     gcmh-idle-delay 'auto ; default is 15s
-     gcmh-auto-idle-delay-factor 10
-     gcmh-high-cons-threshold (* 16 1024 1024)) ; 16mb
-    :delight " Ⓖ")
+  (use-package vc-backup
+    :custom
+    (vc-make-backup-files t))
 
   (use-package savehist
     :defer 2
@@ -436,7 +407,7 @@ Keep folders and backuping files clean!
     (revert-buffer :ignore-auto :noconfirm))
 
   (defun window-focus-mode ()
-    "Make the window focused, it can toggled in and out"
+    "Make the window focused, it can toggle in and out"
     (interactive)
     (if (= 1 (length (window-list)))
 	(jump-to-register '_)
@@ -445,7 +416,7 @@ Keep folders and backuping files clean!
 	(delete-other-windows))))
 
   (defun d/insert-unicodes (add-unicodes)
-    "Inserts unicode character (emoji/icons) from given files"
+    "Insert unicode character (emoji/icons) from given files."
     (interactive (list add-unicodes))
     (insert
      (let* ((content
@@ -457,6 +428,7 @@ Keep folders and backuping files clean!
   (setq add-unicodes (unless d/on-droid (directory-files "~/d-git/d-bin/treasure/unicodes/" t "i")))
 
   (defun org-archive-done-tasks ()
+    "From the org-heading, it throws all the Done tasks to filename_archive.org"
     (interactive)
     (org-map-entries
      (lambda ()
@@ -493,31 +465,32 @@ Keep folders and backuping files clean!
 ** Respected binds
 #+begin_src emacs-lisp
   (dolist (keybind '(("M-o" . other-window)
-                     ("C-<tab>" . tab-next)
+		     ("C-<tab>" . tab-next)
+		     ("M-^" . d/join-lines)
 
-                     ;; Better scrolling (emacs 29)
-                     ("M-v" . d/scroll-up)
-                     ("C-v" . d/scroll-down)
-                     ;; refresh/re-read buffer
-                     ("<f5>" . d/refresh-buffer)
-                     ;; insert color or nerd icons
-                     ("C-c d i" . d/insert-unicodes)
-                     ("C-c d c" . d/insert-colors)
-                     ("C-x n n" . d/narrow-or-widen-dwim)
-                     ;; better splits
-                     ("C-x 2" . split-and-follow-below)
-                     ("C-x 3" . split-and-follow-right)
-                     ;; regex replace
-                     ("M-%" . query-replace-regexp)
-                     ;; quick kill
-                     ("C-x C-k" . d/kill-buffer)
-                     ("C-x k" . kill-buffer)
-                     ("<escape>" . keyboard-escape-quit)
-                     ;; handy editing
-                     ("M-z" . zap-up-to-char)
-                     ("M-u" . upcase-dwim)
-                     ("M-l" . downcase-dwim)
-                     ("M-c" . capitalize-dwim)))
+		     ;; Better scrolling (emacs 29)
+		     ("M-v" . d/scroll-up)
+		     ("C-v" . d/scroll-down)
+		     ;; refresh/re-read buffer
+		     ("<f5>" . d/refresh-buffer)
+		     ;; insert color or nerd icons
+		     ("C-c d i" . d/insert-unicodes)
+		     ("C-c d c" . d/insert-colors)
+		     ("C-x n n" . d/narrow-or-widen-dwim)
+		     ;; better splits
+		     ("C-x 2" . split-and-follow-below)
+		     ("C-x 3" . split-and-follow-right)
+		     ;; regex replace
+		     ("M-%" . query-replace-regexp)
+		     ;; quick kill
+		     ("C-x C-k" . d/kill-buffer)
+		     ("C-x k" . kill-buffer)
+		     ("<escape>" . keyboard-escape-quit)
+		     ;; handy editing
+		     ("M-z" . zap-up-to-char)
+		     ("M-u" . upcase-dwim)
+		     ("M-l" . downcase-dwim)
+		     ("M-c" . capitalize-dwim)))
     (global-set-key (kbd (car keybind)) (cdr keybind)))
 
   ;; Get rid of annoyance
@@ -625,17 +598,17 @@ Just check the [[https://github.com/minad/vertico][Vertico github]] repo, you wi
 #+begin_src emacs-lisp
   (use-package vertico
     :bind (:map vertico-map
-                ("?" . minibuffer-completion-help)
-                ("<return>" . vertico-directory-enter)
-                ("DEL" . vertico-directory-delete-char)
-                ("M-DEL" . vertico-directory-delete-word)
-                ("M-j" . vertico-quick-exit)
-                ("'" . vertico-quick-exit)
-                ("C-v" . vertico-scroll-up)
-                ("M-v" . vertico-scroll-down)
-                ("M-q" . d/vertico-toggle)
-                ("M-RET" . minibuffer-force-complete-and-exit)
-                ("M-TAB" . minibuffer-complete))
+		("?" . minibuffer-completion-help)
+		("<return>" . vertico-directory-enter)
+		("DEL" . vertico-directory-delete-char)
+		("M-DEL" . vertico-directory-delete-word)
+		("M-j" . vertico-quick-exit)
+		("'" . vertico-quick-exit)
+		("C-v" . vertico-scroll-up)
+		("M-v" . vertico-scroll-down)
+		("M-q" . d/vertico-toggle)
+		("M-RET" . minibuffer-force-complete-and-exit)
+		("M-TAB" . minibuffer-complete))
     :init
     (vertico-mode)
     (setq vertico-scroll-margin 5)
@@ -644,40 +617,41 @@ Just check the [[https://github.com/minad/vertico][Vertico github]] repo, you wi
     (setq vertico-cycle t)
     :config
     (setq vertico-buffer-display-action '(display-buffer-in-direction
-                                          (direction . right)
-                                          (window-width . 0.45)))
+					  (direction . right)
+					  (window-width . 0.45)))
     (setq vertico-multiform-categories
-          '((file )
-            (consult-location )
-            (t unobtrusive)))
+	  '((file )
+	    (consult-location )
+	    (t unobtrusive)))
     (setq vertico-multiform-commands
-          '((consult-ripgrep )))
+	  '((consult-ripgrep )))
     (setq completion-in-region-function
-          (lambda (&rest args)
-            (apply (if vertico-mode
-                       #'consult-completion-in-region
-                     #'completion--in-region)
-                   args))))
+	  (lambda (&rest args)
+	    (apply (if vertico-mode
+		       #'consult-completion-in-region
+		     #'completion--in-region)
+		   args))))
 
   (defun d/vertico-toggle ()
     "Toggle between vertico-unobtrusive and vertico-mode."
     (interactive)
-    (vertico-multiform-vertical 'vertico-unobtrusive-mode))
+    (vertico-multiform-vertical 'vertico-unobtrusive-mode)
+    (vertico-multiform-mode 1))
 
   (use-package emacs
     :init
     (defun crm-indicator (args)
       (cons (format "[CRM%s] %s"
-                    (replace-regexp-in-string
-                     "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
-                     crm-separator)
-                    (car args))
-            (cdr args)))
+		    (replace-regexp-in-string
+		     "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+		     crm-separator)
+		    (car args))
+	    (cdr args)))
     (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
 
     ;; Do not allow the cursor in the minibuffer prompt
     (setq minibuffer-prompt-properties
-          '(read-only t cursor-intangible t face minibuffer-prompt))
+	  '(read-only t cursor-intangible t face minibuffer-prompt))
     (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 
     (setq completion-cycle-threshold 3)
@@ -1158,7 +1132,7 @@ You will see org just below this, this package helps make Org-Mode looks eye-can
 
      org-modern-star '("◉" "✪" "◈" "✿" "❂")
      org-modern-hide-stars 'leading
-     org-modern-table t
+     org-modern-table nil
      org-modern-list
      '((?* . "⁍")
        (?- . "❖")
@@ -1186,10 +1160,7 @@ Jinx is another cool new package for spell corrections
     :bind ("M-$". jinx-correct)
     :config
     (add-to-list 'vertico-multiform-categories
-                 '(jinx grid (vertico-grid-annotate . 20)))
-
-    (vertico-multiform-mode 1))
-  )
+		 '(jinx grid (vertico-grid-annotate . 20)))))
 #+end_src
 
 * 🗄️ Organize Life
@@ -1267,9 +1238,8 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
 	    browse-url-generic-program "d-stuff"))
 
     (setq org-agenda-files
-	  (if d/on-droid "/storage/emulated/0/sync/org/tasks.org"
-	    '("~/sync/org/tasks.org"
-	      "~/d-git/d-site/README.org")))
+	    '("~/d-sync/notes/tasks.org"
+	      "~/d-git/d-site/README.org"))
 
     ;; (require 'org-habit)
     ;; (add-to-list 'org-modules 'org-habit)
@@ -1299,15 +1269,15 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
 
     (setq org-capture-templates
 	  `(
-	    ("t" "Task" entry (file+olp "~/sync/org/tasks.org" "One-Timer")
+	    ("t" "Task" entry (file+olp "~/d-sync/notes/tasks.org" "One-Timer")
 	     "* TODO %?\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
 	    ("w" "Website Todo" entry (file+headline "~/d-git/d-site/README.org" "Ideas - TODO")
 	     "* TODO %?\n  SCHEDULED:%T\n " :empty-lines 1)
 	    ("l" "Link" entry
-	       (file+headline "~/sync/org/bookmarks.org" "elfeed") "* %a\n")
+	       (file+headline "~/d-sync/notes/bookmarks.org" "elfeed") "* %a\n")
 	    ("j" "Journal Entries")
 	    ("jj" "Journal" entry
-	     (file+olp+datetree "~/docs/org/journal.org")
+	     (file+olp+datetree "~/d-sync/notes/journal.org")
 	     "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
 	     ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
 	     :clock-in :clock-resume
@@ -1562,7 +1532,7 @@ TODO : Learn more on this
 
     :config
     (setq
-     denote-directory (expand-file-name "~/sync/denote")
+     denote-directory (expand-file-name "~/d-sync/connect/denote")
      denote-known-keywords '("emacs" "blogs" "article")
      denote-infer-keywords t
      denote-sort-keywords t
@@ -1577,7 +1547,7 @@ TODO : Learn more on this
     denote-dired-directories
     (list denote-directory
           (thread-last denote-directory (expand-file-name "attachments"))
-          (expand-file-name "~/sync/org/books/"))
+          (expand-file-name "~/d-sync/notes/books/"))
 
     (defun d/my-journal ()
       (interactive)
@@ -1909,6 +1879,7 @@ Minimal in-built LSP.
 #+begin_src emacs-lisp
   (use-package treesit
     :ensure nil
+    :mode ("\\.yaml\\'" . yaml-ts-mode)
     :custom
     (treesit-font-lock-level 4)
     (treesit-font-lock-feature-list t)
@@ -1934,9 +1905,9 @@ Minimal in-built LSP.
 ** ⚡ Kind Icons
 Icons to prettify the corfu popup
 #+begin_src emacs-lisp
-  (use-package nerd-icons)
-    ;; :custom
-    ;; (nerd-icons-font-family d/fixed-width-font))
+  (use-package nerd-icons
+    :custom
+    (nerd-icons-font-family d/fixed-width-font))
 
   (use-package kind-icon
     :after corfu
@@ -1947,47 +1918,47 @@ Icons to prettify the corfu popup
     (setq kind-icon-default-style '(:padding -0.5 :stroke 0 :margin 0 :radius 0 :height 0.6 :scale 1.0))
     (setq kind-icon-use-icons nil)
     (setq kind-icon-mapping
-          `(
-            (array ,(nerd-icons-codicon "nf-cod-symbol_array") :face font-lock-type-face)
-            (boolean ,(nerd-icons-codicon "nf-cod-symbol_boolean") :face font-lock-builtin-face)
-            (class ,(nerd-icons-codicon "nf-cod-symbol_class") :face font-lock-type-face)
-            (color ,(nerd-icons-codicon "nf-cod-symbol_color") :face success)
-            (command ,(nerd-icons-codicon "nf-cod-terminal") :face default)
-            (constant ,(nerd-icons-codicon "nf-cod-symbol_constant") :face font-lock-constant-face)
-            (constructor ,(nerd-icons-codicon "nf-cod-triangle_right") :face font-lock-function-name-face)
-            (enummember ,(nerd-icons-codicon "nf-cod-symbol_enum_member") :face font-lock-builtin-face)
-            (enum-member ,(nerd-icons-codicon "nf-cod-symbol_enum_member") :face font-lock-builtin-face)
-            (enum ,(nerd-icons-codicon "nf-cod-symbol_enum") :face font-lock-builtin-face)
-            (event ,(nerd-icons-codicon "nf-cod-symbol_event") :face font-lock-warning-face)
-            (field ,(nerd-icons-codicon "nf-cod-symbol_field") :face font-lock-variable-name-face)
-            (file ,(nerd-icons-codicon "nf-cod-symbol_file") :face font-lock-string-face)
-            (folder ,(nerd-icons-codicon "nf-cod-folder") :face font-lock-doc-face)
-            (interface ,(nerd-icons-codicon "nf-cod-symbol_interface") :face font-lock-type-face)
-            (keyword ,(nerd-icons-codicon "nf-cod-symbol_keyword") :face font-lock-keyword-face)
-            (macro ,(nerd-icons-codicon "nf-cod-symbol_misc") :face font-lock-keyword-face)
-            (magic ,(nerd-icons-codicon "nf-cod-wand") :face font-lock-builtin-face)
-            (method ,(nerd-icons-codicon "nf-cod-symbol_method") :face font-lock-function-name-face)
-            (function ,(nerd-icons-codicon "nf-cod-symbol_method") :face font-lock-function-name-face)
-            (module ,(nerd-icons-codicon "nf-cod-file_submodule") :face font-lock-preprocessor-face)
-            (numeric ,(nerd-icons-codicon "nf-cod-symbol_numeric") :face font-lock-builtin-face)
-            (operator ,(nerd-icons-codicon "nf-cod-symbol_operator") :face font-lock-comment-delimiter-face)
-            (param ,(nerd-icons-codicon "nf-cod-symbol_parameter") :face default)
-            (property ,(nerd-icons-codicon "nf-cod-symbol_property") :face font-lock-variable-name-face)
-            (reference ,(nerd-icons-codicon "nf-cod-references") :face font-lock-variable-name-face)
-            (snippet ,(nerd-icons-codicon "nf-cod-symbol_snippet") :face font-lock-string-face)
-            (string ,(nerd-icons-codicon "nf-cod-symbol_string") :face font-lock-string-face)
-            (struct ,(nerd-icons-codicon "nf-cod-symbol_structure") :face font-lock-variable-name-face)
-            (text ,(nerd-icons-codicon "nf-cod-text_size") :face font-lock-doc-face)
-            (typeparameter ,(nerd-icons-codicon "nf-cod-list_unordered") :face font-lock-type-face)
-            (type-parameter ,(nerd-icons-codicon "nf-cod-list_unordered") :face font-lock-type-face)
-            (unit ,(nerd-icons-codicon "nf-cod-symbol_ruler") :face font-lock-constant-face)
-            (value ,(nerd-icons-codicon "nf-cod-symbol_field") :face font-lock-builtin-face)
-            (variable ,(nerd-icons-codicon "nf-cod-symbol_variable") :face font-lock-variable-name-face)
-            (t ,(nerd-icons-codicon "nf-cod-code") :face font-lock-warning-face))))
+	  `(
+	    (array ,(nerd-icons-codicon "nf-cod-symbol_array") :face font-lock-type-face)
+	    (boolean ,(nerd-icons-codicon "nf-cod-symbol_boolean") :face font-lock-builtin-face)
+	    (class ,(nerd-icons-codicon "nf-cod-symbol_class") :face font-lock-type-face)
+	    (color ,(nerd-icons-codicon "nf-cod-symbol_color") :face success)
+	    (command ,(nerd-icons-codicon "nf-cod-terminal") :face default)
+	    (constant ,(nerd-icons-codicon "nf-cod-symbol_constant") :face font-lock-constant-face)
+	    (constructor ,(nerd-icons-codicon "nf-cod-triangle_right") :face font-lock-function-name-face)
+	    (enummember ,(nerd-icons-codicon "nf-cod-symbol_enum_member") :face font-lock-builtin-face)
+	    (enum-member ,(nerd-icons-codicon "nf-cod-symbol_enum_member") :face font-lock-builtin-face)
+	    (enum ,(nerd-icons-codicon "nf-cod-symbol_enum") :face font-lock-builtin-face)
+	    (event ,(nerd-icons-codicon "nf-cod-symbol_event") :face font-lock-warning-face)
+	    (field ,(nerd-icons-codicon "nf-cod-symbol_field") :face font-lock-variable-name-face)
+	    (file ,(nerd-icons-codicon "nf-cod-symbol_file") :face font-lock-string-face)
+	    (folder ,(nerd-icons-codicon "nf-cod-folder") :face font-lock-doc-face)
+	    (interface ,(nerd-icons-codicon "nf-cod-symbol_interface") :face font-lock-type-face)
+	    (keyword ,(nerd-icons-codicon "nf-cod-symbol_keyword") :face font-lock-keyword-face)
+	    (macro ,(nerd-icons-codicon "nf-cod-symbol_misc") :face font-lock-keyword-face)
+	    (magic ,(nerd-icons-codicon "nf-cod-wand") :face font-lock-builtin-face)
+	    (method ,(nerd-icons-codicon "nf-cod-symbol_method") :face font-lock-function-name-face)
+	    (function ,(nerd-icons-codicon "nf-cod-symbol_method") :face font-lock-function-name-face)
+	    (module ,(nerd-icons-codicon "nf-cod-file_submodule") :face font-lock-preprocessor-face)
+	    (numeric ,(nerd-icons-codicon "nf-cod-symbol_numeric") :face font-lock-builtin-face)
+	    (operator ,(nerd-icons-codicon "nf-cod-symbol_operator") :face font-lock-comment-delimiter-face)
+	    (param ,(nerd-icons-codicon "nf-cod-symbol_parameter") :face default)
+	    (property ,(nerd-icons-codicon "nf-cod-symbol_property") :face font-lock-variable-name-face)
+	    (reference ,(nerd-icons-codicon "nf-cod-references") :face font-lock-variable-name-face)
+	    (snippet ,(nerd-icons-codicon "nf-cod-symbol_snippet") :face font-lock-string-face)
+	    (string ,(nerd-icons-codicon "nf-cod-symbol_string") :face font-lock-string-face)
+	    (struct ,(nerd-icons-codicon "nf-cod-symbol_structure") :face font-lock-variable-name-face)
+	    (text ,(nerd-icons-codicon "nf-cod-text_size") :face font-lock-doc-face)
+	    (typeparameter ,(nerd-icons-codicon "nf-cod-list_unordered") :face font-lock-type-face)
+	    (type-parameter ,(nerd-icons-codicon "nf-cod-list_unordered") :face font-lock-type-face)
+	    (unit ,(nerd-icons-codicon "nf-cod-symbol_ruler") :face font-lock-constant-face)
+	    (value ,(nerd-icons-codicon "nf-cod-symbol_field") :face font-lock-builtin-face)
+	    (variable ,(nerd-icons-codicon "nf-cod-symbol_variable") :face font-lock-variable-name-face)
+	    (t ,(nerd-icons-codicon "nf-cod-code") :face font-lock-warning-face))))
 
 #+end_src
 *  Git Controller
-Magit the killer beast after org-mode.
+Magit the killer beast after org-mode. Built-in vc is also good enough to get the work done. Press ~C-x v~ and see.
 #+begin_src emacs-lisp
   (unless d/on-droid
   (use-package magit
@@ -2372,7 +2343,6 @@ You dont have to learn another software or ask for features, get it in emacs-way
 To make eww and shr elements org-like and make emacs even more Unified!
 #+begin_src emacs-lisp
   (use-package shrface
-    :after shr
     :hook ((eww-mode . shrface-mode)
 	   (elfeed-show-mode . shrface-mode)
 	   (nov-mode . shrface-mode))
@@ -2700,11 +2670,11 @@ Use RSS, just switch to it, and save your time for other productive things. If y
     (beginning-of-buffer))
 
   (defun elfeed-open-in-eww ()
-    "open in eww"
+    "open elfeed entry in eww."
     (interactive)
     (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
       (eww (elfeed-entry-link entry))
-      (add-hook 'eww-after-render-hook 'readable-article)))
+      (add-hook 'eww-after-render-hook #'readable-article)))
 
   (defun elfeed-open-in-reddit ()
     "open in reddit"
@@ -2713,6 +2683,8 @@ Use RSS, just switch to it, and save your time for other productive things. If y
       (reddigg-view-comments (elfeed-entry-link entry))))
 
   (use-package eww
+    :commands (eww eww-search-words)
+    :hook (variable-pitch-mode)
     :bind ("M-s M-w" . eww-search-words)
     (:map eww-mode-map
 	  ("e" . readable-article)
@@ -2782,7 +2754,7 @@ Congratulations, if you are already using Rss, if not, don't worry, you can get 
 **** [[http://www.bio-itworld.com/RSS/BioIT_WorldNews_RSS.aspx][bio-it]] 
 **** [[https://bmcbioinformatics.biomedcentral.com/articles/most-recent/rss.xml][bmc-bioinf]]
 **** [[https://nitter.net/official_ibab/rss][Ibab]] :ibab:
-
+**** [[https://biotechworldindia.in/feed][biotechworldindia]] :btind:
 **** [[https://www.rna-seqblog.com/feed/][rna-seq]]
 **** [[https://www.nature.com/subjects/computational-biology-and-bioinformatics.rss][nature]]
 *** Emacs :emacs:
@@ -2817,6 +2789,8 @@ Congratulations, if you are already using Rss, if not, don't worry, you can get 
 **** [[https://yt.funami.tech/feed/channel/UCyXD1jAZBdZ4u0K-GLYC77Q][Movie Recaps]] :gist:
 **** [[https://yt.funami.tech/feed/channel/UCjyv8n7SQOXD75SW0EiAYxA][Film Recaps]]
 **** [[https://yt.funami.tech/feed/channel/UCEmig2PwKGUmaQ9xzFWJ_xA][Mystery Recapped]]
+*** Music :music:
+**** [[https://vid.priv.au/feed/channel/UCi8wqezBudeAiTdKOX571ug][lofi]]
 * 🐲 Matrix
 Just to use matrix for some hacky nerds community
 #+begin_src emacs-lisp
@@ -2867,6 +2841,7 @@ Idk why, but i guess these all should be the sane defaults.
   (tool-bar-mode -1)          ; Disable the toolbar
   (tooltip-mode -1)           ; Disable tooltips
   (setq set-fringe-style "default")        ; Give some breathing room
+  (setq use-file-dialog t)
 
   ;; (setq-default mode-line-format nil)
 
@@ -2922,7 +2897,6 @@ Idk why, but i guess these all should be the sane defaults.
   (global-display-line-numbers-mode t)
   (setq  display-line-numbers-type 'relative)
   (setq text-scale-mode-step 1.1)
-  (setq frame-resize-pixelwise t)
   (global-hl-line-mode 0)
   (column-number-mode -1)
   (line-number-mode 1)
@@ -2980,11 +2954,9 @@ Idk why, but i guess these all should be the sane defaults.
 
   ;; Don't resize the frames in steps; it looks weird, especially in tiling window
   ;; managers, where it can leave unseemly gaps.
-  (setq frame-resize-pixelwise t)
   (setq pixel-dead-time 1)
   (setq confirm-kill-emacs #'yes-or-no-p)
   (setq window-resize-pixelwise t)
-  (setq frame-resize-pixelwise t)
 
   (setq fill-column 80)
 

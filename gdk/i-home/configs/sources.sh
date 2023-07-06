@@ -24,8 +24,7 @@ bindkey -M menuselect 'l' vi-forward-char
 bindkey -M menuselect 'j' vi-down-line-or-history
 
 bindkey -e
-# This already is in hm module
-# autoload -U compinit && compinit
+WORDCHARS='*?_.[]~=&;!$%^(){}<>'
 
 # Aliases
 alias cleanup="doas nix-collect-garbage --delete-older-than 7d"
@@ -63,6 +62,9 @@ alias sudo="doas"
 
 # export BEMENU_OPTS="-i -l 10 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
 
+# env
+export MANPAGER='nvim +Man! +"set nocul" +"set noshowcmd" +"set noruler" +"set noshowmode" +"set laststatus=0" +"set showtabline=0" +"set nonumber"'
+
 
 # Functions
 function ytdl() {
@@ -84,6 +86,11 @@ function {e,find-file,'emacsclient -t','emacsclient -nw'} () {
 	emacsclient -t $1 || echo "Start emacs daemon"
     fi
 }
+
+if [ -n "${commands[fzf-share]}" ]; then
+  source "$(fzf-share)/key-bindings.zsh"
+  source "$(fzf-share)/completion.zsh"
+fi
 
 precmd() {
     print ""

@@ -609,7 +609,7 @@ My fork of recursive font, which has nerd icons patched.
       sparseCheckout = [
 	"fonts"
       ];
-      sha256 = "sha256-u4ZzBk00X/IreGb5kLMe3lQIBawfRq+Ss0oZaVAZpt4=";
+      sha256 = "sha256-PkJOX+zYQYs0J+T92y4oTXsYXKJ960/TSELDjykw52Q=";
     };
 
     installPhase = ''
@@ -650,7 +650,7 @@ Enables additional fonts system wide. See how easy it is to manage fonts with ni
 		"Noto Color Emoji"
 	];
 	sansSerif = [ "Code D Haki" "Noto Sans" "Unifont"];
-	serif = [ "Code D Haki" "Noto Sans" "Unifont" ];
+	serif = [ "Code D Ace" "Noto Sans" "Unifont" ];
 	emoji = [ "Noto Color Emoji" "Code D Lip" "Symbola" "Noto Sans" "Unifont" ];
       };
     };
@@ -848,7 +848,7 @@ Opening brace that contains the rest of the configuration file.
 	  export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 	  export PATH="$PATH:<<my-bin>>:$HOME/.local/bin/d"
 	  export EDITOR="emacsclient -nw -a 'nvim'"
-	  export BEMENU_OPTS="-i -s -l 10 -R 20 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'Code D Lip 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
+	  export BEMENU_OPTS="-i -s -l 10 -R 20 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'Code D Ace 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
 	  export VISUAL=$EDITOR
 	  export STARDICT_DATA_DIR="$HOME/.local/share/stardict"
 	  export GRIM_DEFAULT_DIR="$HOME/pics/sshots/"
@@ -915,8 +915,7 @@ This is easy to manage and also get the syntax highlighing for shell, as nix als
   bindkey -M menuselect 'j' vi-down-line-or-history
 
   bindkey -e
-  # This already is in hm module
-  # autoload -U compinit && compinit
+  WORDCHARS='*?_.[]~=&;!$%^(){}<>'
 
   # Aliases
   alias cleanup="doas nix-collect-garbage --delete-older-than 7d"
@@ -954,6 +953,9 @@ This is easy to manage and also get the syntax highlighing for shell, as nix als
 
   # export BEMENU_OPTS="-i -l 10 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
 
+  # env
+  export MANPAGER='nvim +Man! +"set nocul" +"set noshowcmd" +"set noruler" +"set noshowmode" +"set laststatus=0" +"set showtabline=0" +"set nonumber"'
+
 
   # Functions
   function ytdl() {
@@ -975,6 +977,11 @@ This is easy to manage and also get the syntax highlighing for shell, as nix als
 	  emacsclient -t $1 || echo "Start emacs daemon"
       fi
   }
+
+  if [ -n "${commands[fzf-share]}" ]; then
+    source "$(fzf-share)/key-bindings.zsh"
+    source "$(fzf-share)/completion.zsh"
+  fi
 
   precmd() {
       print ""
@@ -1192,7 +1199,7 @@ The better cli alternative!
 	frame_width = 3;
 	separator_color = "frame";
 	sort = "yes";
-	font = "Code D Haki 20";
+	font = "Code D Ace 20";
 	line_height = 0;
 	markup = "full";
 	stack_duplicates = "true";
@@ -1424,10 +1431,18 @@ The better cli alternative!
   windowrulev2 = float, class:^(firefox)$, title:^(Firefox — Sharing Indicator)$
   windowrule=opaque,imv
 
-  windowrulev2 = size 50% 50%,title:^(BrowserInput.*)$
-  windowrulev2=center,title:^(BrowserInput.*)
+  windowrulev2 = size 60% 70%,title:^(BrowserInput.*)$
+  windowrulev2 = center,title:^(BrowserInput.*)
   windowrulev2 = float,title:^(BrowserInput.*)
-  windowrulev2 = workspace special, title:^(BrowserInput.*)
+  #windowrulev2 = workspace special, title:^(BrowserInput.*)
+  windowrulev2 = size 800 600,class:^(download)$
+  windowrulev2 = size 800 600,title:^(Open File)$
+  windowrulev2 = size 800 600,title:^(Save File)$
+  windowrulev2 = size 800 600,title:^(Volume Control)$
+
+  windowrulev2 = idleinhibit focus,class:^(mpv)$
+  windowrulev2 = idleinhibit fullscreen,class:^(Brave-browser)$
+
 
   #blurls=waybar
   # blurls=wofi
@@ -1578,7 +1593,8 @@ The better cli alternative!
   bind=CONTROL,g,submap,reset
   submap=reset
 
-  # bind=SUPER,e,exec,d-emwhere
+  bind=SUPER,e,exec,d-note
+  bind=SUPER,y,exec,ytfzf -D
   bind=SUPER,x,exec,d-power
   # bind=SUPER,period,exec,d-dict
   bind=SUPERSHIFT,b,exec,d-bookmark
@@ -1599,8 +1615,6 @@ The better cli alternative!
   bind=SUPER,F10,exec,mpc prev
   bind=SUPER,F12,exec,mpc next
 
-  bind=SUPER,e,exec,d-emwhere
-  bind=SUPER,y,exec,ytfzf -D
 
 #+end_src
 ***** Sway
@@ -2843,120 +2857,129 @@ listing menus
 	fixed-center = true;
 	exclusive = true;
 	modules-left = [
-	  "custom/launcher"
-	  "wlr/workspaces"
-	  "hyprland/window"
-	  "hyprland/submap"
+		"custom/launcher"
+		"wlr/workspaces"
+		"hyprland/window"
+		"hyprland/submap"
 	];
 	modules-center = [
-	  "clock" "mpd"
+		"clock" "mpd"
 	];
 	modules-right = ["network" "battery" "memory" "pulseaudio" "custom/power"];
 	"wlr/workspaces" = {
-	  format = "{icon}";
-	  active-only = false;
-	  on-click = "activate";
-	  format-icons = {
-	    active = "";
-	    default = "";
-	    "1" = "1";
-	    "2" = "2";
-	    "3" = "3";
-	    "4" = "4";
-	    "5" = "5";
-	    "6" = "6";
-	  };
+		format = "{icon}";
+		active-only = false;
+		on-click = "activate";
+		format-icons = {
+		  active = "";
+		  default = "";
+		  "1" = "1";
+		  "2" = "2";
+		  "3" = "3";
+		  "4" = "4";
+		  "5" = "5";
+		  "6" = "6";
+		};
 	};
 
 	"hyprland/window" = {
-	  "format" = "👁{}";
-	  "separate-outputs" = true;
+		"format" = "👁{}";
+		"separate-outputs" = true;
 	};
 
 	"hyprland/submap" = {
-	  "format" = " {}";
-	  "max-length" = 14;
-	  "tooltip" = false;
+		"format" = " {}";
+		"max-length" = 14;
+		"tooltip" = false;
 	};
 
 	"custom/launcher" = {
-	  "format" = " ";
-	  "tooltip" = false;
-	  "on-click" = "bemenu-run";
+		"format" = " ";
+		"tooltip" = false;
+		"on-click" = "bemenu-run";
 	};
 
 	"battery" =  {
-	  "bat" =  "BAT0";
-	  "interval" =  30;
-	  "states" =  {
-	    "warning" =  50;
-	    "critical" =  30;
-	  };
-	  "format" =  "{capacity}% {icon}";
-	  "format-icons" =  [" " "🔴" "🪫" " " " "];
-	  "max-length" =  25;
+		"bat" =  "BAT0";
+		"interval" =  30;
+		"states" =  {
+		  "warning" =  50;
+		  "critical" =  30;
+		};
+		"format" =  "{capacity}% {icon}";
+		"format-icons" =  [" " "🔴" "🪫" " " " "];
+		"max-length" =  25;
 	};
 
 	"mpd" = {
-	  "format" = "{stateIcon} {title}  ";
-	  "format-disconnected" = "  ";
-	  "format-stopped" = "  ";
-	  "title-len" = 20;
-	  "interval" = 10;
-	  "on-click" = "mpc toggle";
-	  "state-icons" = {
-	    "paused" = "";
-	    "playing" = "";
-	  };
-	  "tooltip-format" = "Playing: {filename}";
-	    "tooltip-format-disconnected" = "";
+		"format" = "{stateIcon} {title}  ";
+		"format-disconnected" = "  ";
+		"format-stopped" = "  ";
+		"title-len" = 20;
+		"interval" = 10;
+		"on-click" = "mpc toggle";
+		"state-icons" = {
+		  "paused" = "";
+		  "playing" = "";
+		};
+		"tooltip-format" = "Playing: {filename}";
+		"tooltip-format-disconnected" = "";
 	};
-	  "custom/power" = {
-	  "format" = "⏻";
-	  "on-click" = "d-power";
-	  "tooltip" = false;
+	      "custom/power" = {
+		"format" = "⏻";
+		"on-click" = "d-power";
+		"tooltip" = false;
 	};
 	"clock" = {
-	  "tooltip-format" = "{:%A %B %d %Y | %H:%M}";
-	  "format-alt" = " {:%a %d %b  %I:%M %p}";
-	  "format" = " {:%H:%M} ";
-	  ##"timezones" = [ "Kolkata" ];
-	  ##"max-length" = 200;
-	  "interval" = 1;
+		"tooltip-format" = "{:%A %B %d %Y | %H:%M}";
+		"format-alt" = " {:%a %d %b  %I:%M %p}";
+		"format" = " {:%H:%M} ";
+		##"timezones" = [ "Kolkata" ];
+		##"max-length" = 200;
+		"interval" = 1;
 	};
 	"cpu" = {
-	  "format" = "﬙ {usage: >3}%";
-	  "on-click" = "footclient -e btop";
+		"format" = "﬙ {usage: >3}%";
+		"on-click" = "footclient -e btop";
 	};
 	"memory" = {
-	  "format" = " {: >3}%";
-	  "on-click" = "foot -e btop";
+		"format" = " {: >3}%";
+		"on-click" = "foot -e btop";
 	};
 	"network" = {
-	  "interface" = "wlp2s0";
-	  "format" = "⚠ Disabled";
-	  "format-wifi" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
-	  "format-ethernet" = " {ifname}: {ipaddr}/{cidr}";
-	  "format-disconnected" = "⚠ Disconnected";
-	  "on-click" = "foot -e nmtui";
-	  "interval" = 2;
+		"interface" = "wlp2s0";
+		"format" = "⚠ Disabled";
+		"format-wifi" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
+		"format-ethernet" = " {ifname}: {ipaddr}/{cidr}";
+		"format-disconnected" = "⚠ Disconnected";
+		"on-click" = "foot -e nmtui";
+		"interval" = 2;
 	};
 	"pulseaudio" = {
-	  "scroll-step" = 2;
-	  "format" = "{icon} {volume: >3}% ";
-	  "format-bluetooth" = "{icon} {volume: >3}%";
-	  "format-muted" =" muted ";
-	  "on-click" = "pamixer -t";
-	  "format-icons" = {
-	    "headphones" = "";
-	    "handsfree" = "";
-	    "headset" = "";
-	    "phone" = "";
-	    "portable" = "";
-	    "car" = "";
-	    "default" = ["" ""];
-	  };
+		"scroll-step" = 2;
+		"format" = "{icon} {volume: >3}% ";
+		"format-bluetooth" = "{icon} {volume: >3}%";
+		"format-muted" =" muted ";
+		"on-click" = "pamixer -t";
+		"format-icons" = {
+		  "headphones" = "";
+		  "handsfree" = "";
+		  "headset" = "";
+		  "phone" = "";
+		  "portable" = "";
+		  "car" = "";
+		  "default" = ["" ""];
+		};
 	};
+	"custom/wf-recorder" = {
+		      "format" = "{}";
+		      "interval" = "once";
+		      "exec" = "echo ''";
+		      "tooltip" = "false";
+		      "exec-if" = "pgrep 'wf-recorder'";
+		      "on-click" = "exec d-record";
+		      "signal" = 8;
+	      };
       };
     };
   };
@@ -2970,10 +2993,10 @@ listing menus
 #+end_src
 
 #+begin_src css :tangle (format "%s/waybar/style.css" (get-named-src-block-contents "my-configs" t))
-  @import "modus.css";
+  @import "haki.css";
 
    ,* {
-       font-family:Code D Haki;
+       font-family:Code D Ace;
        font-weight: bold;
        font-size: 20px;
        /* padding-bottom:3px; */
@@ -3085,7 +3108,7 @@ Theme: https://github.com/idlip/haki
   home.file.".config/waybar/haki.css".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/waybar/haki.css";
 #+end_src
 
-#+begin_src css :tangle (format "%s/waybar/modus.css" (get-named-src-block-contents "my-configs" t))
+#+begin_src css :tangle (format "%s/waybar/haki.css" (get-named-src-block-contents "my-configs" t))
   /* My own theme (Haki) make for emacs */
 
   @define-color  bg-main	     #050505;

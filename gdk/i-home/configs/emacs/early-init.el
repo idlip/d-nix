@@ -36,7 +36,7 @@
 (setq
  frame-resize-pixelwise t
  frame-inhibit-implied-resize t
- use-dialog-box t ; only for mouse events, which I seldom use
+ use-dialog-box t
  use-file-dialog t
  inhibit-splash-screen t
  inhibit-startup-screen t
@@ -53,6 +53,12 @@
  select-active-regions 'only ; Emacs hangs when large selections contain mixed line endings
  ad-redefinition-action 'accept ; disable warnings from legacy advice system
  initial-major-mode 'org-mode) ;; gimme org-mode as Scratch buffer
+
+(setq initial-frame-alist
+      '((top . 1)
+	(left . 0)
+	(width . 101)
+	(height . 70)))
 
 (unless d/on-droid (menu-bar-mode -1))
 (scroll-bar-mode -1)

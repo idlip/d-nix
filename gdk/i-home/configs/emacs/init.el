@@ -231,7 +231,7 @@ Specify the separator by typing C-u before executing this command."
 	(t (error "Please select a region to narrow to"))))
 
 (dolist (keybind '(("M-o" . other-window)
-		   ("C-<tab>" . tab-next)
+		   ("C-<tab>" . other-window)
 		   ("M-^" . d/join-lines)
 
 		   ;; Better scrolling (emacs 29)
@@ -652,21 +652,21 @@ selected color."
 (use-package cape
   :after corfu
   :bind (("C-c p p" . completion-at-point) ;; capf
-         ("C-c p t" . complete-tag)        ;; etags
-         ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
-         ("C-c p h" . cape-history)
-         ("C-c p f" . cape-file)
-         ("C-c p k" . cape-keyword)
-         ("C-c p s" . cape-symbol)
-         ("C-c p a" . cape-abbrev)
-         ("C-c p i" . cape-ispell)
-         ("C-c p l" . cape-line)
-         ("C-c p w" . cape-dict)
-         ("C-c p \\" . cape-tex)
-         ("C-c p _" . cape-tex)
-         ("C-c p ^" . cape-tex)
-         ("C-c p &" . cape-sgml)
-         ("C-c p r" . cape-rfc1345))
+	 ("C-c p t" . complete-tag)        ;; etags
+	 ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
+	 ("C-c p h" . cape-history)
+	 ("C-c p f" . cape-file)
+	 ("C-c p k" . cape-keyword)
+	 ("C-c p s" . cape-symbol)
+	 ("C-c p a" . cape-abbrev)
+	 ("C-c p i" . cape-ispell)
+	 ("C-c p l" . cape-line)
+	 ("C-c p w" . cape-dict)
+	 ("C-c p \\" . cape-tex)
+	 ("C-c p _" . cape-tex)
+	 ("C-c p ^" . cape-tex)
+	 ("C-c p &" . cape-sgml)
+	 ("C-c p r" . cape-rfc1345))
   :init
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
   (add-to-list 'completion-at-point-functions #'cape-file)
@@ -698,13 +698,13 @@ selected color."
 (defun corfu-enable-always-in-minibuffer ()
   "Enable corfu in minibuffer, if vertico is not active"
   (unless (or (bound-and-true-p mct--active)
-              (bound-and-true-p vertico--input)
-              (eq (current-local-map) read-passwd-map))
+	      (bound-and-true-p vertico--input)
+	      (eq (current-local-map) read-passwd-map))
     (setq-local corfu-auto t
-                corfu-popupinfo-delay nil
-                corfu-auto-delay 0
-                corfu-auto-prefix 0
-                completion-styles '(orderless basic))
+		corfu-popupinfo-delay nil
+		corfu-auto-delay 0
+		corfu-auto-prefix 0
+		completion-styles '(orderless basic))
     (corfu-mode 1)))
 ;; (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
 
@@ -1193,7 +1193,6 @@ selected color."
   (use-package doom-modeline
     :init (doom-modeline-mode 1)
     :custom
-    (doom-modeline-time-icon nil)
     (doom-modeline-bar-width 7)
     (doom-modeline-major-mode-icon t)
     (inhibit-compacting-font-caches t)
@@ -1220,11 +1219,10 @@ selected color."
     (doom-modeline-display-default-persp-name nil)
     (doom-modeline-persp-icon t)
     (doom-modeline-lsp t)
-    (doom-modeline-github nil)
+    (doom-modeline-github t)
     (doom-modeline-modal t)
     (doom-modeline-modal-icon t)
     (doom-modeline-battery nil)
-    (doom-modeline-time nil)
     (doom-modeline-env-version t)
     (doom-modeline-env-python-executable "python") ; or `python-shell-interpreter'
     (doom-modeline-env-load-string "...")
@@ -1887,7 +1885,8 @@ select."
   :ensure nil
   :mode ("\\.epub\\'" . doc-view-mode)
   :bind (:map doc-view-mode-map
-	      ("M-g M-g" . doc-view-goto-page))
+	      ("M-g M-g" . doc-view-goto-page)
+	      ("<f8>" . doc-view-presentation))
   :custom
   (doc-view-continuous t)
   (doc-view-mupdf-use-svg t)
@@ -2190,7 +2189,7 @@ Usable as favorites or bookmark."
 
 (global-visual-line-mode 1)
 (global-so-long-mode t)
-
+(global-goto-address-mode 1)
 (unless d/on-droid
 (global-auto-revert-mode))
 
@@ -2239,17 +2238,17 @@ Usable as favorites or bookmark."
 (setq  display-line-numbers-type 'relative)
 (setq text-scale-mode-step 1.1)
 (global-hl-line-mode 0)
-(column-number-mode -1)
+(column-number-mode 1)
 (line-number-mode 1)
 (delete-selection-mode +1)
 (save-place-mode t)
 
 (setq reb-re-syntax 'string)
 ;;(display-battery-mode t)
-;;(setq display-time;5;9~-default-load-average nil)
-;;(setq display-time-24hr-format t)
-;;(setq display-time-format "%H:%M")
-;;(display-time-mode t)
+(setq display-time-default-load-average nil
+      display-time-24hr-format t
+      display-time-format "%H:%M")
+(display-time-mode t)
 ;;(toggle-truncate-lines t)
 
 (setq
@@ -2305,8 +2304,9 @@ Usable as favorites or bookmark."
   ;; access phone storage as default
   ;; Better is to symlink file to ~/ itself
   ;;(setq default-directory "/storage/emulated/0/")
-  (setq touch-screen-precision-scroll nil)
-  (setq touch-screen-display-keyboard t)
+  (setq touch-screen-precision-scroll nil
+	touch-screen-display-keyboard t
+	browse-url-android-share t)
   ;; (setq use-dialog-box nil)
   )
 

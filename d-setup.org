@@ -639,7 +639,7 @@ Enables additional fonts system wide. See how easy it is to manage fonts with ni
       (nerdfonts.override {fonts = [ "JetBrainsMono"  ];})
     ];
 
-    enableDefaultFonts = true;
+    enableDefaultFonts = false;
 
     # this fixes emoji stuff
     fontconfig = {
@@ -649,9 +649,9 @@ Enables additional fonts system wide. See how easy it is to manage fonts with ni
 		"JetBrainsMono Nerd Font"
 		"Noto Color Emoji"
 	];
-	sansSerif = [ "Code D Haki" "Noto Sans" "Unifont"];
-	serif = [ "Code D Ace" "Noto Sans" "Unifont" ];
-	emoji = [ "Noto Color Emoji" "Code D Lip" "Symbola" "Noto Sans" "Unifont" ];
+	sansSerif = [ "Code D Haki" "Noto Sans" "Noto Serif" ];
+	serif = [ "Code D Ace" "Noto Sans" "Noto Serif"];
+	emoji = [ "Noto Color Emoji" "Code D Lip" "Symbola" "Noto Sans" ];
       };
     };
   };
@@ -1271,7 +1271,7 @@ The better cli alternative!
 	lines = "1000";
       };
       key-bindings = {
-	clipboard-copy = "Control+Shift+c Control+w";
+	clipboard-copy = "Control+Shift+c Mod1+w";
 	clipboard-paste = "Control+Shift+v Control+y";
 	primary-paste = "Shift+Insert";
 
@@ -2035,6 +2035,37 @@ Closes FireFox Block
   programs= {
     ncmpcpp = {
       enable = true;
+      settings = {
+	ncmpcpp_directory = "~/.config/ncmpcpp";
+	lyrics_directory = "~/.local/share/lyrics";
+	message_delay_time = "1";
+	visualizer_type = "spectrum";
+	song_list_format = "{$4%a - }{%t}|{$8%f$9}$R{$3(%l)$9}";
+	song_status_format = "$b{{$8'%t'}} $3by {$4%a{ $3in $7%b{ (%y)}} $3}|{$8%f}";
+	song_library_format = "{%n - }{%t}|{%f}";
+	alternative_header_first_line_format = "$b$1$aqqu$/a$9 {%t}|{%f} $1$atqq$/a$9$/b";
+	alternative_header_second_line_format = "{{$4$b%a$/b$9}{ - $7%b$9}{ ($4%y$9)}}|{%D}";
+	current_item_prefix = "$(cyan)$r$b";
+	current_item_suffix = "$/r$(end)$/b";
+	current_item_inactive_column_prefix = "$(magenta)$r";
+	current_item_inactive_column_suffix = "$/r$(end)";
+	playlist_display_mode = "columns";
+	browser_display_mode = "columns";
+	progressbar_look = "->";
+	media_library_primary_tag = "album_artist";
+	media_library_albums_split_by_date = "no";
+	startup_screen = "media_library";
+	display_volume_level = "no";
+	ignore_leading_the = "yes";
+	external_editor = "nvim";
+	use_console_editor = "yes";
+	empty_tag_color = "magenta";
+	main_window_color = "white";
+	progressbar_color = "black:b";
+	progressbar_elapsed_color = "blue:b";
+	statusbar_color = "red";
+	statusbar_time_color = "cyan:b";
+      };
     };
     mpv = {
       enable = true;

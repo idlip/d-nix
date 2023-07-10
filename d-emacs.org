@@ -141,7 +141,7 @@ Some of the highlights which you might wanna copy or take from this config :
   (setq
    frame-resize-pixelwise t
    frame-inhibit-implied-resize t
-   use-dialog-box t ; only for mouse events, which I seldom use
+   use-dialog-box t
    use-file-dialog t
    inhibit-splash-screen t
    inhibit-startup-screen t
@@ -158,6 +158,12 @@ Some of the highlights which you might wanna copy or take from this config :
    select-active-regions 'only ; Emacs hangs when large selections contain mixed line endings
    ad-redefinition-action 'accept ; disable warnings from legacy advice system
    initial-major-mode 'org-mode) ;; gimme org-mode as Scratch buffer
+
+  (setq initial-frame-alist
+	'((top . 1)
+	  (left . 0)
+	  (width . 101)
+	  (height . 70)))
 
   (unless d/on-droid (menu-bar-mode -1))
   (scroll-bar-mode -1)
@@ -465,7 +471,7 @@ Keep folders and backuping files clean!
 ** Respected binds
 #+begin_src emacs-lisp
   (dolist (keybind '(("M-o" . other-window)
-		     ("C-<tab>" . tab-next)
+		     ("C-<tab>" . other-window)
 		     ("M-^" . d/join-lines)
 
 		     ;; Better scrolling (emacs 29)
@@ -936,21 +942,21 @@ Cape for Rescue! Feel the power of Emacs Extensibility
   (use-package cape
     :after corfu
     :bind (("C-c p p" . completion-at-point) ;; capf
-           ("C-c p t" . complete-tag)        ;; etags
-           ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
-           ("C-c p h" . cape-history)
-           ("C-c p f" . cape-file)
-           ("C-c p k" . cape-keyword)
-           ("C-c p s" . cape-symbol)
-           ("C-c p a" . cape-abbrev)
-           ("C-c p i" . cape-ispell)
-           ("C-c p l" . cape-line)
-           ("C-c p w" . cape-dict)
-           ("C-c p \\" . cape-tex)
-           ("C-c p _" . cape-tex)
-           ("C-c p ^" . cape-tex)
-           ("C-c p &" . cape-sgml)
-           ("C-c p r" . cape-rfc1345))
+	   ("C-c p t" . complete-tag)        ;; etags
+	   ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
+	   ("C-c p h" . cape-history)
+	   ("C-c p f" . cape-file)
+	   ("C-c p k" . cape-keyword)
+	   ("C-c p s" . cape-symbol)
+	   ("C-c p a" . cape-abbrev)
+	   ("C-c p i" . cape-ispell)
+	   ("C-c p l" . cape-line)
+	   ("C-c p w" . cape-dict)
+	   ("C-c p \\" . cape-tex)
+	   ("C-c p _" . cape-tex)
+	   ("C-c p ^" . cape-tex)
+	   ("C-c p &" . cape-sgml)
+	   ("C-c p r" . cape-rfc1345))
     :init
     (add-to-list 'completion-at-point-functions #'cape-dabbrev)
     (add-to-list 'completion-at-point-functions #'cape-file)
@@ -982,13 +988,13 @@ Cape for Rescue! Feel the power of Emacs Extensibility
   (defun corfu-enable-always-in-minibuffer ()
     "Enable corfu in minibuffer, if vertico is not active"
     (unless (or (bound-and-true-p mct--active)
-                (bound-and-true-p vertico--input)
-                (eq (current-local-map) read-passwd-map))
+		(bound-and-true-p vertico--input)
+		(eq (current-local-map) read-passwd-map))
       (setq-local corfu-auto t
-                  corfu-popupinfo-delay nil
-                  corfu-auto-delay 0
-                  corfu-auto-prefix 0
-                  completion-styles '(orderless basic))
+		  corfu-popupinfo-delay nil
+		  corfu-auto-delay 0
+		  corfu-auto-prefix 0
+		  completion-styles '(orderless basic))
       (corfu-mode 1)))
   ;; (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
 
@@ -1615,7 +1621,6 @@ Mode-line to make stuff easy to use
     (use-package doom-modeline
       :init (doom-modeline-mode 1)
       :custom
-      (doom-modeline-time-icon nil)
       (doom-modeline-bar-width 7)
       (doom-modeline-major-mode-icon t)
       (inhibit-compacting-font-caches t)
@@ -1642,11 +1647,10 @@ Mode-line to make stuff easy to use
       (doom-modeline-display-default-persp-name nil)
       (doom-modeline-persp-icon t)
       (doom-modeline-lsp t)
-      (doom-modeline-github nil)
+      (doom-modeline-github t)
       (doom-modeline-modal t)
       (doom-modeline-modal-icon t)
       (doom-modeline-battery nil)
-      (doom-modeline-time nil)
       (doom-modeline-env-version t)
       (doom-modeline-env-python-executable "python") ; or `python-shell-interpreter'
       (doom-modeline-env-load-string "...")
@@ -2457,7 +2461,8 @@ This is inside emacs29 itself.
     :ensure nil
     :mode ("\\.epub\\'" . doc-view-mode)
     :bind (:map doc-view-mode-map
-		("M-g M-g" . doc-view-goto-page))
+		("M-g M-g" . doc-view-goto-page)
+		("<f8>" . doc-view-presentation))
     :custom
     (doc-view-continuous t)
     (doc-view-mupdf-use-svg t)
@@ -2784,6 +2789,7 @@ Congratulations, if you are already using Rss, if not, don't worry, you can get 
 **** [[https://rss.art19.com/think-fast-talk-smart][Think Fast, Talk Smart: Communication Techniques]]
 *** Linux :linux:
 **** [[https://itsfoss.com/rss][itsfoss]]
+**** [[https://feeds.feedburner.com/TheDailyWtf][dailywtf]]
 *** Media :media:
 **** [[https://yt.funami.tech/feed/channel/UCSV81Z2v0KMzDtH6SFQ62YQ][Movie Ape]]
 **** [[https://yt.funami.tech/feed/channel/UCyXD1jAZBdZ4u0K-GLYC77Q][Movie Recaps]] :gist:
@@ -2791,6 +2797,7 @@ Congratulations, if you are already using Rss, if not, don't worry, you can get 
 **** [[https://yt.funami.tech/feed/channel/UCEmig2PwKGUmaQ9xzFWJ_xA][Mystery Recapped]]
 *** Music :music:
 **** [[https://vid.priv.au/feed/channel/UCi8wqezBudeAiTdKOX571ug][lofi]]
+**** [[https://reddit.com/r/listentothis/.rss][Listentothis]]
 * 🐲 Matrix
 Just to use matrix for some hacky nerds community
 #+begin_src emacs-lisp
@@ -2849,7 +2856,7 @@ Idk why, but i guess these all should be the sane defaults.
 
   (global-visual-line-mode 1)
   (global-so-long-mode t)
-
+  (global-goto-address-mode 1)
   (unless d/on-droid
   (global-auto-revert-mode))
 
@@ -2898,17 +2905,17 @@ Idk why, but i guess these all should be the sane defaults.
   (setq  display-line-numbers-type 'relative)
   (setq text-scale-mode-step 1.1)
   (global-hl-line-mode 0)
-  (column-number-mode -1)
+  (column-number-mode 1)
   (line-number-mode 1)
   (delete-selection-mode +1)
   (save-place-mode t)
 
   (setq reb-re-syntax 'string)
   ;;(display-battery-mode t)
-  ;;(setq display-time;5;9~-default-load-average nil)
-  ;;(setq display-time-24hr-format t)
-  ;;(setq display-time-format "%H:%M")
-  ;;(display-time-mode t)
+  (setq display-time-default-load-average nil
+	display-time-24hr-format t
+	display-time-format "%H:%M")
+  (display-time-mode t)
   ;;(toggle-truncate-lines t)
 
   (setq
@@ -2969,8 +2976,9 @@ Emacs is available for Android as an app, now you know which is the best org-mod
     ;; access phone storage as default
     ;; Better is to symlink file to ~/ itself
     ;;(setq default-directory "/storage/emulated/0/")
-    (setq touch-screen-precision-scroll nil)
-    (setq touch-screen-display-keyboard t)
+    (setq touch-screen-precision-scroll nil
+	  touch-screen-display-keyboard t
+	  browse-url-android-share t)
     ;; (setq use-dialog-box nil)
     )
 #+end_src

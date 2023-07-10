@@ -375,7 +375,7 @@ programs.foot = {
       lines = "1000";
     };
     key-bindings = {
-      clipboard-copy = "Control+Shift+c Control+w";
+      clipboard-copy = "Control+Shift+c Mod1+w";
       clipboard-paste = "Control+Shift+v Control+y";
       primary-paste = "Shift+Insert";
 
@@ -754,6 +754,37 @@ services.mpd = {
 programs= {
   ncmpcpp = {
     enable = true;
+    settings = {
+      ncmpcpp_directory = "~/.config/ncmpcpp";
+      lyrics_directory = "~/.local/share/lyrics";
+      message_delay_time = "1";
+      visualizer_type = "spectrum";
+      song_list_format = "{$4%a - }{%t}|{$8%f$9}$R{$3(%l)$9}";
+      song_status_format = "$b{{$8'%t'}} $3by {$4%a{ $3in $7%b{ (%y)}} $3}|{$8%f}";
+      song_library_format = "{%n - }{%t}|{%f}";
+      alternative_header_first_line_format = "$b$1$aqqu$/a$9 {%t}|{%f} $1$atqq$/a$9$/b";
+      alternative_header_second_line_format = "{{$4$b%a$/b$9}{ - $7%b$9}{ ($4%y$9)}}|{%D}";
+      current_item_prefix = "$(cyan)$r$b";
+      current_item_suffix = "$/r$(end)$/b";
+      current_item_inactive_column_prefix = "$(magenta)$r";
+      current_item_inactive_column_suffix = "$/r$(end)";
+      playlist_display_mode = "columns";
+      browser_display_mode = "columns";
+      progressbar_look = "->";
+      media_library_primary_tag = "album_artist";
+      media_library_albums_split_by_date = "no";
+      startup_screen = "media_library";
+      display_volume_level = "no";
+      ignore_leading_the = "yes";
+      external_editor = "nvim";
+      use_console_editor = "yes";
+      empty_tag_color = "magenta";
+      main_window_color = "white";
+      progressbar_color = "black:b";
+      progressbar_elapsed_color = "blue:b";
+      statusbar_color = "red";
+      statusbar_time_color = "cyan:b";
+    };
   };
   mpv = {
     enable = true;
@@ -925,120 +956,129 @@ programs.waybar = {
       fixed-center = true;
       exclusive = true;
       modules-left = [
-	"custom/launcher"
-	"wlr/workspaces"
-	"hyprland/window"
-	"hyprland/submap"
+	      "custom/launcher"
+	      "wlr/workspaces"
+	      "hyprland/window"
+	      "hyprland/submap"
       ];
       modules-center = [
-	"clock" "mpd"
+	      "clock" "mpd"
       ];
       modules-right = ["network" "battery" "memory" "pulseaudio" "custom/power"];
       "wlr/workspaces" = {
-	format = "{icon}";
-	active-only = false;
-	on-click = "activate";
-	format-icons = {
-	  active = "";
-	  default = "";
-	  "1" = "1";
-	  "2" = "2";
-	  "3" = "3";
-	  "4" = "4";
-	  "5" = "5";
-	  "6" = "6";
-	};
+	      format = "{icon}";
+	      active-only = false;
+	      on-click = "activate";
+	      format-icons = {
+		active = "";
+		default = "";
+		"1" = "1";
+		"2" = "2";
+		"3" = "3";
+		"4" = "4";
+		"5" = "5";
+		"6" = "6";
+	      };
       };
 
       "hyprland/window" = {
-	"format" = "👁{}";
-	"separate-outputs" = true;
+	      "format" = "👁{}";
+	      "separate-outputs" = true;
       };
 
       "hyprland/submap" = {
-	"format" = " {}";
-	"max-length" = 14;
-	"tooltip" = false;
+	      "format" = " {}";
+	      "max-length" = 14;
+	      "tooltip" = false;
       };
 
       "custom/launcher" = {
-	"format" = " ";
-	"tooltip" = false;
-	"on-click" = "bemenu-run";
+	      "format" = " ";
+	      "tooltip" = false;
+	      "on-click" = "bemenu-run";
       };
 
       "battery" =  {
-	"bat" =  "BAT0";
-	"interval" =  30;
-	"states" =  {
-	  "warning" =  50;
-	  "critical" =  30;
-	};
-	"format" =  "{capacity}% {icon}";
-	"format-icons" =  [" " "🔴" "🪫" " " " "];
-	"max-length" =  25;
+	      "bat" =  "BAT0";
+	      "interval" =  30;
+	      "states" =  {
+		"warning" =  50;
+		"critical" =  30;
+	      };
+	      "format" =  "{capacity}% {icon}";
+	      "format-icons" =  [" " "🔴" "🪫" " " " "];
+	      "max-length" =  25;
       };
 
       "mpd" = {
-	"format" = "{stateIcon} {title}  ";
-	"format-disconnected" = "  ";
-	"format-stopped" = "  ";
-	"title-len" = 20;
-	"interval" = 10;
-	"on-click" = "mpc toggle";
-	"state-icons" = {
-	  "paused" = "";
-	  "playing" = "";
-	};
-	"tooltip-format" = "Playing: {filename}";
-	  "tooltip-format-disconnected" = "";
+	      "format" = "{stateIcon} {title}  ";
+	      "format-disconnected" = "  ";
+	      "format-stopped" = "  ";
+	      "title-len" = 20;
+	      "interval" = 10;
+	      "on-click" = "mpc toggle";
+	      "state-icons" = {
+		"paused" = "";
+		"playing" = "";
+	      };
+	      "tooltip-format" = "Playing: {filename}";
+	      "tooltip-format-disconnected" = "";
       };
-	"custom/power" = {
-	"format" = "⏻";
-	"on-click" = "d-power";
-	"tooltip" = false;
+	    "custom/power" = {
+	      "format" = "⏻";
+	      "on-click" = "d-power";
+	      "tooltip" = false;
       };
       "clock" = {
-	"tooltip-format" = "{:%A %B %d %Y | %H:%M}";
-	"format-alt" = " {:%a %d %b  %I:%M %p}";
-	"format" = " {:%H:%M} ";
-	##"timezones" = [ "Kolkata" ];
-	##"max-length" = 200;
-	"interval" = 1;
+	      "tooltip-format" = "{:%A %B %d %Y | %H:%M}";
+	      "format-alt" = " {:%a %d %b  %I:%M %p}";
+	      "format" = " {:%H:%M} ";
+	      ##"timezones" = [ "Kolkata" ];
+	      ##"max-length" = 200;
+	      "interval" = 1;
       };
       "cpu" = {
-	"format" = "﬙ {usage: >3}%";
-	"on-click" = "footclient -e btop";
+	      "format" = "﬙ {usage: >3}%";
+	      "on-click" = "footclient -e btop";
       };
       "memory" = {
-	"format" = " {: >3}%";
-	"on-click" = "foot -e btop";
+	      "format" = " {: >3}%";
+	      "on-click" = "foot -e btop";
       };
       "network" = {
-	"interface" = "wlp2s0";
-	"format" = "⚠ Disabled";
-	"format-wifi" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
-	"format-ethernet" = " {ifname}: {ipaddr}/{cidr}";
-	"format-disconnected" = "⚠ Disconnected";
-	"on-click" = "foot -e nmtui";
-	"interval" = 2;
+	      "interface" = "wlp2s0";
+	      "format" = "⚠ Disabled";
+	      "format-wifi" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
+	      "format-ethernet" = " {ifname}: {ipaddr}/{cidr}";
+	      "format-disconnected" = "⚠ Disconnected";
+	      "on-click" = "foot -e nmtui";
+	      "interval" = 2;
       };
       "pulseaudio" = {
-	"scroll-step" = 2;
-	"format" = "{icon} {volume: >3}% ";
-	"format-bluetooth" = "{icon} {volume: >3}%";
-	"format-muted" =" muted ";
-	"on-click" = "pamixer -t";
-	"format-icons" = {
-	  "headphones" = "";
-	  "handsfree" = "";
-	  "headset" = "";
-	  "phone" = "";
-	  "portable" = "";
-	  "car" = "";
-	  "default" = ["" ""];
-	};
+	      "scroll-step" = 2;
+	      "format" = "{icon} {volume: >3}% ";
+	      "format-bluetooth" = "{icon} {volume: >3}%";
+	      "format-muted" =" muted ";
+	      "on-click" = "pamixer -t";
+	      "format-icons" = {
+		"headphones" = "";
+		"handsfree" = "";
+		"headset" = "";
+		"phone" = "";
+		"portable" = "";
+		"car" = "";
+		"default" = ["" ""];
+	      };
       };
+      "custom/wf-recorder" = {
+		    "format" = "{}";
+		    "interval" = "once";
+		    "exec" = "echo ''";
+		    "tooltip" = "false";
+		    "exec-if" = "pgrep 'wf-recorder'";
+		    "on-click" = "exec d-record";
+		    "signal" = 8;
+	    };
     };
   };
 };

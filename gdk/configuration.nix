@@ -355,7 +355,7 @@ fonts = {
     (nerdfonts.override {fonts = [ "JetBrainsMono"  ];})
   ];
 
-  enableDefaultFonts = true;
+  enableDefaultFonts = false;
 
   # this fixes emoji stuff
   fontconfig = {
@@ -365,9 +365,9 @@ fonts = {
 	      "JetBrainsMono Nerd Font"
 	      "Noto Color Emoji"
       ];
-      sansSerif = [ "Code D Haki" "Noto Sans" "Unifont"];
-      serif = [ "Code D Ace" "Noto Sans" "Unifont" ];
-      emoji = [ "Noto Color Emoji" "Code D Lip" "Symbola" "Noto Sans" "Unifont" ];
+      sansSerif = [ "Code D Haki" "Noto Sans" "Noto Serif" ];
+      serif = [ "Code D Ace" "Noto Sans" "Noto Serif"];
+      emoji = [ "Noto Color Emoji" "Code D Lip" "Symbola" "Noto Sans" ];
     };
   };
 };

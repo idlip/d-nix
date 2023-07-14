@@ -128,11 +128,6 @@ Why not have a block for flake.nix too?
       # For Adblocking and making internet usable
       hosts.url = "github:StevenBlack/hosts";
 
-      # Greatest Editor of all time. (if you shill on vim, give emacs a try and see first, although it is objective to individual)
-      # emacs-overlay = {   
-      #   url = "github:nix-community/emacs-overlay";
-      # };
-
       # Home to manage all user configs
       # You can you use normal config files,
       # just use an org heading and create block and tangle it directly to ~/.config/tool/file path.
@@ -148,8 +143,8 @@ Why not have a block for flake.nix too?
 	# You might check on darwin for macos
 	system = "x86_64-linux";
 	pkgs = import nixpkgs {
-	  inherit system;
-	  config.allowUnfree = true;
+		inherit system;
+		config.allowUnfree = false;
 	};
 	lib = nixpkgs.lib;
 
@@ -219,9 +214,7 @@ Opening brace that contains the rest of the configuration file.
 #+end_src
 ** System core
 #+begin_src nix
-  # Should move this line probably, it only does make use of starship to bash shell init
   programs = {
-    bash.promptInit = ''eval "$(${pkgs.starship}/bin/starship init bash)"'';
     hyprland.enable = true;
   };
 
@@ -233,7 +226,7 @@ Opening brace that contains the rest of the configuration file.
   };
 
   # obviously your timezone here. Have a nice day or good night sleep ;)
-  # Don't waste more time on nixos lol, be healthy and have some sleep. Stay helathy!
+  # Don't waste more time on nixos lol, be healthy and have some sleep. Stay healthy!
   time.timeZone = "Asia/Kolkata";
 
   # This code is from nixos wiki for Btrfs. Depends on which file system you use.
@@ -274,9 +267,9 @@ Opening brace that contains the rest of the configuration file.
   nixpkgs = {
     config = {
       # keep a check and remove it asap
-      permittedInsecurePackages = [
-        "openssl-1.1.1u"
-      ];
+      # permittedInsecurePackages = [
+      #   "openssl-1.1.1u"
+      # ];
       allowUnfree = true;
       allowBroken = false;
     };
@@ -296,7 +289,7 @@ Opening brace that contains the rest of the configuration file.
     gc = {
       automatic = true;
       dates = "daily";
-      options = "--delete-older-than 6d";
+      options = "--delete-older-than 15d";
     };
 
     # pin the registry to avoid downloading and evaling a new nixpkgs version every time
@@ -327,15 +320,13 @@ Opening brace that contains the rest of the configuration file.
       trusted-users = ["root" "@wheel"];
       max-jobs = "auto";
       # use binary cache, its not gentoo
-      substituters = [
-        "https://cache.nixos.org"
-        # "https://nix-community.cachix.org"
-      ];
-      # Keys for the sustituters cachix
-      trusted-public-keys = [
-        "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-        # "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-      ];
+      # substituters = [
+      #   "https://cache.nixos.org"
+      # ];
+      # # Keys for the sustituters cachix
+      # trusted-public-keys = [
+      #   "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+      # ];
     };
   };
   system.autoUpgrade.enable = false;
@@ -505,20 +496,20 @@ Certain services, just enable = true; gets the work done for most of the stuffs.
       };
       folders = {
 	"sync" = {
-	  path = "/home/<<my-username>>/d-sync";
-	  devices = [ "realme" ];
+		path = "/home/<<my-username>>/d-sync";
+		devices = [ "realme" ];
 	};
 	"emacs" = {
-	  path = "<<my-git-path>>";
-	  devices = [ "realme" ];
+		path = "<<my-git-path>>";
+		devices = [ "realme" ];
 	};
 	"theme" = {
-	  path = "/home/<<my-username>>/d-git/d-theme";
-	  devices = [ "realme" ];
+		path = "/home/<<my-username>>/d-git/d-theme";
+		devices = [ "realme" ];
 	};
 	"site" = {
-	  path = "/home/<<my-username>>/d-git/d-site";
-	  devices = [ "realme" ];
+		path = "/home/<<my-username>>/d-git/d-site";
+		devices = [ "realme" ];
 	};
       };
     };
@@ -721,7 +712,6 @@ Home config, and a pretty place (?)
     config.home.extraOutputsToInstall = ["doc" "devdoc"];
     imports = [
       ./homeman.nix
-      # inputs.hyprland.homeManagerModules.default
       # inputs.nur.nixosModules.nur
     ];
   }
@@ -748,7 +738,6 @@ Opening brace that contains the rest of the configuration file.
 **** Shell Configuration
 ***** System Shell
 #+begin_src nix :noweb yes
-  home.sessionVariables.STARSHIP_CACHE = "${config.xdg.cacheHome}/starship";
   programs = {
     # Starship
     starship = {
@@ -758,10 +747,10 @@ Opening brace that contains the rest of the configuration file.
 	add_newline = true;
 	scan_timeout = 5;
 	character = {
-	  error_symbol = " [](#df5b61)";
-	  success_symbol = "[](#6791c9)";
-	  vicmd_symbol = "[](bold yellow)";
-	  format = "[  ](bold blue)[$directory$all$character](bold)[  ](bold green)";
+		error_symbol = " [](#df5b61)";
+		success_symbol = "[](#6791c9)";
+		vicmd_symbol = "[](bold yellow)";
+		format = "[  ](bold blue)[$directory$all$character](bold)[  ](bold green)";
 	};
 	git_commit = {commit_hash_length = 4;};
 	line_break.disabled = false;
@@ -770,63 +759,10 @@ Opening brace that contains the rest of the configuration file.
 	directory.read_only = " ";
 	nix_shell.symbol = " ";
 	hostname = {
-	  ssh_only = true;
-	  format = "[$hostname](bold blue) ";
-	  disabled = false;
+		ssh_only = true;
+		format = "[$hostname](bold blue) ";
+		disabled = false;
 	};
-      };
-    };
-
-    fish = {
-      enable = true;
-      shellInit = ''
-	  starship init fish | source
-	  set -x FZF_DEFAULT_OPTS "--preview='bat {} --color=always'" \n
-    set -x SKIM_DEFAULT_COMMAND "rg --files || fd || find ."
-    set -g theme_nerd_fonts yes
-    set -g theme_newline_cursor yes
-    set fish_greeting
-	  '';
-
-      shellAliases = with pkgs; {
-	rebuild = "doas nix-store --verify; pushd ~dotfiles && doas nixos-rebuild switch --flake .# && notify-send \"Done\"&& bat cache --build; popd";
-	cleanup = "doas nix-collect-garbage --delete-older-than 7d";
-	bloat = "nix path-info -Sh /run/current-system";
-	ytmp3 = ''
-		${lib.getExe yt-dlp} -x --continue --add-metadata --embed-thumbnail --audio-format mp3 --audio-quality 0 --metadata-from-title="%(artist)s - %(title)s" --prefer-ffmpeg -o "%(title)s.%(ext)s"'';
-	cat = "${lib.getExe bat} --style=plain";
-	grep = lib.getExe ripgrep;
-	du = lib.getExe du-dust;
-	ps = lib.getExe procs;
-	m = "mkdir -p";
-	fcd = "cd $(find -type d | fzf)";
-	ls = "${lib.getExe exa} -h --git --icons --color=auto --group-directories-first -s extension";
-	l = "ls -lF --time-style=long-iso --icons";
-	la = "${lib.getExe exa} -lah --tree";
-	tree = "${lib.getExe exa} --tree --icons --tree";
-	http = "${lib.getExe python3} -m http.server";
-	burn = "pkill -9";
-	diff = "diff --color=auto";
-	kys = "doas shutdown now";
-	killall = "pkill";
-	".1" = "cd ..";
-	".2" = "cd ../..";
-	".3" = "cd ../../..";
-	c = "clear";
-
-	v = "nvim";
-	emd = "pkill emacs; emacs --daemon";
-
-	e = "emacsclient -t";
-	cp="cp -iv";
-	mv="mv -iv";
-	rm="rm -vI";
-	bc="bc -ql";
-	mkd="mkdir -pv";
-	ytfzf="ytfzf -D";
-	hyprcaps="hyprctl keyword input:kb_options caps:caps";
-	gc = "git clone --depth=1";
-	sudo = "doas";
       };
     };
 
@@ -845,7 +781,6 @@ Opening brace that contains the rest of the configuration file.
       };
 
       envExtra = ''
-	  export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 	  export PATH="$PATH:<<my-bin>>:$HOME/.local/bin/d"
 	  export EDITOR="emacsclient -nw -a 'nvim'"
 	  export BEMENU_OPTS="-i -s -l 10 -R 20 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'Code D Ace 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
@@ -953,7 +888,7 @@ This is easy to manage and also get the syntax highlighing for shell, as nix als
 
   # export BEMENU_OPTS="-i -l 10 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
 
-  # env
+  # neovim as manpager, if not using emacs
   export MANPAGER='nvim +Man! +"set nocul" +"set noshowcmd" +"set noruler" +"set noshowmode" +"set laststatus=0" +"set showtabline=0" +"set nonumber"'
 
 
@@ -970,6 +905,8 @@ This is easy to manage and also get the syntax highlighing for shell, as nix als
       nix shell nixpkgs#"$1"
   }
 
+  ## Emacs all time
+
   function {e,find-file,'emacsclient -t','emacsclient -nw'} () {
       if [ "$INSIDE_EMACS" = "vterm" ]; then
 	  emacsclient $1 >/dev/null 2>&1 || echo "Give a file to open"
@@ -977,6 +914,17 @@ This is easy to manage and also get the syntax highlighing for shell, as nix als
 	  emacsclient -t $1 || echo "Start emacs daemon"
       fi
   }
+
+  function manp () { # use emacs as man pager or neovim
+      if [ "$INSIDE_EMACS" = "vterm" ]; then
+	  emacsclient -e "(progn (man \"$1\") (delete-window))"
+      elif [ "$(pgrep emacs)"  ]; then
+	  emacsclient -nw -e "(progn (man \"$1\") (delete-window))"
+      else
+	  man $1
+      fi
+  }
+
 
   if [ -n "${commands[fzf-share]}" ]; then
     source "$(fzf-share)/key-bindings.zsh"
@@ -998,7 +946,7 @@ Installs packages for this user only.
 ***** Wayland
 #+begin_src nix
   # wayland
-  libnotify libsixel bemenu hyprpicker
+  libnotify libsixel bemenu
   wf-recorder brightnessctl pamixer slurp grim 
   wl-clipboard wtype swaybg swayidle gammastep
 #+end_src
@@ -1006,43 +954,41 @@ Installs packages for this user only.
 #+begin_src nix
   # media
   mpc_cli pulsemixer imv
-  yt-dlp jq ytfzf ani-cli qbittorrent youtube-tui
+  yt-dlp jq ytfzf ani-cli youtube-tui
 #+end_src
 ***** cli-tools
 #+begin_src nix
   # cli tools
-  pcmanfm fzf neovim btop unzip
+  # pcmanfm libreoffice pandoc groff wkhtmltopdf-bin mupdf
+  fzf neovim unzip  
   aspell aspellDicts.en-science aspellDicts.en hunspell hunspellDicts.en-us
-  ripgrep nitch libreoffice pandoc newsboat mupdf
-  rsync ffmpeg sdcv imagemagick groff
-  wkhtmltopdf-bin 
-  fd ncdu mu isync nq syncthing dconf
-  jq keepassxc figlet
+   ffmpeg sdcv 
+  #mu isync nq
+  syncthing dconf keepassxc
 #+end_src
 ***** Themes
 #+begin_src nix
   # themes
   gruvbox-gtk-theme
-    orchis-theme
-    bibata-cursors
-    papirus-icon-theme
+  orchis-theme
+  bibata-cursors
+  papirus-icon-theme
 #+end_src
 ***** Browsers
 #+begin_src nix
   # pioneer of web
-  firefox librewolf brave ungoogled-chromium hugo nyxt
+  firefox librewolf brave ungoogled-chromium
 #+end_src
 ***** LSP -IDE
 #+begin_src nix
-  nodePackages.bash-language-server
-    nodePackages.vscode-langservers-extracted
-    # python311Packages.python-lsp-server
-    nodePackages.pyright
-    python3
-    nil 
-    R rPackages.languageserver rPackages.lintr
-    tree-sitter
-    texlive.combined.scheme-full
+  # nodePackages.bash-language-server
+  # nodePackages.vscode-langservers-extracted
+  # python311Packages.python-lsp-server
+  # nodePackages.pyright
+  python3 gcc gnumake
+  R rPackages.languageserver rPackages.lintr
+  tree-sitter
+  #texlive.combined.scheme-full
 #+end_src
 ***** Closing Statement
 #+begin_src nix
@@ -1091,6 +1037,7 @@ There will be not much of a difference.
 
 #+end_src
 ***** Aria
+Aria is fantastic download manager as well does torrents. So minimal and gets the job done.
 #+begin_src nix :noweb yes
   programs = {
     aria2 = {
@@ -1144,24 +1091,28 @@ The better cli alternative!
       #   theme = "gruvbox-dark";
       # };
     };
+    ripgrep = {
+      enable = true;
+      arguments = [
+	"--max-columns-preview"
+	"--colors=line:style:bold"
+      ];
+    };
+    btop = {
+      enable = true;  
+      settings = {
+	color_theme = "Default";
+	theme_background = "False";
+	vim_keys = "True";
+	shown_boxes = "proc cpu";
+	rounded_corners = "True" ;
+	graph_symbol = "block";
+	proc_sorting = "memory";
+	proc_reversed = "False";
+	proc_gradient = "True";
+      };
+    };
   };
-#+end_src
-***** Btop
-#+begin_src nix :noweb yes
-  # We will tangle config files from git repo to home dir (Let nix manage the magics)
-  home.file.".config/btop/btop.conf".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/btop/btop.conf";
-#+end_src
-
-#+begin_src nix :tangle (format "%s/btop/btop.conf" (get-named-src-block-contents "my-configs" t))
-      color_theme = "Default"
-      theme_background = False
-      vim_keys = True
-      shown_boxes = "proc cpu"
-      rounded_corners = True 
-      graph_symbol = "block"
-      proc_sorting = "memory"
-      proc_reversed = False
-      proc_gradient = True
 #+end_src
 ***** Dunst
 #+begin_src nix :noweb yes
@@ -1312,27 +1263,50 @@ The better cli alternative!
 #+end_src
 ****** Hyprland config
 #+begin_src conf  :tangle (format "%s/hypr/hyprland.conf" (get-named-src-block-contents "my-configs" t))
-  monitor=,preferred,auto,1
-  workspace=DP-1,1
+  monitor = ,preferred,auto,1
+
+  # █▀▀ █▄░█ █░█   █░█ ▄▀█ █▀█
+  # ██▄ █░▀█ ▀▄▀   ▀▄▀ █▀█ █▀▄
+
+  env = XDG_CURRENT_DESKTOP,Hyprland 
+  env = XDG_SESSION_TYPE,wayland 
+  env = XDG_SESSION_DESKTOP,Hyprland 
+
+  env = GDK_BACKEND,wayland
+  env = QT_QPA_PLATFORM,wayland
+  env = QT_QPA_PLATFORMTHEME,qt5ct #env = QT_STYLE_OVERRIDE,kvantum
+  env = QT_WAYLAND_DISABLE_WINDOWDECORATION,1
+  env = QT_AUTO_SCREEN_SCALE_FACTOR,1
+  env = QT_WAYLAND_DISABLE_WINDOWDECORATION,1
+
+  env = SDL_VIDEODRIVER,wayland 
+  env = _JAVA_AWT_WM_NONREPARENTING,1
+  env = WLR_NO_HARDWARE_CURSORS,1 
+
+  env = MOZ_DISABLE_RDD_SANDBOX,1
+  env = MOZ_ENABLE_WAYLAND,1 
+
+  env = OZONE_PLATFORM,wayland
+
   # ---- Autostart Apps ----
 
   # exec-once=waybar
-  # exec-once=dunst
-  # #exec-once=exec xrdb -load ~/.config/X11/Xresources
-  # exec-once=systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK
-  exec-once=wl-paste -t text --watch clipman store
-  # #exec-once=swaybg -i ~/.local/share/bg.jpg
-  # exec-once=hyprctl setcursor Bibata-Modern-Classic
+  exec-once = dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+  exec-once = wl-paste --type text --watch cliphist store
+  exec-once = wl-paste --type image --watch cliphist store
+  exec-once = systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
   exec-once=swayidle timeout 150 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on'
   exec-once=gammastep -l 19:72 -t 6500:4100
-  # exec-once=pkill -SIGKILL Xwayland
   exec-once=d-walls
   exec-once=foot --server
+
+  # --- Local var ---
+  $notifycmd = notify-send -h string:x-canonical-private-synchronous:hypr-cfg -u low
 
   input {
   kb_layout=us
   kb_options=ctrl:nocaps
-  follow_mouse=1
+  follow_mouse=0
   #    repeat_delay=250
 
   touchpad {
@@ -1355,11 +1329,12 @@ The better cli alternative!
   gaps_in=5
   gaps_out=5
   border_size=2
-  col.active_border=rgb(ffe4b5)
-  col.inactive_border=rgb(313244)
-  col.active_border = rgba(cba6f7ff) rgba(89b4faff) rgba(94e2d5ff) 10deg
-  col.active_border = rgb(bcd2ee) rgb(fff0f5) rgb(ffe4e1) 10degg
   no_border_on_floating = true
+  col.active_border = rgba(e5b9c6ff) rgba(c293a3ff) 45deg
+  col.inactive_border = 0xff382D2E
+  no_border_on_floating = false # enable border on float window
+  layout = dwindle
+  no_cursor_warps = true
   }
 
   misc {
@@ -1373,14 +1348,16 @@ The better cli alternative!
   decoration {
   rounding=16
   multisample_edges = true
-  # inactive_opacity=0.9
-  # active_opacity=0.9
-  # fullscreen_opacity=0.9
+  inactive_opacity=0.8
+  active_opacity=0.9
+  fullscreen_opacity=1.0
   dim_inactive = false
   blur=1
-  blur_size=5
-  blur_passes=4
+  blur_size=6
+  blur_passes=3
   blur_new_optimizations=1
+  blur_xray = true
+  blur_ignore_opacity = true
   }
 
   animations {
@@ -1388,13 +1365,18 @@ The better cli alternative!
   }
 
   dwindle {
-  pseudotile=0 # enable pseudotiling on dwindle
+  pseudotile = true
   preserve_split=true
+  force_split=true
+  no_gaps_when_only=false
+  default_split_ratio=1.0
   }
 
   master {
   new_is_master=false
-  new_on_top=true
+  new_on_top=false
+  allow_small_split=true
+  no_gaps_when_only=false
   }
 
   gestures {
@@ -1405,16 +1387,49 @@ The better cli alternative!
   workspace_swipe_cancel_ratio=0.5
   }
 
-  # example window rules
-  #windowrule=move 69 420,abc
-  #windowrule=size 420 69,abc
-  #windowrule=tile,xyz
-  #windowrule=float,abc
-  #windowrule=pseudo,abc
-  #windowrule=monitor 0,xyz
-  #--------window rules---------
-  # windowrule=opacity 0.9,pcmanfm
-  # windowrule=opacity 0.95,firefox
+  # █░█░█ █ █▄░█ █▀▄ █▀█ █░█░█   █▀█ █░█ █░░ █▀▀ █▀
+  # ▀▄▀▄▀ █ █░▀█ █▄▀ █▄█ ▀▄▀▄▀   █▀▄ █▄█ █▄▄ ██▄ ▄█
+
+  # Opacity 
+  windowrulev2 = opacity 0.90 0.90,class:^(Brave-browser)$
+  windowrulev2 = opacity 0.80 0.80,class:^(pcmanfm)$
+
+  # Position
+  windowrulev2 = float,title:^(Media viewer)$
+  windowrulev2 = float,title:^(Volume Control)$
+  windowrulev2 = float,title:^(Picture-in-Picture)$
+  windowrulev2 = float,class:^(Viewnior)$
+  windowrulev2 = float,title:^(DevTools)$
+  windowrulev2 = float,class:^(file_progress)$
+  windowrulev2 = float,class:^(confirm)$
+  windowrulev2 = float,class:^(dialog)$
+  windowrulev2 = float,class:^(download)$
+  windowrulev2 = float,class:^(notification)$
+  windowrulev2 = float,class:^(error)$
+  windowrulev2 = float,class:^(confirmreset)$
+  windowrulev2 = float,title:^(Open File)$
+  windowrulev2 = float,title:^(branchdialog)$
+  windowrulev2 = float,title:^(Confirm to replace files)
+  windowrulev2 = float,title:^(File Operation Progress)
+
+  windowrulev2 = move 75 44%,title:^(Volume Control)$
+
+  # Size
+  windowrulev2 = size 800 600,class:^(download)$
+  windowrulev2 = size 800 600,title:^(Open File)$
+  windowrulev2 = size 800 600,title:^(Save File)$
+  windowrulev2 = size 800 600,title:^(Volume Control)$
+
+  windowrulev2 = idleinhibit focus,class:^(mpv)$
+  windowrulev2 = idleinhibit fullscreen,class:^(Brave-browser)$
+
+  # xwaylandvideobridge
+  windowrulev2 = opacity 0.0 override 0.0 override,class:^(xwaylandvideobridge)$
+  windowrulev2 = noanim,class:^(xwaylandvideobridge)$
+  windowrulev2 = nofocus,class:^(xwaylandvideobridge)$
+  windowrulev2 = noinitialfocus,class:^(xwaylandvideobridge)$
+
+  windowrule=opacity 1.0,chromium
 
   windowrule=float,ncmpcpp
   windowrule=float,viewnior
@@ -1452,88 +1467,154 @@ The better cli alternative!
   blurls=gtk-layer-shell
   blurls=notifications
 
-  # some nice mouse binds
-  bindm=SUPER,mouse:272,movewindow
-  bindm=SUPER,mouse:273,resizewindow
 
-  # example binds
-  bind=SUPER,RETURN,exec,emacsclient -c -e "(multi-vterm)"
-  bind=SUPERSHIFT,RETURN,exec,emacsclient -c -e "(multi-vterm)"
-  bind=SUPERSHIFT,Q,killactive,
-  bind=SUPERSHIFT,R,exec,hyprctl reload
-  bind=SUPERCONTROL,Q,exit,
-  bind=SUPER,F12,exec,emacsclient -c -e "(multi-vterm
-  bind=SUPER,SPACE,togglefloating,
-  bind=SUPER,d,exec,bemenu-run -W 0.25 -l 8
-  bind=SUPER,b,exec,pkill -SIGUSR1 waybar || pidof -x waybar || waybar
-  bind=SUPER,P,pseudo,
-  bind=SUPER,F,fullscreen,
+  # █▄▀ █▀▀ █▄█ █▄▄ █ █▄░█ █▀▄
+  # █░█ ██▄ ░█░ █▄█ █ █░▀█ █▄▀
+  bind=SUPER,e,exec,d-note
+  bind=SUPER,y,exec,ytfzf -D
+  bind=SUPER,x,exec,d-power
+  # bind=SUPER,period,exec,d-dict
+  bind=SUPERSHIFT,b,exec,d-bookmark
+  bind=SUPER,m,exec,d-urls
+  bind=SUPER,Insert,exec,d-urls
 
+  bind=SUPER,grave,exec,d-unicodes
+  bind=SUPER,Delete,exec,pkill -INT wf-recorder
+
+  bind=CONTROL,F1,exec,hyprctl dispatch dpms on                               
+  bind=SUPER,F1,exec,d-keys
+  bind=SUPER,F2,exec,brightnessctl set 2%-
+  bind=SUPER,F3,exec,brightnessctl set +2%
+  bind=SUPER,F5,exec,d-walls
+  bind=SUPER,F8,exec,mpv --untimed --geometry=35%-30-30 --no-cache --no-osc --no-input-default-bindings --profile=low-latency --input-conf=/dev/null --title=webcam $(ls /dev/video[0,2,4,6,8] | tail -n 1)
+  bind=SUPER,F11,exec,d-mpdplay
+  bind=SUPER,F10,exec,mpc prev
+  bind=SUPER,F12,exec,mpc next
+
+
+  # █▀ █▀▀ █▀█ █▀▀ █▀▀ █▄░█ █▀ █░█ █▀█ ▀█▀
+  # ▄█ █▄▄ █▀▄ ██▄ ██▄ █░▀█ ▄█ █▀█ █▄█ ░█░
   bind=,Print,exec,d-sshot
   bind=CONTROL,Insert,exec,d-sshot
+  bind=SUPER,F4,exec,d-record
 
-  bind=SUPER,left,movefocus,l
-  bind=SUPER,right,movefocus,r
-  bind=SUPER,up,movefocus,u
-  bind=SUPER,down,movefocus,d
 
-  bind=SUPERCONTROL,left,splitratio,-0.1
-  bind=SUPERCONTROL,right,splitratio,+0.1
-  bind=SUPERCONTROL,h,splitratio,-0.1
-  bind=SUPERCONTROL,l,splitratio,+0.1
+  # █▀▄▀█ █ █▀ █▀▀
+  # █░▀░█ █ ▄█ █▄▄
+  bind = SUPER, RETURN, exec, emacsclient -c -e "(multi-vterm)"
+  bind = SUPERSHIFT, RETURN, exec, emacsclient -c -e "(multi-vterm)"
+  bind = SUPERSHIFT, Q, killactive, 
+  bind = SUPERSHIFT, R, exec, hyprctl reload
+  bind = SUPERCONTROL, Q, exit, 
+  bind = SUPER, F12, exec, emacsclient -c -e "(multi-vterm)"
+  bind = SUPER, SPACE, togglefloating, 
+  bind = SUPER, d, exec, bemenu-run -W 0.25 -l 8
+  bind = SUPER, b, exec, pkill -SIGUSR1 waybar || pidof -x waybar || waybar
 
-  bind=SUPERSHIFT,h,movewindow,left
-  bind=SUPERSHIFT,l,movewindow,right
-
-  bind=SUPER,1,workspace,1
-  bind=SUPER,2,workspace,2
-  bind=SUPER,3,workspace,3
-  bind=SUPER,4,workspace,4
-  bind=SUPER,5,workspace,5
-  bind=SUPER,6,workspace,6
-  bind=SUPER,7,workspace,7
-  bind=SUPER,8,workspace,8
-  bind=SUPER,9,workspace,9
-  bind=SUPER,0,workspace,10
-  bind=SUPERSHIFT,z,movetoworkspace,special
-  bind=SUPER,z,togglespecialworkspace,
-
-  bind=SUPER,tab,workspace,e+1
-
-  bind=SUPER,1,movetoworkspace,1
-  bind=SUPER,2,movetoworkspace,2
-  bind=SUPER,3,movetoworkspace,3
-  bind=SUPER,4,movetoworkspace,4
-  bind=SUPER,5,movetoworkspace,5
-  bind=SUPER,6,movetoworkspace,6
-  bind=SUPER,7,movetoworkspace,7
-  bind=SUPER,8,movetoworkspace,8
-  bind=SUPER,9,movetoworkspace,9
-  bind=SUPER,0,movetoworkspace,10
-
-  bind=SUPERSHIFT,1,movetoworkspacesilent,1
-  bind=SUPERSHIFT,2,movetoworkspacesilent,2
-  bind=SUPERSHIFT,3,movetoworkspacesilent,3
-  bind=SUPERSHIFT,4,movetoworkspacesilent,4
-  bind=SUPERSHIFT,5,movetoworkspacesilent,5
-  bind=SUPERSHIFT,6,movetoworkspacesilent,6
-  bind=SUPERSHIFT,7,movetoworkspacesilent,7
-  bind=SUPERSHIFT,8,movetoworkspacesilent,8
-  bind=SUPERSHIFT,9,movetoworkspacesilent,9
-  bind=SUPERSHIFT,0,movetoworkspacesilent,10
-
-  bind=SUPER,h,movefocus,l
-  bind=SUPER,l,movefocus,r
-  bind=SUPER,k,movefocus,u
-  bind=SUPER,j,movefocus,d
-  bind=SUPER,mouse_down,workspace,e+1
-  bind=SUPER,mouse_up,workspace,e-1
   bind=,XF86AudioRaiseVolume,exec,pamixer -ui 5
   bind=,XF86AudioLowerVolume,exec,pamixer -ud 5
   bind=,XF86AudioMute,exec,pamixer -t
 
 
-  # Chords
+  # █░█░█ █ █▄░█ █▀▄ █▀█ █░█░█   █▀▄▀█ ▄▀█ █▄░█ ▄▀█ █▀▀ █▀▄▀█ █▀▀ █▄░█ ▀█▀
+  # ▀▄▀▄▀ █ █░▀█ █▄▀ █▄█ ▀▄▀▄▀   █░▀░█ █▀█ █░▀█ █▀█ █▄█ █░▀░█ ██▄ █░▀█ ░█░
+  bind = SUPER,T,pseudo,
+  bind = SUPER,F,fullscreen,
+  bind = SUPER, S, togglesplit, # dwindle
+  # Change Workspace Mode
+  bind = SUPER SHIFT, Space, workspaceopt, allfloat
+  bind = SUPER SHIFT, Space, exec, $notifycmd 'Toggled All Float Mode'
+  bind = SUPER SHIFT, T, workspaceopt, allpseudo
+  bind = SUPER SHIFT, T, exec, $notifycmd 'Toggled All Pseudo Mode'
+
+  bind = SUPER ALT, j, cyclenext,
+  bind = SUPER ALT, j, bringactivetotop,
+
+
+  # █▀▀ █▀█ █▀▀ █░█ █▀
+  # █▀░ █▄█ █▄▄ █▄█ ▄█
+  bind = SUPER, h, movefocus, l
+  bind = SUPER, l, movefocus, r
+  bind = SUPER, k, movefocus, u
+  bind = SUPER, j, movefocus, d
+
+  # █▀▄▀█ █▀█ █░█ █▀▀
+  # █░▀░█ █▄█ ▀▄▀ ██▄
+  bind = SUPER SHIFT, left, movewindow, l
+  bind = SUPER SHIFT, right, movewindow, r
+  bind = SUPER SHIFT, up, movewindow, u
+  bind = SUPER SHIFT, down, movewindow, d
+
+  bind = SUPER SHIFT, h, movewindow, l
+  bind = SUPER SHIFT, l, movewindow, r
+  bind = SUPER SHIFT, k, movewindow, u
+  bind = SUPER SHIFT, j, movewindow, d
+
+  # █▀█ █▀▀ █▀ █ ▀█ █▀▀
+  # █▀▄ ██▄ ▄█ █ █▄ ██▄
+  bind = SUPER CTRL, left, resizeactive, -20 0
+  bind = SUPER CTRL, right, resizeactive, 20 0
+  bind = SUPER CTRL, up, resizeactive, 0 -20
+  bind = SUPER CTRL, down, resizeactive, 0 20
+
+  bind = SUPER CTRL, h, resizeactive, -20 0
+  bind = SUPER CTRL, l, resizeactive, 20 0
+  bind = SUPER CTRL, k, resizeactive, 0 -20
+  bind = SUPER CTRL, j, resizeactive, 0 20
+
+  # ▀█▀ ▄▀█ █▄▄ █▄▄ █▀▀ █▀▄
+  # ░█░ █▀█ █▄█ █▄█ ██▄ █▄▀
+  bind = SUPER, g, togglegroup
+  bind = SUPER, tab, changegroupactive
+  bind = SUPER, G, exec, $notifycmd 'Toggled Group Mode'
+
+  # █▀ █▀█ █▀▀ █▀▀ █ ▄▀█ █░░
+  # ▄█ █▀▀ ██▄ █▄▄ █ █▀█ █▄▄
+  bind = SUPER, a, togglespecialworkspace
+  bind = SUPERSHIFT, a, movetoworkspace, special
+  # bind = SUPER, a, exec, $notifycmd 'Toggled Special Workspace'
+  bind = SUPER, c, exec, hyprctl dispatch centerwindow
+
+  # █▀ █░█░█ █ ▀█▀ █▀▀ █░█
+  # ▄█ ▀▄▀▄▀ █ ░█░ █▄▄ █▀█
+  bind = SUPER, 1, workspace, 1
+  bind = SUPER, 2, workspace, 2
+  bind = SUPER, 3, workspace, 3
+  bind = SUPER, 4, workspace, 4
+  bind = SUPER, 5, workspace, 5
+  bind = SUPER, 6, workspace, 6
+  bind = SUPER, 7, workspace, 7
+  bind = SUPER, 8, workspace, 8
+  bind = SUPER, 9, workspace, 9
+  bind = SUPER, 0, workspace, 10
+  bind = SUPER, TAB, workspace, e+1
+  bind = SUPERSHIFT, TAB, workspace, e-1
+
+  # █▀▄▀█ █▀█ █░█ █▀▀
+  # █░▀░█ █▄█ ▀▄▀ ██▄
+  bind = SUPER SHIFT, 1, movetoworkspace, 1
+  bind = SUPER SHIFT, 2, movetoworkspace, 2
+  bind = SUPER SHIFT, 3, movetoworkspace, 3
+  bind = SUPER SHIFT, 4, movetoworkspace, 4
+  bind = SUPER SHIFT, 5, movetoworkspace, 5
+  bind = SUPER SHIFT, 6, movetoworkspace, 6
+  bind = SUPER SHIFT, 7, movetoworkspace, 7
+  bind = SUPER SHIFT, 8, movetoworkspace, 8
+  bind = SUPER SHIFT, 9, movetoworkspace, 9
+  bind = SUPER SHIFT, 0, movetoworkspace, 10
+  # Layout Change
+  bind = SUPER, w, exec, hyprctl keyword general:layout "dwindle"
+  bind = SUPERSHIFT, w, exec, hyprctl keyword general:layout "master"
+
+
+  # █▀▄▀█ █▀█ █░█ █▀ █▀▀   █▄▄ █ █▄░█ █▀▄ █ █▄░█ █▀▀
+  # █░▀░█ █▄█ █▄█ ▄█ ██▄   █▄█ █ █░▀█ █▄▀ █ █░▀█ █▄█
+  bindm = SUPER, mouse:272, movewindow
+  bindm = SUPER, mouse:273, resizewindow
+  bind = SUPER, mouse_down, workspace, e+1
+  bind = SUPER, mouse_up, workspace, e-1
+
+  # Key Chords
   bind=SUPER,period,submap,Wordz
   submap=Wordz
   bind=,d,exec,d-dict
@@ -1592,30 +1673,6 @@ The better cli alternative!
   bind=,escape,submap,reset
   bind=CONTROL,g,submap,reset
   submap=reset
-
-  bind=SUPER,e,exec,d-note
-  bind=SUPER,y,exec,ytfzf -D
-  bind=SUPER,x,exec,d-power
-  # bind=SUPER,period,exec,d-dict
-  bind=SUPERSHIFT,b,exec,d-bookmark
-  bind=SUPER,m,exec,d-urls
-  bind=SUPER,Insert,exec,d-urls
-
-  bind=SUPER,grave,exec,d-unicodes
-  bind=SUPER,Delete,exec,pkill -INT wf-recorder
-
-  bind=CONTROL,F1,exec,hyprctl dispatch dpms on                               
-  bind=SUPER,F1,exec,d-keys
-  bind=SUPER,F2,exec,brightnessctl set 2%-
-  bind=SUPER,F3,exec,brightnessctl set +2%
-  bind=SUPER,F4,exec,d-record
-  bind=SUPER,F5,exec,d-walls
-  bind=SUPER,F8,exec,mpv --untimed --geometry=35%-30-30 --no-cache --no-osc --no-input-default-bindings --profile=low-latency --input-conf=/dev/null --title=webcam $(ls /dev/video[0,2,4,6,8] | tail -n 1)
-  bind=SUPER,F11,exec,d-mpdplay
-  bind=SUPER,F10,exec,mpc prev
-  bind=SUPER,F12,exec,mpc next
-
-
 #+end_src
 ***** Sway
 Its more mature than hyprland. So... better to have it! I dont use sway that much.
@@ -1653,7 +1710,7 @@ Its more mature than hyprland. So... better to have it! I dont use sway that muc
       embark-consult consult-eglot consult-flycheck markdown-mode nix-mode
       reddigg hnreader mingus which-key magit webpaste org-present
       # pdf-tools nov (using in-built doc-view)
-      shrface shr-tag-pre-highlight gcmh
+      shrface shr-tag-pre-highlight gcmh nov
       org-mime beframe denote tempel tempel-collection
       sdcv elfeed elfeed-org link-hint powerthesaurus jinx meow
       doom-modeline hide-mode-line el-fetch ox-hugo
@@ -1661,53 +1718,6 @@ Its more mature than hyprland. So... better to have it! I dont use sway that muc
     ])
     );
   };
-#+end_src
-***** Helix
-Vim needs alot of plugins and customization which wastes time on tinkering, Helix should work pretty much out of the box.
-
-#+begin_src nix :noweb yes
-  # We will tangle config files from git repo to home dir (Let nix manage the magics)
-
-  home.file.".config/helix/config.toml".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/helix/config.toml";
-#+end_src
-
-#+begin_src toml :noweb yes :tangle (format "%s/helix/config.toml" (get-named-src-block-contents "my-configs" t))
-  theme = "gruvbox_dark_hard"
-
-  [editor]
-  line-number = "relative"
-  cursorline = true
-  auto-completion = true
-  auto-format = true
-
-  mouse = true
-
-  [editor.auto-pairs]
-  '(' = ')'
-  '{' = '}'
-  '[' = ']'
-  '"' = '"'
-  '`' = '`'
-  '<' = '>'
-
-
-  [editor.cursor-shape]
-  insert = "bar"
-  normal = "block"
-  select = "underline"
-
-  [editor.file-picker]
-  hidden = false
-
-  [editor.lsp]
-  enable = true
-  display-messages = true
-  display-inlay-hints = true
-  snippets = true
-
-  [keys.insert]
-  "A-x" = "normal_mode"     # Maps Alt-X to enter normal mode
-  j = { k = "normal_mode" } # Maps `jk` to exit insert mode
 #+end_src
 ***** FireFox
 ****** initial set
@@ -2039,7 +2049,6 @@ Closes FireFox Block
 	ncmpcpp_directory = "~/.config/ncmpcpp";
 	lyrics_directory = "~/.local/share/lyrics";
 	message_delay_time = "1";
-	visualizer_type = "spectrum";
 	song_list_format = "{$4%a - }{%t}|{$8%f$9}$R{$3(%l)$9}";
 	song_status_format = "$b{{$8'%t'}} $3by {$4%a{ $3in $7%b{ (%y)}} $3}|{$8%f}";
 	song_library_format = "{%n - }{%t}|{%f}";
@@ -2151,39 +2160,6 @@ Image viewer config
 
   p = prev
   n = next
-#+end_src
-***** Fuzzel
-A minimal launcher for wayland
-#+begin_src nix :noweb yes
-  # We will tangle config files from git repo to home dir (Let nix manage the magics)
-
-  home.file.".config/fuzzel/fuzzel.ini".source = config.lib.file.mkOutOfStoreSymlink "<<my-config-path>>/fuzzel/fuzzel.ini";
-#+end_src
-
-#+begin_src conf :tangle (format "%s/fuzzel/fuzzel.ini" (get-named-src-block-contents "my-configs" t))
-  [main]
-  font = ComicCodeLigatures Nerd Font:weight=medium:size=13, Noto Color Emoji:size=15
-  prompt = " Menu > "
-  icon-theme = Papirus
-  icons-enabled = yes
-  fuzzy = no
-  show-actions  = yes
-  width = 55
-  lines = 15        
-
-  [colors]
-  background = 0d0e1cBB
-  text = ffffffff
-  match = ffd700ff
-  selection = 6ae4b6ff
-  selection-text = 010101ff
-  selection-match = 000000ff
-  border = ffe4e1ff
-
-  [border]
-  width =  2
-  radius = 30
-
 #+end_src
 ***** Rofi
 The best menu, I tried wofi, bemenu, fuzzel and others.. but they were not extensive, so since rofi has rofi-wayland, so I will stick to it.
@@ -2800,13 +2776,13 @@ listing menus
     tealdeer = {
       enable = true;
       settings = {
-        display = {
-          compact = false;
-          use_pager = true;
-        };
-        updates = {
-          auto_update = true;
-        };
+	display = {
+	  compact = false;
+	  use_pager = true;
+	};
+	updates = {
+	  auto_update = true;
+	};
       };
     };
   };
@@ -2889,7 +2865,7 @@ listing menus
 	exclusive = true;
 	modules-left = [
 		"custom/launcher"
-		"wlr/workspaces"
+		"hyprland/workspaces"
 		"hyprland/window"
 		"hyprland/submap"
 	];
@@ -2897,25 +2873,29 @@ listing menus
 		"clock" "mpd"
 	];
 	modules-right = ["network" "battery" "memory" "pulseaudio" "custom/power"];
-	"wlr/workspaces" = {
+	"hyprland/workspaces" = {
 		format = "{icon}";
 		active-only = false;
 		on-click = "activate";
 		format-icons = {
-		  active = "";
-		  default = "";
-		  "1" = "1";
-		  "2" = "2";
-		  "3" = "3";
-		  "4" = "4";
-		  "5" = "5";
-		  "6" = "6";
+			active = "";
+			default = "";
+			"1" = "1";
+			"2" = "2";	
+			"3" = "3";
+			"4" = "4";
+			"5" = "5";
+			"6" = "6";
 		};
 	};
 
 	"hyprland/window" = {
 		"format" = "👁{}";
 		"separate-outputs" = true;
+		"rewrite" = {
+		  "(.*) - Mozilla Firefox" = "🦊 $1";
+		  "(.*) - zsh" = ">_ [$1]";
+		};
 	};
 
 	"hyprland/submap" = {
@@ -2934,8 +2914,8 @@ listing menus
 		"bat" =  "BAT0";
 		"interval" =  30;
 		"states" =  {
-		  "warning" =  50;
-		  "critical" =  30;
+			"warning" =  50;
+			"critical" =  30;
 		};
 		"format" =  "{capacity}% {icon}";
 		"format-icons" =  [" " "🔴" "🪫" " " " "];
@@ -2950,8 +2930,8 @@ listing menus
 		"interval" = 10;
 		"on-click" = "mpc toggle";
 		"state-icons" = {
-		  "paused" = "";
-		  "playing" = "";
+			"paused" = "";
+			"playing" = "";
 		};
 		"tooltip-format" = "Playing: {filename}";
 		"tooltip-format-disconnected" = "";
@@ -2993,13 +2973,13 @@ listing menus
 		"format-muted" =" muted ";
 		"on-click" = "pamixer -t";
 		"format-icons" = {
-		  "headphones" = "";
-		  "handsfree" = "";
-		  "headset" = "";
-		  "phone" = "";
-		  "portable" = "";
-		  "car" = "";
-		  "default" = ["" ""];
+			"headphones" = "";
+			"handsfree" = "";
+			"headset" = "";
+			"phone" = "";
+			"portable" = "";
+			"car" = "";
+			"default" = ["" ""];
 		};
 	};
 	"custom/wf-recorder" = {
@@ -3037,12 +3017,13 @@ listing menus
        border-color: @fg-alt;
        margin-top: 0px;
        margin-left: 8px;
-       margin-bottom: 0px;
-       padding-left: 10px;
-       padding-right: 10px;
+       margin-right: 8px;
+       margin-bottom: 3px;
+       padding-left: 2px;
+       padding-right: 2px;
        transition: none;
        /* color: transparent; */
-       color: @bg-main;
+       background: @bg-main;
 
    }
 
@@ -3066,67 +3047,68 @@ listing menus
   }
 
   #mode {
-      background: @heading-8;
+      color: @heading-8;
   }
 
   #clock {
-      background: @clock;
+      color: @clock;
   }
 
   #mpd {
-      background: @heading-3;
+      color: @heading-3;
       font-family:Maple Mono;
       font-style: italic;
   }
 
 
   #cpu {
-      background: @heading-4;
+      color: @heading-4;
   }
 
   #memory {
-      background: @heading-5;
+      color: @heading-5;
   }
 
   #network.disabled {
-      background: @done;
+      color: @done;
   }
 
   #network{
-      background: @heading-6;
+      color: @heading-6;
   }
 
   #battery {
-      background: @heading-7;
+      color: @heading-7;
   }
 
   #network.disconnected {
-      background: @done;
+      color: @done;
   }
 
   #pulseaudio {
-      background: @heading-9;
+      color: @heading-9;
   }
 
   #pulseaudio.muted {
-      background: @done;
+      color: @done;
   }
 
   #custom-launcher {
-      background: linear-gradient(90deg, @title 28%, @heading-5 85%, @title 100%);
+      /* background: linear-gradient(90deg, @title 28%, @heading-5 85%, @title 100%); */
+      color: @fg-region;
   }
 
   #custom-power {
-      /* background: linear-gradient(90deg, @error 28%, @error 85%, @error 100%); */
-      background: @todo;
+      /* color: linear-gradient(90deg, @error 28%, @error 85%, @error 100%); */
+      color: @todo;
   }
 
   #submap {
-      background: @code;
+      color: @code;
   }
 
   #window {
-      background: @fg-region;
+      color: @fg-region;
       color: @fg-main;
   }
 #+end_src

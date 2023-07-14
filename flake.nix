@@ -9,11 +9,6 @@
     # For Adblocking and making internet usable
     hosts.url = "github:StevenBlack/hosts";
 
-    # Greatest Editor of all time. (if you shill on vim, give emacs a try and see first, although it is objective to individual)
-    # emacs-overlay = {   
-    #   url = "github:nix-community/emacs-overlay";
-    # };
-
     # Home to manage all user configs
     # You can you use normal config files,
     # just use an org heading and create block and tangle it directly to ~/.config/tool/file path.
@@ -29,8 +24,8 @@
       # You might check on darwin for macos
       system = "x86_64-linux";
       pkgs = import nixpkgs {
-	inherit system;
-	config.allowUnfree = true;
+	      inherit system;
+	      config.allowUnfree = false;
       };
       lib = nixpkgs.lib;
 

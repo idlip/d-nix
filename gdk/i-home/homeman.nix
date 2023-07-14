@@ -6,7 +6,6 @@
 
 {
 
-home.sessionVariables.STARSHIP_CACHE = "${config.xdg.cacheHome}/starship";
 programs = {
   # Starship
   starship = {
@@ -16,10 +15,10 @@ programs = {
       add_newline = true;
       scan_timeout = 5;
       character = {
-	error_symbol = " [](#df5b61)";
-	success_symbol = "[](#6791c9)";
-	vicmd_symbol = "[](bold yellow)";
-	format = "[  ](bold blue)[$directory$all$character](bold)[  ](bold green)";
+	      error_symbol = " [](#df5b61)";
+	      success_symbol = "[](#6791c9)";
+	      vicmd_symbol = "[](bold yellow)";
+	      format = "[  ](bold blue)[$directory$all$character](bold)[  ](bold green)";
       };
       git_commit = {commit_hash_length = 4;};
       line_break.disabled = false;
@@ -28,63 +27,10 @@ programs = {
       directory.read_only = " ";
       nix_shell.symbol = " ";
       hostname = {
-	ssh_only = true;
-	format = "[$hostname](bold blue) ";
-	disabled = false;
+	      ssh_only = true;
+	      format = "[$hostname](bold blue) ";
+	      disabled = false;
       };
-    };
-  };
-
-  fish = {
-    enable = true;
-    shellInit = ''
-	starship init fish | source
-	set -x FZF_DEFAULT_OPTS "--preview='bat {} --color=always'" \n
-  set -x SKIM_DEFAULT_COMMAND "rg --files || fd || find ."
-  set -g theme_nerd_fonts yes
-  set -g theme_newline_cursor yes
-  set fish_greeting
-	'';
-
-    shellAliases = with pkgs; {
-      rebuild = "doas nix-store --verify; pushd ~dotfiles && doas nixos-rebuild switch --flake .# && notify-send \"Done\"&& bat cache --build; popd";
-      cleanup = "doas nix-collect-garbage --delete-older-than 7d";
-      bloat = "nix path-info -Sh /run/current-system";
-      ytmp3 = ''
-	      ${lib.getExe yt-dlp} -x --continue --add-metadata --embed-thumbnail --audio-format mp3 --audio-quality 0 --metadata-from-title="%(artist)s - %(title)s" --prefer-ffmpeg -o "%(title)s.%(ext)s"'';
-      cat = "${lib.getExe bat} --style=plain";
-      grep = lib.getExe ripgrep;
-      du = lib.getExe du-dust;
-      ps = lib.getExe procs;
-      m = "mkdir -p";
-      fcd = "cd $(find -type d | fzf)";
-      ls = "${lib.getExe exa} -h --git --icons --color=auto --group-directories-first -s extension";
-      l = "ls -lF --time-style=long-iso --icons";
-      la = "${lib.getExe exa} -lah --tree";
-      tree = "${lib.getExe exa} --tree --icons --tree";
-      http = "${lib.getExe python3} -m http.server";
-      burn = "pkill -9";
-      diff = "diff --color=auto";
-      kys = "doas shutdown now";
-      killall = "pkill";
-      ".1" = "cd ..";
-      ".2" = "cd ../..";
-      ".3" = "cd ../../..";
-      c = "clear";
-
-      v = "nvim";
-      emd = "pkill emacs; emacs --daemon";
-
-      e = "emacsclient -t";
-      cp="cp -iv";
-      mv="mv -iv";
-      rm="rm -vI";
-      bc="bc -ql";
-      mkd="mkdir -pv";
-      ytfzf="ytfzf -D";
-      hyprcaps="hyprctl keyword input:kb_options caps:caps";
-      gc = "git clone --depth=1";
-      sudo = "doas";
     };
   };
 
@@ -103,7 +49,6 @@ programs = {
     };
 
     envExtra = ''
-	export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 	export PATH="$PATH:/home/i/d-git/d-bin/bin:$HOME/.local/bin/d"
 	export EDITOR="emacsclient -nw -a 'nvim'"
 	export BEMENU_OPTS="-i -s -l 10 -R 20 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'Code D Ace 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
@@ -146,41 +91,39 @@ programs = {
 home.packages = with pkgs; [
 
 # wayland
-libnotify libsixel bemenu hyprpicker
+libnotify libsixel bemenu
 wf-recorder brightnessctl pamixer slurp grim 
 wl-clipboard wtype swaybg swayidle gammastep
 
 # media
 mpc_cli pulsemixer imv
-yt-dlp jq ytfzf ani-cli qbittorrent youtube-tui
+yt-dlp jq ytfzf ani-cli youtube-tui
 
 # cli tools
-pcmanfm fzf neovim btop unzip
+# pcmanfm libreoffice pandoc groff wkhtmltopdf-bin mupdf
+fzf neovim unzip  
 aspell aspellDicts.en-science aspellDicts.en hunspell hunspellDicts.en-us
-ripgrep nitch libreoffice pandoc newsboat mupdf
-rsync ffmpeg sdcv imagemagick groff
-wkhtmltopdf-bin 
-fd ncdu mu isync nq syncthing dconf
-jq keepassxc figlet
+ ffmpeg sdcv 
+#mu isync nq
+syncthing dconf keepassxc
 
 # themes
 gruvbox-gtk-theme
-  orchis-theme
-  bibata-cursors
-  papirus-icon-theme
+orchis-theme
+bibata-cursors
+papirus-icon-theme
 
 # pioneer of web
-firefox librewolf brave ungoogled-chromium hugo nyxt
+firefox librewolf brave ungoogled-chromium
 
-nodePackages.bash-language-server
-  nodePackages.vscode-langservers-extracted
-  # python311Packages.python-lsp-server
-  nodePackages.pyright
-  python3
-  nil 
-  R rPackages.languageserver rPackages.lintr
-  tree-sitter
-  texlive.combined.scheme-full
+# nodePackages.bash-language-server
+# nodePackages.vscode-langservers-extracted
+# python311Packages.python-lsp-server
+# nodePackages.pyright
+python3 gcc gnumake
+R rPackages.languageserver rPackages.lintr
+tree-sitter
+#texlive.combined.scheme-full
 
 ];
 
@@ -267,10 +210,28 @@ programs = {
     #   theme = "gruvbox-dark";
     # };
   };
+  ripgrep = {
+    enable = true;
+    arguments = [
+      "--max-columns-preview"
+      "--colors=line:style:bold"
+    ];
+  };
+  btop = {
+    enable = true;  
+    settings = {
+      color_theme = "Default";
+      theme_background = "False";
+      vim_keys = "True";
+      shown_boxes = "proc cpu";
+      rounded_corners = "True" ;
+      graph_symbol = "block";
+      proc_sorting = "memory";
+      proc_reversed = "False";
+      proc_gradient = "True";
+    };
+  };
 };
-
-# We will tangle config files from git repo to home dir (Let nix manage the magics)
-home.file.".config/btop/btop.conf".source = config.lib.file.mkOutOfStoreSymlink "/home/i/d-git/d-nix/gdk/i-home/configs/btop/btop.conf";
 
 services.dunst = {
   enable = true;
@@ -440,7 +401,7 @@ programs.emacs = {
     embark-consult consult-eglot consult-flycheck markdown-mode nix-mode
     reddigg hnreader mingus which-key magit webpaste org-present
     # pdf-tools nov (using in-built doc-view)
-    shrface shr-tag-pre-highlight gcmh
+    shrface shr-tag-pre-highlight gcmh nov
     org-mime beframe denote tempel tempel-collection
     sdcv elfeed elfeed-org link-hint powerthesaurus jinx meow
     doom-modeline hide-mode-line el-fetch ox-hugo
@@ -448,10 +409,6 @@ programs.emacs = {
   ])
   );
 };
-
-# We will tangle config files from git repo to home dir (Let nix manage the magics)
-
-home.file.".config/helix/config.toml".source = config.lib.file.mkOutOfStoreSymlink "/home/i/d-git/d-nix/gdk/i-home/configs/helix/config.toml";
 
 programs.firefox = {
   enable = true;
@@ -758,7 +715,6 @@ programs= {
       ncmpcpp_directory = "~/.config/ncmpcpp";
       lyrics_directory = "~/.local/share/lyrics";
       message_delay_time = "1";
-      visualizer_type = "spectrum";
       song_list_format = "{$4%a - }{%t}|{$8%f$9}$R{$3(%l)$9}";
       song_status_format = "$b{{$8'%t'}} $3by {$4%a{ $3in $7%b{ (%y)}} $3}|{$8%f}";
       song_library_format = "{%n - }{%t}|{%f}";
@@ -815,10 +771,6 @@ home.file.".config/imv/config".source = config.lib.file.mkOutOfStoreSymlink "/ho
 
 # We will tangle config files from git repo to home dir (Let nix manage the magics)
 
-home.file.".config/fuzzel/fuzzel.ini".source = config.lib.file.mkOutOfStoreSymlink "/home/i/d-git/d-nix/gdk/i-home/configs/fuzzel/fuzzel.ini";
-
-# We will tangle config files from git repo to home dir (Let nix manage the magics)
-
 home.file.".config/rofi/theme.rasi".source = config.lib.file.mkOutOfStoreSymlink "/home/i/d-git/d-nix/gdk/i-home/configs/rofi/theme.rasi";
 
 # We will tangle config files from git repo to home dir (Let nix manage the magics)
@@ -872,11 +824,11 @@ programs = {
     enable = true;
     settings = {
       display = {
-        compact = false;
-        use_pager = true;
+	compact = false;
+	use_pager = true;
       };
       updates = {
-        auto_update = true;
+	auto_update = true;
       };
     };
   };
@@ -957,7 +909,7 @@ programs.waybar = {
       exclusive = true;
       modules-left = [
 	      "custom/launcher"
-	      "wlr/workspaces"
+	      "hyprland/workspaces"
 	      "hyprland/window"
 	      "hyprland/submap"
       ];
@@ -965,25 +917,29 @@ programs.waybar = {
 	      "clock" "mpd"
       ];
       modules-right = ["network" "battery" "memory" "pulseaudio" "custom/power"];
-      "wlr/workspaces" = {
+      "hyprland/workspaces" = {
 	      format = "{icon}";
 	      active-only = false;
 	      on-click = "activate";
 	      format-icons = {
-		active = "";
-		default = "";
-		"1" = "1";
-		"2" = "2";
-		"3" = "3";
-		"4" = "4";
-		"5" = "5";
-		"6" = "6";
+		      active = "";
+		      default = "";
+		      "1" = "1";
+		      "2" = "2";	
+		      "3" = "3";
+		      "4" = "4";
+		      "5" = "5";
+		      "6" = "6";
 	      };
       };
 
       "hyprland/window" = {
 	      "format" = "👁{}";
 	      "separate-outputs" = true;
+	      "rewrite" = {
+		"(.*) - Mozilla Firefox" = "🦊 $1";
+		"(.*) - zsh" = ">_ [$1]";
+	      };
       };
 
       "hyprland/submap" = {
@@ -1002,8 +958,8 @@ programs.waybar = {
 	      "bat" =  "BAT0";
 	      "interval" =  30;
 	      "states" =  {
-		"warning" =  50;
-		"critical" =  30;
+		      "warning" =  50;
+		      "critical" =  30;
 	      };
 	      "format" =  "{capacity}% {icon}";
 	      "format-icons" =  [" " "🔴" "🪫" " " " "];
@@ -1018,8 +974,8 @@ programs.waybar = {
 	      "interval" = 10;
 	      "on-click" = "mpc toggle";
 	      "state-icons" = {
-		"paused" = "";
-		"playing" = "";
+		      "paused" = "";
+		      "playing" = "";
 	      };
 	      "tooltip-format" = "Playing: {filename}";
 	      "tooltip-format-disconnected" = "";
@@ -1061,13 +1017,13 @@ programs.waybar = {
 	      "format-muted" =" muted ";
 	      "on-click" = "pamixer -t";
 	      "format-icons" = {
-		"headphones" = "";
-		"handsfree" = "";
-		"headset" = "";
-		"phone" = "";
-		"portable" = "";
-		"car" = "";
-		"default" = ["" ""];
+		      "headphones" = "";
+		      "handsfree" = "";
+		      "headset" = "";
+		      "phone" = "";
+		      "portable" = "";
+		      "car" = "";
+		      "default" = ["" ""];
 	      };
       };
       "custom/wf-recorder" = {

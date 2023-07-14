@@ -313,7 +313,7 @@ Fonts choice is crucial to read. I use a forked recursive font with nerd font pa
   ;; You will most likely need to adjust this font size for your system!
 
   (defvar default-font-size (if d/on-droid 150 170))
-  (defvar default-variable-font-size (if d/on-droid 160 180))
+  (defvar default-variable-font-size (if d/on-droid 160 190))
 
   ;; Dont worry about the font name, its fork of Recursive font
 
@@ -330,7 +330,7 @@ Fonts choice is crucial to read. I use a forked recursive font with nerd font pa
   (setq haki-link-font "Maple Mono")
   (setq haki-code-font "ComicCodeLigatures Nerd Font")
 
-  (setf use-default-font-for-symbols nil)
+  (setf use-default-font-for-symbols t)
   (set-fontset-font t 'unicode "Noto Color Emoji" nil 'append)
 
   (defun d/set-font-faces ()
@@ -1012,9 +1012,10 @@ Another, minimal and DIY snippets for any buffer!
     ;; Require trigger prefix before template name when completing.
     :custom
     (tempel-trigger-prefix "<")
+    (tempel-path "~/.config/emacs/templates/*")
 
     :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
-           ("M-*" . tempel-insert)))
+	   ("M-*" . tempel-insert)))
 
   (use-package tempel-collection
     :after tempel
@@ -1022,7 +1023,7 @@ Another, minimal and DIY snippets for any buffer!
 #+end_src
 *** Custom templates
 Making snippets/templates is so easy with this package.
-#+begin_src emacs-lisp :tangle ~/.config/emacs/templates
+#+begin_src emacs-lisp :tangle ~/.config/emacs/templates/custom
   ;; Refer: `tempo-define-template' for doc.
   ;;  • (s NAME) Inserts a named field.
   ;;  • (p/r PROMPT <NAME> <NOINSERT>) Insert an optionally named field with a prompt. The PROMPT is
@@ -1298,7 +1299,7 @@ Don't compare Notion or Logseq, Org-mode is on different league. These no match 
      'org-babel-load-languages
      '((emacs-lisp . t)
        (calc . t)
-       (latex . t)
+       (latex . t) (C . t)
        (R . t) (shell . t) (python . t)))
 
     (push '("conf-unix" . conf-unix) org-src-lang-modes))
@@ -1975,13 +1976,19 @@ Magit the killer beast after org-mode. Built-in vc is also good enough to get th
     (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
   )
 
+  (use-package ediff
+    :custom
+    (ediff-keep-variants nil)
+    (ediff-split-window-function 'split-window-horizontally)
+    (ediff-window-setup-function 'ediff-setup-windows-default))
+
 #+end_src
 * 😸 Modal Meow
 Meow, the most definite modal editing experience for Emacs. It is nice ;)
 It is one of the package I wish I had soon discovered it.
 #+begin_src emacs-lisp
 
-  (unless d/on-droid
+  (unless t
   (use-package meow
     :defer 2
     :custom
@@ -2139,7 +2146,7 @@ Not that intuitive to use as file manager, once you get a hand of emacs. You wil
        ("t" "~/.local/share/Trash/files/" "TrashCan")))
     :config
     ;; (dirvish-peek-mode) ; Preview files in minibuffer
-    (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
+    ;; (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
     (setq dirvish-mode-line-format
 	  '(:left (sort symlink) :right (omit yank index)))
     (setq dirvish-attributes
@@ -2277,9 +2284,15 @@ Some small codes from good source.
       (:map mingus-browse-mode-map
 	    ("h" . mingus-browse-top-level)
 	    ("l" . mingus-down-dir-or-play-song))
-      :config
-      (advice-add 'mingus-playlist-mode :after #'olivetti-mode)
-      (advice-add 'mingus-browse-mode :after #'olivetti-mode))
+      :custom
+      (mingus-mode-always-modeline t)
+      (mingus-mode-line-string-max 15)
+      (mingus-mode-line-show-volume nil)
+      (mingus-mode-line-show-elapsed-time nil)
+      (mingus-mode-line-show-elapsed-percentage t)
+      (mingus-mode-line-show-consume-and-single-status nil))
+
+
     ;; (use-package wikinforg)
 
     (use-package webpaste
@@ -2327,22 +2340,6 @@ Some small codes from good source.
 
 #+end_src
 * ✨ Apps
-** 📚 Epub - Nov
-Nov is one of the gem which really makes epub reading more sense in emacs; Embrace the Text!
-You dont have to learn another software or ask for features, get it in emacs-way.
-#+begin_src emacs-lisp :tangle no
-  (unless d/on-droid
-  (use-package nov
-    :hook ((nov-mode . hide-mode-line-mode))
-    :mode ("\\.epub\\'" . nov-mode)
-    :config
-    (setq nov-text-width t)
-    (setq nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title)))
-    (setq nov-shr-rendering-functions (append nov-shr-rendering-functions shr-external-rendering-functions)))
-  )
-
-#+end_src
-
 ** </> Shrface - Orgify
 To make eww and shr elements org-like and make emacs even more Unified!
 #+begin_src emacs-lisp
@@ -2412,6 +2409,24 @@ To make eww and shr elements org-like and make emacs even more Unified!
 
 #+end_src
 
+** 📚 Epub - Nov
+Nov is one of the gem which really makes epub reading more sense in emacs; Embrace the Text!
+You dont have to learn another software or ask for features, get it in emacs-way.
+#+begin_src emacs-lisp
+  (unless d/on-droid
+  (use-package nov
+    :hook (nov-mode . hide-mode-line-mode)
+    (nov-mode . variable-pitch-mode)
+    :mode ("\\.epub\\'" . nov-mode)
+    :custom
+    (nov-text-width nil)
+    (nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title)))
+    (nov-shr-rendering-functions (append nov-shr-rendering-functions shr-external-rendering-functions))
+    (nov-variable-pitch t))
+  )
+
+#+end_src
+
 ** 📎 Document - The PDF
 Pdf-tools is another great addition if you want to integrate well with Emacs.
 Experimenting with ~doc-view-mode~ which is is revamped in emacs29 and sufficient to view docs!
@@ -2459,7 +2474,7 @@ This is inside emacs29 itself.
 #+begin_src emacs-lisp
   (use-package doc-view
     :ensure nil
-    :mode ("\\.epub\\'" . doc-view-mode)
+    ;; :mode ("\\.epub\\'" . doc-view-mode)
     :bind (:map doc-view-mode-map
 		("M-g M-g" . doc-view-goto-page)
 		("<f8>" . doc-view-presentation))
@@ -2607,7 +2622,8 @@ Use RSS, just switch to it, and save your time for other productive things. If y
 
     (defun d/elfeed-ui ()
       (interactive)
-      (setq-local header-line-format " "))
+      (setq-local header-line-format " ")
+      (variable-pitch-mode))
 
     (defun d/elfeed-open ()
       "Wrapper to load the elfeed db from disk before opening"
@@ -2797,7 +2813,7 @@ Congratulations, if you are already using Rss, if not, don't worry, you can get 
 **** [[https://yt.funami.tech/feed/channel/UCEmig2PwKGUmaQ9xzFWJ_xA][Mystery Recapped]]
 *** Music :music:
 **** [[https://vid.priv.au/feed/channel/UCi8wqezBudeAiTdKOX571ug][lofi]]
-**** [[https://reddit.com/r/listentothis/.rss][Listentothis]]
+**** [[https://reddit.com/r/listentothis/hot/.rss][Listentothis]]
 * 🐲 Matrix
 Just to use matrix for some hacky nerds community
 #+begin_src emacs-lisp
@@ -2854,8 +2870,8 @@ Idk why, but i guess these all should be the sane defaults.
 
   ;; (server-start)
 
-  (global-visual-line-mode 1)
   (global-so-long-mode t)
+  (global-visual-line-mode 1)
   (global-goto-address-mode 1)
   (unless d/on-droid
   (global-auto-revert-mode))
@@ -2919,18 +2935,18 @@ Idk why, but i guess these all should be the sane defaults.
   ;;(toggle-truncate-lines t)
 
   (setq
-   shr-use-fonts  t                          ; No special fonts
-   shr-use-colors t                          ; No colours
-   shr-indentation 4                           ; Left-side margin
-   shr-max-width fill-column
+   shr-use-fonts  t
+   shr-use-colors nil
+   shr-indentation 4
+   shr-max-width nil
    shr-max-image-proportion 0.4
-   shr-width 100                                ; Fold text to 70 columns
+   shr-width nil                                ; Fold text to 70 columns
    url-privacy-level '(email agent cookies lastloc)
    eww-search-prefix "https://lite.duckduckgo.com/lite/?q=")
 
   ;; Set frame transparency
-  (set-frame-parameter (selected-frame) 'alpha-background 100)
-  (add-to-list 'default-frame-alist `(alpha-background . 100))
+  (set-frame-parameter (selected-frame) 'alpha-background 95)
+  (add-to-list 'default-frame-alist `(alpha-background . 95))
   (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
   (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
@@ -2976,7 +2992,7 @@ Emacs is available for Android as an app, now you know which is the best org-mod
     ;; access phone storage as default
     ;; Better is to symlink file to ~/ itself
     ;;(setq default-directory "/storage/emulated/0/")
-    (setq touch-screen-precision-scroll nil
+    (setq touch-screen-precision-scroll t
 	  touch-screen-display-keyboard t
 	  browse-url-android-share t)
     ;; (setq use-dialog-box nil)
@@ -2987,11 +3003,10 @@ Run emacs as daemon and thank yourself for blazing fast clients of emacs.
 #+begin_src emacs-lisp
 
   (if (daemonp)
-      (add-hook 'after-make-frame-functions
-                (lambda (frame)
-                  (setq doom-modeline-icon t)
-                  (with-selected-frame frame
-                    (d/set-font-faces))))
+      (add-hook 'server-after-make-frame-hook
+		(lambda ()
+		  (setq doom-modeline-icon t)
+		    (d/set-font-faces)))
     (d/set-font-faces))
   (setq doom-modeline-icon t)
   (put 'narrow-to-region 'disabled nil)

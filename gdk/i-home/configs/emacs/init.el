@@ -83,7 +83,7 @@
 ;; You will most likely need to adjust this font size for your system!
 
 (defvar default-font-size (if d/on-droid 150 170))
-(defvar default-variable-font-size (if d/on-droid 160 180))
+(defvar default-variable-font-size (if d/on-droid 160 190))
 
 ;; Dont worry about the font name, its fork of Recursive font
 
@@ -100,7 +100,7 @@
 (setq haki-link-font "Maple Mono")
 (setq haki-code-font "ComicCodeLigatures Nerd Font")
 
-(setf use-default-font-for-symbols nil)
+(setf use-default-font-for-symbols t)
 (set-fontset-font t 'unicode "Noto Color Emoji" nil 'append)
 
 (defun d/set-font-faces ()
@@ -717,9 +717,10 @@ selected color."
   ;; Require trigger prefix before template name when completing.
   :custom
   (tempel-trigger-prefix "<")
+  (tempel-path "~/.config/emacs/templates/*")
 
   :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
-         ("M-*" . tempel-insert)))
+	 ("M-*" . tempel-insert)))
 
 (use-package tempel-collection
   :after tempel
@@ -911,7 +912,7 @@ selected color."
    'org-babel-load-languages
    '((emacs-lisp . t)
      (calc . t)
-     (latex . t)
+     (latex . t) (C . t)
      (R . t) (shell . t) (python . t)))
 
   (push '("conf-unix" . conf-unix) org-src-lang-modes))
@@ -1485,7 +1486,13 @@ select."
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 )
 
-(unless d/on-droid
+(use-package ediff
+  :custom
+  (ediff-keep-variants nil)
+  (ediff-split-window-function 'split-window-horizontally)
+  (ediff-window-setup-function 'ediff-setup-windows-default))
+
+(unless t
 (use-package meow
   :defer 2
   :custom
@@ -1640,7 +1647,7 @@ select."
      ("t" "~/.local/share/Trash/files/" "TrashCan")))
   :config
   ;; (dirvish-peek-mode) ; Preview files in minibuffer
-  (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
+  ;; (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
   (setq dirvish-mode-line-format
 	'(:left (sort symlink) :right (omit yank index)))
   (setq dirvish-attributes
@@ -1772,9 +1779,15 @@ select."
     (:map mingus-browse-mode-map
 	  ("h" . mingus-browse-top-level)
 	  ("l" . mingus-down-dir-or-play-song))
-    :config
-    (advice-add 'mingus-playlist-mode :after #'olivetti-mode)
-    (advice-add 'mingus-browse-mode :after #'olivetti-mode))
+    :custom
+    (mingus-mode-always-modeline t)
+    (mingus-mode-line-string-max 15)
+    (mingus-mode-line-show-volume nil)
+    (mingus-mode-line-show-elapsed-time nil)
+    (mingus-mode-line-show-elapsed-percentage t)
+    (mingus-mode-line-show-consume-and-single-status nil))
+
+
   ;; (use-package wikinforg)
 
   (use-package webpaste
@@ -1881,9 +1894,21 @@ select."
       (advice-add 'eww-display-html :around
 		  'eww-display-html--override-shr-external-rendering-functions))))
 
+(unless d/on-droid
+(use-package nov
+  :hook (nov-mode . hide-mode-line-mode)
+  (nov-mode . variable-pitch-mode)
+  :mode ("\\.epub\\'" . nov-mode)
+  :custom
+  (nov-text-width nil)
+  (nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title)))
+  (nov-shr-rendering-functions (append nov-shr-rendering-functions shr-external-rendering-functions))
+  (nov-variable-pitch t))
+)
+
 (use-package doc-view
   :ensure nil
-  :mode ("\\.epub\\'" . doc-view-mode)
+  ;; :mode ("\\.epub\\'" . doc-view-mode)
   :bind (:map doc-view-mode-map
 	      ("M-g M-g" . doc-view-goto-page)
 	      ("<f8>" . doc-view-presentation))
@@ -2023,7 +2048,8 @@ select."
 
   (defun d/elfeed-ui ()
     (interactive)
-    (setq-local header-line-format " "))
+    (setq-local header-line-format " ")
+    (variable-pitch-mode))
 
   (defun d/elfeed-open ()
     "Wrapper to load the elfeed db from disk before opening"
@@ -2187,8 +2213,8 @@ Usable as favorites or bookmark."
 
 ;; (server-start)
 
-(global-visual-line-mode 1)
 (global-so-long-mode t)
+(global-visual-line-mode 1)
 (global-goto-address-mode 1)
 (unless d/on-droid
 (global-auto-revert-mode))
@@ -2252,18 +2278,18 @@ Usable as favorites or bookmark."
 ;;(toggle-truncate-lines t)
 
 (setq
- shr-use-fonts  t                          ; No special fonts
- shr-use-colors t                          ; No colours
- shr-indentation 4                           ; Left-side margin
- shr-max-width fill-column
+ shr-use-fonts  t
+ shr-use-colors nil
+ shr-indentation 4
+ shr-max-width nil
  shr-max-image-proportion 0.4
- shr-width 100                                ; Fold text to 70 columns
+ shr-width nil                                ; Fold text to 70 columns
  url-privacy-level '(email agent cookies lastloc)
  eww-search-prefix "https://lite.duckduckgo.com/lite/?q=")
 
 ;; Set frame transparency
-(set-frame-parameter (selected-frame) 'alpha-background 100)
-(add-to-list 'default-frame-alist `(alpha-background . 100))
+(set-frame-parameter (selected-frame) 'alpha-background 95)
+(add-to-list 'default-frame-alist `(alpha-background . 95))
 (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
@@ -2304,18 +2330,17 @@ Usable as favorites or bookmark."
   ;; access phone storage as default
   ;; Better is to symlink file to ~/ itself
   ;;(setq default-directory "/storage/emulated/0/")
-  (setq touch-screen-precision-scroll nil
+  (setq touch-screen-precision-scroll t
 	touch-screen-display-keyboard t
 	browse-url-android-share t)
   ;; (setq use-dialog-box nil)
   )
 
 (if (daemonp)
-    (add-hook 'after-make-frame-functions
-              (lambda (frame)
-                (setq doom-modeline-icon t)
-                (with-selected-frame frame
-                  (d/set-font-faces))))
+    (add-hook 'server-after-make-frame-hook
+	      (lambda ()
+		(setq doom-modeline-icon t)
+		  (d/set-font-faces)))
   (d/set-font-faces))
 (setq doom-modeline-icon t)
 (put 'narrow-to-region 'disabled nil)

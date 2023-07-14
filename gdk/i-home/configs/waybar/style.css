@@ -11,12 +11,13 @@
      border-color: @fg-alt;
      margin-top: 0px;
      margin-left: 8px;
-     margin-bottom: 0px;
-     padding-left: 10px;
-     padding-right: 10px;
+     margin-right: 8px;
+     margin-bottom: 3px;
+     padding-left: 2px;
+     padding-right: 2px;
      transition: none;
      /* color: transparent; */
-     color: @bg-main;
+     background: @bg-main;
 
  }
 
@@ -40,66 +41,67 @@ window#waybar.hidden {
 }
 
 #mode {
-    background: @heading-8;
+    color: @heading-8;
 }
 
 #clock {
-    background: @clock;
+    color: @clock;
 }
 
 #mpd {
-    background: @heading-3;
+    color: @heading-3;
     font-family:Maple Mono;
     font-style: italic;
 }
 
 
 #cpu {
-    background: @heading-4;
+    color: @heading-4;
 }
 
 #memory {
-    background: @heading-5;
+    color: @heading-5;
 }
 
 #network.disabled {
-    background: @done;
+    color: @done;
 }
 
 #network{
-    background: @heading-6;
+    color: @heading-6;
 }
 
 #battery {
-    background: @heading-7;
+    color: @heading-7;
 }
 
 #network.disconnected {
-    background: @done;
+    color: @done;
 }
 
 #pulseaudio {
-    background: @heading-9;
+    color: @heading-9;
 }
 
 #pulseaudio.muted {
-    background: @done;
+    color: @done;
 }
 
 #custom-launcher {
-    background: linear-gradient(90deg, @title 28%, @heading-5 85%, @title 100%);
+    /* background: linear-gradient(90deg, @title 28%, @heading-5 85%, @title 100%); */
+    color: @fg-region;
 }
 
 #custom-power {
-    /* background: linear-gradient(90deg, @error 28%, @error 85%, @error 100%); */
-    background: @todo;
+    /* color: linear-gradient(90deg, @error 28%, @error 85%, @error 100%); */
+    color: @todo;
 }
 
 #submap {
-    background: @code;
+    color: @code;
 }
 
 #window {
-    background: @fg-region;
+    color: @fg-region;
     color: @fg-main;
 }

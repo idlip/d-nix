@@ -10,9 +10,7 @@ imports = [
   ./hardware-configuration.nix
 ];
 
-# Should move this line probably, it only does make use of starship to bash shell init
 programs = {
-  bash.promptInit = ''eval "$(${pkgs.starship}/bin/starship init bash)"'';
   hyprland.enable = true;
 };
 
@@ -24,7 +22,7 @@ zramSwap = {
 };
 
 # obviously your timezone here. Have a nice day or good night sleep ;)
-# Don't waste more time on nixos lol, be healthy and have some sleep. Stay helathy!
+# Don't waste more time on nixos lol, be healthy and have some sleep. Stay healthy!
 time.timeZone = "Asia/Kolkata";
 
 # This code is from nixos wiki for Btrfs. Depends on which file system you use.
@@ -61,9 +59,9 @@ environment = {
 nixpkgs = {
   config = {
     # keep a check and remove it asap
-    permittedInsecurePackages = [
-      "openssl-1.1.1u"
-    ];
+    # permittedInsecurePackages = [
+    #   "openssl-1.1.1u"
+    # ];
     allowUnfree = true;
     allowBroken = false;
   };
@@ -83,7 +81,7 @@ nix = {
   gc = {
     automatic = true;
     dates = "daily";
-    options = "--delete-older-than 6d";
+    options = "--delete-older-than 15d";
   };
 
   # pin the registry to avoid downloading and evaling a new nixpkgs version every time
@@ -114,15 +112,13 @@ nix = {
     trusted-users = ["root" "@wheel"];
     max-jobs = "auto";
     # use binary cache, its not gentoo
-    substituters = [
-      "https://cache.nixos.org"
-      # "https://nix-community.cachix.org"
-    ];
-    # Keys for the sustituters cachix
-    trusted-public-keys = [
-      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-      # "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-    ];
+    # substituters = [
+    #   "https://cache.nixos.org"
+    # ];
+    # # Keys for the sustituters cachix
+    # trusted-public-keys = [
+    #   "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+    # ];
   };
 };
 system.autoUpgrade.enable = false;
@@ -278,20 +274,20 @@ services = {
     };
     folders = {
       "sync" = {
-	path = "/home/i/d-sync";
-	devices = [ "realme" ];
+	      path = "/home/i/d-sync";
+	      devices = [ "realme" ];
       };
       "emacs" = {
-	path = "/home/i/d-git/d-nix";
-	devices = [ "realme" ];
+	      path = "/home/i/d-git/d-nix";
+	      devices = [ "realme" ];
       };
       "theme" = {
-	path = "/home/i/d-git/d-theme";
-	devices = [ "realme" ];
+	      path = "/home/i/d-git/d-theme";
+	      devices = [ "realme" ];
       };
       "site" = {
-	path = "/home/i/d-git/d-site";
-	devices = [ "realme" ];
+	      path = "/home/i/d-git/d-site";
+	      devices = [ "realme" ];
       };
     };
   };

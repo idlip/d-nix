@@ -62,7 +62,7 @@ alias sudo="doas"
 
 # export BEMENU_OPTS="-i -l 10 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
 
-# env
+# neovim as manpager, if not using emacs
 export MANPAGER='nvim +Man! +"set nocul" +"set noshowcmd" +"set noruler" +"set noshowmode" +"set laststatus=0" +"set showtabline=0" +"set nonumber"'
 
 
@@ -79,6 +79,8 @@ function shellnix() {
     nix shell nixpkgs#"$1"
 }
 
+## Emacs all time
+
 function {e,find-file,'emacsclient -t','emacsclient -nw'} () {
     if [ "$INSIDE_EMACS" = "vterm" ]; then
 	emacsclient $1 >/dev/null 2>&1 || echo "Give a file to open"
@@ -86,6 +88,17 @@ function {e,find-file,'emacsclient -t','emacsclient -nw'} () {
 	emacsclient -t $1 || echo "Start emacs daemon"
     fi
 }
+
+function manp () { # use emacs as man pager or neovim
+    if [ "$INSIDE_EMACS" = "vterm" ]; then
+	emacsclient -e "(progn (man \"$1\") (delete-window))"
+    elif [ "$(pgrep emacs)"  ]; then
+	emacsclient -nw -e "(progn (man \"$1\") (delete-window))"
+    else
+	man $1
+    fi
+}
+
 
 if [ -n "${commands[fzf-share]}" ]; then
   source "$(fzf-share)/key-bindings.zsh"

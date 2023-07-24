@@ -1,11 +1,11 @@
-# eval "$(starship init zsh)"
+eval "$(starship init zsh)"
 # eval "$(direnv hook zsh)"
 # Removed starship and going default minimal way!
 
 # Make zsh better simply
 autoload -U colors && colors  # Load colors
-PS1="%B%{$fg[yellow]%}[%{$fg[cyan]%}%~%{$fg[yellow]%}]
- %{$fg[blue]%} %b%{$reset_color%}%b"
+# PS1="%B%{$fg[yellow]%}[%{$fg[cyan]%}%~%{$fg[yellow]%}]
+ # %{$fg[blue]%} %b%{$reset_color%}%b"
 # setopt autocd		# Auto cd
 stty stop undef		# Disable ctrl-s to freeze terminal.
 setopt interactive_comments
@@ -105,6 +105,6 @@ if [ -n "${commands[fzf-share]}" ]; then
   source "$(fzf-share)/completion.zsh"
 fi
 
-precmd() {
-    print ""
-}
+# precmd() {
+#     print ""
+# }

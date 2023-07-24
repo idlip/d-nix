@@ -1,44 +1,51 @@
 @import "haki.css";
 
- * {
-     font-family:Code D Ace;
-     font-weight: bold;
-     font-size: 20px;
-     /* padding-bottom:3px; */
-     border-style: solid;
-     border-radius: 15px 15px 15px 15px;
-     opacity: 1.0;
-     border-color: @fg-alt;
-     margin-top: 0px;
-     margin-left: 8px;
-     margin-right: 8px;
-     margin-bottom: 3px;
-     padding-left: 2px;
-     padding-right: 2px;
-     transition: none;
-     /* color: transparent; */
-     background: @bg-main;
+* {
+    font-family:Code D Ace;
+    font-weight: bold;
+    font-size: 20px;
+}
 
- }
+#mode,
+#clock,
+#mpd,
+#cpu,
+#memory,
+#network.disabled,
+#battery,
+#network.disconnected,
+#pulseaudio,
+#pulseaudio.muted,
+#custom-launcher,
+#custom-power,
+#submap,
+#window,
+#workspaces {
+    /* padding-bottom:3px; */
+    border-style: solid;
+    border-radius: 15px 15px 15px 15px;
+    opacity: 1.0;
+    border-color: @fg-alt;
+    margin-top: 0px;
+    margin-left: 8px;
+    margin-right: 8px;
+    margin-bottom: 3px;
+    padding-left: 2px;
+    padding-right: 2px;
+    transition: none;
+    /* color: transparent; */
+    background: @bg-main;
+
+}
 
 window#waybar {
-    background: transparent;
+    background: @bg-main;
 }
 
 window#waybar.hidden {
     opacity: 0.2;
 }
 
-#workspaces button {
-    border-radius: 20px;
-    color: @link;
-
-}
-
-#workspaces button.active {
-    border-color: @title;
-    padding-bottom:1px ;
-}
 
 #mode {
     color: @heading-8;
@@ -104,4 +111,12 @@ window#waybar.hidden {
 #window {
     color: @fg-region;
     color: @fg-main;
+}
+
+#workspaces {
+    color: @bg-tag;
+}
+
+#workspaces button {
+    color: @link;
 }

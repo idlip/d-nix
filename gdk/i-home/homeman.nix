@@ -9,7 +9,7 @@
 programs = {
   # Starship
   starship = {
-    enable = false;
+    enable = true;
     enableZshIntegration = true;
     settings = {
       add_newline = true;
@@ -18,7 +18,7 @@ programs = {
 	      error_symbol = " [](#df5b61)";
 	      success_symbol = "[](#6791c9)";
 	      vicmd_symbol = "[](bold yellow)";
-	      format = "[  ](bold blue)[$directory$all$character](bold)[  ](bold green)";
+	      format = "[$directory$all$character](bold)[  ](bold blue)";
       };
       git_commit = {commit_hash_length = 4;};
       line_break.disabled = false;
@@ -100,11 +100,12 @@ mpc_cli pulsemixer imv
 yt-dlp jq ytfzf ani-cli youtube-tui
 
 # cli tools
-# pcmanfm libreoffice pandoc groff wkhtmltopdf-bin mupdf
+pcmanfm libreoffice pandoc groff mupdf
+# wkhtmltopdf-bin
 fzf neovim unzip  
 aspell aspellDicts.en-science aspellDicts.en hunspell hunspellDicts.en-us
- ffmpeg sdcv 
-#mu isync nq
+ffmpeg sdcv nq
+#mu isync
 syncthing dconf keepassxc
 
 # themes
@@ -114,16 +115,16 @@ bibata-cursors
 papirus-icon-theme
 
 # pioneer of web
-firefox librewolf brave ungoogled-chromium
+mullvad-browser librewolf brave ungoogled-chromium
 
-# nodePackages.bash-language-server
+nodePackages.bash-language-server
 # nodePackages.vscode-langservers-extracted
 # python311Packages.python-lsp-server
-# nodePackages.pyright
+nodePackages.pyright
 python3 gcc gnumake
 R rPackages.languageserver rPackages.lintr
 tree-sitter
-#texlive.combined.scheme-full
+texlive.combined.scheme-full
 
 ];
 
@@ -221,14 +222,14 @@ programs = {
     enable = true;  
     settings = {
       color_theme = "Default";
-      theme_background = "False";
-      vim_keys = "True";
+      theme_background = false;
+      vim_keys = true;
       shown_boxes = "proc cpu";
-      rounded_corners = "True" ;
+      rounded_corners = true ;
       graph_symbol = "block";
       proc_sorting = "memory";
-      proc_reversed = "False";
-      proc_gradient = "True";
+      proc_reversed = false;
+      proc_gradient = true;
     };
   };
 };
@@ -400,296 +401,14 @@ programs.emacs = {
     org olivetti nerd-icons async dirvish
     embark-consult consult-eglot consult-flycheck markdown-mode nix-mode
     reddigg hnreader mingus which-key magit webpaste org-present
-    # pdf-tools nov (using in-built doc-view)
-    shrface shr-tag-pre-highlight gcmh nov
+    # pdf-tools nov (using built-in doc-view)
+    shrface shr-tag-pre-highlight gcmh nov devdocs-browser
     org-mime beframe denote tempel tempel-collection
     sdcv elfeed elfeed-org link-hint powerthesaurus jinx meow
     doom-modeline hide-mode-line el-fetch ox-hugo
     ement kind-icon speed-type ess vc-backup aria2
   ])
   );
-};
-
-programs.firefox = {
-  enable = true;
-
-profiles.ihome = {
-  isDefault = true;
-  # extensions = with pkgs.nur.repos.rycee.firefox-addons; [
-  #   #bypass-paywalls-clean
-  #   cookies-txt
-  #   ff2mpv
-  #   vimium
-  #   languagetool
-  #   ublock-origin
-  #   darkreader
-  #   libredirect
-  #   multi-account-containers
-  # ];
-
-settings = {
-  "app.update.auto" = false;
-  "browser.startup.homepage" = "about:blank";
-  "browser.urlbar.placeholderName" = "Brain";
-  "privacy.webrtc.legacyGlobalIndicator" = true;
-  "gfx.webrender.all" = true;
-  "gfx.webrender.enabled" = true;
-  "media.av1.enabled" = false;
-  "media.ffmpeg.vaapi.enabled" = true;
-  "media.hardware-video-decoding.force-enabled" = true;
-  "media.navigator.mediadatadecoder_vpx_enabled" = true;
-  "signon.rememberSignons" = false;
-  "app.normandy.api_url" = "";
-  "app.normandy.enabled" = false;
-  "app.shield.optoutstudies.enabled" = false;
-  "beacon.enabled" = false;
-  "breakpad.reportURL" = "";
-  "browser.aboutConfig.showWarning" = false;
-  "browser.cache.offline.enable" = false;
-  "browser.crashReports.unsubmittedCheck.autoSubmit" = false;
-  "browser.crashReports.unsubmittedCheck.autoSubmit2" = false;
-  "browser.crashReports.unsubmittedCheck.enabled" = false;
-  "browser.disableResetPrompt" = true;
-  "browser.newtab.preload" = false;
-  "browser.newtabpage.activity-stream.section.highlights.includePocket" = false;
-  "extensions.pocket.enabled" = false;
-  "browser.newtabpage.enhanced" = false;
-  "browser.newtabpage.introShown" = true;
-  "browser.safebrowsing.appRepURL" = "";
-  "browser.safebrowsing.blockedURIs.enabled" = false;
-  "browser.safebrowsing.downloads.enabled" = false;
-  "browser.safebrowsing.downloads.remote.enabled" = false;
-  "browser.safebrowsing.downloads.remote.url" = "";
-  "browser.safebrowsing.enabled" = false;
-  "browser.safebrowsing.malware.enabled" = false;
-  "browser.safebrowsing.phishing.enabled" = false;
-  "browser.selfsupport.url" = "";
-  "browser.send_pings" = false;
-  "browser.sessionstore.privacy_level" = 2;
-  "browser.startup.homepage_override.mstone" = "ignore";
-  "browser.tabs.crashReporting.sendReport" = false;
-  "browser.urlbar.groupLabels.enabled" = false;
-  "browser.urlbar.quicksuggest.enabled" = false;
-  "browser.urlbar.speculativeConnect.enabled" = false;
-  "datareporting.healthreport.service.enabled" = false;
-  "datareporting.healthreport.uploadEnabled" = false;
-  "datareporting.policy.dataSubmissionEnabled" = false;
-  "device.sensors.ambientLight.enabled" = false;
-  "device.sensors.enabled" = false;
-  "device.sensors.motion.enabled" = false;
-  "device.sensors.orientation.enabled" = false;
-  "device.sensors.proximity.enabled" = false;
-  "dom.battery.enabled" = false;
-  "dom.event.clipboardevents.enabled" = true;
-  "dom.webaudio.enabled" = false;
-  "experiments.activeExperiment" = false;
-  "experiments.enabled" = false;
-  "experiments.manifest.uri" = "";
-  "experiments.supported" = false;
-  "extensions.getAddons.cache.enabled" = false;
-  "extensions.getAddons.showPane" = false;
-  "extensions.greasemonkey.stats.optedin" = false;
-  "extensions.greasemonkey.stats.url" = "";
-  "extensions.shield-recipe-client.api_url" = "";
-  "extensions.shield-recipe-client.enabled" = false;
-  "extensions.webservice.discoverURL" = "";
-  "fission.autostart" = true;
-  "media.autoplay.default" = 1;
-  "media.autoplay.enabled" = false;
-  "media.eme.enabled" = false;
-  "media.gmp-widevinecdm.enabled" = false;
-  "media.navigator.enabled" = false;
-  "media.video_stats.enabled" = false;
-  "network.IDN_show_punycode" = true;
-  "network.allow-experiments" = false;
-  "network.captive-portal-service.enabled" = false;
-  "network.cookie.cookieBehavior" = 1;
-  "network.dns.disablePrefetch" = true;
-  "network.dns.disablePrefetchFromHTTPS" = true;
-  "network.http.referer.spoofSource" = true;
-  "network.http.speculative-parallel-limit" = 0;
-  "network.predictor.enable-prefetch" = false;
-  "network.predictor.enabled" = false;
-  "network.prefetch-next" = false;
-  "network.trr.mode" = 5;
-  "privacy.donottrackheader.enabled" = true;
-  "privacy.donottrackheader.value" = 1;
-  "privacy.firstparty.isolate" = true;
-  "privacy.trackingprotection.cryptomining.enabled" = true;
-  "privacy.trackingprotection.enabled" = true;
-  "privacy.trackingprotection.fingerprinting.enabled" = true;
-  "privacy.trackingprotection.pbmode.enabled" = true;
-  "privacy.usercontext.about_newtab_segregation.enabled" = true;
-  "security.ssl.disable_session_identifiers" = true;
-  "services.sync.prefs.sync.browser.newtabpage.activity-stream.showSponsoredTopSite" = false;
-  "browser.newtabpage.activity-stream.showSponsored" = false;
-  "signon.autofillForms" = false;
-  "toolkit.telemetry.archive.enabled" = false;
-  "toolkit.telemetry.bhrPing.enabled" = false;
-  "toolkit.telemetry.cachedClientID" = "";
-  "toolkit.telemetry.enabled" = false;
-  "toolkit.telemetry.firstShutdownPing.enabled" = false;
-  "toolkit.telemetry.hybridContent.enabled" = false;
-  "toolkit.telemetry.newProfilePing.enabled" = false;
-  "toolkit.telemetry.prompted" = 2;
-  "toolkit.telemetry.rejected" = true;
-  "toolkit.telemetry.reportingpolicy.firstRun" = false;
-  "toolkit.telemetry.server" = "";
-  "toolkit.telemetry.shutdownPingSender.enabled" = false;
-  "toolkit.telemetry.unified" = false;
-  "toolkit.telemetry.unifiedIsOptIn" = false;
-  "toolkit.telemetry.updatePing.enabled" = false;
-  "webgl.disabled" = true;
-  "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
-  "webgl.renderer-string-override" = " ";
-  "webgl.vendor-string-override" = " ";
-};
-
-userChrome = ''
-
-/* Check this for updated! https://github.com/rockofox/firefox-minima/blob/main/userChrome.css  */
-
-/* User changable variables */
-
-:root {
-        --tab-font-size: 0.8em; /* Font size of the tab labels */
-        --tab-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* The font used for the tab labels */
-        --max-tab-width: none; /* The maximum width a tab in the tab bar can use. Set this to none for no limit */
-        --show-titlebar-buttons: none; /* Hide the buttons (close/minimize/maximize) in the title bar. Required on some platforms (e.g macOS) to fully hide the title bar. `none` hides them, `block` shows them */
-        --tab-height: 20px;
-}
-
-/* Minima Source Code. Here be dragons. */
-/* Only change this if you know what you're doing */
-
-.titlebar-buttonbox-container {
-        display: var(--show-titlebar-buttons);
-}
-
-:root:not([customizing]) #TabsToolbar {
-        margin-left: 1px !important;
-        margin-right: 1px !important;
-        border-radius: 0 !important;
-        padding: 0 !important;
-}
-.tabbrowser-tab * {
-        margin:0 !important;
-        border-radius: 0 !important;
-        font-family: var(--tab-font-family) !important;
-}
-.tabbrowser-tab {
-        height: var(--tab-height);
-        font-size: var(--tab-font-size) !important;
-        min-height: 0 !important;
-}
-.tabbrowser-tab[fadein]:not([pinned]) {
-        max-width: var(--max-tab-width) !important;
-}
-.tab-close-button, #firefox-view-button, #scrollbutton-up, .tab-secondary-label {
-        display: none !important;
-}
-.new-tab-button {
-        display: right !important;
-}
-.tab-icon-image {
-        height: auto !important;
-        width: calc(var(--tab-height) / 1.5) !important;
-        margin-right: 4px !important;
-}
-
-#tabs-newtab-button, #titlebar spacer {
-        display: none !important;
-}
-
-:root:not([customizing]) #nav-bar
-{
-        min-height : 2.5em       !important;
-        height     : 2.5em       !important;
-        margin     : 0 0 -2.5em  !important;
-        z-index    : -1000       !important;
-        opacity    : 0           !important;
-}
-
-:root:not([customizing]) #nav-bar:focus-within
-{
-        z-index    : 1000        !important;
-        opacity    : 1           !important;
-}
-
-#nav-bar{
-        border-inline: var(--uc-window-drag-space-width) solid var(--toolbar-bgcolor);
-}
-#new-tab-button, #alltabs-button, #scrollbutton-down, .tab-loading-burst{
-        display: none;
-}
-#titlebar {
-        overflow: none !important;
-}
-
-/* Source file https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome/hide_tabs_with_one_tab.css made available under Mozilla Public License v. 2.0
-See the above repository for updates as well as full license text. */
-
-/* Makes tabs toolbar items zero-height initially and sets enlarge them to fill up space equal to tab-min-height set on tabs. Optionally use privatemode_indicator_as_menu_button.css to replace main menu icon with private browsing indicator while tabs are hidden. */
-/* Firefox 65+ only */
-
-:root[sizemode="normal"] #nav-bar{ --uc-window-drag-space-width: 20px }
-
-#titlebar{ -moz-appearance: none !important; }
-#TabsToolbar{ min-height: 0px !important }
-
-#tabbrowser-tabs, #tabbrowser-tabs > .tabbrowser-arrowscrollbox, #tabbrowser-arrowscrollbox{ min-height: 0 !important; }
-
-:root:not([customizing]) #tabbrowser-tabs .tabs-newtab-button,
-:root:not([customizing]) #tabs-newtab-button,
-:root:not([customizing]) #TabsToolbar-customization-target > .toolbarbutton-1,
-:root:not([customizing]) #TabsToolbar .titlebar-button{
-        -moz-appearance: none !important;
-        height: 0px;
-        padding-top: 0px !important;
-        padding-bottom: 0px !important;
-        -moz-box-align: stretch;
-        margin: 0 !important;
-}
-
-.accessibility-indicator,
-.private-browsing-indicator{ 
-        height: unset !important;
-}
-.accessibility-indicator > hbox{ padding-block: 0 !important }
-
-#tabbrowser-tabs tab:only-of-type {
-        visibility: collapse !important;
-}
-
-/* Button re-styling */
-#tabs-newtab-button:hover,
-#tabbrowser-tabs .tabs-newtab-button:hover{ background-color: var(--toolbarbutton-hover-background) }
-
-#tabs-newtab-button > .toolbarbutton-icon,
-#tabbrowser-tabs .tabs-newtab-button > .toolbarbutton-icon{
-        padding: 0 !important;
-        transform: scale(0.6);
-        background-color: transparent !important;
-}
-/* Extra top padding  in maximized window */
-@media (-moz-os-version: windows-win10){
-        :root[sizemode="maximized"] #navigator-toolbox{ padding-top:7px !important; }
-}
-/* Fix window controls not being clickable */
-:root[tabsintitlebar] #toolbar-menubar[autohide="true"][inactive]{
-        transition: height 0ms steps(1) 80ms;
-}
-#nav-bar{
-        border-inline: var(--uc-window-drag-space-width) solid var(--toolbar-bgcolor);
-}
-#navigator-toolbox {
-        appearance: toolbar !important; /* Pretty much anything except none */
-}
-
-             '';
-
-};
-
 };
 
 services.mpd = {

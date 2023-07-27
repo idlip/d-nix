@@ -250,87 +250,88 @@
   :defer t
   :init (file-name-shadow-mode 1)
   :ensure nil
-  :hook (dired-mode . (dired-hide-details-mode dired-omit-mode))
+  :hook
+  (dired-mode . dired-hide-details-mode)
+  (dired-mode . dired-omit-mode)
   :commands (dired dired-jump)
   :bind (("C-x C-j" . dired-jump)
-	 ("C-c f f" . window-focus-mode)
-	 ("C-c f e" . (lambda () (interactive) (find-file "~/d-git/d-nix/d-emacs.org")))
-	 ("C-c f s" . (lambda () (interactive) (find-file "~/d-git/d-nix/d-setup.org")))
-	 ("C-c f m" . (lambda () (interactive) (find-file "~/d-git/d-nix/README.org"))))
+         ("C-c f f" . window-focus-mode)
+         ("C-c f e" . (lambda () (interactive) (find-file "~/d-git/d-nix/d-emacs.org")))
+         ("C-c f s" . (lambda () (interactive) (find-file "~/d-git/d-nix/d-setup.org")))
+         ("C-c f m" . (lambda () (interactive) (find-file "~/d-git/d-nix/README.org"))))
   (:map dired-mode-map
-	("q" . kill-buffer-and-window)
-	("j" . dired-next-line)
-	("k" . dired-previous-line)
-	("l" . dired-find-file)
-	("h" . dired-up-directory)
-	("b" . d/external-browser))
+        ("q" . kill-buffer-and-window)
+        ("j" . dired-next-line)
+        ("k" . dired-previous-line)
+        ("l" . dired-find-file)
+        ("h" . dired-up-directory)
+        ("b" . d/external-browser))
 
   :custom
-  (setq dired-listing-switches "-agho --group-directories-first")
+  (dired-listing-switches "-agho --group-directories-first")
   (delete-by-moving-to-trash t)
   (dired-dwim-target t))
 
 ;; Battery pack
 (unless d/on-droid
-(use-package dirvish
-  :init
-  (dirvish-override-dired-mode)
-  :custom
-  (dirvish-quick-access-entries
-   '(("h" "~/"                          "Home")
-     ("d" "~/dloads/"                "Downloads")
-     ;; ("m" "/mnt/"                       "Drives")
-     ("t" "~/.local/share/Trash/files/" "TrashCan")))
-  :custom
-  ;; (dirvish-peek-mode) ; Preview files in minibuffer
-  ;; (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
-  (dirvish-mode-line-format
-	'(:left (sort symlink) :right (omit yank index)))
-  (dirvish-attributes
-	'(file-time file-size collapse subtree-state vc-state git-msg))
-  (delete-by-moving-to-trash t)
-  (dired-listing-switches
-	"-l --almost-all --human-readable --group-directories-first --no-group")
-  (dirvish-hide-cursor nil)
+  (use-package dirvish
+    :init
+    (dirvish-override-dired-mode)
+    :custom
+    (dirvish-quick-access-entries
+     '(("h" "~/"                          "Home")
+       ("d" "~/dloads/"                "Downloads")
+       ;; ("m" "/mnt/"                       "Drives")
+       ("t" "~/.local/share/Trash/files/" "TrashCan")))
 
-  ;; with emacs29
-  (dired-mouse-drag-files t)
-  (mouse-drag-and-drop-region-cross-program t)
-  (mouse-1-click-follows-link nil)
+    ;; (dirvish-peek-mode) ; Preview files in minibuffer
+    ;; (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
+    (dirvish-mode-line-format
+     '(:left (sort symlink) :right (omit yank index)))
+    (dirvish-attributes
+     '(file-time file-size collapse subtree-state vc-state git-msg))
+    (delete-by-moving-to-trash t)
+    (dired-listing-switches
+     "-l --almost-all --human-readable --group-directories-first --no-group")
+    (dirvish-hide-cursor nil)
 
-  :bind
-  (("C-c f d" . dirvish-fd)
-   ("C-x C-d" . dirvish)
-   ("C-c f t" . dirvish-side)
-   :map dirvish-mode-map
-   ("<mouse-1>" . 'dirvish-subtree-toggle-or-open)
-   ("<mouse-2>" . 'dired-mouse-find-file-other-window)
-   ("<mouse-3>" . 'dired-mouse-find-file)
-   ("a"   . dirvish-quick-access)
-   ("f"   . dirvish-file-info-menu)
-   ("y"   . dirvish-yank-menu)
-   ("N"   . dirvish-narrow)
-   ("^"   . dirvish-history-last)
-   ("h"   . dirvish-history-jump) ; remapped `describe-mode'
-   ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
-   ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
-   ("TAB" . dirvish-subtree-toggle)
-   ("M-f" . dirvish-history-go-forward)
-   ("M-b" . dirvish-history-go-backward)
-   ("M-l" . dirvish-ls-switches-menu)
-   ("M-m" . dirvish-mark-menu)
-   ("M-t" . dirvish-layout-toggle)
-   ("M-s" . dirvish-setup-menu)
-   ("M-e" . dirvish-emerge-menu)
-   ("M-j" . dirvish-fd-jump)))
-)
+    ;; with emacs29
+    (dired-mouse-drag-files t)
+    (mouse-drag-and-drop-region-cross-program t)
+    (mouse-1-click-follows-link nil)
+
+    :bind
+    (("C-c f d" . dirvish-fd)
+     ("C-x C-d" . dirvish)
+     ("C-c f t" . dirvish-side)
+     :map dirvish-mode-map
+     ("<mouse-1>" . 'dirvish-subtree-toggle-or-open)
+     ("<mouse-2>" . 'dired-mouse-find-file-other-window)
+     ("<mouse-3>" . 'dired-mouse-find-file)
+     ("a"   . dirvish-quick-access)
+     ("f"   . dirvish-file-info-menu)
+     ("y"   . dirvish-yank-menu)
+     ("N"   . dirvish-narrow)
+     ("^"   . dirvish-history-last)
+     ("h"   . dirvish-history-jump) ; remapped `describe-mode'
+     ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
+     ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
+     ("TAB" . dirvish-subtree-toggle)
+     ("M-f" . dirvish-history-go-forward)
+     ("M-b" . dirvish-history-go-backward)
+     ("M-l" . dirvish-ls-switches-menu)
+     ("M-m" . dirvish-mark-menu)
+     ("M-t" . dirvish-layout-toggle)
+     ("M-s" . dirvish-setup-menu)
+     ("M-e" . dirvish-emerge-menu)
+     ("M-j" . dirvish-fd-jump)))
+  )
 
 (use-package dired-x
   :ensure nil
   :custom
   ;; Make dired-omit-mode hide all "dotfiles"
-  (dired-omit-files
-	(concat dired-omit-files "\\|^\\..*$")))
+  (dired-omit-files "\\`[.]?#\\|\\`[.][.]?\\'\\|^\\..*$"))
 
 (use-package tramp
   :defer t
@@ -389,7 +390,7 @@
   :defer t
   :custom ((font-lock-maximum-decoration t)
      (font-lock-global-modes '(not text-mode))
-     (font-lock-verbose t))
+     (font-lock-verbose nil))
   :config
   (set-language-environment "UTF-8")
   (global-font-lock-mode 1))
@@ -758,60 +759,64 @@
 	    args))))
 
 (use-package consult
-  :bind (;; C-c bindings (mode-specific-map)
-	 ("C-c h" . consult-history)
-	 ("C-c m" . consult-mode-command)
-	 ("C-c k" . consult-kmacro)
-	 ("C-c t t" . consult-theme)
-	 ;; C-x bindings (ctl-x-map)
-	 ("C-x M-:" . consult-complex-command)
-	 ("C-x b" . consult-buffer)
-	 ("C-x C-b" . consult-buffer)
-	 ("C-x 4 b" . consult-buffer-other-window)
-	 ("C-x 5 b" . consult-buffer-other-frame)
-	 ("C-x r b" . consult-bookmark)
-	 ("C-x p b" . consult-project-buffer)
-	 ;; Custom M-# bindings for fast register access
-	 ("M-#" . consult-register-load)
-	 ("M-'" . consult-register-store)
-	 ("C-M-#" . consult-register)
-	 ;; Other custom bindings
-	 ("M-y" . consult-yank-pop)
-	 ;; M-g bindings (goto-map)
-	 ("M-g e" . consult-compile-error)
-	 ("M-g f" . consult-flycheck)
-	 ("M-g g" . consult-goto-line)
-	 ("M-g M-g" . consult-goto-line)
-	 ("M-g o" . consult-outline)
-	 ("M-g m" . consult-mark)
-	 ("M-g k" . consult-global-mark)
-	 ("M-g i" . consult-imenu)
-	 ("M-g I" . consult-imenu-multi)
-	 ("M-g s" . consult-eglot-symbols)
-	 ;; M-s bindings (search-map)
-	 ("M-s d" . consult-find)
-	 ("M-s D" . consult-locate)
-	 ("M-s g" . consult-ripgrep)
-	 ("M-s m" . consult-man)
-	 ("M-s G" . consult-git-grep)
-	 ("M-s r" . consult-ripgrep)
-	 ("M-s i" . consult-info)
-	 ("M-s l" . consult-line)
-	 ("C-s" . consult-line)
-	 ("M-s L" . consult-line-multi)
-	 ("M-s k" . consult-keep-lines)
-	 ("M-s u" . consult-focus-lines)
-	 ;; Isearch integration
-	 ("M-s e" . consult-isearch-history)
-	 :map isearch-mode-map
-	 ("M-e" . consult-isearch-history)
-	 ("M-s e" . consult-isearch-history)
-	 ("M-s l" . consult-line)
-	 ("M-s L" . consult-line-multi)
-	 ;; Minibuffer history
-	 :map minibuffer-local-map
-	 ("M-s" . consult-history)
-	 ("M-r" . consult-history))
+  :bind (
+         ("C-c d i" . d/insert-unicodes)
+         ("C-c d c" . d/insert-colors)
+
+         ;; C-c bindings (mode-specific-map)
+         ("C-c h" . consult-history)
+         ("C-c m" . consult-mode-command)
+         ("C-c k" . consult-kmacro)
+         ("C-c t t" . consult-theme)
+         ;; C-x bindings (ctl-x-map)
+         ("C-x M-:" . consult-complex-command)
+         ("C-x b" . consult-buffer)
+         ("C-x C-b" . consult-buffer)
+         ("C-x 4 b" . consult-buffer-other-window)
+         ("C-x 5 b" . consult-buffer-other-frame)
+         ("C-x r b" . consult-bookmark)
+         ("C-x p b" . consult-project-buffer)
+         ;; Custom M-# bindings for fast register access
+         ("M-#" . consult-register-load)
+         ("M-'" . consult-register-store)
+         ("C-M-#" . consult-register)
+         ;; Other custom bindings
+         ("M-y" . consult-yank-pop)
+         ;; M-g bindings (goto-map)
+         ("M-g e" . consult-compile-error)
+         ("M-g f" . consult-flycheck)
+         ("M-g g" . consult-goto-line)
+         ("M-g M-g" . consult-goto-line)
+         ("M-g o" . consult-outline)
+         ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+         ("M-g s" . consult-eglot-symbols)
+         ;; M-s bindings (search-map)
+         ("M-s d" . consult-find)
+         ("M-s D" . consult-locate)
+         ("M-s g" . consult-ripgrep)
+         ("M-s m" . consult-man)
+         ("M-s G" . consult-git-grep)
+         ("M-s r" . consult-ripgrep)
+         ("M-s i" . consult-info)
+         ("M-s l" . consult-line)
+         ("C-s" . consult-line)
+         ("M-s L" . consult-line-multi)
+         ("M-s k" . consult-keep-lines)
+         ("M-s u" . consult-focus-lines)
+         ;; Isearch integration
+         ("M-s e" . consult-isearch-history)
+         :map isearch-mode-map
+         ("M-e" . consult-isearch-history)
+         ("M-s e" . consult-isearch-history)
+         ("M-s l" . consult-line)
+         ("M-s L" . consult-line-multi)
+         ;; Minibuffer history
+         :map minibuffer-local-map
+         ("M-s" . consult-history)
+         ("M-r" . consult-history))
 
   :hook (completion-list-mode . consult-preview-at-point-mode)
 
@@ -839,16 +844,16 @@
      :name     "Eww"
      :narrow   ?e
      :action   (lambda (bm)
-		 (eww-browse-url (get-text-property 0 'url bm)))
+                 (eww-browse-url (get-text-property 0 'url bm)))
      :items    (lambda ()
-		 (eww-read-bookmarks)
-		 (mapcar (lambda (bm)
-			   (propertize
-			    (format "%s (%s)"
-				    (plist-get bm :url)
-				    (plist-get bm :title))
-			    'url (plist-get bm :url)))
-			 eww-bookmarks))))
+                 (eww-read-bookmarks)
+                 (mapcar (lambda (bm)
+                           (propertize
+                            (format "%s (%s)"
+                                    (plist-get bm :url)
+                                    (plist-get bm :title))
+                            'url (plist-get bm :url)))
+                         eww-bookmarks))))
   (add-to-list 'consult-buffer-sources 'consult--source-eww 'append)
 
   (defun consult-colors--web-list nil
@@ -863,16 +868,16 @@
   selected color."
     (interactive
      (list (consult--read (consult-colors--web-list)
-			  :prompt "Color: "
-			  :require-match t
-			  :category 'color
-			  :history '(:input consult-colors-history)
-			  )))
+                          :prompt "Color: "
+                          :require-match t
+                          :category 'color
+                          :history '(:input consult-colors-history)
+                          )))
     (insert
      (when-let* ((rgb (color-name-to-rgb color))
-		 ;; Sets 2 digits per component.
-		 (hex (apply #'color-rgb-to-hex (append rgb '(2)))))
- hex)))
+                 ;; Sets 2 digits per component.
+                 (hex (apply #'color-rgb-to-hex (append rgb '(2)))))
+       hex)))
 
   (defun d/insert-colors (color)
     "Show a list of all supported colors for a particular frame.\
@@ -881,27 +886,27 @@ You can insert the name (default), or insert or kill the hexadecimal or RGB valu
 selected color."
     (interactive
      (list (consult--read (list-colors-duplicates (defined-colors))
-			  :prompt "Emacs color: "
-			  :require-match t
-			  :category 'color
-			  :history '(:input consult-colors-history)
-			  )))
+                          :prompt "Emacs color: "
+                          :require-match t
+                          :category 'color
+                          :history '(:input consult-colors-history)
+                          )))
     (insert
      (when-let* ((rgb (color-name-to-rgb color))
-		 ;; Sets 2 digits per component.
-		 (hex (apply #'color-rgb-to-hex (append rgb '(2)))))
- hex)))
+                 ;; Sets 2 digits per component.
+                 (hex (apply #'color-rgb-to-hex (append rgb '(2)))))
+       hex)))
 
   (defun d/insert-unicodes (add-unicodes)
     "Insert unicode character (emoji/icons) from given files."
     (interactive (list add-unicodes))
     (insert
      (let* ((content
-	     (mapcar #'(lambda (file) (with-temp-buffer (insert-file-contents file) (split-string (buffer-string) "\n" t))) add-unicodes))
-	    (options (apply #'append content))
-	    (selected-item (completing-read "Choose Icon 󰨈: " options))
-	    (fields (split-string selected-item)))
- (car fields))))
+             (mapcar #'(lambda (file) (with-temp-buffer (insert-file-contents file) (split-string (buffer-string) "\n" t))) add-unicodes))
+            (options (apply #'append content))
+            (selected-item (completing-read "Choose Icon 󰨈: " options))
+            (fields (split-string selected-item)))
+       (car fields))))
 
   (setq add-unicodes (unless d/on-droid (directory-files "~/d-git/d-bin/treasure/unicodes/" t "i"))))
 
@@ -1075,12 +1080,16 @@ selected color."
 (use-package org
   :defer t
   :commands (org-capture org-agenda)
+  :hook (org-mode . (lambda () (org-indent-mode 1)
+                      (org-display-inline-images 0)
+                      (variable-pitch-mode 1)))
 
   :bind (("C-c c c" . org-capture)
-	 ("C-c c d" . calendar)
-	 ("C-c t R" . d/bionic-region)
-	 ("C-c d a" . org-agenda)
-	 ("C-c t r" . d/bionic-read))
+         ("C-c c d" . calendar)
+         ("C-c t R" . d/bionic-region)
+         ("C-c d a" . org-agenda)
+         ("C-c t r" . d/bionic-read))
+
   :custom
   (org-src-window-setup 'current-window)
   (org-startup-indented nil)
@@ -1097,12 +1106,12 @@ selected color."
      "~/d-git/d-site/README.org"))
 
   (org-todo-keywords
-	'((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
-	  (sequence  "PLAN(p)" "REVIEW(v)" "|" "COMPLETED(c)" "CANC(k@)")))
+   '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
+     (sequence  "PLAN(p)" "REVIEW(v)" "|" "COMPLETED(c)" "CANC(k@)")))
 
   (org-refile-targets
-	'(("Archive.org" :maxlevel . 1)
-	  ("tasks.org" :maxlevel . 1)))
+   '(("Archive.org" :maxlevel . 1)
+     ("tasks.org" :maxlevel . 1)))
 
   (org-tag-alist
    '((:startgroup)
@@ -1118,32 +1127,28 @@ selected color."
   (org-capture-templates
    `(
      ("t" "Task" entry (file+olp "~/d-sync/notes/tasks.org" "One-Timer")
-"* TODO %?\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
+      "* TODO %?\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
 
      ("l" "Link" entry
-(file+headline "~/d-sync/notes/bookmarks.org" "elfeed") "* %a\n")
+      (file+headline "~/d-sync/notes/bookmarks.org" "elfeed") "* %a\n")
 
      ("j" "Journal Entries")
 
      ("jj" "Journal" entry
-(file+olp+datetree "~/d-sync/notes/journal.org")
-"\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
-;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
-:clock-in :clock-resume
-:empty-lines 1)))
+      (file+olp+datetree "~/d-sync/notes/journal.org")
+      "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
+      ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
+      :clock-in :clock-resume
+      :empty-lines 1)))
 
   ;; browser script
   (unless d/on-droid
     (browse-url-browser-function 'browse-url-generic
-	  browse-url-generic-program "d-stuff")
+                                 browse-url-generic-program "d-stuff")
     (browse-url-secondary-browser-function 'browse-url-generic
-	  browse-url-generic-program "d-stuff"))
+                                           browse-url-generic-program "d-stuff"))
 
   :config
-  (org-indent-mode 1)
-  (org-display-inline-images 0)
-  (variable-pitch-mode 1)
-
   ;; Save Org buffers after refiling!
   (advice-add 'org-refile :after 'org-save-all-org-buffers)
 
@@ -1152,38 +1157,38 @@ selected color."
     (interactive)
     (org-map-entries
      (lambda ()
- (org-archive-subtree)
- (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+       (org-archive-subtree)
+       (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
      "/DONE" 'tree))
 
- ;; This is for managing nixos config
+  ;; This is for managing nixos config
   (defun get-named-src-block-contents (name &optional trim)
     "Return the contents of the named Org source block."
     (let* ((block (org-element-map (org-element-parse-buffer) 'src-block
-		    (lambda (src-block)
-		(when (string= name (org-element-property :name src-block))
-			src-block))
-		    nil t))
-	   (source (org-element-property :value block)))
-(if trim
-	  (string-trim source)
-	source)))
+                    (lambda (src-block)
+                      (when (string= name (org-element-property :name src-block))
+                        src-block))
+                    nil t))
+           (source (org-element-property :value block)))
+      (if trim
+          (string-trim source)
+        source)))
 
   (defun d/narrow-or-widen-dwim ()
     "If the buffer is narrowed, it widens. Otherwise, it narrows to region, or Org subtree."
     (interactive)
     (cond ((buffer-narrowed-p) (widen))
-	  ((region-active-p) (narrow-to-region (region-beginning) (region-end)))
-	  ((equal major-mode 'org-mode) (org-narrow-to-subtree))
-	  (t (error "Please select a region to narrow to"))))
+          ((region-active-p) (narrow-to-region (region-beginning) (region-end)))
+          ((equal major-mode 'org-mode) (org-narrow-to-subtree))
+          (t (error "Please select a region to narrow to"))))
 
-(org-babel-do-load-languages
-     'org-babel-load-languages
-     '((emacs-lisp . t)
- (calc . t)
- (latex . t) (C . t)
- (R . t) (shell . t) (python . t)))
-    (push '("conf-unix" . conf-unix) org-src-lang-modes)
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (calc . t)
+     (latex . t) (C . t)
+     (R . t) (shell . t) (python . t)))
+  (push '("conf-unix" . conf-unix) org-src-lang-modes)
   )
 
 (unless d/on-droid

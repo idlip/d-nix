@@ -523,9 +523,11 @@ Certain services, just enable = true; gets the work done for most of the stuffs.
       enable = true;
       alsa = {
 	enable = true;
+	support32Bit = true;
       };
       wireplumber.enable = true;
       pulse.enable = true;
+      jack.enable = true;
     };
   };
 
@@ -741,7 +743,7 @@ Opening brace that contains the rest of the configuration file.
   programs = {
     # Starship
     starship = {
-      enable = false;
+      enable = true;
       enableZshIntegration = true;
       settings = {
 	add_newline = true;
@@ -750,7 +752,7 @@ Opening brace that contains the rest of the configuration file.
 		error_symbol = " [](#df5b61)";
 		success_symbol = "[](#6791c9)";
 		vicmd_symbol = "[](bold yellow)";
-		format = "[  ](bold blue)[$directory$all$character](bold)[  ](bold green)";
+		format = "$directory$all$character](bold)[  ](bold blue)";
 	};
 	git_commit = {commit_hash_length = 4;};
 	line_break.disabled = false;
@@ -824,14 +826,14 @@ Opening brace that contains the rest of the configuration file.
 ***** Sources.sh
 This is easy to manage and also get the syntax highlighing for shell, as nix also paste same texts into path.
 #+begin_src shell :noweb yes :tangle (format "%s/sources.sh" (get-named-src-block-contents "my-configs" t))
-  # eval "$(starship init zsh)"
+  eval "$(starship init zsh)"
   # eval "$(direnv hook zsh)"
   # Removed starship and going default minimal way!
 
   # Make zsh better simply
   autoload -U colors && colors  # Load colors
-  PS1="%B%{$fg[yellow]%}[%{$fg[cyan]%}%~%{$fg[yellow]%}]
-   %{$fg[blue]%} %b%{$reset_color%}%b"
+  # PS1="%B%{$fg[yellow]%}[%{$fg[cyan]%}%~%{$fg[yellow]%}]
+   # %{$fg[blue]%} %b%{$reset_color%}%b"
   # setopt autocd		# Auto cd
   stty stop undef		# Disable ctrl-s to freeze terminal.
   setopt interactive_comments
@@ -931,9 +933,9 @@ This is easy to manage and also get the syntax highlighing for shell, as nix als
     source "$(fzf-share)/completion.zsh"
   fi
 
-  precmd() {
-      print ""
-  }
+  # precmd() {
+  #     print ""
+  # }
 
 
 #+end_src
@@ -959,11 +961,12 @@ Installs packages for this user only.
 ***** cli-tools
 #+begin_src nix
   # cli tools
-  # pcmanfm libreoffice pandoc groff wkhtmltopdf-bin mupdf
+  pcmanfm libreoffice pandoc groff mupdf
+  # wkhtmltopdf-bin
   fzf neovim unzip  
   aspell aspellDicts.en-science aspellDicts.en hunspell hunspellDicts.en-us
-   ffmpeg sdcv 
-  #mu isync nq
+  ffmpeg sdcv nq
+  #mu isync
   syncthing dconf keepassxc
 #+end_src
 ***** Themes
@@ -977,18 +980,18 @@ Installs packages for this user only.
 ***** Browsers
 #+begin_src nix
   # pioneer of web
-  firefox librewolf brave ungoogled-chromium
+  mullvad-browser librewolf brave ungoogled-chromium
 #+end_src
 ***** LSP -IDE
 #+begin_src nix
-  # nodePackages.bash-language-server
+  nodePackages.bash-language-server
   # nodePackages.vscode-langservers-extracted
   # python311Packages.python-lsp-server
-  # nodePackages.pyright
+  nodePackages.pyright
   python3 gcc gnumake
   R rPackages.languageserver rPackages.lintr
   tree-sitter
-  #texlive.combined.scheme-full
+  texlive.combined.scheme-full
 #+end_src
 ***** Closing Statement
 #+begin_src nix
@@ -1102,14 +1105,14 @@ The better cli alternative!
       enable = true;  
       settings = {
 	color_theme = "Default";
-	theme_background = "False";
-	vim_keys = "True";
+	theme_background = false;
+	vim_keys = true;
 	shown_boxes = "proc cpu";
-	rounded_corners = "True" ;
+	rounded_corners = true ;
 	graph_symbol = "block";
 	proc_sorting = "memory";
-	proc_reversed = "False";
-	proc_gradient = "True";
+	proc_reversed = false;
+	proc_gradient = true;
       };
     };
   };
@@ -1502,7 +1505,7 @@ The better cli alternative!
   # █▀▄▀█ █ █▀ █▀▀
   # █░▀░█ █ ▄█ █▄▄
   bind = SUPER, RETURN, exec, emacsclient -c -e "(multi-vterm)"
-  bind = SUPERSHIFT, RETURN, exec, emacsclient -c -e "(multi-vterm)"
+  bind = SUPERSHIFT, RETURN, exec, emacsclient -c -e "(multi-vterm-next)"
   bind = SUPERSHIFT, Q, killactive, 
   bind = SUPERSHIFT, R, exec, hyprctl reload
   bind = SUPERCONTROL, Q, exit, 
@@ -1709,8 +1712,8 @@ Its more mature than hyprland. So... better to have it! I dont use sway that muc
       org olivetti nerd-icons async dirvish
       embark-consult consult-eglot consult-flycheck markdown-mode nix-mode
       reddigg hnreader mingus which-key magit webpaste org-present
-      # pdf-tools nov (using in-built doc-view)
-      shrface shr-tag-pre-highlight gcmh nov
+      # pdf-tools nov (using built-in doc-view)
+      shrface shr-tag-pre-highlight gcmh nov devdocs-browser
       org-mime beframe denote tempel tempel-collection
       sdcv elfeed elfeed-org link-hint powerthesaurus jinx meow
       doom-modeline hide-mode-line el-fetch ox-hugo
@@ -1720,6 +1723,9 @@ Its more mature than hyprland. So... better to have it! I dont use sway that muc
   };
 #+end_src
 ***** FireFox
+:PROPERTIES:
+:header-args: :tangle no
+:END:
 ****** initial set
 beginning of the FireFox configuration block
 #+begin_src nix
@@ -2787,6 +2793,10 @@ listing menus
     };
   };
   xdg = {
+    portal = {
+      enable = true;
+      extraPortals = [ pkgs.xdg-desktop-portal-gtk pkgs.xdg-desktop-portal-hyprland ];
+    };
     userDirs = {
       enable = true;
       documents = "$HOME/docs";
@@ -3006,45 +3016,52 @@ listing menus
 #+begin_src css :tangle (format "%s/waybar/style.css" (get-named-src-block-contents "my-configs" t))
   @import "haki.css";
 
-   ,* {
-       font-family:Code D Ace;
-       font-weight: bold;
-       font-size: 20px;
-       /* padding-bottom:3px; */
-       border-style: solid;
-       border-radius: 15px 15px 15px 15px;
-       opacity: 1.0;
-       border-color: @fg-alt;
-       margin-top: 0px;
-       margin-left: 8px;
-       margin-right: 8px;
-       margin-bottom: 3px;
-       padding-left: 2px;
-       padding-right: 2px;
-       transition: none;
-       /* color: transparent; */
-       background: @bg-main;
+  ,* {
+      font-family:Code D Ace;
+      font-weight: bold;
+      font-size: 20px;
+  }
 
-   }
+  #mode,
+  #clock,
+  #mpd,
+  #cpu,
+  #memory,
+  #network.disabled,
+  #battery,
+  #network.disconnected,
+  #pulseaudio,
+  #pulseaudio.muted,
+  #custom-launcher,
+  #custom-power,
+  #submap,
+  #window,
+  #workspaces {
+      /* padding-bottom:3px; */
+      border-style: solid;
+      border-radius: 15px 15px 15px 15px;
+      opacity: 1.0;
+      border-color: @fg-alt;
+      margin-top: 0px;
+      margin-left: 8px;
+      margin-right: 8px;
+      margin-bottom: 3px;
+      padding-left: 2px;
+      padding-right: 2px;
+      transition: none;
+      /* color: transparent; */
+      background: @bg-main;
+
+  }
 
   window#waybar {
-      background: transparent;
+      background: @bg-main;
   }
 
   window#waybar.hidden {
       opacity: 0.2;
   }
 
-  #workspaces button {
-      border-radius: 20px;
-      color: @link;
-
-  }
-
-  #workspaces button.active {
-      border-color: @title;
-      padding-bottom:1px ;
-  }
 
   #mode {
       color: @heading-8;
@@ -3110,6 +3127,14 @@ listing menus
   #window {
       color: @fg-region;
       color: @fg-main;
+  }
+
+  #workspaces {
+      color: @bg-tag;
+  }
+
+  #workspaces button {
+      color: @link;
   }
 #+end_src
 ******* Haki theme
@@ -3483,7 +3508,7 @@ Closes the Main Body Block
   }
 #+end_src
 
-* 📂 Additional FIles
+* 📂 Additional Files
 Don't worry about this, there is nothing from here.
 
 Its just custom instructions
@@ -3524,3 +3549,4 @@ Places a copy of =manual-init-steps.org= in the home directory
 #+begin_src txt
 This file describes steps that need to be taken during the first time set up of the computer after a new installation of NixOS
 #+end_src
+

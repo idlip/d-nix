@@ -397,14 +397,27 @@
 
 (use-package mwheel
   :custom
-  (mouse-wheel-scroll-amount '(1
-			 ((shift) . 5)
-			 ((control))))
-  (mouse-wheel-progressive-speed nil))
+  (mouse-wheel-scroll-amount '(1 ((shift) . 5) ((control))))
+  (mouse-wheel-progressive-speed nil)
+  (scroll-margin 4)
+  (scroll-conservatively 101))
 
 (use-package pixel-scroll
+  :bind
+  (("C-v" . d/scroll-down)
+   ("M-v" . d/scroll-up))
+
   :config
-  (pixel-scroll-mode))
+  (pixel-scroll-precision-mode)
+  (defun d/scroll-down ()
+    "Trust me, make scrolling alot smoother. +1 Makes you fall in love with Emacs again!"
+    (interactive)
+    (pixel-scroll-precision-scroll-down 20))
+
+  (defun d/scroll-up ()
+    "Trust me, adds a wonderfull smooth scroll. You can do this by trackpad too (laptop)"
+    (interactive)
+    (pixel-scroll-precision-scroll-up 20)))
 
 (use-package tooltip
   :defer t
@@ -439,7 +452,7 @@
   :ensure nil
   :unless d/on-droid
   :bind (:map image-mode-map
-	("q" . d/kill-buffer))
+  ("q" . d/kill-buffer))
   :hook
   (image-mode . (lambda () (olivetti-mode) (setq olivetti-body-width 0.45))))
 
@@ -543,8 +556,14 @@
   (eww-search-prefix "https://duckduckgo.com/html/?kd=-1&q="))
 
 (use-package browse-url
-  :bind
-  ([f5] . browse-url))
+  :config
+  ;; browser script
+  (unless d/on-droid
+    (setq browse-url-browser-function 'browse-url-generic
+          browse-url-generic-program "d-stuff")
+    (setq browse-url-secondary-browser-function 'browse-url-generic
+          browse-url-generic-program "d-stuff"))
+  )
 
 (use-package window
   :bind ("M-o" . other-window)
@@ -579,23 +598,9 @@
 (unless d/on-droid
   (use-package olivetti
     :defer t
-    :hook ((text-mode         . olivetti-mode)
-	   ;; (prog-mode         . olivetti-mode)
-	   (Info-mode         . olivetti-mode)
-	   ;; (eshell-mode         . olivetti-mode)
-	   (helpful-mode         . olivetti-mode)
-	   (Info-mode         . olivetti-mode)
-	   (org-mode          . olivetti-mode)
-	   (ement-room-mode   . olivetti-mode)
-	   (dashboard-mode    . olivetti-mode)
-	   (eww-mode          . olivetti-mode)
-	   (sdcv-mode         . olivetti-mode)
-	   (fundamental-mode  . olivetti-mode)
-	   (nov-mode          . olivetti-mode)
-	   (markdown-mode     . olivetti-mode)
-	   (mu4e-view-mode    . olivetti-mode)
-	   (elfeed-show-mode  . olivetti-mode)
-	   (mu4e-compose-mode . olivetti-mode))
+    :hook
+    (org-mode text-mode Info-mode helpful-mode ement-room-mode
+              eww-mode sdcv-mode nov-mode elfeed-show-mode markdown-mode)
     :custom
     (olivetti-body-width 0.9)
     (olivetti-minimum-body-width 76)
@@ -1140,13 +1145,6 @@ selected color."
       ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
       :clock-in :clock-resume
       :empty-lines 1)))
-
-  ;; browser script
-  (unless d/on-droid
-    (browse-url-browser-function 'browse-url-generic
-                                 browse-url-generic-program "d-stuff")
-    (browse-url-secondary-browser-function 'browse-url-generic
-                                           browse-url-generic-program "d-stuff"))
 
   :config
   ;; Save Org buffers after refiling!
@@ -2174,9 +2172,7 @@ Usable as favorites or bookmark."
   (:map eww-mode-map
 	("e" . readable-article)
 	("Q" . d/kill-buffer)
-	("M-v" . d/scroll-up)
 	("<return>" . eww-follow-link)
-	("C-v" . d/scroll-down)
 	("m" . elfeed-toggle-star)
 	("b" . d/external-browser))
   :config

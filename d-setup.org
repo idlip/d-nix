@@ -1,5 +1,5 @@
 #+STARTUP: overview hideblocks
-#+OPTIONS: num:nil author:nil toc:3
+#+OPTIONS: num:nil author:nil toc:5
 #+PROPERTY: header-args :tangle-mode (identity #o444) :mkdirp yes
 #+TITLE: 🧬 D Nixyfied Flaky Station
 #+AUTHOR: iDlip
@@ -19,18 +19,62 @@
   - [[#network][Network]]
   - [[#secure-core][Secure core]]
   - [[#services][Services]]
+    - [[#systemd][Systemd]]
   - [[#system-packages][System Packages]]
   - [[#overlay][Overlay]]
   - [[#opengl-hardware][Opengl Hardware]]
+  - [[#custom-package][Custom package]]
   - [[#system-fonts][System Fonts]]
   - [[#env][Env]]
   - [[#system-users][System Users]]
+    - [[#i][i]]
   - [[#closing-statement][Closing Statement]]
 - [[#-user-configurations][👤 User Configurations]]
   - [[#i-home][i-home]]
-- [[#-additional-files][📂 Additional FIles]]
+    - [[#default-nix][Default-nix]]
+    - [[#main-body][Main Body]]
+      - [[#tangled-file-warning-1][Tangled File Warning]]
+      - [[#inherited-sources-1][Inherited Sources]]
+      - [[#opening-statement-1][Opening Statement]]
+      - [[#shell-configuration][Shell Configuration]]
+        - [[#system-shell][System Shell]]
+        - [[#sourcessh][Sources.sh]]
+      - [[#user-packages][User Packages]]
+        - [[#opening-statement-2][Opening Statement]]
+        - [[#wayland][Wayland]]
+        - [[#media][Media]]
+        - [[#cli-tools][cli-tools]]
+        - [[#themes][Themes]]
+        - [[#browsers][Browsers]]
+        - [[#lsp--ide][LSP -IDE]]
+        - [[#closing-statement-1][Closing Statement]]
+      - [[#package-specific-configs][Package Specific configs]]
+        - [[#gtk-theme][Gtk Theme]]
+        - [[#aria][Aria]]
+        - [[#cli-tools-1][Cli tools]]
+        - [[#dunst][Dunst]]
+        - [[#foot][Foot]]
+        - [[#hyprland][Hyprland]]
+        - [[#sway][Sway]]
+        - [[#emacs][Emacs]]
+        - [[#firefox][FireFox]]
+        - [[#media-1][Media]]
+        - [[#mpv][Mpv]]
+        - [[#imv][Imv]]
+        - [[#rofi][Rofi]]
+        - [[#sioyek][Sioyek]]
+        - [[#mime-tools][Mime Tools]]
+        - [[#waybar][Waybar]]
+        - [[#ytfzf][Ytfzf]]
+        - [[#youtube-tui][Youtube-tui]]
+      - [[#closing-statement-2][Closing Statement]]
+- [[#-additional-files][📂 Additional Files]]
   - [[#first-time-set-up-script][First Time Set Up Script]]
+    - [[#install-system-flake][Install System Flake]]
+    - [[#copy-first-time-installation-checklist][Copy First Time Installation Checklist]]
+    - [[#restart-system][Restart System]]
   - [[#manual-set-up-instructions][Manual Set Up Instructions]]
+    - [[#file-description][File Description]]
 
 * 📑 Description
 --------
@@ -66,7 +110,7 @@ gdk
 i
 #+end_src
 
-- Git repo path in system 
+- Git repo path in system
 #+name: my-git-path
 #+begin_src nix :noweb yes
 /home/<<my-username>>/d-git/d-nix
@@ -95,7 +139,7 @@ i
 
 - Tangling main nix files
 
-To tangle nix and config files (configuration, homemanager.nix) to ./my-hostname/configuration.nix and ./my-hostname/i-home/ 
+To tangle nix and config files (configuration, homemanager.nix) to ./my-hostname/configuration.nix and ./my-hostname/i-home/
 You might want to eval this code for this to work on :tangle header.
 
 Please eval this or else tangling nix files into this git repo won't work.
@@ -132,46 +176,46 @@ Why not have a block for flake.nix too?
       # You can you use normal config files,
       # just use an org heading and create block and tangle it directly to ~/.config/tool/file path.
       home-manager = {
-	url = "github:nix-community/home-manager";
-	inputs.nixpkgs.follows = "nixpkgs";
+        url = "github:nix-community/home-manager";
+        inputs.nixpkgs.follows = "nixpkgs";
       };
 
     };
 
     outputs = inputs @ {self, hosts, home-manager, nixpkgs, ...} :
       let
-	# You might check on darwin for macos
-	system = "x86_64-linux";
-	pkgs = import nixpkgs {
-		inherit system;
-		config.allowUnfree = false;
-	};
-	lib = nixpkgs.lib;
+        # You might check on darwin for macos
+        system = "x86_64-linux";
+        pkgs = import nixpkgs {
+          inherit system;
+          config.allowUnfree = false;
+        };
+        lib = nixpkgs.lib;
 
       in {
 
-	nixosConfigurations = {
+        nixosConfigurations = {
 
-	  <<my-hostname>> = lib.nixosSystem {
-			    inherit system;
-			    modules = [
+          <<my-hostname>> = lib.nixosSystem {
+                            inherit system;
+                            modules = [
 
-			      ./<<my-hostname>>/configuration.nix
-				home-manager.nixosModules.home-manager {
-				  home-manager.useGlobalPkgs = true;
-				  home-manager.useUserPackages = true;
-				  home-manager.extraSpecialArgs = {
-				    inherit inputs;
-				    inherit self;
-				  };
+                              ./<<my-hostname>>/configuration.nix
+                                home-manager.nixosModules.home-manager {
+                                  home-manager.useGlobalPkgs = true;
+                                  home-manager.useUserPackages = true;
+                                  home-manager.extraSpecialArgs = {
+                                    inherit inputs;
+                                    inherit self;
+                                  };
 
-				  home-manager.users.<<my-username>> = ./<<my-hostname>>/i-home ;
-				}
-				hosts.nixosModule
-			    ];
-			    specialArgs = {inherit inputs;};
-			  };
-	};
+                                  home-manager.users.<<my-username>> = ./<<my-hostname>>/i-home ;
+                                }
+                                hosts.nixosModule
+                            ];
+                            specialArgs = {inherit inputs;};
+                          };
+        };
 
       };
   }
@@ -204,9 +248,9 @@ Opening brace that contains the rest of the configuration file.
 #+end_src
 ** Imports
 + Copy your system hardware-configuration file to #FIXME  HOSTNAME/hardware-configuration.nix  in this git repo.
-+ It will be usually the /etc/nixos/hardware-configuration.nix  
++ It will be usually the /etc/nixos/hardware-configuration.nix
 + It will be generated while first install ~sudo nixos-generate-config~
-  
+
 #+begin_src nix
   imports = [
     ./hardware-configuration.nix
@@ -231,12 +275,12 @@ Opening brace that contains the rest of the configuration file.
 
   # This code is from nixos wiki for Btrfs. Depends on which file system you use.
   # Refer nixos wiki once. Might get error if not using btrfs
-  # #FIXME 
+  # #FIXME
   fileSystems = {
     "/".options = [ "compress=zstd" ];
     "/home".options = [ "compress=zstd" ];
     "/nix".options = [ "compress=zstd" "noatime" ];
-  };  
+  };
 
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
@@ -293,11 +337,11 @@ Opening brace that contains the rest of the configuration file.
     };
 
     # pin the registry to avoid downloading and evaling a new nixpkgs version every time
-    registry = lib.mapAttrs (_: value: { flake = value; }) inputs;  
+    registry = lib.mapAttrs (_: value: { flake = value; }) inputs;
 
-    # This will additionally add your inputs to the system's legacy channels  
-    # Making legacy nix commands consistent as well, awesome!  
-    nixPath = lib.mapAttrsToList (key: value: "${key}=${value.to.path}") config.nix.registry;  
+    # This will additionally add your inputs to the system's legacy channels
+    # Making legacy nix commands consistent as well, awesome!
+    nixPath = lib.mapAttrsToList (key: value: "${key}=${value.to.path}") config.nix.registry;
 
     # Free up to 1GiB whenever there is less than 100MiB left.
     extraOptions = ''
@@ -442,7 +486,7 @@ I use ~doas~ replacing ~sudo~. Even if you type sudo in terminal it will use doa
     extraRules = [{
       users = [ "<<my-username>>" ];
       keepEnv = true;
-      persist = true;  
+      persist = true;
     }];
   };
 #+end_src
@@ -480,7 +524,7 @@ Certain services, just enable = true; gets the work done for most of the stuffs.
     # See if you want bluetooth setup
     # blueman.enable = true;
 
-    # For android file transfer via usb, or better check on KDE connect 
+    # For android file transfer via usb, or better check on KDE connect
     gvfs.enable = true;
 
     # configuring syncthing
@@ -687,7 +731,7 @@ Configure system permission for the primary user
                                 # Use fish if you prefer it
                                 shell = pkgs.zsh;
 
-                                # Or else login to root (which you will create while rebuilding) and run passwd USERNAME 
+                                # Or else login to root (which you will create while rebuilding) and run passwd USERNAME
                                 # initialPassword = "changeme";
                               };
   programs.zsh.enable = true;
@@ -810,7 +854,7 @@ Opening brace that contains the rest of the configuration file.
 	      printf "\e]%s\e\\" "$1" "51;A$(whoami)@$(hostname):$(pwd)"
 	      }
 	      setopt PROMPT_SUBST
-	      PROMPT=$PROMPT'%{$(vterm_prompt_end)%}'                       
+	      PROMPT=$PROMPT'%{$(vterm_prompt_end)%}'
 	  '';
 
       history = {
@@ -949,7 +993,7 @@ Installs packages for this user only.
 #+begin_src nix
   # wayland
   libnotify libsixel bemenu
-  wf-recorder brightnessctl pamixer slurp grim 
+  wf-recorder brightnessctl pamixer slurp grim
   wl-clipboard wtype swaybg swayidle gammastep
 #+end_src
 ***** Media
@@ -963,7 +1007,7 @@ Installs packages for this user only.
   # cli tools
   pcmanfm libreoffice pandoc groff mupdf
   # wkhtmltopdf-bin
-  fzf neovim unzip  
+  fzf neovim unzip
   aspell aspellDicts.en-science aspellDicts.en hunspell hunspellDicts.en-us
   ffmpeg sdcv nq
   #mu isync
@@ -1102,7 +1146,7 @@ The better cli alternative!
       ];
     };
     btop = {
-      enable = true;  
+      enable = true;
       settings = {
 	color_theme = "Default";
 	theme_background = false;
@@ -1271,9 +1315,9 @@ The better cli alternative!
   # █▀▀ █▄░█ █░█   █░█ ▄▀█ █▀█
   # ██▄ █░▀█ ▀▄▀   ▀▄▀ █▀█ █▀▄
 
-  env = XDG_CURRENT_DESKTOP,Hyprland 
-  env = XDG_SESSION_TYPE,wayland 
-  env = XDG_SESSION_DESKTOP,Hyprland 
+  env = XDG_CURRENT_DESKTOP,Hyprland
+  env = XDG_SESSION_TYPE,wayland
+  env = XDG_SESSION_DESKTOP,Hyprland
 
   env = GDK_BACKEND,wayland
   env = QT_QPA_PLATFORM,wayland
@@ -1282,12 +1326,12 @@ The better cli alternative!
   env = QT_AUTO_SCREEN_SCALE_FACTOR,1
   env = QT_WAYLAND_DISABLE_WINDOWDECORATION,1
 
-  env = SDL_VIDEODRIVER,wayland 
+  env = SDL_VIDEODRIVER,wayland
   env = _JAVA_AWT_WM_NONREPARENTING,1
-  env = WLR_NO_HARDWARE_CURSORS,1 
+  env = WLR_NO_HARDWARE_CURSORS,1
 
   env = MOZ_DISABLE_RDD_SANDBOX,1
-  env = MOZ_ENABLE_WAYLAND,1 
+  env = MOZ_ENABLE_WAYLAND,1
 
   env = OZONE_PLATFORM,wayland
 
@@ -1393,7 +1437,7 @@ The better cli alternative!
   # █░█░█ █ █▄░█ █▀▄ █▀█ █░█░█   █▀█ █░█ █░░ █▀▀ █▀
   # ▀▄▀▄▀ █ █░▀█ █▄▀ █▄█ ▀▄▀▄▀   █▀▄ █▄█ █▄▄ ██▄ ▄█
 
-  # Opacity 
+  # Opacity
   windowrulev2 = opacity 0.90 0.90,class:^(Brave-browser)$
   windowrulev2 = opacity 0.80 0.80,class:^(pcmanfm)$
 
@@ -1484,7 +1528,7 @@ The better cli alternative!
   bind=SUPER,grave,exec,d-unicodes
   bind=SUPER,Delete,exec,pkill -INT wf-recorder
 
-  bind=CONTROL,F1,exec,hyprctl dispatch dpms on                               
+  bind=CONTROL,F1,exec,hyprctl dispatch dpms on
   bind=SUPER,F1,exec,d-keys
   bind=SUPER,F2,exec,brightnessctl set 2%-
   bind=SUPER,F3,exec,brightnessctl set +2%
@@ -1504,13 +1548,13 @@ The better cli alternative!
 
   # █▀▄▀█ █ █▀ █▀▀
   # █░▀░█ █ ▄█ █▄▄
-  bind = SUPER, RETURN, exec, emacsclient -c -e "(multi-vterm)"
-  bind = SUPERSHIFT, RETURN, exec, emacsclient -c -e "(multi-vterm-next)"
-  bind = SUPERSHIFT, Q, killactive, 
+  bind = SUPER, RETURN, exec, pgrep emacs && emacsclient -c -e "(multi-vterm)" || footclient
+  bind = SUPERSHIFT, RETURN, exec, pgrep emacs && emacsclient -c -e "(multi-vterm-next)" || footclient
+  bind = SUPERSHIFT, Q, killactive,
   bind = SUPERSHIFT, R, exec, hyprctl reload
-  bind = SUPERCONTROL, Q, exit, 
+  bind = SUPERCONTROL, Q, exit,
   bind = SUPER, F12, exec, emacsclient -c -e "(multi-vterm)"
-  bind = SUPER, SPACE, togglefloating, 
+  bind = SUPER, SPACE, togglefloating,
   bind = SUPER, d, exec, bemenu-run -W 0.25 -l 8
   bind = SUPER, b, exec, pkill -SIGUSR1 waybar || pidof -x waybar || waybar
 
@@ -1983,7 +2027,7 @@ creates profile settings specific to a user, and sets my profile as the default
   }
 
   .accessibility-indicator,
-  .private-browsing-indicator{ 
+  .private-browsing-indicator{
           height: unset !important;
   }
   .accessibility-indicator > hbox{ padding-block: 0 !important }
@@ -2098,7 +2142,7 @@ Closes FireFox Block
   };
 
 #+end_src
-***** Mpv 
+***** Mpv
 mpv config which is tangled directly
 ****** mpv config
 #+begin_src nix :noweb yes
@@ -2144,7 +2188,7 @@ k seek  30
 j seek -30
 
 # subtitles
-J cycle sub 
+J cycle sub
 K cycle sub down
 #+end_src
 ***** Imv
@@ -2891,7 +2935,7 @@ listing menus
 			active = "";
 			default = "";
 			"1" = "1";
-			"2" = "2";	
+			"2" = "2";
 			"3" = "3";
 			"4" = "4";
 			"5" = "5";
@@ -3193,9 +3237,9 @@ Theme: https://github.com/idlip/haki
 
   external_menu () {
   #    rofi -dmenu -i -theme-str '@import "menu.rasi" window {height:60%;width: 70%;}' -p "$1"
-       #  rofi -dmenu -i -config ~/.config/rofi/list.rasi -p "  Play "  
+       #  rofi -dmenu -i -config ~/.config/rofi/list.rasi -p "  Play "
        # fuzzel -d -p " 磊 Play " -w 90 -l 22
-      # wofi -dib -W 90% -H 80% 
+      # wofi -dib -W 90% -H 80%
        bemenu -W 0.98 -l 24 -p '  Play '
   #    dmenu -i -l 20
   }
@@ -3549,4 +3593,3 @@ Places a copy of =manual-init-steps.org= in the home directory
 #+begin_src txt
 This file describes steps that need to be taken during the first time set up of the computer after a new installation of NixOS
 #+end_src
-

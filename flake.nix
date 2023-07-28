@@ -24,8 +24,8 @@
       # You might check on darwin for macos
       system = "x86_64-linux";
       pkgs = import nixpkgs {
-	      inherit system;
-	      config.allowUnfree = false;
+        inherit system;
+        config.allowUnfree = false;
       };
       lib = nixpkgs.lib;
 
@@ -33,25 +33,25 @@
 
       nixosConfigurations = {
 
-	gdk = lib.nixosSystem {
-			  inherit system;
-			  modules = [
+        gdk = lib.nixosSystem {
+          inherit system;
+          modules = [
 
-			    ./gdk/configuration.nix
-			      home-manager.nixosModules.home-manager {
-				home-manager.useGlobalPkgs = true;
-				home-manager.useUserPackages = true;
-				home-manager.extraSpecialArgs = {
-				  inherit inputs;
-				  inherit self;
-				};
+            ./gdk/configuration.nix
+            home-manager.nixosModules.home-manager {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.extraSpecialArgs = {
+                inherit inputs;
+                inherit self;
+              };
 
-				home-manager.users.i = ./gdk/i-home ;
-			      }
-			      hosts.nixosModule
-			  ];
-			  specialArgs = {inherit inputs;};
-			};
+              home-manager.users.i = ./gdk/i-home ;
+            }
+            hosts.nixosModule
+          ];
+          specialArgs = {inherit inputs;};
+        };
       };
 
     };

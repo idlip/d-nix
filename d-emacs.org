@@ -1,31 +1,40 @@
 #+PROPERTY: header-args:emacs-lisp :tangle "./gdk/i-home/configs/emacs/init.el" :tangle-mode (identity #o444) :mkdirp yes
-#+OPTIONS: toc:4
+#+OPTIONS: toc:3
 #+TITLE: 🧬 D Emacs Station
 #+AUTHOR: Dilip
 
-* Table of Parenthesis :toc:
+* 📐 Table of Parenthesis :toc:
 - [[#-tldr---features][✨ TLDR - Features]]
 - [[#-start-ify][🔰 Start-ify]]
-  - [[#package-initialization][Package Initialization]]
-  - [[#garbage-collect][Garbage Collect]]
+  - [[#-package-initialization][📦 Package Initialization]]
+  - [[#-garbage-collect][🧽 Garbage Collect]]
 - [[#-core-tweaks][⚙ Core Tweaks]]
   - [[#-default][🐬 Default]]
   - [[#-files][📁 Files]]
-  - [[#tramp][Tramp]]
-  - [[#font][Font]]
+    - [[#-file-manager][📂 File Manager]]
+  - [[#-tramp][🛫 Tramp]]
+  - [[#-font][💌 Font]]
 - [[#-gui-tweaks][📊 GUI Tweaks]]
-  - [[#goodies][Goodies]]
-  - [[#help-with-docs][Help with Docs]]
-  - [[#aesthetic][Aesthetic]]
+  - [[#-enhancement][☯ Enhancement]]
+  - [[#-help-with-docs][📜 Help with Docs]]
+    - [[#-which-key][🎸 Which-key]]
+    - [[#-helpful][🍁 Helpful]]
+  - [[#-web][🕸 Web]]
+  - [[#-window][🍀 Window]]
+  - [[#-aesthetic][🌟 Aesthetic]]
+    - [[#theme][Theme]]
+    - [[#-kind-nerd-icons][⚡ Kind Nerd Icons]]
 - [[#-goat-packages][🗽 GOAT Packages]]
   - [[#️-vertico---the-first][❤️ Vertico - The first]]
-  - [[#doctor-consultancy][Doctor Consultancy]]
-  - [[#orderless][Orderless]]
-  - [[#info--marginalia][Info = Marginalia]]
-  - [[#embark---just-bark][Embark - Just Bark]]
-  - [[#corfu---the-required-love][Corfu - The Required Love]]
-  - [[#tempel-snip][Tempel Snip]]
-  - [[#jinxed-correction][Jinxed Correction]]
+  - [[#-doctor-consultancy][💉 Doctor Consultancy]]
+  - [[#-orderless][🎲 Orderless]]
+  - [[#-info--marginalia][💡 Info = Marginalia]]
+  - [[#-embark---just-bark][📸 Embark - Just Bark]]
+  - [[#-corfu---the-required-love][🍭 Corfu - The Required Love]]
+    - [[#-extensify---cape-the-hero][🗻 Extensify - Cape the Hero]]
+  - [[#-tempel-snip][⛩ Tempel Snip]]
+    - [[#custom-templates][Custom templates]]
+  - [[#-jinxed-correction][✔ Jinxed Correction]]
 - [[#️-organize-life][🗄️ Organize Life]]
   - [[#good-org][Good Org]]
   - [[#org-present][Org Present]]
@@ -39,10 +48,10 @@
   - [[#linter][Linter]]
   - [[#-terminal][ Terminal]]
 - [[#-modal-edit][😸 Modal Edit]]
-- [[#fun-packages][Fun Packages]]
-  - [[#do-it-in-emacs][Do it in Emacs]]
+- [[#-fun-packages][💎 Fun Packages]]
+  - [[#-do-it-in-emacs][💠 Do it in Emacs]]
   - [[#-matrix][🐲 Matrix]]
-  - [[#website][Website]]
+  - [[#-website][📝 Website]]
 - [[#-android][📲 Android]]
 - [[#️-run-always-and-be-everywhere][🏍️ Run Always, and be Everywhere]]
 - [[#-reading][✨ Reading]]
@@ -50,6 +59,8 @@
   - [[#-epub---nov][📚 Epub - Nov]]
   - [[#doc-view][Doc-view]]
   - [[#-rss---better-web][📰 Rss - Better Web]]
+    - [[#enhanced-rss-experience][Enhanced Rss experience]]
+    - [[#feeds][Feeds]]
 - [[#-to-do-stuffs][📒 To-Do Stuffs]]
 
 * ✨ TLDR - Features
@@ -64,7 +75,7 @@ Some of the highlights which you might wanna copy or take from this config :
 5. Tries to keep it simple and efficient for its purpose.
 
 * 🔰 Start-ify
-** Package Initialization
+** 📦 Package Initialization
 #+begin_src emacs-lisp
   ;; I use Emacs on android too.
   (defvar d/on-droid
@@ -119,7 +130,7 @@ Some of the highlights which you might wanna copy or take from this config :
        (convert-standard-filename
 	(expand-file-name "var/eln-cache/" user-emacs-directory)))))
    #+end_src
-** Garbage Collect
+** 🧽 Garbage Collect
 #+begin_src emacs-lisp
   (use-package gcmh
     :ensure t
@@ -418,7 +429,7 @@ Not that intuitive to use as file manager, once you get a hand of emacs. You wil
     (dired-omit-files "\\`[.]?#\\|\\`[.][.]?\\'\\|^\\..*$"))
 
 #+end_src
-** Tramp
+** 🛫 Tramp
 #+begin_src emacs-lisp
   (use-package tramp
     :defer t
@@ -440,7 +451,7 @@ Not that intuitive to use as file manager, once you get a hand of emacs. You wil
     (tramp-use-ssh-controlmaster-options nil))
 #+end_src
 
-** Font
+** 💌 Font
 Font choice is crucial to read. I use a fork of Recursive Font with Nerd Icons patches.
 #+begin_src emacs-lisp
   ;; You will most likely need to adjust this font size for your system!
@@ -488,18 +499,31 @@ Font choice is crucial to read. I use a fork of Recursive Font with Nerd Icons p
 
   #+end_src
 * 📊 GUI Tweaks
-** Goodies
+** ☯ Enhancement
 #+begin_src emacs-lisp
   (use-package mwheel
     :custom
-    (mouse-wheel-scroll-amount '(1
-				 ((shift) . 5)
-				 ((control))))
-    (mouse-wheel-progressive-speed nil))
+    (mouse-wheel-scroll-amount '(1 ((shift) . 5) ((control))))
+    (mouse-wheel-progressive-speed nil)
+    (scroll-margin 4)
+    (scroll-conservatively 101))
 
   (use-package pixel-scroll
+    :bind
+    (("C-v" . d/scroll-down)
+     ("M-v" . d/scroll-up))
+
     :config
-    (pixel-scroll-mode))
+    (pixel-scroll-precision-mode)
+    (defun d/scroll-down ()
+      "Trust me, make scrolling alot smoother. +1 Makes you fall in love with Emacs again!"
+      (interactive)
+      (pixel-scroll-precision-scroll-down 20))
+
+    (defun d/scroll-up ()
+      "Trust me, adds a wonderfull smooth scroll. You can do this by trackpad too (laptop)"
+      (interactive)
+      (pixel-scroll-precision-scroll-up 20)))
 
   (use-package tooltip
     :defer t
@@ -534,12 +558,12 @@ Font choice is crucial to read. I use a fork of Recursive Font with Nerd Icons p
     :ensure nil
     :unless d/on-droid
     :bind (:map image-mode-map
-		("q" . d/kill-buffer))
+    ("q" . d/kill-buffer))
     :hook
     (image-mode . (lambda () (olivetti-mode) (setq olivetti-body-width 0.45))))
 #+end_src
 
-** Help with Docs
+** 📜 Help with Docs
 #+begin_src emacs-lisp
   (use-package select
     :custom
@@ -627,7 +651,7 @@ Many people know that emacs has lot of keychords, which aren't easy to remember,
   (setq prefix-help-command #'repeated-prefix-help-command)
 #+end_src
 
-**** Web
+** 🕸 Web
 #+begin_src emacs-lisp
   (use-package shr-tag-pre-highlight
     :ensure t
@@ -658,11 +682,17 @@ Many people know that emacs has lot of keychords, which aren't easy to remember,
     (eww-search-prefix "https://duckduckgo.com/html/?kd=-1&q="))
 
   (use-package browse-url
-    :bind
-    ([f5] . browse-url))
+    :config
+    ;; browser script
+    (unless d/on-droid
+      (setq browse-url-browser-function 'browse-url-generic
+            browse-url-generic-program "d-stuff")
+      (setq browse-url-secondary-browser-function 'browse-url-generic
+            browse-url-generic-program "d-stuff"))
+    )
 #+end_src
 
-**** Split
+** 🍀 Window
 #+begin_src emacs-lisp
   (use-package window
     :bind ("M-o" . other-window)
@@ -695,28 +725,14 @@ Many people know that emacs has lot of keychords, which aren't easy to remember,
     )
 #+end_src
 
-** Aesthetic
+** 🌟 Aesthetic
 #+begin_src emacs-lisp
   (unless d/on-droid
     (use-package olivetti
       :defer t
-      :hook ((text-mode         . olivetti-mode)
-	     ;; (prog-mode         . olivetti-mode)
-	     (Info-mode         . olivetti-mode)
-	     ;; (eshell-mode         . olivetti-mode)
-	     (helpful-mode         . olivetti-mode)
-	     (Info-mode         . olivetti-mode)
-	     (org-mode          . olivetti-mode)
-	     (ement-room-mode   . olivetti-mode)
-	     (dashboard-mode    . olivetti-mode)
-	     (eww-mode          . olivetti-mode)
-	     (sdcv-mode         . olivetti-mode)
-	     (fundamental-mode  . olivetti-mode)
-	     (nov-mode          . olivetti-mode)
-	     (markdown-mode     . olivetti-mode)
-	     (mu4e-view-mode    . olivetti-mode)
-	     (elfeed-show-mode  . olivetti-mode)
-	     (mu4e-compose-mode . olivetti-mode))
+      :hook
+      (org-mode text-mode Info-mode helpful-mode ement-room-mode
+                eww-mode sdcv-mode nov-mode elfeed-show-mode markdown-mode)
       :custom
       (olivetti-body-width 0.9)
       (olivetti-minimum-body-width 76)
@@ -897,7 +913,7 @@ Just check the [[https://github.com/minad/vertico][Vertico github]] repo, you wi
 	      args))))
 
 #+end_src
-** Doctor Consultancy
+** 💉 Doctor Consultancy
 Another, one which make certain pains of emacs , so good that you will fall in Love with Emacs again!
 #+begin_src emacs-lisp
   (use-package consult
@@ -1052,7 +1068,7 @@ Another, one which make certain pains of emacs , so good that you will fall i
 
     (setq add-unicodes (unless d/on-droid (directory-files "~/d-git/d-bin/treasure/unicodes/" t "i"))))
 #+end_src
-** Orderless
+** 🎲 Orderless
 This is by Oantolin. Orderless makes it more than fuzzy!
 #+begin_src emacs-lisp
   (use-package orderless
@@ -1065,7 +1081,7 @@ This is by Oantolin. Orderless makes it more than fuzzy!
     (orderless-style-dispatchers (list #'+orderless-consult-dispatch
 				      #'orderless-affix-dispatch))))
 #+end_src
-** Info = Marginalia
+** 💡 Info = Marginalia
 Gives good annotations for vertico and help menu. Good!
 #+begin_src emacs-lisp
   (use-package marginalia
@@ -1074,7 +1090,7 @@ Gives good annotations for vertico and help menu. Good!
     :init
     (marginalia-mode))
 #+end_src
-** Embark - Just Bark
+** 📸 Embark - Just Bark
 This is also by Oantolin .Really gets handy for experienced users, maybe difficult to understand for Beginners, but on thing you can try is embark act and export it. I also dont use this much (yea, a Newbie in some areas..)
 #+begin_src emacs-lisp
   (use-package embark
@@ -1096,7 +1112,7 @@ This is also by Oantolin .Really gets handy for experienced users, maybe difficu
     (embark-collect-mode . consult-preview-at-point-mode))
 
 #+end_src
-** Corfu - The Required Love
+** 🍭 Corfu - The Required Love
 Completion to next level, works even on terminal
 #+begin_src emacs-lisp
   (use-package corfu
@@ -1148,7 +1164,7 @@ Completion to next level, works even on terminal
     :custom
     (dabbrev-ignored-buffer-regexps '("\\.\\(?:pdf\\|jpe?g\\|png\\)\\'")))
 #+end_src
-*** Extensify - Cape the Hero
+*** 🗻 Extensify - Cape the Hero
 Cape for Rescue! Feel the power of Emacs Extensibility
 #+begin_src emacs-lisp
   ;; Add extensions
@@ -1212,7 +1228,7 @@ Cape for Rescue! Feel the power of Emacs Extensibility
     ;; (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
     )
 #+end_src
-** Tempel Snip
+** ⛩ Tempel Snip
 Another, minimal and DIY snippets for any buffer!
 #+begin_src emacs-lisp
 
@@ -1303,7 +1319,7 @@ Making snippets/templates is so easy with this package.
   (installphase > "installphase= ''" n p " mkdir -p $out/bin" n> "for f in $(find . -executable -type f);" n> "do" n> "cp $f $out/bin" n> "done}" n> " '';")
 
 #+end_src
-** Jinxed Correction
+** ✔ Jinxed Correction
 Jinx is another cool new package for spell corrections
 #+begin_src emacs-lisp
   (unless d/on-droid
@@ -1380,13 +1396,6 @@ Plain text file can help maintain GTD too.
         ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
         :clock-in :clock-resume
         :empty-lines 1)))
-
-    ;; browser script
-    (unless d/on-droid
-      (browse-url-browser-function 'browse-url-generic
-                                   browse-url-generic-program "d-stuff")
-      (browse-url-secondary-browser-function 'browse-url-generic
-                                             browse-url-generic-program "d-stuff"))
 
     :config
     ;; Save Org buffers after refiling!
@@ -2081,8 +2090,8 @@ Currently not using it, I prefer default emacs keybindgs.
       (meow-global-mode 1))
     )
 #+end_src
-* Fun Packages
-** Do it in Emacs
+* 💎 Fun Packages
+** 💠 Do it in Emacs
 #+begin_src emacs-lisp
   (use-package reddigg
     :defer t
@@ -2210,7 +2219,7 @@ Just to use matrix for some hacky nerds community
   )
 
 #+end_src
-** Website
+** 📝 Website
 #+begin_src emacs-lisp
   (use-package ox-hugo
     :unless d/on-droid
@@ -2488,9 +2497,7 @@ Use RSS, just switch to it, and save your time for other productive things. If y
     (:map eww-mode-map
 	  ("e" . readable-article)
 	  ("Q" . d/kill-buffer)
-	  ("M-v" . d/scroll-up)
 	  ("<return>" . eww-follow-link)
-	  ("C-v" . d/scroll-down)
 	  ("m" . elfeed-toggle-star)
 	  ("b" . d/external-browser))
     :config

@@ -12,25 +12,25 @@ programs = {
     enable = true;
     enableZshIntegration = true;
     settings = {
-      add_newline = true;
-      scan_timeout = 5;
-      character = {
-	      error_symbol = " [](#df5b61)";
-	      success_symbol = "[](#6791c9)";
-	      vicmd_symbol = "[](bold yellow)";
-	      format = "[$directory$all$character](bold)[  ](bold blue)";
-      };
-      git_commit = {commit_hash_length = 4;};
-      line_break.disabled = false;
-      lua.symbol = "[󰢱](blue) ";
-      python.symbol = "[](blue) ";
-      directory.read_only = " ";
-      nix_shell.symbol = " ";
-      hostname = {
-	      ssh_only = true;
-	      format = "[$hostname](bold blue) ";
-	      disabled = false;
-      };
+add_newline = true;
+scan_timeout = 5;
+character = {
+	error_symbol = " [](#df5b61)";
+	success_symbol = "[](#6791c9)";
+	vicmd_symbol = "[](bold yellow)";
+	format = "$directory$all$character](bold)[  ](bold blue)";
+};
+git_commit = {commit_hash_length = 4;};
+line_break.disabled = false;
+lua.symbol = "[󰢱](blue) ";
+python.symbol = "[](blue) ";
+directory.read_only = " ";
+nix_shell.symbol = " ";
+hostname = {
+	ssh_only = true;
+	format = "[$hostname](bold blue) ";
+	disabled = false;
+};
     };
   };
 
@@ -41,11 +41,11 @@ programs = {
     enableAutosuggestions = true;
     history.extended = true;
     sessionVariables = {
-      LC_ALL = "en_US.UTF-8";
-      ZSH_AUTOSUGGEST_USE_ASYNC = "true";
-      NIXOS_OZONE_WL = "1";
-      BROWSER = "librewolf";
-      MOZ_ENABLE_WAYLAND = "1";
+LC_ALL = "en_US.UTF-8";
+ZSH_AUTOSUGGEST_USE_ASYNC = "true";
+NIXOS_OZONE_WL = "1";
+BROWSER = "librewolf";
+MOZ_ENABLE_WAYLAND = "1";
     };
 
     envExtra = ''
@@ -76,14 +76,14 @@ programs = {
 	    printf "\e]%s\e\\" "$1" "51;A$(whoami)@$(hostname):$(pwd)"
 	    }
 	    setopt PROMPT_SUBST
-	    PROMPT=$PROMPT'%{$(vterm_prompt_end)%}'                       
+	    PROMPT=$PROMPT'%{$(vterm_prompt_end)%}'
 	'';
 
     history = {
-      save = 10000;
-      size = 10000;
-      expireDuplicatesFirst = true;
-      ignoreDups = true;
+save = 10000;
+size = 10000;
+expireDuplicatesFirst = true;
+ignoreDups = true;
     };
   };
 };
@@ -92,7 +92,7 @@ home.packages = with pkgs; [
 
 # wayland
 libnotify libsixel bemenu
-wf-recorder brightnessctl pamixer slurp grim 
+wf-recorder brightnessctl pamixer slurp grim
 wl-clipboard wtype swaybg swayidle gammastep
 
 # media
@@ -102,7 +102,7 @@ yt-dlp jq ytfzf ani-cli youtube-tui
 # cli tools
 pcmanfm libreoffice pandoc groff mupdf
 # wkhtmltopdf-bin
-fzf neovim unzip  
+fzf neovim unzip
 aspell aspellDicts.en-science aspellDicts.en hunspell hunspellDicts.en-us
 ffmpeg sdcv nq
 #mu isync
@@ -214,22 +214,22 @@ programs = {
   ripgrep = {
     enable = true;
     arguments = [
-      "--max-columns-preview"
-      "--colors=line:style:bold"
+"--max-columns-preview"
+"--colors=line:style:bold"
     ];
   };
   btop = {
-    enable = true;  
+    enable = true;
     settings = {
-      color_theme = "Default";
-      theme_background = false;
-      vim_keys = true;
-      shown_boxes = "proc cpu";
-      rounded_corners = true ;
-      graph_symbol = "block";
-      proc_sorting = "memory";
-      proc_reversed = false;
-      proc_gradient = true;
+color_theme = "Default";
+theme_background = false;
+vim_keys = true;
+shown_boxes = "proc cpu";
+rounded_corners = true ;
+graph_symbol = "block";
+proc_sorting = "memory";
+proc_reversed = false;
+proc_gradient = true;
     };
   };
 };
@@ -242,81 +242,81 @@ services.dunst = {
   };
   settings = {
     global = {
-      monitor = 0;
-      background = "#050505";
-      frame_color = "#2e8b57";
-      transparency = 0;
-      follow = "none";
-      width = 900;
-      height = 900;
-      idle_threshold = 120;
-      origin = "top-right";
-      offset = "10x50";
-      scale = 0;
-      notification_limit = 0;
-      progress_bar = "true";
-      alignment = "center";
-      progress_bar_height = 10;
-      progress_bar_frame_width = 1;
-      progress_bar_min_width = 150;
-      progress_bar_max_width = 500;
-      indicate_hidden = "yes";
-      separator_height = 2;
-      padding = 20;
-      horizontal_padding = 12;
-      text_icon_padding = 8;
-      frame_width = 3;
-      separator_color = "frame";
-      sort = "yes";
-      font = "Code D Ace 20";
-      line_height = 0;
-      markup = "full";
-      stack_duplicates = "true";
-      vertical_alignment = "center";
-      show_age_threshold = 60;
-      ellipsize = "middle";
-      ignore_newline = "no";
-      show_indicators = "yes";
-      icon_position = "left";
-      max_icon_size = 32;
-      sticky_history = "yes";
-      history_length = 20;
-      browser = "/home/i/d-git/d-bin/bin/d-stuff";
-      always_run_script = "true";
-      title = "Dunst";
-      class = "Dunst";
-      corner_radius = 20;
-      ignore_dbusclose = false;
-      force_xwayland = "false";
-      layer = "overlay";
-      mouse_left_click = "do_action";
-      mouse_middle_click = "do_action";
-      mouse_right_click = "close_all";
-      };
+monitor = 0;
+background = "#050505";
+frame_color = "#2e8b57";
+transparency = 0;
+follow = "none";
+width = 900;
+height = 900;
+idle_threshold = 120;
+origin = "top-right";
+offset = "10x50";
+scale = 0;
+notification_limit = 0;
+progress_bar = "true";
+alignment = "center";
+progress_bar_height = 10;
+progress_bar_frame_width = 1;
+progress_bar_min_width = 150;
+progress_bar_max_width = 500;
+indicate_hidden = "yes";
+separator_height = 2;
+padding = 20;
+horizontal_padding = 12;
+text_icon_padding = 8;
+frame_width = 3;
+separator_color = "frame";
+sort = "yes";
+font = "Code D Ace 20";
+line_height = 0;
+markup = "full";
+stack_duplicates = "true";
+vertical_alignment = "center";
+show_age_threshold = 60;
+ellipsize = "middle";
+ignore_newline = "no";
+show_indicators = "yes";
+icon_position = "left";
+max_icon_size = 32;
+sticky_history = "yes";
+history_length = 20;
+browser = "/home/i/d-git/d-bin/bin/d-stuff";
+always_run_script = "true";
+title = "Dunst";
+class = "Dunst";
+corner_radius = 20;
+ignore_dbusclose = false;
+force_xwayland = "false";
+layer = "overlay";
+mouse_left_click = "do_action";
+mouse_middle_click = "do_action";
+mouse_right_click = "close_all";
+};
 
-      reminder = {
-       category = "reminder";
-       background = "#33333390";
-       foreground = "#ffffff";
-       timeout = 0;
-       script="d-notif";
+reminder = {
+ category = "reminder";
+ background = "#33333390";
+ foreground = "#ffffff";
+ timeout = 0;
+ script="d-notif";
     };
 
     urgency_low = {
-      background = "#050505";
-      foreground = "#ffffff";
-      timeout = 5;
+background = "#050505";
+foreground = "#ffffff";
+timeout = 5;
     };
     urgency_normal = {
-      background = "#050505";
-      foreground = "#ffffff";
-      timeout = 6;
+background = "#050505";
+foreground = "#ffffff";
+timeout = 6;
     };
     urgency_critical = {
-      background = "#050505";
-      foreground = "#ffffff";
-      frame_color = "#f38ba8";
-      timeout = 0;
+background = "#050505";
+foreground = "#ffffff";
+frame_color = "#f38ba8";
+timeout = 0;
     };
   };
 };
@@ -327,19 +327,19 @@ programs.foot = {
   server.enable = false;
   settings = {
     main = {
-      term = "xterm-256color";
-      font = "Code D OnePiece:size=12, Noto Color Emoji:size=15";
-      font-bold = "Code D Lip:size=12, Noto Color Emoji:size=15";
-      letter-spacing = "1";
-       box-drawings-uses-font-glyphs = "no";
+term = "xterm-256color";
+font = "Code D OnePiece:size=12, Noto Color Emoji:size=15";
+font-bold = "Code D Lip:size=12, Noto Color Emoji:size=15";
+letter-spacing = "1";
+ box-drawings-uses-font-glyphs = "no";
     };
     scrollback = {
-      lines = "1000";
+lines = "1000";
     };
     key-bindings = {
-      clipboard-copy = "Control+Shift+c Mod1+w";
-      clipboard-paste = "Control+Shift+v Control+y";
-      primary-paste = "Shift+Insert";
+clipboard-copy = "Control+Shift+c Mod1+w";
+clipboard-paste = "Control+Shift+v Control+y";
+primary-paste = "Shift+Insert";
 
     };
     colors = {
@@ -361,10 +361,10 @@ programs.foot = {
      bright5="b6a0ff";
      bright6="6ae4b9";
      bright7="ffffff";
-      alpha= "1.0";
+alpha= "1.0";
     };
     mouse = {
-      hide-when-typing = "yes";
+hide-when-typing = "yes";
     };
   };
 };
@@ -419,11 +419,11 @@ services.mpd = {
   };
   musicDirectory = "~/d-sync/music";
   extraConfig = ''
-      audio_output {
+audio_output {
 	type    "pipewire"
 	name    "pipewire"
-      }
-      auto_update "yes"
+}
+auto_update "yes"
     '';
 };
 
@@ -431,34 +431,34 @@ programs= {
   ncmpcpp = {
     enable = true;
     settings = {
-      ncmpcpp_directory = "~/.config/ncmpcpp";
-      lyrics_directory = "~/.local/share/lyrics";
-      message_delay_time = "1";
-      song_list_format = "{$4%a - }{%t}|{$8%f$9}$R{$3(%l)$9}";
-      song_status_format = "$b{{$8'%t'}} $3by {$4%a{ $3in $7%b{ (%y)}} $3}|{$8%f}";
-      song_library_format = "{%n - }{%t}|{%f}";
-      alternative_header_first_line_format = "$b$1$aqqu$/a$9 {%t}|{%f} $1$atqq$/a$9$/b";
-      alternative_header_second_line_format = "{{$4$b%a$/b$9}{ - $7%b$9}{ ($4%y$9)}}|{%D}";
-      current_item_prefix = "$(cyan)$r$b";
-      current_item_suffix = "$/r$(end)$/b";
-      current_item_inactive_column_prefix = "$(magenta)$r";
-      current_item_inactive_column_suffix = "$/r$(end)";
-      playlist_display_mode = "columns";
-      browser_display_mode = "columns";
-      progressbar_look = "->";
-      media_library_primary_tag = "album_artist";
-      media_library_albums_split_by_date = "no";
-      startup_screen = "media_library";
-      display_volume_level = "no";
-      ignore_leading_the = "yes";
-      external_editor = "nvim";
-      use_console_editor = "yes";
-      empty_tag_color = "magenta";
-      main_window_color = "white";
-      progressbar_color = "black:b";
-      progressbar_elapsed_color = "blue:b";
-      statusbar_color = "red";
-      statusbar_time_color = "cyan:b";
+ncmpcpp_directory = "~/.config/ncmpcpp";
+lyrics_directory = "~/.local/share/lyrics";
+message_delay_time = "1";
+song_list_format = "{$4%a - }{%t}|{$8%f$9}$R{$3(%l)$9}";
+song_status_format = "$b{{$8'%t'}} $3by {$4%a{ $3in $7%b{ (%y)}} $3}|{$8%f}";
+song_library_format = "{%n - }{%t}|{%f}";
+alternative_header_first_line_format = "$b$1$aqqu$/a$9 {%t}|{%f} $1$atqq$/a$9$/b";
+alternative_header_second_line_format = "{{$4$b%a$/b$9}{ - $7%b$9}{ ($4%y$9)}}|{%D}";
+current_item_prefix = "$(cyan)$r$b";
+current_item_suffix = "$/r$(end)$/b";
+current_item_inactive_column_prefix = "$(magenta)$r";
+current_item_inactive_column_suffix = "$/r$(end)";
+playlist_display_mode = "columns";
+browser_display_mode = "columns";
+progressbar_look = "->";
+media_library_primary_tag = "album_artist";
+media_library_albums_split_by_date = "no";
+startup_screen = "media_library";
+display_volume_level = "no";
+ignore_leading_the = "yes";
+external_editor = "nvim";
+use_console_editor = "yes";
+empty_tag_color = "magenta";
+main_window_color = "white";
+progressbar_color = "black:b";
+progressbar_elapsed_color = "blue:b";
+statusbar_color = "red";
+statusbar_time_color = "cyan:b";
     };
   };
   mpv = {
@@ -468,10 +468,10 @@ programs= {
   yt-dlp = {
     enable = true;
     settings = {
-      embed-thumbnail = true;
-      embed-metadata = true;
-      embed-subs = true;
-      sub-langs = "all";
+embed-thumbnail = true;
+embed-metadata = true;
+embed-subs = true;
+sub-langs = "all";
     };
   };
 };
@@ -542,17 +542,21 @@ programs = {
   tealdeer = {
     enable = true;
     settings = {
-      display = {
+display = {
 	compact = false;
 	use_pager = true;
-      };
-      updates = {
+};
+updates = {
 	auto_update = true;
-      };
+};
     };
   };
 };
 xdg = {
+  portal = {
+    enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk pkgs.xdg-desktop-portal-hyprland ];
+  };
   userDirs = {
     enable = true;
     documents = "$HOME/docs";
@@ -620,132 +624,132 @@ programs.waybar = {
 
   settings = {
     mainBar = {
-      layer = "top";
-      position = "top";
-      # height = 15;
-      # spacing = 7;
-      fixed-center = true;
-      exclusive = true;
-      modules-left = [
-	      "custom/launcher"
-	      "hyprland/workspaces"
-	      "hyprland/window"
-	      "hyprland/submap"
-      ];
-      modules-center = [
-	      "clock" "mpd"
-      ];
-      modules-right = ["network" "battery" "memory" "pulseaudio" "custom/power"];
-      "hyprland/workspaces" = {
-	      format = "{icon}";
-	      active-only = false;
-	      on-click = "activate";
-	      format-icons = {
-		      active = "";
-		      default = "";
-		      "1" = "1";
-		      "2" = "2";	
-		      "3" = "3";
-		      "4" = "4";
-		      "5" = "5";
-		      "6" = "6";
-	      };
-      };
+layer = "top";
+position = "top";
+# height = 15;
+# spacing = 7;
+fixed-center = true;
+exclusive = true;
+modules-left = [
+	"custom/launcher"
+	"hyprland/workspaces"
+	"hyprland/window"
+	"hyprland/submap"
+];
+modules-center = [
+	"clock" "mpd"
+];
+modules-right = ["network" "battery" "memory" "pulseaudio" "custom/power"];
+"hyprland/workspaces" = {
+	format = "{icon}";
+	active-only = false;
+	on-click = "activate";
+	format-icons = {
+		active = "";
+		default = "";
+		"1" = "1";
+		"2" = "2";
+		"3" = "3";
+		"4" = "4";
+		"5" = "5";
+		"6" = "6";
+	};
+};
 
-      "hyprland/window" = {
-	      "format" = "👁{}";
-	      "separate-outputs" = true;
-	      "rewrite" = {
+"hyprland/window" = {
+	"format" = "👁{}";
+	"separate-outputs" = true;
+	"rewrite" = {
 		"(.*) - Mozilla Firefox" = "🦊 $1";
 		"(.*) - zsh" = ">_ [$1]";
-	      };
-      };
+	};
+};
 
-      "hyprland/submap" = {
-	      "format" = " {}";
-	      "max-length" = 14;
-	      "tooltip" = false;
-      };
+"hyprland/submap" = {
+	"format" = " {}";
+	"max-length" = 14;
+	"tooltip" = false;
+};
 
-      "custom/launcher" = {
-	      "format" = " ";
-	      "tooltip" = false;
-	      "on-click" = "bemenu-run";
-      };
+"custom/launcher" = {
+	"format" = " ";
+	"tooltip" = false;
+	"on-click" = "bemenu-run";
+};
 
-      "battery" =  {
-	      "bat" =  "BAT0";
-	      "interval" =  30;
-	      "states" =  {
-		      "warning" =  50;
-		      "critical" =  30;
-	      };
-	      "format" =  "{capacity}% {icon}";
-	      "format-icons" =  [" " "🔴" "🪫" " " " "];
-	      "max-length" =  25;
-      };
+"battery" =  {
+	"bat" =  "BAT0";
+	"interval" =  30;
+	"states" =  {
+		"warning" =  50;
+		"critical" =  30;
+	};
+	"format" =  "{capacity}% {icon}";
+	"format-icons" =  [" " "🔴" "🪫" " " " "];
+	"max-length" =  25;
+};
 
-      "mpd" = {
-	      "format" = "{stateIcon} {title}  ";
-	      "format-disconnected" = "  ";
-	      "format-stopped" = "  ";
-	      "title-len" = 20;
-	      "interval" = 10;
-	      "on-click" = "mpc toggle";
-	      "state-icons" = {
-		      "paused" = "";
-		      "playing" = "";
-	      };
-	      "tooltip-format" = "Playing: {filename}";
-	      "tooltip-format-disconnected" = "";
-      };
+"mpd" = {
+	"format" = "{stateIcon} {title}  ";
+	"format-disconnected" = "  ";
+	"format-stopped" = "  ";
+	"title-len" = 20;
+	"interval" = 10;
+	"on-click" = "mpc toggle";
+	"state-icons" = {
+		"paused" = "";
+		"playing" = "";
+	};
+	"tooltip-format" = "Playing: {filename}";
+	"tooltip-format-disconnected" = "";
+};
 	    "custom/power" = {
-	      "format" = "⏻";
-	      "on-click" = "d-power";
-	      "tooltip" = false;
-      };
-      "clock" = {
-	      "tooltip-format" = "{:%A %B %d %Y | %H:%M}";
-	      "format-alt" = " {:%a %d %b  %I:%M %p}";
-	      "format" = " {:%H:%M} ";
-	      ##"timezones" = [ "Kolkata" ];
-	      ##"max-length" = 200;
-	      "interval" = 1;
-      };
-      "cpu" = {
-	      "format" = "﬙ {usage: >3}%";
-	      "on-click" = "footclient -e btop";
-      };
-      "memory" = {
-	      "format" = " {: >3}%";
-	      "on-click" = "foot -e btop";
-      };
-      "network" = {
-	      "interface" = "wlp2s0";
-	      "format" = "⚠ Disabled";
-	      "format-wifi" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
-	      "format-ethernet" = " {ifname}: {ipaddr}/{cidr}";
-	      "format-disconnected" = "⚠ Disconnected";
-	      "on-click" = "foot -e nmtui";
-	      "interval" = 2;
-      };
-      "pulseaudio" = {
-	      "scroll-step" = 2;
-	      "format" = "{icon} {volume: >3}% ";
-	      "format-bluetooth" = "{icon} {volume: >3}%";
-	      "format-muted" =" muted ";
-	      "on-click" = "pamixer -t";
-	      "format-icons" = {
-		      "headphones" = "";
-		      "handsfree" = "";
-		      "headset" = "";
-		      "phone" = "";
-		      "portable" = "";
-		      "car" = "";
-		      "default" = ["" ""];
-	      };
-      };
-      "custom/wf-recorder" = {
+	"format" = "⏻";
+	"on-click" = "d-power";
+	"tooltip" = false;
+};
+"clock" = {
+	"tooltip-format" = "{:%A %B %d %Y | %H:%M}";
+	"format-alt" = " {:%a %d %b  %I:%M %p}";
+	"format" = " {:%H:%M} ";
+	##"timezones" = [ "Kolkata" ];
+	##"max-length" = 200;
+	"interval" = 1;
+};
+"cpu" = {
+	"format" = "﬙ {usage: >3}%";
+	"on-click" = "footclient -e btop";
+};
+"memory" = {
+	"format" = " {: >3}%";
+	"on-click" = "foot -e btop";
+};
+"network" = {
+	"interface" = "wlp2s0";
+	"format" = "⚠ Disabled";
+	"format-wifi" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
+	"format-ethernet" = " {ifname}: {ipaddr}/{cidr}";
+	"format-disconnected" = "⚠ Disconnected";
+	"on-click" = "foot -e nmtui";
+	"interval" = 2;
+};
+"pulseaudio" = {
+	"scroll-step" = 2;
+	"format" = "{icon} {volume: >3}% ";
+	"format-bluetooth" = "{icon} {volume: >3}%";
+	"format-muted" =" muted ";
+	"on-click" = "pamixer -t";
+	"format-icons" = {
+		"headphones" = "";
+		"handsfree" = "";
+		"headset" = "";
+		"phone" = "";
+		"portable" = "";
+		"car" = "";
+		"default" = ["" ""];
+	};
+};
+"custom/wf-recorder" = {
 		    "format" = "{}";
 		    "interval" = "once";
 		    "exec" = "echo ''";

@@ -166,6 +166,7 @@
   )
 
 (use-package display-line-numbers
+  :hook (prog-mode)
   :custom
   (display-line-numbers-type 'relative))
 
@@ -175,6 +176,10 @@
 (use-package ibuffer
   :bind
   ([remap list-buffers] . ibuffer))
+
+(use-package replace
+  :bind
+  ("M-%" . query-replace-regexp))
 
 (use-package xref
   :custom
@@ -531,9 +536,20 @@
   :ensure t
   ;;:defer t
   :after shr
+  :config
+  (add-to-list 'shr-external-rendering-functions
+               '(pre . shr-tag-pre-highlight)))
+
+(use-package url
   :custom
-  (shr-external-rendering-functions
-   '((pre . shr-tag-pre-highlight))))
+  (url-user-agent "")
+  (url-privacy-level 'paranoid)
+  (url-mime-accept-string "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8 ")
+  (url-mime-charset-string nil)
+  (url-mime-language-string "en-US,en;q=0.5")
+  (url-mime-encoding-string "gzip, deflate")
+  :config
+  (url-setup-privacy-info))
 
 (use-package shr
   :defer t
@@ -541,6 +557,8 @@
   (shr-use-fonts  t)
   (shr-use-colors nil)
   (shr-indentation 4)
+  (shr-bullet "• ")
+  (shr-folding-mode t)
   (shr-max-width 120)
   (shr-max-image-proportion 0.4)
   (shr-width nil))
@@ -551,9 +569,22 @@
   (shr-color-visible-luminance-min 80 "Improve the contrast"))
 
 (use-package eww
+  :commands (eww eww-search-words)
+  :hook (eww-mode . variable-pitch-mode)
+  :bind ("M-s M-w" . eww-search-words)
+  (:map eww-mode-map
+        ("e" . readable-article)
+        ("Q" . d/kill-buffer)
+        ("<return>" . eww-follow-link)
+        ("m" . elfeed-toggle-star)
+        ("b" . d/external-browser))
+  :custom
+  (eww-search-prefix "https://duckduckgo.com/html/&q="))
+
+(use-package gnutls
   :defer t
   :custom
-  (eww-search-prefix "https://duckduckgo.com/html/?kd=-1&q="))
+  (gnutls-verify-error t))
 
 (use-package browse-url
   :config
@@ -562,8 +593,7 @@
     (setq browse-url-browser-function 'browse-url-generic
           browse-url-generic-program "d-stuff")
     (setq browse-url-secondary-browser-function 'browse-url-generic
-          browse-url-generic-program "d-stuff"))
-  )
+          browse-url-generic-program "d-stuff")))
 
 (use-package window
   :bind ("M-o" . other-window)
@@ -1898,11 +1928,11 @@ select."
 
 (unless d/on-droid
   (use-package ement
-    :bind ("C-c a m" . d/ement-connect)
+    :bind
     (:map ement-room-minibuffer-map
-	  ("<f6>" . ement-room-compose-from-minibuffer))
+          ("<f6>" . ement-room-compose-from-minibuffer))
     (:map ement-room-mode-map
-	  ("M-<" . ement-room-scroll-down-command))
+          ("M-<" . ement-room-scroll-down-command))
     :custom
     (ement-room-send-message-filter 'ement-room-send-org-filter)
     (ement-room-message-format-spec "%S> %L%B%r%R%t")
@@ -1911,18 +1941,18 @@ select."
     :config
     ;; copied from viru (ement github)
     (defun d/ement-connect ()
-(interactive)
-(if (ement--read-sessions)
-	  (call-interactively #'ement-connect)
-	(let* ((found (auth-source-search :max 1
-					  :host "matrix.org"
-					  :port "8448"
-					  :require '(:user :secret)))
-	 (entry (nth 0 found))
-	 (password (funcall (plist-get entry :secret)))
-	 (user (plist-get entry :user)))
-	  (ement-connect :user-id user :password password)))))
-)
+      (interactive)
+      (if (ement--read-sessions)
+          (call-interactively #'ement-connect)
+        (let* ((found (auth-source-search :max 1
+                                          :host "matrix.org"
+                                          :port "8448"
+                                          :require '(:user :secret)))
+               (entry (nth 0 found))
+               (password (funcall (plist-get entry :secret)))
+               (user (plist-get entry :user)))
+          (ement-connect :user-id user :password password)))))
+  )
 
 (use-package ox-hugo
   :unless d/on-droid
@@ -2024,38 +2054,38 @@ select."
   :bind ("C-c d e" . d/elfeed-open)
   ("C-c d b" . d/external-browser)
   (:map elfeed-show-mode-map
-	("e" . elfeed-open-in-eww)
-	("i" . d/bionic-read)
-	("r" . elfeed-open-in-reddit)
-	("m" . elfeed-toggle-show-star)
-	("q" . d/elfeed-quit)
-	("C-x C-k" . d/elfeed-quit)
-	("P" . d/elfeed-add-podcast)
-	("b" . d/external-browser))
+        ("e" . elfeed-open-in-eww)
+        ("i" . d/bionic-read)
+        ("r" . elfeed-open-in-reddit)
+        ("m" . elfeed-toggle-show-star)
+        ("q" . d/elfeed-quit)
+        ("C-x C-k" . d/elfeed-quit)
+        ("P" . d/elfeed-add-podcast)
+        ("b" . d/external-browser))
   (:map elfeed-search-mode-map
-	("m" . elfeed-toggle-star)
-	("q" . d/elfeed-quit)
-	("C-x C-k" . d/elfeed-quit)
-	("U" . elfeed-update)
-	("u" . elfeed-update-feed))
+        ("m" . elfeed-toggle-star)
+        ("q" . d/elfeed-quit)
+        ("C-x C-k" . d/elfeed-quit)
+        ("U" . elfeed-update)
+        ("u" . elfeed-update-feed))
   :custom
   ;; (setq-default elfeed-search-filter "@1-week-ago--1-day-ago +unread -news +")
   (elfeed-search-filter "+unread +")
   (elfeed-search-date-format (if d/on-droid `("" 0 :left)  `("%d-%m 📰" 7 :left)))
-  (elfeed-search-title-max-width 90
-	elfeed-search-trailing-width 0)
+  (elfeed-search-title-max-width 90)
+  (elfeed-search-trailing-width 0)
 
   :config
   (defun elfeed-toggle-show-star ()
     (interactive)
     (if (elfeed-tagged-p 'star elfeed-show-entry)
-	(elfeed-show-untag 'star)
-(elfeed-show-tag 'star)))
-    ;; (org-capture nil "l"))
+        (elfeed-show-untag 'star)
+      (elfeed-show-tag 'star)))
+  ;; (org-capture nil "l"))
   (defun elfeed-toggle-star ()
     (interactive)
     (elfeed-search-toggle-all 'star))
-    ;; (org-capture nil "l"))
+  ;; (org-capture nil "l"))
 
   (defun d/elfeed-ui ()
     (interactive)
@@ -2082,22 +2112,22 @@ select."
     "Play the enclosure URL in Mpd using 'mingus'."
     (interactive (list (elfeed--enclosure-maybe-prompt-index elfeed-show-entry)))
     (with-no-warnings
-(message (concat "Added: " (car (elt (elfeed-entry-enclosures elfeed-show-entry)
-			    (- enclosure-index 1)))))
-(mingus-add (car (elt (elfeed-entry-enclosures elfeed-show-entry)
-			    (- enclosure-index 1))))))
+      (message (concat "Added: " (car (elt (elfeed-entry-enclosures elfeed-show-entry)
+                                           (- enclosure-index 1)))))
+      (mingus-add (car (elt (elfeed-entry-enclosures elfeed-show-entry)
+                            (- enclosure-index 1))))))
 
   (defun d/elfeed-play ()
     (interactive)
     (let* ((count (length (elfeed-entry-enclosures elfeed-show-entry)))
-	   (entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
-(message (concat "Added: " (elfeed-entry-link entry)))
-(if (zerop count)
-	  (async-shell-command (format "mpc add $(yt-dlp -g \"%s\")" (elfeed-entry-link entry)) nil nil)
-	(with-no-warnings
-	  (mingus-add (car (elt (elfeed-entry-enclosures elfeed-show-entry)
-				(- enclosure-index 1))))))
-))
+           (entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
+      (message (concat "Added: " (elfeed-entry-link entry)))
+      (if (zerop count)
+          (async-shell-command (format "mpc add $(yt-dlp -g \"%s\")" (elfeed-entry-link entry)) nil nil)
+        (with-no-warnings
+          (mingus-add (car (elt (elfeed-entry-enclosures elfeed-show-entry)
+                                (- enclosure-index 1))))))
+      ))
 
   ;; face for starred articles
   (defface elfeed-search-star-title-face
@@ -2109,18 +2139,30 @@ select."
     "use org file as bookmark for elfeed entries.
 Usable as favorites or bookmark."
     (when elfeed-show-entry
-(let* ((link (elfeed-entry-link elfeed-show-entry))
-	     (title (elfeed-entry-title elfeed-show-entry)))
-	(org-store-link-props
-	 :link link
-	 :description title))))
+      (let* ((link (elfeed-entry-link elfeed-show-entry))
+             (title (elfeed-entry-title elfeed-show-entry)))
+        (org-store-link-props
+         :link link
+         :description title))))
 
-  (add-hook 'org-store-link-functions
-	    'private/org-elfeed-entry-store-link)
+  (defun elfeed-open-in-eww ()
+    "open elfeed entry in eww."
+    (interactive)
+    (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
+      (eww (elfeed-entry-link entry))
+      (eww-readable)))
+
+  (defun elfeed-open-in-reddit ()
+    "open elfeed entry in reddit"
+    (interactive)
+    (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
+      (reddigg-view-comments (elfeed-entry-link entry)))
+    (display-buffer-pop-up-window (reddigg--get-cmt-buffer) nil)
+    (other-window))
 
   (when d/on-droid
-(define-key elfeed-show-mode-map (kbd "<volume-up>") #'elfeed-show-prev)
-(define-key elfeed-show-mode-map (kbd "<volume-down>") #'elfeed-show-next)))
+    (define-key elfeed-show-mode-map (kbd "<volume-up>") #'elfeed-show-prev)
+    (define-key elfeed-show-mode-map (kbd "<volume-down>") #'elfeed-show-next)))
 
 (use-package link-hint
   :defer t
@@ -2143,54 +2185,6 @@ Usable as favorites or bookmark."
   (elfeed-org)
   :custom
   (rmh-elfeed-org-files (list "~/d-git/d-nix/d-emacs.org")))
-
-(defun readable-article ()
-  (interactive)
-  (eww-readable)
-  ;; (d/bionic-read)
-  (beginning-of-buffer))
-
-(defun elfeed-open-in-eww ()
-  "open elfeed entry in eww."
-  (interactive)
-  (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
-    (eww (elfeed-entry-link entry))
-    (add-hook 'eww-after-render-hook #'readable-article)))
-
-(defun elfeed-open-in-reddit ()
-  "open elfeed entry in reddit"
-  (interactive)
-  (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
-    (reddigg-view-comments (elfeed-entry-link entry)))
-  (display-buffer-pop-up-window (reddigg--get-cmt-buffer) nil)
-  (other-window))
-
-(use-package eww
-  :commands (eww eww-search-words)
-  :hook (eww-mode . variable-pitch-mode)
-  :bind ("M-s M-w" . eww-search-words)
-  (:map eww-mode-map
-	("e" . readable-article)
-	("Q" . d/kill-buffer)
-	("<return>" . eww-follow-link)
-	("m" . elfeed-toggle-star)
-	("b" . d/external-browser))
-  :config
-  (setq shr-bullet "• "
-	shr-folding-mode t
-	url-privacy-level '(email agent cookies lastloc))
-  (setq url-user-agent "")
-  (setq url-privacy-level 'paranoid)
-  (url-setup-privacy-info)
-  (setq url-mime-accept-string "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8 ")
-  (setq url-mime-charset-string nil)
-  (setq url-mime-language-string "en-US,en;q=0.5")
-  (setq url-mime-encoding-string "gzip, deflate"))
-
-(use-package gnutls
-  :defer t
-  :custom
-  (gnutls-verify-error t))
 
 (defun d/external-browser ()
   (interactive)

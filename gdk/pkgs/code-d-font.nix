@@ -7,7 +7,7 @@ stdenvNoCC.mkDerivation rec {
   src = fetchgit {
     url = "https://github.com/idlip/code-d-font";
     sparseCheckout = [
-      "fonts"
+"fonts"
     ];
     sha256 = "sha256-PkJOX+zYQYs0J+T92y4oTXsYXKJ960/TSELDjykw52Q=";
   };

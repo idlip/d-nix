@@ -9,6 +9,12 @@
     # For Adblocking and making internet usable
     hosts.url = "github:StevenBlack/hosts";
 
+    # nix index to locate package/path
+    nix-index-db = {
+      url = "github:nix-community/nix-index-database";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Home to manage all user configs
     # You can you use normal config files,
     # just use an org heading and create block and tangle it directly to ~/.config/tool/file path.
@@ -19,40 +25,12 @@
 
   };
 
-  outputs = inputs @ {self, hosts, home-manager, nixpkgs, ...} :
-    let
-      # You might check on darwin for macos
-      system = "x86_64-linux";
-      pkgs = import nixpkgs {
-        inherit system;
-        config.allowUnfree = false;
-      };
-      lib = nixpkgs.lib;
+  outputs = {self, ...} @ inputs: let
+    system = "x86_64-linux";
+    pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
+  in {
 
-    in {
+    nixosConfigurations = import ./hosts inputs;
 
-      nixosConfigurations = {
-
-        gdk = lib.nixosSystem {
-          inherit system;
-          modules = [
-
-            ./gdk/configuration.nix
-            home-manager.nixosModules.home-manager {
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.extraSpecialArgs = {
-                inherit inputs;
-                inherit self;
-              };
-
-              home-manager.users.i = ./gdk/i-home ;
-            }
-            hosts.nixosModule
-          ];
-          specialArgs = {inherit inputs;};
-        };
-      };
-
-    };
+  };
 }

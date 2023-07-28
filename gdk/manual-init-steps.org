@@ -1,1 +1,0 @@
-This file describes steps that need to be taken during the first time set up of the computer after a new installation of NixOS

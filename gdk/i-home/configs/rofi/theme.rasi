@@ -1,9 +1,0 @@
-// Modus theme
- * {
-   background:     #050505AA;
-   background-alt: #050505EE;
-   foreground:     #FFFFFF;
-   selected:       #9aff9a;
-   active:         #79a8ff;
-   urgent:         #E06B74FF;
- }

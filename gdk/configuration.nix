@@ -27,12 +27,12 @@ time.timeZone = "Asia/Kolkata";
 
 # This code is from nixos wiki for Btrfs. Depends on which file system you use.
 # Refer nixos wiki once. Might get error if not using btrfs
-# #FIXME 
+# #FIXME
 fileSystems = {
   "/".options = [ "compress=zstd" ];
   "/home".options = [ "compress=zstd" ];
   "/nix".options = [ "compress=zstd" "noatime" ];
-};  
+};
 
 # Select internationalisation properties.
 i18n.defaultLocale = "en_US.UTF-8";
@@ -85,11 +85,11 @@ nix = {
   };
 
   # pin the registry to avoid downloading and evaling a new nixpkgs version every time
-  registry = lib.mapAttrs (_: value: { flake = value; }) inputs;  
+  registry = lib.mapAttrs (_: value: { flake = value; }) inputs;
 
-  # This will additionally add your inputs to the system's legacy channels  
-  # Making legacy nix commands consistent as well, awesome!  
-  nixPath = lib.mapAttrsToList (key: value: "${key}=${value.to.path}") config.nix.registry;  
+  # This will additionally add your inputs to the system's legacy channels
+  # Making legacy nix commands consistent as well, awesome!
+  nixPath = lib.mapAttrsToList (key: value: "${key}=${value.to.path}") config.nix.registry;
 
   # Free up to 1GiB whenever there is less than 100MiB left.
   extraOptions = ''
@@ -223,7 +223,7 @@ security.doas = {
   extraRules = [{
     users = [ "i" ];
     keepEnv = true;
-    persist = true;  
+    persist = true;
   }];
 };
 
@@ -258,7 +258,7 @@ services = {
   # See if you want bluetooth setup
   # blueman.enable = true;
 
-  # For android file transfer via usb, or better check on KDE connect 
+  # For android file transfer via usb, or better check on KDE connect
   gvfs.enable = true;
 
   # configuring syncthing
@@ -269,26 +269,26 @@ services = {
     overrideDevices = true;     # overrides any devices added or deleted through the WebUI
     overrideFolders = true;     # overrides any folders added or deleted through the WebUI
     devices = {
-      "realme" = { id = "CEV3U3M-EJFLUJ3-UXFBEPG-KHX5EVK-3MSYH2W-BRNZEDH-TVJ4QWZ-X3G2CAW"; };
-      #"device2" = { id = "DEVICE-ID-GOES-HERE"; };
+"realme" = { id = "CEV3U3M-EJFLUJ3-UXFBEPG-KHX5EVK-3MSYH2W-BRNZEDH-TVJ4QWZ-X3G2CAW"; };
+#"device2" = { id = "DEVICE-ID-GOES-HERE"; };
     };
     folders = {
-      "sync" = {
-	      path = "/home/i/d-sync";
-	      devices = [ "realme" ];
-      };
-      "emacs" = {
-	      path = "/home/i/d-git/d-nix";
-	      devices = [ "realme" ];
-      };
-      "theme" = {
-	      path = "/home/i/d-git/d-theme";
-	      devices = [ "realme" ];
-      };
-      "site" = {
-	      path = "/home/i/d-git/d-site";
-	      devices = [ "realme" ];
-      };
+"sync" = {
+	path = "/home/i/d-sync";
+	devices = [ "realme" ];
+};
+"emacs" = {
+	path = "/home/i/d-git/d-nix";
+	devices = [ "realme" ];
+};
+"theme" = {
+	path = "/home/i/d-git/d-theme";
+	devices = [ "realme" ];
+};
+"site" = {
+	path = "/home/i/d-git/d-site";
+	devices = [ "realme" ];
+};
     };
   };
 
@@ -300,8 +300,8 @@ services = {
   pipewire = {
     enable = true;
     alsa = {
-      enable = true;
-      support32Bit = true;
+enable = true;
+support32Bit = true;
     };
     wireplumber.enable = true;
     pulse.enable = true;
@@ -358,14 +358,14 @@ fonts = {
   # this fixes emoji stuff
   fontconfig = {
     defaultFonts = {
-      monospace = [
-	      "Code D OnePiece"
-	      "JetBrainsMono Nerd Font"
-	      "Noto Color Emoji"
-      ];
-      sansSerif = [ "Code D Haki" "Noto Sans" "Noto Serif" ];
-      serif = [ "Code D Ace" "Noto Sans" "Noto Serif"];
-      emoji = [ "Noto Color Emoji" "Code D Lip" "Symbola" "Noto Sans" ];
+monospace = [
+	"Code D OnePiece"
+	"JetBrainsMono Nerd Font"
+	"Noto Color Emoji"
+];
+sansSerif = [ "Code D Haki" "Noto Sans" "Noto Serif" ];
+serif = [ "Code D Ace" "Noto Sans" "Noto Serif"];
+emoji = [ "Noto Color Emoji" "Code D Lip" "Symbola" "Noto Sans" ];
     };
   };
 };
@@ -400,7 +400,7 @@ users.users.i = {
                               # Use fish if you prefer it
                               shell = pkgs.zsh;
 
-                              # Or else login to root (which you will create while rebuilding) and run passwd USERNAME 
+                              # Or else login to root (which you will create while rebuilding) and run passwd USERNAME
                               # initialPassword = "changeme";
                             };
 programs.zsh.enable = true;

@@ -25,10 +25,22 @@
 
   };
 
-  outputs = {self, ...} @ inputs: let
+  outputs = {self, nixpkgs, ...} @ inputs: let
     system = "x86_64-linux";
-    pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
+    pkgs = nixpkgs.legacyPackages.x86_64-linux;
+    user = "idlip";
   in {
+
+    devShells.x86_64-linux.default = pkgs.mkShell {
+      packages = with pkgs; [
+        alejandra
+        git
+      ];
+      name = "dots";
+      DIRENV_LOG_FORMAT = "";
+    };
+
+    formatter = pkgs.alejandra;
 
     nixosConfigurations = import ./hosts inputs;
 

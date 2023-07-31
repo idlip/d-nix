@@ -1,0 +1,122 @@
+@import "haki.css";
+
+* {
+    font-family:Code D Ace;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+#mode,
+#clock,
+#mpd,
+#cpu,
+#memory,
+#network.disabled,
+#battery,
+#network.disconnected,
+#pulseaudio,
+#pulseaudio.muted,
+#custom-launcher,
+#custom-power,
+#submap,
+#window,
+#workspaces {
+    /* padding-bottom:3px; */
+    border-style: solid;
+    border-radius: 15px 15px 15px 15px;
+    opacity: 1.0;
+    border-color: @fg-alt;
+    margin-top: 0px;
+    margin-left: 8px;
+    margin-right: 8px;
+    margin-bottom: 3px;
+    padding-left: 2px;
+    padding-right: 2px;
+    transition: none;
+    /* color: transparent; */
+    background: @bg-main;
+
+}
+
+window#waybar {
+    background: @bg-main;
+}
+
+window#waybar.hidden {
+    opacity: 0.2;
+}
+
+
+#mode {
+    color: @heading-8;
+}
+
+#clock {
+    color: @clock;
+}
+
+#mpd {
+    color: @heading-3;
+    font-family:Maple Mono;
+    font-style: italic;
+}
+
+
+#cpu {
+    color: @heading-4;
+}
+
+#memory {
+    color: @heading-5;
+}
+
+#network.disabled {
+    color: @done;
+}
+
+#network{
+    color: @heading-6;
+}
+
+#battery {
+    color: @heading-7;
+}
+
+#network.disconnected {
+    color: @done;
+}
+
+#pulseaudio {
+    color: @heading-9;
+}
+
+#pulseaudio.muted {
+    color: @done;
+}
+
+#custom-launcher {
+    /* background: linear-gradient(90deg, @title 28%, @heading-5 85%, @title 100%); */
+    color: @fg-region;
+}
+
+#custom-power {
+    /* color: linear-gradient(90deg, @error 28%, @error 85%, @error 100%); */
+    color: @todo;
+}
+
+#submap {
+    color: @code;
+}
+
+#window {
+    color: @fg-region;
+    color: @fg-main;
+}
+
+#workspaces {
+    color: @bg-tag;
+}
+
+#workspaces button {
+    color: @link;
+}

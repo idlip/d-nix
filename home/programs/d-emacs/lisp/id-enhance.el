@@ -69,8 +69,8 @@ You can do this by trackpad too (laptop)"
 
 (use-package select
   :custom
-  (selection-coding-system 'UTF-8)
-  (x-select-request-type 'text/plain\;charset=UTF-8)
+  (selection-coding-system 'utf-8)
+  (x-select-request-type 'text/plain\;charset=utf-8)
   (select-enable-clipboard t "Use the clipboard"))
 
 (provide 'id-enhance.el)

@@ -42,7 +42,7 @@
      (font-lock-global-modes '(not text-mode))
      (font-lock-verbose nil))
   :config
-  (set-language-environment "UTF-8")
+  (set-language-environment "utf-8")
   (global-font-lock-mode 1))
 
 

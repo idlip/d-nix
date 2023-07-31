@@ -14,8 +14,8 @@
   :commands (dired dired-jump)
   :bind (("C-x C-j" . dired-jump)
          ("C-c f f" . window-focus-mode)
-         ("C-c f e" . (lambda () (interactive) (find-file "~/d-git/d-nix/d-emacs.org")))
-         ("C-c f s" . (lambda () (interactive) (find-file "~/d-git/d-nix/d-setup.org")))
+         ("C-c f e" . (lambda () (interactive) (find-file "~/.config/emacs/lisp/")))
+         ("C-c f s" . (lambda () (interactive) (find-file "~/d-git/d-nix/")))
          ("C-c f m" . (lambda () (interactive) (find-file "~/d-git/d-nix/README.org"))))
   (:map dired-mode-map
         ("q" . kill-buffer-and-window)

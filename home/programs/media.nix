@@ -32,6 +32,7 @@
     pavucontrol
     playerctl
     pulsemixer
+    pamixer
 
     mpc_cli
     ytfzf ani-cli youtube-tui

@@ -53,7 +53,6 @@
      ("M-l" . dirvish-ls-switches-menu)
      ("M-m" . dirvish-mark-menu)
      ("M-t" . dirvish-layout-toggle)
-     ("M-s" . dirvish-setup-menu)
      ("M-e" . dirvish-emerge-menu)
      ("M-j" . dirvish-fd-jump)))
 

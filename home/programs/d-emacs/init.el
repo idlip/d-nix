@@ -39,7 +39,7 @@
 ;;; --- to give some color and please my eyes
 (require 'id-theme.el)
 (require 'id-aesthetics.el)
-;; (require 'id-icons.el)
+(require 'id-icons.el)
 
 ;;; --- helpful to have
 (require 'id-help.el)
@@ -47,30 +47,32 @@
 
 ;;; --- to play with code/programming
 ;; (require 'id-code.el)
-;; (require 'id-git.el)
+(require 'id-git.el)
 ;; (require 'id-python.el)
 ;; (require 'id-rstats.el)
 ;; (require 'id-nix.el)
 
 ;;; --- file manager on battery
-;; (require 'id-dired.el)
-;; (require 'id-dirvish.el)
+(require 'id-dired.el)
+(unless d/on-droid
+  (require 'id-dirvish.el))
 
 ;;; --- to read, and love reading
-;; (require 'id-web.el)
+(require 'id-web.el)
 ;; (require 'id-reading.el)
-;; (require 'id-rss.el)
+(require 'id-rss.el)
 
 ;;; --- organize life
 ;; (require 'id-notes.el)
-;; (require 'id-org.el)
+(require 'id-org.el)
 ;; (require 'id-markdown.el)
 
 ;;; --- modal editing
 ;; (require 'id-meow.el)
 
 ;;; --- fun personal environment
-;; (require 'id-apps.el)
+(unless d/on-droid
+  (require 'id-apps.el))
 ;; (require 'id-ement.el)
 
 (when d/on-droid

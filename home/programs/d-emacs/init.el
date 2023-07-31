@@ -38,7 +38,8 @@
 
 ;;; --- to give some color and please my eyes
 (require 'id-theme.el)
-(require 'id-aesthetics.el)
+(unless d/on-droid
+  (require 'id-aesthetics.el))
 (require 'id-icons.el)
 
 ;;; --- helpful to have
@@ -47,7 +48,8 @@
 
 ;;; --- to play with code/programming
 ;; (require 'id-code.el)
-(require 'id-git.el)
+(unless d/on-droid
+  (require 'id-git.el))
 ;; (require 'id-python.el)
 ;; (require 'id-rstats.el)
 ;; (require 'id-nix.el)

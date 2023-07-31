@@ -10,8 +10,8 @@
   (fset 'x-popup-menu #'ignore)
   :custom
   (default-frame-alist '((menu-bar-lines . 0)
-                         (scroll-bar-lines . 0)
                          (tool-bar-lines . 0)
+                         (vertical-scroll-bars)
                          (alpha-background . 100)))
   (scroll-step 1)
   (inhibit-x-resources t)

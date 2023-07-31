@@ -1,0 +1,333 @@
+;;; id-completion.el --- completions everywhere -*- lexical-binding: t -*-
+;;; Commentary:
+
+;;; Code:
+
+(use-package vertico
+  :bind (:map vertico-map
+	("?" . minibuffer-completion-help)
+	("<return>" . vertico-directory-enter)
+	("DEL" . vertico-directory-delete-char)
+	("M-DEL" . vertico-directory-delete-word)
+	("M-j" . vertico-quick-exit)
+	("'" . vertico-quick-exit)
+	("C-v" . vertico-scroll-up)
+	("M-v" . vertico-scroll-down)
+	("M-q" . d/vertico-toggle)
+	("M-RET" . minibuffer-force-complete-and-exit)
+	("M-TAB" . minibuffer-complete))
+
+  :init
+  (vertico-mode)
+
+  :custom
+  (vertico-scroll-margin 5)
+  (vertico-count 10)
+  (vertico-resize t)
+  (vertico-cycle t)
+  (completion-in-region-function
+   (lambda (&rest args)
+     (apply (if vertico-mode
+		#'consult-completion-in-region
+	#'completion--in-region)
+	    args))))
+
+(use-package consult
+  :bind (
+         ("C-c d i" . d/insert-unicodes)
+         ("C-c d c" . d/insert-colors)
+
+         ;; C-c bindings (mode-specific-map)
+         ("C-c h" . consult-history)
+         ("C-c m" . consult-mode-command)
+         ("C-c k" . consult-kmacro)
+         ("C-c t t" . consult-theme)
+         ;; C-x bindings (ctl-x-map)
+         ("C-x M-:" . consult-complex-command)
+         ("C-x b" . consult-buffer)
+         ("C-x C-b" . consult-buffer)
+         ("C-x 4 b" . consult-buffer-other-window)
+         ("C-x 5 b" . consult-buffer-other-frame)
+         ("C-x r b" . consult-bookmark)
+         ("C-x p b" . consult-project-buffer)
+         ;; Custom M-# bindings for fast register access
+         ("M-#" . consult-register-load)
+         ("M-'" . consult-register-store)
+         ("C-M-#" . consult-register)
+         ;; Other custom bindings
+         ("M-y" . consult-yank-pop)
+         ;; M-g bindings (goto-map)
+         ("M-g e" . consult-compile-error)
+         ("M-g f" . consult-flycheck)
+         ("M-g g" . consult-goto-line)
+         ("M-g M-g" . consult-goto-line)
+         ("M-g o" . consult-outline)
+         ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+         ("M-g s" . consult-eglot-symbols)
+         ;; M-s bindings (search-map)
+         ("M-s d" . consult-find)
+         ("M-s D" . consult-locate)
+         ("M-s g" . consult-ripgrep)
+         ("M-s m" . consult-man)
+         ("M-s G" . consult-git-grep)
+         ("M-s r" . consult-ripgrep)
+         ("M-s i" . consult-info)
+         ("M-s l" . consult-line)
+         ("C-s" . consult-line)
+         ("M-s L" . consult-line-multi)
+         ("M-s k" . consult-keep-lines)
+         ("M-s u" . consult-focus-lines)
+         ;; Isearch integration
+         ("M-s e" . consult-isearch-history)
+         :map isearch-mode-map
+         ("M-e" . consult-isearch-history)
+         ("M-s e" . consult-isearch-history)
+         ("M-s l" . consult-line)
+         ("M-s L" . consult-line-multi)
+         ;; Minibuffer history
+         :map minibuffer-local-map
+         ("M-s" . consult-history)
+         ("M-r" . consult-history))
+
+  :hook (completion-list-mode . consult-preview-at-point-mode)
+
+  :custom
+  (register-preview-delay 0.5)
+  (register-preview-function #'consult-register-format)
+  (xref-show-xrefs-function #'consult-xref)
+  (xref-show-definitions-function #'consult-xref)
+  (consult-narrow-key "<")
+
+  (consult-customize
+   consult-theme :preview-key '(:debounce 1.5 any)
+   consult-ripgrep consult-git-grep consult-grep
+   consult-bookmark consult-recent-file consult-xref
+   consult--source-bookmark consult--source-file-register
+   consult--source-recent-file consult--source-project-recent-file
+   ;; :preview-key (kbd "M-.")
+   :preview-key '(:debounce 0.4 any))
+
+  :config
+  (advice-add #'register-preview :override #'consult-register-window)
+
+  (defvar consult--source-eww
+    (list
+     :name     "Eww"
+     :narrow   ?e
+     :action   (lambda (bm)
+                 (eww-browse-url (get-text-property 0 'url bm)))
+     :items    (lambda ()
+                 (eww-read-bookmarks)
+                 (mapcar (lambda (bm)
+                           (propertize
+                            (format "%s (%s)"
+                                    (plist-get bm :url)
+                                    (plist-get bm :title))
+                            'url (plist-get bm :url)))
+                         eww-bookmarks))))
+  (add-to-list 'consult-buffer-sources 'consult--source-eww 'append)
+
+  (defun consult-colors--web-list nil
+    "Return list of CSS colors for `d/colors-web'."
+    (require 'shr-color)
+    (sort (mapcar #'downcase (mapcar #'car shr-color-html-colors-alist)) #'string-lessp))
+
+  (defun d/colors-web (color)
+    "Show a list of all CSS colors.\
+
+  You can insert the name (default), or insert or kill the hexadecimal or RGB value of the
+  selected color."
+    (interactive
+     (list (consult--read (consult-colors--web-list)
+                          :prompt "Color: "
+                          :require-match t
+                          :category 'color
+                          :history '(:input consult-colors-history)
+                          )))
+    (insert
+     (when-let* ((rgb (color-name-to-rgb color))
+                 ;; Sets 2 digits per component.
+                 (hex (apply #'color-rgb-to-hex (append rgb '(2)))))
+       hex)))
+
+  (defun d/insert-colors (color)
+    "Show a list of all supported colors for a particular frame.\
+
+You can insert the name (default), or insert or kill the hexadecimal or RGB value of the
+selected color."
+    (interactive
+     (list (consult--read (list-colors-duplicates (defined-colors))
+                          :prompt "Emacs color: "
+                          :require-match t
+                          :category 'color
+                          :history '(:input consult-colors-history)
+                          )))
+    (insert
+     (when-let* ((rgb (color-name-to-rgb color))
+                 ;; Sets 2 digits per component.
+                 (hex (apply #'color-rgb-to-hex (append rgb '(2)))))
+       hex)))
+
+  (defun d/insert-unicodes (add-unicodes)
+    "Insert unicode character (emoji/icons) from given files."
+    (interactive (list add-unicodes))
+    (insert
+     (let* ((content
+             (mapcar #'(lambda (file) (with-temp-buffer (insert-file-contents file) (split-string (buffer-string) "\n" t))) add-unicodes))
+            (options (apply #'append content))
+            (selected-item (completing-read "Choose Icon 󰨈: " options))
+            (fields (split-string selected-item)))
+       (car fields))))
+
+  (setq add-unicodes (unless d/on-droid (directory-files "~/d-git/d-bin/treasure/unicodes/" t "i"))))
+
+(use-package orderless
+  :demand t
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles orderless basic partial-completion)))
+  (orderless-component-separator #'orderless-escapable-split-on-space)
+  (orderless-style-dispatchers (list #'+orderless-consult-dispatch
+				    #'orderless-affix-dispatch))))
+
+(use-package marginalia
+  :bind (:map minibuffer-local-map
+              ("M-A" . marginalia-cycle))
+  :init
+  (marginalia-mode))
+
+(use-package corfu
+  :defer 1
+  :custom
+  (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+  (corfu-auto t)                 ;; Enable auto completion
+  (corfu-separator ?\s)          ;; Orderless field separator
+  ;; (corfu-preview-current t)    ;; Disable current candidate preview
+  ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+  ;; (corfu-quit-no-match t)
+  (corfu-auto-prefix 2)
+  (corfu-auto-delay 0.0)
+  (corfu-quit-at-boundary 'separator)
+  (corfu-popupinfo-resize t)
+  (corfu-popupinfo-hide nil)
+  (corfu-preview-current 'insert)
+  (corfu-popupinfo-delay 1.0)
+  (corfu-history 1)
+  (corfu-scroll-margin 0)
+  :bind (:map corfu-map
+	("M-SPC" . corfu-insert-separator)
+	("TAB" . corfu-insert)
+	("<escape>" . corfu-quit)
+	("C-j" . corfu-next)
+	("C-k" . corfu-previous)
+	("M-j" . corfu-quick-insert))
+  ;; Enable Corfu only for certain modes.
+  ;; :hook ((prog-mode . corfu-mode)
+  ;;        (shell-mode . corfu-mode)
+  ;;        (eshell-mode . corfu-mode))
+
+  :init
+  (corfu-history-mode)
+  (corfu-popupinfo-mode)
+  (corfu-echo-mode)
+  (global-corfu-mode))
+
+(eldoc-add-command #'corfu-insert)
+(unless (display-graphic-p)
+  (corfu-terminal-mode +1))
+
+;; Use Dabbrev with Corfu!
+(use-package dabbrev
+  ;; Swap M-/ and C-M-/
+  :bind (("M-/" . dabbrev-completion)
+	 ("C-M-/" . dabbrev-expand))
+  ;; Other useful Dabbrev configurations.
+  :custom
+  (dabbrev-ignored-buffer-regexps '("\\.\\(?:pdf\\|jpe?g\\|png\\)\\'")))
+
+;; Add extensions
+(use-package cape
+  :after corfu
+  :bind (("C-c p p" . completion-at-point)
+	 ("C-c p t" . complete-tag)
+	 ("C-c p d" . cape-dabbrev)
+	 ("C-c p h" . cape-history)
+	 ("C-c p f" . cape-file)
+	 ("C-c p k" . cape-keyword)
+	 ("C-c p s" . cape-symbol)
+	 ("C-c p a" . cape-abbrev)
+	 ("C-c p i" . cape-ispell)
+	 ("C-c p l" . cape-line)
+	 ("C-c p w" . cape-dict)
+	 ("C-c p \\" . cape-tex)
+	 ("C-c p _" . cape-tex)
+	 ("C-c p ^" . cape-tex)
+	 ("C-c p &" . cape-sgml)
+	 ("C-c p r" . cape-rfc1345))
+  :init
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-history)
+  (add-to-list 'completion-at-point-functions #'cape-keyword)
+  ;; (add-to-list 'completion-at-point-functions #'cape-tex)
+  ;; (add-to-list 'completion-at-point-functions #'cape-sgml)
+  ;; (add-to-list 'completion-at-point-functions #'cape-rfc1345)
+  (add-to-list 'completion-at-point-functions #'cape-abbrev)
+  (add-to-list 'completion-at-point-functions #'cape-ispell)
+  ;;(add-to-list 'completion-at-point-functions #'cape-dict)
+  ;; (add-to-list 'completion-at-point-functions #'cape-symbol)
+  ;; (add-to-list 'completion-at-point-functions #'cape-line)
+  :config
+
+  ;; Silence the pcomplete capf, no errors or messages!
+  ;; Important for corfu
+  (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
+
+  ;; Ensure that pcomplete does not write to the buffer
+  ;; and behaves as a pure `completion-at-point-function'.
+  (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify)
+
+  ;; Add your own file with all words
+  (defcustom cape-dict-file "~/.local/share/dict/vocab"
+    "Dictionary word list file."
+    :type 'string)
+
+  (defun corfu-enable-always-in-minibuffer ()
+    "Enable corfu in minibuffer, if vertico is not active"
+    (unless (or (bound-and-true-p mct--active)
+		(bound-and-true-p vertico--input)
+		(eq (current-local-map) read-passwd-map))
+(setq-local corfu-auto t
+		  corfu-popupinfo-delay nil
+		  corfu-auto-delay 0
+		  corfu-auto-prefix 0
+		  completion-styles '(orderless basic))
+(corfu-mode 1)))
+  ;; (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
+  )
+
+;; Configure Tempel
+(use-package tempel
+  :after corfu
+  :hook
+  (prog-mode . tempel-abbrev-mode)
+
+  ;; Require trigger prefix before template name when completing.
+  :custom
+  (tempel-trigger-prefix "<")
+  (tempel-path "~/.config/emacs/templates/*")
+
+  :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
+	 ("M-*" . tempel-insert)))
+
+(use-package tempel-collection
+  :after tempel
+  )
+
+
+(provide 'id-completion.el)
+;;; id-completion.el ends here

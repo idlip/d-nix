@@ -1,0 +1,17 @@
+elpa/
+auto-save-list/
+data/
+eln-cache/
+elpa/
+eshell/
+etc/
+templates/
+transient/
+undo-fu-session/
+var/
+history
+tramp
+abbrev.el
+custom.el
+elfeed.org
+testing

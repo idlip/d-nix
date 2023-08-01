@@ -1,0 +1,63 @@
+#+title: ❄️ Nix station with 🧬 Emacs at its Core
+#+author: Dilip
+
+--------------
+
+* 🌟 Utilities that are Best!
+--------------
+
+|----------------------------+--------------------------------|
+| Class                      | Name                           |
+|----------------------------+--------------------------------|
+| 🌸 Window Manager          | [[https://hyprland.org/][Hyprland]]                       |
+| 💜 Text Editor             | [[https://www.gnu.org/software/emacs/][Emacs]]                          |
+| 🎨 Gtk Theme               | [[https://github.com/Fausto-Korpsvart/Gruvbox-GTK-Theme][Gruvbox]]                        |
+|   Font                    | [[https://github.com/idlip/code-d-font][Fork of Recursive font]]         |
+| 📔 Pdf Reader              | [[https://github.com/ahrm/sioyek][Sioyek]] (ditch zathura)         |
+| 🎬 Media Player            | [[https://mpv.io][MPV!]] (its MVP too)             |
+| 🖼️ Image Viewer            | [[https://sr.ht/~exec64/imv/][Imv]]                            |
+| 📰 RSS Reader              | [[https://github.com/skeeto/elfeed][Elfeed]] (Again, Emacs)          |
+| 🎶 Music Player            | [[https://github.com/ncmpcpp/ncmpcpp][Ncmpcpp]] or [[https://github.com//mingus][Mingus in Emacs]]     |
+|   Terminal                | [[https://codeberg.org/dnkl/foot][Foot]] via footclient            |
+| 🚀 Menu/Launcher           | [[https://github.com/Cloudef/bemenu][Bemenu]]                         |
+| 🛎️ Notification            | [[https://github.com/dunst/dunst][Dunst]]                          |
+| 🔰 Shell                   | [[https://zsh.org][Zshell]] with [[https://starship.rs][Starship]]           |
+| 🍥 Status Bar              | [[https://github.com/Alexays/Waybar][Waybar]]                         |
+| 🫰 Favourite Color-Schemes | [[https://github.com/idlip/haki][Haki]] + Modus-Vivendi + Gruvbox |
+|----------------------------+--------------------------------|
+
+#+begin_quote
+Rest all other stuffs I do in Emacs, tbh I could do everything in Emacs lol.
+#+end_quote
+
+
+** Literate config
+
+Previously I was using literate org config to manage both nixos and emacs, but now I have moved to Modular config.
+There is not much drawbacks of using literate config, but I just moved so, it is feasible for other real world work.
+You can check out, it is is another branch named "new-world".
+
+** 🚔 Speculation
+  | CPU                | Intel(R) Core(TM) i3-6006U CPU @ 2.00GHz |
+  | RAM (startup)      | 343MB/4GB (16%)                          |
+  | Swap               | 50% (2GB) zram                           |
+  | Pkgs               | 691                                      |
+  | Nix current-system | 12.7GB                                   |
+
+* ✨ Illustrations - Unix Way
+* 📚 Nix Learning
+This repo has bunch of links for learning nix in every possible way.
+- https://github.com/humancalico/nix-learning
+* 🎖️ Credits
+
+These configs were the inspiration and helped to build this way.
+
+I thank them sincerely.
+
+[[https://github.com/sioodmy/dotfiles][Sioodmy]] [[https://github.com/fufexan/dotfiles][fufexan]]
+
+------------------------------------------------------------------------------------------
+
+#+begin_center
+If you have reached here, I think you'd like to read more. I have made a static website, you can catch on some stuffs here ==> [[https://idlip.github.io]]
+#+end_center

@@ -31,15 +31,14 @@
 (require 'id-core.el)
 (require 'id-files.el)
 
-;;; --- enhancements that are crucial these days
+;; ;;; --- enhancements that are crucial these days
 (require 'id-completion.el)
 (require 'id-enhance.el)
 (require 'id-fonts.el)
 
-;;; --- to give some color and please my eyes
+;; ;;; --- to give some color and please my eyes
 (require 'id-theme.el)
-(unless d/on-droid
-  (require 'id-aesthetics.el))
+(require 'id-aesthetics.el)
 (require 'id-icons.el)
 
 ;;; --- helpful to have
@@ -53,6 +52,8 @@
 ;; (require 'id-python.el)
 ;; (require 'id-rstats.el)
 ;; (require 'id-nix.el)
+(unless d/on-droid
+  (require 'id-eshell.el))
 
 ;;; --- file manager on battery
 (require 'id-dired.el)
@@ -83,6 +84,8 @@
 ;; (require 'id-present.el)
 ;; (require 'id-vterm.el)
 
+;; for some reason, icon size looks proper when I set this at last
+(set-language-environment "UTF-8")
 
 
 

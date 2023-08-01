@@ -8,7 +8,8 @@
 
 ;;; Code:
 
-(setq package-enable-at-startup nil)
+(setq package-enable-at-startup nil
+      native-comp-async-report-warnings-errors nil)
 
 ;; So we can detect this having been loaded
 (provide 'early-init)

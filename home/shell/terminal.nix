@@ -12,11 +12,11 @@
         font = "Code D OnePiece:size=12, Noto Color Emoji:size=15";
         font-bold = "Code D Lip:size=12, Noto Color Emoji:size=15";
         letter-spacing = "1";
-        box-drawings-uses-font-glyphs = "yes";
+        box-drawings-uses-font-glyphs = "no";
         pad = "0x0center";
         notify = "notify-send -a \${app-id} -i \${app-id} \${title} \${body}";
         selection-target = "clipboard";
-	dpi-aware = "true";
+	      dpi-aware = "true";
       };
 
       scrollback = {

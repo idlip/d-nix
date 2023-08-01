@@ -44,7 +44,8 @@
   (savehist-additional-variables '(kill-ring search-ring regexp-search-ring)))
 
 (use-package autorevert
-  :defer 0.1)
+  :defer 0.1
+  :unless d/on-droid)
 
 (use-package recentf
   :demand t

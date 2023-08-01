@@ -5,7 +5,7 @@
 ;; Initialize package sources
 (require 'package)
 
-(add-to-list 'package-archives '( "melpa" . "https://melpa.org/packages/") t)
+(add-to-list 'package-archives '( "melpa" . "https://melpa.org/packages/"))
 
 (unless (bound-and-true-p package--initialized)
   (customize-set-variable 'package-enable-at-startup nil)

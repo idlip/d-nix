@@ -121,10 +121,10 @@ Usable as favorites or bookmark."
 
 (use-package elfeed-org
   :after elfeed
-  ;; :custom
-  ;; (rmh-elfeed-org-files (list "~/d-git/d-nix/d-emacs.org"))
-  :config
-  (elfeed-org))
+  :init
+  (elfeed-org)
+  :custom
+  (rmh-elfeed-org-files (list (expand-file-name "elfeed.org" user-emacs-directory))))
 
 (use-package link-hint
   :defer t

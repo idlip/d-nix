@@ -24,7 +24,6 @@
       commandLineArgs = ["--enable-features=TouchpadOverscrollHistoryNavigation"];
       extensions = [
         {id = "cjpalhdlnbpafiamejdnhcphjbkeiagm";} # ublock origin
-        {id = "bkkmolkhemgaeaeggcmfbghljjjoofoh";} # catppuccin
         {id = "dbepggeogbaibhgnhhndojpepiihcmeb";} # vimium
         {id = "eimadpbcbfnmbkopoojfekhnkhdbieeh";} # dark-reader
         {id = "lljedihjnnjjefafchaljkhbpfhfkdic";} # jiffy reader

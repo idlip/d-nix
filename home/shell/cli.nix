@@ -52,7 +52,7 @@
       extraPackages = with pkgs.bat-extras; [ batdiff batman batgrep batwatch ];
       config = {
         pager = "less -FR";
-        theme = "Catppuccin-mocha";
+        theme = "TwoDark";
       };
       themes = {
         Catppuccin-mocha = builtins.readFile (pkgs.fetchurl {

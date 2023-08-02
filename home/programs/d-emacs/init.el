@@ -27,62 +27,62 @@
 
 ;;; --- Most of the core and necessary defaults.
 ;;; --- better not to comment it!
-(require 'id-startup.el)
-(require 'id-core.el)
-(require 'id-files.el)
+(require 'id-startup)
+(require 'id-core)
+(require 'id-files)
 
 ;; ;;; --- enhancements that are crucial these days
-(require 'id-completion.el)
-(require 'id-enhance.el)
-(require 'id-fonts.el)
+(require 'id-completion)
+(require 'id-enhance)
+(require 'id-fonts)
 
 ;; ;;; --- to give some color and please my eyes
-(require 'id-theme.el)
-(require 'id-aesthetics.el)
-(require 'id-icons.el)
+(require 'id-theme)
+(require 'id-aesthetics)
+(require 'id-icons)
 
 ;;; --- helpful to have
-(require 'id-help.el)
-;; (require 'id-embark.el)
+(require 'id-help)
+;; (require 'id-embark)
 
 ;;; --- to play with code/programming
-;; (require 'id-code.el)
+;; (require 'id-code)
 (unless d/on-droid
-  (require 'id-git.el))
-;; (require 'id-python.el)
-;; (require 'id-rstats.el)
-;; (require 'id-nix.el)
+  (require 'id-git))
+;; (require 'id-python)
+;; (require 'id-rstats)
+;; (require 'id-nix)
 (unless d/on-droid
-  (require 'id-eshell.el))
+  (require 'id-eshell))
 
 ;;; --- file manager on battery
-(require 'id-dired.el)
+(require 'id-dired)
 (unless d/on-droid
-  (require 'id-dirvish.el))
+  (require 'id-dirvish))
 
 ;;; --- to read, and love reading
-(require 'id-web.el)
-;; (require 'id-reading.el)
-(require 'id-rss.el)
+(require 'id-web)
+;; (require 'id-reading)
+(require 'id-rss)
 
 ;;; --- organize life
-;; (require 'id-notes.el)
-(require 'id-org.el)
-;; (require 'id-markdown.el)
+(require 'id-notes)
+(require 'id-org)
+;; (require 'id-markdown)
 
 ;;; --- modal editing
-;; (require 'id-meow.el)
+;; (require 'id-meow)
 
 ;;; --- fun personal environment
 (unless d/on-droid
-  (require 'id-apps.el))
-;; (require 'id-ement.el)
+  (require 'id-apps))
+;; (require 'id-ement)
 
 (when d/on-droid
-  (require 'id-android.el))
+  (require 'id-android))
 
-;; (require 'id-present.el)
-;; (require 'id-vterm.el)
+;; (require 'id-present)
+;; (require 'id-vterm)
 
 ;; for some reason, icon size looks proper when I set this at last
 (set-language-environment "UTF-8")

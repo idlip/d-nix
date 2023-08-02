@@ -42,7 +42,7 @@ bindkey -M menuselect 'l' vi-forward-char
 bindkey -M menuselect 'j' vi-down-line-or-history
 
 bindkey -e
-WORDCHARS='*?_.[]~=&;!$%^(){}<>'
+WORDCHARS='*?[]~=&;!$%^(){}<>'
 
 # Aliases
 alias cleanup="doas nix-collect-garbage --delete-older-than 7d"
@@ -100,22 +100,41 @@ function shellnix() {
 ## Emacs all time
 
 function {e,find-file,'emacsclient -t','emacsclient -nw'} () {
-    if [ "$INSIDE_EMACS" = "vterm" ]; then
+    if [ -n "$INSIDE_EMACS" ]; then
 	emacsclient $1 >/dev/null 2>&1 || echo "Give a file to open"
     else
 	emacsclient -t $1 || echo "Start emacs daemon"
     fi
 }
 
-function manp () { # use emacs as man pager or neovim
-    if [ "$INSIDE_EMACS" = "vterm" ]; then
-	emacsclient -e "(progn (man \"$1\") (delete-window))"
-    elif [ "$(pgrep emacs)"  ]; then
-	emacsclient -nw -e "(progn (man \"$1\") (delete-window))"
+function manp () { # use emacs
+    if [ -n "$(man -k $1)" ]; then
+        if [ -n "$INSIDE_EMACS" ]; then
+	          emacsclient -e "(man \"$1\")"
+        elif [ "$(pgrep emacs)" ]; then
+	          emacsclient -nw -e "(man \"$1\")"
+        else
+	          man $1
+        fi
     else
-	man $1
+        $1 --help
     fi
 }
+
+# TODOTHIS
+d-test () {
+    local editor="nvim"
+    local tmpf="$(mktemp)"
+    printf '%s\n' "$READLINE_LINE" >| "$tmpf"
+    "$editor" "$tmpf"
+    READLINE_LINE="$(<"$tmpf")"
+    READLINE_POINT="${#READLINE_LINE}"
+    rm -f "$tmpf" >/dev/null 2>&1
+}
+
+# zle -N d-test
+# bindkey '^o' 'd-test'
+
 
 function prefetch-sri() {
     nix-prefetch-url "$1" | xargs nix hash to-sri --type sha256

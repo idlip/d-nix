@@ -9,18 +9,18 @@
   services = {
     mpd = {
       enable = true;
+      musicDirectory = config.xdg.userDirs.music;
       network = {
         listenAddress = "any";
         port = 6600;
       };
-      musicDirectory = "~/d-sync/music";
       extraConfig = ''
-        audio_output {
-      	  type    "pipewire"
-        	name    "pipewire"
-        }
-        auto_update "yes"
-      '';
+      audio_output {
+        type    "pipewire"
+        name    "pipewire"
+      }
+      auto_update "yes"
+    '';
     };
 
     playerctld.enable = true;
@@ -44,8 +44,8 @@
     ncmpcpp = {
       enable = true;
       settings = {
-        ncmpcpp_directory = "~/.config/ncmpcpp";
-        lyrics_directory = "~/.local/share/lyrics";
+        ncmpcpp_directory = "${config.xdg.confgHome}/ncmpcpp";
+        lyrics_directory = "${config.xdg.dataHome}/lyrics";
         message_delay_time = "1";
         song_list_format = "{$4%a - }{%t}|{$8%f$9}$R{$3(%l)$9}";
         song_status_format = "$b{{$8'%t'}} $3by {$4%a{ $3in $7%b{ (%y)}} $3}|{$8%f}";

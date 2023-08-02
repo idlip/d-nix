@@ -55,7 +55,7 @@
       size = 10000;
       expireDuplicatesFirst = true;
       ignoreDups = true;
-      path = "${config.xdg.dataHome}/.config/shell/zsh_history";
+      path = "${config.xdg.configHome}/shell/zsh_history";
     };
   };
 

@@ -55,5 +55,5 @@
   :config
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
-(provide 'id-icons.el)
+(provide 'id-icons)
 ;;; id-icons.el ends here

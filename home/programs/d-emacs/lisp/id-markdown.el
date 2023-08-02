@@ -6,6 +6,7 @@
 (use-package markdown-mode
   :defer t
   :mode "\\.md\\'"
+  :hook (markdown-mode . variable-pitch-mode)
   :bind (:map markdown-mode-map
 	            ("<f8>" . d/markdown-toggle))
   :config
@@ -23,8 +24,9 @@
   (defun d/markdown-toggle ()
     "Toggle view mode and editing mode"
     (interactive)
-    (if (derived-mode-p 'markdown-view-mode) (markdown-mode) (markdown-view-mode))))
+    (if (derived-mode-p 'markdown-view-mode) (markdown-mode) (markdown-view-mode))
+    (variable-pitch-mode 1)))
 
 
-(provide 'id-markdown.el)
+(provide 'id-markdown)
 ;;; id-markdown.el ends here

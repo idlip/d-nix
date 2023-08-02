@@ -37,5 +37,5 @@
      (agenda-structure . (variable-pitch light 1.8))
      (t . (1.1)))))
 
-(provide 'id-theme.el)
+(provide 'id-theme)
 ;;; id-theme.el ends here

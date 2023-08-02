@@ -117,5 +117,5 @@
   (meow-global-mode 1))
 
 
-(provide 'id-meow.el)
+(provide 'id-meow)
 ;;; id-meow.el ends here

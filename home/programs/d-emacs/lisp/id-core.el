@@ -135,6 +135,15 @@
 (use-package misc
   :bind ("M-z" . zap-up-to-char))
 
+(use-package paren
+  :defer 2
+  :custom
+  (show-paren-delay 0.1)
+  (show-paren-highlight-openparen t)
+  (show-paren-when-point-inside-paren t)
+  :config
+  (show-paren-mode 1))
+
 (use-package ibuffer
   :bind
   ([remap list-buffers] . ibuffer))
@@ -164,5 +173,5 @@
 	       ("C-S-z" . undo-redo)
 	       ("C-M-r" . undo-redo)))
 
-(provide 'id-core.el)
+(provide 'id-core)
 ;;; id-core.el ends here

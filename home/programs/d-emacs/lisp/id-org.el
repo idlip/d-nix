@@ -134,8 +134,10 @@
   ;; Small: ► • ★ ▸
   ;; others: ▼, ↴, ⬎, ⤷,…, and ⋱.
   ;; (org-ellipsis "⤵")
+  ;; nerd-icons: "" "󰓏" "󰚀" "󰴈" "" "󰄄"
 
-  (org-modern-star '("◉" "✪" "◈" "✿" "❂"))
+  ;; (org-modern-star '("◉" "✪" "◈" "✿" "❂"))
+  (org-modern-star '("" "󰓏" "󰚀" "󰴈" "" "󰄄"))
   (org-modern-hide-stars 'leading)
   (org-modern-table nil)
   (org-modern-list
@@ -166,5 +168,5 @@
     (set-face-foreground face (face-attribute 'default :background)))
   (global-org-modern-mode))
 
-(provide 'id-org.el)
+(provide 'id-org)
 ;;; id-org.el ends here

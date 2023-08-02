@@ -75,5 +75,5 @@
 
 (setq prefix-help-command #'repeated-prefix-help-command)
 
-(provide 'id-help.el)
+(provide 'id-help)
 ;;; id-help.el ends here

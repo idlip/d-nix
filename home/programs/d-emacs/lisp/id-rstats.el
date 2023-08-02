@@ -21,5 +21,5 @@
 				                      (ess-R-fl-keyword:F&T . t))))
 
 
-(provide 'id-rstats.el)
+(provide 'id-rstats)
 ;;; id-rstats.el ends here

@@ -3,25 +3,6 @@
 
 ;;; Code:
 
-(use-package shrface
-  :hook ((eww-mode . shrface-mode)
-	       (elfeed-show-mode . shrface-mode)
-	       (nov-mode . shrface-mode))
-  :bind (:map shrface-mode-map
-	            ("<tab>" . shrface-outline-cycle)
-	            ("<backtab>" . shrface-outline-cycle-buffer)
-	            ("M-n" . shr-next-link)
-	            ("M-p" . shr-previous-link)
-	            ("C-j" . shrface-next-headline)
-	            ("C-k" . shrface-previous-headline))
-  :custom
-  (shrface-item-bullet 8226)
-  (shrface-bullets-bullet-list org-modern-star)
-  (shrface-href-versatile t)
-  :config
-  (shrface-basic)
-  (shrface-trial))
-
 (use-package nov
   :hook (nov-mode . hide-mode-line-mode)
   (nov-mode . variable-pitch-mode)
@@ -45,5 +26,5 @@
   (large-file-warning-threshold 700000000)
   (image-cache-eviction-delay 3))
 
-(provide 'id-reading.el)
+(provide 'id-reading)
 ;;; id-reading.el ends here

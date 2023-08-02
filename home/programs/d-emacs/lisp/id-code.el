@@ -62,5 +62,5 @@
      (yaml-mode . yaml-ts-mode))))
 
 
-(provide 'id-code.el)
+(provide 'id-code)
 ;;; id-code.el ends here

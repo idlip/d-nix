@@ -29,5 +29,5 @@
              (user (plist-get entry :user)))
         (ement-connect :user-id user :password password)))))
 
-(provide 'id-ement.el)
+(provide 'id-ement)
 ;;; id-ement.el ends here

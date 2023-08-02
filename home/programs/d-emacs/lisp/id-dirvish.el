@@ -56,5 +56,5 @@
      ("M-e" . dirvish-emerge-menu)
      ("M-j" . dirvish-fd-jump)))
 
-(provide 'id-dirvish.el)
+(provide 'id-dirvish)
 ;;; id-dirvish.el ends here

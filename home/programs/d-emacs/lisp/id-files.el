@@ -86,5 +86,5 @@
   (tramp-chunksize 2000)
   (tramp-use-ssh-controlmaster-options nil))
 
-(provide 'id-files.el)
+(provide 'id-files)
 ;;; id-files.el ends here

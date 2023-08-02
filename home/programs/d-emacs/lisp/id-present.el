@@ -165,5 +165,5 @@
   )
 
 
-(provide 'id-present.el)
+(provide 'id-present)
 ;;; id-present.el ends here

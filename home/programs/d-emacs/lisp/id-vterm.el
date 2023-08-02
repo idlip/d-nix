@@ -41,5 +41,5 @@
   (multi-vterm-dedicated-window-height-percent 30))
 
 
-(provide 'id-vterm.el)
+(provide 'id-vterm)
 ;;; id-vterm.el ends here

@@ -73,5 +73,5 @@ You can do this by trackpad too (laptop)"
   (x-select-request-type 'text/plain\;charset=utf-8)
   (select-enable-clipboard t "Use the clipboard"))
 
-(provide 'id-enhance.el)
+(provide 'id-enhance)
 ;;; id-enhance.el ends here

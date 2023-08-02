@@ -5,7 +5,8 @@
 
 (use-package eat
   :hook
-  (eshell-load . eat-eshell-mode))
+  (eshell-load . eat-eshell-mode)
+  :bind ("C-c d t" . eat))
 
-(provide 'id-eshell.el)
+(provide 'id-eshell)
 ;;; id-eshell.el ends here

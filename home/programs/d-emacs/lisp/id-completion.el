@@ -329,5 +329,5 @@ selected color."
   )
 
 
-(provide 'id-completion.el)
+(provide 'id-completion)
 ;;; id-completion.el ends here

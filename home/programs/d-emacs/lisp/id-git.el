@@ -17,5 +17,5 @@
   (ediff-split-window-function 'split-window-horizontally)
   (ediff-window-setup-function 'ediff-setup-windows-default))
 
-(provide 'id-git.el)
+(provide 'id-git)
 ;;; id-git.el ends here

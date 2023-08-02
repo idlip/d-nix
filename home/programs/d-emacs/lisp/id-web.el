@@ -35,6 +35,25 @@
   (shr-max-image-proportion 0.4)
   (shr-width nil))
 
+(use-package shrface
+  :hook ((eww-mode . shrface-mode)
+	       (elfeed-show-mode . shrface-mode)
+	       (nov-mode . shrface-mode))
+  :bind (:map shrface-mode-map
+	            ("<tab>" . shrface-outline-cycle)
+	            ("<backtab>" . shrface-outline-cycle-buffer)
+	            ("M-n" . shr-next-link)
+	            ("M-p" . shr-previous-link)
+	            ("C-j" . shrface-next-headline)
+	            ("C-k" . shrface-previous-headline))
+  :custom
+  (shrface-item-bullet 8226)
+  (shrface-bullets-bullet-list org-modern-star)
+  (shrface-href-versatile t)
+  :config
+  (shrface-basic)
+  (shrface-trial))
+
 (use-package shr-color
   :defer t
   :custom
@@ -47,7 +66,7 @@
   (:map eww-mode-map
         ("e" . readable-article)
         ("Q" . d/kill-buffer)
-        ("<return>" . eww-follow-link)
+        ("RET" . eww-follow-link)
         ("m" . elfeed-toggle-star)
         ("b" . d/external-browser))
   :custom
@@ -106,5 +125,5 @@
   (let ((url (current-kill 0)))
     (if d/on-droid (browse-url url) (browse-url-generic url))))
 
-(provide 'id-web.el)
+(provide 'id-web)
 ;;; id-web.el ends here

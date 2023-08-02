@@ -26,5 +26,5 @@
   (embark-collect-mode . consult-preview-at-point-mode))
 
 
-(provide 'id-embark.el)
+(provide 'id-embark)
 ;;; id-embark.el ends here

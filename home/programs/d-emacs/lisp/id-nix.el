@@ -30,5 +30,5 @@
   :commands (nix-repl))
 
 
-(provide 'id-nix.el)
+(provide 'id-nix)
 ;;; id-nix.el ends here

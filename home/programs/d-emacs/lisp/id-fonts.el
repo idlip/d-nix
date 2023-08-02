@@ -46,5 +46,5 @@
   (global-font-lock-mode 1))
 
 
-(provide 'id-fonts.el)
+(provide 'id-fonts)
 ;;; id-fonts.el ends here

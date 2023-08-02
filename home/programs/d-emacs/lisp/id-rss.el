@@ -4,7 +4,6 @@
 ;;; Code:
 
 (use-package elfeed
-  :defer t
   :hook (elfeed-show-mode . d/elfeed-ui)
   :bind ("C-c d e" . d/elfeed-open)
   ("C-c d b" . d/external-browser)
@@ -121,19 +120,18 @@ Usable as favorites or bookmark."
 
 (use-package elfeed-org
   :after elfeed
-  :init
-  (elfeed-org)
   :custom
-  (rmh-elfeed-org-files (list (expand-file-name "elfeed.org" user-emacs-directory))))
+  (rmh-elfeed-org-files (list (expand-file-name "elfeed.org" user-emacs-directory)))
+  :init
+  (elfeed-org))
+
 
 (use-package link-hint
-  :defer t
   :bind
   ("C-c l o" . link-hint-open-link)
   ("C-c l c" . link-hint-copy-link))
 
 (use-package avy
-  :defer t
   :bind
   ("M-j" . avy-goto-char-timer)
   ("M-K" . avy-kill-region)
@@ -141,5 +139,5 @@ Usable as favorites or bookmark."
   :custom
   (avy-background t))
 
-(provide 'id-rss.el)
+(provide 'id-rss)
 ;;; id-rss.el ends here

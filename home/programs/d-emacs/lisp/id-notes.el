@@ -5,6 +5,7 @@
 
 ;; spell check 'em too!
 (use-package jinx
+  :unless d/on-droid
   :init (global-jinx-mode)
   :bind ("M-$". jinx-correct))
 
@@ -86,5 +87,5 @@
   ;; (d/denote-add-to-agenda-files "_project")
   )
 
-(provide 'id-notes.el)
+(provide 'id-notes)
 ;;; id-notes.el ends here

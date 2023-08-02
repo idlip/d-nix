@@ -10,10 +10,10 @@
   :custom
   (org-link-elisp-confirm-function 'y-or-n-p)
   (reddigg-subs '(emacs linux nixos hyprland bioinformatics fossdroid piracy bangalore india indiaspeaks developersindia manga aww))
-  (other-subs '(crazyfuckingvideos nextfuckinglevel manga anime animepiracy fossdroid commandline memes jokes
+  :config
+  (setq other-subs '(crazyfuckingvideos nextfuckinglevel manga anime animepiracy fossdroid commandline memes jokes
 				                           funnymemes rss holup))
 
-  :custom
   (defun reddigg-view-sub ()
     "Prompt SUB and print its post list."
     (interactive)
@@ -84,5 +84,5 @@
 	      ("p" . sdcv-previous-dictionary)))
 
 
-(provide 'id-apps.el)
+(provide 'id-apps)
 ;;; id-apps.el ends here

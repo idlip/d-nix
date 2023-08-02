@@ -59,5 +59,5 @@
   :bind
   ("<f9>" . hide-mode-line-mode))
 
-(provide 'id-aesthetics.el)
+(provide 'id-aesthetics)
 ;;; id-aesthetics.el ends here

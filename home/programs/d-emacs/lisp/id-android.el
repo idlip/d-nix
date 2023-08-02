@@ -16,5 +16,5 @@
 
 ;; (setq use-dialog-box nil)
 
-(provide 'id-android.el)
+(provide 'id-android)
 ;;; id-android.el ends here

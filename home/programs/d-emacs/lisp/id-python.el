@@ -25,5 +25,5 @@ with `venvPath' and `venv' set to the absolute path of
 
 
 
-(provide 'id-python.el)
+(provide 'id-python)
 ;;; id-python.el ends here

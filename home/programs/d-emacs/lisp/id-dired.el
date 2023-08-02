@@ -37,5 +37,5 @@
   ;; Make dired-omit-mode hide all "dotfiles"
   (dired-omit-files "\\`[.]?#\\|\\`[.][.]?\\'\\|^\\..*$"))
 
-(provide 'id-dired.el)
+(provide 'id-dired)
 ;;; id-dired.el ends here

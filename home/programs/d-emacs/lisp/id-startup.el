@@ -26,7 +26,7 @@
 (use-package use-package
   :ensure nil
   :custom
-  (use-package-verbose t)
+  (use-package-verbose nil)
   (use-package-always-ensure nil)
   (use-package-always-defer t)
   (use-package-expand-minimally t)
@@ -48,5 +48,5 @@
   :config
   (gcmh-mode 1))
 
-(provide 'id-startup.el)
+(provide 'id-startup)
 ;;; id-startup.el ends here

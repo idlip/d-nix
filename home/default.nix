@@ -5,7 +5,8 @@
 # glue all configs together
 {
 
-  config.home.stateVersion = "23.05";
+  # NEVER EVER TOUCH IT ⚠️
+  config.home.stateVersion = "23.05"; # OR CRY WITH BROKE SYS
 
   imports = [
     inputs.nix-index-db.hmModules.nix-index

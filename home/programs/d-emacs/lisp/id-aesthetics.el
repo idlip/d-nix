@@ -6,7 +6,7 @@
 (use-package olivetti
   :defer t
   :hook
-  (org-mode text-mode Info-mode helpful-mode ement-room-mode
+  (org-mode text-mode Info-mode helpful-mode ement-room-mode eat-mode
             eww-mode sdcv-mode nov-mode elfeed-show-mode markdown-mode)
   :custom
   (olivetti-body-width 0.9)

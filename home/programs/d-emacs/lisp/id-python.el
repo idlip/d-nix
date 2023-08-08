@@ -3,8 +3,6 @@
 
 ;;; Code:
 
-
-
 ;; taken from Robb Enzmann
 (defun d/pyrightconfig-write (virtualenv)
   "Write a `pyrightconfig.json' file at the Git root of a project,
@@ -22,7 +20,8 @@ with `venvPath' and `venv' set to the absolute path of
     (with-temp-file out-file (insert out-contents))
     (message (concat "Configured `" out-file "` to use environment `" venv-dir))))
 
-
+;; TODOTHIS: Expansion
+(use-package elpy)
 
 
 (provide 'id-python)

@@ -25,7 +25,7 @@
   (use-file-dialog nil)
   (enable-recursive-minibuffers t "Allow minibuffer commands in the minibuffer")
   (indent-tabs-mode nil "Spaces!")
-  (tab-width 2)
+  (tab-width 4)
   (debug-on-quit nil)
   (initial-major-mode 'org-mode)
   :config

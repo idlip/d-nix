@@ -13,8 +13,11 @@
   :bind (("C-c c c" . org-capture)
          ("C-c c d" . calendar)
          ("C-c t R" . d/bionic-region)
+         ("C-c t i" . d/set-timer)
          ("C-c d a" . org-agenda)
-         ("C-c t r" . d/bionic-read))
+         ("C-c t r" . d/bionic-read)
+         (:map org-mode-map
+               ("C-x n n" . d/narrow-or-widen-dwim)))
 
   :custom
   (org-src-window-setup 'current-window)
@@ -108,6 +111,7 @@
      (latex . t) (C . t)
      (R . t) (shell . t) (python . t)))
   (push '("conf-unix" . conf-unix) org-src-lang-modes)
+  (defalias 'd/set-timer (symbol-function 'org-timer-set-timer))
   )
 
 (use-package org-modern
@@ -137,7 +141,8 @@
   ;; nerd-icons: "" "󰓏" "󰚀" "󰴈" "" "󰄄"
 
   ;; (org-modern-star '("◉" "✪" "◈" "✿" "❂"))
-  (org-modern-star '("" "󰓏" "󰚀" "󰴈" "" "󰄄"))
+  ;; (org-modern-star '("" "󰓏" "󰚀" "󰴈" "" "󰄄"))
+  (org-modern-star '("󰓏" "󰚀" "󰫤"  "󰴈" "" "󰄄"))
   (org-modern-hide-stars 'leading)
   (org-modern-table nil)
   (org-modern-list

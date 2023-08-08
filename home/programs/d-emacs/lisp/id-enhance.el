@@ -32,7 +32,7 @@ You can do this by trackpad too (laptop)"
 
 (use-package tooltip
   :defer t
-  :custom
+  :config
   (tooltip-mode -1))
 
 (use-package time
@@ -45,7 +45,7 @@ You can do this by trackpad too (laptop)"
 
 (use-package winner
   :config
-  (winner-mode 1))
+  (winner-mode -1))
 
 
 (use-package rainbow-delimiters
@@ -63,7 +63,7 @@ You can do this by trackpad too (laptop)"
   :ensure nil
   :unless d/on-droid
   :bind (:map image-mode-map
-  ("q" . d/kill-buffer))
+              ("q" . d/kill-buffer))
   :hook
   (image-mode . (lambda () (olivetti-mode) (setq olivetti-body-width 0.45))))
 

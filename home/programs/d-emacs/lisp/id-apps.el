@@ -69,19 +69,19 @@
   :hook (sdcv-mode . hide-mode-line-mode)
   :config
   (setq sdcv-say-word-p t
-	      sdcv-dictionary-data-dir "~/d-git/d-bin/treasure/dict/"
-	      sdcv-dictionary-simple-list
-	      '("wn" "mw-thesaurus" "dict")
-	      sdcv-popup-function 'popup-tip
-	      sdcv-buffer-name "StarDict")
+	    sdcv-dictionary-data-dir "~/d-git/d-bin/treasure/dict/"
+	    sdcv-dictionary-simple-list
+	    '("wn" "mw-thesaurus" "dict")
+	    sdcv-popup-function 'popup-tip
+	    sdcv-buffer-name "StarDict")
   :bind (("C-c d w" . sdcv-search-input)
-	       ("C-c d d" . sdcv-search-input+))
+	     ("C-c d d" . sdcv-search-input+))
   (:map sdcv-mode-map
-	      ("q" . kill-buffer-and-window)
-	      ("n" . sdcv-next-dictionary)
-	      ("TAB" . hide-entry)
-	      ("<backtab>" . show-entry)
-	      ("p" . sdcv-previous-dictionary)))
+	    ("q" . kill-buffer-and-window)
+	    ("n" . sdcv-next-dictionary)
+	    ("TAB" . hide-entry)
+	    ("<backtab>" . show-entry)
+	    ("p" . sdcv-previous-dictionary)))
 
 
 (provide 'id-apps)

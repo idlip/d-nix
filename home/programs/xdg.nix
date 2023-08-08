@@ -42,11 +42,11 @@ in {
     userDirs = {
       enable = true;
       createDirectories = true;
-      documents = "$HOME/docs";
-      download = "$HOME/dloads";
-      videos = "$HOME/vids";
-      music = "$HOME/music";
-      pictures = "$HOME/pics";
+      documents =  "${config.home.homeDirectory}/docs";
+      download = "${config.home.homeDirectory}/dloads";
+      videos = "${config.home.homeDirectory}/vids";
+      music = "${config.home.homeDirectory}/music";
+      pictures = "${config.home.homeDirectory}/pics";
       extraConfig = {
         XDG_SCREENSHOTS_DIR = "${config.xdg.userDirs.pictures}/sshots";
       };

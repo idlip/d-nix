@@ -62,7 +62,7 @@
 
 ;;; --- to read, and love reading
 (require 'id-web)
-;; (require 'id-reading)
+(require 'id-reading)
 (require 'id-rss)
 
 ;;; --- organize life
@@ -83,9 +83,6 @@
 
 ;; (require 'id-present)
 ;; (require 'id-vterm)
-
-;; for some reason, icon size looks proper when I set this at last
-(set-language-environment "UTF-8")
 
 
 

@@ -89,7 +89,7 @@
     algorithm = "zstd";
   };
 
-  # DON'T TOUCH THIS
-  system.stateVersion = lib.mkDefault "23.05";
+  # NEVER EVER TOUCH THIS ⚠️
+  system.stateVersion = lib.mkDefault "23.05"; # OR CRY WITH BROKE SYS
 
 }

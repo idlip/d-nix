@@ -108,7 +108,7 @@ function {e,find-file,'emacsclient -t','emacsclient -nw'} () {
 }
 
 function manp () { # use emacs
-    if [ -n "$(man -k $1)" ]; then
+    if [[ $(man -k $1) ]]; then
         if [ -n "$INSIDE_EMACS" ]; then
 	          emacsclient -e "(man \"$1\")"
         elif [ "$(pgrep emacs)" ]; then

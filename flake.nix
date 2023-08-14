@@ -25,10 +25,12 @@
 
   };
 
-  outputs = {self, nixpkgs, ...} @ inputs: let
+  outputs = inputs @ {
+    self, nixpkgs, ...
+  }: let
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.x86_64-linux;
-    user = "idlip";
+    username = "idlip";
   in {
 
     devShells.x86_64-linux.default = pkgs.mkShell {

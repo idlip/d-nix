@@ -17,7 +17,8 @@
     };
 
     # dns
-    nameservers = ["127.0.0.1" "::1"];
+    # mullvad dns
+    nameservers = [ "194.242.2.5" "194.242.2.9" ];
     dhcpcd.extraConfig = "nohook resolv.conf";
     networkmanager = {
       enable = true;
@@ -57,8 +58,10 @@
     };
 
     # DNS resolver
-    resolved.enable = true;
-
+    resolved = {
+      enable = true;
+      fallbackDns = [ "194.242.2.5" "194.242.2.9" ];
+    };
   };
 
 

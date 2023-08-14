@@ -2,7 +2,7 @@
   config,
   pkgs,
   lib,
-  user,
+  username,
   ...
 }:
 
@@ -68,7 +68,7 @@
     doas = {
       enable = true;
       extraRules = [{
-        users = [ "idlip" ];
+        users = [ username ];
         keepEnv = true;
         persist = true;
       }];

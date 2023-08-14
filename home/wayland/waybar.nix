@@ -4,6 +4,7 @@
 
   programs.waybar = {
     enable = true;
+    package = pkgs.waybar-hyprland;
 
     settings = {
       mainBar = {

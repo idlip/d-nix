@@ -8,8 +8,6 @@
 
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 
-(defconst d/on-droid (eq system-type 'android))
-
 
 ;; Adjust garbage collection thresholds during startup, and thereafter
 
@@ -43,10 +41,10 @@
 
 ;;; --- helpful to have
 (require 'id-help)
-;; (require 'id-embark)
+(require 'id-embark)
 
 ;;; --- to play with code/programming
-;; (require 'id-code)
+(require 'id-code)
 (unless d/on-droid
   (require 'id-git))
 ;; (require 'id-python)
@@ -68,7 +66,7 @@
 ;;; --- organize life
 (require 'id-notes)
 (require 'id-org)
-;; (require 'id-markdown)
+(require 'id-markdown)
 
 ;;; --- modal editing
 ;; (require 'id-meow)

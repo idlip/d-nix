@@ -12,7 +12,7 @@
   (default-frame-alist '((menu-bar-lines . 0)
                          (tool-bar-lines . 0)
                          (vertical-scroll-bars)
-                         (alpha-background . 100)))
+                         (alpha-background . 85)))
   (scroll-step 1)
   (inhibit-x-resources t)
   (inhibit-startup-screen t "Don't show splash screen")
@@ -27,7 +27,7 @@
   (indent-tabs-mode nil "Spaces!")
   (tab-width 4)
   (debug-on-quit nil)
-  (initial-major-mode 'org-mode)
+  (initial-major-mode 'fundamental-mode)
   :config
   ;; Terminal emacs doesn't have it
   (when (fboundp 'set-fontset-font)
@@ -49,6 +49,7 @@
   :bind ("M-o" . other-window)
   ("C-<tab>" . other-window)
   ("C-x C-k" . d/kill-buffer)
+  ("C-x n n" . d/narrow-or-widen-dwim)
 
   :custom
   (recenter-positions '(top middle bottom))
@@ -66,6 +67,14 @@
       (progn
 	      (set-register '_ (list (current-window-configuration)))
 	      (delete-other-windows))))
+
+  (defun d/narrow-or-widen-dwim ()
+    "If the buffer is narrowed, it widens. Otherwise, it narrows to region, or Org subtree."
+    (interactive)
+    (cond ((buffer-narrowed-p) (widen))
+          ((region-active-p) (narrow-to-region (region-beginning) (region-end)))
+          ((eq major-mode 'org-mode) (org-narrow-to-subtree))
+          (t (error "Please select a region to narrow to"))))
 
   (defun d/kill-buffer ()
     "Clear the image cache (to release memory) after killing a pdf buffer."
@@ -136,13 +145,14 @@
   :bind ("M-z" . zap-up-to-char))
 
 (use-package paren
-  :defer 2
+  :ensure nil
+  :hook (after-init . show-paren-mode)
   :custom
   (show-paren-delay 0.1)
   (show-paren-highlight-openparen t)
   (show-paren-when-point-inside-paren t)
-  :config
-  (show-paren-mode 1))
+  (show-paren-style 'mixed)
+  (show-paren-context-when-offscreen t))
 
 (use-package ibuffer
   :bind

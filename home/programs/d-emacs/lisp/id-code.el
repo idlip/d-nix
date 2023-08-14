@@ -3,6 +3,9 @@
 
 ;;; Code:
 
+(use-package executable
+  :ensure nil
+  :hook (after-save . executable-make-buffer-file-executable-if-script-p))
 
 (use-package eglot
   :defer t

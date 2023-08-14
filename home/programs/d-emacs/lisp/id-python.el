@@ -20,6 +20,23 @@ with `venvPath' and `venv' set to the absolute path of
     (with-temp-file out-file (insert out-contents))
     (message (concat "Configured `" out-file "` to use environment `" venv-dir))))
 
+(use-package python
+  :ensure nil
+  :hook ((python-mode . (lambda ()
+                          (setq-local forward-sexp-function nil)
+                          (make-local-variable 'python-shell-virtualenv-root)
+                          (setq-local completion-at-point-functions '( cape-file python-completion-at-point cape-dabbrev))))
+         (inferior-python-mode . (lambda ()
+                                   (setq-local completion-at-point-functions '(t)))))
+
+  :custom
+  (python-shell-dedicated 'project)
+  (python-shell-interpreter "python")
+  (python-shell-interpreter-args "")
+  (python-forward-sexp-function nil)
+  (python-shell-completion-native-disabled-interpreters '("python" "pypy")))
+
+
 ;; TODOTHIS: Expansion
 (use-package elpy)
 

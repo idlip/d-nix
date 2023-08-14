@@ -134,6 +134,7 @@ Usable as favorites or bookmark."
 (use-package avy
   :bind
   ("M-j" . avy-goto-char-timer)
+  ("M-g w" . avy-goto-char-timer)
   ("M-K" . avy-kill-region)
   ("C-S-k" . avy-kill-whole-line)
   :custom

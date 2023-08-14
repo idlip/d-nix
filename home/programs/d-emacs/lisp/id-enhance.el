@@ -44,9 +44,9 @@ You can do this by trackpad too (laptop)"
   (display-time-format "%H:%M"))
 
 (use-package winner
-  :config
-  (winner-mode -1))
-
+  :ensure nil
+  :hook after-init
+  :commands (winner-undo winnner-redo))
 
 (use-package rainbow-delimiters
   :defer t
@@ -72,6 +72,50 @@ You can do this by trackpad too (laptop)"
   (selection-coding-system 'utf-8)
   (x-select-request-type 'text/plain\;charset=utf-8)
   (select-enable-clipboard t "Use the clipboard"))
+
+;; Taken from gopar's config (via Yt video)
+;; https://github.com/gopar/.emacs.d
+(use-package type-break
+  :ensure nil
+  :disabled t
+  :hook (after-init)
+  :init
+  (defun type-break-demo-agenda ()
+    "Display the Org Agenda in read-only mode. Cease the demo as soon as a key is pressed."
+    (let ((buffer-name "*Typing Break Org Agenda*")
+          lines)
+      (condition-case ()
+          (progn
+            (org-agenda-list)
+            (setq buffer-name (buffer-name))
+            ;; Set the buffer to read-only
+            (with-current-buffer buffer-name
+              (read-only-mode 1))
+            ;; Message to be displayed at the bottom
+            (let ((msg (if type-break-terse-messages
+                           ""
+                         "Press any key to resume from typing break")))
+              ;; Loop until key is pressed
+              (while (not (input-pending-p))
+                (sit-for 60))
+              ;; Clean up after key is pressed
+              (read-event)
+              (type-break-catch-up-event)
+              (kill-buffer buffer-name)))
+        (quit
+         (and (get-buffer buffer-name)
+              (kill-buffer buffer-name))))))
+
+  :custom
+  ;; Setting interval of that of a pomodoro session
+  (type-break-interval (* 25 60)) ;; 25 mins
+  (type-break-good-rest-interval (* 9 60)) ;; 9 mins
+  (type-break-good-break-interval (* 5 60)) ;; 5 mins
+  (type-break-query-mode t)
+  (type-break-keystroke-threshold '(nil . 2625))
+  (type-break-demo-boring-stats t)
+  (type-break-demo-functions '(type-break-demo-agenda)))
+
 
 (provide 'id-enhance)
 ;;; id-enhance.el ends here

@@ -5,8 +5,8 @@
 
 ;; spell check 'em too!
 (use-package jinx
-  :unless d/on-droid
-  :init (global-jinx-mode)
+  ;; :init (global-jinx-mode)
+  :hook org-mode
   :bind ("M-$". jinx-correct))
 
 (use-package denote

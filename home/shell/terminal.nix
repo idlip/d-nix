@@ -58,7 +58,7 @@
         bright5 = "b6a0ff";
         bright6 = "6ae4b9";
         bright7 = "ffffff";
-        alpha = "1.0";
+        alpha = "0.9";
       };
 
       mouse = {

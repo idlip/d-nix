@@ -25,6 +25,7 @@ in {
     # screenshot
     grim
     slurp
+    jq
 
     libnotify libsixel bemenu
     brightnessctl

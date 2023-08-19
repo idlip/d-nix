@@ -31,6 +31,7 @@
         "hyprland/workspaces" = {
 	        format = "{icon}";
 	        active-only = false;
+          show-special = true;
 	        on-click = "activate";
 	        format-icons = {
 		        active = "";
@@ -45,11 +46,14 @@
         };
 
         "hyprland/window" = {
-	        "format" = "👁{}";
+	        "format" = "{}";
 	        "separate-outputs" = true;
 	        "rewrite" = {
 		        "(.*) - Mozilla Firefox" = "🦊 $1";
-		        "(.*) - zsh" = ">_ [$1]";
+		        "(.*) - LibreWolf" = "🐺 $1";
+		        "(.*) - Brave" = "🦁 $1";
+		        "(.*) - GNU Emacs (.*)" = " $1";
+		        "(.*)foot" = "  $1";
 	        };
         };
 
@@ -60,7 +64,7 @@
         };
 
         "custom/launcher" = {
-	        "format" = " ";
+	        "format" = "";
 	        "tooltip" = false;
 	        "on-click" = "bemenu-run";
         };
@@ -73,7 +77,7 @@
 		        "critical" =  30;
 	        };
 	        "format" =  "{capacity}% {icon}";
-	        "format-icons" =  [" " "🔴" "🪫" " " " "];
+          "format-icons" = ["" "" "" "" ""];
 	        "max-length" =  25;
         };
 
@@ -88,7 +92,7 @@
 		        "paused" = "";
 		        "playing" = "";
 	        };
-	        "tooltip-format" = "Playing: {filename}";
+	        "tooltip-format" = "Mpd Connected";
 	        "tooltip-format-disconnected" = "";
         };
 

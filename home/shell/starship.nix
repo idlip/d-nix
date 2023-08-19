@@ -30,7 +30,7 @@
 
       nix_shell = {
         symbol = " ";
-        heuristic = true;
+        heuristic = false;
       };
 
       hostname = {

@@ -2,7 +2,6 @@
   config,
   pkgs,
   lib,
-  username,
   ...
 }: {
 
@@ -39,7 +38,7 @@
 
     # This makes the user 'idlip' to autologin in all tty
     # Depends on you if you want login manager or prefer entering password manually
-    getty.autologinUser = username;
+    getty.autologinUser = "idlip";
 
     atd.enable = true;
     fstrim.enable = true;
@@ -51,7 +50,7 @@
     # configuring syncthing
     syncthing = {
       enable = true;
-      user = username;
+      user = "idlip";
       configDir = "/home/idlip/.config/syncthing";
       overrideDevices = true;     # overrides any devices added or deleted through the WebUI
       overrideFolders = true;     # overrides any folders added or deleted through the WebUI

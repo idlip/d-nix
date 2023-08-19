@@ -2,7 +2,6 @@
   config,
   pkgs,
   lib,
-  username,
   ...
 }:
 
@@ -37,23 +36,23 @@
     enable = true;
     wrappedBinaries = with pkgs; {
       brave = {
-        executable = getExe pkgs.brave;
+        executable = "${getExe pkgs.brave}/bin/brave";
         profile = "${profiles}/brave-browser-stable.profile";
       };
       keepassxc = {
-        executable = getExe keepassxc;
+        executable = "${getExe pkgs.keepassxc}/bin/keepassxc";
         profile = "${profiles}/keepassxc.profile";
       };
       sioyek = {
-        executable = getExe pkgs.sioyek;
+        executable = "${getExe pkgs.sioyek}/bin/sioyek";
         profile = "${profiles}/sioyek.profile";
       };
       tor = {
-        executable = getExe pkgs.tor;
+        executable = "${getExe pkgs.tor}/bin/tor";
         profile = "${profiles}/tor.profile";
       };
       aria2c = {
-        executable = getExe pkgs.aria2;
+        executable = "${getExe pkgs.aria2}/bin/aria2c";
         profile = "${profiles}/aria2c.profile";
       };
     };
@@ -68,7 +67,7 @@
     doas = {
       enable = true;
       extraRules = [{
-        users = [ username ];
+        users = [ "idlip" ];
         keepEnv = true;
         persist = true;
       }];

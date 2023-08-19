@@ -13,6 +13,7 @@
     file
     du-dust
     fd
+    wget
 
   ];
 

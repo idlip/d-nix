@@ -15,6 +15,7 @@
   :delight " ⊛")
 
 (use-package doom-modeline
+  :disabled t ;; some flycheck error, until next upgrade
   :init (doom-modeline-mode 1)
   :custom
   (doom-modeline-bar-width 7)

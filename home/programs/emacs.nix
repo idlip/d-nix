@@ -17,7 +17,8 @@
       beframe denote tempel tempel-collection
       sdcv elfeed elfeed-org link-hint powerthesaurus jinx meow
       doom-modeline hide-mode-line el-fetch ox-hugo
-      ement kind-icon speed-type ess vc-backup aria2
+      ement kind-icon speed-type vc-backup aria2
+      ess elpy
     ])
     );
   };

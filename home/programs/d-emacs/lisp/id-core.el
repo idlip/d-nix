@@ -28,12 +28,17 @@
   (tab-width 4)
   (debug-on-quit nil)
   (initial-major-mode 'fundamental-mode)
+
   :config
   ;; Terminal emacs doesn't have it
   (when (fboundp 'set-fontset-font)
     ;; a workaround for old charsets
     (set-fontset-font t 'unicode "Noto Color Emoji" nil 'append)
-    ))
+    )
+
+    (prefer-coding-system 'utf-8)
+  ;; Uppercase is same as lowercase
+  (define-coding-system-alias 'UTF-8 'utf-8))
 
 (use-package frame
   :bind

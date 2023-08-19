@@ -64,6 +64,25 @@
      (toml-mode . toml-ts-mode)
      (yaml-mode . yaml-ts-mode))))
 
+(use-package devdocs-browser
+  :bind
+  ("C-c d v" . devdocs-browser-open-in)
+  :custom
+  (devdocs-browser-major-mode-docs-alist '((c++-ts-mode "cpp")
+                                           (c-ts-mode "c")
+                                           (go-ts-mode "go")
+                                           (python-ts-mode "Python")
+                                           (emacs-lisp-mode "elisp")
+                                           (rust-ts-mode "rust")
+                                           (cmake-mode "CMake")))
+
+  (devdocs-browser-highlight-lang-mode-alist '(("c" . c-ts-mode)
+                                               ("cpp" . c++-ts-mode)
+                                               ("py" . python-ts-mode)
+                                               ("bash" . bash-ts-mode)
+                                               ("shell" . bash-ts-mode)
+                                               ("python" . python-ts-mode))))
+
 
 (provide 'id-code)
 ;;; id-code.el ends here

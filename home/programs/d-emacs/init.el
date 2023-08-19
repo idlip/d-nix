@@ -47,9 +47,9 @@
 (require 'id-code)
 (unless d/on-droid
   (require 'id-git))
-;; (require 'id-python)
-;; (require 'id-rstats)
-;; (require 'id-nix)
+(require 'id-python)
+(require 'id-rstats)
+(require 'id-nix)
 (unless d/on-droid
   (require 'id-eshell))
 
@@ -79,7 +79,7 @@
 (when d/on-droid
   (require 'id-android))
 
-;; (require 'id-present)
+(require 'id-present)
 ;; (require 'id-vterm)
 
 

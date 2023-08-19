@@ -3,14 +3,34 @@
 
 ;;; Code:
 
-
 (use-package shr-tag-pre-highlight
   :ensure t
-  ;;:defer t
   :after shr
   :config
   (add-to-list 'shr-external-rendering-functions
-               '(pre . shr-tag-pre-highlight)))
+               '(pre . shr-tag-pre-highlight))
+  (with-eval-after-load 'eww
+    (advice-add 'eww-display-html :around
+                'eww-display-html--override-shr-external-rendering-functions))
+
+  (setq shr-tag-pre-highlight-lang-modes '(
+                                           ("elisp" . emacs-lisp)
+                                           ("ditaa" . artist)
+                                           ("asymptote" . asy)
+                                           ("dot" . fundamental)
+                                           ("sqlite" . sql)
+                                           ("calc" . fundamental)
+                                           ("C" . c-ts)
+                                           ("cpp" . c++-ts)
+                                           ("C++" . c++-ts)
+                                           ("screen" . shell-script)
+                                           ("shell" . bash-ts)
+                                           ("bash" . bash-ts)
+                                           ("py" . python-ts)
+                                           ("python" . python-ts)
+                                           ("R" . ess-r)
+                                           ("emacslisp" . emacs-lisp)
+                                           ("el" . emacs-lisp))))
 
 (use-package url
   :custom
@@ -24,7 +44,6 @@
   (url-setup-privacy-info))
 
 (use-package shr
-  :defer t
   :custom
   (shr-use-fonts  t)
   (shr-use-colors nil)
@@ -36,16 +55,16 @@
   (shr-width nil))
 
 (use-package shrface
-  :hook ((eww-mode . shrface-mode)
-	       (elfeed-show-mode . shrface-mode)
-	       (nov-mode . shrface-mode))
+  :hook (eww-mode elfeed-show-mode nov-mode)
   :bind (:map shrface-mode-map
-	            ("<tab>" . shrface-outline-cycle)
-	            ("<backtab>" . shrface-outline-cycle-buffer)
-	            ("M-n" . shr-next-link)
-	            ("M-p" . shr-previous-link)
-	            ("C-j" . shrface-next-headline)
-	            ("C-k" . shrface-previous-headline))
+	          ("<tab>" . shrface-outline-cycle)
+	          ("<backtab>" . shrface-outline-cycle-buffer)
+	          ("M-n" . shr-next-link)
+	          ("M-p" . shr-previous-link)
+              ("C-S-k" . shrface-links-consult)
+              ("C-S-j" . shrface-headline-consult)
+	          ("C-j" . shrface-next-headline)
+	          ("C-k" . shrface-previous-headline))
   :custom
   (shrface-item-bullet 8226)
   (shrface-bullets-bullet-list org-modern-star)
@@ -57,9 +76,10 @@
 (use-package shr-color
   :defer t
   :custom
-  (shr-color-visible-luminance-min 80 "Improve the contrast"))
+  (shr-color-visible-luminance-min 40 "Improve the contrast"))
 
 (use-package eww
+  :demand t
   :commands (eww eww-search-words)
   :hook (eww-mode . variable-pitch-mode)
   :bind ("M-s M-w" . eww-search-words)

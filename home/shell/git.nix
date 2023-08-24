@@ -7,6 +7,7 @@
 
   programs.git = {
     enable = true;
+    package = pkgs.gitFull;
 
     delta = {
       enable = true;
@@ -25,7 +26,7 @@
       c = "commit";
       ca = "commit --amend";
       cm = "commit -m";
-      co = "checkout";
+      cho = "checkout";
       d = "diff";
       ds = "diff --staged";
       p = "push";
@@ -37,6 +38,7 @@
       ss = "status";
       forgor = "commit --amend --no-edit";
       graph = "log --all --decorate --graph --oneline";
+      logrep = "log --decorate --oneline --grep=";
       oops = "checkout --";
     };
 

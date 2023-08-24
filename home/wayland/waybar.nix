@@ -162,11 +162,9 @@
     };
   };
 
-  home.file.".config/waybar/style.css".source = config.lib.file.mkOutOfStoreSymlink "/home/idlip/d-git/d-nix/home/wayland/style.css";
-
   # We will tangle config files from git repo to home dir (Let nix manage the magics)
 
-  home.file.".config/waybar/haki.css".source = config.lib.file.mkOutOfStoreSymlink "/home/idlip/d-git/d-nix/home/wayland/haki.css";
+  home.file.".config/waybar/style.css".source = config.lib.file.mkOutOfStoreSymlink "/home/idlip/d-git/d-nix/home/wayland/style.css";
 
 
 }

@@ -20,6 +20,8 @@
   ("C-c n t" . denote-type)
   ("C-c n d" . denote-date)
   ("C-c n n" . denote-subdirectory)
+  ("M-s n" . denote-open-or-create)
+  ("C-c n o" . denote-open-or-create)
   ("C-c n T" . denote-template)
   ("C-c n i" . denote-link)
   ("C-c n I" . denote-link-add-links)

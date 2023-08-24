@@ -44,13 +44,12 @@
 (require 'id-embark)
 
 ;;; --- to play with code/programming
-(require 'id-code)
 (unless d/on-droid
-  (require 'id-git))
-(require 'id-python)
-(require 'id-rstats)
-(require 'id-nix)
-(unless d/on-droid
+  (require 'id-code)
+  (require 'id-git)
+  (require 'id-python)
+  (require 'id-rstats)
+  (require 'id-nix)
   (require 'id-eshell))
 
 ;;; --- file manager on battery

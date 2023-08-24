@@ -3,6 +3,19 @@
 
 ;;; Code:
 
+(use-package dabbrev
+  :commands (dabbrev-expand dabbrev-completion)
+  :custom
+  (dabbrev-abbrev-char-regexp "\\sw\\|\\s_")
+  (dabbrev-abbrev-skip-leading-regexp "\\$\\|\\*\\|/\\|=")
+  (dabbrev-backward-only nil)
+  (dabbrev-case-distinction nil)
+  (dabbrev-case-fold-search t)
+  (dabbrev-case-replace nil)
+  (dabbrev-check-other-buffers t)
+  (dabbrev-eliminate-newlines nil)
+  (dabbrev-upcase-means-case-search t))
+
 (use-package vertico
   :bind (:map vertico-map
 	("?" . minibuffer-completion-help)
@@ -277,7 +290,7 @@ selected color."
   ;; (add-to-list 'completion-at-point-functions #'cape-sgml)
   ;; (add-to-list 'completion-at-point-functions #'cape-rfc1345)
   (add-to-list 'completion-at-point-functions #'cape-abbrev)
-  (add-to-list 'completion-at-point-functions #'cape-ispell)
+  ;; (add-to-list 'completion-at-point-functions #'cape-ispell)
   ;;(add-to-list 'completion-at-point-functions #'cape-dict)
   ;; (add-to-list 'completion-at-point-functions #'cape-symbol)
   ;; (add-to-list 'completion-at-point-functions #'cape-line)

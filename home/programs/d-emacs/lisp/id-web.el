@@ -4,14 +4,11 @@
 ;;; Code:
 
 (use-package shr-tag-pre-highlight
-  :ensure t
-  :after shr
+  :demand t
+  :after shrface
   :config
   (add-to-list 'shr-external-rendering-functions
                '(pre . shr-tag-pre-highlight))
-  (with-eval-after-load 'eww
-    (advice-add 'eww-display-html :around
-                'eww-display-html--override-shr-external-rendering-functions))
 
   (setq shr-tag-pre-highlight-lang-modes '(
                                            ("elisp" . emacs-lisp)
@@ -55,7 +52,7 @@
   (shr-width nil))
 
 (use-package shrface
-  :hook (eww-mode elfeed-show-mode nov-mode)
+  :hook (eww-after-render devdocs-browser-eww-mode elfeed-show-mode nov-mode)
   :bind (:map shrface-mode-map
 	          ("<tab>" . shrface-outline-cycle)
 	          ("<backtab>" . shrface-outline-cycle-buffer)

@@ -104,7 +104,7 @@ Usable as favorites or bookmark."
     (interactive)
     (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
       (eww (elfeed-entry-link entry))
-      (eww-readable)))
+      (add-hook 'eww-after-render-hook #'eww-readable)))
 
   (defun elfeed-open-in-reddit ()
     "open elfeed entry in reddit"

@@ -14,6 +14,8 @@
   :commands (eglot eglot-format eglot-managed-p eglot--major-mode)
   ;; (((web-mode rust-mode python-mode sh-mode c-mode c++-mode nix-mode) .
   ;; eglot-ensure)
+  ;; :hook
+  ;; (ess-r-mode . eglot-ensure)
   :custom
   (eglot-sync-connect 1)
   (eglot-connect-timeout 5)
@@ -23,9 +25,9 @@
 
   :bind
   (:map eglot-mode-map
-	      ("C-c l r" . eglot-rename)
-	      ("C-c l a" . eglot-code-actions)
-	      ("C-c l i" . consult-eglot-symbols))
+	    ("C-c l r" . eglot-rename)
+	    ("C-c l a" . eglot-code-actions)
+	    ("C-c l i" . consult-eglot-symbols))
   :config
   (add-to-list 'eglot-server-programs '(nix-mode . ("nixd")))
   )
@@ -35,9 +37,9 @@
 (use-package elisp-mode
   :bind
   (:map emacs-lisp-mode-map
-	      ("C-c C-d C-d" . describe-function)
-	      ("C-c C-d d" . describe-function)
-	      ("C-c C-k" . eval-buffer)))
+	    ("C-c C-d C-d" . describe-function)
+	    ("C-c C-d d" . describe-function)
+	    ("C-c C-k" . eval-buffer)))
 
 (use-package treesit
   :ensure nil

@@ -172,8 +172,8 @@
 (use-package org-modern
   :defer 1
   :after org
-  :hook (org-mode . org-modern-mode)
-  (org-agenda-finalize-hook . org-modern-agenda)
+  :commands (shrface-mode)
+  :hook (org-mode org-agenda-finalize-hook)
 
   :custom
   ;; Edit settings

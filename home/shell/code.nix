@@ -2,14 +2,49 @@
 
   home.packages = with pkgs; [
 
+    # shell
     nodePackages.bash-language-server
+
+    # basic stack
     # nodePackages.vscode-langservers-extracted
+
+    ### python
     # python311Packages.python-lsp-server
-    nodePackages.pyright
-    python3 gcc gnumake
-    R rPackages.languageserver rPackages.lintr
+    # nodePackages.pyright
+    (python311.withPackages(ps: with ps; [
+      python-lsp-server
+      biopython
+      pylint
+      black
+      rope
+      flake8
+    ]))
+
+    # core comp
+    gcc gnumake tree-sitter
+
+    # R
+    (rWrapper.override {
+      packages = with rPackages; [
+        ggplot2
+        dplyr
+        languageserver
+        lintr
+        dplyr
+        tidyr
+        stringr
+        httr
+        ggvis
+        ggplot2
+        shiny
+        rio
+        rmarkdown
+      ]; })
+
+    # nix
     nixd # or nil
-    tree-sitter
+
+    # alltex
     texlive.combined.scheme-full
   ];
 

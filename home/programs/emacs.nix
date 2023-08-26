@@ -13,7 +13,7 @@
       embark-consult consult-eglot consult-flycheck markdown-mode nix-mode
       reddigg hnreader mingus which-key magit webpaste org-present
       # pdf-tools nov (using built-in doc-view)
-      shrface shr-tag-pre-highlight gcmh nov devdocs-browser
+      shrface shr-tag-pre-highlight nov devdocs-browser
       beframe denote tempel tempel-collection
       sdcv elfeed elfeed-org link-hint powerthesaurus jinx meow
       doom-modeline hide-mode-line el-fetch ox-hugo

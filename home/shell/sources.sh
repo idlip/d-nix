@@ -50,7 +50,7 @@ alias bloat="nix path-info -Sh /run/current-system"
 alias ytmp3="yt-dlp -x --continue --add-metadata --embed-thumbnail --audio-format mp3 --audio-quality 0 --metadata-from-title='%(artist)s - %(title)s' --prefer-ffmpeg -o '%(title)s.%(ext)s' "
 alias cat="bat --style=plain"
 alias grep='rg'
-alias du='du-dust'
+alias du='dust'
 alias ps='procs'
 alias m="mkdir -p"
 alias ls="exa -h --git --icons --color=auto --group-directories-first -s extension"
@@ -110,9 +110,9 @@ function {e,find-file,'emacsclient -t','emacsclient -nw'} () {
 function manp () { # use emacs
     if [[ $(man -k $1) ]]; then
         if [ -n "$INSIDE_EMACS" ]; then
-	          emacsclient -e "(man \"$1\")"
+	          emacsclient -e "(funcall 'man (apply 'eshell-flatten-and-stringify '($1 $2)))"
         elif [ "$(pgrep emacs)" ]; then
-	          emacsclient -nw -e "(man \"$1\")"
+	        emacsclient -nw -e "(funcall 'man (apply 'eshell-flatten-and-stringify '($1 $2)))"
         else
 	          man $1
         fi

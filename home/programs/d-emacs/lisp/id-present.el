@@ -133,8 +133,10 @@
     (interactive)
     (widen)
     (unless (org-goto-first-child)
-	    (org-get-next-sibling))
+	  (org-get-next-sibling))
     (org-present-narrow)
+    (org-fold-hide-sublevels 5)
+    (org-show-entry)
     (org-present-run-after-navigate-functions))
 
 
@@ -154,6 +156,8 @@
 	        (when (org-goto-first-child)
 	          (d/org-present--last-child))))
     (org-present-narrow)
+    (org-fold-hide-sublevels 5)
+    (org-show-entry)
     (org-present-run-after-navigate-functions))
 
 

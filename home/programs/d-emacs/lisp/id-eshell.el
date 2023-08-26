@@ -3,7 +3,7 @@
 
 ;;; Code:
 
-(use-package eshell
+(use-package esh-mode
   :ensure nil
   :hook
   (eshell-mode . hide-mode-line-mode)
@@ -15,13 +15,17 @@
 
   :custom
   (eshell-scroll-to-bottom-on-input t)
+  (eshell-directory-name (expand-file-name "eshell" user-emacs-directory))
+  (eshell-aliases-file (expand-file-name "alias" eshell-directory-name))
   (eshell-highlight-prompt t)
   (eshell-hist-ignoredups t)
   (eshell-cd-on-directory t)
+  (eshell-visual-command nil)
   (eshell-pushd-dunique t)
   (eshell-last-dir-unique t)
   (eshell-last-dir-ring-size 32)
   (eshell-list-files-after-cd nil)
+  (eshell-cd-shows-directory t)
   (eshell-prefer-lisp-functions nil)
 
   (eshell-prompt-function
@@ -36,7 +40,7 @@
   :config
   (defun d/clear-eshell ()
     (interactive)
-    (eshell-send-input (eshell/clear-scrollback)))
+    (eshell-send-input (eshell/clear t)))
 
   (defun d/eshell-toggle ()
     "Minimal hack to toggle eshell."
@@ -66,6 +70,7 @@
   (eat-mode . hide-mode-line-mode)
   :bind
   ("C-c d t" . d/eat-toggle)
+  ("S-<f12>" . d/eat-toggle)
   (:map eat-mode-map
         ("C-x C-q" . d/eat-read-write)
         ("<f12>" . d/eat-toggle)

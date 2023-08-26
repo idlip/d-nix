@@ -9,20 +9,23 @@
 ;;; Code:
 
 (setq package-enable-at-startup nil
-      native-comp-async-report-warnings-errors nil
       load-prefer-newer t)
+
+(custom-set-variables
+ '(native-comp-async-report-warnings-errors nil)
+ '(native-comp-jit-compilation nil))
 
 (defconst d/on-droid (eq system-type 'android))
 
 ;; Emacs (gui app) is also amazing in android
 ;; https://sourceforge.net/projects/android-ports-for-gnu-emacs/files/termux/
 (when d/on-droid
-(setenv "PATH" (format "%s:%s" "/data/data/com.termux/files/usr/bin"
-		       (getenv "PATH")))
-(setenv "LD_LIBRARY_PATH" (format "%s:%s"
-				  "/data/data/com.termux/files/usr/lib"
-				  (getenv "LD_LIBRARY_PATH")))
-(push "/data/data/com.termux/files/usr/bin" exec-path))
+  (setenv "PATH" (format "%s:%s" "/data/data/com.termux/files/usr/bin"
+		                 (getenv "PATH")))
+  (setenv "LD_LIBRARY_PATH" (format "%s:%s"
+				                    "/data/data/com.termux/files/usr/lib"
+				                    (getenv "LD_LIBRARY_PATH")))
+  (push "/data/data/com.termux/files/usr/bin" exec-path))
 
 
 ;; So we can detect this having been loaded

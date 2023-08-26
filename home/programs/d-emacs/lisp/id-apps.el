@@ -10,9 +10,9 @@
   :custom
   (org-link-elisp-confirm-function 'y-or-n-p)
   (reddigg-subs '(emacs linux nixos hyprland bioinformatics fossdroid piracy bangalore india indiaspeaks developersindia manga aww))
+  (other-subs '(crazyfuckingvideos nextfuckinglevel manga anime animepiracy fossdroid commandline memes jokes
+				                   funnymemes rss holup))
   :config
-  (setq other-subs '(crazyfuckingvideos nextfuckinglevel manga anime animepiracy fossdroid commandline memes jokes
-				                           funnymemes rss holup))
 
   (defun reddigg-view-sub ()
     "Prompt SUB and print its post list."

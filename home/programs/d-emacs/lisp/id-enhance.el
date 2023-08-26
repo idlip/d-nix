@@ -37,10 +37,11 @@ You can do this by trackpad too (laptop)"
 
 (use-package time
   :defer t
+  :hook
+  (after-init . display-time)
   :custom
   (display-time-default-load-average nil)
   (display-time-24hr-format t)
-  (display-time-mode t)
   (display-time-format "%H:%M"))
 
 (use-package winner
@@ -56,8 +57,8 @@ You can do this by trackpad too (laptop)"
   :hook '(prog-mode help-mode)
   :bind ("C-c t c" . rainbow-mode))
 
-(use-package so-long
-  :config (global-so-long-mode))
+;; (use-package so-long
+;;   :config (global-so-long-mode))
 
 (use-package image-mode
   :ensure nil

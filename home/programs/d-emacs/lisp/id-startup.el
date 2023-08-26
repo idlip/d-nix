@@ -37,16 +37,11 @@
   :custom
   (native-comp-async-report-warnings-errors nil)
   (native-comp-jit-compilation nil)
+  :config
   (when (fboundp 'startup-redirect-eln-cache)
     (startup-redirect-eln-cache
      (convert-standard-filename
       (expand-file-name "var/eln-cache/" user-emacs-directory)))))
-
-(use-package gcmh
-  :ensure t
-  :demand t
-  :config
-  (gcmh-mode 1))
 
 (provide 'id-startup)
 ;;; id-startup.el ends here

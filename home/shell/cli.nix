@@ -19,10 +19,11 @@
 
   programs = {
     nix-index.enable = true;
-    exa = {
+    eza = {
       enable = true;
       extraOptions = ["--group-directories-first" "--header"];
       icons = true;
+      enableAliases = false;
     };
 
     ripgrep = {

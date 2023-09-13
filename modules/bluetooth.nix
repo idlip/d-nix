@@ -2,11 +2,9 @@
 
   hardware.bluetooth = {
     enable = true;
-    package = pkgs.bluez5-experimental;
+    package = pkgs.bluez;
     settings = {
       General = {
-        Class = "0x000100";
-        ControllerMode = "bredr";
         FastConnectable = true;
         JustWorksRepairing = "always";
         Privacy = "device";

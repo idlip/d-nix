@@ -82,17 +82,17 @@ window#waybar.hidden {
 }
 
 window#waybar.foot {
-    border: @code;
+    /* border: 2px solid @code; */
 }
 window#waybar.footclient {
-    border: @code;
+    /* border: 2px solid @code; */
 }
 
 window#waybar.emacs {
-    border: @heading-1;
+    /* border: 2px solid @heading-1; */
 }
 window#waybar.brave {
-    border: @link;
+    /* border: 2px solid @link; */
 }
 
 #workspaces button {

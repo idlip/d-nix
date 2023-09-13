@@ -29,34 +29,6 @@
   };
 
   programs.ssh.startAgent = true;
-  programs.firejail = let
-    profiles = "${lib.getExe pkgs.firejail}/etc/firejail";
-    inherit (lib) getExe;
-  in {
-    enable = true;
-    wrappedBinaries = with pkgs; {
-      brave = {
-        executable = "${getExe pkgs.brave}/bin/brave";
-        profile = "${profiles}/brave-browser-stable.profile";
-      };
-      keepassxc = {
-        executable = "${getExe pkgs.keepassxc}/bin/keepassxc";
-        profile = "${profiles}/keepassxc.profile";
-      };
-      sioyek = {
-        executable = "${getExe pkgs.sioyek}/bin/sioyek";
-        profile = "${profiles}/sioyek.profile";
-      };
-      tor = {
-        executable = "${getExe pkgs.tor}/bin/tor";
-        profile = "${profiles}/tor.profile";
-      };
-      aria2c = {
-        executable = "${getExe pkgs.aria2}/bin/aria2c";
-        profile = "${profiles}/aria2c.profile";
-      };
-    };
-  };
 
   security = {
     protectKernelImage = true;

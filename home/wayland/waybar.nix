@@ -4,7 +4,6 @@
 
   programs.waybar = {
     enable = true;
-    package = pkgs.waybar-hyprland;
 
     settings = {
       mainBar = {
@@ -26,7 +25,7 @@
 	        "custom/wf-recorder" "clock" "mpd"
         ];
 
-        modules-right = ["network" "battery" "memory" "pulseaudio" "custom/power"];
+        modules-right = [ "tray" "network" "battery" "memory" "pulseaudio" "custom/power" ];
 
         "hyprland/workspaces" = {
 	        format = "{icon}";
@@ -48,12 +47,14 @@
         "hyprland/window" = {
 	        "format" = "{}";
 	        "separate-outputs" = true;
+          "max-length" = 35;
 	        "rewrite" = {
 		        "(.*) - Mozilla Firefox" = "🦊 $1";
 		        "(.*) - LibreWolf" = "🐺 $1";
 		        "(.*) - Brave" = "🦁 $1";
 		        "(.*) - GNU Emacs (.*)" = " $1";
-		        "(.*)foot" = "  $1";
+		        "(.*).epub(.*)" = "󰂽 $1";
+		        "(.*)foot" = " Terminal $1";
 	        };
         };
 
@@ -105,10 +106,15 @@
         "clock" = {
 	        "tooltip-format" = "{:%A %B %d %Y | %H:%M}";
 	        "format-alt" = " {:%a %d %b  %I:%M %p}";
-	        "format" = " {:%H:%M} ";
+	        "format" = " {:%H:%M}";
 	        ##"timezones" = [ "Kolkata" ];
 	        ##"max-length" = 200;
 	        "interval" = 1;
+        };
+
+        "tray" = {
+          "icon-size" = 23;
+          "spacing" = 10;
         };
 
         "cpu" = {
@@ -122,20 +128,20 @@
         };
 
         "network" = {
-	        "interface" = "wlp2s0";
+	        # "interface" = "wlp2s0";
 	        "format" = "⚠ Disabled";
 	        "format-wifi" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
-	        "format-ethernet" = " {ifname}: {ipaddr}/{cidr}";
+          "format-ethernet" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
 	        "format-disconnected" = "⚠ Disconnected";
-	        "on-click" = "foot -e nmtui";
+	        "on-click" = "d-wifi";
 	        "interval" = 2;
         };
 
         "pulseaudio" = {
 	        "scroll-step" = 2;
-	        "format" = "{icon} {volume: >3}% ";
+	        "format" = "{icon} {volume: >3}%";
 	        "format-bluetooth" = "{icon} {volume: >3}%";
-	        "format-muted" =" muted ";
+	        "format-muted" =" muted";
 	        "on-click" = "pamixer -t";
 	        "format-icons" = {
 		        "headphones" = "";

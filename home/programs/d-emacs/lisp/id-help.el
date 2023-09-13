@@ -27,7 +27,14 @@
   (woman-italic ((t (:inherit font-lock-keyword-face :underline t)))))
 
 (use-package which-key
+  :disabled t ;; trying embark-help function
   :defer 2
+  :defines (d/on-droid)
+  :functions
+  (which-key-mode
+   which-key-abort
+   which-key--create-buffer-and-show
+   repeated-prefix-help-command)
   :unless d/on-droid
   :custom
   (which-key-show-transient-maps t)
@@ -45,9 +52,25 @@
   (which-key-separator " → " )
   :diminish which-key-mode
   :config
-  (which-key-mode))
+  (which-key-mode)
+  ;; From kathink. It repeats the seq without modifier
+  (defun repeated-prefix-help-command ()
+    "Repeat keychords in sequence without modifier."
+    (interactive)
+    (when-let* ((keys (this-command-keys-vector))
+	            (prefix (seq-take keys (1- (length keys))))
+	            (orig-keymap (key-binding prefix 'accept-default))
+	            (keymap (copy-keymap orig-keymap))
+	            (exit-func (set-transient-map keymap t #'which-key-abort)))
+      (define-key keymap [remap keyboard-quit]
+		          (lambda () (interactive) (funcall exit-func)))
+      (which-key--create-buffer-and-show nil keymap)))
+
+  (setq prefix-help-command #'repeated-prefix-help-command)
+  )
 
 (use-package helpful
+  :defines (helpful-mode-map)
   :hook (helpful-mode . hide-mode-line-mode)
   :bind
   ("C-h f" . helpful-callable)
@@ -60,20 +83,6 @@
   (:map helpful-mode-map
 	("q" . kill-buffer-and-window)))
 
-;; From kathink. It repeats the seq without modifier
-(defun repeated-prefix-help-command ()
-  "Repeat keychords in sequence without modifier."
-  (interactive)
-  (when-let* ((keys (this-command-keys-vector))
-	(prefix (seq-take keys (1- (length keys))))
-	(orig-keymap (key-binding prefix 'accept-default))
-	(keymap (copy-keymap orig-keymap))
-	(exit-func (set-transient-map keymap t #'which-key-abort)))
-    (define-key keymap [remap keyboard-quit]
-		(lambda () (interactive) (funcall exit-func)))
-    (which-key--create-buffer-and-show nil keymap)))
-
-(setq prefix-help-command #'repeated-prefix-help-command)
 
 (provide 'id-help)
 ;;; id-help.el ends here

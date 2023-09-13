@@ -30,6 +30,9 @@
   (debug-on-quit nil)
   (initial-major-mode 'fundamental-mode)
 
+  (sentence-end-double-space nil)
+  (sentence-end "[.?!] ")
+
   :config
   ;; Terminal emacs doesn't have it
   (when (fboundp 'set-fontset-font)
@@ -60,6 +63,10 @@
   :custom
   (recenter-positions '(top middle bottom))
 
+  :functions
+  (doc-view-clear-cache
+   org-narrow-to-subtree)
+
   :config
   ;; balance windows when split (https://zck.org/balance-emacs-windows)
   (seq-doseq (fn (list #'split-window #'delete-window))
@@ -75,7 +82,8 @@
 	      (delete-other-windows))))
 
   (defun d/narrow-or-widen-dwim ()
-    "If the buffer is narrowed, it widens. Otherwise, it narrows to region, or Org subtree."
+    "If the buffer is narrowed, it widens. Otherwise,
+it narrows to region, or Org subtree."
     (interactive)
     (cond ((buffer-narrowed-p) (widen))
           ((region-active-p) (narrow-to-region (region-beginning) (region-end)))
@@ -108,10 +116,7 @@
 (use-package simple
   :defer 0.1
   :bind (("<f7>" . scratch-buffer)
-         ("<escape>" . keyboard-quit)
-         ("M-u" . upcase-dwim)
-         ("M-l" . downcase-dwim)
-         ("M-c" . capitalize-dwim))
+         ("<escape>" . keyboard-quit))
   :custom
   (kill-ring-max 30000)
   (column-number-mode 1)
@@ -123,6 +128,7 @@
   (global-visual-line-mode 1))
 
 (use-package s
+  :functions (s-join)
   :config
   (defun d/join-lines (specify-separator)
     "Join lines in the active region by a separator, by default a comma.
@@ -172,12 +178,10 @@
   :custom
   (xref-search-program 'ripgrep))
 
-(use-package paragraphs
-  :custom
-  (sentence-end-double-space nil)
-  (sentence-end "[.?!] "))
-
 (use-package undo-fu-session
+  :functions (undo-fu-session-global-mode)
+  :defines (undo-fu-session-incompatible-files)
+
   :init (undo-fu-session-global-mode)
   :config
   (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'")))

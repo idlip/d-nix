@@ -17,6 +17,11 @@
   (dabbrev-upcase-means-case-search t))
 
 (use-package vertico
+  :defines
+  (vertico-map)
+  :functions
+  (vertico-mode )
+
   :bind (:map vertico-map
 	("?" . minibuffer-completion-help)
 	("<return>" . vertico-directory-enter)
@@ -46,6 +51,21 @@
 	    args))))
 
 (use-package consult
+  :functions
+  (consult-register-window
+   eww-read-bookmarks
+   consult--read
+   consult-colors--web-list
+   color-rgb-to-hex
+   list-colors-duplicates)
+
+  :defines
+  (consult-buffer-sources
+   eww-bookmarks
+   add-unicodes
+   shr-color-html-colors-alist
+   d/on-droid)
+
   :bind (
          ("C-c d i" . d/insert-unicodes)
          ("C-c d c" . d/insert-colors)
@@ -152,8 +172,8 @@
   (defun d/colors-web (color)
     "Show a list of all CSS colors.\
 
-  You can insert the name (default), or insert or kill the hexadecimal or RGB value of the
-  selected color."
+  You can insert the name (default), or insert or kill the hexadecimal,
+or RGB value of the selected color."
     (interactive
      (list (consult--read (consult-colors--web-list)
                           :prompt "Color: "
@@ -170,8 +190,8 @@
   (defun d/insert-colors (color)
     "Show a list of all supported colors for a particular frame.\
 
-You can insert the name (default), or insert or kill the hexadecimal or RGB value of the
-selected color."
+You can insert the name (default), or insert or kill the hexadecimal
+ or RGB value of the selected color."
     (interactive
      (list (consult--read (list-colors-duplicates (defined-colors))
                           :prompt "Emacs color: "
@@ -203,12 +223,12 @@ selected color."
   :custom
   (completion-styles '(orderless basic))
   (completion-category-defaults nil)
-  (completion-category-overrides '((file (styles orderless basic partial-completion)))
-  (orderless-component-separator #'orderless-escapable-split-on-space)
-  (orderless-style-dispatchers (list #'+orderless-consult-dispatch
-				    #'orderless-affix-dispatch))))
+  (completion-category-overrides '((file (styles orderless basic partial-completion)))))
 
 (use-package marginalia
+  :functions
+  (marginalia-mode)
+
   :bind (:map minibuffer-local-map
               ("M-A" . marginalia-cycle))
   :init
@@ -216,6 +236,18 @@ selected color."
 
 (use-package corfu
   :defer 1
+
+  :defines
+  (corfu-map)
+
+  :functions
+  (corfu-history-mode
+   corfu-popupinfo-mode
+   corfu-echo-mode
+   global-corfu-mode
+   corfu-terminal-mode
+   corfu-mode)
+
   :custom
   (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
   (corfu-auto t)                 ;; Enable auto completion
@@ -266,6 +298,13 @@ selected color."
 ;; Add extensions
 (use-package cape
   :after corfu
+
+  :functions
+  (cape-wrap-silent
+   cape-wrap-purify)
+  :defines
+  (cape-dict-file)
+
   :bind (("C-c p p" . completion-at-point)
 	 ("C-c p t" . complete-tag)
 	 ("C-c p d" . cape-dabbrev)
@@ -306,9 +345,7 @@ selected color."
   (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify)
 
   ;; Add your own file with all words
-  (defcustom cape-dict-file "~/.local/share/dict/vocab"
-    "Dictionary word list file."
-    :type 'string)
+  (setq cape-dict-file "~/.local/share/dict/vocab")
 
   (defun corfu-enable-always-in-minibuffer ()
     "Enable corfu in minibuffer, if vertico is not active"

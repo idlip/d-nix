@@ -3,8 +3,6 @@
 
 ;;; Code:
 
-
-
 (use-package files
   :hook
   (before-save . delete-trailing-whitespace)
@@ -45,6 +43,7 @@
 
 (use-package autorevert
   :defer 0.1
+  :defines (d/on-droid)
   :unless d/on-droid)
 
 (use-package recentf
@@ -58,6 +57,10 @@
 (use-package no-littering
   :demand t
   :ensure t
+  :functions (recentf-expand-file-name)
+  :defines
+  (no-littering-var-directory
+   no-littering-etc-directory)
   :custom
   (no-littering-etc-directory (expand-file-name "config/" user-emacs-directory))
   (no-littering-var-directory (expand-file-name "data/" user-emacs-directory))

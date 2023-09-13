@@ -32,16 +32,5 @@
   (use-package-expand-minimally t)
   (use-package-enable-imenu-support t))
 
-(use-package comp
-  :demand t
-  :custom
-  (native-comp-async-report-warnings-errors nil)
-  (native-comp-jit-compilation nil)
-  :config
-  (when (fboundp 'startup-redirect-eln-cache)
-    (startup-redirect-eln-cache
-     (convert-standard-filename
-      (expand-file-name "var/eln-cache/" user-emacs-directory)))))
-
 (provide 'id-startup)
 ;;; id-startup.el ends here

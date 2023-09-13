@@ -5,6 +5,7 @@
 
 (use-package ess
   :defer t
+
   :custom
   (ess-use-flymake t)
   (ess-use-company nil)
@@ -43,6 +44,12 @@
                                    (ess-R-fl-keyword:F&T . t)))
 
 )
+
+(use-package ess-r-mode
+  :bind
+  (:map ess-mode-map
+        ("C-;" . ess-insert-assign)))
+
 
 
 (provide 'id-rstats)

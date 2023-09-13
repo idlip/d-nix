@@ -40,8 +40,8 @@
   (require 'id-git)
   (require 'id-python)
   (require 'id-rstats)
-  (require 'id-nix)
-  (require 'id-eshell))
+  (require 'id-nix))
+(require 'id-eshell)
 
 ;;; --- file manager on battery
 (require 'id-dired)

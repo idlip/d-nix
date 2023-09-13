@@ -5,14 +5,21 @@
 
 (use-package reddigg
   :defer t
+
+  :defines
+  (other-subs reddigg-subs )
+
+  :functions
+  (-concat reddigg--view-sub)
+
   :bind (("C-c d f" . reddigg-view-frontpage)
 	       ("C-c d r" . reddigg-view-sub))
   :custom
   (org-link-elisp-confirm-function 'y-or-n-p)
-  (reddigg-subs '(emacs linux nixos hyprland bioinformatics fossdroid piracy bangalore india indiaspeaks developersindia manga aww))
-  (other-subs '(crazyfuckingvideos nextfuckinglevel manga anime animepiracy fossdroid commandline memes jokes
-				                   funnymemes rss holup))
+  (reddigg-subs '(emacs linux nixos hyprland bioinformatics onepiece fossdroid piracy bangalore india indiaspeaks developersindia manga aww))
   :config
+  (setq other-subs '(crazyfuckingvideos nextfuckinglevel manga anime animepiracy fossdroid commandline memes jokes
+				                           funnymemes rss holup))
 
   (defun reddigg-view-sub ()
     "Prompt SUB and print its post list."
@@ -39,6 +46,9 @@
 
 (use-package mingus
   :defer t
+  :defines
+  (mingus-browse-mode-map)
+
   :bind ("C-c d m" . mingus-browse)
   (:map mingus-browse-mode-map
 	      ("h" . mingus-browse-top-level)
@@ -56,6 +66,9 @@
 
 (use-package webpaste
   :defer t
+  :defines
+  (webpaste-provider-priority webpaste-paste-confirmation)
+
   :bind (("C-c C-p C-b" . webpaste-paste-buffer)
 	       ("C-c C-p C-r" . webpaste-paste-region)
 	       ("C-c C-p C-p" . webpaste-paste-buffer-or-region))
@@ -66,6 +79,14 @@
 
 (use-package sdcv
   :defer t
+
+  :defines
+  (sdcv-say-word-p sdcv-dictionary-data-dir
+                   sdcv-dictionary-simple-list
+                   sdcv-popup-function sdcv-buffer-name
+                   sdcv-mode-map)
+
+
   :hook (sdcv-mode . hide-mode-line-mode)
   :config
   (setq sdcv-say-word-p t

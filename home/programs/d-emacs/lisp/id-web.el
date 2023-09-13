@@ -33,11 +33,13 @@
        (propertize "#+END_SRC" 'face 'org-block-end-line ))
       (shr-ensure-newline)
       (setq end (point))
-      (if light
-          (add-face-text-property start end '(:background "#D8DEE9" :extend t))
-        (add-face-text-property start end '(:background "#292b2e" :extend t)))
+      (add-face-text-property start end '(:background "#292b2e" :extend t))
       (shr-ensure-newline)
-      (insert "\n"))))
+      (insert "\n")))
+
+  (add-to-list 'shr-tag-pre-highlight-lang-modes '(("R" . ess-r)))
+
+)
 
   ;; (setq shr-tag-pre-highlight-lang-modes '(
   ;;                                          ("elisp" . emacs-lisp)
@@ -116,7 +118,26 @@
         ("m" . elfeed-toggle-star)
         ("b" . d/external-browser))
   :custom
-  (eww-search-prefix "https://duckduckgo.com/html/&q="))
+  (eww-auto-rename-buffer 'title)
+  (eww-search-prefix "https://duckduckgo.com/html/&q=")
+
+  :config
+
+  (defun eww-search-words ()
+    "Search the web for the text in the region.
+If region is active (and not whitespace), search the web for
+the text between region beginning and end.  Else, prompt the
+user for a search string.  See the variable `eww-search-prefix'
+for the search engine used."
+    (interactive)
+    (if (use-region-p)
+        (let ((region-string (buffer-substring (region-beginning) (region-end))))
+          (if (not (string-match-p "\\`[ \n\t\r\v\f]*\\'" region-string))
+              (eww-browse-url region-string t)
+            (eww-browse-url (completing-read "Browse Url" eww-prompt-history))))
+      (if (thing-at-point 'url)
+          (eww-browse-url (completing-read "Browse Url" eww-prompt-history))
+        (call-interactively #'eww)))))
 
 (use-package gnutls
   :defer t

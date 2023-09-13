@@ -5,8 +5,13 @@
 
 (use-package esh-mode
   :ensure nil
+  :defines
+  (eshell-prompt-regexp)
+  :commands
+  (eshell-send-input eshell/clear)
   :hook
   (eshell-mode . hide-mode-line-mode)
+  (eshell-mode . electric-pair-local-mode)
   (eshell-mode . (lambda () (setq outline-regexp eshell-prompt-regexp)))
   :bind
   ("<f12>" . d/eshell-toggle)
@@ -64,6 +69,18 @@
   (eshell-history-size 10000))
 
 (use-package eat
+  :defines
+  (d/on-droid
+   eat-mode-map
+   eat-semi-char-mode-map
+   eat-char-mode-map
+   eat--semi-char-mode)
+  :functions
+  (eat
+   eat-emacs-mode
+   eat-semi-char-mode)
+
+  :unless d/on-droid
   :commands (eshell d/eshell-toggle d/eat-toggle)
   :hook
   (eshell-load . eat-eshell-mode)

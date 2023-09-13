@@ -5,6 +5,8 @@
 
 (use-package markdown-mode
   :defer t
+  :defines (markdown-mode-map)
+  :functions (markdown-view-mode)
   :mode "\\.md\\'"
   :hook (markdown-mode . variable-pitch-mode)
   :bind (:map markdown-mode-map

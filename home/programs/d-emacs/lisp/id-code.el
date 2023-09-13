@@ -7,9 +7,16 @@
   :ensure nil
   :hook (after-save . executable-make-buffer-file-executable-if-script-p))
 
+(use-package loaddefs
+  :hook
+  (prog-mode . electric-pair-local-mode))
+
 (use-package eglot
   :defer t
   :ensure nil
+  :defines
+  (d/on-droid)
+
   :unless d/on-droid
   :commands (eglot eglot-format eglot-managed-p eglot--major-mode)
   ;; (((web-mode rust-mode python-mode sh-mode c-mode c++-mode nix-mode) .

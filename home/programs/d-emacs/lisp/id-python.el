@@ -37,9 +37,5 @@ with `venvPath' and `venv' set to the absolute path of
   (python-shell-completion-native-disabled-interpreters '("python" "pypy")))
 
 
-;; TODOTHIS: Expansion
-(use-package elpy)
-
-
 (provide 'id-python)
 ;;; id-python.el ends here

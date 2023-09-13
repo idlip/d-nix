@@ -12,12 +12,13 @@
   (scroll-conservatively 101))
 
 (use-package pixel-scroll
+  :commands
+  (pixel-scroll-precision-scroll-down pixel-scroll-precision-scroll-up)
   :bind
   (("C-v" . d/scroll-down)
    ("M-v" . d/scroll-up))
 
   :config
-  (pixel-scroll-precision-mode)
   (defun d/scroll-down ()
     "Trust me, make scrolling alot smoother.
 +1 Makes you fall in love with Emacs again!"
@@ -46,7 +47,7 @@ You can do this by trackpad too (laptop)"
 
 (use-package winner
   :ensure nil
-  :hook after-init
+  ;; :hook after-init
   :commands (winner-undo winnner-redo))
 
 (use-package rainbow-delimiters
@@ -62,6 +63,8 @@ You can do this by trackpad too (laptop)"
 
 (use-package image-mode
   :ensure nil
+  :defines (d/on-droid olivetti-body-width)
+  :functions (olivetti-mode)
   :unless d/on-droid
   :bind (:map image-mode-map
               ("q" . d/kill-buffer))
@@ -73,6 +76,43 @@ You can do this by trackpad too (laptop)"
   (selection-coding-system 'utf-8)
   (x-select-request-type 'text/plain\;charset=utf-8)
   (select-enable-clipboard t "Use the clipboard"))
+
+(use-package simple
+  :bind
+  ("M-c" . d/flex)
+  ("M-l" . downcase-dwim)
+  :functions (increment-number-at-point)
+
+  :config
+
+  ;; Stolen from the wiki somewhere
+  (defun increment-number-at-point ()
+    "Increment the number at point."
+    (interactive)
+    (skip-chars-backward "0-9")
+    (or (looking-at "[0-9]+")
+        (error "No number at point"))
+    (replace-match (number-to-string (1+ (string-to-number (match-string 0))))))
+
+  (defun d/flex ()
+    "Perform smart flexing at point.
+
+E.g. capitalize or decapitalize the next word, increment number at point."
+    (interactive)
+    (let ((case-fold-search nil))
+      (call-interactively
+       (cond ((looking-at "[0-9]+") #'increment-number-at-point)
+             ((looking-at "[[:lower:]]") #'capitalize-word)
+             ((looking-at "==") (delete-char 1) (insert "!") (forward-char 2))
+             ((looking-at "!=") (delete-char 1) (insert "=") (forward-char 2))
+             ((looking-at "+") (delete-char 1) (insert "-") (forward-char 1))
+             ((looking-at "-") (delete-char 1) (insert "+") (forward-char 1))
+             ((looking-at "<=") (delete-char 2) (insert ">=") (forward-char 2))
+             ((looking-at ">=") (delete-char 2) (insert "<=") (forward-char 2))
+             ((looking-at "<") (delete-char 1) (insert ">") (forward-char 1))
+             ((looking-at ">") (delete-char 1) (insert "<") (forward-char 1))
+             (t #'downcase-word))))))
+
 
 ;; Taken from gopar's config (via Yt video)
 ;; https://github.com/gopar/.emacs.d

@@ -4,6 +4,13 @@
 ;;; Code:
 
 (use-package ement
+  :defines
+  (ement-room-minibuffer-map
+   ement-room-mode-map)
+  :functions
+  (ement--read-sessions
+   ement-connect)
+
   :bind
   (:map ement-room-minibuffer-map
         ("<f6>" . ement-room-compose-from-minibuffer))

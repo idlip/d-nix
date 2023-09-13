@@ -6,15 +6,27 @@
 
 ;;; Code:
 
+(use-package haki-theme
+  :demand t
+  :load-path "~/.config/emacs/var/theme"
+  :custom
+  (haki-heading-font "Code D Zoro")
+  (haki-sans-font "Code D Haki")
+  (haki-title-font "Code D Law")
+  (haki-link-font "Maple Mono")
+  (haki-code-font "Code D Lip")
+  :config
+  (load-theme 'haki t))
 
-(add-to-list 'custom-theme-load-path "~/.config/emacs/var/theme/")
-(load-theme 'haki t)
+;; (add-to-list 'custom-theme-load-path "~/.config/emacs/var/theme/")
+;; (load-theme 'haki t)
 ;; (add-hook 'post-command-hook #'haki-modal-mode-line)
 
 ;; For foot to show colors properly
 (add-to-list 'term-file-aliases '("foot" . "xterm"))
 
 (use-package modus-themes
+  :defer t
   :custom
   (modus-themes-italic-constructs t)
   (modus-themes-bold-constructs t)

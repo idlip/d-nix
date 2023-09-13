@@ -11,6 +11,9 @@
 
 (use-package denote
   :defer t
+  :defines
+  (dired-mode-map
+   denote-directory)
   :hook ((find-file-hook . denote-link-buttonize-buffer)
 
 	       (dired-mode . denote-dired-mode))
@@ -88,6 +91,14 @@
 
   ;; (d/denote-add-to-agenda-files "_project")
   )
+
+(use-package flycheck-languagetool
+  :disabled
+  :hook
+  (text-mode . flycheck-mode)
+  :custom
+  (flycheck-languagetool-server-command '("languagetool-http-server"))
+  (flycheck-languagetool-language "auto"))
 
 (provide 'id-notes)
 ;;; id-notes.el ends here

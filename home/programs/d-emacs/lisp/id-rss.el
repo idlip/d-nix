@@ -103,7 +103,7 @@ Usable as favorites or bookmark."
     "open elfeed entry in eww."
     (interactive)
     (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
-      (eww (elfeed-entry-link entry))
+      (eww-browse-url (elfeed-entry-link entry) t)
       (add-hook 'eww-after-render-hook #'eww-readable)))
 
   (defun elfeed-open-in-reddit ()
@@ -111,8 +111,7 @@ Usable as favorites or bookmark."
     (interactive)
     (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
       (reddigg-view-comments (elfeed-entry-link entry)))
-    (display-buffer-pop-up-window (reddigg--get-cmt-buffer) nil)
-    (other-window))
+    (display-buffer-pop-up-window (reddigg--get-cmt-buffer) nil))
 
   (when d/on-droid
     (define-key elfeed-show-mode-map (kbd "<volume-up>") #'elfeed-show-prev)

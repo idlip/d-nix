@@ -10,6 +10,8 @@
 
 (use-package kind-icon
   :after corfu
+  :defines (corfu-margin-formatters)
+  :functions (kind-icon-margin-formatter)
   :custom
   (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly
   (kind-icon-default-style '(:padding -0.5 :stroke 0 :margin 0 :radius 0 :height 0.6 :scale 1.0))

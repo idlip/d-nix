@@ -5,7 +5,18 @@
 
 (use-package org
   :defer t
-  :commands (org-capture org-agenda)
+  :commands
+  (org-capture
+   org-agenda
+   org-indent-mode
+   org-display-inline-images
+   org-map-entries
+   org-archive-subtree
+   org-element-property
+   org-element-at-point
+   org-element-map
+   org-element-parse-buffer
+   )
   :hook (org-mode . (lambda () (org-indent-mode 1)
                       (org-display-inline-images 0)
                       (variable-pitch-mode 1)))
@@ -172,7 +183,9 @@
 (use-package org-modern
   :defer 1
   :after org
-  :commands (shrface-mode)
+  :commands
+  (shrface-mode
+   global-org-modern-mode)
   :hook (org-mode org-agenda-finalize-hook)
 
   :custom
@@ -232,6 +245,9 @@
 ;; from gopar's config
 (use-package org-clock
   :after org
+  :commands
+  (org-clock-jump-to-current-clock
+   org-clock-report)
   :custom
   ;; Save clock history accross emacs sessions (read var for required info)
   (org-clock-persist t)
@@ -315,7 +331,13 @@
   ;; Don't ask if we already have an open Edit buffer
   (org-src-window-setup 'current-window)
   (org-src-ask-before-returning-to-edit-buffer nil)
-  (org-edit-src-content-indentation 0))
+  (org-edit-src-content-indentation 0)
+  :config
+  (advice-add 'org-src-get-lang-mode :filter-return
+              (lambda (mode)
+                (pcase (assoc mode major-mode-remap-alist)
+                  (`(,mode . ,ts-mode) ts-mode)
+                  (_ mode)))))
 
 (use-package ob-core
   :after org

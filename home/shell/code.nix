@@ -15,19 +15,24 @@
       python-lsp-server
       biopython
       pylint
-      black
-      rope
+      python-lsp-black
+      pylsp-rope
       flake8
     ]))
 
     # core comp
     gcc gnumake tree-sitter
+    parallel
+
+    # science
+    blast
 
     # R
     (rWrapper.override {
       packages = with rPackages; [
         ggplot2
         dplyr
+        tidyverse # set of 9 packages
         languageserver
         lintr
         dplyr

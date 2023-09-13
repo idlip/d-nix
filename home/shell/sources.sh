@@ -51,7 +51,7 @@ alias ytmp3="yt-dlp -x --continue --add-metadata --embed-thumbnail --audio-forma
 alias cat="bat --style=plain"
 alias grep='rg'
 alias du='dust'
-alias ps='procs'
+# alias ps='procs'
 alias m="mkdir -p"
 alias ls="exa -h --git --icons --color=auto --group-directories-first -s extension"
 alias l="ls -lF --time-style=long-iso --icons"

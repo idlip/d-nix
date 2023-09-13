@@ -12,6 +12,7 @@ in {
     ./neovim.nix
     ./terminal.nix
     ./zsh.nix
+    ./helix.nix
   ];
 
   # add environment variables

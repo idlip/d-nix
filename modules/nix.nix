@@ -41,11 +41,10 @@
   # Better to atleast keep it for few days, as you do major update (unstable), if something breaks you can roll back.
   nix = {
     gc = {
-      automatic = true;
+      automatic = false;
       dates = "daily";
       options = "--delete-older-than 15d";
     };
-    package = pkgs.nixUnstable;
 
     # Make builds run with low priority so my system stays responsive
     daemonCPUSchedPolicy = "idle";

@@ -1,6 +1,5 @@
 eval "$(starship init zsh)"
 # eval "$(direnv hook zsh)"
-# Removed starship and going default minimal way!
 
 # Make zsh better simply
 autoload -U colors && colors  # Load colors
@@ -8,7 +7,7 @@ autoload -U colors && colors  # Load colors
  # %{$fg[blue]%} %b%{$reset_color%}%b"
 # setopt autocd		# Auto cd
 stty stop undef		# Disable ctrl-s to freeze terminal.
-setopt interactive_comments
+# setopt interactive_comments
 
 # Basic auto/tab complete:
 autoload -U compinit
@@ -41,7 +40,9 @@ bindkey -M menuselect 'k' vi-up-line-or-history
 bindkey -M menuselect 'l' vi-forward-char
 bindkey -M menuselect 'j' vi-down-line-or-history
 
+# get emacs bindings
 bindkey -e
+# useful for deleting words backwards like bash (M-DEL)
 WORDCHARS='*?[]~=&;!$%^(){}<>'
 
 # Aliases

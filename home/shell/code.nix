@@ -35,12 +35,10 @@
         tidyverse # set of 9 packages
         languageserver
         lintr
-        dplyr
-        tidyr
         stringr
+        BiocManager
         httr
         ggvis
-        ggplot2
         shiny
         rio
         rmarkdown

@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{lib, pkgs, ...}: {
 
   programs.helix = {
     enable = true;
@@ -24,7 +24,7 @@
 
       keys.insert = {
         A-x = "normal_mode";
-        jk = "normal_mode";
+        j = { k = "normal_mode"; };
       };
 
       keys.select = {
@@ -46,11 +46,9 @@
         indent-guides = {
           render = true;
         };
-        rainbow-brackets = true;
         gutters = ["diagnostics" "line-numbers" "spacer" "diff"];
 
         statusline = {
-          mode-separator = "";
           separator = "";
           left = ["mode" "selections" "spinner" "file-name" "total-line-numbers"];
           center = [];
@@ -94,19 +92,5 @@
       };
     };
 
-    languages = with pkgs; [
-      {
-        name = "nix";
-        language-server.command = pkgs.nixd;
-        auto-format = true;
-        formatter = {
-          command = lib.getExe alejandra;
-          args = ["-q"];
-        };
-      }
-
-    ];
-
   };
-
 }

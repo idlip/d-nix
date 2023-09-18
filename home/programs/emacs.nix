@@ -11,7 +11,7 @@
       vertico orderless consult marginalia embark org-modern corfu cape corfu-terminal
       org olivetti nerd-icons async dirvish
       embark-consult consult-eglot consult-flycheck markdown-mode nix-mode
-      reddigg hnreader mingus which-key magit webpaste org-present
+      reddigg hnreader mingus magit webpaste org-present
       shrface shr-tag-pre-highlight nov devdocs-browser
       beframe denote tempel tempel-collection
       sdcv elfeed elfeed-org link-hint powerthesaurus jinx meow

@@ -16,6 +16,10 @@
   (dabbrev-eliminate-newlines nil)
   (dabbrev-upcase-means-case-search t))
 
+(use-package hippie-exp
+  :bind
+  ("M-/" . hippie-expand))
+
 (use-package vertico
   :defines
   (vertico-map)

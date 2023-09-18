@@ -39,7 +39,7 @@
 	      ("C-c C-d C-R" . denote-dired-rename-marked-files-using-front-matter))
 
   :custom
-  (denote-directory (expand-file-name "~/d-sync/connect/denote"))
+  (denote-directory (expand-file-name "~/d-sync/denote"))
   (denote-known-keywords '("emacs" "blogs" "article"))
   (denote-infer-keywords t)
   (denote-sort-keywords t)

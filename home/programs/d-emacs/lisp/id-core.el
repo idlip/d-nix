@@ -110,8 +110,8 @@ it narrows to region, or Org subtree."
   (reb-re-syntax 'string))
 
 (use-package saveplace
-  :custom
-  (save-place-mode t))
+  :hook
+  (after-init . save-place-mode))
 
 (use-package simple
   :defer 0.1

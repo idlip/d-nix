@@ -34,6 +34,7 @@ with `venvPath' and `venv' set to the absolute path of
   (python-shell-interpreter "python")
   (python-shell-interpreter-args "")
   (python-forward-sexp-function nil)
+  (python-indent-guess-indent-offset-verbose nil)
   (python-shell-completion-native-disabled-interpreters '("python" "pypy")))
 
 

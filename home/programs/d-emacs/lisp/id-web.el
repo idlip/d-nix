@@ -5,7 +5,7 @@
 
 (use-package shr-tag-pre-highlight
   :ensure t
-  :after shr
+  ;; :after shr
   :config
   (add-to-list 'shr-external-rendering-functions '(pre . shrface-shr-tag-pre-highlight))
   (defun shrface-shr-tag-pre-highlight (pre)
@@ -72,6 +72,7 @@
   (url-setup-privacy-info))
 
 (use-package shr
+  :demand t
   :custom
   (shr-use-fonts  t)
   (shr-use-colors nil)

@@ -37,7 +37,9 @@
    (lambda nil
      (concat
       "\n"
-      (propertize (eshell/pwd) 'face `(:foreground "lightblue1"))
+      (propertize (concat "  " (eshell/pwd)) 'face `(:foreground "lightblue1"))
+      (propertize (if (magit-get-current-branch) (concat "   " (magit-get-current-branch)) "") 'face '(:foreground "orangered1"))
+      (propertize (concat "   " (format-time-string "%H:%M" (current-time))) 'face '(:foreground "lightcyan1"))
       (propertize "\n  " 'face `(:foreground "palegreen"))
       )))
   (eshell-prompt-regexp "^  ")
@@ -52,11 +54,10 @@
     (interactive)
     (cond
      ((derived-mode-p 'eshell-mode) (if (one-window-p) (switch-to-prev-buffer) (delete-window)))
-     ((one-window-p) (progn (split-window-below) (other-window 1) (eshell)
-			                (shrink-window 7)))
+     ((one-window-p) (progn (select-window (split-window-below)) (shrink-window 7) (eshell)))
      (t (progn (other-window 1)
 		       (if (derived-mode-p 'eshell-mode) (delete-window)
-		         (progn (other-window -1) (split-window-below) (other-window 1) (eshell) (shrink-window 7))))))))
+		         (progn (other-window -1) (select-window (split-window-below)) (shrink-window 7) (eshell))))))))
 
 (use-package em-hist
   :bind

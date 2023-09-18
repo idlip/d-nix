@@ -18,6 +18,10 @@
   :config
   (load-theme 'haki t))
 
+(use-package kanagawa-theme
+  :demand t
+  :load-path "~/.config/emacs/theme")
+
 ;; (add-to-list 'custom-theme-load-path "~/.config/emacs/var/theme/")
 ;; (load-theme 'haki t)
 ;; (add-hook 'post-command-hook #'haki-modal-mode-line)

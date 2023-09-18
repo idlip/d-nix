@@ -15,6 +15,7 @@
         ("q" . d/elfeed-quit)
         ("C-x C-k" . d/elfeed-quit)
         ("P" . d/elfeed-add-podcast)
+        ("A" . d/elfeed-play)
         ("b" . d/external-browser))
   (:map elfeed-search-mode-map
         ("m" . elfeed-toggle-star)
@@ -62,14 +63,25 @@
     (quit-window))
 
   ;; play podcasts
-  (defun d/elfeed-add-podcast (enclosure-index)
+  (defun d/elfeed-add-podcast ()
     "Play the enclosure URL in Mpd using 'mingus'."
-    (interactive (list (elfeed--enclosure-maybe-prompt-index elfeed-show-entry)))
+    (interactive)
     (with-no-warnings
-      (message (concat "Added: " (car (elt (elfeed-entry-enclosures elfeed-show-entry)
-                                           (- enclosure-index 1)))))
-      (mingus-add (car (elt (elfeed-entry-enclosures elfeed-show-entry)
-                            (- enclosure-index 1))))))
+    (let* ((count (length (elfeed-entry-enclosures elfeed-show-entry)))
+           (entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single)))
+           (dlink (shell-command-to-string (format "yt-dlp -f bestaudio -g '%s'" (shr-url-at-point nil)))))
+      (require 'mingus)
+      ;; (message (concat "Added: " (car (elt (elfeed-entry-enclosures elfeed-show-entry)
+      ;;                                      (- enclosure-index 1)))))
+      (message dlink)
+      (mingus-add dlink))))
+       ;; (cond ((shr-url-at-point nil) (shell-command-to-string (format "yt-dlp -f bestaudio -g '%s'" (shr-url-at-point current-prefix-arg))))
+       ;;       ((derived-mode-p 'elfeed-show-mode)
+       ;;        (if (zerop count)
+       ;;            (shell-command-to-string (format "yt-dlp -f bestaudio -g '%s'" (elfeed-entry-link entry)))
+       ;;          (car (elt (elfeed-entry-enclosures elfeed-show-entry)
+       ;;                    (- enclosure-index 1)))))
+       ;;       ((derived-mode-p 'elfeed-search-mode) (elfeed-search-selected :single))))))
 
   (defun d/elfeed-play ()
     (interactive)

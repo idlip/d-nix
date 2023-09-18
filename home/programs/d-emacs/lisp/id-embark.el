@@ -16,6 +16,7 @@
   :bind
   (("C-." . embark-act)
    ("C-;" . embark-dwim)
+   ("M-." . embark-dwim)
    ("C-h B" . embark-bindings))
   :init
   (setq prefix-help-command #'embark-prefix-help-command)
@@ -25,6 +26,7 @@
                '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
                  nil
                  (window-parameters (mode-line-format . none)))))
+
 (use-package embark-consult
   :defer t
   :hook

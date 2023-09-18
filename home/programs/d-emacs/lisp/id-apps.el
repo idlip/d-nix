@@ -45,7 +45,7 @@
 ;;   ("C-S-z" . undo-fu-only-redo-all))
 
 (use-package mingus
-  :defer t
+  :commands (d/elfeed-add-podcast)
   :defines
   (mingus-browse-mode-map)
 

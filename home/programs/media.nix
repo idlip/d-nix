@@ -170,7 +170,7 @@
       video_pref="[height<=1080]"
       sub_link_count=1
       show_thumbnails=0
-
+      invidious_instance="https://vid.puffyan.us"
       external_menu () {
            bemenu -W 0.98 -l 24 -p '  Play '
       }

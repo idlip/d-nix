@@ -7,6 +7,7 @@
 
     # basic stack
     # nodePackages.vscode-langservers-extracted
+    hugo
 
     ### python
     # python311Packages.python-lsp-server

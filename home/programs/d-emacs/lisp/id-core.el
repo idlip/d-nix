@@ -12,7 +12,7 @@
   (default-frame-alist '((menu-bar-lines . 0)
                          (tool-bar-lines . 0)
                          (vertical-scroll-bars)
-                         (alpha-background . 85)))
+                         (alpha-background . 90)))
   (scroll-step 1)
   (inhibit-x-resources t)
   (inhibit-startup-screen t "Don't show splash screen")

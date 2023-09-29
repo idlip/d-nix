@@ -136,9 +136,9 @@ for the search engine used."
           (if (not (string-match-p "\\`[ \n\t\r\v\f]*\\'" region-string))
               (eww-browse-url region-string t)
             (eww-browse-url (completing-read "Browse Url" eww-prompt-history))))
-      (if (thing-at-point 'url)
-          (eww-browse-url (completing-read "Browse Url" eww-prompt-history))
-        (call-interactively #'eww)))))
+      (if (shr-url-at-point nil)
+        (eww (shr-url-at-point nil))
+      (eww-browse-url (completing-read "Browse Url" eww-prompt-history))))))
 
 (use-package gnutls
   :defer t

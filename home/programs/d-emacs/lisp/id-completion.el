@@ -27,32 +27,81 @@
   (vertico-mode )
 
   :bind (:map vertico-map
-	("?" . minibuffer-completion-help)
-	("<return>" . vertico-directory-enter)
-	("DEL" . vertico-directory-delete-char)
-	("M-DEL" . vertico-directory-delete-word)
-	("M-j" . vertico-quick-exit)
-	("'" . vertico-quick-exit)
-	("C-v" . vertico-scroll-up)
-	("M-v" . vertico-scroll-down)
-	("M-q" . d/vertico-toggle)
-	("M-RET" . minibuffer-force-complete-and-exit)
-	("M-TAB" . minibuffer-complete))
+	          ("?" . minibuffer-completion-help)
+	          ("<return>" . vertico-directory-enter)
+	          ("DEL" . vertico-directory-delete-char)
+	          ("M-DEL" . vertico-directory-delete-word)
+	          ("M-j" . vertico-quick-exit)
+	          ("C-v" . vertico-scroll-up)
+	          ("M-v" . vertico-scroll-down)
+	          ("M-q" . d/vertico-toggle)
+	          ("M-RET" . minibuffer-force-complete-and-exit)
+	          ("M-TAB" . minibuffer-complete)
+              ("C->"     . embark-become)
+              ("C-<tab>"   . embark-act-with-completing-read)
+              ("C-o"     . embark-minimal-act)
+              ("C-*"     . embark-act-all)
+              ("M-*"      . embark-act-all)
+              ("M-s o"   . embark-export)
+              ("C-c C-o" . embark-export))
 
   :init
   (vertico-mode)
 
   :custom
   (vertico-scroll-margin 5)
-  (vertico-count 10)
-  (vertico-resize t)
+  (vertico-count 5)
+  (vertico-resize nil)
   (vertico-cycle t)
   (completion-in-region-function
    (lambda (&rest args)
      (apply (if vertico-mode
-		#'consult-completion-in-region
-	#'completion--in-region)
-	    args))))
+		        #'consult-completion-in-region
+	          #'completion--in-region)
+	        args))))
+
+(use-package vertico-multiform
+  :commands (vertico-multiform-mode)
+
+  :init
+  (vertico-multiform-mode)
+
+  :custom
+  (vertico-multiform-commands
+   '(("\\`execute-extended-command" unobtrusive
+      (vertico-flat-annotate . t)
+      (marginalia-annotator-registry (command marginalia-annotate-binding)))
+     (jinx-correct reverse)
+     (tab-bookmark-open reverse)
+     (dired-goto-file unobtrusive)
+     (load-theme grid reverse)
+     (org-refile reverse)
+     (org-agenda-refile reverse)
+     (org-capture-refile reverse)
+     (consult-find reverse)
+     (dired-goto-file flat)
+     (consult-dir-maybe reverse)
+     (consult-dir reverse)
+     (consult-flymake reverse)
+     (consult-history reverse)
+     (consult-completion-in-region reverse)
+     (consult-recoll buffer)
+     (completion-at-point reverse)
+     (embark-completing-read-prompter reverse)
+     (embark-act-with-completing-read reverse)
+     (embark-prefix-help-command reverse)
+     (embark-bindings reverse)
+     (consult-org-heading reverse)
+     (consult-dff unobtrusive)
+     (embark-find-definition reverse)
+     (xref-find-definitions reverse)))
+
+  (vertico-multiform-categories
+   '((file grid reverse)
+     (consult-grep buffer)
+     (jinx grid (vertico-grid-annotate . 20))
+     (kill-ring reverse)
+     (buffer flat (vertico-cycle . t)))))
 
 (use-package consult
   :functions
@@ -260,7 +309,7 @@ You can insert the name (default), or insert or kill the hexadecimal
   ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
   ;; (corfu-quit-no-match t)
   (corfu-auto-prefix 2)
-  (corfu-auto-delay 0.0)
+  (corfu-auto-delay 0.2)
   (corfu-quit-at-boundary 'separator)
   (corfu-popupinfo-resize t)
   (corfu-popupinfo-hide nil)
@@ -269,12 +318,12 @@ You can insert the name (default), or insert or kill the hexadecimal
   (corfu-history 1)
   (corfu-scroll-margin 0)
   :bind (:map corfu-map
-	("M-SPC" . corfu-insert-separator)
-	("TAB" . corfu-insert)
-	("<escape>" . corfu-quit)
-	("C-j" . corfu-next)
-	("C-k" . corfu-previous)
-	("M-j" . corfu-quick-insert))
+	          ("M-SPC" . corfu-insert-separator)
+	          ("TAB" . corfu-insert)
+	          ("<escape>" . corfu-quit)
+	          ("C-j" . corfu-next)
+	          ("C-k" . corfu-previous)
+	          ("M-j" . corfu-quick-insert))
   ;; Enable Corfu only for certain modes.
   ;; :hook ((prog-mode . corfu-mode)
   ;;        (shell-mode . corfu-mode)
@@ -294,7 +343,7 @@ You can insert the name (default), or insert or kill the hexadecimal
 (use-package dabbrev
   ;; Swap M-/ and C-M-/
   :bind (("M-/" . dabbrev-completion)
-	 ("C-M-/" . dabbrev-expand))
+	     ("C-M-/" . dabbrev-expand))
   ;; Other useful Dabbrev configurations.
   :custom
   (dabbrev-ignored-buffer-regexps '("\\.\\(?:pdf\\|jpe?g\\|png\\)\\'")))
@@ -310,21 +359,21 @@ You can insert the name (default), or insert or kill the hexadecimal
   (cape-dict-file)
 
   :bind (("C-c p p" . completion-at-point)
-	 ("C-c p t" . complete-tag)
-	 ("C-c p d" . cape-dabbrev)
-	 ("C-c p h" . cape-history)
-	 ("C-c p f" . cape-file)
-	 ("C-c p k" . cape-keyword)
-	 ("C-c p s" . cape-symbol)
-	 ("C-c p a" . cape-abbrev)
-	 ("C-c p i" . cape-ispell)
-	 ("C-c p l" . cape-line)
-	 ("C-c p w" . cape-dict)
-	 ("C-c p \\" . cape-tex)
-	 ("C-c p _" . cape-tex)
-	 ("C-c p ^" . cape-tex)
-	 ("C-c p &" . cape-sgml)
-	 ("C-c p r" . cape-rfc1345))
+	     ("C-c p t" . complete-tag)
+	     ("C-c p d" . cape-dabbrev)
+	     ("C-c p h" . cape-history)
+	     ("C-c p f" . cape-file)
+	     ("C-c p k" . cape-keyword)
+	     ("C-c p s" . cape-symbol)
+	     ("C-c p a" . cape-abbrev)
+	     ("C-c p i" . cape-ispell)
+	     ("C-c p l" . cape-line)
+	     ("C-c p w" . cape-dict)
+	     ("C-c p \\" . cape-tex)
+	     ("C-c p _" . cape-tex)
+	     ("C-c p ^" . cape-tex)
+	     ("C-c p &" . cape-sgml)
+	     ("C-c p r" . cape-rfc1345))
   :init
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
   (add-to-list 'completion-at-point-functions #'cape-file)
@@ -354,14 +403,14 @@ You can insert the name (default), or insert or kill the hexadecimal
   (defun corfu-enable-always-in-minibuffer ()
     "Enable corfu in minibuffer, if vertico is not active"
     (unless (or (bound-and-true-p mct--active)
-		(bound-and-true-p vertico--input)
-		(eq (current-local-map) read-passwd-map))
-(setq-local corfu-auto t
-		  corfu-popupinfo-delay nil
-		  corfu-auto-delay 0
-		  corfu-auto-prefix 0
-		  completion-styles '(orderless basic))
-(corfu-mode 1)))
+		        (bound-and-true-p vertico--input)
+		        (eq (current-local-map) read-passwd-map))
+      (setq-local corfu-auto t
+		          corfu-popupinfo-delay nil
+		          corfu-auto-delay 0
+		          corfu-auto-prefix 0
+		          completion-styles '(orderless basic))
+      (corfu-mode 1)))
   ;; (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
   )
 
@@ -377,7 +426,7 @@ You can insert the name (default), or insert or kill the hexadecimal
   (tempel-path "~/.config/emacs/templates/*")
 
   :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
-	 ("M-*" . tempel-insert)))
+	     ("M-*" . tempel-insert)))
 
 (use-package tempel-collection
   :after tempel

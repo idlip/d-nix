@@ -10,7 +10,7 @@
   (ess-use-flymake t)
   (ess-use-company nil)
   (ess-eval-visibly nil)
-  (ess-ask-for-ess-directory nil)
+  (ess-ask-for-ess-directory t)
 
   (ess-use-eldoc t)
   (ess-eldoc-show-on-symbol t)
@@ -48,7 +48,10 @@
 (use-package ess-r-mode
   :bind
   (:map ess-mode-map
-        ("C-;" . ess-insert-assign)))
+        ("C-;" . ess-insert-assign))
+  (:map inferior-ess-r-mode-map
+        ("C-;" . ess-insert-assign)
+        ("C-x C-k" . ess-quit)))
 
 
 

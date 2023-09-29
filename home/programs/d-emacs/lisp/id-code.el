@@ -59,7 +59,6 @@
      (c++-mode . c++-ts-mode)
      (csharp-mode . csharp-ts-mode)
      (css-mode . css-ts-mode)
-     (html-mode . html-ts-mode)
      (java-mode . java-ts-mode)
      (js-mode . js-ts-mode)
      (json-mode . json-ts-mode)

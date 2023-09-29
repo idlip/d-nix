@@ -12,7 +12,8 @@
   :hook
   (eshell-mode . hide-mode-line-mode)
   (eshell-mode . electric-pair-local-mode)
-  (eshell-mode . (lambda () (setq outline-regexp eshell-prompt-regexp)))
+  (eshell-mode . (lambda () (setq outline-regexp eshell-prompt-regexp) (setq-local corfu-auto nil)
+                   (corfu-mode)))
   :bind
   ("<f12>" . d/eshell-toggle)
   (:map eshell-mode-map

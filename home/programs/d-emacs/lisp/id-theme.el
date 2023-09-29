@@ -12,14 +12,14 @@
   :custom
   (haki-heading-font "Code D Zoro")
   (haki-sans-font "Code D Haki")
-  (haki-title-font "Code D Law")
+  (haki-title-font "Code D Zoro")
   (haki-link-font "Maple Mono")
   (haki-code-font "Code D Lip")
   :config
   (load-theme 'haki t))
 
 (use-package kanagawa-theme
-  :demand t
+  :unless d/on-droid
   :load-path "~/.config/emacs/theme")
 
 ;; (add-to-list 'custom-theme-load-path "~/.config/emacs/var/theme/")

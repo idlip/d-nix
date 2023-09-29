@@ -293,6 +293,9 @@
 
 (use-package org-capture
   :after org
+  :defines
+  (my-org-agenda-headlines)
+
   :bind
   ("C-c c c" . org-capture)
 
@@ -303,7 +306,7 @@
   (org-bookmark-names-plist nil)
   (org-capture-templates
    `(
-     ("t" "Task" entry (file+olp "~/d-sync/notes/tasks.org" "One-Timer")
+     ("t" "Task" entry (file+function "~/d-sync/notes/tasks.org" (lambda () (completing-read "Heading: " my-org-agenda-headlines)))
       "* TODO %?\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
 
      ("l" "Link" entry
@@ -316,7 +319,9 @@
       "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
       ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
       :clock-in :clock-resume
-      :empty-lines 1))))
+      :empty-lines 1)))
+  :config
+  (setq my-org-agenda-headlines `(projects university tasks one-timer)))
 
 (use-package ol
   :after org

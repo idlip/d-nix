@@ -91,7 +91,7 @@ function ytdl() {
 }
 
 function fcd() {
-    cd "$(find -type d | fzf)"
+    cd "$(fd -t d | fzf)"
 }
 
 function shellnix() {

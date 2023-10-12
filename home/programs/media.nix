@@ -36,7 +36,7 @@
     pamixer
 
     mpc_cli
-    ytfzf ani-cli youtube-tui
+    ytfzf ani-cli youtube-tui ytmdl
     mangal
   ];
 

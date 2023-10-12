@@ -75,7 +75,6 @@ alias rm="rm -vI"
 alias bc="bc -ql"
 alias mkd="mkdir -pv"
 alias ytfzf="ytfzf -D"
-alias hyprcaps="hyprctl keyword input:kb_options caps:caps"
 alias gc="git clone --depth=1"
 alias sudo="doas"
 

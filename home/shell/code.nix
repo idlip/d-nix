@@ -7,7 +7,7 @@
 
     # basic stack
     # nodePackages.vscode-langservers-extracted
-    hugo
+    hugo monolith
 
     ### python
     # python311Packages.python-lsp-server

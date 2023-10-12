@@ -71,7 +71,7 @@
         };
 
         "battery" =  {
-	        "bat" =  "BAT0";
+	        "bat" =  "BAT1";
 	        "interval" =  30;
 	        "states" =  {
 		        "warning" =  50;

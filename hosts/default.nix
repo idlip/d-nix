@@ -44,7 +44,7 @@ in {
     system = "x86_64-linux";
     modules =
       [
-        {networking.hostName = "kaizok";}
+        {networking.hostName = "kaizoku";}
         ./kaizoku/hardware-configuration.nix
         bootloader
         hmModule

@@ -42,7 +42,6 @@
               ("C-o"     . embark-minimal-act)
               ("C-*"     . embark-act-all)
               ("M-*"      . embark-act-all)
-              ("M-s o"   . embark-export)
               ("C-c C-o" . embark-export))
 
   :init

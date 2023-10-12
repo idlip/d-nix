@@ -90,7 +90,7 @@
 	          ("<backtab>" . shrface-outline-cycle-buffer)
 	          ("M-n" . shr-next-link)
 	          ("M-p" . shr-previous-link)
-              ("C-S-k" . shrface-links-consult)
+              ("C-S-k" . (lambda () (interactive) (shrface-links-consult) (call-interactively #'browse-url-generic)))
               ("C-S-j" . shrface-headline-consult)
 	          ("C-j" . shrface-next-headline)
 	          ("C-k" . shrface-previous-headline))

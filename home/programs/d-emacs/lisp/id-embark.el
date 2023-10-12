@@ -24,6 +24,8 @@
          ("d" . sdcv-search-input))
    (:map embark-url-map
          ("b" . browse-url-generic))
+   (:map embark-file-map
+         ("b" . browse-url-of-dired-file))
    (:map embark-region-map
          ("U" . webpaste-paste-buffer-or-region)))
   :init

@@ -136,12 +136,6 @@ Usable as favorites or bookmark."
   :init
   (elfeed-org))
 
-
-(use-package link-hint
-  :bind
-  ("C-c l o" . link-hint-open-link)
-  ("C-c l c" . link-hint-copy-link))
-
 (use-package avy
   :bind
   ("M-j" . avy-goto-char-timer)

@@ -23,7 +23,7 @@
 
 in {
 
-  # laptop
+  # acer laptop
   gdk = nixpkgs.lib.nixosSystem {
     system = "x86_64-linux";
     modules =
@@ -38,4 +38,21 @@ in {
       ++ shared;
     specialArgs = {inherit inputs;};
   };
+
+  # lenovo laptop
+  kaizoku = nixpkgs.lib.nixosSystem {
+    system = "x86_64-linux";
+    modules =
+      [
+        {networking.hostName = "kaizok";}
+        ./kaizoku/hardware-configuration.nix
+        bootloader
+        hmModule
+        {inherit home-manager;}
+        blockhost
+      ]
+      ++ shared;
+    specialArgs = {inherit inputs;};
+  };
+
 }

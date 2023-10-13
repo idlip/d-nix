@@ -1,4 +1,4 @@
-{pkgs, lib, ...}: let
+{pkgs, lib, config, ...}: let
   suspendScript = pkgs.writeShellScript "suspend-script" ''
     ${pkgs.pipewire}/bin/pw-cli i all | ${pkgs.ripgrep}/bin/rg running
     # only suspend if audio isn't running
@@ -17,15 +17,18 @@ in {
       }
       {
         event = "lock";
-        command = "${pkgs.swaylock-effects}/bin/swaylock -fF";
+        command = "${pkgs.gtklock}/bin/gtklock";
       }
     ];
     timeouts = [
       {
         timeout = 330;
-        command = suspendScript.outPath;
+        command = "${config.wayland.windowManager.hyprland.package}/bin/hyprctl dispatch dpms off";
+        resumeCommand = "${config.wayland.windowManager.hyprland.package}/bin/hyprctl dispatch dpms on";
       }
     ];
-    Install.WantedBy = lib.mkForce ["hyprland-session.target"];
   };
+
+  systemd.user.services.swayidle.Install.WantedBy = lib.mkForce ["hyprland-session.target"];
+
 }

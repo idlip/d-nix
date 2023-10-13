@@ -129,7 +129,7 @@
         sub-shadow-offset = 1;
         sub-auto = "fuzzy";
         msg-level = "all=error";
-        ytdl-format = "[height<1080]";
+        ytdl-format = "[height<=1080]";
         save-position-on-quit = true;
         slang = "eng,en,Eng,English";
         alang = "jp,jpn,en,eng";

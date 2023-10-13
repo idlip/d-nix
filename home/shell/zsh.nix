@@ -33,9 +33,9 @@
     export STARDICT_DATA_DIR="$HOME/.local/share/stardict"
     export GRIM_DEFAULT_DIR="$HOME/pics/sshots/"
 
-    	if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
-        exec Hyprland
-     	fi
+    	#if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
+      #  exec Hyprland
+     	#fi
   	'';
 
     initExtra = ''

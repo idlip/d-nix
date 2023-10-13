@@ -10,6 +10,6 @@
     ./network.nix
     ./nix.nix
     ./security.nix
-    # ./bluetooth.nix
+    ./bluetooth.nix
   ];
 }

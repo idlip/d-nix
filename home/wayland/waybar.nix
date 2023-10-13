@@ -72,9 +72,9 @@
 
         "battery" =  {
 	        "bat" =  "BAT1";
-	        "interval" =  30;
+	        "interval" =  60;
 	        "states" =  {
-		        "warning" =  50;
+		        "warning" =  40;
 		        "critical" =  30;
 	        };
 	        "format" =  "{capacity}% {icon}";

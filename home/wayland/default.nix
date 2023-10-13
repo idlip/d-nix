@@ -19,6 +19,7 @@ in {
   imports = [
     ./waybar.nix
     ./hyprland.nix
+    ./swayidle.nix
   ];
 
   home.packages = with pkgs; [

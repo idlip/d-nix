@@ -24,21 +24,30 @@
 
     # To mount drives with udiskctl command
     udisks2.enable = true;
+    printing.enable = true;
+
+    fprintd = {
+      enable = true;
+      package = pkgs.fprintd;
+    };
 
     # tlp.enable = true;     # TLP and auto-cpufreq for power management
     auto-cpufreq.enable = true;
 
     # For Laptop, make lid close and power buttom click to suspend
     logind = {
-      lidSwitch = "suspend";
+      lidSwitch = "suspend-then-hibernate";
+      lidSwitchExternalPower = "lock";
       extraConfig = ''
-        HandlePowerKey = suspend
+        HandlePowerKey=suspend-then-hibernate
+        HibernateDelaySec=3600
       '';
+
     };
 
     # This makes the user 'idlip' to autologin in all tty
     # Depends on you if you want login manager or prefer entering password manually
-    getty.autologinUser = "idlip";
+    # getty.autologinUser = "idlip";
 
     atd.enable = true;
     fstrim.enable = true;
@@ -109,14 +118,14 @@
 
 
   hardware = {
+    pulseaudio.enable = false;
     opengl = {
       enable = true;
-      # extraPackages = with pkgs; [
-      #   vaapiVdpau
-      #   libvdpau-va-gl
-      #   # intel-media-driver
-      #   # vaapiIntel
-      # ];
+      extraPackages = with pkgs; [
+        libva intel-media-driver
+        vaapiVdpau vaapiIntel
+        libvdpau-va-gl
+      ];
     };
   };
 

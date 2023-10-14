@@ -12,9 +12,9 @@
    d/font-size)
 
   :preface
-  (defvar d/font-size (if d/on-droid 150 170)
+  (defvar d/font-size (if d/on-droid 150 140)
     "Default font size based on the system.")
-  (defvar d/variable-font-size (if d/on-droid 160 200)
+  (defvar d/variable-font-size (if d/on-droid 160 150)
     "Default variable pitch size")
 
   ;; Dont worry about the font name, I use fork of Recursive font

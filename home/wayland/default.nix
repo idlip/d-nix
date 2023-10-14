@@ -34,7 +34,7 @@ in {
 
     # utils
     ocrScript
-    wf-recorder
+    wl-screenrec
     wl-clipboard
   ];
 
@@ -51,6 +51,16 @@ in {
     Unit = {
       Description = "Home Manager System Tray";
       Requires = ["graphical-session-pre.target"];
+    };
+  };
+
+  services= {
+    gammastep = {
+      enable = true;
+      latitude = 19.0;
+      longitude = 72.0;
+      temperature.day = 5500;
+      temperature.night = 3700;
     };
   };
 }

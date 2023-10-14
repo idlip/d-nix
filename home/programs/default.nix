@@ -15,6 +15,7 @@
     # ./games.nix
     ./packages.nix
     ./media.nix
+    ./rofi.nix
   ];
 
   programs = {

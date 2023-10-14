@@ -67,7 +67,7 @@
         "custom/launcher" = {
 	        "format" = "";
 	        "tooltip" = false;
-	        "on-click" = "bemenu-run";
+	        "on-click" = "rofi -show drun";
         };
 
         "battery" =  {

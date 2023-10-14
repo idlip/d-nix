@@ -15,9 +15,10 @@ in {
     ];
     timeouts = [
       {
-        timeout = 330;
-        command = "${config.wayland.windowManager.hyprland.package}/bin/hyprctl dispatch dpms off";
-        resumeCommand = "${config.wayland.windowManager.hyprland.package}/bin/hyprctl dispatch dpms on";
+        timeout = 250;
+        command = "gtklock & sleep 1 && systemctl suspend";
+        # command = "${config.wayland.windowManager.hyprland.package}/bin/hyprctl dispatch dpms off";
+        # resumeCommand = "${config.wayland.windowManager.hyprland.package}/bin/hyprctl dispatch dpms on";
       }
     ];
   };

@@ -30,7 +30,7 @@ in {
 
     libnotify libsixel bemenu
     brightnessctl
-    wtype swaybg swayidle gammastep
+    wtype swaybg swayidle gammastep gtklock
 
     # utils
     ocrScript

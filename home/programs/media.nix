@@ -177,7 +177,8 @@
       show_thumbnails=0
       invidious_instance="https://vid.puffyan.us"
       external_menu () {
-           bemenu -W 0.98 -l 24 -p '  Play '
+           #bemenu -W 0.98 -l 24 -p '  Play '
+           rofi -config ~/.config/rofi/list.rasi -p '󰑈  Play'
       }
 
       thumbnail_quality=high

@@ -36,6 +36,11 @@
     rtkit.enable = true;
     polkit.enable = true;
 
+    # required for lockscreens
+    pam = {
+      services.gtklock.text = "auth include login";
+    };
+
     doas = {
       enable = true;
       extraRules = [{

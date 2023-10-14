@@ -41,7 +41,7 @@
   # Better to atleast keep it for few days, as you do major update (unstable), if something breaks you can roll back.
   nix = {
     gc = {
-      automatic = false;
+      automatic = true;
       dates = "daily";
       options = "--delete-older-than 15d";
     };

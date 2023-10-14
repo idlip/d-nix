@@ -34,6 +34,7 @@
     playerctl
     pulsemixer
     pamixer
+    transmission_4-gtk
 
     mpc_cli
     ytfzf ani-cli youtube-tui ytmdl
@@ -124,12 +125,16 @@
       config = {
         force-window = true;
         osc = false;
+        hwdec = "auto-safe";
+        vo = "gpu";
+        profile = "gpu-hq";
+        gpu-context = "wayland";
         sub-border-size = 4.0;
         sub-shadow-color = "0.0/0.0/0.0";
         sub-shadow-offset = 1;
         sub-auto = "fuzzy";
         msg-level = "all=error";
-        ytdl-format = "[height<=1080]";
+        ytdl-format = "bestvideo[height<=?1080]+bestaudio/best";
         save-position-on-quit = true;
         slang = "eng,en,Eng,English";
         alang = "jp,jpn,en,eng";

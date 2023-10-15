@@ -111,7 +111,7 @@
 
     mpv = {
       enable = true;
-      # scripts = with pkgs.mpvScripts; [ thumbnail sponsorblock];
+      scripts = with pkgs.mpvScripts; [ mpris ];
 
       bindings = {
         l = "seek  5";

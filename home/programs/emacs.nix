@@ -9,11 +9,11 @@
       eat vundo undo-fu-session flycheck helpful flycheck-languagetool ox-pandoc
       no-littering rainbow-delimiters rainbow-mode
       vertico orderless consult marginalia embark org-modern corfu cape corfu-terminal
-      org olivetti nerd-icons async dirvish
+      org olivetti nerd-icons nerd-icons-completion nerd-icons-dired async dirvish
       embark-consult consult-eglot consult-flycheck markdown-mode nix-mode
       reddigg hnreader mingus magit webpaste org-present
-      shrface shr-tag-pre-highlight nov devdocs-browser
-      beframe denote tempel tempel-collection
+      shrface shr-tag-pre-highlight nov devdocs-browser pdf-tools
+      beframe denote tempel tempel-collection gcmh
       sdcv elfeed elfeed-org powerthesaurus jinx meow
       doom-modeline hide-mode-line el-fetch ox-hugo
       ement kind-icon speed-type vc-backup aria2

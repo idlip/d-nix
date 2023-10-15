@@ -19,7 +19,7 @@ in {
   imports = [
     ./waybar.nix
     ./hyprland.nix
-    ./swayidle.nix
+    #./swayidle.nix
   ];
 
   home.packages = with pkgs; [
@@ -30,7 +30,7 @@ in {
 
     libnotify libsixel bemenu
     brightnessctl
-    wtype swaybg swayidle gammastep gtklock
+    wtype swaybg swayidle gtklock
 
     # utils
     ocrScript
@@ -55,12 +55,13 @@ in {
   };
 
   services= {
-    gammastep = {
+    wlsunset = {
       enable = true;
-      latitude = 19.0;
-      longitude = 72.0;
-      temperature.day = 5500;
-      temperature.night = 3700;
+      latitude = "19.0";
+      longitude = "72.0";
+      temperature.day = 6500;
+      temperature.night = 4000;
+      systemdTarget = "graphical-session.target";
     };
   };
 }

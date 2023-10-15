@@ -1,6 +1,6 @@
 * {
-bg-main:	     #050505;
-bg-dim:	     #121212;
+bg-main:	     #05050597;
+bg-dim:	     #12121240;
 fg-main:	     #ffffff;
 fg-dim:	     #D8DEE9;
 fg-region:     #2e8b6d;
@@ -140,13 +140,13 @@ selected-normal-foreground:  @bg-main;
 selected-urgent-background:  @fg-dim;
 selected-urgent-foreground:  @bg-main;
 selected-active-background:  @verbatim;
-selected-active-foreground:  @bg-main;
+selected-active-foreground:  @fg-main;
 alternate-normal-background: @bg-main;
 alternate-normal-foreground: @fg-main;
 alternate-urgent-background: @verbatim;
-alternate-urgent-foreground: @bg-main;
-alternate-active-background: @fg-dim;
-alternate-active-foreground: @bg-main;
+alternate-urgent-foreground: @fg-main;
+alternate-active-background: @bg-dim;
+alternate-active-foreground: @fg-main;
 }
 
 window {

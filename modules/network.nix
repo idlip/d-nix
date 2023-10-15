@@ -66,5 +66,5 @@
 
 
   # Don't wait for network startup
-  #systemd.services.NetworkManager-wait-online.enable = false;
+  systemd.services.NetworkManager-wait-online.enable = false;
 }

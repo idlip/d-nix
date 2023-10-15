@@ -43,7 +43,7 @@
     gc = {
       automatic = true;
       dates = "daily";
-      options = "--delete-older-than 15d";
+      options = "--delete-older-than 7d";
     };
 
     # Make builds run with low priority so my system stays responsive

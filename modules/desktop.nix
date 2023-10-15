@@ -7,10 +7,15 @@
 
   programs = {
     dconf.enable = true;
-    hyprland.enable = true;
+  };
+
+  powerManagement = {
+    enable = true;
+    powertop.enable = true;
   };
 
   services = {
+
     dbus = {
       packages = with pkgs; [dconf gcr udisks2];
       enable = true;
@@ -31,8 +36,38 @@
       package = pkgs.fprintd;
     };
 
-    # tlp.enable = true;     # TLP and auto-cpufreq for power management
-    auto-cpufreq.enable = true;
+    # power management
+    # auto-cpufreq= {
+    #   enable = true;
+    #   settings = {
+    #     battery = {
+    #       governor = "powersave";
+    #       turbo = "never";
+    #     };
+    #     charger = {
+    #       governor = "performance";
+    #       turbo = "auto";
+    #     };
+    #   };
+    # };
+
+    thermald.enable = true;
+    tlp = {
+      enable = true;
+      settings = {
+        CPU_SCALING_GOVERNOR_ON_AC = "powersave";
+        CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
+
+        CPU_ENERGY_PERF_POLICY_ON_BAT = "balance_power";
+        CPU_ENERGY_PERF_POLICY_ON_AC = "balance_performance";
+
+        CPU_MIN_PERF_ON_AC = 0;
+        CPU_MAX_PERF_ON_AC = 100;
+        CPU_MIN_PERF_ON_BAT = 0;
+        CPU_MAX_PERF_ON_BAT = 30;
+      };
+    };
+
 
     # For Laptop, make lid close and power buttom click to suspend
     logind = {

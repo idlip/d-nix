@@ -9,7 +9,7 @@
   boot = {
     # Uses bleeding edge latest kernel.
     kernelPackages = pkgs.linuxPackages_latest;
-    kernelModules = [ "tcp_bbr" "acpi_call" ];
+    # kernelModules = [ "tcp_bbr" "acpi_call" ];
 
     kernel.sysctl = {
       # The Magic SysRq key is a key combo that allows users connected to the

@@ -11,7 +11,8 @@
   boot.initrd.availableKernelModules = [ "xhci_pci" "thunderbolt" "vmd" "nvme" "usb_storage" "sd_mod" ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ];
-  boot.kernelParams = [ "i915.force_probe=a7a0" "intel_pstate=disable" ];
+  boot.kernelParams = [ "i915.force_probe=a7a0"  ];
+# "intel_pstate=disable"
 
   boot.extraModulePackages = [ ];
 

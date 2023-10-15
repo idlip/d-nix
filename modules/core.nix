@@ -89,6 +89,11 @@
     algorithm = "zstd";
   };
 
+  systemd.sleep.extraConfig = ''
+   AllowSuspendThenHibernate=yes
+   HibernateDelaySec=3600
+   '';
+
   # NEVER EVER TOUCH THIS ⚠️
   system.stateVersion = lib.mkDefault "23.05"; # OR CRY WITH BROKE SYS
 

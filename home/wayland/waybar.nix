@@ -22,7 +22,7 @@
         ];
 
         modules-center = [
-	        "custom/wf-recorder" "clock" "mpd"
+	        "custom/wf-recorder" "clock" "mpd" "mpris"
         ];
 
         modules-right = [ "tray" "network" "battery" "memory" "pulseaudio" "custom/power" ];
@@ -95,6 +95,19 @@
 	        };
 	        "tooltip-format" = "Mpd Connected";
 	        "tooltip-format-disconnected" = "";
+        };
+
+        "mpris" = {
+	        "format" = " {player_icon} {dynamic}";
+	        "format-paused" = "{status_icon} <i>{dynamic}</i>";
+	        "player-icons" = {
+		        "default" = "▶";
+		        "mpv" = "🎵";
+	        };
+	        "status-icons" = {
+		        "paused" = "⏸";
+	        };
+	        "max-length" = 20;
         };
 
 	      "custom/power" = {

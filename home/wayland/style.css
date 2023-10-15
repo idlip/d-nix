@@ -37,6 +37,7 @@
 #mode,
 #clock,
 #mpd,
+#mpris,
 #cpu,
 #tray,
 #memory,
@@ -100,6 +101,18 @@ window#waybar.brave {
     color: @fg-main;
 }
 
+#battery.charging{
+    color: @heading-4;
+}
+
+#battery.warning { background: orange; }
+#battery.critical { background: red; }
+
+
+#tray{
+  color: @bg-tag;
+}
+
 
 /* #mode { */
 /*     color: @heading-8; */
@@ -132,13 +145,7 @@ window#waybar.brave {
 /*     color: @heading-6; */
 /* } */
 
-#battery.charging{ 
-    color: @code;
-} 
 
-#tray{
-  color: @bg-tag;
-}
 /* #network.disconnected { */
 /*     color: @done; */
 /* } */

@@ -33,7 +33,7 @@
   (org-startup-indented nil)
   (org-image-actual-width 400)
   (org-startup-folded t)
-  (org-ellipsis " ▾")
+  (org-ellipsis " ⮟")
   (org-agenda-start-with-log-mode t)
   (org-log-done 'time)
   (org-log-done 'note)

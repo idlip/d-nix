@@ -45,6 +45,11 @@ You can do this by trackpad too (laptop)"
   (display-time-24hr-format t)
   (display-time-format "%H:%M"))
 
+(use-package battery
+  :ensure nil
+  :hook
+  (after-init . display-battery-mode))
+
 (use-package winner
   :ensure nil
   ;; :hook after-init

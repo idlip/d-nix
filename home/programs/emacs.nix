@@ -12,10 +12,10 @@
       org olivetti nerd-icons nerd-icons-completion nerd-icons-dired async dirvish
       embark-consult consult-eglot consult-flycheck markdown-mode nix-mode
       reddigg hnreader mingus magit webpaste org-present
-      shrface shr-tag-pre-highlight nov devdocs-browser pdf-tools
-      beframe denote tempel tempel-collection gcmh
+      shrface shr-tag-pre-highlight nov devdocs-browser
+      beframe denote tempel tempel-collection
       sdcv elfeed elfeed-org powerthesaurus jinx meow
-      doom-modeline hide-mode-line el-fetch ox-hugo
+      doom-modeline el-fetch ox-hugo
       ement kind-icon speed-type vc-backup aria2
       ess
     ])
@@ -26,9 +26,13 @@
     languagetool
   ];
 
-  home.file.".config/emacs" = {
+  xdg.configFile."emacs/lisp" = {
     recursive = true;
-    source = config.lib.file.mkOutOfStoreSymlink "/home/idlip/d-git/d-nix/home/programs/d-emacs";
+    source = config.lib.file.mkOutOfStoreSymlink "/home/idlip/d-git/d-nix/home/programs/d-emacs/lisp/";
   };
+
+  xdg.configFile."emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/idlip/d-git/d-nix/home/programs/d-emacs/init.el";
+
+  xdg.configFile."emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/idlip/d-git/d-nix/home/programs/d-emacs/early-init.el";
 
 }

@@ -87,7 +87,7 @@
                    sdcv-mode-map)
 
 
-  :hook (sdcv-mode . hide-mode-line-mode)
+  :hook (sdcv-mode . toggle-mode-line)
   :config
   (setq sdcv-say-word-p t
 	    sdcv-dictionary-data-dir "~/d-git/d-bin/treasure/dict/"

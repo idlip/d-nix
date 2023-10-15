@@ -71,7 +71,7 @@
 
 (use-package helpful
   :defines (helpful-mode-map)
-  :hook (helpful-mode . hide-mode-line-mode)
+  :hook (helpful-mode . toggle-mode-line)
   :bind
   ("C-h f" . helpful-callable)
   ("C-h v" . helpful-variable)

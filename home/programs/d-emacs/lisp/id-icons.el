@@ -8,6 +8,16 @@
   :custom
   (nerd-icons-font-family d/fixed-pitch-font))
 
+(use-package nerd-icons-dired
+  :hook
+  (dired-mode . nerd-icons-dired-mode))
+
+(use-package nerd-icons-completion
+  :after marginalia
+  :config
+  (nerd-icons-completion-mode)
+  (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
+
 (use-package kind-icon
   :after corfu
   :defines (corfu-margin-formatters)

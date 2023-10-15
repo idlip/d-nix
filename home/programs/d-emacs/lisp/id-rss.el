@@ -44,7 +44,7 @@
 
   (defun d/elfeed-ui ()
     (interactive)
-    (setq-local header-line-format " ")
+    ;; (setq-local header-line-format " ")
     (variable-pitch-mode))
 
   (defun d/elfeed-open ()

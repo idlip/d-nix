@@ -95,7 +95,8 @@ it narrows to region, or Org subtree."
     (interactive)
     (if (one-window-p) (kill-this-buffer)
       (kill-buffer-and-window))
-    (when (derived-mode-p 'doc-view-mode) (progn (clear-image-cache) (doc-view-clear-cache)))))
+    (when (derived-mode-p 'doc-view-mode) (progn (clear-image-cache) (doc-view-clear-cache)))
+    (when (derived-mode-p 'pdf-view-mode) (progn ((clear-image-cache) (pdf-cache-clear-data))))))
 
 
 (use-package delsel

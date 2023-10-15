@@ -10,7 +10,7 @@
   :commands
   (eshell-send-input eshell/clear)
   :hook
-  (eshell-mode . hide-mode-line-mode)
+  (eshell-mode . toggle-mode-line)
   (eshell-mode . electric-pair-local-mode)
   (eshell-mode . (lambda () (setq outline-regexp eshell-prompt-regexp) (setq-local corfu-auto nil)
                    (corfu-mode)))
@@ -86,14 +86,14 @@
   :commands (eshell d/eshell-toggle d/eat-toggle)
   :hook
   (eshell-load . eat-eshell-mode)
-  (eat-mode . hide-mode-line-mode)
+  (eat-mode . toggle-mode-line)
   :bind
   ("C-c d t" . d/eat-toggle)
   ("S-<f12>" . d/eat-toggle)
   (:map eat-mode-map
         ("C-x C-q" . d/eat-read-write)
         ("<f12>" . d/eat-toggle)
-	    ("<f9>" . hide-mode-line-mode))
+	    ("<f9>" . toggle-mode-line))
   (:map eat-semi-char-mode-map
         ("M-o" . nil)
         ("M-s" . nil))

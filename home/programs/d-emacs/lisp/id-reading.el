@@ -4,7 +4,7 @@
 ;;; Code:
 
 (use-package nov
-  :hook (nov-mode . hide-mode-line-mode)
+  :hook (nov-mode . toggle-mode-line)
   (nov-mode . variable-pitch-mode)
   :mode ("\\.epub\\'" . nov-mode)
   :custom

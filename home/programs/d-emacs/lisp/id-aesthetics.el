@@ -50,7 +50,7 @@
   (doom-modeline-github t)
   (doom-modeline-modal t)
   (doom-modeline-modal-icon t)
-  (doom-modeline-battery nil)
+  (doom-modeline-battery t)
   (doom-modeline-env-version t)
   (doom-modeline-env-python-executable "python") ; or `python-shell-interpreter'
   (doom-modeline-env-load-string "...")
@@ -58,10 +58,17 @@
   (doom-modeline-height 30)
   (doom-modeline-buffer-encoding nil))
 
-(use-package hide-mode-line
-  :defer t
+(use-package frame
   :bind
-  ("<f9>" . hide-mode-line-mode))
+  ("<f9>" . toggle-mode-line)
+  :config
+  (defun toggle-mode-line ()
+    "Toggle the modeline on and off."
+    (interactive)
+    (setq mode-line-format
+          (if (equal mode-line-format nil)
+              (default-value 'mode-line-format)))
+    (redraw-display)))
 
 (provide 'id-aesthetics)
 ;;; id-aesthetics.el ends here

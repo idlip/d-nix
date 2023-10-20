@@ -21,9 +21,12 @@
    ("M-." . embark-dwim)
    ("C-h B" . embark-bindings)
    (:map embark-identifier-map
-         ("d" . sdcv-search-input))
+         ("d" . sdcv-search-input)
+         ("ch" . color-name-to-hex)
+         ("cr" . color-name-to-rgb))
    (:map embark-url-map
-         ("b" . browse-url-generic))
+         ("b" . browse-url-generic)
+         ("r" . reddigg-view-comments))
    (:map embark-file-map
          ("b" . browse-url-of-dired-file))
    (:map embark-region-map
@@ -65,9 +68,7 @@ Return nil if NAME does not designate a valid color."
                ;; Sets 2 digits per component.
                (hex (apply #'color-rgb-to-hex (append rgb '(2)))))
      hex)))
-(with-eval-after-load 'embark
-  (define-key embark-identifier-map (kbd "ch") 'color-name-to-hex)
-  (define-key embark-identifier-map (kbd "cr") 'color-name-to-rgb))
+
 
 (provide 'id-embark)
 ;;; id-embark.el ends here

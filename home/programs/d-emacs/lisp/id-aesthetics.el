@@ -9,7 +9,7 @@
   (org-mode text-mode Info-mode helpful-mode ement-room-mode
             eww-mode sdcv-mode nov-mode elfeed-show-mode markdown-mode)
   :custom
-  (olivetti-body-width 0.95)
+  (olivetti-body-width 0.85)
   (olivetti-minimum-body-width 76)
   (olivetti-recall-visual-line-mode-entry-state t)
   :delight " ⊛")

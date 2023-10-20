@@ -117,7 +117,7 @@
         ("Q" . d/kill-buffer)
         ("RET" . eww-follow-link)
         ("m" . elfeed-toggle-star)
-        ("b" . d/external-browser))
+        ("b" . nil))
   :custom
   (eww-auto-rename-buffer 'title)
   (eww-search-prefix "https://duckduckgo.com/html/&q=")
@@ -138,7 +138,7 @@ for the search engine used."
             (eww-browse-url (completing-read "Browse Url" eww-prompt-history))))
       (if (shr-url-at-point nil)
         (eww (shr-url-at-point nil))
-      (eww-browse-url (completing-read "Browse Url" eww-prompt-history))))))
+      (eww-browse-url (completing-read "Browse Url: " eww-prompt-history))))))
 
 (use-package gnutls
   :defer t

@@ -14,7 +14,7 @@
   :preface
   (defvar d/font-size (if d/on-droid 150 140)
     "Default font size based on the system.")
-  (defvar d/variable-font-size (if d/on-droid 160 150)
+  (defvar d/variable-font-size (if d/on-droid 160 160)
     "Default variable pitch size")
 
   ;; Dont worry about the font name, I use fork of Recursive font
@@ -23,7 +23,7 @@
   (defvar d/fixed-pitch-font "Code D OnePiece"
     "The font to use for monospaced (fixed width) text.")
 
-  (defvar d/variable-pitch-font "Code D Ace"
+  (defvar d/variable-pitch-font "Code D Haki"
     "The font to use for variable-pitch (documents) text.")
 
   :custom

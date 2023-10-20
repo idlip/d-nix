@@ -18,54 +18,102 @@
   (nerd-icons-completion-mode)
   (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
 
-(use-package kind-icon
-  :after corfu
-  :defines (corfu-margin-formatters)
-  :functions (kind-icon-margin-formatter)
-  :custom
-  (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly
-  (kind-icon-default-style '(:padding -0.5 :stroke 0 :margin 0 :radius 0 :height 0.6 :scale 1.0))
-  (kind-icon-use-icons nil)
-  (kind-icon-mapping
-   `(
-     (array ,(nerd-icons-codicon "nf-cod-symbol_array") :face font-lock-type-face)
-     (boolean ,(nerd-icons-codicon "nf-cod-symbol_boolean") :face font-lock-builtin-face)
-     (class ,(nerd-icons-codicon "nf-cod-symbol_class") :face font-lock-type-face)
-     (color ,(nerd-icons-codicon "nf-cod-symbol_color") :face success)
-     (command ,(nerd-icons-codicon "nf-cod-terminal") :face default)
-     (constant ,(nerd-icons-codicon "nf-cod-symbol_constant") :face font-lock-constant-face)
-     (constructor ,(nerd-icons-codicon "nf-cod-triangle_right") :face font-lock-function-name-face)
-     (enummember ,(nerd-icons-codicon "nf-cod-symbol_enum_member") :face font-lock-builtin-face)
-     (enum-member ,(nerd-icons-codicon "nf-cod-symbol_enum_member") :face font-lock-builtin-face)
-     (enum ,(nerd-icons-codicon "nf-cod-symbol_enum") :face font-lock-builtin-face)
-     (event ,(nerd-icons-codicon "nf-cod-symbol_event") :face font-lock-warning-face)
-     (field ,(nerd-icons-codicon "nf-cod-symbol_field") :face font-lock-variable-name-face)
-     (file ,(nerd-icons-codicon "nf-cod-symbol_file") :face font-lock-string-face)
-     (folder ,(nerd-icons-codicon "nf-cod-folder") :face font-lock-doc-face)
-     (interface ,(nerd-icons-codicon "nf-cod-symbol_interface") :face font-lock-type-face)
-     (keyword ,(nerd-icons-codicon "nf-cod-symbol_keyword") :face font-lock-keyword-face)
-     (macro ,(nerd-icons-codicon "nf-cod-symbol_misc") :face font-lock-keyword-face)
-     (magic ,(nerd-icons-codicon "nf-cod-wand") :face font-lock-builtin-face)
-     (method ,(nerd-icons-codicon "nf-cod-symbol_method") :face font-lock-function-name-face)
-     (function ,(nerd-icons-codicon "nf-cod-symbol_method") :face font-lock-function-name-face)
-     (module ,(nerd-icons-codicon "nf-cod-file_submodule") :face font-lock-preprocessor-face)
-     (numeric ,(nerd-icons-codicon "nf-cod-symbol_numeric") :face font-lock-builtin-face)
-     (operator ,(nerd-icons-codicon "nf-cod-symbol_operator") :face font-lock-comment-delimiter-face)
-     (param ,(nerd-icons-codicon "nf-cod-symbol_parameter") :face default)
-     (property ,(nerd-icons-codicon "nf-cod-symbol_property") :face font-lock-variable-name-face)
-     (reference ,(nerd-icons-codicon "nf-cod-references") :face font-lock-variable-name-face)
-     (snippet ,(nerd-icons-codicon "nf-cod-symbol_snippet") :face font-lock-string-face)
-     (string ,(nerd-icons-codicon "nf-cod-symbol_string") :face font-lock-string-face)
-     (struct ,(nerd-icons-codicon "nf-cod-symbol_structure") :face font-lock-variable-name-face)
-     (text ,(nerd-icons-codicon "nf-cod-text_size") :face font-lock-doc-face)
-     (typeparameter ,(nerd-icons-codicon "nf-cod-list_unordered") :face font-lock-type-face)
-     (type-parameter ,(nerd-icons-codicon "nf-cod-list_unordered") :face font-lock-type-face)
-     (unit ,(nerd-icons-codicon "nf-cod-symbol_ruler") :face font-lock-constant-face)
-     (value ,(nerd-icons-codicon "nf-cod-symbol_field") :face font-lock-builtin-face)
-     (variable ,(nerd-icons-codicon "nf-cod-symbol_variable") :face font-lock-variable-name-face)
-     (t ,(nerd-icons-codicon "nf-cod-code") :face font-lock-warning-face)))
-  :config
-  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+(define-widget 'nerd-icons-corfu-icon-type 'plist
+  "The type of an icon mapping."
+  :tag "Icon parameters"
+  :options '((:style (choice (const :tag "wicon" "w")
+                             (const :tag "faicon" "fa")
+                             (const :tag "flicon" "fl")
+                             (const :tag "mdicon" "md")
+                             (const :tag "codicon" "cod")
+                             (const :tag "devicon" "dev")
+                             (const :tag "ipsicon" "ips")
+                             (const :tag "octicon" "oct")
+                             (const :tag "pomicon" "pom")
+                             (const :tag "sucicon" "suc")))
+             (:icon string)
+             (:face face)))
+
+(defcustom nerd-icons-corfu-mapping
+  '((array :style "cod" :icon "symbol_array" :face font-lock-type-face)
+    (boolean :style "cod" :icon "symbol_boolean" :face font-lock-builtin-face)
+    (class :style "cod" :icon "symbol_class" :face font-lock-type-face)
+    (color :style "cod" :icon "symbol_color" :face success)
+    (command :style "cod" :icon "terminal" :face default)
+    (constant :style "cod" :icon "symbol_constant" :face font-lock-constant-face)
+    (constructor :style "cod" :icon "triangle_right" :face font-lock-function-name-face)
+    (enummember :style "cod" :icon "symbol_enum_member" :face font-lock-builtin-face)
+    (enum-member :style "cod" :icon "symbol_enum_member" :face font-lock-builtin-face)
+    (enum :style "cod" :icon "symbol_enum" :face font-lock-builtin-face)
+    (event :style "cod" :icon "symbol_event" :face font-lock-warning-face)
+    (field :style "cod" :icon "symbol_field" :face font-lock-variable-name-face)
+    (file :style "cod" :icon "symbol_file" :face font-lock-string-face)
+    (folder :style "cod" :icon "folder" :face font-lock-doc-face)
+    (interface :style "cod" :icon "symbol_interface" :face font-lock-type-face)
+    (keyword :style "cod" :icon "symbol_keyword" :face font-lock-keyword-face)
+    (macro :style "cod" :icon "symbol_misc" :face font-lock-keyword-face)
+    (magic :style "cod" :icon "wand" :face font-lock-builtin-face)
+    (method :style "cod" :icon "symbol_method" :face font-lock-function-name-face)
+    (function :style "cod" :icon "symbol_method" :face font-lock-function-name-face)
+    (module :style "cod" :icon "file_submodule" :face font-lock-preprocessor-face)
+    (numeric :style "cod" :icon "symbol_numeric" :face font-lock-builtin-face)
+    (operator :style "cod" :icon "symbol_operator" :face font-lock-comment-delimiter-face)
+    (param :style "cod" :icon "symbol_parameter" :face default)
+    (property :style "cod" :icon "symbol_property" :face font-lock-variable-name-face)
+    (reference :style "cod" :icon "references" :face font-lock-variable-name-face)
+    (snippet :style "cod" :icon "symbol_snippet" :face font-lock-string-face)
+    (string :style "cod" :icon "symbol_string" :face font-lock-string-face)
+    (struct :style "cod" :icon "symbol_structure" :face font-lock-variable-name-face)
+    (text :style "cod" :icon "text_size" :face font-lock-doc-face)
+    (typeparameter :style "cod" :icon "list_unordered" :face font-lock-type-face)
+    (type-parameter :style "cod" :icon "list_unordered" :face font-lock-type-face)
+    (unit :style "cod" :icon "symbol_ruler" :face font-lock-constant-face)
+    (value :style "cod" :icon "symbol_field" :face font-lock-builtin-face)
+    (variable :style "cod" :icon "symbol_variable" :face font-lock-variable-name-face)
+    (t :style "cod" :icon "code" :face font-lock-warning-face))
+  "Mapping of completion kinds to icons.
+
+It should be a list of elements with the form (KIND :style ICON-STY :icon
+ICON-NAME [:face FACE]).  KIND is a symbol determining what the completion is,
+and comes from calling the `:company-kind' property of the completion. ICON-STY
+is a string with the icon style to use, from those available in Nerd Fonts.
+ICON-NAME is a string with the name of the icon.  FACE, if present, is applied
+to the icon, mainly for its color. The special t symbol should be used for KIND
+to represent the default icon, and must be present."
+  :type '(alist :key-type symbol :value-type nerd-icons-corfu-icon-type)
+  :group 'nerd-icons-corfu)
+
+;;;###autoload
+(defun nerd-icons-corfu-formatter (_)
+  "A margin formatter for Corfu, adding icons.
+
+It receives METADATA, ignores it, and outputs a function that takes a candidate
+and returns the icon."
+  (when-let ((kindfunc (plist-get completion-extra-properties :company-kind)))
+    (lambda (cand)
+      (let* ((kind (funcall kindfunc cand))
+             (icon-entry (or (alist-get (or kind t) nerd-icons-corfu-mapping)
+                             (alist-get t nerd-icons-corfu-mapping)))
+             (style (plist-get icon-entry :style))
+             (icon (plist-get icon-entry :icon))
+             (icon-fun (intern (concat "nerd-icons-" style "icon")))
+             (icon-name (concat "nf-" style "-" icon))
+             (face (plist-get icon-entry :face))
+             (str (or (and (fboundp icon-fun) (funcall icon-fun icon-name :face face)) "?"))
+             (space (propertize " " 'display '(space :width 1))))
+        (concat " " str space)))))
+
+(add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
+
+;; Optionally:
+;; (setq nerd-icons-corfu-mapping
+;;       '((array :style "cod" :icon "symbol_array" :face font-lock-type-face)
+;;         (boolean :style "cod" :icon "symbol_boolean" :face font-lock-builtin-face)
+;;         ;; ...
+;;         (t :style "cod" :icon "code" :face font-lock-warning-face)))
+        ;; Remember to add an entry for `t', the library uses that as default.
+
+;; The Custom interface is also supported for tuning the variable above.
 
 (provide 'id-icons)
 ;;; id-icons.el ends here

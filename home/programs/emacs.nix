@@ -13,9 +13,9 @@
       embark-consult consult-eglot consult-flycheck markdown-mode nix-mode
       reddigg hnreader mingus magit webpaste org-present
       shrface shr-tag-pre-highlight nov devdocs-browser
-      beframe denote tempel tempel-collection
+      beframe denote tempel tempel-collection avy
       sdcv elfeed elfeed-org powerthesaurus jinx meow
-      doom-modeline el-fetch ox-hugo
+      doom-modeline el-fetch ox-hugo envrc
       ement kind-icon speed-type vc-backup aria2
       ess
     ])
@@ -24,6 +24,7 @@
 
   home.packages = with pkgs; [
     languagetool
+    mupdf poppler_utils ghostscript # for doc-view?
   ];
 
   xdg.configFile."emacs/lisp" = {

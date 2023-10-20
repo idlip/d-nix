@@ -23,7 +23,7 @@
         ("k" . dired-previous-line)
         ("l" . dired-find-file)
         ("h" . dired-up-directory)
-        ("b" . d/external-browser))
+        ("b" . embark-act))
 
   :custom
   (dired-listing-switches "-agho --group-directories-first")

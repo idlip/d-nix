@@ -6,7 +6,7 @@
 (use-package elfeed
   :hook (elfeed-show-mode . d/elfeed-ui)
   :bind ("C-c d e" . d/elfeed-open)
-  ("C-c d b" . d/external-browser)
+  ("C-c d b" . embark-act)
   (:map elfeed-show-mode-map
         ("e" . elfeed-open-in-eww)
         ("i" . d/bionic-read)
@@ -16,7 +16,7 @@
         ("C-x C-k" . d/elfeed-quit)
         ("P" . d/elfeed-add-podcast)
         ("A" . d/elfeed-play)
-        ("b" . d/external-browser))
+        ("b" . embark-act))
   (:map elfeed-search-mode-map
         ("m" . elfeed-toggle-star)
         ("q" . d/elfeed-quit)

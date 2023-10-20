@@ -302,7 +302,7 @@ You can insert the name (default), or insert or kill the hexadecimal
 
   :custom
   (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-  (corfu-auto t)                 ;; Enable auto completion
+  (corfu-auto nil)                 ;; Enable auto completion
   (corfu-separator ?\s)          ;; Orderless field separator
   ;; (corfu-preview-current t)    ;; Disable current candidate preview
   ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches

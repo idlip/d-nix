@@ -1,5 +1,5 @@
 eval "$(starship init zsh)"
-# eval "$(direnv hook zsh)"
+eval "$(direnv hook zsh)"
 
 # Make zsh better simply
 autoload -U colors && colors  # Load colors

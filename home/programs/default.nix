@@ -7,6 +7,7 @@
   imports = [
     ./xdg.nix
     # ./qt.nix
+    ./browser.nix
     ./gtk.nix
     ./aria2.nix
     ./sioyek.nix
@@ -19,18 +20,6 @@
   ];
 
   programs = {
-    chromium = {
-      enable = true;
-      package = pkgs.brave;
-      commandLineArgs = ["--enable-features=TouchpadOverscrollHistoryNavigation"];
-      extensions = [
-        {id = "cjpalhdlnbpafiamejdnhcphjbkeiagm";} # ublock origin
-        {id = "dbepggeogbaibhgnhhndojpepiihcmeb";} # vimium
-        {id = "eimadpbcbfnmbkopoojfekhnkhdbieeh";} # dark-reader
-        {id = "lljedihjnnjjefafchaljkhbpfhfkdic";} # jiffy reader
-        {id = "mnjggcdmjocbbbhaepdhchncahnbgone";} # sponsorblock
-      ];
-    };
 
     gpg = {
       enable = true;

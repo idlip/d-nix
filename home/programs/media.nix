@@ -134,7 +134,8 @@
         sub-shadow-offset = 1;
         sub-auto = "fuzzy";
         msg-level = "all=error";
-        ytdl-format = "bestvideo[height<=?1080]+bestaudio/best";
+        # ytdl-format = "bestvideo[height<=?1080]+bestaudio/best";
+        ytdl-format = "best";
         save-position-on-quit = true;
         slang = "eng,en,Eng,English";
         alang = "jp,jpn,en,eng";

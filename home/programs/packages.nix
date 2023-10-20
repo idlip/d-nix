@@ -9,6 +9,6 @@
     keepassxc
 
     # pioneer of web
-    mullvad-browser librewolf ungoogled-chromium
+    mullvad-browser ungoogled-chromium
   ];
 }

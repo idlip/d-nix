@@ -91,39 +91,6 @@
     # For android file transfer via usb, or better check on KDE connect
     gvfs.enable = true;
 
-    # configuring syncthing
-    syncthing = {
-      enable = true;
-      user = "idlip";
-      configDir = "/home/idlip/.config/syncthing";
-      overrideDevices = true;     # overrides any devices added or deleted through the WebUI
-      overrideFolders = true;     # overrides any folders added or deleted through the WebUI
-      settings = {
-        devices = {
-          "realme" = { id = "CEV3U3M-EJFLUJ3-UXFBEPG-KHX5EVK-3MSYH2W-BRNZEDH-TVJ4QWZ-X3G2CAW"; };
-          #"device2" = { id = "DEVICE-ID-GOES-HERE"; };
-        };
-        folders = {
-          "sync" = {
-	          path = "~/d-sync";
-	          devices = [ "realme" ];
-          };
-          "emacs" = {
-	          path = "~/d-git/d-nix";
-	          devices = [ "realme" ];
-          };
-          "theme" = {
-	          path = "~/d-git/d-theme";
-	          devices = [ "realme" ];
-          };
-          "site" = {
-	          path = "~/d-git/d-site";
-	          devices = [ "realme" ];
-          };
-        };
-      };
-    };
-
     # Pipewire setup, just these lines enought to make sane default for it
     pipewire = {
       enable = true;
@@ -185,7 +152,7 @@
 	        "Noto Color Emoji"
         ];
         sansSerif = [ "Code D Haki" "Noto Sans" "Noto Serif" ];
-        serif = [ "Code D Ace" "Noto Sans" "Noto Serif"];
+        serif = [ "Code D Haki" "Noto Sans" "Noto Serif"];
         emoji = [ "Noto Color Emoji" "Code D Lip" "Symbola" "Noto Sans" ];
       };
     };

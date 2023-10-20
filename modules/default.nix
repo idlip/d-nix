@@ -10,6 +10,7 @@
     ./network.nix
     ./nix.nix
     ./security.nix
+    ./syncthing.nix
     #./bluetooth.nix
   ];
 }

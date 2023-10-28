@@ -38,7 +38,9 @@
 
     # required for lockscreens
     pam = {
-      services.gtklock.text = "auth include login";
+      services.gtklock = {
+        text = "auth include login";
+      };
     };
 
     doas = {

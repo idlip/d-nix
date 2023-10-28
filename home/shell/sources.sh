@@ -83,6 +83,7 @@ alias sudo="doas"
 # neovim as manpager, if not using emacs
 export MANPAGER='nvim +Man! +"set nocul" +"set noshowcmd" +"set noruler" +"set noshowmode" +"set laststatus=0" +"set showtabline=0" +"set nonumber"'
 
+export STARDICT_DATA_DIR="$HOME/d-git/d-bin/treasure/dict/"
 
 # Functions
 function ytdl() {
@@ -119,6 +120,10 @@ function manp () { # use emacs
     else
         $1 --help
     fi
+}
+
+whichpath () {
+    realpath
 }
 
 # TODOTHIS

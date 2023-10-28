@@ -2,6 +2,8 @@
 
   home.packages = with pkgs; [
 
+    # better to manage it via development shell
+
     # shell
     nodePackages.bash-language-server
 

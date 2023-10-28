@@ -4,6 +4,7 @@
 ;;; Code:
 
 (use-package org
+  :ensure nil
   :defer t
   :commands
   (org-capture
@@ -174,6 +175,7 @@
   )
 
 (use-package org-tempo
+  :ensure nil
   :after org
   :config
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
@@ -182,7 +184,7 @@
 
 (use-package org-modern
   :defer 1
-  :after org
+
   :commands
   (shrface-mode
    global-org-modern-mode)
@@ -244,6 +246,7 @@
 
 ;; from gopar's config
 (use-package org-clock
+  :ensure nil
   :after org
   :commands
   (org-clock-jump-to-current-clock
@@ -271,6 +274,7 @@
               ("C-c C-x r" . (lambda () (interactive) (org-clock-report)))))
 
 (use-package org-agenda
+  :ensure nil
   :after org
   :bind
   ("C-c d a" . org-agenda)
@@ -292,6 +296,7 @@
 
 
 (use-package org-capture
+  :ensure nil
   :after org
   :defines
   (my-org-agenda-headlines)
@@ -324,12 +329,14 @@
   (setq my-org-agenda-headlines `(projects university tasks one-timer)))
 
 (use-package ol
+  :ensure nil
   :after org
   :custom
   (org-link-shell-confirm-function 'y-or-n-p)
   (org-link-elisp-confirm-function 'y-or-n-p))
 
 (use-package org-src
+  :ensure nil
   :after org
   :custom
   (org-src-preserve-indentation nil)
@@ -345,12 +352,14 @@
                   (_ mode)))))
 
 (use-package ob-core
+  :ensure nil
   :after org
   :custom
   ;; Don't ask every time when I run a code block
   (org-confirm-babel-evaluate nil))
 
 (use-package org-habit
+  :ensure nil
   :ensure nil
   :custom
   (org-habit-graph-column 45))

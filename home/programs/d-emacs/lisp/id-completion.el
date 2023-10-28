@@ -4,6 +4,7 @@
 ;;; Code:
 
 (use-package dabbrev
+  :ensure nil
   :commands (dabbrev-expand dabbrev-completion)
   :custom
   (dabbrev-abbrev-char-regexp "\\sw\\|\\s_")
@@ -14,9 +15,16 @@
   (dabbrev-case-replace nil)
   (dabbrev-check-other-buffers t)
   (dabbrev-eliminate-newlines nil)
-  (dabbrev-upcase-means-case-search t))
+  (dabbrev-upcase-means-case-search t)
+  ;; Swap M-/ and C-M-/
+  :bind (("M-/" . dabbrev-completion)
+	     ("C-M-/" . dabbrev-expand))
+  ;; Other useful Dabbrev configurations.
+  :custom
+  (dabbrev-ignored-buffer-regexps '("\\.\\(?:pdf\\|jpe?g\\|png\\)\\'")))
 
 (use-package hippie-exp
+  :ensure nil
   :bind
   ("M-/" . hippie-expand))
 
@@ -69,7 +77,7 @@
   (vertico-multiform-commands
    '(("\\`execute-extended-command" unobtrusive
       (vertico-flat-annotate . t)
-      (marginalia-annotator-registry (command marginalia-annotate-binding)))
+      (marginalia-annotator-registry (command marginalia-annotate-command marginalia-annotate-binding builtin none)))
      (jinx-correct reverse)
      (tab-bookmark-open reverse)
      (dired-goto-file unobtrusive)
@@ -153,7 +161,7 @@
          ("M-g I" . consult-imenu-multi)
          ("M-g s" . consult-eglot-symbols)
          ;; M-s bindings (search-map)
-         ("M-s d" . consult-find)
+         ("M-s d" . consult-fd)
          ("M-s D" . consult-locate)
          ("M-s g" . consult-ripgrep)
          ("M-s m" . consult-man)
@@ -199,7 +207,8 @@
   :config
   (advice-add #'register-preview :override #'consult-register-window)
 
-  (defvar consult--source-eww
+  (with-eval-after-load 'eww
+    (defvar consult--source-eww
     (list
      :name     "Eww"
      :narrow   ?e
@@ -213,7 +222,7 @@
                                     (plist-get bm :url)
                                     (plist-get bm :title))
                             'url (plist-get bm :url)))
-                         eww-bookmarks))))
+                         eww-bookmarks)))))
   (add-to-list 'consult-buffer-sources 'consult--source-eww 'append)
 
   (defun consult-colors--web-list nil
@@ -293,22 +302,18 @@ You can insert the name (default), or insert or kill the hexadecimal
   (corfu-map)
 
   :functions
-  (corfu-history-mode
-   corfu-popupinfo-mode
-   corfu-echo-mode
-   global-corfu-mode
-   corfu-terminal-mode
+  (global-corfu-mode
    corfu-mode)
 
   :custom
   (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-  (corfu-auto nil)                 ;; Enable auto completion
+  (corfu-auto t)                 ;; Enable auto completion
   (corfu-separator ?\s)          ;; Orderless field separator
   ;; (corfu-preview-current t)    ;; Disable current candidate preview
   ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
   ;; (corfu-quit-no-match t)
-  (corfu-auto-prefix 2)
-  (corfu-auto-delay 0.2)
+  (corfu-auto-prefix 3)
+  (corfu-auto-delay 0.4)
   (corfu-quit-at-boundary 'separator)
   (corfu-popupinfo-resize t)
   (corfu-popupinfo-hide nil)
@@ -316,6 +321,7 @@ You can insert the name (default), or insert or kill the hexadecimal
   (corfu-popupinfo-delay 1.0)
   (corfu-history 1)
   (corfu-scroll-margin 0)
+
   :bind (:map corfu-map
 	          ("M-SPC" . corfu-insert-separator)
 	          ("TAB" . corfu-insert)
@@ -329,23 +335,26 @@ You can insert the name (default), or insert or kill the hexadecimal
   ;;        (eshell-mode . corfu-mode))
 
   :init
-  (corfu-history-mode)
-  (corfu-popupinfo-mode)
-  (corfu-echo-mode)
   (global-corfu-mode))
+
+(use-package corfu-history
+  :disabled
+  :init
+  (corfu-history-mode))
+
+(use-package corfu-popupinfo
+  :disabled
+  :init
+  (corfu-popupinfo-mode))
+
+(use-package corfu-echo
+  :disabled
+  :init
+  (corfu-echo-mode))
 
 (eldoc-add-command #'corfu-insert)
 (unless (display-graphic-p)
   (corfu-terminal-mode +1))
-
-;; Use Dabbrev with Corfu!
-(use-package dabbrev
-  ;; Swap M-/ and C-M-/
-  :bind (("M-/" . dabbrev-completion)
-	     ("C-M-/" . dabbrev-expand))
-  ;; Other useful Dabbrev configurations.
-  :custom
-  (dabbrev-ignored-buffer-regexps '("\\.\\(?:pdf\\|jpe?g\\|png\\)\\'")))
 
 ;; Add extensions
 (use-package cape
@@ -363,7 +372,8 @@ You can insert the name (default), or insert or kill the hexadecimal
 	     ("C-c p h" . cape-history)
 	     ("C-c p f" . cape-file)
 	     ("C-c p k" . cape-keyword)
-	     ("C-c p s" . cape-symbol)
+	     ("C-c p s" . cape-elisp-symbol)
+         ("C-c p e" . cape-elisp-block)
 	     ("C-c p a" . cape-abbrev)
 	     ("C-c p i" . cape-ispell)
 	     ("C-c p l" . cape-line)
@@ -373,11 +383,13 @@ You can insert the name (default), or insert or kill the hexadecimal
 	     ("C-c p ^" . cape-tex)
 	     ("C-c p &" . cape-sgml)
 	     ("C-c p r" . cape-rfc1345))
+
   :init
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
   (add-to-list 'completion-at-point-functions #'cape-file)
   (add-to-list 'completion-at-point-functions #'cape-history)
   (add-to-list 'completion-at-point-functions #'cape-keyword)
+  (add-to-list 'completion-at-point-functions #'cape-elisp-block)
   ;; (add-to-list 'completion-at-point-functions #'cape-tex)
   ;; (add-to-list 'completion-at-point-functions #'cape-sgml)
   ;; (add-to-list 'completion-at-point-functions #'cape-rfc1345)

@@ -4,6 +4,7 @@
 ;;; Code:
 
 (use-package faces
+  :ensure nil
   :defines
   (d/on-droid
    d/variable-font-size
@@ -38,6 +39,7 @@
   (default ((t (:family ,d/fixed-pitch-font :height ,d/font-size)))))
 
 (use-package font-lock
+  :ensure nil
   :defer t
   :custom ((font-lock-maximum-decoration t)
      (font-lock-global-modes '(not text-mode))

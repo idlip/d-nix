@@ -8,6 +8,7 @@
   :hook (after-save . executable-make-buffer-file-executable-if-script-p))
 
 (use-package loaddefs
+  :ensure nil
   :hook
   (prog-mode . electric-pair-local-mode))
 
@@ -42,6 +43,7 @@
 ;;   (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman"))))
 
 (use-package elisp-mode
+  :ensure nil
   :bind
   (:map emacs-lisp-mode-map
 	    ("C-c C-d C-d" . describe-function)
@@ -75,6 +77,8 @@
 (use-package devdocs-browser
   :bind
   ("C-c d v" . devdocs-browser-open-in)
+  :hook
+  (devdocs-browser-eww-mode . shrface-mode)
   :custom
   (devdocs-browser-major-mode-docs-alist '((c++-ts-mode "cpp")
                                            (c-ts-mode "c")

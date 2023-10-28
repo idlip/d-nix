@@ -11,6 +11,7 @@
   (magit-diff-refine-hunk t))
 
 (use-package ediff
+  :ensure nil
   :custom
   (ediff-keep-variants nil)
   (ediff-split-window-function 'split-window-horizontally)

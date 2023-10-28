@@ -4,6 +4,7 @@
 ;;; Code:
 
 (use-package files
+  :ensure nil
   :hook
   (before-save . delete-trailing-whitespace)
   :bind ("<f5>" . d/refresh-buffer)
@@ -30,11 +31,13 @@
     (revert-buffer :ignore-auto :noconfirm)))
 
 (use-package vc-backup
+  :demand t
   :custom
   (vc-make-backup-files t)
   (vc-follow-symlinks t))
 
 (use-package savehist
+  :ensure nil
   :defer 2
   :init
   (savehist-mode)
@@ -42,11 +45,13 @@
   (savehist-additional-variables '(kill-ring search-ring regexp-search-ring)))
 
 (use-package autorevert
+  :ensure nil
   :defer 0.1
   :defines (d/on-droid)
   :unless d/on-droid)
 
 (use-package recentf
+  :ensure nil
   :demand t
   :custom
   (recentf-auto-cleanup 30)
@@ -71,6 +76,7 @@
                (recentf-expand-file-name no-littering-etc-directory)))
 
 (use-package tramp
+  :ensure nil
   :defer t
   :config
   (put 'temporary-file-directory 'standard-value `(,temporary-file-directory))

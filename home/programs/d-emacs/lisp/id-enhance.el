@@ -5,6 +5,7 @@
 
 
 (use-package mwheel
+  :ensure nil
   :custom
   (mouse-wheel-scroll-amount '(1 ((shift) . 5) ((control))))
   (mouse-wheel-progressive-speed nil)
@@ -12,6 +13,8 @@
   (scroll-conservatively 101))
 
 (use-package pixel-scroll
+  :ensure nil
+  :init (pixel-scroll-precision-mode)
   :commands
   (pixel-scroll-precision-scroll-down pixel-scroll-precision-scroll-up)
   :bind
@@ -32,11 +35,13 @@ You can do this by trackpad too (laptop)"
     (pixel-scroll-precision-scroll-up 20)))
 
 (use-package tooltip
+  :ensure nil
   :defer t
   :config
   (tooltip-mode -1))
 
 (use-package time
+  :ensure nil
   :defer t
   :hook
   (after-init . display-time)
@@ -48,7 +53,11 @@ You can do this by trackpad too (laptop)"
 (use-package battery
   :ensure nil
   :hook
-  (after-init . display-battery-mode))
+  (after-init . display-battery-mode)
+  :custom
+  ;; better to keep charge between 40-80
+  (battery-load-low '40)
+  (battery-load-critical '29))
 
 (use-package winner
   :ensure nil
@@ -77,12 +86,14 @@ You can do this by trackpad too (laptop)"
   (image-mode . (lambda () (olivetti-mode) (setq olivetti-body-width 0.45))))
 
 (use-package select
+  :ensure nil
   :custom
   (selection-coding-system 'utf-8)
   (x-select-request-type 'text/plain\;charset=utf-8)
   (select-enable-clipboard t "Use the clipboard"))
 
 (use-package simple
+  :ensure nil
   :bind
   ("M-c" . d/flex)
   ("M-l" . downcase-dwim)

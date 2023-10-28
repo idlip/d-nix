@@ -4,6 +4,7 @@
 ;;; Code:
 
 (use-package man
+  :ensure nil
   :defer t
   :custom
   (Man-notify-method 'pushy "show manpage HERE")
@@ -21,6 +22,7 @@
   :hook (prog-mode . flycheck-mode))
 
 (use-package woman
+  :ensure nil
   :defer t
   :custom-face
   (woman-bold ((t (:inherit font-lock-type-face :bold t))))

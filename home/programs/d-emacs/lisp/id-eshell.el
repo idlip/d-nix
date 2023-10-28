@@ -61,6 +61,7 @@
 		         (progn (other-window -1) (select-window (split-window-below)) (shrink-window 7) (eshell))))))))
 
 (use-package em-hist
+  :ensure nil
   :bind
   (:map eshell-hist-mode-map
         ("M-s" . nil)
@@ -116,6 +117,7 @@
 		         (progn (other-window -1) (split-window-below) (other-window 1) (eat) (shrink-window 7))))))))
 
 (use-package em-smart
+  :ensure nil
   :custom
   (eshell-where-to-jump 'begin)
   (eshell-review-quick-commands nil)

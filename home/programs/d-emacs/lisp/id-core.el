@@ -4,6 +4,7 @@
 ;;; Code:
 
 (use-package emacs
+  :ensure nil
   :init
   (put 'narrow-to-region 'disabled nil)
   (put 'downcase-region 'disabled nil)
@@ -45,6 +46,7 @@
   (define-coding-system-alias 'UTF-8 'utf-8))
 
 (use-package frame
+  :ensure nil
   :bind
   ("C-z" . nil)
   ("C-x C-z" . nil)
@@ -55,6 +57,7 @@
 
 
 (use-package window
+  :ensure nil
   :bind ("M-o" . other-window)
   ("C-<tab>" . other-window)
   ("C-x C-k" . d/kill-buffer)
@@ -100,6 +103,7 @@ it narrows to region, or Org subtree."
 
 
 (use-package delsel
+  :ensure nil
   :bind
   (:map mode-specific-map
         ("C-g" . minibuffer-keyboard-quit))
@@ -107,14 +111,17 @@ it narrows to region, or Org subtree."
   (delete-selection-mode))
 
 (use-package re-builder
+  :ensure nil
   :custom
   (reb-re-syntax 'string))
 
 (use-package saveplace
+  :ensure nil
   :hook
   (after-init . save-place-mode))
 
 (use-package simple
+  :ensure nil
   :defer 0.1
   :bind (("<f7>" . scratch-buffer)
          ("<escape>" . keyboard-quit))
@@ -129,6 +136,7 @@ it narrows to region, or Org subtree."
   (global-visual-line-mode 1))
 
 (use-package s
+  :ensure nil
   :functions (s-join)
   :config
   (defun d/join-lines (specify-separator)
@@ -150,11 +158,13 @@ it narrows to region, or Org subtree."
       (insert result))))
 
 (use-package display-line-numbers
+  :ensure nil
   :hook (prog-mode)
   :custom
   (display-line-numbers-type 'relative))
 
 (use-package misc
+  :ensure nil
   :bind ("M-z" . zap-up-to-char))
 
 (use-package paren
@@ -168,18 +178,22 @@ it narrows to region, or Org subtree."
   (show-paren-context-when-offscreen t))
 
 (use-package ibuffer
+  :ensure nil
   :bind
   ([remap list-buffers] . ibuffer))
 
 (use-package replace
+  :ensure nil
   :bind
   ("M-%" . query-replace-regexp))
 
 (use-package xref
+  :ensure nil
   :custom
   (xref-search-program 'ripgrep))
 
 (use-package undo-fu-session
+  :ensure nil
   :functions (undo-fu-session-global-mode)
   :defines (undo-fu-session-incompatible-files)
 
@@ -188,6 +202,7 @@ it narrows to region, or Org subtree."
   (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'")))
 
 (use-package vundo
+  :ensure nil
   :defer t
   :bind (("C-x u" . vundo)
 	       ("C-z" . undo-only)

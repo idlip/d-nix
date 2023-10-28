@@ -3,9 +3,31 @@
 
 ;;; Code:
 
+(use-package shrface
+  :hook
+  (eww-after-render . shrface-mode)
+  (devdocs-browser-eww-mode . shrface-mode)
+
+  :bind (:map shrface-mode-map
+	          ("<tab>" . shrface-outline-cycle)
+	          ("<backtab>" . shrface-outline-cycle-buffer)
+	          ("M-n" . shr-next-link)
+	          ("M-p" . shr-previous-link)
+              ("M-l" . (lambda () (interactive) (shrface-links-consult) (call-interactively #'browse-url-generic)))
+              ("M-h" . mark-paragraph)
+	          ("C-j" . shrface-next-headline)
+	          ("C-k" . shrface-previous-headline))
+  :custom
+  (shrface-item-bullet 8226)
+  (shrface-bullets-bullet-list '("󰓏" "󰚀" "󰫤"  "󰴈" "" "󰄄"))
+  (shrface-href-versatile t)
+  :config
+  (shrface-basic)
+  (shrface-trial)
+  (shrface-default-keybindings))
+
 (use-package shr-tag-pre-highlight
-  :ensure t
-  ;; :after shr
+  :demand
   :config
   (add-to-list 'shr-external-rendering-functions '(pre . shrface-shr-tag-pre-highlight))
   (defun shrface-shr-tag-pre-highlight (pre)
@@ -33,34 +55,34 @@
        (propertize "#+END_SRC" 'face 'org-block-end-line ))
       (shr-ensure-newline)
       (setq end (point))
-      (add-face-text-property start end '(:background "#292b2e" :extend t))
+      (add-face-text-property start end '(:background "#292b2e" :extend t :inherit fixed-pitch))
       (shr-ensure-newline)
       (insert "\n")))
 
-  (add-to-list 'shr-tag-pre-highlight-lang-modes '(("R" . ess-r)))
+  ;; (add-to-list 'shr-tag-pre-highlight-lang-modes '(("R" . ess-r))))
 
-)
-
-  ;; (setq shr-tag-pre-highlight-lang-modes '(
-  ;;                                          ("elisp" . emacs-lisp)
-  ;;                                          ("ditaa" . artist)
-  ;;                                          ("asymptote" . asy)
-  ;;                                          ("dot" . fundamental)
-  ;;                                          ("sqlite" . sql)
-  ;;                                          ("calc" . fundamental)
-  ;;                                          ("C" . c-ts)
-  ;;                                          ("cpp" . c++-ts)
-  ;;                                          ("C++" . c++-ts)
-  ;;                                          ("screen" . shell-script)
-  ;;                                          ("shell" . bash-ts)
-  ;;                                          ("bash" . bash-ts)
-  ;;                                          ("py" . python-ts)
-  ;;                                          ("python" . python-ts)
-  ;;                                          ("R" . ess-r)
-  ;;                                          ("emacslisp" . emacs-lisp)
-  ;;                                          ("el" . emacs-lisp))))
+  (setopt shr-tag-pre-highlight-lang-modes '(
+                                             ("elisp" . emacs-lisp)
+                                             ("ditaa" . artist)
+                                             ("asymptote" . asy)
+                                             ("dot" . fundamental)
+                                             ("sqlite" . sql)
+                                             ("calc" . fundamental)
+                                             ("c" . c-ts)
+                                             ("cpp" . c++-ts)
+                                             ("C++" . c++-ts)
+                                             ("screen" . shell-script)
+                                             ("shell" . bash-ts)
+                                             ("awk" . bash-ts)
+                                             ("bash" . bash-ts)
+                                             ("sh" . bash-ts)
+                                             ("python" . python-ts)
+                                             ("R" . ess-r)
+                                             ("emacslisp" . emacs-lisp)
+                                             ("el" . emacs-lisp))))
 
 (use-package url
+  :ensure nil
   :custom
   (url-user-agent "")
   (url-privacy-level 'paranoid)
@@ -72,6 +94,7 @@
   (url-setup-privacy-info))
 
 (use-package shr
+  :ensure nil
   :demand t
   :custom
   (shr-use-fonts  t)
@@ -83,34 +106,20 @@
   (shr-max-image-proportion 0.4)
   (shr-width nil))
 
-(use-package shrface
-  :hook (eww-after-render devdocs-browser-eww-mode elfeed-show-mode nov-mode)
-  :bind (:map shrface-mode-map
-	          ("<tab>" . shrface-outline-cycle)
-	          ("<backtab>" . shrface-outline-cycle-buffer)
-	          ("M-n" . shr-next-link)
-	          ("M-p" . shr-previous-link)
-              ("C-S-k" . (lambda () (interactive) (shrface-links-consult) (call-interactively #'browse-url-generic)))
-              ("C-S-j" . shrface-headline-consult)
-	          ("C-j" . shrface-next-headline)
-	          ("C-k" . shrface-previous-headline))
-  :custom
-  (shrface-item-bullet 8226)
-  (shrface-bullets-bullet-list org-modern-star)
-  (shrface-href-versatile t)
-  :config
-  (shrface-basic)
-  (shrface-trial))
-
 (use-package shr-color
+  :ensure nil
   :defer t
   :custom
   (shr-color-visible-luminance-min 40 "Improve the contrast"))
 
 (use-package eww
+  :ensure nil
   :demand t
   :commands (eww eww-search-words)
-  :hook (eww-mode . variable-pitch-mode)
+  :hook
+  (eww-mode . variable-pitch-mode)
+  (eww-after-render . (lambda () (eww-readable) (setq-local line-spacing '0.4)))
+
   :bind ("M-s M-w" . eww-search-words)
   (:map eww-mode-map
         ("e" . readable-article)
@@ -141,11 +150,13 @@ for the search engine used."
       (eww-browse-url (completing-read "Browse Url: " eww-prompt-history))))))
 
 (use-package gnutls
+  :ensure nil
   :defer t
   :custom
   (gnutls-verify-error t))
 
 (use-package browse-url
+  :ensure nil
   :config
   ;; browser script
   (unless d/on-droid

@@ -14,9 +14,10 @@
 
 (use-package nerd-icons-completion
   :after marginalia
+  :hook
+  (marginalia-mode-hook . nerd-icons-completion-marginalia-setup)
   :config
-  (nerd-icons-completion-mode)
-  (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
+  (nerd-icons-completion-mode))
 
 (define-widget 'nerd-icons-corfu-icon-type 'plist
   "The type of an icon mapping."

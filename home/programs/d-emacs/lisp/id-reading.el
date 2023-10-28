@@ -4,8 +4,13 @@
 ;;; Code:
 
 (use-package nov
-  :hook (nov-mode . toggle-mode-line)
-  (nov-mode . variable-pitch-mode)
+  :functions
+  (toggle-mode-line)
+
+  :hook
+  (nov-mode . (lambda () (toggle-mode-line) (variable-pitch-mode)))
+  (nov-mode . shrface-mode)
+
   :mode ("\\.epub\\'" . nov-mode)
   :custom
   (nov-text-width nil)

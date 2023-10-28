@@ -4,7 +4,9 @@
 ;;; Code:
 
 (use-package elfeed
-  :hook (elfeed-show-mode . d/elfeed-ui)
+  :hook
+  (elfeed-show-mode . d/elfeed-ui)
+
   :bind ("C-c d e" . d/elfeed-open)
   ("C-c d b" . embark-act)
   (:map elfeed-show-mode-map
@@ -16,7 +18,7 @@
         ("C-x C-k" . d/elfeed-quit)
         ("P" . d/elfeed-add-podcast)
         ("A" . d/elfeed-play)
-        ("b" . embark-act))
+        ("b" . nil))
   (:map elfeed-search-mode-map
         ("m" . elfeed-toggle-star)
         ("q" . d/elfeed-quit)
@@ -45,7 +47,8 @@
   (defun d/elfeed-ui ()
     (interactive)
     ;; (setq-local header-line-format " ")
-    (variable-pitch-mode))
+    (variable-pitch-mode)
+    (shrface-mode))
 
   (defun d/elfeed-open ()
     "Wrapper to load the elfeed db from disk before opening"
@@ -115,8 +118,7 @@ Usable as favorites or bookmark."
     "open elfeed entry in eww."
     (interactive)
     (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
-      (eww-browse-url (elfeed-entry-link entry) t)
-      (add-hook 'eww-after-render-hook #'eww-readable)))
+      (eww-browse-url (elfeed-entry-link entry) t)))
 
   (defun elfeed-open-in-reddit ()
     "open elfeed entry in reddit"

@@ -22,7 +22,7 @@
         ];
 
         modules-center = [
-	        "custom/wf-recorder" "clock" "mpd" "mpris"
+	        "custom/recorder" "clock" "mpd" "mpris"
         ];
 
         modules-right = [ "tray" "network" "battery" "memory" "pulseaudio" "custom/power" ];
@@ -167,12 +167,12 @@
 	        };
         };
 
-        "custom/wf-recorder" = {
+        "custom/recorder" = {
 		      "format" = "{}";
 		      "interval" = "once";
-		      "exec" = "echo ''";
+		      "exec" = "echo ' '";
 		      "tooltip" = "false";
-		      "exec-if" = "pgrep 'wf-recorder'";
+		      "exec-if" = "pgrep wl-screenrec";
 		      "on-click" = "exec d-record";
 		      "signal" = 8;
 	      };

@@ -5,12 +5,13 @@
 
 (use-package olivetti
   :defer t
+  :disabled t
   :hook
   (org-mode text-mode Info-mode helpful-mode ement-room-mode
-            eww-mode sdcv-mode nov-mode elfeed-show-mode markdown-mode)
+            sdcv-mode nov-mode elfeed-show-mode markdown-mode)
   :custom
-  (olivetti-body-width 0.85)
-  (olivetti-minimum-body-width 76)
+  (olivetti-body-width 0.92)
+  (olivetti-minimum-body-width 40)
   (olivetti-recall-visual-line-mode-entry-state t)
   :delight " ⊛")
 
@@ -59,6 +60,7 @@
   (doom-modeline-buffer-encoding nil))
 
 (use-package frame
+  :ensure nil
   :bind
   ("<f9>" . toggle-mode-line)
   :config
@@ -69,6 +71,25 @@
           (if (equal mode-line-format nil)
               (default-value 'mode-line-format)))
     (redraw-display)))
+
+(use-package dashboard
+  :custom
+  (initial-buffer-choice 'dashboard-open)
+  (dashboard-set-heading-icons t)
+  (dashboard-set-file-icons t)
+  (dashboard-banner-logo-title "Let's Get to More Tasks Today!")
+  ;; (dashboard-startup-banner "~/.config/emacs/var/emacs.webp")
+  (dashboard-startup-banner 'logo)
+  (dashboard-image-banner-max-width 200)
+  (dashboard-center-content t)
+  (dashboard-items '((recents . 5)
+                     (agenda . 5 )
+                     (bookmarks . 3)
+                     (registers . 3)))
+  (dashboard-modify-heading-icons '((recents . "file-text")
+				                    (bookmarks . "book")))
+  :config
+  (dashboard-setup-startup-hook))
 
 (provide 'id-aesthetics)
 ;;; id-aesthetics.el ends here

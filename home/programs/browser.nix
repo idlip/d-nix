@@ -5,6 +5,10 @@
 }:
 {
 
+  home.packages = with pkgs; [
+    nyxt
+  ];
+
   programs = {
 
     firefox = {
@@ -22,10 +26,6 @@
         #   multi-account-containers
         #   vertical-tabs-reloaded
         # ];
-
-        search = {
-          default = "Brave";
-        };
 
         settings = {
           "browser.startup.homepage" = "about:blank";
@@ -106,6 +106,7 @@
           "network.dns.disablePrefetchFromHTTPS" = true;
           "network.http.referer.spoofSource" = true;
           "network.http.speculative-parallel-limit" = 0;
+          "dom.security.https_only_mode" = true;
           "network.predictor.enable-prefetch" = false;
           "network.predictor.enabled" = false;
           "network.prefetch-next" = false;
@@ -141,9 +142,77 @@
           "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
           "webgl.renderer-string-override" = " ";
           "webgl.vendor-string-override" = " ";
-
+          "browser.urlbar.update2.engineAliasRefresh" = true;
+          "signon.passwordEditCapture.enabled" = false;
+          "browser.search.hiddenOneOffs" = "Google,Yahoo,Bing,Amazon.com,Twitter";
+          "browser.newtabpage.activity-stream.improvesearch.topSiteSearchShortcuts" = false;
+          "browser.urlbar.trimURLs" = false;
+          "findbar.modalHighlight" = true;
+          "browser.fullscreen.autohide" = false;
+          "browser.newtabpage.activity-stream.topSitesRows" = 0;
+          "browser.urlbar.quickactions.enabled" = true;
+          "pdfjs.annotationEditorMode" = 0;
+          "pdfjs.annotationmode" = 2;
         };
 
+        search = {
+          default = "DuckDuckGo";
+          force = true;
+          engines = {
+            "Nixpkgs-Package Search" = {
+              urls = [{ template = "https://search.nixos.org/packages?channel=unstable&size=250&sort=relevance&type=packages&query={searchTerms}"; }];
+              iconUpdateURL = "https://nixos.org/favicon.png";
+              updateInterval = 24 * 60 * 60 * 1000; # every day
+              definedAliases = [ "@nps" ];
+            };
+
+            "Nixpkgs-Modules Search" = {
+              urls = [{ template = "https://search.nixos.org/options?channel=unstable&size=200&sort=relevance&query={searchTerms}"; }];
+              iconUpdateURL = "https://nixos.org/favicon.png";
+              updateInterval = 24 * 60 * 60 * 1000; # every day
+              definedAliases = [ "@nms" ];
+            };
+
+            "NixOS-Wiki Search" = {
+              urls = [{ template = "https://nixos.wiki/index.php?search={searchTerms}&go=Go"; }];
+              iconUpdateURL = "https://nixos.org/favicon.png";
+              updateInterval = 24 * 60 * 60 * 1000; # every day
+              definedAliases = [ "@nws" ];
+            };
+
+            "Home-Manager Search" = {
+              urls = [{ template = "https://mipmip.github.io/home-manager-option-search/?query={searchTerms}"; }];
+              iconUpdateURL = "https://nixos.org/favicon.png";
+              updateInterval = 24 * 60 * 60 * 1000; # every day
+              definedAliases = [ "@hms" ];
+            };
+
+            "GitHub-Code Search" = {
+              urls = [{ template = "https://github.com/search?q={searchTerms}&type=code"; }];
+              iconUpdateURL = "https://github.githubassets.com/favicons/favicon-dark.svg";
+              updateInterval = 24 * 60 * 60 * 1000; # every day
+              definedAliases = [ "@gcs" ];
+            };
+
+            "Noogle.dev Search" = {
+              urls = [{ template = "https://noogle.dev/?term=%22{searchTerms}%22"; }];
+              iconUpdateURL = "https://noogle.dev/favicon.png";
+              updateInterval = 24 * 60 * 60 * 1000; # every day
+              definedAliases = [ "@ngd" "@nog" ];
+            };
+
+            "Nixpkgs PRs" = {
+              urls = [{ template = "https://nixpk.gs/pr-tracker.html?pr={searchTerms}"; }];
+              iconUpdateURL = "https://nixos.org/favicon.png";
+              updateInterval = 24 * 60 * 60 * 1000; # every day
+              definedAliases = [ "@npr" ];
+            };
+          };
+
+          order = [
+            "DuckDuckGo"
+          ];
+        };
       };
     };
 

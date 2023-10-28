@@ -1,5 +1,5 @@
 {config, ...}: let
-  browser = ["brave.desktop"];
+  browser = ["d-stuff.desktop"];
 
   # XDG MIME types
   associations = {
@@ -37,6 +37,9 @@ in {
     mimeApps = {
       enable = true;
       defaultApplications = associations;
+      associations.added = {
+        "x-scheme-handler/magnet" = ["d-stuff.desktop"];
+      };
     };
 
     userDirs = {
@@ -53,5 +56,12 @@ in {
     };
 
   };
+
+  xdg.dataFile."applications/d-stuff.desktop".text = ''
+  [Desktop Entry]
+  Type=Application
+  Name=Stuff Handler
+  Exec=d-stuff %U
+  '';
 
 }

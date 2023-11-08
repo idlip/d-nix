@@ -35,7 +35,6 @@
   (vertico-mode )
 
   :bind (:map vertico-map
-	          ("?" . minibuffer-completion-help)
 	          ("<return>" . vertico-directory-enter)
 	          ("DEL" . vertico-directory-delete-char)
 	          ("M-DEL" . vertico-directory-delete-word)

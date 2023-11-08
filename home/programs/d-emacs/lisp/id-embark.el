@@ -33,7 +33,9 @@
          ("U" . webpaste-paste-buffer-or-region)))
   :init
   (setq prefix-help-command #'embark-prefix-help-command)
-  (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+  ;; (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+  ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
+
   :config
   (add-to-list 'display-buffer-alist
                '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"

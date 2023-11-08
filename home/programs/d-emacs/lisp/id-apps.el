@@ -24,8 +24,10 @@
   (defun reddigg-view-sub ()
     "Prompt SUB and print its post list."
     (interactive)
-    (let ((sub (completing-read "subreddit: " (-concat reddigg-subs other-subs))))
-      (reddigg--view-sub sub))))
+    (let ((sub (completing-read "subreddit: " (-concat reddigg-subs other-subs '("frontpage" "comments")))))
+      (cond ((string= sub "frontpage") (reddigg-view-frontpage))
+            ((string= sub "comments") (reddigg-view-comments))
+            (t (reddigg--view-sub sub))))))
 
 (use-package hnreader
   :defer t)

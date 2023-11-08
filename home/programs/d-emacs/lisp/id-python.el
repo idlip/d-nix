@@ -23,19 +23,16 @@ with `venvPath' and `venv' set to the absolute path of
 (use-package python
   :ensure nil
   :hook ((python-mode . (lambda ()
-                          (setq-local forward-sexp-function nil)
-                          (make-local-variable 'python-shell-virtualenv-root)
-                          (setq-local completion-at-point-functions '( cape-file python-completion-at-point cape-dabbrev))))
-         (inferior-python-mode . (lambda ()
-                                   (setq-local completion-at-point-functions '(t)))))
+                          (setq-local completion-at-point-functions
+                                      '(cape-file python-completion-at-point cape-dabbrev)))))
 
   :custom
   (python-shell-dedicated 'project)
   (python-shell-interpreter "python")
-  (python-shell-interpreter-args "")
-  (python-forward-sexp-function nil)
+  (python-shell-interpreter-args "-i")
+  ;; (python-forward-sexp-function nil)
   (python-indent-guess-indent-offset-verbose nil)
-  (python-shell-completion-native-disabled-interpreters '("python" "pypy")))
+  (python-shell-completion-native-disabled-interpreters '("pypy")))
 
 
 (provide 'id-python)

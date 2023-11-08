@@ -22,8 +22,8 @@
   :commands (eglot eglot-format eglot-managed-p eglot--major-mode)
   ;; (((web-mode rust-mode python-mode sh-mode c-mode c++-mode nix-mode) .
   ;; eglot-ensure)
-  ;; :hook
-  ;; (ess-r-mode . eglot-ensure)
+  :hook
+  (nix-mode . eglot-ensure)
   :custom
   (eglot-sync-connect 1)
   (eglot-connect-timeout 5)
@@ -34,6 +34,7 @@
   :bind
   (:map eglot-mode-map
 	    ("C-c l r" . eglot-rename)
+        ("C-c C-d" . eldoc)
 	    ("C-c l a" . eglot-code-actions)
 	    ("C-c l i" . consult-eglot-symbols))
   :config
@@ -95,6 +96,33 @@
                                                ("shell" . bash-ts-mode)
                                                ("python" . python-ts-mode))))
 
+(use-package envrc
+  :defer 2
+  :config
+  (envrc-global-mode))
+
+(use-package elec-pair
+  :ensure nil
+  :custom
+  (electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit)
+  (electric-pair-preserve-balance t)
+  (electric-pair-pair
+   '((8216 . 8217)
+     (8220 . 8221)
+     (171 . 187)))
+  (electric-pair-skip-self 'electric-pair-default-skip-self)
+  (electric-pair-skip-whitespace nil)
+  (electric-pair-skip-whitespace-chars '(9 10 32)))
+
+(use-package electric
+  :custom
+  (electric-quote-context-sensitive t)
+  (electric-quote-paragraph t)
+  (electric-quote-string nil)
+  (electric-quote-replace-double t)
+  :config
+  (electric-indent-mode -1)
+  (add-hook 'prog-mode-hook #'electric-indent-local-mode))
 
 (provide 'id-code)
 ;;; id-code.el ends here

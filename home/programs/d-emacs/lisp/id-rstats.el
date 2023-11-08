@@ -46,6 +46,7 @@
 )
 
 (use-package ess-r-mode
+  :hook (ess-r-mode . (lambda () (setq-local corfu-auto-delay 0.5)))
   :bind
   (:map ess-mode-map
         ("C-;" . ess-insert-assign))

@@ -73,21 +73,84 @@
     (redraw-display)))
 
 (use-package dashboard
+  :functions (dashboard-setup-startup-hook)
+
+  :bind (:map dashboard-mode-map
+              ("n" . 'dashboard-next-line)
+              ("p" . 'dashboard-previous-line)
+              )
+
   :custom
   (initial-buffer-choice 'dashboard-open)
   (dashboard-set-heading-icons t)
   (dashboard-set-file-icons t)
-  (dashboard-banner-logo-title "Let's Get to More Tasks Today!")
-  ;; (dashboard-startup-banner "~/.config/emacs/var/emacs.webp")
+  (dashboard-banner-logo-title "Let's Get to More 🔱 Tasks Today!")
+  ;; (dashboard-startup-banner "~/.config/emacs/var/butterfly.png")
   (dashboard-startup-banner 'logo)
-  (dashboard-image-banner-max-width 200)
-  (dashboard-center-content t)
+  (dashboard-image-banner-max-width 100) ;; 100 for logo
+  (dashboard-center-content nil)
+  (dashboard-set-navigator t) ;; a custom made navigator
+  (dashboard-projects-backend 'project-el)
+  (dashboard-display-icons-p t)
+  (dashboard-show-shortcuts nil)
+  (dashboard-set-init-info nil)
+  (dashboard-icon-type 'nerd-icons)
   (dashboard-items '((recents . 5)
                      (agenda . 5 )
-                     (bookmarks . 3)
-                     (registers . 3)))
+                     (projects . 2)
+                     (bookmarks . 3)))
   (dashboard-modify-heading-icons '((recents . "file-text")
 				                    (bookmarks . "book")))
+
+  (dashboard-navigator-buttons
+   `(;; line1
+     ((," "
+       "News"
+       "Opens Elfeed"
+       (lambda (&rest _) (d/elfeed-open)) nil "" " |")
+
+      (,"󰠮 "
+       "Notes"
+       "Denote Tree"
+       (lambda (&rest _) (call-interactively #'denote-open-or-create)) warning "" " |")
+
+      (," "
+       "Project"
+       "Open Project finder"
+       (lambda (&rest _) (project-find-file)) error "" " |")
+
+      (," "
+       "Terminal"
+       "Open Eshell/Eat"
+       (lambda (&rest _) (if (string= (completing-read "Hello : " '("eat" "eshell")) "eat")
+                             (eat) (eshell))) warning "" " |")
+
+      (,"󰌱 "
+       "Library"
+       "Books and Docs"
+       (lambda (&rest _) (find-dired "~/d-sync/reads" "")) nil "" "")
+      )
+     ;; line 2
+     (
+      (," "
+       "Music"
+       "Play Jazz/Rhythm"
+       (lambda (&rest _) (mingus)) error "" " |")
+
+      (," "
+       "Geek"
+       "Browse Info"
+       (lambda (&rest _) (reddigg-view-sub)) warning "" "")
+
+      )
+     ;; Empty line
+     ;; (("" "\n" "" nil nil "" ""))
+
+     ;; Keybindings
+     ))
+
+  (dashboard-footer-messages '("Power Maketh Man Beneath" "Manners Maketh Man" "Tasks, Break, Action Works all the time" "Stop thinking, Just do it"))
+
   :config
   (dashboard-setup-startup-hook))
 

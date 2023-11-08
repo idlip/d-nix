@@ -10,6 +10,7 @@
   :bind ("<f5>" . d/refresh-buffer)
   :custom
   (require-final-newline t)
+  (save-silently t)
   (confirm-kill-emacs 'yes-or-no-p)
   ;; backup settings
   (backup-by-copying t)

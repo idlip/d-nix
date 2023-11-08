@@ -134,7 +134,6 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 ;; https://github.com/gopar/.emacs.d
 (use-package type-break
   :ensure nil
-  :disabled t
   :hook (after-init)
   :init
   (defun type-break-demo-agenda ()

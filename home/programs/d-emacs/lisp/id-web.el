@@ -63,6 +63,7 @@
 
   (setopt shr-tag-pre-highlight-lang-modes '(
                                              ("elisp" . emacs-lisp)
+                                             ("emacs-lisp" . emacs-lisp)
                                              ("ditaa" . artist)
                                              ("asymptote" . asy)
                                              ("dot" . fundamental)
@@ -78,7 +79,6 @@
                                              ("sh" . bash-ts)
                                              ("python" . python-ts)
                                              ("R" . ess-r)
-                                             ("emacslisp" . emacs-lisp)
                                              ("el" . emacs-lisp))))
 
 (use-package url

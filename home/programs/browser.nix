@@ -148,7 +148,7 @@
           "browser.newtabpage.activity-stream.improvesearch.topSiteSearchShortcuts" = false;
           "browser.urlbar.trimURLs" = false;
           "findbar.modalHighlight" = true;
-          "browser.fullscreen.autohide" = false;
+          "browser.fullscreen.autohide" = true;
           "browser.newtabpage.activity-stream.topSitesRows" = 0;
           "browser.urlbar.quickactions.enabled" = true;
           "pdfjs.annotationEditorMode" = 0;

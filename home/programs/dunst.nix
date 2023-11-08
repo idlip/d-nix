@@ -16,7 +16,7 @@
         frame_color = "#2e8b57";
         transparency = 0;
         follow = "none";
-        width = 900;
+        width = 400;
         height = 900;
         idle_threshold = 120;
         origin = "top-right";
@@ -31,13 +31,13 @@
         progress_bar_max_width = 500;
         indicate_hidden = "yes";
         separator_height = 2;
-        padding = 20;
-        horizontal_padding = 12;
-        text_icon_padding = 8;
+        padding = 10;
+        horizontal_padding = 5;
+        text_icon_padding = 4;
         frame_width = 3;
         separator_color = "frame";
         sort = "yes";
-        font = "Code D Ace 20";
+        font = "Code D Ace 16";
         line_height = 0;
         markup = "full";
         stack_duplicates = "true";

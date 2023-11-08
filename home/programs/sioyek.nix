@@ -18,7 +18,7 @@
       "command" = "<A-x>";
       "toggle_dark_mode" = "i";
       "toggle_presentation_mode" = "<f5>";
-      "toggle_statusbar" = "<S-b>";
+      "toggle_statusbar" = "B";
     };
 
     config = {

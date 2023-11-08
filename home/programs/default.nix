@@ -6,7 +6,7 @@
 
   imports = [
     ./xdg.nix
-    # ./qt.nix
+    ./qt.nix
     ./browser.nix
     ./gtk.nix
     ./aria2.nix

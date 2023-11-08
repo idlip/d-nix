@@ -77,6 +77,7 @@ alias mkd="mkdir -pv"
 alias ytfzf="ytfzf -D"
 alias gc="git clone --depth=1"
 alias sudo="doas"
+alias sioyek="sioyek --new-window"
 
 # export BEMENU_OPTS="-i -l 10 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
 
@@ -123,7 +124,7 @@ function manp () { # use emacs
 }
 
 whichpath () {
-    realpath
+    realpath $(which $1)
 }
 
 # TODOTHIS
@@ -143,6 +144,24 @@ d-test () {
 
 function prefetch-sri() {
     nix-prefetch-url "$1" | xargs nix hash to-sri --type sha256
+}
+
+depends-on-installed () {
+  nix-store --query --referrers $(which $1)
+}
+
+dependencies-installed () {
+  nix-store --query --references $(which $1)
+}
+
+depends-on () {
+  nix-store --query --referrers\
+    $(nix-instantiate '<nixpkgs>' -A $1) | rg -v home-manager-path
+}
+
+dependencies () {
+  nix-store --query --references\
+    $(nix-instantiate '<nixpkgs>' -A $1)
 }
 
 if [ -n "${commands[fzf-share]}" ]; then

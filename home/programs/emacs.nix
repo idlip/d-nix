@@ -1,6 +1,11 @@
 {pkgs, config, ...}:
 {
 
+  # services.emacs = {
+  #   enable = true;
+  #   socketActivation.enable = true;
+  # };
+
   programs.emacs = {
     enable = true;
     package = pkgs.emacs29-pgtk;
@@ -15,9 +20,9 @@
       shrface shr-tag-pre-highlight nov devdocs-browser
       beframe denote tempel tempel-collection avy
       sdcv elfeed elfeed-org powerthesaurus jinx meow
-      doom-modeline el-fetch ox-hugo envrc
+      doom-modeline el-fetch ox-hugo envrc dashboard
       ement kind-icon speed-type vc-backup aria2
-      ess
+      ess org-re-reveal
     ])
     );
   };

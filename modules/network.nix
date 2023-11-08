@@ -30,9 +30,11 @@
 
     # Firewall uses iptables underthehood
     # Rules are for syncthing
-    firewall = {
+    firewall = rec {
       enable = true;
-      # For syncthing
+      # For syncthing & kdeconnect
+      allowedTCPPortRanges = [ { from = 1714; to = 1764; } ];
+      allowedUDPPortRanges = allowedTCPPortRanges;
       allowedTCPPorts = [8384 22000];
       allowedUDPPorts = [22000 21027];
       allowPing = false;

@@ -278,6 +278,9 @@
   :after org
   :bind
   ("C-c d a" . org-agenda)
+  (:map org-agenda-mode-map
+        ("C-x C-k" . org-agenda-exit)
+        ("C-x k" . org-agenda-exit))
 
   ;; :hook (org-agenda-finalize . org-agenda-entry-text-mode)
   :custom
@@ -287,12 +290,16 @@
   (org-agenda-log-mode-items '(closed clock state))
   ;; (org-agenda-todo-ignore-scheduled 'future)
   ;; TODO entries that can't be marked as done b/c of children are shown as dimmed in agenda view
-  (org-agenda-dim-blocked-tasks 'invisible)
+  (org-agenda-dim-blocked-tasks nil)
+  (org-agenda-inhibit-startup t)
+  (org-agenda-show-inherited-tags nil)
+  (org-agenda-ignore-drawer-properties '(effort appt category))
   ;; Start the week view on whatever day im on
   (org-agenda-start-on-weekday nil)
   (org-agenda-files
-   '("~/d-sync/notes/tasks.org"
-     "~/d-git/d-site/README.org")))
+   '("~/d-sync/notes/"
+     "~/d-git/d-site/README.org"
+     "~/d-sync/notes/bioinfo/")))
 
 
 (use-package org-capture

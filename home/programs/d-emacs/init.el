@@ -56,20 +56,20 @@
 ;;; --- organize life
 (require 'id-notes)
 (require 'id-org)
-(require 'id-markdown)
+;; (require 'id-markdown)
 
 ;;; --- modal editing
 ;; (require 'id-meow)
 
 ;;; --- fun personal environment
-(unless d/on-droid
-  (require 'id-apps))
+(require 'id-apps)
 ;; (require 'id-ement)
 
 (when d/on-droid
   (require 'id-android))
 
-(require 'id-present)
+(unless d/on-droid
+  (require 'id-present))
 ;; (require 'id-vterm)
 
 

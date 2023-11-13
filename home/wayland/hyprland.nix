@@ -22,7 +22,7 @@
     settings = {
 
       decoration = {
-        rounding = 16;
+        rounding = 10;
         multisample_edges = true;
         inactive_opacity = 0.8;
         active_opacity = 0.9;
@@ -36,7 +36,7 @@
           size = 6;
           passes = 3;
           new_optimizations = true;
-          ignore_opacity = false;
+          ignore_opacity = true;
         };
       };
 
@@ -79,6 +79,7 @@
         mouse_move_enables_dpms = true;
         enable_swallow = true;
         swallow_regex = "^(foot)$";
+        vrr = false;
       };
 
       animations = {

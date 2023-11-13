@@ -17,6 +17,7 @@
         modules-left = [
 	        "custom/launcher"
 	        "hyprland/workspaces"
+          "wlr/taskbar"
 	        "hyprland/window"
 	        "hyprland/submap"
         ];
@@ -29,6 +30,8 @@
 
         "hyprland/workspaces" = {
 	        format = "{icon}";
+          disable-scroll = true;
+          all-outputs = true;
 	        active-only = false;
           show-special = true;
 	        on-click = "activate";
@@ -64,22 +67,38 @@
 	        "tooltip" = false;
         };
 
+	      "wlr/taskbar"=  {
+		      "format"=  "{icon}";
+		      "icon-size"=  18;
+          "spacing"=  0;
+		      "tooltip-format"=  "{title}";
+		      "on-click"=  "activate";
+		      "on-click-middle"=  "close";
+	      };
+
+
         "custom/launcher" = {
 	        "format" = "";
 	        "tooltip" = false;
 	        "on-click" = "rofi -show drun";
+          "interval" = 86400;
         };
 
         "battery" =  {
 	        "bat" =  "BAT1";
 	        "interval" =  60;
 	        "states" =  {
-		        "warning" =  40;
-		        "critical" =  30;
+            "good" = 95;
+		        "warning" = 40;
+		        "critical" = 20;
 	        };
-	        "format" =  "{capacity}% {icon}";
-          "format-icons" = ["" "" "" "" ""];
 	        "max-length" =  25;
+          "format" = "{icon} {capacity}%";
+          "format-charging" = " {capacity}%";
+          "format-plugged" = " {capacity}%";
+          "format-alt" = "{time} {icon}";
+          "format-icons" = ["󰂎" "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹"];
+
         };
 
         "mpd" = {
@@ -114,6 +133,7 @@
 	        "format" = "⏻";
 	        "on-click" = "d-power";
 	        "tooltip" = false;
+          "interval" = 86400;
         };
 
         "clock" = {
@@ -136,8 +156,13 @@
         };
 
         "memory" = {
-	        "format" = " {: >3}%";
 	        "on-click" = "foot -e btop";
+          "interval" = 30;
+          "format" = "󰾆 {percentage}%";
+          "format-alt" = "󰾅 {used}GB";
+          "max-length" = 10;
+          "tooltip" = true;
+          "tooltip-format" = " {used =0.1f}GB/{total =0.1f}GB";
         };
 
         "network" = {

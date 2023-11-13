@@ -35,7 +35,7 @@
         };
 
         key-bindings = {
-          clipboard-copy = "Control+Shift+c Mod1+w";
+          clipboard-copy = "Control+Shift+c";
           clipboard-paste = "Control+Shift+v Control+y";
           primary-paste = "Shift+Insert";
 

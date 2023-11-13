@@ -37,7 +37,7 @@
     transmission_4-gtk
 
     mpc_cli
-    ytfzf ani-cli youtube-tui ytmdl
+    ytfzf ani-cli ytmdl freetube
     mangal
   ];
 

@@ -13,7 +13,7 @@
 	          ("<backtab>" . shrface-outline-cycle-buffer)
 	          ("M-n" . shr-next-link)
 	          ("M-p" . shr-previous-link)
-              ("M-l" . (lambda () (interactive) (shrface-links-consult) (call-interactively #'browse-url-generic)))
+              ("M-l" . (lambda () (interactive) (shrface-links-consult) (call-interactively #'shr-browse-url)))
               ("M-h" . mark-paragraph)
 	          ("C-j" . shrface-next-headline)
 	          ("C-k" . shrface-previous-headline))

@@ -53,7 +53,11 @@
 
 (use-package treesit
   :ensure nil
-  :mode ("\\.yaml\\'" . yaml-ts-mode)
+  :mode
+  ("\\.yaml\\'" . yaml-ts-mode)
+  ("\\.toml\\'" . toml-ts-mode)
+  ("\\.jsonrc\\'" . json-ts-mode)
+
   :custom
   (treesit-font-lock-level 4)
   (treesit-font-lock-feature-list t)
@@ -64,8 +68,7 @@
      (css-mode . css-ts-mode)
      (java-mode . java-ts-mode)
      (js-mode . js-ts-mode)
-     (json-mode . json-ts-mode)
-     (makefile-mode . makefile-ts-mode)
+     (js-json-mode . json-ts-mode)
      ;; (org-mode . org-ts-mode) ;; not mature yet
      (python-mode . python-ts-mode)
      (typescript-mode . typescript-ts-mode)

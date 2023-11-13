@@ -98,7 +98,9 @@
 
     (if (package-installed-p 'hide-mode-line)
 	    (hide-mode-line-mode 1))
-    (org-present-header-line)
+    ;; (org-present-header-line)
+
+    (toggle-mode-line)
 
     (olivetti-set-width 0.80)
 
@@ -108,8 +110,8 @@
   (defun d/org-present-prepare-slide ()
     (org-overview)
     (org-show-entry)
-    (org-show-children)
-    (org-present-header-line))
+    (org-show-children))
+    ;; (org-present-header-line))
 
   (defun d/org-present-disable-hook ()
     (setq-local header-line-format nil
@@ -126,7 +128,7 @@
 
     (if (package-installed-p 'hide-mode-line)
 	    (hide-mode-line-mode 0))
-
+    (toggle-mode-line)
     ;; (load-theme 'haki t)
     (org-mode-restart)
     (org-remove-inline-images))
@@ -137,8 +139,7 @@
     (widen)
     (org-up-heading-safe)
     (org-present-narrow)
-    (org-present-run-after-navigate-functions)
-    (org-present-header-line))
+    (org-present-run-after-navigate-functions))
 
 
   (defun d/org-present-next-slide ()
@@ -150,8 +151,7 @@
     (org-present-narrow)
     (org-fold-hide-sublevels 5)
     (org-show-entry)
-    (org-present-run-after-navigate-functions)
-    (org-present-header-line))
+    (org-present-run-after-navigate-functions))
 
 
   (defun d/org-present--last-child ()
@@ -172,8 +172,7 @@
     (org-present-narrow)
     (org-fold-hide-sublevels 5)
     (org-show-entry)
-    (org-present-run-after-navigate-functions)
-    (org-present-header-line))
+    (org-present-run-after-navigate-functions))
 
   (defun d/org-present-refresh ()
     (interactive)

@@ -305,7 +305,6 @@ You can insert the name (default), or insert or kill the hexadecimal
    corfu-mode)
 
   :custom
-  (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
   (corfu-auto t)                 ;; Enable auto completion
   (corfu-separator ?\s)          ;; Orderless field separator
   ;; (corfu-preview-current t)    ;; Disable current candidate preview
@@ -336,18 +335,21 @@ You can insert the name (default), or insert or kill the hexadecimal
   :init
   (global-corfu-mode))
 
+
 (use-package corfu-history
   :disabled
   :init
   (corfu-history-mode))
 
 (use-package corfu-popupinfo
-  :disabled
+  :unless d/on-droid
+  :after corfu
   :init
   (corfu-popupinfo-mode))
 
 (use-package corfu-echo
-  :disabled
+  :unless d/on-droid
+  :after corfu
   :init
   (corfu-echo-mode))
 

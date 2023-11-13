@@ -13,10 +13,9 @@
   (dired-mode . nerd-icons-dired-mode))
 
 (use-package nerd-icons-completion
-  :after marginalia
-  :hook
-  (marginalia-mode . nerd-icons-completion-marginalia-setup)
-  :config
+  :functions (nerd-icons-completion-mode)
+  :unless d/on-droid
+  :init
   (nerd-icons-completion-mode))
 
 (define-widget 'nerd-icons-corfu-icon-type 'plist
@@ -104,7 +103,8 @@ and returns the icon."
              (space (propertize " " 'display '(space :width 1))))
         (concat " " str space)))))
 
-(add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter)
+(with-eval-after-load 'corfu
+  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
 
 ;; Optionally:
 ;; (setq nerd-icons-corfu-mapping

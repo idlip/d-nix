@@ -30,9 +30,11 @@
             (t (reddigg--view-sub sub))))))
 
 (use-package hnreader
-  :defer t)
+  :defer t
+  :unless d/on-droid)
 
 (use-package devdocs-browser
+  :unless d/on-droid
   :custom
   (devdocs-browser-major-mode-docs-alist:
    '((c++-ts-mode "cpp")
@@ -47,6 +49,7 @@
 ;;   ("C-S-z" . undo-fu-only-redo-all))
 
 (use-package mingus
+  :unless d/on-droid
   :commands (d/elfeed-add-podcast)
   :defines
   (mingus-browse-mode-map)
@@ -81,7 +84,7 @@
 
 (use-package sdcv
   :defer t
-
+  :unless d/on-droid
   :defines
   (sdcv-say-word-p sdcv-dictionary-data-dir
                    sdcv-dictionary-simple-list

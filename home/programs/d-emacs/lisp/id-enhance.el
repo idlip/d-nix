@@ -133,6 +133,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 ;; Taken from gopar's config (via Yt video)
 ;; https://github.com/gopar/.emacs.d
 (use-package type-break
+  :disabled
   :ensure nil
   :hook (after-init)
   :init

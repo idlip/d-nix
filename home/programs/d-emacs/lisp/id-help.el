@@ -19,7 +19,10 @@
 (use-package flycheck
   :defer t
 ;; :init (global-flycheck-mode))
-  :hook (prog-mode . flycheck-mode))
+  :hook (prog-mode . flycheck-mode)
+  :custom
+  (flycheck-check-syntax-automatically '(save idle-change mode-enabled))
+  (flycheck-idle-change-delay 3))
 
 (use-package woman
   :ensure nil

@@ -41,7 +41,9 @@
     (set-fontset-font t 'unicode "Noto Color Emoji" nil 'append)
     )
 
-    (prefer-coding-system 'utf-8)
+  (with-current-buffer "*scratch*"
+	(emacs-lock-mode 'kill))
+  (prefer-coding-system 'utf-8)
   ;; Uppercase is same as lowercase
   (define-coding-system-alias 'UTF-8 'utf-8))
 
@@ -109,6 +111,11 @@ it narrows to region, or Org subtree."
         ("C-g" . minibuffer-keyboard-quit))
   :config
   (delete-selection-mode))
+
+(use-package minibuf
+  :ensure nil
+  :custom
+  (history-delete-duplicates t))
 
 (use-package re-builder
   :ensure nil

@@ -7,7 +7,6 @@
   :defer t
 
   :custom
-  (ess-use-flymake t)
   (ess-use-company nil)
   (ess-eval-visibly nil)
   (ess-ask-for-ess-directory t)
@@ -46,7 +45,7 @@
 )
 
 (use-package ess-r-mode
-  :hook (ess-r-mode . (lambda () (setq-local corfu-auto-delay 0.5)))
+  ;; :hook (ess-r-mode . (lambda () (flycheck-mode 0)))
   :bind
   (:map ess-mode-map
         ("C-;" . ess-insert-assign))

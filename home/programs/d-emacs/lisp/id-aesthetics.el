@@ -96,7 +96,7 @@
   (dashboard-set-init-info nil)
   (dashboard-icon-type 'nerd-icons)
   (dashboard-items '((recents . 5)
-                     (agenda . 5 )
+                     (agenda . 10)
                      (projects . 2)
                      (bookmarks . 3)))
   (dashboard-modify-heading-icons '((recents . "file-text")
@@ -140,7 +140,22 @@
       (," "
        "Geek"
        "Browse Info"
-       (lambda (&rest _) (reddigg-view-sub)) warning "" "")
+       (lambda (&rest _) (reddigg-view-sub)) warning "" " |")
+
+      (,"󰘳 "
+       "M-x"
+       "Execute Command"
+       (lambda (&rest _) (call-interactively #'execute-extended-command)) nil "" " |")
+
+      (," "
+       "Agenda"
+       "TODO Agenda"
+       (lambda (&rest _) (org-agenda)) warning "" " |")
+
+      (,"󰃀 "
+       "Bookmark"
+       "Open Bookmark File"
+       (lambda (&rest _) (find-file "~/d-sync/notes/bookmarks.org")) error "" "")
 
       )
      ;; Empty line

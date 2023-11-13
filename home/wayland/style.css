@@ -1,3 +1,5 @@
+
+
 /* My own theme (Haki) make for emacs */
 
 @define-color  bg-main	     #050505;
@@ -27,12 +29,63 @@
 @define-color  bg-tag     #ffe1ff;
 @define-color  bracket    #ffeeee;
 
-
 * {
-    font-family:Code D Ace;
+    border: none;
+    border-radius: 0px;
+    font-family: "Code D Ace";
     font-weight: bold;
-    font-size: 16px;
+    font-size: 15px;
+    min-height: 10px;
 }
+
+window#waybar {
+    background: @bg-main;
+}
+
+tooltip {
+    background: @bg-main;
+    color: @fg-main;
+    border-radius: 7px;
+    border-width: 0px;
+}
+
+#workspaces button,
+#taskbar button {
+    box-shadow: none;
+	text-shadow: none;
+    padding: 0px;
+    border-radius: 9px;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    padding-left: 3px;
+    padding-right: 3px;
+    color: @fg-main;
+    animation: gradient_f 20s ease-in infinite;
+    transition: all 0.5s cubic-bezier(.55,-0.68,.48,1.682);
+}
+
+#workspaces button.active,
+#taskbar button.active {
+    background: @fg-region;
+    color: @bg-main;
+    margin-left: 3px;
+    padding-left: 12px;
+    padding-right: 12px;
+    margin-right: 3px;
+    animation: gradient_f 20s ease-in infinite;
+    transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
+}
+
+#workspaces button:hover,
+#taskbar button:hover {
+    background: @bg-dim;
+    color: @fg-dim;
+    padding-left: 3px;
+    padding-right: 3px;
+    animation: gradient_f 20s ease-in infinite;
+    transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
+}
+
 
 #mode,
 #clock,
@@ -50,56 +103,48 @@
 #submap,
 #window,
 #workspaces {
-    /* padding-bottom:3px; */
-    border-style: solid;
-    /* border-radius: 15px 15px 15px 15px; */
-    opacity: 1.0;
-    border-color: @fg-alt;
-    margin-top: 0px;
-    margin-left: 8px;
-    margin-right: 8px;
-    margin-bottom: 3px;
-    padding-left: 0px;
-    padding-right: 2px;
-    transition: none;
     color: @fg-main;
+    background: @bg-main;
+    opacity: 1;
+    margin: 4px 0px 4px 0px;
+    padding-left: 4px;
+    padding-right: 4px;
 
     /* color: transparent; */
-    /* background: @bg-main; */
 }
 
-/* for window name */
-#window {
-    color: @fg-region;
-    color: @fg-main;
-}
+/* /\* for window name *\/ */
+/* #window { */
+/*     color: @fg-region; */
+/*     color: @fg-main; */
+/* } */
 
-window#waybar {
-    /* background: @bg-main; */
-    background: transparent;
-}
+/* window#waybar { */
+/*     /\* background: @bg-main; *\/ */
+/*     background: transparent; */
+/* } */
 
-window#waybar.hidden {
-    opacity: 0.2;
-}
+/* window#waybar.hidden { */
+/*     opacity: 0.2; */
+/* } */
 
-window#waybar.foot {
-    /* border: 2px solid @code; */
-}
-window#waybar.footclient {
-    /* border: 2px solid @code; */
-}
+/* window#waybar.foot { */
+/*     /\* border: 2px solid @code; *\/ */
+/* } */
+/* window#waybar.footclient { */
+/*     /\* border: 2px solid @code; *\/ */
+/* } */
 
-window#waybar.emacs {
-    /* border: 2px solid @heading-1; */
-}
-window#waybar.brave {
-    /* border: 2px solid @link; */
-}
+/* window#waybar.emacs { */
+/*     /\* border: 2px solid @heading-1; *\/ */
+/* } */
+/* window#waybar.brave { */
+/*     /\* border: 2px solid @link; *\/ */
+/* } */
 
-#workspaces button {
-    color: @fg-main;
-}
+/* #workspaces button { */
+/*     color: @fg-main; */
+/* } */
 
 #battery.charging{
     color: @heading-4;
@@ -111,6 +156,11 @@ window#waybar.brave {
 
 #tray{
   color: @bg-tag;
+}
+
+#workspaces,
+#taskbar {
+    padding: 0px;
 }
 
 

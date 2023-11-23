@@ -27,6 +27,7 @@
   :custom
   (doc-view-continuous t)
   (doc-view-mupdf-use-svg t)
+  (doc-view-scale-internally nil)
   (doc-view-image-width 900)
   (large-file-warning-threshold 700000000)
   (image-cache-eviction-delay 3))

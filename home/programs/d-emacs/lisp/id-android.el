@@ -13,6 +13,12 @@
  '(touch-screen-display-keyboard t)
  '(browse-url-android-share t))
 
+(defun d/key-droid()
+  "To enable touch screen keyboard"
+  (interactive)
+  (frame-toggle-on-screen-keyboard (selected-frame) nil)
+  )
+
 ;; (setq use-dialog-box nil)
 
 (provide 'id-android)

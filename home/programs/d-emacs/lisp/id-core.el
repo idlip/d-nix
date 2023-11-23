@@ -10,10 +10,6 @@
   (put 'downcase-region 'disabled nil)
   (fset 'x-popup-menu #'ignore)
   :custom
-  (default-frame-alist '((menu-bar-lines . 0)
-                         (tool-bar-lines . 0)
-                         (vertical-scroll-bars)
-                         (alpha-background . 90)))
   (scroll-step 1)
   (inhibit-x-resources t)
   (inhibit-startup-screen t "Don't show splash screen")
@@ -45,7 +41,8 @@
 	(emacs-lock-mode 'kill))
   (prefer-coding-system 'utf-8)
   ;; Uppercase is same as lowercase
-  (define-coding-system-alias 'UTF-8 'utf-8))
+  (define-coding-system-alias 'UTF-8 'utf-8)
+  (modify-all-frames-parameters '((alpha-background . 90))))
 
 (use-package frame
   :ensure nil
@@ -53,7 +50,6 @@
   ("C-z" . nil)
   ("C-x C-z" . nil)
   :custom
-  (initial-frame-alist '((vertical-scroll-bars)))
   (frame-resize-pixelwise t)
   (frame-inhibit-implied-resize t))
 
@@ -135,12 +131,26 @@ it narrows to region, or Org subtree."
   :custom
   (kill-ring-max 30000)
   (column-number-mode 1)
-  ;; (interprogram-cut-function (unless d/on-droid wl-copy))
-  ;; (interprogram-paste-function (unless d/on-droid wl-paste))
   (kill-do-not-save-duplicates t)
 
   :config
-  (global-visual-line-mode 1))
+  (global-visual-line-mode 1)
+  ;; credit: yorickvP on Github
+  (setq wl-copy-process nil)
+  (defun wl-copy (text)
+    (setq wl-copy-process (make-process :name "wl-copy"
+                                        :buffer nil
+                                        :command '("wl-copy" "-f" "-n")
+                                        :connection-type 'pipe))
+    (process-send-string wl-copy-process text)
+    (process-send-eof wl-copy-process))
+  (defun wl-paste ()
+    (if (and wl-copy-process (process-live-p wl-copy-process))
+        nil ; should return nil if we're the current paste owner
+      (shell-command-to-string "wl-paste -n | tr -d \r")))
+  (unless d/on-droid
+    (setq interprogram-cut-function 'wl-copy)
+    (setq interprogram-paste-function 'wl-paste)))
 
 (use-package s
   :ensure nil
@@ -212,9 +222,9 @@ it narrows to region, or Org subtree."
   :ensure nil
   :defer t
   :bind (("C-x u" . vundo)
-	       ("C-z" . undo-only)
-	       ("C-S-z" . undo-redo)
-	       ("C-M-r" . undo-redo)))
+	     ("C-z" . undo-only)
+	     ("C-S-z" . undo-redo)
+	     ("C-M-r" . undo-redo)))
 
 (provide 'id-core)
 ;;; id-core.el ends here

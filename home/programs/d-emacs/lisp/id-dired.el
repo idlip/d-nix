@@ -37,5 +37,13 @@
   ;; Make dired-omit-mode hide all "dotfiles"
   (dired-omit-files "\\`[.]?#\\|\\`[.][.]?\\'\\|^\\..*$"))
 
+(use-package async
+  :unless d/on-droid
+  :demand t
+  :config
+  (autoload 'dired-async-mode "dired-async.el" nil t)
+  (dired-async-mode 1)
+  (async-bytecomp-package-mode 1))
+
 (provide 'id-dired)
 ;;; id-dired.el ends here

@@ -29,7 +29,8 @@
   ;; (setq-default elfeed-search-filter "@1-week-ago--1-day-ago +unread -news +")
   (elfeed-search-filter "+unread +")
   (elfeed-search-date-format (if d/on-droid `("" 0 :left)  `("%d-%m 📰" 7 :left)))
-  (elfeed-search-title-max-width 90)
+  (elfeed-search-title-max-width 60)
+  (elfeed-search-title-min-width 60)
   (elfeed-search-trailing-width 0)
 
   :config

@@ -15,7 +15,7 @@
   :custom
   (ediff-keep-variants nil)
   (ediff-split-window-function 'split-window-horizontally)
-  (ediff-window-setup-function 'ediff-setup-windows-default))
+  (ediff-window-setup-function 'ediff-setup-windows-plain))
 
 (provide 'id-git)
 ;;; id-git.el ends here

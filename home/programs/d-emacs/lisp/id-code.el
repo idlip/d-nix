@@ -22,8 +22,8 @@
   :commands (eglot eglot-format eglot-managed-p eglot--major-mode)
   ;; (((web-mode rust-mode python-mode sh-mode c-mode c++-mode nix-mode) .
   ;; eglot-ensure)
-  :hook
-  (nix-mode . eglot-ensure)
+  ;; :hook
+  ;; (nix-mode . eglot-ensure)
   :custom
   (eglot-sync-connect 1)
   (eglot-connect-timeout 5)
@@ -71,6 +71,7 @@
      (js-json-mode . json-ts-mode)
      ;; (org-mode . org-ts-mode) ;; not mature yet
      (python-mode . python-ts-mode)
+     (julia-mode . ess-julia-mode)
      (typescript-mode . typescript-ts-mode)
      (sh-mode . bash-ts-mode)
      (ruby-mode . ruby-ts-mode)

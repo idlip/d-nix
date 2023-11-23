@@ -50,9 +50,14 @@
   (:map ess-mode-map
         ("C-;" . ess-insert-assign))
   (:map inferior-ess-r-mode-map
-        ("C-;" . ess-insert-assign)
-        ("C-x C-k" . ess-quit)))
+        ("C-;" . ess-insert-assign))
 
+  :custom
+  (ess-indent-with-fancy-comments nil))
+
+(use-package ess-julia
+  :custom
+  (inferior-julia-args "--color=yes" "You get color in julia inferior process"))
 
 
 (provide 'id-rstats)

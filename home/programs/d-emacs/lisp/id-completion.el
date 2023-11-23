@@ -307,6 +307,7 @@ You can insert the name (default), or insert or kill the hexadecimal
   :custom
   (corfu-auto t)                 ;; Enable auto completion
   (corfu-separator ?\s)          ;; Orderless field separator
+  (corfu-cycle t)
   ;; (corfu-preview-current t)    ;; Disable current candidate preview
   ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
   ;; (corfu-quit-no-match t)

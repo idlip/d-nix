@@ -58,7 +58,7 @@
      ("note" . ?n)
      ("idea" . ?i)))
 
-  (fill-column 100)
+  (fill-column 80)
   ;; Where the org files live
   (org-directory "~/d-sync/notes")
   ;; Make sure we see syntax highlighting
@@ -169,7 +169,9 @@
    '((emacs-lisp . t)
      (calc . t)
      (latex . t) (C . t)
-     (R . t) (shell . t) (python . t)))
+     (R . t)
+     (shell . t) (python . t)
+     (julia . t)))
   (push '("conf-unix" . conf-unix) org-src-lang-modes)
   (defalias 'd/set-timer (symbol-function 'org-timer-set-timer))
   )
@@ -279,8 +281,7 @@
   :bind
   ("C-c d a" . org-agenda)
   (:map org-agenda-mode-map
-        ("C-x C-k" . org-agenda-exit)
-        ("C-x k" . org-agenda-exit))
+        ("C-x C-k" . org-agenda-exit))
 
   ;; :hook (org-agenda-finalize . org-agenda-entry-text-mode)
   :custom

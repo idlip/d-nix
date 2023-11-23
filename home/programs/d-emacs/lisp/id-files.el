@@ -32,6 +32,8 @@
     (revert-buffer :ignore-auto :noconfirm)))
 
 (use-package vc-backup
+  ;; to have auto VC track of files without in git
+  ;; C-x v =
   :demand t
   :custom
   (vc-make-backup-files t)

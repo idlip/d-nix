@@ -109,6 +109,15 @@
 	    ("<backtab>" . show-entry)
 	    ("p" . sdcv-previous-dictionary)))
 
+(use-package proced
+  :bind ("C-x x p" . 'proced)
+  :init (setq proced-auto-update-interval 1
+              proced-enable-color-flag 1
+              proced-format 'medium
+              proced-sort 'rss)
+  :hook (proced-mode . (lambda ()
+                         (interactive)
+                         (proced-toggle-auto-update 1))))
 
 (provide 'id-apps)
 ;;; id-apps.el ends here

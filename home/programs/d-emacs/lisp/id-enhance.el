@@ -61,7 +61,10 @@ You can do this by trackpad too (laptop)"
 
 (use-package winner
   :ensure nil
-  ;; :hook after-init
+  :hook after-init
+  :bind
+  ("C-c w n" . winner-undo)
+  ("C-c w p" . winner-redo)
   :commands (winner-undo winnner-redo))
 
 (use-package rainbow-delimiters

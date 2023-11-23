@@ -92,6 +92,17 @@
   ;; (d/denote-add-to-agenda-files "_project")
   )
 
+;; custom way to open up productive desk
+;; from janusworx blog
+(defun d/desk-ready ()
+  "Getting ready for work."
+  (interactive)
+  (toggle-frame-maximized)
+  (split-window-below)
+  (find-file "~/d-sync/notes/d-desk.org")
+  (find-file-other-window "~/d-sync/notes/tasks.org"))
+(global-set-key (kbd "C-c r") 'd/desk-ready)
+
 (use-package flycheck-languagetool
   :disabled
   :hook

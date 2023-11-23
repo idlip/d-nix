@@ -16,7 +16,7 @@
   :delight " ⊛")
 
 (use-package doom-modeline
-  ;; :disabled t ;; some flycheck error, until next upgrade
+  :disabled t
   :functions
   (doom-modeline-mode)
   :init
@@ -59,6 +59,49 @@
   (doom-modeline-height 30)
   (doom-modeline-buffer-encoding nil))
 
+;; new way of using mode-line with `mini-echo-mode`
+(use-package mini-echo
+  :unless d/on-droid
+  :load-path "~/d-git/forks/mini-echo"
+  :demand t
+
+  :custom
+  (mini-echo--toggled-segments '(("battery" . t) ("elfeed". t)))
+
+  :config
+
+  (defface mini-echo-elfeed
+    '((t (:inherit elfeed-search-unread-count-face)))
+    "Face for mini-echo segment of word count."
+    :group 'mini-echo)
+
+  ;; add elfeed unread counts
+  (mini-echo-define-segment "elfeed"
+    "Return unread feeds counts from elfeed."
+    :fetch
+    (propertize
+     (let ((bufn "*elfeed-search*"))
+       (if (get-buffer bufn)
+           (concat "󰎕 "
+
+                   (string-trim-right
+                    (with-current-buffer bufn (elfeed-search--count-unread))
+                    "/.*")) "")) 'face 'mini-echo-elfeed))
+
+  (mini-echo-define-segment "battery"
+    "Return the battery status.
+Display format is inherited from `battery-mode-line-format'."
+    :setup (display-battery-mode 1)
+    :fetch
+    (propertize
+     (concat "󰁿"
+     (string-trim
+      (battery-format "%p%"
+                      (funcall battery-status-function))))
+                'face 'mini-echo-battery))
+
+  (mini-echo-mode 1))
+
 (use-package frame
   :ensure nil
   :bind
@@ -96,7 +139,7 @@
   (dashboard-set-init-info nil)
   (dashboard-icon-type 'nerd-icons)
   (dashboard-items '((recents . 5)
-                     (agenda . 10)
+                     ;; (agenda . 10)
                      (projects . 2)
                      (bookmarks . 3)))
   (dashboard-modify-heading-icons '((recents . "file-text")
@@ -135,7 +178,7 @@
       (," "
        "Music"
        "Play Jazz/Rhythm"
-       (lambda (&rest _) (mingus)) error "" " |")
+       (lambda (&rest _) (if d/on-droid (d/key-droid) (mingus))) error "" " |")
 
       (," "
        "Geek"

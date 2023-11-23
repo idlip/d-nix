@@ -28,7 +28,7 @@
     parallel
 
     # science
-    blast
+    blast julia
 
     # R
     (rWrapper.override {

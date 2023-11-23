@@ -31,18 +31,23 @@
   # faster rebuilding
   documentation = {
     enable = true;
-    nixos.enable = false;
-    doc.enable = false;
-    man.enable = true;
-    dev.enable = false;
+    nixos.enable = true;
+    doc.enable = true;
+    info.enable = true;
+    man = {
+      enable = true;
+      generateCaches = true; # will take little time
+    };
+    dev.enable = true;
   };
 
   # Collect garbage and delete generation every 6 day. Will help to get some storage space.
   # Better to atleast keep it for few days, as you do major update (unstable), if something breaks you can roll back.
   nix = {
+    optimise.automatic = true;
     gc = {
       automatic = true;
-      dates = "daily";
+      dates = "weekly";
       options = "--delete-older-than 7d";
     };
 

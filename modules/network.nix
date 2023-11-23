@@ -19,7 +19,14 @@
     # dns
     # mullvad dns
     nameservers = [ "194.242.2.5" "194.242.2.9" ];
-    dhcpcd.extraConfig = "nohook resolv.conf";
+    dhcpcd = {
+      wait = "background";
+      extraConfig = "noarp";
+    };
+
+    # NetworkManager replaces wpa_supplicant
+    wireless.enable = false;
+
     networkmanager = {
       enable = true;
       unmanaged = ["docker0" "rndis0"];
@@ -62,11 +69,17 @@
     # DNS resolver
     resolved = {
       enable = true;
+      dnssec = "false";
       fallbackDns = [ "194.242.2.5" "194.242.2.9" ];
     };
   };
 
 
   # Don't wait for network startup
-  systemd.services.NetworkManager-wait-online.enable = false;
+  systemd = {
+    services = {
+      # speed up boot
+      NetworkManager-wait-online.enable = false;
+    };
+  };
 }

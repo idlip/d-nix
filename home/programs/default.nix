@@ -20,6 +20,10 @@
   ];
 
   programs = {
+    man = {
+      enable = true;
+      generateCaches = true; # will take little time
+    };
 
     gpg = {
       enable = true;

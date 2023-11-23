@@ -101,7 +101,7 @@
     # For android file transfer via usb, or better check on KDE connect
     gvfs.enable = true;
 
-    # Pipewire setup, just these lines enought to make sane default for it
+    # Pipewire setup, just these lines enough to make sane default for it
     pipewire = {
       enable = true;
       alsa = {
@@ -113,6 +113,8 @@
       jack.enable = true;
     };
   };
+
+  sound.enable = true;
 
   systemd.services = {
     seatd = {
@@ -130,7 +132,7 @@
 
 
   hardware = {
-    pulseaudio.enable = false;
+    pulseaudio.enable = lib.mkForce false;
     opengl = {
       enable = true;
       extraPackages = with pkgs; [

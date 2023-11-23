@@ -124,7 +124,7 @@
 
       config = {
         force-window = true;
-        osc = false;
+        osc = true;
         hwdec = "auto-safe";
         vo = "gpu";
         profile = "gpu-hq";

@@ -17,6 +17,11 @@
 
 (defconst d/on-droid (eq system-type 'android))
 
+(tool-bar-mode -1)
+(menu-bar-mode -1)
+(scroll-bar-mode -1)
+
+
 ;; Emacs (gui app) is also amazing in android
 ;; https://sourceforge.net/projects/android-ports-for-gnu-emacs/files/termux/
 (when d/on-droid

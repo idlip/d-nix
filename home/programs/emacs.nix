@@ -22,7 +22,7 @@
       sdcv elfeed elfeed-org powerthesaurus jinx meow
       doom-modeline el-fetch ox-hugo envrc dashboard
       ement kind-icon speed-type vc-backup aria2
-      ess org-re-reveal
+      ess org-re-reveal auctex julia-mode
     ])
     );
   };

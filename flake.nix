@@ -36,7 +36,7 @@
     devShells.x86_64-linux.default = pkgs.mkShell {
       packages = with pkgs; [
         alejandra
-        git
+        gitFull
       ];
       name = "dots";
       DIRENV_LOG_FORMAT = "";

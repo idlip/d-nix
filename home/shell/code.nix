@@ -17,10 +17,8 @@
     (python311.withPackages(ps: with ps; [
       python-lsp-server
       biopython
-      pylint
       python-lsp-black
-      pylsp-rope
-      flake8
+      python-lsp-ruff
     ]))
 
     # core comp
@@ -28,30 +26,32 @@
     parallel
 
     # science
-    blast julia
+    # blast
+    julia
 
     # R
     (rWrapper.override {
       packages = with rPackages; [
         ggplot2
-        dplyr
-        tidyverse # set of 9 packages
+        # dplyr
+        # tidyverse # set of 9 packages
         languageserver
         lintr
-        stringr
+        # stringr
         BiocManager
-        httr
-        ggvis
-        shiny
-        rio
-        rmarkdown
+        # httr
+        # ggvis
+        # shiny
+        # rio
+        # rmarkdown
       ]; })
 
     # nix
-    nixd # or nil
+    # nixd # or nil
 
     # alltex
-    texlive.combined.scheme-full
+    # texlive.combined.scheme-full
+    texliveSmall
   ];
 
   programs = {

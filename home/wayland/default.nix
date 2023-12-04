@@ -26,14 +26,13 @@ in {
     # screenshot
     grim
     slurp
-    jq
 
     libnotify libsixel bemenu
     brightnessctl
     wtype swaybg swayidle gtklock
 
     # utils
-    ocrScript
+    # ocrScript
     wl-screenrec
     wl-clipboard
   ];

@@ -16,14 +16,15 @@
   wayland.windowManager.hyprland = {
     enable = true;
     systemd.enable = true;
+
     extraConfig = ''
     source					= ~/.config/hypr/main.conf
     '';
+
     settings = {
 
       decoration = {
         rounding = 10;
-        multisample_edges = true;
         inactive_opacity = 0.8;
         active_opacity = 0.9;
         fullscreen_opacity = 1.0;
@@ -121,6 +122,7 @@
     };
   };
 
+  # naming it main.conf becuase HM writes hyprland.conf, so just as an import
   xdg.configFile."hypr/main.conf".source = config.lib.file.mkOutOfStoreSymlink "/home/idlip/d-git/d-nix/home/wayland/hyprland.conf";
 
 

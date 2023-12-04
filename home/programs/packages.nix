@@ -2,13 +2,17 @@
   home.packages = with pkgs; [
     # misc
     libnotify
-    xdg-utils
+    # xdg-utils
 
     pcmanfm
-    libreoffice pandoc groff mupdf
+    libreoffice
+    # pandoc
+    groff mupdf
     keepassxc
 
     # pioneer of web
-    mullvad-browser ungoogled-chromium
+    # mullvad-browser
+    ungoogled-chromium
+
   ];
 }

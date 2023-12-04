@@ -13,7 +13,7 @@
     ./sioyek.nix
     ./emacs.nix
     ./dunst.nix
-    # ./games.nix
+    ./games.nix
     ./packages.nix
     ./media.nix
     ./rofi.nix

@@ -6,8 +6,8 @@
 {
   home.packages = with pkgs; [
     openttd
-    zeroadPackages.zeroad-unwrapped
+    zeroad
     superTux
-    superTuxkart
+    # superTuxkart
   ];
 }

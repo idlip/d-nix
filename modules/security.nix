@@ -1,8 +1,5 @@
 {
-  config,
-  pkgs,
-  lib,
-  ...
+...
 }:
 
 # this makes our system more secure

@@ -1,7 +1,4 @@
 {
-  config,
-  pkgs,
-  lib,
   ...
 }: {
 
@@ -10,6 +7,7 @@
     enable = true;
     user = "idlip";
     configDir = "/home/idlip/.config/syncthing";
+    dataDir = "/home/idlip/.local/share/syncthing";
     overrideDevices = true;     # overrides any devices added or deleted through the WebUI
     overrideFolders = true;     # overrides any folders added or deleted through the WebUI
     settings = {

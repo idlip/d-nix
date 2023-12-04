@@ -1,5 +1,4 @@
 {
-  config,
   pkgs,
   lib,
   ...
@@ -147,7 +146,7 @@
     packages = with pkgs; [
       noto-fonts unifont
       # symbola # this font is unfree
-      noto-fonts-emoji maple-mono
+      noto-fonts-emoji maple-mono julia-mono
       (callPackage ../pkgs/code-d-font.nix {})
 
       (nerdfonts.override {fonts = [ "JetBrainsMono"  ];})
@@ -172,7 +171,8 @@
 
   xdg.portal = {
     enable = true;
-    extraPortals = with pkgs; [ xdg-desktop-portal-gtk xdg-desktop-portal-hyprland ];
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk pkgs.xdg-desktop-portal-hyprland ];
+    configPackages = [ pkgs.xdg-desktop-portal-hyprland ];
   };
 
 }

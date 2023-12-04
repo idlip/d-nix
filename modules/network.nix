@@ -1,7 +1,4 @@
 {
-  config,
-  pkgs,
-  lib,
   ...
 }: {
   networking = {
@@ -29,7 +26,7 @@
 
     networkmanager = {
       enable = true;
-      unmanaged = ["docker0" "rndis0"];
+      unmanaged = ["docker0" "rndis0" "interface-name:ve-*" ];
       wifi.macAddress = "random";
       dns = "systemd-resolved";
       wifi.powersave = true;
@@ -47,6 +44,15 @@
       allowPing = false;
       logReversePathDrops = true;
     };
+
+    nat = { # for container or vm
+      enable = false;
+      internalInterfaces = ["ve-+"];
+      externalInterface = "wlp0s20f3";
+      # Lazy IPv6 connectivity for the container
+      enableIPv6 = true;
+    };
+
   };
 
   services = {

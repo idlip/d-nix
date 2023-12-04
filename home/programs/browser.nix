@@ -5,15 +5,15 @@
 }:
 {
 
-  home.packages = with pkgs; [
-    nyxt
-  ];
+  # home.packages = with pkgs; [
+  #   nyxt
+  # ];
 
   programs = {
 
     firefox = {
       enable = true;
-      package = pkgs.firefox-wayland; # is there difference?
+      # package = pkgs.firefox-wayland; # is there difference?
       profiles.ihome = {
         isDefault = true;
         # extensions = with pkgs.nur.repos.rycee.firefox-addons; [
@@ -153,6 +153,9 @@
           "browser.urlbar.quickactions.enabled" = true;
           "pdfjs.annotationEditorMode" = 0;
           "pdfjs.annotationmode" = 2;
+          "layers.acceleration.force-enabled" = true;
+          "layout.css.backdrop-filter.enabled" = true;
+          "svg.context-properties.content.enabled" = true;
         };
 
         search = {
@@ -213,6 +216,9 @@
             "DuckDuckGo"
           ];
         };
+
+        userChrome = builtins.readFile ./userChrome.css;
+
       };
     };
 
@@ -221,6 +227,9 @@
       settings = {
         "gfx.webrender.all" = true;
         "gfx.webrender.enabled" = true;
+        "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+        "layers.acceleration.force-enabled" = true;
+        "layout.css.backdrop-filter.enabled" = true;
         "media.av1.enabled" = false;
         "media.ffmpeg.vaapi.enabled" = true;
         "media.hardware-video-decoding.force-enabled" = true;

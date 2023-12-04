@@ -1,14 +1,19 @@
 ;;; id-rss.el --- el feeds -*- lexical-binding: t -*-
 ;;; Commentary:
+;; one of my most used and favorite packages
 
 ;;; Code:
 
-(use-package elfeed
+(use-package elfeed-log
+  :after elfeed
+  :custom
+  (elfeed-log-level 'debug "debug, info, warn or error."))
+
+(use-package elfeed-show
   :hook
   (elfeed-show-mode . d/elfeed-ui)
 
-  :bind ("C-c d e" . d/elfeed-open)
-  ("C-c d b" . embark-act)
+  :bind
   (:map elfeed-show-mode-map
         ("e" . elfeed-open-in-eww)
         ("i" . d/bionic-read)
@@ -18,13 +23,18 @@
         ("C-x C-k" . d/elfeed-quit)
         ("P" . d/elfeed-add-podcast)
         ("A" . d/elfeed-play)
-        ("b" . nil))
+        ("b" . nil)))
+
+(use-package elfeed-search
+  :bind
   (:map elfeed-search-mode-map
         ("m" . elfeed-toggle-star)
         ("q" . d/elfeed-quit)
+        ("G" . elfeed-search-fetch-visible)
         ("C-x C-k" . d/elfeed-quit)
         ("U" . elfeed-update)
         ("u" . elfeed-update-feed))
+
   :custom
   ;; (setq-default elfeed-search-filter "@1-week-ago--1-day-ago +unread -news +")
   (elfeed-search-filter "+unread +")
@@ -32,6 +42,13 @@
   (elfeed-search-title-max-width 60)
   (elfeed-search-title-min-width 60)
   (elfeed-search-trailing-width 0)
+
+  )
+
+(use-package elfeed
+  :bind
+  ("C-c d e" . d/elfeed-open)
+  ("C-c d b" . embark-act)
 
   :config
   (defun elfeed-toggle-show-star ()
@@ -54,7 +71,7 @@
   (defun d/elfeed-open ()
     "Wrapper to load the elfeed db from disk before opening"
     (interactive)
-    (elfeed-db-load)
+    (unless (get-buffer "*elfeed-search*") (elfeed-db-load))
     (elfeed)
     (elfeed-search-update--force))
   ;; (elfeed-update))
@@ -147,6 +164,22 @@ Usable as favorites or bookmark."
   ("C-S-k" . avy-kill-whole-line)
   :custom
   (avy-background t))
+
+;; for deleting feeds
+(defun sk/elfeed-db-remove-entry (id)
+  "Removes the entry for ID"
+  (avl-tree-delete elfeed-db-index id)
+  (remhash id elfeed-db-entries))
+
+(defun sk/elfeed-search-remove-selected ()
+  "Remove selected entries from database"
+  (interactive)
+  (let* ((entries (elfeed-search-selected))
+	 (count (length entries)))
+    (when (y-or-n-p (format "Delete %d entires?" count))
+      (cl-loop for entry in entries
+	       do (sk/elfeed-db-remove-entry (elfeed-entry-id entry)))))
+  (elfeed-search-update--force))
 
 (provide 'id-rss)
 ;;; id-rss.el ends here

@@ -110,7 +110,7 @@
   :custom
   (electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit)
   (electric-pair-preserve-balance t)
-  (electric-pair-pair
+  (electric-pair-pairs
    '((8216 . 8217)
      (8220 . 8221)
      (171 . 187)))

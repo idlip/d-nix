@@ -65,9 +65,6 @@
   :load-path "~/d-git/forks/mini-echo"
   :demand t
 
-  :custom
-  (mini-echo--toggled-segments '(("battery" . t) ("elfeed". t)))
-
   :config
 
   (defface mini-echo-elfeed
@@ -100,6 +97,8 @@ Display format is inherited from `battery-mode-line-format'."
                       (funcall battery-status-function))))
                 'face 'mini-echo-battery))
 
+  (setopt mini-echo--toggled-segments '(("battery" . t) ("elfeed". t) ("time" . t)))
+
   (mini-echo-mode 1))
 
 (use-package frame
@@ -108,7 +107,7 @@ Display format is inherited from `battery-mode-line-format'."
   ("<f9>" . toggle-mode-line)
   :config
   (defun toggle-mode-line ()
-    "Toggle the modeline on and off."
+    "toggle the modeline on and off."
     (interactive)
     (setq mode-line-format
           (if (equal mode-line-format nil)
@@ -127,7 +126,7 @@ Display format is inherited from `battery-mode-line-format'."
   (initial-buffer-choice 'dashboard-open)
   (dashboard-set-heading-icons t)
   (dashboard-set-file-icons t)
-  (dashboard-banner-logo-title "Let's Get to More 🔱 Tasks Today!")
+  (dashboard-banner-logo-title "let's get to more 🔱 tasks today!")
   ;; (dashboard-startup-banner "~/.config/emacs/var/butterfly.png")
   (dashboard-startup-banner 'logo)
   (dashboard-image-banner-max-width 100) ;; 100 for logo
@@ -139,7 +138,7 @@ Display format is inherited from `battery-mode-line-format'."
   (dashboard-set-init-info nil)
   (dashboard-icon-type 'nerd-icons)
   (dashboard-items '((recents . 5)
-                     ;; (agenda . 10)
+                     (agenda . 10)
                      (projects . 2)
                      (bookmarks . 3)))
   (dashboard-modify-heading-icons '((recents . "file-text")
@@ -147,58 +146,58 @@ Display format is inherited from `battery-mode-line-format'."
 
   (dashboard-navigator-buttons
    `(;; line1
-     ((," "
-       "News"
+     ((,(nerd-icons-faicon "nf-fa-newspaper_o")
+       " News"
        "Opens Elfeed"
        (lambda (&rest _) (d/elfeed-open)) nil "" " |")
 
-      (,"󰠮 "
-       "Notes"
+      (,(nerd-icons-mdicon "nf-md-notebook")
+       " Notes"
        "Denote Tree"
        (lambda (&rest _) (call-interactively #'denote-open-or-create)) warning "" " |")
 
-      (," "
-       "Project"
+      (,(nerd-icons-faicon "nf-fa-gitlab")
+       " Project"
        "Open Project finder"
        (lambda (&rest _) (project-find-file)) error "" " |")
 
-      (," "
-       "Terminal"
+      (,(nerd-icons-octicon "nf-oct-terminal")
+       " Terminal"
        "Open Eshell/Eat"
        (lambda (&rest _) (if (string= (completing-read "Hello : " '("eat" "eshell")) "eat")
                              (eat) (eshell))) warning "" " |")
 
-      (,"󰌱 "
-       "Library"
+      (,(nerd-icons-mdicon "nf-md-library")
+       " Library"
        "Books and Docs"
        (lambda (&rest _) (find-dired "~/d-sync/reads" "")) nil "" "")
       )
      ;; line 2
      (
-      (," "
-       "Music"
+      (,(nerd-icons-faicon "nf-fa-music")
+       " Music"
        "Play Jazz/Rhythm"
        (lambda (&rest _) (if d/on-droid (d/key-droid) (mingus))) error "" " |")
 
-      (," "
-       "Geek"
+      (,(nerd-icons-faicon "nf-fa-reddit_alien")
+       " Geek"
        "Browse Info"
        (lambda (&rest _) (reddigg-view-sub)) warning "" " |")
 
-      (,"󰘳 "
-       "M-x"
+      (,(nerd-icons-mdicon "nf-md-apple_keyboard_command")
+       " M-x"
        "Execute Command"
        (lambda (&rest _) (call-interactively #'execute-extended-command)) nil "" " |")
 
-      (," "
-       "Agenda"
+      (,(nerd-icons-sucicon "nf-seti-todo")
+       " Agenda"
        "TODO Agenda"
        (lambda (&rest _) (org-agenda)) warning "" " |")
 
-      (,"󰃀 "
-       "Bookmark"
+      (,(nerd-icons-mdicon "nf-md-bookmark")
+       " Bookmark"
        "Open Bookmark File"
-       (lambda (&rest _) (find-file "~/d-sync/notes/bookmarks.org")) error "" "")
+       (lambda (&rest _) (d/open-bookmark)) error "" "")
 
       )
      ;; Empty line

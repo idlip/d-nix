@@ -13,6 +13,7 @@
 
 
 (setq custom-file (locate-user-emacs-file "custom.el"))
+(setq nixos-treesit-path treesit-extra-load-path) ;; remove after next update
 
 ;;; --- Most of the core and necessary defaults.
 ;;; --- better not to comment it!

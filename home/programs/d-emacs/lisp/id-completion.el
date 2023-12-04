@@ -109,6 +109,11 @@
      (kill-ring reverse)
      (buffer flat (vertico-cycle . t)))))
 
+(use-package vertico-mouse
+  :unless d/on-droid
+  :init
+  (vertico-mouse-mode))
+
 (use-package consult
   :functions
   (consult-register-window

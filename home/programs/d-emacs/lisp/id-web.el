@@ -61,25 +61,29 @@
 
   ;; (add-to-list 'shr-tag-pre-highlight-lang-modes '(("R" . ess-r))))
 
-  (setopt shr-tag-pre-highlight-lang-modes '(
-                                             ("elisp" . emacs-lisp)
-                                             ("emacs-lisp" . emacs-lisp)
-                                             ("ditaa" . artist)
-                                             ("asymptote" . asy)
-                                             ("dot" . fundamental)
-                                             ("sqlite" . sql)
-                                             ("calc" . fundamental)
-                                             ("c" . c-ts)
-                                             ("cpp" . c++-ts)
-                                             ("C++" . c++-ts)
-                                             ("screen" . shell-script)
-                                             ("shell" . bash-ts)
-                                             ("awk" . bash-ts)
-                                             ("bash" . bash-ts)
-                                             ("sh" . bash-ts)
-                                             ("python" . python-ts)
-                                             ("R" . ess-r)
-                                             ("el" . emacs-lisp))))
+  (setopt shr-tag-pre-highlight-lang-modes
+          '(
+            ("elisp" . emacs-lisp)
+            ("emacs-lisp" . emacs-lisp)
+            ("ditaa" . artist)
+            ("asymptote" . asy)
+            ("dot" . fundamental)
+            ("sqlite" . sql)
+            ("calc" . fundamental)
+            ("c" . c-ts)
+            ("cpp" . c++-ts)
+            ("C++" . c++-ts)
+            ("screen" . shell-script)
+            ("shell" . bash-ts)
+            ("awk" . bash-ts)
+            ("bash" . bash-ts)
+            ("sh" . bash-ts)
+            ("python" . python-ts)
+            ("R" . ess-r)
+            ("julia" . ess-julia)
+            ("sql" . sql)
+            ("ruby" . ruby)
+            ("el" . emacs-lisp))))
 
 (use-package url
   :ensure nil

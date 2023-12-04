@@ -6,8 +6,11 @@
 
 (use-package mwheel
   :ensure nil
+  :bind
+  ([mouse-9] . [prior]) ;; binds mouse fwd button to page up
+  ([mouse-8] . [next]) ;; mouse bwd button to page down
   :custom
-  (mouse-wheel-scroll-amount '(1 ((shift) . 5) ((control))))
+  ;; (mouse-wheel-scroll-amount '(1 ((shift) . 5) ((control))))
   (mouse-wheel-progressive-speed nil)
   (scroll-margin 4)
   (scroll-conservatively 101))
@@ -120,17 +123,19 @@ E.g. capitalize or decapitalize the next word, increment number at point."
     (interactive)
     (let ((case-fold-search nil))
       (call-interactively
-       (cond ((looking-at "[0-9]+") #'increment-number-at-point)
-             ((looking-at "[[:lower:]]") #'capitalize-word)
-             ((looking-at "==") (delete-char 1) (insert "!") (forward-char 2))
-             ((looking-at "!=") (delete-char 1) (insert "=") (forward-char 2))
-             ((looking-at "+") (delete-char 1) (insert "-") (forward-char 1))
-             ((looking-at "-") (delete-char 1) (insert "+") (forward-char 1))
-             ((looking-at "<=") (delete-char 2) (insert ">=") (forward-char 2))
-             ((looking-at ">=") (delete-char 2) (insert "<=") (forward-char 2))
-             ((looking-at "<") (delete-char 1) (insert ">") (forward-char 1))
-             ((looking-at ">") (delete-char 1) (insert "<") (forward-char 1))
-             (t #'downcase-word))))))
+       (cond
+        ((looking-at "[[:space:]]") (forward-char 1) (d/flex))
+        ((looking-at "[0-9]+") #'increment-number-at-point)
+        ((looking-at "[[:lower:]]") #'capitalize-word)
+        ((looking-at "==") (delete-char 1) (insert "!") (forward-char 2))
+        ((looking-at "!=") (delete-char 1) (insert "=") (forward-char 2))
+        ((looking-at "+") (delete-char 1) (insert "-") (forward-char 1))
+        ((looking-at "-") (delete-char 1) (insert "+") (forward-char 1))
+        ((looking-at "<=") (delete-char 2) (insert ">=") (forward-char 2))
+        ((looking-at ">=") (delete-char 2) (insert "<=") (forward-char 2))
+        ((looking-at "<") (delete-char 1) (insert ">") (forward-char 1))
+        ((looking-at ">") (delete-char 1) (insert "<") (forward-char 1))
+        (t #'downcase-word))))))
 
 
 ;; Taken from gopar's config (via Yt video)

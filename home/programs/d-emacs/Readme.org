@@ -1,6 +1,6 @@
-#+title: Emacs on Droid
+#+title: Emacs Notes
 
-
+- [ ] TO document and comment more, I myself forget what some of them do.
 * Emacs proves again on Android.
 
 Get apk builds officially from: [[https://sourceforge.net/projects/android-ports-for-gnu-emacs/files/termux/][Sourceforge]].
@@ -47,7 +47,7 @@ Note: You need to generate keystore
   #+end_src
 
 
-* Set env in early-init.el
+** Set env in early-init.el
 
 #+begin_src emacs-lisp
   (setenv "PATH" (format "%s:%s" "/data/data/com.termux/files/usr/bin"
@@ -59,7 +59,7 @@ Note: You need to generate keystore
 
 #+end_src
 
-* Installation
+*** Installation
 
 I use syncthing to sync files from pc to Android.
 

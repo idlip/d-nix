@@ -155,6 +155,8 @@ it narrows to region, or Org subtree."
 (use-package s
   :ensure nil
   :functions (s-join)
+  :bind
+  ("M-^" . d/join-lines)
   :config
   (defun d/join-lines (specify-separator)
     "Join lines in the active region by a separator, by default a comma.

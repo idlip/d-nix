@@ -18,7 +18,7 @@
    org-element-map
    org-element-parse-buffer
    )
-  :hook (org-mode . (lambda () (org-indent-mode 1)
+  :hook (org-mode . (lambda ()
                       (org-display-inline-images 0)
                       (variable-pitch-mode 1)))
 
@@ -41,8 +41,8 @@
   (org-log-into-drawer t)
 
   (org-todo-keywords
-   '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
-     (sequence  "PLAN(p)" "REVIEW(v)" "|" "COMPLETED(c)" "CANC(k@)")))
+   '((sequence "TODO(t)" "|" "DONE(d!)")
+     (sequence "REVIEW(v)" "|" "CANC(k@)")))
 
   (org-refile-targets
    '(("Archive.org" :maxlevel . 1)
@@ -366,6 +366,23 @@
   ;; Don't ask every time when I run a code block
   (org-confirm-babel-evaluate nil))
 
+(use-package ox
+  :custom
+  (org-export-exclude-tags '("noexport" "ignore")))
+
+(use-package ox-latex
+  :ensure nil
+  :after ox
+  :custom
+  (org-latex-compiler "lualatex" "Lualatex is fast and gets custom font too"))
+
+(use-package org-re-reveal
+  :after ox
+  :unless d/on-droid
+  :custom
+  (org-re-reveal-title-slide
+   "<h1 class=\"title\">%t</h1> <br> <br> <h2 class=\"subtitle\">%s</h2> <h2 class=\"author\">%a</h2> <br> <br> <h4 class=\"misc\">%m</h4> <h3 class=\"misc\">%A</h3>"))
+
 (use-package org-habit
   :ensure nil
   :ensure nil
@@ -375,6 +392,32 @@
 (use-package org-indent
   :ensure nil
   :diminish)
+
+;; taken from xenodium post
+(defun browser-bookmarks (org-file)
+  "Return all links from ORG-FILE."
+  (require 'org-element)
+  (require 'seq)
+  (with-temp-buffer
+    (let (links)
+      (insert-file-contents org-file)
+      (org-mode)
+      (org-element-map (org-element-parse-buffer) 'link
+        (lambda (link)
+          (let* ((raw-link (org-element-property  :raw-link link))
+                 (content (org-element-contents link))
+                 (title (substring-no-properties (or (seq-first content) raw-link))))
+            (push (concat title
+                          "\n"
+                          (propertize raw-link 'face 'whitespace-space)
+                          "\n")
+                  links)))
+        nil nil 'link)
+      (seq-sort 'string-greaterp links))))
+
+(defun d/open-bookmark ()
+  (interactive)
+  (browse-url (seq-elt (split-string (completing-read  "Open: " (browser-bookmarks "~/d-sync/notes/bookmarks.org"))  "\n") 1)))
 
 
 (provide 'id-org)

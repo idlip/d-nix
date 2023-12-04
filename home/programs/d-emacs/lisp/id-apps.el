@@ -18,8 +18,7 @@
   (org-link-elisp-confirm-function 'y-or-n-p)
   (reddigg-subs '(emacs linux nixos hyprland bioinformatics onepiece fossdroid piracy bangalore india indiaspeaks developersindia manga aww))
   :config
-  (setq other-subs '(crazyfuckingvideos nextfuckinglevel manga anime animepiracy fossdroid commandline memes jokes
-				                           funnymemes rss holup))
+  (setq other-subs '(crazyfuckingvideos nextfuckinglevel manga anime animepiracy fossdroid commandline memes jokes funnymemes rss holup unexpected todayilearned lifeprotips askreddit julia))
 
   (defun reddigg-view-sub ()
     "Prompt SUB and print its post list."
@@ -27,9 +26,22 @@
     (let ((sub (completing-read "subreddit: " (-concat reddigg-subs other-subs '("frontpage" "comments")))))
       (cond ((string= sub "frontpage") (reddigg-view-frontpage))
             ((string= sub "comments") (reddigg-view-comments))
-            (t (reddigg--view-sub sub))))))
+            (t (reddigg--view-sub sub)))))
+  (defun reddigg--ensure-modes ()
+    "Get a bunch of modes up and running."
+    (if (equal major-mode 'org-mode)
+        (org-set-startup-visibility)
+      (org-mode)
+      (font-lock-flush))
+    (visual-line-mode)
+    (jinx-mode -1)
+    (view-mode 1)))
 
 (use-package hnreader
+  :defer t
+  :unless d/on-droid)
+
+(use-package howdoyou
   :defer t
   :unless d/on-droid)
 
@@ -118,6 +130,11 @@
   :hook (proced-mode . (lambda ()
                          (interactive)
                          (proced-toggle-auto-update 1))))
+
+(use-package speed-type
+  :unless d/on-droid
+  :hook
+  (speed-type-mode . olivetti-mode))
 
 (provide 'id-apps)
 ;;; id-apps.el ends here

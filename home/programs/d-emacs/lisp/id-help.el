@@ -22,7 +22,11 @@
   :hook (prog-mode . flycheck-mode)
   :custom
   (flycheck-check-syntax-automatically '(save idle-change mode-enabled))
-  (flycheck-idle-change-delay 3))
+  (flycheck-idle-change-delay 3)
+  ;; more form doom
+  (flycheck-emacs-lisp-load-path 'inherit)
+  (flycheck-buffer-switch-check-intermediate-buffers t)
+  (flycheck-display-errors-delay 0.25))
 
 (use-package woman
   :ensure nil

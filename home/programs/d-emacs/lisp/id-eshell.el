@@ -12,7 +12,9 @@
   :hook
   (eshell-mode . toggle-mode-line)
   (eshell-mode . electric-pair-local-mode)
-  (eshell-mode . (lambda () (setq outline-regexp eshell-prompt-regexp) (setq-local corfu-auto nil)
+  (eshell-mode . (lambda () (setq outline-regexp eshell-prompt-regexp)
+                   (setq-local corfu-auto nil)
+                   (setq-local scroll-margin 0)
                    (corfu-mode)))
   :bind
   ("<f12>" . d/eshell-toggle)

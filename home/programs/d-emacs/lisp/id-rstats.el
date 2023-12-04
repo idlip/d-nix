@@ -56,8 +56,14 @@
   (ess-indent-with-fancy-comments nil))
 
 (use-package ess-julia
+  :hook (ess-julia-mode . (lambda () (setq-local devdocs-browser-active-docs '("Julia"))))
+  :bind
+  (:map ess-julia-mode-map
+        ("C-c C-d" . devdocs-browser-open))
   :custom
   (inferior-julia-args "--color=yes" "You get color in julia inferior process"))
+
+(use-package julia-mode)
 
 
 (provide 'id-rstats)

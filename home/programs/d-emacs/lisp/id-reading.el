@@ -107,6 +107,7 @@
 (add-hook
  'view-mode-hook
  (lambda ()
+   (define-key view-mode-map (kbd "l") 'recenter-top-bottom)
    (cond ((derived-mode-p 'org-mode)
           (define-key view-mode-map (kbd "p") 'org-previous-visible-heading)
           (define-key view-mode-map (kbd "n") 'org-next-visible-heading))

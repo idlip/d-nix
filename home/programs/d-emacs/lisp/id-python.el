@@ -24,8 +24,13 @@ with `venvPath' and `venv' set to the absolute path of
   :ensure nil
   :hook ((python-mode . (lambda ()
                           (setq-local completion-at-point-functions
-                                      '(cape-file python-completion-at-point cape-dabbrev)))))
+                                      '(cape-file python-completion-at-point cape-dabbrev)
+                                      devdocs-browser-active-docs
+                                      '("Python")))))
 
+  :bind
+  (:map python-mode-map
+        ("C-c C-d" . devdocs-browser-open))
   :custom
   (python-shell-dedicated 'project)
   (python-shell-interpreter "python")

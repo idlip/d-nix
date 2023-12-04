@@ -62,6 +62,8 @@
   (recentf-mode)
   (run-with-idle-timer 30 t 'recentf-save-list))
 
+;; remove it after next rolling update
+;; due to treesit var
 (use-package no-littering
   :demand t
   :ensure t
@@ -73,6 +75,7 @@
   (no-littering-etc-directory (expand-file-name "config/" user-emacs-directory))
   (no-littering-var-directory (expand-file-name "data/" user-emacs-directory))
   :config
+  (setq treesit-extra-load-path nixos-treesit-path)
   (add-to-list 'recentf-exclude
                (recentf-expand-file-name no-littering-var-directory))
   (add-to-list 'recentf-exclude

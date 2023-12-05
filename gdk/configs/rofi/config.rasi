@@ -1,0 +1,393 @@
+* {
+bg-main:	     #05050597;
+bg-dim:	     #12121240;
+fg-main:	     #ffffff;
+fg-dim:	     #D8DEE9;
+fg-region:     #2e8b6d;
+
+fg-region:        #6ae4b9;
+heading-1:    #ab82ff;
+heading-2:    #ffec8b;
+heading-3:    #3cb6df;
+heading-4:    #9aff9a;
+heading-5:    #97ffff;
+heading-6:    #ffa07a;
+heading-7:    #eeb4b4;
+heading-8:    #ee4000;
+heading-9:    #cd96cd;
+error:      #ee6363;
+link:       #fcde69;
+todo:       #54ff9f;
+done:       #b4dddd;
+code:       #77ee77;
+verbatim:   #ee77ee;
+clock:      #eedc82;
+bg-tag:     #ffe1ff;
+bracket:    #ffeeee;
+
+}
+
+configuration {
+modi: "drun,run,window";
+
+font: "Code D OnePiece 16";
+
+case-insensitive: true;
+cycle: true;
+filter: "";
+scroll-method: 0;
+normalize-match: true;
+show-icons: true;
+icon-theme: "Papirus";
+steal-focus: true;
+matching: "normal";
+tokenize: true;
+
+drun-categories: "";
+drun-match-fields: "name,generic,exec,categories,keywords";
+drun-display-format: "{name} [<span weight='light' size='small'><i>({generic})</i></span>]";
+drun-show-actions: true;
+drun-use-desktop-cache: false;
+drun-reload-desktop-cache: false;
+drun {
+/** Parse user desktop files. */
+parse-user:   true;
+/** Parse system desktop files. */
+parse-system: true;
+}
+
+dmenu {
+case-insensitive: true;
+}
+
+run-command: "{cmd}";
+run-list-command: "";
+run-shell-command: "{terminal} -e {cmd}";
+
+
+disable-history: false;
+sorting-method: "normal";
+max-history-size: 25;
+
+
+display-drun:               "󱓞 Apps";
+display-run:                " Run";
+display-filebrowser:        " Files";
+drun-display-format:        "{name} [<span weight='light' size='small'><i>({generic})</i></span>]";
+window-format:              "{w} · {c} · {t}";
+
+sort: false;
+threads: 0;
+click-to-exit: true;
+
+
+kb-primary-paste: "Control+V,Shift+Insert";
+kb-secondary-paste: "Control+v,Control+y,Insert";
+kb-clear-line: "Control+w";
+kb-move-front: "Control+a";
+kb-move-end: "Control+e";
+kb-move-word-back: "Alt+b,Control+Left";
+kb-move-word-forward: "Alt+f,Control+Right";
+kb-move-char-back: "Left,Control+b";
+kb-move-char-forward: "Right,Control+f";
+kb-remove-word-back: "Control+Alt+h,Control+BackSpace";
+kb-remove-word-forward: "Control+Alt+d";
+kb-remove-char-forward: "Delete,Control+d";
+kb-remove-char-back: "BackSpace,Shift+BackSpace,Control+h";
+kb-remove-to-eol: "Control+k";
+kb-remove-to-sol: "Control+u";
+kb-accept-entry: "Control+j,Control+m,Return,KP_Enter";
+kb-accept-custom: "Control+Return";
+kb-accept-custom-alt: "Control+Shift+Return";
+kb-accept-alt: "Shift+Return";
+kb-delete-entry: "Shift+Delete";
+kb-mode-next: "Shift+Right,Control+Tab";
+kb-mode-previous: "Shift+Left,Control+ISO_Left_Tab";
+kb-mode-complete: "Control+l";
+kb-row-left: "Control+Page_Up";
+kb-row-right: "Control+Page_Down";
+kb-row-down: "Down,Control+n";
+kb-page-prev: "Page_Up";
+kb-page-next: "Page_Down";
+kb-row-first: "Home,KP_Home";
+kb-row-last: "End,KP_End";
+kb-row-select: "Control+space";
+kb-screenshot: "Alt+S";
+kb-ellipsize: "Alt+period";
+kb-toggle-case-sensitivity: "grave,dead_grave";
+kb-toggle-sort: "Alt+grave";
+kb-cancel: "Escape,Control+g,Control+bracketleft";
+me-select-entry: "MousePrimary";
+me-accept-entry: "MouseDPrimary";
+me-accept-custom: "Control+MouseDPrimary";
+
+}
+
+* {
+border-colour:               @bg-tag;
+handle-colour:               @fg-region;
+background-colour:           @bg-main;
+foreground-colour:           @fg-main;
+alternate-background:        @bg-dim;
+normal-background:           @bg-main;
+normal-foreground:           @fg-main;
+urgent-background:           @verbatim;
+urgent-foreground:           @bg-main;
+active-background:           @fg-dim;
+active-foreground:           @bg-main;
+selected-normal-background:  @fg-region;
+selected-normal-foreground:  @bg-main;
+selected-urgent-background:  @fg-dim;
+selected-urgent-foreground:  @bg-main;
+selected-active-background:  @verbatim;
+selected-active-foreground:  @fg-main;
+alternate-normal-background: @bg-main;
+alternate-normal-foreground: @fg-main;
+alternate-urgent-background: @verbatim;
+alternate-urgent-foreground: @fg-main;
+alternate-active-background: @bg-dim;
+alternate-active-foreground: @fg-main;
+}
+
+window {
+transparency:                "real";
+location:                    center;
+anchor:                      center;
+fullscreen:                  false;
+width:                       50%;
+height:			     60%;
+x-offset:                    0px;
+y-offset:                    0px;
+
+enabled:                     true;
+margin:                      0px;
+padding:                     0px;
+border:                      2px solid;
+border-radius:               20px;
+border-color:                @border-colour;
+cursor:                      "default";
+background-color:            @background-colour;
+
+/* Angle Linear Gradient */
+// background-image:          linear-gradient(45, #eb0, #ebe, indigo);
+}
+
+mainbox {
+enabled:                     true;
+spacing:                     10px;
+margin:                      0px;
+padding:                     40px;
+border:                      0px solid;
+border-radius:               0px 0px 0px 0px;
+border-color:                @border-colour;
+background-color:            transparent;
+children:                    [ "inputbar", "message", "listview", "mode-switcher" ];
+}
+
+inputbar {
+enabled:                     true;
+spacing:                     10px;
+margin:                      0px;
+padding:                     0px;
+border:                      0px solid;
+border-radius:               0px;
+border-color:                @border-colour;
+background-color:            transparent;
+text-color:                  @foreground-colour;
+children:                    [ "prompt", "textbox-prompt-colon", "entry" ];
+}
+
+prompt {
+enabled:                     true;
+background-color:            inherit;
+text-color:                  inherit;
+}
+textbox-prompt-colon {
+enabled:                     true;
+expand:                      false;
+str:                         "::";
+background-color:            inherit;
+text-color:                  inherit;
+}
+entry {
+enabled:                     true;
+background-color:            inherit;
+text-color:                  inherit;
+cursor:                      text;
+placeholder:                 "Search...";
+placeholder-color:           inherit;
+}
+num-filtered-rows {
+enabled:                     true;
+expand:                      false;
+background-color:            inherit;
+text-color:                  inherit;
+}
+textbox-num-sep {
+enabled:                     true;
+expand:                      false;
+str:                         "/";
+background-color:            inherit;
+text-color:                  inherit;
+}
+num-rows {
+enabled:                     true;
+expand:                      false;
+background-color:            inherit;
+text-color:                  inherit;
+}
+case-indicator {
+enabled:                     true;
+background-color:            inherit;
+text-color:                  inherit;
+}
+
+listview {
+enabled:                     true;
+columns:                     2;
+lines:                       10;
+cycle:                       true;
+dynamic:                     true;
+scrollbar:                   false;
+layout:                      vertical;
+reverse:                     false;
+fixed-height:                false;
+fixed-columns:               false;
+
+spacing:                     5px;
+margin:                      0px;
+padding:                     0px;
+border:                      0px solid;
+border-radius:               0px;
+border-color:                @border-colour;
+background-color:            transparent;
+text-color:                  @foreground-colour;
+cursor:                      "default";
+}
+scrollbar {
+handle-width:                10px ;
+handle-color:                @handle-colour;
+border-radius:               10px;
+background-color:            @alternate-background;
+}
+
+element {
+enabled:                     true;
+spacing:                     10px;
+margin:                      0px;
+padding:                     5px 10px;
+border:                      0px solid;
+border-radius:               20px;
+border-color:                @border-colour;
+background-color:            transparent;
+text-color:                  @foreground-colour;
+cursor:                      pointer;
+}
+element normal.normal {
+background-color:            var(normal-background);
+text-color:                  var(normal-foreground);
+}
+element normal.urgent {
+background-color:            var(urgent-background);
+text-color:                  var(urgent-foreground);
+}
+element normal.active {
+background-color:            var(active-background);
+text-color:                  var(active-foreground);
+}
+element selected.normal {
+background-color:            var(selected-normal-background);
+text-color:                  var(selected-normal-foreground);
+}
+element selected.urgent {
+background-color:            var(selected-urgent-background);
+text-color:                  var(selected-urgent-foreground);
+}
+element selected.active {
+background-color:            var(selected-active-background);
+text-color:                  var(selected-active-foreground);
+}
+element alternate.normal {
+background-color:            var(alternate-normal-background);
+text-color:                  var(alternate-normal-foreground);
+}
+element alternate.urgent {
+background-color:            var(alternate-urgent-background);
+text-color:                  var(alternate-urgent-foreground);
+}
+element alternate.active {
+background-color:            var(alternate-active-background);
+text-color:                  var(alternate-active-foreground);
+}
+element-icon {
+background-color:            transparent;
+text-color:                  inherit;
+size:                        24px;
+cursor:                      inherit;
+}
+element-text {
+background-color:            transparent;
+text-color:                  inherit;
+highlight:                   inherit;
+cursor:                      inherit;
+vertical-align:              0.5;
+horizontal-align:            0.0;
+}
+
+mode-switcher{
+enabled:                     true;
+spacing:                     10px;
+margin:                      0px;
+padding:                     0px;
+border:                      0px solid;
+border-radius:               0px;
+border-color:                @border-colour;
+background-color:            transparent;
+text-color:                  @foreground-colour;
+}
+button {
+padding:                     5px 10px;
+border:                      0px solid;
+border-radius:               20px;
+border-color:                @border-colour;
+background-color:            @alternate-background;
+text-color:                  inherit;
+cursor:                      pointer;
+}
+button selected {
+background-color:            var(selected-normal-background);
+text-color:                  var(selected-normal-foreground);
+}
+
+message {
+enabled:                     true;
+margin:                      0px;
+padding:                     0px;
+border:                      0px solid;
+border-radius:               0px 0px 0px 0px;
+border-color:                @border-colour;
+background-color:            transparent;
+text-color:                  @foreground-colour;
+}
+textbox {
+padding:                     5px 10px;
+border:                      0px solid;
+border-radius:               20px;
+border-color:                @border-colour;
+background-color:            @alternate-background;
+text-color:                  @foreground-colour;
+vertical-align:              0.5;
+horizontal-align:            0.0;
+highlight:                   none;
+placeholder-color:           @foreground-colour;
+blink:                       true;
+markup:                      true;
+}
+error-message {
+padding:                     10px;
+border:                      2px solid;
+border-radius:               20px;
+border-color:                @border-colour;
+background-color:            @background-colour;
+text-color:                  @foreground-colour;
+}

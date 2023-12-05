@@ -40,7 +40,7 @@
    (lambda nil
      (concat
       "\n"
-      (propertize (concat "  " (eshell/pwd)) 'face `(:foreground "lightblue1"))
+      (propertize (concat " 󰪥 " (eshell/pwd)) 'face `(:foreground "lightblue1"))
       (when (package-installed-p 'magit) (propertize (if (magit-get-current-branch) (concat "   " (magit-get-current-branch)) "") 'face '(:foreground "orangered1")))
       (when (package-installed-p 'envrc) (propertize (if (string= envrc--status 'none) "" "   ") 'face '(:foreground "mediumspringgreen")))
       (propertize (concat "   " (format-time-string "%H:%M" (current-time))) 'face '(:foreground "lightcyan1"))

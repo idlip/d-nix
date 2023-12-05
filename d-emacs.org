@@ -1,13 +1,102 @@
 #+STARTUP: overview hideblocks
 #+OPTIONS: num:nil author:nil toc:5
-#+PROPERTY: header-args  :tangle-mode (identity #o444) :mkdirp yes :tangle ./home/programs/d-emacs/init.el :lexical t
+#+PROPERTY: header-args  :tangle-mode (identity #o444) :mkdirp yes :tangle ./gdk/configs/d-emacs/init.el :lexical t
 #+TITLE: GOAT-Editor Emacs!
 #+AUTHOR: iDlip
+
+* Table of contents :toc:
+- [[#bootstrapping][bootstrapping]]
+  - [[#early-init][early-init]]
+  - [[#startup][startup]]
+- [[#core-tweaks][core tweaks]]
+  - [[#emacs][Emacs]]
+  - [[#files][files]]
+- [[#completions][completions]]
+  - [[#dabbrev][dabbrev]]
+  - [[#vertico][vertico]]
+  - [[#consult][consult]]
+  - [[#orderless][orderless]]
+  - [[#marginalia][marginalia]]
+  - [[#corfu][corfu]]
+  - [[#cape][cape]]
+  - [[#tempel][tempel]]
+- [[#enhance][enhance]]
+- [[#fonts][fonts]]
+- [[#theme][theme]]
+- [[#aesthetics][aesthetics]]
+  - [[#dashboard][dashboard]]
+  - [[#icons][icons]]
+- [[#helpful][helpful]]
+  - [[#embark][embark]]
+- [[#coding][coding]]
+  - [[#git][git]]
+  - [[#python][python]]
+  - [[#ess-rstats][ess: rstats]]
+  - [[#nix][nix]]
+- [[#shell][shell]]
+  - [[#eshell][eshell]]
+  - [[#eat][eat]]
+  - [[#vterm][vterm]]
+- [[#dired][dired]]
+  - [[#dired-x][dired-x]]
+  - [[#async][async]]
+  - [[#dirvish][dirvish]]
+- [[#web][web]]
+  - [[#shrface][shrface]]
+  - [[#shr-pre-highlight][shr-pre-highlight]]
+  - [[#url][url]]
+  - [[#shr][shr]]
+  - [[#eww][eww]]
+  - [[#gnutls][gnutls]]
+  - [[#browse-url][browse-url]]
+  - [[#ox-hugo][ox-hugo]]
+- [[#reader][reader]]
+  - [[#novel][novel]]
+  - [[#doc-view][doc-view]]
+  - [[#enhanced-reading][enhanced reading]]
+- [[#rss][rss]]
+  - [[#elfeed][elfeed]]
+  - [[#elfeed-show][elfeed-show]]
+  - [[#elfeed-search][elfeed-search]]
+  - [[#elfeed-org][elfeed-org]]
+  - [[#elfeed-log][elfeed-log]]
+  - [[#avy][avy]]
+- [[#note-taking][note taking]]
+  - [[#jinx-correction][jinx correction]]
+  - [[#denote][denote]]
+  - [[#flycheck-langtool][flycheck-langtool]]
+- [[#organize][organize]]
+  - [[#org][org]]
+  - [[#org-tempo][org-tempo]]
+  - [[#org-modern][org-modern]]
+  - [[#org-clock][org-clock]]
+  - [[#org-agenda][org-agenda]]
+  - [[#org-capture][org-capture]]
+  - [[#org-link][org-link]]
+  - [[#org-src][org-src]]
+  - [[#org-babel][org-babel]]
+  - [[#org-export][org-export]]
+  - [[#org-re-reveal][org-re-reveal]]
+  - [[#org-habit][org-habit]]
+  - [[#org-bookmark][org-bookmark]]
+  - [[#markdown][markdown]]
+  - [[#meow][meow]]
+- [[#apps][apps]]
+  - [[#reddigg][reddigg]]
+  - [[#hnreader--howdoyou][hnreader & howdoyou]]
+  - [[#mingus][mingus]]
+  - [[#webpaste][webpaste]]
+  - [[#sdcv][sdcv]]
+  - [[#proced][proced]]
+  - [[#speed-type][speed-type]]
+  - [[#ement][ement]]
+  - [[#android][android]]
+  - [[#org-present][org-present]]
 
 * bootstrapping
 ** early-init
 :PROPERTIES:
-:header-args: :tangle-mode (identity #o444) :mkdirp yes :tangle home/programs/d-emacs/early-init.el :lexical t
+:header-args: :tangle-mode (identity #o444) :mkdirp yes :tangle gdk/configs/d-emacs/early-init.el :lexical t
 :END:
 - Emacs 27.0 introduced an early-init file. It allows customization before package and UI initialization.
 - Something to initiate early before anything.
@@ -2336,6 +2425,7 @@ and returns the icon."
 - batteries packed dired extension
  #+begin_src emacs-lisp
  (use-package dirvish
+   :unless d/on-droid
    :functions
    (dirvish-override-dired-mode
     dirvish-subtree-toggle-or-open
@@ -2775,12 +2865,20 @@ and returns the icon."
    :bind
    ("C-c d e" . d/elfeed-open)
    ("C-c d b" . embark-act)
-
+   :commands
+   (d/elfeed-open)
    :config
    (defface elfeed-search-star-title-face
      '((t :foreground "#f77"))
      "Marks a starred Elfeed entry.")
-   (push '(star elfeed-search-star-title-face) elfeed-search-face-alist))
+   (push '(star elfeed-search-star-title-face) elfeed-search-face-alist)
+   (defun d/elfeed-open ()
+     "Wrapper to load the elfeed db from disk before opening"
+     (interactive)
+     (unless (get-buffer "*elfeed-search*") (elfeed-db-load))
+     (elfeed)
+     (elfeed-search-update--force)))
+    ;; (elfeed-update)))
 #+end_src
 - 󰊕: toggle star tag on feeds in =elfeed-show-mode=
  #+begin_src emacs-lisp
@@ -2807,24 +2905,14 @@ and returns the icon."
    (variable-pitch-mode)
    (shrface-mode))
 #+end_src
-- open elfeed by reading db
- #+begin_src emacs-lisp
- (defun d/elfeed-open ()
-   "Wrapper to load the elfeed db from disk before opening"
-   (interactive)
-   (unless (get-buffer "*elfeed-search*") (elfeed-db-load))
-   (elfeed)
-   (elfeed-search-update--force))
-   ;; (elfeed-update))
-#+end_src
-  - write to disk when quit.
-    #+begin_src emacs-lisp
-   ;;write to disk when quiting
-   (defun d/elfeed-quit ()
-     "Wrapper to save the elfeed db to disk before burying buffer"
-     (interactive)
-     (elfeed-db-save)
-     (quit-window))
+- write to disk when quit.
+#+begin_src emacs-lisp
+;;write to disk when quiting
+(defun d/elfeed-quit ()
+  "Wrapper to save the elfeed db to disk before burying buffer"
+  (interactive)
+  (elfeed-db-save)
+  (quit-window))
   #+end_src
 - to play podcast or music. Replaced it by bash script using mpd.
  #+begin_src emacs-lisp
@@ -2895,8 +2983,9 @@ and returns the icon."
 - reading feed on android, with volume button to go up and down
  #+begin_src emacs-lisp
  (when d/on-droid
+ (with-eval-after-load 'elfeed
    (define-key elfeed-show-mode-map (kbd "<volume-up>") #'elfeed-show-prev)
-   (define-key elfeed-show-mode-map (kbd "<volume-down>") #'elfeed-show-next))
+   (define-key elfeed-show-mode-map (kbd "<volume-down>") #'elfeed-show-next)))
 #+end_src
 - deleting feeds from db
  #+begin_src emacs-lisp
@@ -2912,7 +3001,7 @@ and returns the icon."
           (count (length entries)))
      (when (y-or-n-p (format "Delete %d entires?" count))
        (cl-loop for entry in entries
-                do (sk/elfeed-db-remove-entry (elfeed-entry-id entry)))))
+                do (d/elfeed-db-remove-entry (elfeed-entry-id entry)))))
    (elfeed-search-update--force))
 
 #+end_src
@@ -4066,16 +4155,11 @@ and returns the icon."
    )
 
 #+end_src
-* EOF
+- EOF
 #+begin_src emacs-lisp
-
 ;; Local Variables:
 ;; coding: utf-8
 ;; no-byte-compile: t
 ;; End:
 ;;; init.el ends here
 #+end_src
-
-# Local Variables:
-# eval: (add-hook 'after-save-hook (lambda () (org-babel-tangle)) nil t)
-# End:

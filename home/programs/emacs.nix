@@ -1,6 +1,7 @@
 {pkgs, config, ...}:
 {
 
+  # does not read local path properly. so ~/.local/bin does not work
   # services.emacs = {
   #   enable = true;
   #   socketActivation.enable = true;
@@ -32,10 +33,10 @@
     mupdf poppler_utils ghostscript # for doc-view?
   ];
 
-  xdg.configFile."emacs/lisp" = {
-    recursive = true;
-    source = config.lib.file.mkOutOfStoreSymlink "/home/idlip/d-git/d-nix/home/programs/d-emacs/lisp/";
-  };
+  # xdg.configFile."emacs/lisp" = {
+  #   recursive = true;
+  #   source = config.lib.file.mkOutOfStoreSymlink "/home/idlip/d-git/d-nix/home/programs/d-emacs/lisp/";
+  # };
 
   xdg.configFile."emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/idlip/d-git/d-nix/home/programs/d-emacs/init.el";
 

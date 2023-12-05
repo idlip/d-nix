@@ -1,4 +1,4 @@
-;;; early-init.el --- Emacs 27+ pre-initialisation config
+;;; early-init.el --- Emacs 27+ pre-initialisation config -*- lexical-binding: t; -*-
 
 ;;; Commentary:
 
@@ -6,21 +6,20 @@
 ;; `package-initialize'.  We use this file to suppress that automatic
 ;; behaviour so that startup is consistent across Emacs versions.
 
-;;; Code:
+;; Tangled File, no need to edit !!!
 
-(setq package-enable-at-startup nil
-      load-prefer-newer t)
+;;; Code:
 
 (custom-set-variables
  '(native-comp-async-report-warnings-errors nil)
  '(native-comp-jit-compilation nil))
 
-(defconst d/on-droid (eq system-type 'android))
-
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
+(setq frame-inhibit-implied-resize t)
 
+(defconst d/on-droid (eq system-type 'android))
 
 ;; Emacs (gui app) is also amazing in android
 ;; https://sourceforge.net/projects/android-ports-for-gnu-emacs/files/termux/
@@ -32,8 +31,5 @@
 				                    (getenv "LD_LIBRARY_PATH")))
   (push "/data/data/com.termux/files/usr/bin" exec-path))
 
-
-;; So we can detect this having been loaded
 (provide 'early-init)
-
 ;;; early-init.el ends here

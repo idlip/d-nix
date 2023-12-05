@@ -25,26 +25,56 @@
 
   };
 
-  outputs = inputs @ {
-    self, nixpkgs, ...
-  }: let
-    system = "x86_64-linux";
-    pkgs = nixpkgs.legacyPackages.x86_64-linux;
-    username = "idlip";
-  in {
+  outputs = {self, nixpkgs, ...}@inputs:
+    let
+      system = "x86_64-linux";
+      pkgs = nixpkgs.legacyPackages.x86_64-linux;
 
-    devShells.x86_64-linux.default = pkgs.mkShell {
-      packages = with pkgs; [
-        alejandra
-        git
-      ];
-      name = "dots";
-      DIRENV_LOG_FORMAT = "";
+      vars = {
+        username = "idlip";
+        editor = "emacs";
+      };
+
+    in {
+
+      devShells.x86_64-linux.default = pkgs.mkShell {
+        packages = with pkgs; [
+          alejandra deadnix git
+        ];
+        name = "dots";
+        DIRENV_LOG_FORMAT = "";
+      };
+
+      nixosConfigurations = {
+        gdk = nixpkgs.lib.nixosSystem {
+
+          modules =
+            [
+              {networking.hostName = "gdk";}
+              ./gdk/configuration.nix
+              ./gdk/hardware-configuration.nix
+              inputs.hosts.nixosModule
+              inputs.home-manager.nixosModules.home-manager {
+                home-manager = {
+                  useUserPackages = true;
+                  useGlobalPkgs = true;
+                  extraSpecialArgs = {
+                    inherit inputs;
+                    inherit self vars;
+                  };
+                  users.${vars.username} = import ./gdk/home.nix;
+                };
+              }
+            ];
+
+          specialArgs = {
+            inherit inputs;
+            inherit vars system pkgs;
+          };
+
+        };
+      };
+
+
     };
-
-    formatter = pkgs.alejandra;
-
-    nixosConfigurations = import ./hosts inputs;
-
-  };
 }

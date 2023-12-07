@@ -1,3 +1,7 @@
+#
+# This file is auto-generated from "README.org"
+#
+
 {
   description = "D Nixyfied ❄️ Flaky Station";
 
@@ -47,34 +51,28 @@
 
       nixosConfigurations = {
         gdk = nixpkgs.lib.nixosSystem {
-
+          system = "x86_64-linux";
           modules =
             [
-              {networking.hostName = "gdk";}
-              ./gdk/configuration.nix
-              ./gdk/hardware-configuration.nix
+              ./gdk/core.nix
               inputs.hosts.nixosModule
-              inputs.home-manager.nixosModules.home-manager {
+              inputs.home-manager.nixosModules.home-manager
+              {
                 home-manager = {
                   useUserPackages = true;
                   useGlobalPkgs = true;
                   extraSpecialArgs = {
-                    inherit inputs;
-                    inherit self vars;
+                    inherit inputs vars;
                   };
                   users.${vars.username} = import ./gdk/home.nix;
                 };
               }
             ];
-
           specialArgs = {
             inherit inputs;
             inherit vars system pkgs;
           };
-
         };
       };
-
-
     };
 }

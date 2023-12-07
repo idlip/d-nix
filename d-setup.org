@@ -4,7 +4,7 @@
 #+TITLE: Nix Organized with Emacs!
 #+AUTHOR: iDlip
 
-#+begin_export html
+#+begin_html
 <p align="center">
 <a href="https://github.com/nixos/nixpkgs"><img src="https://img.shields.io/badge/NixOS-24.05-royalblue.svg?style=rounded-square&logo=nixos&logoColor=white"></a>
 
@@ -14,7 +14,7 @@
 </p>
 
 <h1 align="center">NixOrgMacs</h1>
-#+end_export
+#+end_html
 
 * Intro
 This is a literate configuration for NixOS with HomeManager configs, and consists of Emacs (elisp) configs in tandem with particular category.

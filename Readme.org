@@ -1,30 +1,38 @@
 #+title: ❄️ Nix station with 🧬 Emacs at its Core
 #+author: Dilip
+#+html: <a href="https://www.gnu.org/software/emacs/emacs.html#Releases"><img src="https://img.shields.io/badge/Emacs-29.1-blueviolet.svg?style=flat-square&logo=GNU%20Emacs&logoColor=white"></a>
+#+html: <a href="https://orgmode.org"><img src="https://img.shields.io/badge/Org-literate%20config-%2377aa99?style=flat-square&logo=org&logoColor=white"></a>
+
+- Management of NixOS and Emacs configs in literate org file.
+  1. NixOS - [[file:d-setup.org][d-setup.org]]
+  2. Emacs - [[file:d-emacs.org][d-emacs.org]]
+- Files are tangled to =gdk/= directory, thus making the repo look clean and minimal.
+- [[file:.dir-locals.el][.dir-locals.el]] - Helps to set local variable in emacs session for org-mode buffer.
+- [[file:.envrc][.envrc]] - For direnv, shell environment based on flake or bash.
 
 --------------
-
 * 🌟 Utilities that are Best!
 --------------
 
-|----------------------------+--------------------------------|
-| Class                      | Name                           |
-|----------------------------+--------------------------------|
-| 🌸 Window Manager          | [[https://hyprland.org/][Hyprland]]                       |
-| 💜 Text Editor             | [[https://www.gnu.org/software/emacs/][Emacs]]                          |
-| 🎨 Gtk Theme               | [[https://github.com/Fausto-Korpsvart/Gruvbox-GTK-Theme][Gruvbox]]                        |
-|   Font                    | [[https://github.com/idlip/code-d-font][Fork of Recursive font]]         |
-| 📔 Pdf Reader              | [[https://github.com/ahrm/sioyek][Sioyek]] (ditch zathura)         |
-| 🎬 Media Player            | [[https://mpv.io][MPV!]] (its MVP too)             |
-| 🖼️ Image Viewer            | [[https://sr.ht/~exec64/imv/][Imv]]                            |
-| 📰 RSS Reader              | [[https://github.com/skeeto/elfeed][Elfeed]] (Again, Emacs)          |
-| 🎶 Music Player            | [[https://github.com/ncmpcpp/ncmpcpp][Ncmpcpp]] or [[https://github.com//mingus][Mingus in Emacs]]     |
-|   Terminal                | [[https://codeberg.org/dnkl/foot][Foot]] via footclient            |
-| 🚀 Menu/Launcher           | [[https://github.com/Cloudef/bemenu][Bemenu]]                         |
-| 🛎️ Notification            | [[https://github.com/dunst/dunst][Dunst]]                          |
-| 🔰 Shell                   | [[https://zsh.org][Zshell]] with [[https://starship.rs][Starship]]           |
-| 🍥 Status Bar              | [[https://github.com/Alexays/Waybar][Waybar]]                         |
-| 🫰 Favourite Color-Schemes | [[https://github.com/idlip/haki][Haki]] + Modus-Vivendi + Gruvbox |
-|----------------------------+--------------------------------|
+|----------------------------+----------------------------|
+| Class                      | Name                       |
+|----------------------------+----------------------------|
+| 🌸 Window Manager          | [[https://hyprland.org/][Hyprland]]                   |
+| 💜 Text Editor             | [[https://www.gnu.org/software/emacs/][Emacs]]                      |
+| 🎨 Gtk Theme               | [[https://github.com/lassekongo83/adw-gtk3][Adw-gtk3]]                   |
+|   Font                    | [[https://github.com/idlip/code-d-font][Recursive font]]             |
+| 📔 Pdf Reader              | [[https://github.com/ahrm/sioyek][Sioyek]] (ditch zathura)     |
+| 🎬 Media Player            | [[https://mpv.io][MPV!]] (its MVP too)         |
+| 🖼️ Image Viewer            | [[https://sr.ht/~exec64/imv/][Imv]]                        |
+| 📰 RSS Reader              | [[https://github.com/skeeto/elfeed][Elfeed]] (Again, Emacs)      |
+| 🎶 Music Player            | [[https://github.com/ncmpcpp/ncmpcpp][Ncmpcpp]] or [[https://github.com//mingus][Mingus in Emacs]] |
+|   Terminal                | [[https://codeberg.org/dnkl/foot][Foot]] via footclient        |
+| 🚀 Menu/Launcher           | [[https://github.com/lbonn/rofi][Rofi]]                       |
+| 🛎️ Notification            | [[https://github.com/dunst/dunst][Dunst]]                      |
+| 🔰 Shell                   | [[https://zsh.org][Zshell]]                     |
+| 🍥 Status Bar              | [[https://github.com/Alexays/Waybar][Waybar]]                     |
+| 🫰 Favourite Color-Schemes | [[https://github.com/idlip/haki][Haki]] + Modus-Vivendi       |
+|----------------------------+----------------------------|
 
 #+begin_quote
 Rest all other stuffs I do in Emacs, tbh I could do everything in Emacs lol.
@@ -32,19 +40,26 @@ Rest all other stuffs I do in Emacs, tbh I could do everything in Emacs lol.
 
 
 ** Literate config
+Back to literate config. I initially started nixos and emacs config in literate org config, but later on moved to modular split config, cause that is what world demands to have file tree hierarchy.
+After several months of maintaining it, I wanted to come back to literate org config. The reasons are simple:
+- The config has to focus on learning, and literate programming is the way.
+- File tree model is dynamic, over time my brain can change and I don't want to burden by thinking where to put or organize them.
+- Maintaining in single org file is easy, yes, it might primarily depend on Emacs only or searching capabilities, but that's fine.
+- One host, one user, one system; why not one file?
+- I can make use of TODO, Fixes, notes, additional resources to refer.
+- This really turns out useful when the time of forgetting comes into play.
+- One con for maintaining nix config would be that you can repeat an attribute again. (e.g., =home.packages=)
+- Other cons like multi host maintenance can be over come by using elisp or org-mode features, or simply with nix conditional statement =if/else=
 
-Previously I was using literate org config to manage both nixos and emacs, but now I have moved to Modular config.
-There is not much drawbacks of using literate config, but I just moved so, it is feasible for other real world work.
-You can check out, it is is another branch named "new-world".
+- You can ask me anything by opening an issue, I'd be glad to share or help you with literate org config.
 
 ** 🚔 Speculation
-  | CPU                | Intel(R) Core(TM) i3-6006U CPU @ 2.00GHz |
-  | RAM (startup)      | 343MB/4GB (16%)                          |
-  | Swap               | 50% (2GB) zram                           |
-  | Pkgs               | 691                                      |
-  | Nix current-system | 12.7GB                                   |
+  | CPU                | 13th Gen Intel i5-13500H (16) @ 2.600GHz |
+  | RAM (startup)      | 600MiB / 16GiB                           |
+  | Swap               | 50% (8GB) zram                           |
+  | Pkgs               | 1767                                     |
+  | Nix current-system | 17 GB                                    |
 
-* ✨ Illustrations - Unix Way
 * 📚 Nix Learning
 This repo has bunch of links for learning nix in every possible way.
 - https://github.com/humancalico/nix-learning

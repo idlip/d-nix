@@ -1,11 +1,19 @@
 #+title: ❄️ Nix station with 🧬 Emacs at its Core
 #+author: Dilip
-#+html: <a href="https://www.gnu.org/software/emacs/emacs.html#Releases"><img src="https://img.shields.io/badge/Emacs-29.1-blueviolet.svg?style=flat-square&logo=GNU%20Emacs&logoColor=white"></a>
-#+html: <a href="https://orgmode.org"><img src="https://img.shields.io/badge/Org-literate%20config-%2377aa99?style=flat-square&logo=org&logoColor=white"></a>
 
-- Management of NixOS and Emacs configs in literate org file.
-  1. NixOS - [[file:d-setup.org][d-setup.org]]
-  2. Emacs - [[file:d-emacs.org][d-emacs.org]]
+#+begin_html
+<p align="center">
+<a href="https://github.com/nixos/nixpkgs"><img src="https://img.shields.io/badge/NixOS-24.05-royalblue.svg?style=rounded-square&logo=nixos&logoColor=white"></a>
+
+<a href="https://orgmode.org"><img src="https://img.shields.io/badge/Org-literate%20config-seagreen?style=rounded-square&logo=org&logoColor=white"></a>
+
+<a href="https://www.gnu.org/software/emacs/emacs.html#Releases"><img src="https://img.shields.io/badge/Emacs-29.1-blueviolet.svg?style=rounded-square&logo=GNU%20Emacs&logoColor=white"></a>
+</p>
+
+<h1 align="center">NixOrgMacs</h1>
+#+end_html
+
+- Management of NixOS and Emacs configs in literate org file - [[file:d-setup.org][d-setup.org]].
 - Files are tangled to =gdk/= directory, thus making the repo look clean and minimal.
 - [[file:.dir-locals.el][.dir-locals.el]] - Helps to set local variable in emacs session for org-mode buffer.
 - [[file:.envrc][.envrc]] - For direnv, shell environment based on flake or bash.

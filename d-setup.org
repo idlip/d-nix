@@ -1047,7 +1047,7 @@ It is as simple if I just record what it does, with proper link to rich resource
 #+begin_src nix :tangle no
 {
   imports = [
-    inputs.nix-index-db.hmmodules.nix-index
+    inputs.nix-index-db.hmModules.nix-index
   ];
   programs.nix-index.enable = true;
 }
@@ -6245,9 +6245,9 @@ tooltip {
 #+begin_src nix
 {
   systemd.user.targets.tray = {
-    unit = {
-      description = "home manager system tray";
-      requires = ["graphical-session-pre.target"];
+    Unit = {
+      Description = "home manager system tray";
+      Requires = ["graphical-session-pre.target"];
     };
   };
 }
@@ -6888,7 +6888,7 @@ fi
   programs.aria2 = {
     enable = true;
     settings = {
-      dir = "$home/dloads";
+      dir = "$HOME/dloads";
       file-allocation = "none";
       log-level = "warn";
       split = "10";
@@ -6929,7 +6929,7 @@ fi
     enable = true;
     iconTheme = {
       package = pkgs.papirus-icon-theme;
-      name = "papirus";
+      name = "Papirus";
     };
     settings = {
       global = {
@@ -6959,7 +6959,7 @@ fi
         frame_width = 3;
         separator_color = "frame";
         sort = "yes";
-        font = "code d ace 16";
+        font = "Code D Ace 16";
         line_height = 0;
         markup = "full";
         stack_duplicates = "true";
@@ -6974,8 +6974,8 @@ fi
         history_length = 20;
         browser = "d-stuff";
         always_run_script = "true";
-        title = "dunst";
-        class = "dunst";
+        title = "Dunst";
+        class = "Dunst";
         corner_radius = 20;
         ignore_dbusclose = false;
         force_xwayland = "false";

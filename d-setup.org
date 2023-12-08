@@ -2308,6 +2308,11 @@ Return nil if NAME does not designate a valid color."
   (mouse-wheel-progressive-speed nil)
   (scroll-margin 4)
   (scroll-conservatively 101))
+
+(use-package disable-mouse
+  :unless d/on-droid
+  :bind
+  ([f10] . disable-mouse-mode))
 #+end_src
 **** pixel scroll
 #+name: orgmacs
@@ -2398,6 +2403,13 @@ You can do this by trackpad too (laptop)"
       (quit
        (and (get-buffer buffer-name)
             (kill-buffer buffer-name))))))
+#+end_src
+- Function to go =zone= if afk or idle
+#+name: orgmacs
+#+begin_src emacs-lisp
+(defun d/afk-mode ()
+  (interactive)
+  (zone-when-idle 20))
 #+end_src
 * Development
 *** Documentation
@@ -2854,6 +2866,7 @@ You can do this by trackpad too (laptop)"
       doom-modeline el-fetch ox-hugo envrc dashboard
       ement kind-icon speed-type vc-backup aria2
       ess org-re-reveal auctex julia-mode
+      toc-org el-patch disable-mouse
     ])
     );
   };

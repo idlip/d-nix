@@ -6338,21 +6338,6 @@ tooltip {
 /* } */
 #+end_src
 
-*** tray
-- fake a tray to let apps start
-- https://github.com/nix-community/home-manager/issues/2064
-#+name: hm-config
-#+begin_src nix
-{
-  systemd.user.targets.tray = {
-    Unit = {
-      Description = "home manager system tray";
-      Requires = ["graphical-session-pre.target"];
-    };
-  };
-}
-#+end_src
-
 *** Doom-modeline
 - comprehensive mode-line information.
 #+name: orgmacs

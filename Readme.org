@@ -39,7 +39,7 @@
 | 🛎️ Notification            | [[https://github.com/dunst/dunst][Dunst]]                      |
 | 🔰 Shell                   | [[https://zsh.org][Zshell]]                     |
 | 🍥 Status Bar              | [[https://github.com/Alexays/Waybar][Waybar]]                     |
-| 🫰 Favourite Color-Schemes | [[https://github.com/idlip/haki][Haki]] + Modus-Vivendi       |
+| 🫰 Favorite Color-Schemes | [[https://github.com/idlip/haki][Haki]] + Modus-Vivendi       |
 |----------------------------+----------------------------|
 
 #+begin_quote
@@ -55,9 +55,13 @@ After several months of maintaining it, I wanted to come back to literate org co
 - Maintaining in single org file is easy, yes, it might primarily depend on Emacs only or searching capabilities, but that's fine.
 - One host, one user, one system; why not one file?
 - I can make use of TODO, Fixes, notes, additional resources to refer.
+- Learning is the key, forgetting is natural phenomena, so why should I bother about where things are, better off be at one place.
 - This really turns out useful when the time of forgetting comes into play.
 - One con for maintaining nix config would be that you can repeat an attribute again. (e.g., =home.packages=)
-- Other cons like multi host maintenance can be over come by using elisp or org-mode features, or simply with nix conditional statement =if/else=
+- Other cons like multi host maintenance can be over come by using elisp or org-mode features, or simply with nix conditional statement =if/else=.
+
+- I mean if you are still not getting convinced, think again, why ArchWiki is supreme, why google, apple ecosystem are preferred. It is simple, they provide everything at one stop.
+- Same applies here, things are at one well organized place, I don't have to navigate over the dynamic file hierarchy model.
 
 - You can ask me anything by opening an issue, I'd be glad to share or help you with literate org config.
 

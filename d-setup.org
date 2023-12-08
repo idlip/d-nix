@@ -94,7 +94,7 @@ It is as simple if I just record what it does, with proper link to rich resource
 #
 
 {
-  description = "D Nixyfied ❄️ Flaky Station";
+  description = "Nix Organized with Emacs";
 
   inputs = {
 

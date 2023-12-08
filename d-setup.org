@@ -7575,6 +7575,28 @@ lines:                       20;
 
 #+end_src
 
+*** home-pkgs
+#+name: hm-config
+#+begin_src nix
+{
+  home.packages = with pkgs; [
+    # misc
+    libnotify
+    # xdg-utils
+
+    pcmanfm
+    libreoffice
+    # pandoc
+    groff mupdf
+    keepassxc
+
+    # pioneer of web
+    # mullvad-browser
+    ungoogled-chromium
+  ];
+}
+#+end_src
+
 * Note taking
 ** Org
 - the way to organize stuffs, and get things done!

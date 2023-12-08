@@ -1056,6 +1056,9 @@ It is as simple if I just record what it does, with proper link to rich resource
 - The ever growing environment, ecosystem that is tailored to the user's needs.
 - Power bestowed for the best, and to make the user the best!
 ** Early-Init
+- Emacs 27.0 introduced an early-init file. It allows customization before package and UI initialization.
+- Something to initiate early before anything.
+- =lexical= is like local scope ig, using ~let~ keyword.
 #+begin_src emacs-lisp :noweb yes :tangle gdk/configs/d-emacs/early-init.el
 ;;; early-init.el --- Emacs 27+ pre-initialisation config -*- lexical-binding: t; -*-
 
@@ -1089,7 +1092,10 @@ It is as simple if I just record what it does, with proper link to rich resource
 (scroll-bar-mode -1)
 (setq frame-inhibit-implied-resize t)
 #+end_src
-+ Set constant for android
++ Constant variable to check if on Android.
++ Yes, Emacs official App works very well on android. I use it regularly, and this config is compatible with it.
++ In some blocks I use ~if~ and ~unless~ condition for specific choices, for explicit andoid variables see [[android][Android]]
++ For un/Offical builds: [[https://sourceforge.net/projects/android-ports-for-gnu-emacs/]]
 #+name: early-init
 #+begin_src emacs-lisp
 (defconst d/on-droid (eq system-type 'android))
@@ -1175,7 +1181,8 @@ It is as simple if I just record what it does, with proper link to rich resource
   (use-package-enable-imenu-support t))
 #+end_src
 *** Core-Tweaks
-- For sane defaults
++ Sane default, to make vanilla experience suitable for me, for betterment.
++ Some of the tweak should be self-explanatory, or else just hop on it and do =C-h o=.
 #+name: orgmacs
 #+begin_src emacs-lisp
 (use-package emacs
@@ -2052,7 +2059,6 @@ Return nil if NAME does not designate a valid color."
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 #+end_src
-
 
 **** marginalia
 + rich annotation of information for candidates.
@@ -3485,6 +3491,7 @@ with `venvPath' and `venv' set to the absolute path of
 ** Texinfo
 - Built to read =info= manuals in emacs, and this function lets to read normal text files as info manuals.
 - supports org, texi, md, News file.
+- credits to [[https://emacsnotes.wordpress.com/2023/09/11/view-info-texi-org-and-md-files-as-info-manual][blog post]]
 #+name: orgmacs
 #+begin_src emacs-lisp
 ;; Read normal text files as emacs info manuals
@@ -3594,7 +3601,9 @@ with `venvPath' and `venv' set to the absolute path of
 #+end_src
 ** Rss
 *** Elfeed
-- Elfeed the pioneer of emacs beauty
+- Elfeed the pioneer of Emacs beauty.
+- I primarily use Emacs on android for reading rss feeds in sync with PC. This is easily achieved by syncthing over the DataBase folder, and symlinking them to =var/elfeed= .
+- Certain functions to write DB when quitting buffer helps to make syncing quicker.
 #+name: orgmacs
 #+begin_src emacs-lisp
 (use-package elfeed
@@ -7902,6 +7911,7 @@ lines:                       20;
 ;; credits to https://github.com/rasendubi
 
 (require 'el-patch)
+(require 'ob-tangle)
 ;; org-babel fixes to tangle ALL matching sections
 (defun rasen/map-regex (regex fn)
   "Map the REGEX over the BUFFER executing FN.

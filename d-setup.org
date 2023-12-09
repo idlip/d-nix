@@ -39,7 +39,7 @@ It is as simple if I just record what it does, with proper link to rich resource
 
 :CONTENTS:
 - [[#table-of-contents][Table of Contents]]
-- [[#maintenance-plans-02][Maintenance Plans [0/2]​]]
+- [[#review-plans][Review plans]]
 - [[#flake][Flake]]
   - [[#nixos][NixOS]]
   - [[#home-manager][Home-manager]]
@@ -120,7 +120,7 @@ It is as simple if I just record what it does, with proper link to rich resource
   - [[#denote][Denote]]
 :END:
 
-* Maintenance Plans [0/2]
+* Review Plans [0/2]
 - [ ] Try =nbfc-linux= to control fan (=thermald= is controlling thermals well tho).
 - [ ] Revisit and add more doc for forgotten once.
 * Flake
@@ -164,7 +164,7 @@ It is as simple if I just record what it does, with proper link to rich resource
 
   };
 
-  outputs = {self, nixpkgs, ...}@inputs:
+  outputs = {nixpkgs, ...}@inputs:
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.x86_64-linux;
@@ -442,12 +442,13 @@ It is as simple if I just record what it does, with proper link to rich resource
 *** sleep
 - for laptop hibernation.
 - Note: Hibernation wont be enabled with zramSwap.
-# #+name: nixos-core
+#+name: nixos-core
 #+begin_src nix :tangle no
 {
   systemd.sleep.extraConfig = ''
    AllowSuspendThenHibernate=yes
    HibernateDelaySec=3600
+   AllowHibernation=yes
    '';
 }
 #+end_src
@@ -692,7 +693,6 @@ It is as simple if I just record what it does, with proper link to rich resource
         HibernateDelaySec=3600
       '';
   };
-
 }
 #+end_src
 

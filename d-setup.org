@@ -3221,8 +3221,7 @@ with `venvPath' and `venv' set to the absolute path of
 #+begin_src nix
 {
   home.packages = with pkgs; [
-    # texlive.combined.scheme-full
-    texliveSmall
+    texlive.combined.scheme-full
   ];
 }
 #+end_src

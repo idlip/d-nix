@@ -5198,6 +5198,11 @@ windowrulev2 = size 800 600,title:^(Save File)$
 windowrulev2 = size 800 600,title:^(Volume Control)$
 
 windowrulev2 = idleinhibit fullscreen,class:^(Brave-browser)$
+# idle inhibit while watching videos
+windowrulev2 = idleinhibit focus, class:^(mpv|.+exe)$
+windowrulev2 = idleinhibit fullscreen, class:^(freetube)$
+windowrulev2 = idleinhibit focus, class:^(firefox)$, title:^(.*YouTube.*)$
+windowrulev2 = idleinhibit fullscreen, class:^(firefox)$
 
 # xwaylandvideobridge
 windowrulev2 = opacity 0.0 override 0.0 override,class:^(xwaylandvideobridge)$

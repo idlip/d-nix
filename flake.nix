@@ -3,7 +3,7 @@
 #
 
 {
-  description = "D Nixyfied ❄️ Flaky Station";
+  description = "Nix Organized with Emacs";
 
   inputs = {
 
@@ -29,7 +29,7 @@
 
   };
 
-  outputs = {self, nixpkgs, ...}@inputs:
+  outputs = {nixpkgs, ...}@inputs:
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.x86_64-linux;

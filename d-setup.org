@@ -1385,6 +1385,9 @@ it narrows to region, or Org subtree."
   ("M-c" . d/flex)
   ("M-l" . downcase-dwim)
 
+  ("M-@" . d/mark-word)
+  ("M-h" . d/mark-paragraph)
+
   :custom
   (kill-ring-max 30000)
   (column-number-mode 1)
@@ -1452,7 +1455,6 @@ E.g. capitalize or decapitalize the next word, increment number at point."
       ((looking-at ">") (delete-char 1) (insert "<") (forward-char 1))
       (t #'downcase-word)))))
 #+end_src
-
 - Display line numbers for prog-mode, in relative numbering.
 #+name: orgmacs
 #+begin_src emacs-lisp
@@ -1461,6 +1463,29 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   :hook (prog-mode)
   :custom
   (display-line-numbers-type 'relative))
+#+end_src
+- Function to improve marking paragraph and word as expected.
+#+name: orgmacs
+#+begin_src emacs-lisp
+;; credits to
+;; https://emacs.dyerdwelling.family/emacs/20231209092556-emacs--redefining-mark-paragraph-and-mark-word/
+(defun d/mark-paragraph ()
+  "redefinition of mark-paragraph"
+  (interactive)
+  (forward-char)
+  (backward-paragraph)
+  (push-mark)
+  (forward-paragraph)
+  (setq mark-active t))
+
+(defun d/mark-word ()
+  "redefinition of mark-word"
+  (interactive)
+  (if (not (looking-at "\\<"))
+      (backward-word))
+  (push-mark)
+  (forward-word)
+  (setq mark-active t))
 #+end_src
 *** File
 **** Tidy files

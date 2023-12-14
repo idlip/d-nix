@@ -5180,7 +5180,7 @@ exec-once = wl-paste --type image --watch cliphist store
 # exec-once = systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
 # exec-once = hyprctl setcursor Bibata-Modern-Classic
 #exec-once = swayidle timeout 150 'gtklock -b black & sleep 1 && systemctl suspend' before-sleep 'loginctl lock-session' lock 'gtklock -b black'
-exec-once = swayidle -w timeout 200 'gtklock -b black -d' timeout 210 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on' timeout 30 'if pgrep gtklock; then hyprctl dispatch dpms off; fi' resume 'if pgrep gtklock; then hyprctl dispatch dpms on; fi' before-sleep 'gtklock -b black -d' lock 'gtklock -b black -d' timeout 500 'systemctl suspend'
+exec-once = swayidle -w timeout 200 'gtklock -b black -d' timeout 210 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on' timeout 30 'if pgrep gtklock; then hyprctl dispatch dpms off; fi' resume 'if pgrep gtklock; then hyprctl dispatch dpms on; fi' before-sleep 'gtklock -b black -d' lock 'gtklock -b black -d' timeout 500 'd-idle'
 # exec-once = gammastep -l 19:72 -t 6500:4100
 exec-once = d-walls
 exec-once = foot --server
@@ -5233,7 +5233,7 @@ windowrulev2 = size 800 600,title:^(Volume Control)$
 windowrulev2 = idleinhibit fullscreen,class:^(Brave-browser)$
 # idle inhibit while watching videos
 windowrulev2 = idleinhibit focus, class:^(mpv|.+exe)$
-windowrulev2 = idleinhibit fullscreen, class:^(freetube)$
+windowrulev2 = idleinhibit focus, class:^(Freetube)$
 windowrulev2 = idleinhibit focus, class:^(firefox)$, title:^(.*YouTube.*)$
 windowrulev2 = idleinhibit fullscreen, class:^(firefox)$
 
@@ -5494,6 +5494,9 @@ bind=,w,submap,reset
 
 bind=,c,exec,chromium
 bind=,c,submap,reset
+
+bind=,y,exec,freetube
+bind=,y,submap,reset
 
 bind=,e,exec,emacsclient -c
 bind=,e,submap,reset

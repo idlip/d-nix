@@ -1543,7 +1543,12 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   ("C-x u" . vundo)
   ("C-z" . undo-only)
   ("C-S-z" . undo-redo)
-  ("C-M-r" . undo-redo))
+  ("C-M-r" . undo-redo)
+
+  :custom
+  (vundo-compact-display t)
+  (vundo-glyph-alist vundo-unicode-symbols)
+  (vundo-window-max-height 5))
 #+end_src
 **** backup
 - =vc-backup= is such a necessary tool, that diff the states of previous save to current save.

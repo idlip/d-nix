@@ -281,6 +281,7 @@
           doom-modeline el-fetch ox-hugo envrc dashboard
           ement kind-icon speed-type vc-backup aria2
           ess org-re-reveal auctex julia-mode
+          toc-org el-patch disable-mouse org-ql
         ])
         );
       };
@@ -454,8 +455,7 @@
     }
     {
       home.packages = with pkgs; [
-        # texlive.combined.scheme-full
-        texliveSmall
+        texlive.combined.scheme-full
       ];
     }
     {
@@ -1349,14 +1349,6 @@
     
     }
     {
-      systemd.user.targets.tray = {
-        unit = {
-          description = "home manager system tray";
-          requires = ["graphical-session-pre.target"];
-        };
-      };
-    }
-    {
       programs = {
         eza = {
           enable = true;
@@ -1488,7 +1480,7 @@
       programs.aria2 = {
         enable = true;
         settings = {
-          dir = "$home/dloads";
+          dir = "$HOME/dloads";
           file-allocation = "none";
           log-level = "warn";
           split = "10";
@@ -1524,7 +1516,7 @@
         enable = true;
         iconTheme = {
           package = pkgs.papirus-icon-theme;
-          name = "papirus";
+          name = "Papirus";
         };
         settings = {
           global = {
@@ -1554,7 +1546,7 @@
             frame_width = 3;
             separator_color = "frame";
             sort = "yes";
-            font = "code d ace 16";
+            font = "Code D Ace 16";
             line_height = 0;
             markup = "full";
             stack_duplicates = "true";
@@ -1569,8 +1561,8 @@
             history_length = 20;
             browser = "d-stuff";
             always_run_script = "true";
-            title = "dunst";
-            class = "dunst";
+            title = "Dunst";
+            class = "Dunst";
             corner_radius = 20;
             ignore_dbusclose = false;
             force_xwayland = "false";
@@ -1620,6 +1612,23 @@
         recursive = true;
         source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/rofi";
       };
+    }
+    {
+      home.packages = with pkgs; [
+        # misc
+        libnotify
+        # xdg-utils
+    
+        pcmanfm
+        libreoffice
+        # pandoc
+        groff mupdf
+        keepassxc
+    
+        # pioneer of web
+        # mullvad-browser
+        ungoogled-chromium
+      ];
     }
     {
       home.packages = with pkgs; [

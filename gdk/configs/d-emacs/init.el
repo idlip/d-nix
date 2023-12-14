@@ -207,6 +207,9 @@ it narrows to region, or Org subtree."
   ("M-c" . d/flex)
   ("M-l" . downcase-dwim)
 
+  ("M-@" . d/mark-word)
+  ("M-h" . d/mark-paragraph)
+
   :custom
   (kill-ring-max 30000)
   (column-number-mode 1)
@@ -265,6 +268,25 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   :hook (prog-mode)
   :custom
   (display-line-numbers-type 'relative))
+;; credits to
+;; https://emacs.dyerdwelling.family/emacs/20231209092556-emacs--redefining-mark-paragraph-and-mark-word/
+(defun d/mark-paragraph ()
+  "redefinition of mark-paragraph"
+  (interactive)
+  (forward-char)
+  (backward-paragraph)
+  (push-mark)
+  (forward-paragraph)
+  (setq mark-active t))
+
+(defun d/mark-word ()
+  "redefinition of mark-word"
+  (interactive)
+  (if (not (looking-at "\\<"))
+      (backward-word))
+  (push-mark)
+  (forward-word)
+  (setq mark-active t))
 (use-package files
   :ensure nil
   :hook
@@ -306,7 +328,12 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   ("C-x u" . vundo)
   ("C-z" . undo-only)
   ("C-S-z" . undo-redo)
-  ("C-M-r" . undo-redo))
+  ("C-M-r" . undo-redo)
+
+  :custom
+  (vundo-compact-display t)
+  (vundo-glyph-alist vundo-unicode-symbols)
+  (vundo-window-max-height 5))
 (use-package vc-backup
   ;; to have auto VC track of files without in git
   ;; C-x v =
@@ -941,6 +968,11 @@ Return nil if NAME does not designate a valid color."
   (mouse-wheel-progressive-speed nil)
   (scroll-margin 4)
   (scroll-conservatively 101))
+
+(use-package disable-mouse
+  :unless d/on-droid
+  :bind
+  ([f10] . disable-mouse-mode))
 (use-package pixel-scroll
   :ensure nil
   :init (pixel-scroll-precision-mode)
@@ -1008,6 +1040,10 @@ You can do this by trackpad too (laptop)"
       (quit
        (and (get-buffer buffer-name)
             (kill-buffer buffer-name))))))
+(defun d/afk-mode ()
+  (interactive)
+  (zone)
+  (zone-when-idle 80))
 (use-package man
   :ensure nil
   :defer t
@@ -2032,6 +2068,8 @@ for the search engine used."
   :functions
   (ement--read-sessions
    ement-connect)
+  :commands
+  (d/ement-connect)
 
   :bind
   (:map ement-room-minibuffer-map
@@ -2343,6 +2381,15 @@ Display format is inherited from `battery-mode-line-format'."
                               (funcall battery-status-function))))
      'face 'mini-echo-battery))
 
+  (mini-echo-define-segment "which-function"
+    "Return the function at point using `which-function-mode'"
+    :fetch
+    (propertize
+     (concat "󰡱 :"
+             (string-trim
+              (which-function)))
+     'face 'which-func))
+
   (setopt mini-echo--toggled-segments '(("battery" . t) ("elfeed". t) ("time" . t)))
 
   (mini-echo-mode 1))
@@ -2378,10 +2425,10 @@ Display format is inherited from `battery-mode-line-format'."
   (dashboard-show-shortcuts nil)
   (dashboard-set-init-info nil)
   (dashboard-icon-type 'nerd-icons)
-  (dashboard-items '((recents . 5)
+  (dashboard-items '((recents . 4)
                      (agenda . 10)
-                     (projects . 2)
-                     (bookmarks . 3)))
+                     (projects . 3)
+                     (bookmarks . 5)))
   (dashboard-modify-heading-icons '((recents . "file-text")
 				                    (bookmarks . "book")))
 
@@ -2839,9 +2886,11 @@ Display format is inherited from `battery-mode-line-format'."
      (R . t)
      (shell . t) (python . t)
      (julia . t))))
+(unless d/on-droid
 ;; credits to https://github.com/rasendubi
 
 (require 'el-patch)
+(require 'ob-tangle)
 ;; org-babel fixes to tangle ALL matching sections
 (defun rasen/map-regex (regex fn)
   "Map the REGEX over the BUFFER executing FN.
@@ -3006,7 +3055,7 @@ block but are passed literally to the \"example-block\"."
                         (split-string expansion "[\n\r]")
                         (concat "\n" prefix))))))
      body t t 2)))
-
+)
 (use-package org-re-reveal
   :after ox
   :unless d/on-droid
@@ -3313,6 +3362,10 @@ block but are passed literally to the \"example-block\"."
 
   ;; (d/denote-add-to-agenda-files "_project")
   )
+(defun d/writing-mode ()
+  (interactive)
+  (disable-mouse-mode 'toggle)
+  (olivetti-mode 'toggle))
 
 ;; Local Variables:
 ;; coding: utf-8

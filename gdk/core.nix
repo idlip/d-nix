@@ -148,6 +148,13 @@
       };
     }
     {
+      systemd.sleep.extraConfig = ''
+       AllowSuspendThenHibernate=yes
+       HibernateDelaySec=3600
+       AllowHibernation=yes
+       '';
+    }
+    {
       networking = {
     
         # Killer feature, Its a must these days.
@@ -323,7 +330,6 @@
             HibernateDelaySec=3600
           '';
       };
-    
     }
     {
       # for fingerprint

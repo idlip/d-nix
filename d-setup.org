@@ -2439,7 +2439,8 @@ You can do this by trackpad too (laptop)"
 #+begin_src emacs-lisp
 (defun d/afk-mode ()
   (interactive)
-  (zone-when-idle 20))
+  (zone)
+  (zone-when-idle 80))
 #+end_src
 * Development
 *** Documentation
@@ -4965,6 +4966,8 @@ for the search engine used."
   :functions
   (ement--read-sessions
    ement-connect)
+  :commands
+  (d/ement-connect)
 
   :bind
   (:map ement-room-minibuffer-map
@@ -6428,6 +6431,15 @@ Display format is inherited from `battery-mode-line-format'."
                               (funcall battery-status-function))))
      'face 'mini-echo-battery))
 
+  (mini-echo-define-segment "which-function"
+    "Return the function at point using `which-function-mode'"
+    :fetch
+    (propertize
+     (concat "󰡱 :"
+             (string-trim
+              (which-function)))
+     'face 'which-func))
+
   (setopt mini-echo--toggled-segments '(("battery" . t) ("elfeed". t) ("time" . t)))
 
   (mini-echo-mode 1))
@@ -6473,10 +6485,10 @@ Display format is inherited from `battery-mode-line-format'."
   (dashboard-show-shortcuts nil)
   (dashboard-set-init-info nil)
   (dashboard-icon-type 'nerd-icons)
-  (dashboard-items '((recents . 5)
+  (dashboard-items '((recents . 4)
                      (agenda . 10)
-                     (projects . 2)
-                     (bookmarks . 3)))
+                     (projects . 3)
+                     (bookmarks . 5)))
   (dashboard-modify-heading-icons '((recents . "file-text")
 				                    (bookmarks . "book")))
 

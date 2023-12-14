@@ -3,11 +3,11 @@
 
 #+begin_html
 <p align="center">
-<a href="https://github.com/nixos/nixpkgs"><img src="https://img.shields.io/badge/NixOS-24.05-royalblue.svg?style=rounded-square&logo=nixos&logoColor=white"></a>
+<a href="https://github.com/nixos/nixpkgs"><img src="https://img.shields.io/badge/NixOS-24.05-royalblue.svg?style=for-the-badge&logo=nixos&logoColor=white"></a>
 
-<a href="https://orgmode.org"><img src="https://img.shields.io/badge/Org-literate%20config-seagreen?style=rounded-square&logo=org&logoColor=white"></a>
+<a href="https://orgmode.org"><img src="https://img.shields.io/badge/Org-literate%20config-seagreen?style=for-the-badge&logo=org&logoColor=white"></a>
 
-<a href="https://www.gnu.org/software/emacs/emacs.html#Releases"><img src="https://img.shields.io/badge/Emacs-29.1-blueviolet.svg?style=rounded-square&logo=GNU%20Emacs&logoColor=white"></a>
+<a href="https://www.gnu.org/software/emacs/emacs.html#Releases"><img src="https://img.shields.io/badge/Emacs-29.1-blueviolet.svg?style=for-the-badge&logo=GNU%20Emacs&logoColor=white"></a>
 </p>
 
 <h1 align="center">NixOrgMacs</h1>

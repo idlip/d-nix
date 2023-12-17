@@ -2324,6 +2324,150 @@ Return nil if NAME does not designate a valid color."
 (use-package tempel-collection
   :after tempel)
 #+end_src
+***** templates
+- handy templates to use for quick running thought process.
+#+name: template
+#+begin_src emacs-lisp :tangle ~/.config/emacs/templates/nix.eld
+;; Refer: `tempo-define-template' for doc.
+;;  • (s NAME) Inserts a named field.
+;;  • (p/r PROMPT <NAME> <NOINSERT>) Insert an optionally named field with a prompt. The PROMPT is
+;;  displayed directly in the buffer as default value. If NOINSERT is non-nil, no field is inserted.
+;;  Then the minibuffer is used for prompting and the value is bound to NAME.
+
+nix-mode
+
+(buildphase > "buildPhase= ''" n (p "Build Instructions") n " '';")
+(checkPhase > "checkPhase= ''" n (p "") n " '';")
+(configurephase > "configurePhase= ''" n (p "") n " '';")
+(fixupphase > "fixupPhase= ''" n (p "") n " '';")
+(distphase > "distPhase= ''" n (p "") n " '';")
+(patchphase > "patchPhase= ''" n (p "") n " '';")
+(unpackphase > "unpackPhase= ''" n (p "") n " '';")
+(installCheckPhasephase > "installCheckPhasePhase= ''" n (p "") n " '';")
+(installphase > "installphase= ''" n p " mkdir -p $out/bin" n> "for f in $(find . -executable -type f);" n> "do" n> "cp $f $out/bin" n> "done}" n> " '';")
+
+(hmpkgs "{" n> "home.packages = with pkgs; [" n> (r "pkgnames") n> n> "];" n> "}")
+
+(gitpackage "{ lib" n ", stdenv" n ", fetchFromGitHub" n ", " (p "inputs") n ", " (p "inputs") n "}:" n n>
+            "stdenv.mkDerivation rec {" n> "pname = \"" (p "" pkgn nil) "\";" n> "version = \"" p "\";" n n>
+      "src = fetchFromGitHub {" n> "owner = \"" (p "" own) "\";" n> "repo = \"" (s pkgn) "\";" n>
+      "rev = \"" "v${version}" "\";" n> "sha256 = \"" "${lib.fakeSha256}" "\";" n> "};" n n>
+      "nativeBuildInputs = [ " (p "makeWrapper") " ];" n n> "BuildInputs = [ " (p) " ];" n n>
+      "meta = with lib; {" n>
+      "homepage = \"" "https://github.com/" (s own) "/" (s pkgn) "\";" n>
+      "description = \"" (p) "\";" n>
+      "license = licenses." (p (completing-read "License: " '("agpl3" "asl20" "bsd1" "bsd2" "bsd3" "free" "gpl2" "gpl2Only" "gpl2Plus" "gpl3" "gpl3Only" "gpl3Plus" "isc" "lgpl21Only" "lgpl21Plus" "lgpl2Only" "lgpl2Plus" "lgpl3" "lgpl3Only" "mit" "mpl20" "ofl" "unfree"))) ";" n>
+      "maintainers = with maintainers; [ " (s own) " ];" n>
+      "platforms = platforms."
+      (p (completing-read "Platform: " '("all" "allBut" "arm" "cygwin" "darwin" "freebsd" "gnu" "i686" "illumos" "linux" "mesaPlatforms" "mips" "netbsd" "none" "openbsd" "unix" "x86"))) ";" n> q "};" n> "}"
+      )
+
+#+end_src
+***** org-templates
+#+begin_src emacs-lisp :tangle ~/.config/emacs/templates/org.eld
+org-mode
+
+(hugosite ":PROPERTIES:"  n ":EXPORT_FILE_NAME: " (p "simple-name") n ":EXPORT_DATE: " (format-time-string "%Y-%m-%d") n ":EXPORT_HUGO_DRAFT: false" n ":END:")
+(readonly ":tangle-mode (identity #o444) :mkdirp yes" n)
+(variablweb "#+name: " (p "noweb-ref") n "#+begin_src " p n> r> n> "#+end_src" :post (org-edit-src-code))
+(datime (format-time-string "%Y-%m-%d %A %d %B %Y"))
+(gitcollapse  "*** " p n "#+begin_html" n "<details>" n "<summary> " (p "heading")  " </summary>" n "#+end_html" n (p "link or any comments") n n "#+begin_html" n "</details>" n "#+end_html" n n)
+
+(eval n "#+name: " (p "name" fname) n "#+begin_src " (p "C++" lang) " results output drawer :tangle ./codes/" (s fname) n> r> n> "#+end_src" :post (org-edit-src-code))
+
+(pyeval n "#+name: " (p "name" fname) n "#+begin_src python :tangle ./codes/python/"
+        (s fname) ".py " n> r> n> "#+end_src" :post (org-edit-src-code))
+
+(reval n "#+name: " (p "name" fname) n "#+begin_src R :tangle ./codes/rstats/"
+       (s fname) ".R " n> r> n> "#+end_src" :post (org-edit-src-code))
+
+(jleval n "#+name: " (p "name" fname) n "#+begin_src julia :tangle ./codes/"
+        (s fname) ".jl " n> r> n> "#+end_src" :post (org-edit-src-code))
+
+(labmanual "* " p n
+           "** Pre-requisites" n p n
+           "** Aim" n n
+           "** Tools" n n
+           "** Introduction" n n
+           "** Methodology" n n
+           "** Results" n n
+           "** Conclusion" n n
+           )
+
+(latimg n "#+CAPTION: " p n
+        "#+ATTR_LATEX: :height :center t" n
+        :post (org-insert-link))
+
+(nixorg "#+name: nixos-core" n "#+begin_src nix" n
+        n "#+end_src" :post (org-edit-src-code))
+
+(hmorg "#+name: hm-config" n "#+begin_src nix" n
+       n "#+end_src" :post (org-edit-src-code))
+
+
+(elisp "#+name: " (p "name") n "#+begin_src emacs-lisp" n n "#+end_src" :post (org-edit-src-code))
+(orgmacs "#+name: orgmacs" n "#+begin_src emacs-lisp" n n "#+end_src" :post (org-edit-src-code))
+
+
+#+end_src
+***** markdown-templates
+#+begin_src emacs-lisp :tangle ~/.config/emacs/templates/markdown.eld
+markdown-mode
+
+(gitcollapse "## " (p "Heading") n n "<details>" n n
+       "<summary>" (p "Sub Heading")  "</summary>" n n
+       (r "Insert Link or comments") n n "</details>")
+(bolditalics "***" p "***")
+
+(androidfoss "* [**" (p "pname") "**](" (p "Git") ") <sup>**[[F-Droid](" (p "Fdroid") ")]**</sup>")
+
+(srcblock (call-interactively #'markdown-insert-gfm-code-block))
+(src "'" p "'")
+(unorderlist "- " (p "First") n> "- " (p "Second") n> "- " (p "Third"))
+(orderlist "1. " (p "First") n> "2. " (p "Second") n> "3. " (p "Third"))
+(insertimage (call-interactively #'markdown-insert-image))
+(insertlink (call-interactively #'markdown-insert-link))
+(hugotitle "+++" n "title = " (p "title") n "date = " (format-time-string "%Y-%m-%d") n "tags = [ " (p "tag1, tag2 ") "]" n "draft = false" n "+++")
+(h1 "# " p " #")
+(h2 "## " p " ##")
+(h3 "### " p " ###")
+(h4 "#### " p " ####")
+(inserttable (call-interactively #'markdown-insert-table))
+
+#+end_src
+***** elisp-templates
+#+begin_src emacs-lisp :tangle ~/.config/emacs/templates/elisp.eld
+emacs-lisp-mode
+
+(modconfig ";;; " (c-get-current-file) ".el --- " (p "description") " -*- lexical-binding: t -*-" n
+           ";;; Commentary:" n n ";;; Code:" n n n r> n n "(provide '" (c-get-current-file) ".el)" n ";;; " (c-get-current-file) ".el ends here" )
+(autoload ";;;###autoload")
+(lambda "(lambda (" p ")" n> r> ")")
+(defvar "(defvar " p "\n  \"" p "\")")
+(defvar-local "(defvar-local " p "\n  \"" p "\")")
+(const "(defconst " p "\n  \"" p "\")")
+(custom "(defcustom " p "\n  \"" p "\"" n> ":type '" p ")")
+(defface "(defface " p " '((t :inherit " p "))\n  \"" p "\")")
+(defgroup "(defgroup " p " nil\n  \"" p "\"" n> ":group '" p n> ":prefix \"" p "-\")")
+(defmacro "(defmacro " p " (" p ")\n  \"" p "\"" n> r> ")")
+(defalias "(defalias '" p " '" p ")")
+(defun "(defun " p " (" p ")\n  \"" p "\"" n> r> ")")
+(defcustom "(defun " p " (" p ")\n  \"" p "\"" n> "(interactive" p ")" n> r> ")")
+(if-let "(if-let (" p ")" n> r> ")")
+(when-let "(when-let (" p ")" n> r> ")")
+(if-let* "(if-let* (" p ")" n> r> ")")
+(when-let* "(when-let* (" p ")" n> r> ")")
+(cond "(cond" n "(" q "))" >)
+(pcase "(pcase " p n "(" q "))" >)
+(let "(let (" p ")" n> r> ")")
+(let* "(let* (" p ")" n> r> ")")
+(dotimes "(dotimes (" p ")" n> r> ")")
+(dolist "(dolist (" p ")" n> r> ")")
+(obsolete-fun "(define-obsolete-function-alias" n> p n> p n> "\"" p "\")")
+(obsolete-var "(define-obsolete-function-alias" n> p n> p n> "\"" p "\")")
+
+
+#+end_src
 *** Enhancements
 **** Mouse
 #+name: orgmacs

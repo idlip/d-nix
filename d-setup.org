@@ -8104,6 +8104,58 @@ lines:                       20;
     (set-face-foreground face (face-attribute 'default :background)))
   (global-org-modern-mode))
 #+end_src
+*** org-prettify
+- Credits to Artawower.
+- Note: Does not work as intended, it prettifies those characters everywhere, but =org-modern= work only where it is sensible
+#+name: orgmacs
+#+begin_src emacs-lisp
+(unless (package-installed-p 'org-modern)
+  (add-hook 'org-mode-hook
+            (lambda ()
+              "Beautify Org Checkbox Symbol"
+              (push '("[ ]" .  "☐") prettify-symbols-alist)
+              (push '("[X]" . "☑" ) prettify-symbols-alist)
+              (push '("[-]" . "❍" ) prettify-symbols-alist)
+              (push '("**" . "") prettify-symbols-alist)
+              (push '("#+BEGIN_SRC" . "↦" ) prettify-symbols-alist)
+              (push '("#+END_SRC" . "⇤" ) prettify-symbols-alist)
+              (push '("#+BEGIN_EXAMPLE" . "↦" ) prettify-symbols-alist)
+              (push '("#+END_EXAMPLE" . "⇤" ) prettify-symbols-alist)
+              (push '("#+BEGIN_QUOTE" . "↦" ) prettify-symbols-alist)
+              (push '("#+END_QUOTE" . "⇤" ) prettify-symbols-alist)
+              (push '("#+begin_quote" . "↦" ) prettify-symbols-alist)
+              (push '("#+end_quote" . "⇤" ) prettify-symbols-alist)
+              (push '("#+begin_example" . "↦" ) prettify-symbols-alist)
+              (push '("#+end_example" . "⇤" ) prettify-symbols-alist)
+              (push '("#+begin_src" . "↦" ) prettify-symbols-alist)
+              (push '("#+end_src" . "⇤" ) prettify-symbols-alist)
+
+              (push '("#+TITLE:" . "") prettify-symbols-alist)
+              (push '("#+DESCRIPTION:" . "") prettify-symbols-alist)
+              (push '("#+LANG:" . "") prettify-symbols-alist)
+              (push '("#+ID:" . "") prettify-symbols-alist)
+              (push '("#+FILETAGS:" . "") prettify-symbols-alist)
+              (push '("#+STARTUP:" . "") prettify-symbols-alist)
+              (push '("#+ACTIVE:" . "") prettify-symbols-alist)
+              (push '("#+START_SPOILER" . "") prettify-symbols-alist)
+              (push '("#+CLOSE_SPOILER" . "") prettify-symbols-alist)
+              (push '("#+BEGIN_HIDDEN" . "") prettify-symbols-alist)
+              (push '("#+END_HIDDEN" . "") prettify-symbols-alist)
+
+
+              ;; (push '("#+TITLE:" . "") prettify-symbols-alist)
+              ;; (push '("#+DESCRIPTION:" . "") prettify-symbols-alist)
+              ;; (push '("#+ID:" . "") prettify-symbols-alist)
+              ;; (push '("#+FILETAGS:" . "") prettify-symbols-alist)
+              ;; (push '("#+STARTUP:" . "") prettify-symbols-alist)
+              ;; (push '("#+ACTIVE:" . "") prettify-symbols-alist)
+              ;; (push '("#+START_SPOILER" . "") prettify-symbols-alist)
+              ;; (push '("#+CLOSE_SPOILER" . "") prettify-symbols-alist)
+              ;; (push '("#+BEGIN_HIDDEN" . "") prettify-symbols-alist)
+              ;; (push '("#+END_HIDDEN" . "") prettify-symbols-alist)
+
+              (prettify-symbols-mode))))
+#+end_src
 *** org-agenda
 #+name: orgmacs
 #+begin_src emacs-lisp

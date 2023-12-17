@@ -178,7 +178,7 @@ It is as simple if I just record what it does, with proper link to rich resource
 
       devShells.x86_64-linux.default = pkgs.mkShell {
         packages = with pkgs; [
-          alejandra deadnix git
+          alejandra deadnix git statix
         ];
         name = "dots";
         DIRENV_LOG_FORMAT = "";
@@ -3194,6 +3194,7 @@ You can do this by trackpad too (laptop)"
     ### python
     # python311packages.python-lsp-server
     # nodePackages.pyright
+    ruff
     (python311.withPackages(ps: with ps; [
       python-lsp-server
       biopython
@@ -3255,6 +3256,7 @@ with `venvPath' and `venv' set to the absolute path of
         # tidyverse # set of 9 packages
         languageserver
         lintr
+        styler
         # stringr
         BiocManager
         # httr

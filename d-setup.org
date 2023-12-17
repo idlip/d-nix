@@ -3424,6 +3424,53 @@ with `venvPath' and `venv' set to the absolute path of
   (flycheck-buffer-switch-check-intermediate-buffers t)
   (flycheck-display-errors-delay 0.25))
 #+end_src
+- Add flycheck support for =ruff= fast python linter.
+#+name: orgmacs
+#+begin_src emacs-lisp
+(with-eval-after-load 'flycheck
+  (add-to-list 'flycheck-checkers 'python-ruff)
+
+  (flycheck-def-config-file-var flycheck-python-ruff-config python-ruff
+                                '("pyproject.toml" "ruff.toml" ".ruff.toml"))
+
+  (flycheck-define-checker python-ruff
+    "A Python syntax and style checker using the ruff.
+To override the path to the ruff executable, set
+`flycheck-python-ruff-executable'.
+
+See URL `https://beta.ruff.rs/docs/'."
+    :command ("ruff"
+              "check"
+              (config-file "--config" flycheck-python-ruff-config)
+              "--output-format=text"
+              "--stdin-filename" source-original
+              "-")
+    :standard-input t
+    :error-filter (lambda (errors)
+                    (let ((errors (flycheck-sanitize-errors errors)))
+                      (seq-map #'flycheck-flake8-fix-error-level errors)))
+    :error-patterns
+    ((warning line-start
+              (file-name) ":" line ":" (optional column ":") " "
+              (id (one-or-more (any alpha)) (one-or-more digit)) " "
+              (message (one-or-more not-newline))
+              line-end))
+    :modes (python-mode python-ts-mode)
+    :next-checkers ((warning . python-mypy)))
+  )
+#+end_src
+**** formatter
+- trying this package from purcell
+#+name: orgmacs
+#+begin_src emacs-lisp
+(use-package reformatter
+  :hook
+  (python-ts-mode . ruff-format-on-save-mode)
+  :config
+  (reformatter-define ruff-format
+    :program "ruff"
+    :args `("format" "--stdin-filename" ,buffer-file-name "-")))
+#+end_src
 **** eglot
 - the lsp gifted in emacs
 #+name: orgmacs

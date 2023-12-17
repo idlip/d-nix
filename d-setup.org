@@ -4089,6 +4089,17 @@ Usable as favorites or bookmark."
         ("b" . nil)))
 #+end_src
 **** elfeed-search
+- filtering works as expected with simple notations ~+,-,!,=~.
+  - =+= and =-= is treated on tag
+  - =@= - indicates age or date.
+    - ~@2-days-ago~
+    - ~@2023-12-20--2023-12-24~ (range)
+    - ~@5-days-ago--1-day-ago~
+  - =!= indicates negation or inverse of search.
+  - =#= for number of feeds entries.
+  - === - for matching entry's feed (url or title)
+  - =~= - for not matching (inverse) entry's feed
+  - rest all regular expression work.
 #+name: orgmacs
 #+begin_src emacs-lisp
 (use-package elfeed-search

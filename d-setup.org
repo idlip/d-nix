@@ -8076,10 +8076,28 @@ lines:                       20;
   (org-modern-star '("󰓏" "󰚀" "󰫤"  "󰴈" "" "󰄄"))
   (org-modern-hide-stars 'leading)
   (org-modern-table nil)
+
   (org-modern-list
    '((?* . "⁍")
      (?- . "❖")
      (?+ . "➤")))
+
+  (org-modern-checkbox '((?X . "")
+                         (?- . "󰛲")
+                         (?  . "󰄱")))
+
+  (org-modern-keyword '(("options" . "🔧")
+                        ("title" . "💡")
+                        ("author" . "🏫")
+                        ("startup" . "🚀")
+                        (t . t)))
+
+  (org-modern-block-name
+   '(("src" . "")
+     ("example" . "")
+     ("html" . "")
+     ("quote" . "󱀡")
+     (t . t)))
 
   ;; Agenda styling
   (org-agenda-tags-column 0)

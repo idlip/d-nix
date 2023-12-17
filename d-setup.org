@@ -2090,6 +2090,7 @@ Return nil if NAME does not designate a valid color."
          ("cr" . color-name-to-rgb))
    (:map embark-url-map
          ("b" . browse-url-generic)
+         ("e" . eww-open-in-new-buffer)
          ("r" . reddigg-view-comments))
    (:map embark-file-map
          ("b" . browse-url-of-dired-file))
@@ -2493,7 +2494,7 @@ emacs-lisp-mode
 #+begin_src emacs-lisp
 (use-package pixel-scroll
   :ensure nil
-  :init (pixel-scroll-precision-mode)
+  :init (pixel-scroll-mode 1)
   :commands
   (pixel-scroll-precision-scroll-down pixel-scroll-precision-scroll-up)
   :bind
@@ -3035,7 +3036,7 @@ You can do this by trackpad too (laptop)"
       org olivetti nerd-icons nerd-icons-completion nerd-icons-dired async dirvish
       embark-consult consult-eglot consult-flycheck markdown-mode nix-mode
       reddigg hnreader howdoyou mingus magit webpaste org-present
-      shrface shr-tag-pre-highlight nov devdocs-browser
+      shrface shr-tag-pre-highlight nov devdocs-browser reformatter
       beframe denote tempel tempel-collection avy
       sdcv elfeed elfeed-org powerthesaurus jinx meow
       doom-modeline el-fetch ox-hugo envrc dashboard
@@ -3763,6 +3764,8 @@ See URL `https://beta.ruff.rs/docs/'."
   :bind (:map doc-view-mode-map
               ("M-g M-g" . doc-view-goto-page)
               ("<f8>" . doc-view-presentation))
+  :hook
+  (doc-view-minor-mode-hook . (lambda () (pixel-scroll-mode -1)))
   :custom
   (doc-view-continuous t)
   (doc-view-mupdf-use-svg t)
@@ -4138,7 +4141,7 @@ Usable as favorites or bookmark."
 (use-package elfeed-org
   :after elfeed
   :custom
-  (rmh-elfeed-org-files (list (expand-file-name "elfeed.org" user-emacs-directory)))
+  (rmh-elfeed-org-files (list "~/d-sync/notes/bookmarks.org"))
   :init
   (elfeed-org))
 #+end_src
@@ -5138,7 +5141,7 @@ for the search engine used."
          ("C-c d r" . reddigg-view-sub))
   :custom
   (org-link-elisp-confirm-function 'y-or-n-p)
-  (reddigg-subs '(emacs linux nixos hyprland bioinformatics onepiece fossdroid piracy bangalore india indiaspeaks developersindia manga aww))
+  (reddigg-subs '(emacs linux nixos orgmode hyprland bioinformatics onepiece fossdroid piracy bangalore india indiaspeaks developersindia manga aww))
   :config
   (setq other-subs '(crazyfuckingvideos nextfuckinglevel manga anime animepiracy fossdroid commandline memes jokes funnymemes rss holup unexpected todayilearned lifeprotips askreddit julia))
 
@@ -6679,7 +6682,9 @@ Display format is inherited from `battery-mode-line-format'."
               (which-function)))
      'face 'which-func))
 
-  (setopt mini-echo--toggled-segments '(("battery" . t) ("elfeed". t) ("time" . t)))
+  (setopt mini-echo--toggled-segments '(("battery" . t)
+                                        ("flycheck" . t)
+                                        ("elfeed". t) ("time" . t)))
 
   (mini-echo-mode 1))
 #+end_src
@@ -8214,8 +8219,7 @@ lines:                       20;
   (org-agenda-start-on-weekday nil)
   (org-agenda-files
    '("~/d-sync/notes/"
-     "~/d-git/d-site/README.org"
-     "~/d-sync/notes/bioinfo/")))
+     "~/d-git/d-site/README.org")))
 #+end_src
 *** org-capture
 #+name: orgmacs

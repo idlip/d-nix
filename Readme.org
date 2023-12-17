@@ -81,7 +81,9 @@ These configs were the inspiration and helped to build this way.
 
 I thank them sincerely.
 
-[[https://github.com/sioodmy/dotfiles][Sioodmy]] [[https://github.com/fufexan/dotfiles][fufexan]]
+- [[https://github.com/rasendubi/dotfiles][rasendubi]] - Initiating the idea for literate org config
+- [[https://github.com/sioodmy/dotfiles][Sioodmy]] - For simplifying the modular config
+- [[https://github.com/fufexan/dotfiles][fufexan]] - For advanced nix codes.
 
 ------------------------------------------------------------------------------------------
 

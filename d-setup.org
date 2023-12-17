@@ -7229,7 +7229,7 @@ fi
   programs.aria2 = {
     enable = true;
     settings = {
-      dir = "$HOME/dloads";
+      dir = "/home/idlip/dloads";
       file-allocation = "none";
       log-level = "warn";
       split = "10";

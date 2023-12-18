@@ -8104,21 +8104,25 @@ lines:                       20;
      (?+ . "➤")))
 
   (org-modern-checkbox '((?X . "")
-                         (?- . "󰛲")
-                         (?  . "󰄱")))
+                         (?- . "")
+                         (?  . "")))
 
-  (org-modern-keyword '(("options" . "🔧")
-                        ("title" . "💡")
-                        ("author" . "🏫")
-                        ("startup" . "🚀")
-                        (t . t)))
+  (org-modern-keyword
+   '(("options" . "🔧")
+     ("title" . "💡")
+     ("author" . "🏫")
+     ("startup" . "🚀")
+     ("property" . "🏦")
+     (t . t)))
 
   (org-modern-block-name
    '(("src" . "")
      ("example" . "")
-     ("html" . "")
-     ("quote" . "󱀡")
+     ("html" . "")
+     ("quote" . "")
      (t . t)))
+
+  (org-modern-internal-target '("  " t " "))
 
   ;; Agenda styling
   (org-agenda-tags-column 0)
@@ -8203,6 +8207,7 @@ lines:                       20;
   :after org
   :bind
   ("C-c d a" . org-agenda)
+  ("C-c a a" . org-agenda)
   (:map org-agenda-mode-map
         ("C-x C-k" . org-agenda-exit))
 
@@ -8698,6 +8703,16 @@ block but are passed literally to the \"example-block\"."
     (d/org-present-mode))
 
   )
+#+end_src
+*** remember
+- Tiny little mode and remember some running thoughts to seek out the insights.
+- Note: =no-littering= package alters =remember-data-file=.
+#+name: orgmacs
+#+begin_src emacs-lisp
+(use-package remember
+  :ensure nil
+  :bind
+  ("C-c a r" . remember))
 #+end_src
 ** Markdown
 #+name: orgmacs

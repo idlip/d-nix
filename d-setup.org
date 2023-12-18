@@ -2093,6 +2093,7 @@ Return nil if NAME does not designate a valid color."
    (:map embark-url-map
          ("b" . browse-url-generic)
          ("e" . eww-open-in-new-buffer)
+         ("h" . hnreader-comment)
          ("r" . reddigg-view-comments))
    (:map embark-file-map
          ("b" . browse-url-of-dired-file))
@@ -4629,7 +4630,7 @@ See the above repository for updates as well as full license text. */
         ("<backtab>" . shrface-outline-cycle-buffer)
         ("M-n" . shr-next-link)
         ("M-p" . shr-previous-link)
-        ("M-l" . (lambda () (interactive) (shrface-links-consult) (call-interactively #'shr-browse-url)))
+        ("M-l" . (lambda () (interactive) (shrface-links-consult) (embark-act)))
         ("M-h" . mark-paragraph)
         ("C-j" . shrface-next-headline)
         ("C-k" . shrface-previous-headline))

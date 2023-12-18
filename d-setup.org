@@ -6855,7 +6855,7 @@ Display format is inherited from `battery-mode-line-format'."
       extraPackages = with pkgs.bat-extras; [ batdiff batman batgrep batwatch ];
       config = {
         pager = "less -fr";
-        theme = "twodark";
+        theme = "TwoDark";
       };
     };
 

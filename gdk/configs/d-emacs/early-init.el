@@ -13,11 +13,14 @@
 (custom-set-variables
  '(native-comp-async-report-warnings-errors nil)
  '(native-comp-jit-compilation nil))
+
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
 (setq frame-inhibit-implied-resize t)
+
 (defconst d/on-droid (eq system-type 'android))
+
 ;; Emacs (gui app) is also amazing in android
 ;; https://sourceforge.net/projects/android-ports-for-gnu-emacs/files/termux/
 (when d/on-droid
@@ -27,7 +30,6 @@
 				                    "/data/data/com.termux/files/usr/lib"
 				                    (getenv "LD_LIBRARY_PATH")))
   (push "/data/data/com.termux/files/usr/bin" exec-path))
-
 
 (provide 'early-init)
 ;;; early-init.el ends here

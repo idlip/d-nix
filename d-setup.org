@@ -120,11 +120,15 @@ It is as simple if I just record what it does, with proper link to rich resource
   - [[#denote][Denote]]
 :END:
 
-* Review Plans [0/3]
+* Review Plans [2/4]
 - [ ] Try =nbfc-linux= to control fan (=thermald= is controlling thermals well tho).
 - [ ] Revisit and add more doc for forgotten once.
-- [ ] Manage =tempel= templates with =:noweb= reference?
+- [X] Manage =tempel= templates with =:noweb= reference?
   - Like include all mode specific templates in single =custom.eld= file.
+- [X] Why use =el-patches= and all?
+  - Simple split the block and tangle to each file, so you have it as modular config as well.
+  - Best of both world!
+  - Not as modular config for now, no use too.
 * Flake
 + Nobody can give correct explanation on flakes, in simple way its a nix way to pin the version/revision of channel or VC and working with it.
 + Could be future, but things are not sorted out that well.

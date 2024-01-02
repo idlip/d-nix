@@ -125,6 +125,7 @@ It is as simple if I just record what it does, with proper link to rich resource
 - [ ] Revisit and add more doc for forgotten once.
 - [X] Manage =tempel= templates with =:noweb= reference?
   - Like include all mode specific templates in single =custom.eld= file.
+  - Split and maintain it as language specific emacs-lisp data files.
 - [X] Why use =el-patches= and all?
   - Simple split the block and tangle to each file, so you have it as modular config as well.
   - Best of both world!
@@ -3189,7 +3190,7 @@ You can do this by trackpad too (laptop)"
 }
 #+end_src
 **** python
-- TODO check on =ruff-lsp=
+- [ ] check on =ruff-lsp=
 #+name: hm-config
 #+begin_src nix :tangle gdk/home.nix
 {
@@ -3430,6 +3431,7 @@ with `venvPath' and `venv' set to the absolute path of
   (flycheck-display-errors-delay 0.25))
 #+end_src
 - Add flycheck support for =ruff= fast python linter.
+- changed =source-original= to ~source-inplace~ to work on org-edit-special too.
 #+name: orgmacs
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
 (with-eval-after-load 'flycheck
@@ -3465,16 +3467,22 @@ See URL `https://beta.ruff.rs/docs/'."
   )
 #+end_src
 **** formatter
-- trying this package from purcell
+- Legit, best made design for formatter package.
 #+name: orgmacs
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
 (use-package reformatter
   :hook
   (python-ts-mode . ruff-format-on-save-mode)
+  (nix-mode . alejandra-format-on-save-mode)
   :config
   (reformatter-define ruff-format
     :program "ruff"
-    :args `("format" "--stdin-filename" ,buffer-file-name "-")))
+    :args (list "format" "--stdin-filename" input-file "-"))
+
+  (reformatter-define alejandra-format
+    :program "alejandra"
+    :group 'nix-mode
+    :lighter " AL"))
 #+end_src
 **** eglot
 - the lsp gifted in emacs
@@ -5928,8 +5936,10 @@ stdenvNoCC.mkDerivation rec {
 #+end_src
 **** nerd icons in corfu
 + the code is directly taken from git [[https://github.com/LuigiPiucco/nerd-icons-corfu][repo]].
++ currently getting an error saying "void-variable kindfunc"
++ Don't know why suddenly throwing this error on <2023-12-28 17:00>, when before and all it worked well.
 #+name: orgmacs
-#+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+#+begin_src emacs-lisp :tangle no
 (define-widget 'nerd-icons-corfu-icon-type 'plist
   "The type of an icon mapping."
   :tag "Icon parameters"

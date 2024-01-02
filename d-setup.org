@@ -6177,7 +6177,6 @@ and returns the icon."
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
 (use-package olivetti
   :defer t
-  :disabled t
   :hook
   (org-mode text-mode Info-mode helpful-mode ement-room-mode
             sdcv-mode nov-mode elfeed-show-mode markdown-mode)
@@ -6314,7 +6313,7 @@ and returns the icon."
 		        "mpv" = "🎵";
 	        };
 	        "status-icons" = {
-		        "paused" = "⏸";
+		        "paused" = "󰏤";
 	        };
 	        "max-length" = 20;
         };
@@ -6679,7 +6678,27 @@ tooltip {
 (use-package mini-echo
   :unless d/on-droid
   :load-path "~/d-git/forks/mini-echo"
-  :demand t
+  :defer 1
+  :custom
+  (mini-echo-window-divider-args '(t 0 0) "no indicator border")
+  (mini-echo-separator " ")
+  (mini-echo-buffer-status-style 'both)
+  (mini-echo-default-segments
+   '(:long ("time" "battery" "buffer-name"
+            "envrc"
+            "buffer-position"
+            ;; "buffer-size"
+            "flycheck" "selection-info"
+            "narrow"
+            )
+           :short ("buffer-name-short"
+                   "selection-info" "narrow" "macro" "repeat")))
+
+  (mini-echo-rules
+   '((special-mode :both (("buffer-size" . 0)))
+     (prog-mode :both (("vcs" . 1)))
+     (dired-mode :both (("buffer-size" . 0)))))
+
 
   :config
 
@@ -6696,7 +6715,6 @@ tooltip {
      (let ((bufn "*elfeed-search*"))
        (if (get-buffer bufn)
            (concat "󰎕 "
-
                    (string-trim-right
                     (with-current-buffer bufn (elfeed-search--count-unread))
                     "/.*")) "")) 'face 'mini-echo-elfeed))
@@ -6706,12 +6724,8 @@ tooltip {
 Display format is inherited from `battery-mode-line-format'."
     :setup (display-battery-mode 1)
     :fetch
-    (propertize
-     (concat "󰁿"
-             (string-trim
-              (battery-format "%p%"
-                              (funcall battery-status-function))))
-     'face 'mini-echo-battery))
+    (concat "󰂁"
+            (string-trim (mini-echo-segment--extract battery-mode-line-string) "\\[" "\\]")))
 
   (mini-echo-define-segment "which-function"
     "Return the function at point using `which-function-mode'"

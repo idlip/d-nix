@@ -5569,7 +5569,7 @@ bind = SUPER,m,exec,d-urls
 bind = SUPER,Insert,exec,d-urls
 
 bind = SUPER,grave,exec,d-unicodes
-bind = SUPER,Delete,exec,pkill -INT wl-screenrec
+bind = SUPER,Delete,exec,pkill -INT wl-screenrec && pkill -RTMIN+8 waybar
 
 bind = CONTROL,F1,exec,hyprctl dispatch dpms on
 bind = SUPER,F1,exec,d-keys

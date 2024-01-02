@@ -3470,7 +3470,7 @@ See URL `https://beta.ruff.rs/docs/'."
               "check"
               (config-file "--config" flycheck-python-ruff-config)
               "--output-format=text"
-              "--stdin-filename" source-original
+              "--stdin-filename" source-inplace
               "-")
     :standard-input t
     :error-filter (lambda (errors)

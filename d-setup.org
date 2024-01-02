@@ -2408,7 +2408,25 @@ org-mode
 (elisp "#+name: " (p "name") n "#+begin_src emacs-lisp" n n "#+end_src" :post (org-edit-src-code))
 (orgmacs "#+name: orgmacs" n "#+begin_src emacs-lisp" n n "#+end_src" :post (org-edit-src-code))
 
+(blogorg "#+title: " (p "title") n
+         "#+date: [" (format-time-string "%Y-%m-%d %a") "]")
 
+(captcontact
+ (p "Person Name") n
+ ":PROPERTIES: " n
+ ":EMAIL: " p n
+ ":URL: " p n
+ ":MOBILE: " p n
+ ":WORKPHONE: " n
+ ":COMPANY: " n
+ ":CITY: " p n
+ ":BORN: " p n
+ ":ITOLDTHEM_EMAIL: " n
+ ":ITOLDTHEM_ADDRESS: " n
+ ":ITOLDTHEM_PHONE: " n
+ ":CREATED: " (format-time-string "[%Y-%m-%d %a %H:%M]") n
+ ":END:" n
+ )
 #+end_src
 ***** markdown-templates
 #+begin_src emacs-lisp :tangle ~/.config/emacs/templates/markdown.eld

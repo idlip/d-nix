@@ -3793,7 +3793,12 @@ See URL `https://beta.ruff.rs/docs/'."
   ;; :mode ("\\.epub\\'" . doc-view-mode)
   :bind (:map doc-view-mode-map
               ("M-g M-g" . doc-view-goto-page)
-              ("<f8>" . doc-view-presentation))
+              ("<f8>" . doc-view-presentation)
+              ("j" . doc-view-next-line-or-next-page)
+              ("k" . doc-view-previous-line-or-previous-page)
+              ("C-v" . doc-view-scroll-up-or-next-page)
+              ("M-v" . doc-view-scroll-down-or-previous-page)
+              )
   :hook
   (doc-view-minor-mode-hook . (lambda () (pixel-scroll-mode -1)))
   :custom

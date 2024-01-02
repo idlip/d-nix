@@ -4636,9 +4636,9 @@ See the above repository for updates as well as full license text. */
   (shr-use-fonts  t)
   (shr-use-colors nil)
   (shr-indentation 4)
-  (shr-bullet "• ")
+  (shr-bullet "⁍ ")
   (shr-folding-mode t)
-  (shr-max-width 120)
+  (shr-max-width 110)
   (shr-max-image-proportion 0.4)
   (shr-width nil))
 
@@ -4667,10 +4667,13 @@ See the above repository for updates as well as full license text. */
         ("C-j" . shrface-next-headline)
         ("C-k" . shrface-previous-headline))
   :custom
-  (shrface-item-bullet 8226)
   (shrface-bullets-bullet-list '("󰓏" "󰚀" "󰫤"  "󰴈" "" "󰄄"))
   (shrface-href-versatile t)
   :config
+  (defun shrface-shr-item-bullet ()
+    "Build a `shr-bullet' based on `shrface-item-bullet'."
+    (setq shr-bullet "⁍ "))
+
   (shrface-basic)
   (shrface-trial)
   (shrface-default-keybindings))

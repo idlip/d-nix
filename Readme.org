@@ -62,6 +62,7 @@ After several months of maintaining it, I wanted to come back to literate org co
 
 - I mean if you are still not getting convinced, think again, why ArchWiki is supreme, why google, apple ecosystem are preferred. It is simple, they provide everything at one stop.
 - Same applies here, things are at one well organized place, I don't have to navigate over the dynamic file hierarchy model.
+- So analogy goes like this, ArchWiki is like literate org-config and nix documentation is like modular config, nix has scattered resources and no proper place to learn them all. (/hope that suffices/)
 
 - You can ask me anything by opening an issue, I'd be glad to share or help you with literate org config.
 

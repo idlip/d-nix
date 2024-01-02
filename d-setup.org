@@ -7895,6 +7895,7 @@ lines:                       20;
 * Note taking
 ** Org
 - the way to organize stuffs, and get things done!
+- https://orgmode.org
 #+name: orgmacs
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
 (use-package org
@@ -7935,28 +7936,30 @@ lines:                       20;
   (org-log-into-drawer t)
   (org-export-exclude-tags '("noexport" "ignore") "excludes these tagged heading from export")
   (org-latex-compiler "lualatex" "Lualatex is fast and gets custom font too")
+  (org-link-file-path-type 'relative)
 
   (org-todo-keywords
    '((sequence "TODO(t)" "|" "DONE(d!)")
      (sequence "REVIEW(v)" "|" "CANC(k@)")))
 
   (org-refile-targets
-   '(("Archive.org" :maxlevel . 1)
-     ("tasks.org" :maxlevel . 1)))
+   '(("brain.org" :maxlevel . 1)
+     ("agenda.org" :maxlevel . 1)
+     ("tasks.org_archive" :maxlevel . 1)))
 
   (org-tag-alist
    '((:startgroup)
      (:endgroup)
-     ("@work" . ?W)
-     ("agenda" . ?a)
-     ("linux" . ?l)
-     ("planning" . ?p)
+     ("project" . ?p)
+     ("task" . ?t)
+     ("devel" . ?d)
      ("note" . ?n)
      ("idea" . ?i)))
 
   (fill-column 80)
   ;; Where the org files live
-  (org-directory "~/d-sync/notes")
+  (org-directory "~/d-sync/notes/")
+  (org-default-notes-file (concat org-directory "brain.org"))
   ;; Make sure we see syntax highlighting
   (org-src-fontify-natively t)
   ;; I dont use it for subs/super scripts
@@ -7997,8 +8000,6 @@ lines:                       20;
   ;; Don't allow TODO's to close without their dependencies done
   (org-enforce-todo-dependencies t)
   (org-track-ordered-property-with-tag t)
-  ;; Where should notes go to? Dont even use them tho
-  (org-default-notes-file (concat org-directory "notes.org"))
 
   ;; Needed to allow helm to compute all refile options in buffer
   (org-outline-path-complete-in-steps nil)
@@ -8167,10 +8168,11 @@ lines:                       20;
      (t . t)))
 
   (org-modern-block-name
-   '(("src" . "")
+   '(
+     ("src" . ("" ""))
      ("example" . "")
      ("html" . "")
-     ("quote" . "")
+     ("quote" . ("" ""))
      (t . t)))
 
   (org-modern-internal-target '("  " t " "))
@@ -8297,10 +8299,32 @@ lines:                       20;
   (org-capture-bookmark nil)
   ;; also don't create bookmark in other things
   (org-bookmark-names-plist nil)
+  (org-default-notes-file (concat org-directory "brain.org"))
   (org-capture-templates
    `(
-     ("t" "Task" entry (file+function "~/d-sync/notes/tasks.org" (lambda () (completing-read "Heading: " my-org-agenda-headlines)))
-      "* TODO %?\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
+     ("a" "Agenda" entry (file+function "~/d-sync/notes/agenda.org" (lambda () (completing-read "Heading: " my-org-agenda-headlines)))
+      "* TODO %?%^g\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
+
+     ("n" "Notes")
+     ("nn" "Note to Brain" entry
+      (file+headline org-default-notes-file "Notes")
+      "** %?\n %T\n %i\n %a")
+     ("nt" "Note to Thought" entry
+      (file+headline org-default-notes-file "Thoughts")
+      "** %?\n %T\n %i\n %a")
+
+     ("nc" "Capture Note" entry
+      (file "~/d-sync/notes/inbox.org")
+      "** %?\n%^{date}p\n%i %a\n - ")
+
+     ("nr" "Reading note" entry
+      (file "~/d-sync/notes/reading.org")
+      "** %?\n %i\n %a\n -%?")
+
+     ("c" "Contacts")
+     ("cc" "New Contact" entry
+      (file "~/d-sync/notes/contacts.org")
+      "** %?")
 
      ("l" "Link" entry
       (file+headline "~/d-sync/notes/bookmarks.org" "elfeed") "* %a\n")
@@ -8309,12 +8333,18 @@ lines:                       20;
 
      ("jj" "Journal" entry
       (file+olp+datetree "~/d-sync/notes/journal.org")
-      "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
-      ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
+      "\n* %<%I:%M %p> - %?\n\n%?\n\n"
       :clock-in :clock-resume
       :empty-lines 1)))
   :config
   (setq my-org-agenda-headlines `(projects university tasks one-timer)))
+#+end_src
+*** org-list
+#+name: orgmacs
+#+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+(use-package org-list
+  :custom
+  (org-list-demote-modify-bullet '(("+" . "-") ("-" . "+"))))
 #+end_src
 *** org-src
 #+name: orgmacs
@@ -8376,7 +8406,7 @@ lines:                       20;
   :custom
   ;; Don't ask every time when I run a code block
   (org-confirm-babel-evaluate t)
-
+  :config
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((emacs-lisp . t)

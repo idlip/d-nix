@@ -89,8 +89,11 @@
   (inhibit-x-resources t)
   (inhibit-startup-screen t "Don't show splash screen")
   (inhibit-startup-buffer-menu t)
+
+  (initial-major-mode 'org-mode)
   (initial-scratch-message
-   "--- Scratch Buffer ---\n\n\n")
+   "#+title: Scratch Buffer\n\nFor random thoughts.\n\n")
+
   (use-short-answers t)
   (use-dialog-box t "Disable dialog boxes")
   (x-gtk-use-system-tooltips nil)
@@ -101,7 +104,6 @@
   (tab-width 4)
   (reb-re-syntax 'string)
   (debug-on-quit nil)
-  (initial-major-mode 'fundamental-mode)
 
   (history-delete-duplicates t)
   ;; window/pane
@@ -1427,7 +1429,7 @@ See URL `https://beta.ruff.rs/docs/'."
               "check"
               (config-file "--config" flycheck-python-ruff-config)
               "--output-format=text"
-              "--stdin-filename" source-original
+              "--stdin-filename" source-inplace
               "-")
     :standard-input t
     :error-filter (lambda (errors)
@@ -1446,10 +1448,16 @@ See URL `https://beta.ruff.rs/docs/'."
 (use-package reformatter
   :hook
   (python-ts-mode . ruff-format-on-save-mode)
+  (nix-mode . alejandra-format-on-save-mode)
   :config
   (reformatter-define ruff-format
     :program "ruff"
-    :args `("format" "--stdin-filename" ,buffer-file-name "-")))
+    :args (list "format" "--stdin-filename" input-file "-"))
+
+  (reformatter-define alejandra-format
+    :program "alejandra"
+    :group 'nix-mode
+    :lighter " AL"))
 
 (use-package eglot
   :defer t
@@ -1631,7 +1639,12 @@ See URL `https://beta.ruff.rs/docs/'."
   ;; :mode ("\\.epub\\'" . doc-view-mode)
   :bind (:map doc-view-mode-map
               ("M-g M-g" . doc-view-goto-page)
-              ("<f8>" . doc-view-presentation))
+              ("<f8>" . doc-view-presentation)
+              ("j" . doc-view-next-line-or-next-page)
+              ("k" . doc-view-previous-line-or-previous-page)
+              ("C-v" . doc-view-scroll-up-or-next-page)
+              ("M-v" . doc-view-scroll-down-or-previous-page)
+              )
   :hook
   (doc-view-minor-mode-hook . (lambda () (pixel-scroll-mode -1)))
   :custom
@@ -1970,9 +1983,9 @@ Usable as favorites or bookmark."
   (shr-use-fonts  t)
   (shr-use-colors nil)
   (shr-indentation 4)
-  (shr-bullet "• ")
+  (shr-bullet "⁍ ")
   (shr-folding-mode t)
-  (shr-max-width 120)
+  (shr-max-width 110)
   (shr-max-image-proportion 0.4)
   (shr-width nil))
 
@@ -1998,10 +2011,13 @@ Usable as favorites or bookmark."
         ("C-j" . shrface-next-headline)
         ("C-k" . shrface-previous-headline))
   :custom
-  (shrface-item-bullet 8226)
   (shrface-bullets-bullet-list '("󰓏" "󰚀" "󰫤"  "󰴈" "" "󰄄"))
   (shrface-href-versatile t)
   :config
+  (defun shrface-shr-item-bullet ()
+    "Build a `shr-bullet' based on `shrface-item-bullet'."
+    (setq shr-bullet "⁍ "))
+
   (shrface-basic)
   (shrface-trial)
   (shrface-default-keybindings))
@@ -2349,94 +2365,6 @@ for the search engine used."
   :init
   (nerd-icons-completion-mode))
 
-(define-widget 'nerd-icons-corfu-icon-type 'plist
-  "The type of an icon mapping."
-  :tag "Icon parameters"
-  :options '((:style (choice (const :tag "wicon" "w")
-                             (const :tag "faicon" "fa")
-                             (const :tag "flicon" "fl")
-                             (const :tag "mdicon" "md")
-                             (const :tag "codicon" "cod")
-                             (const :tag "devicon" "dev")
-                             (const :tag "ipsicon" "ips")
-                             (const :tag "octicon" "oct")
-                             (const :tag "pomicon" "pom")
-                             (const :tag "sucicon" "suc")))
-             (:icon string)
-             (:face face)))
-
-(defcustom nerd-icons-corfu-mapping
-  '((array :style "cod" :icon "symbol_array" :face font-lock-type-face)
-    (boolean :style "cod" :icon "symbol_boolean" :face font-lock-builtin-face)
-    (class :style "cod" :icon "symbol_class" :face font-lock-type-face)
-    (color :style "cod" :icon "symbol_color" :face success)
-    (command :style "cod" :icon "terminal" :face default)
-    (constant :style "cod" :icon "symbol_constant" :face font-lock-constant-face)
-    (constructor :style "cod" :icon "triangle_right" :face font-lock-function-name-face)
-    (enummember :style "cod" :icon "symbol_enum_member" :face font-lock-builtin-face)
-    (enum-member :style "cod" :icon "symbol_enum_member" :face font-lock-builtin-face)
-    (enum :style "cod" :icon "symbol_enum" :face font-lock-builtin-face)
-    (event :style "cod" :icon "symbol_event" :face font-lock-warning-face)
-    (field :style "cod" :icon "symbol_field" :face font-lock-variable-name-face)
-    (file :style "cod" :icon "symbol_file" :face font-lock-string-face)
-    (folder :style "cod" :icon "folder" :face font-lock-doc-face)
-    (interface :style "cod" :icon "symbol_interface" :face font-lock-type-face)
-    (keyword :style "cod" :icon "symbol_keyword" :face font-lock-keyword-face)
-    (macro :style "cod" :icon "symbol_misc" :face font-lock-keyword-face)
-    (magic :style "cod" :icon "wand" :face font-lock-builtin-face)
-    (method :style "cod" :icon "symbol_method" :face font-lock-function-name-face)
-    (function :style "cod" :icon "symbol_method" :face font-lock-function-name-face)
-    (module :style "cod" :icon "file_submodule" :face font-lock-preprocessor-face)
-    (numeric :style "cod" :icon "symbol_numeric" :face font-lock-builtin-face)
-    (operator :style "cod" :icon "symbol_operator" :face font-lock-comment-delimiter-face)
-    (param :style "cod" :icon "symbol_parameter" :face default)
-    (property :style "cod" :icon "symbol_property" :face font-lock-variable-name-face)
-    (reference :style "cod" :icon "references" :face font-lock-variable-name-face)
-    (snippet :style "cod" :icon "symbol_snippet" :face font-lock-string-face)
-    (string :style "cod" :icon "symbol_string" :face font-lock-string-face)
-    (struct :style "cod" :icon "symbol_structure" :face font-lock-variable-name-face)
-    (text :style "cod" :icon "text_size" :face font-lock-doc-face)
-    (typeparameter :style "cod" :icon "list_unordered" :face font-lock-type-face)
-    (type-parameter :style "cod" :icon "list_unordered" :face font-lock-type-face)
-    (unit :style "cod" :icon "symbol_ruler" :face font-lock-constant-face)
-    (value :style "cod" :icon "symbol_field" :face font-lock-builtin-face)
-    (variable :style "cod" :icon "symbol_variable" :face font-lock-variable-name-face)
-    (t :style "cod" :icon "code" :face font-lock-warning-face))
-  "Mapping of completion kinds to icons.
-
-It should be a list of elements with the form (KIND :style ICON-STY :icon
-ICON-NAME [:face FACE]).  KIND is a symbol determining what the completion is,
-and comes from calling the `:company-kind' property of the completion. ICON-STY
-is a string with the icon style to use, from those available in Nerd Fonts.
-ICON-NAME is a string with the name of the icon.  FACE, if present, is applied
-to the icon, mainly for its color. The special t symbol should be used for KIND
-to represent the default icon, and must be present."
-  :type '(alist :key-type symbol :value-type nerd-icons-corfu-icon-type)
-  :group 'nerd-icons-corfu)
-
-;;;###autoload
-(defun nerd-icons-corfu-formatter (_)
-  "A margin formatter for Corfu, adding icons.
-
-It receives METADATA, ignores it, and outputs a function that takes a candidate
-and returns the icon."
-  (when-let ((kindfunc (plist-get completion-extra-properties :company-kind)))
-    (lambda (cand)
-      (let* ((kind (funcall kindfunc cand))
-             (icon-entry (or (alist-get (or kind t) nerd-icons-corfu-mapping)
-                             (alist-get t nerd-icons-corfu-mapping)))
-             (style (plist-get icon-entry :style))
-             (icon (plist-get icon-entry :icon))
-             (icon-fun (intern (concat "nerd-icons-" style "icon")))
-             (icon-name (concat "nf-" style "-" icon))
-             (face (plist-get icon-entry :face))
-             (str (or (and (fboundp icon-fun) (funcall icon-fun icon-name :face face)) "?"))
-             (space (propertize " " 'display '(space :width 1))))
-        (concat " " str space)))))
-
-(with-eval-after-load 'corfu
-  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
-
 (use-package haki-theme
   :demand t
   :load-path "~/.config/emacs/var/theme"
@@ -2478,7 +2406,6 @@ and returns the icon."
 
 (use-package olivetti
   :defer t
-  :disabled t
   :hook
   (org-mode text-mode Info-mode helpful-mode ement-room-mode
             sdcv-mode nov-mode elfeed-show-mode markdown-mode)
@@ -2536,7 +2463,27 @@ and returns the icon."
 (use-package mini-echo
   :unless d/on-droid
   :load-path "~/d-git/forks/mini-echo"
-  :demand t
+  :defer 1
+  :custom
+  (mini-echo-window-divider-args '(t 0 0) "no indicator border")
+  (mini-echo-separator " ")
+  (mini-echo-buffer-status-style 'both)
+  (mini-echo-default-segments
+   '(:long ("time" "battery" "buffer-name"
+            "envrc"
+            "buffer-position"
+            ;; "buffer-size"
+            "flycheck" "selection-info"
+            "narrow"
+            )
+           :short ("buffer-name-short"
+                   "selection-info" "narrow" "macro" "repeat")))
+
+  (mini-echo-rules
+   '((special-mode :both (("buffer-size" . 0)))
+     (prog-mode :both (("vcs" . 1)))
+     (dired-mode :both (("buffer-size" . 0)))))
+
 
   :config
 
@@ -2553,7 +2500,6 @@ and returns the icon."
      (let ((bufn "*elfeed-search*"))
        (if (get-buffer bufn)
            (concat "󰎕 "
-
                    (string-trim-right
                     (with-current-buffer bufn (elfeed-search--count-unread))
                     "/.*")) "")) 'face 'mini-echo-elfeed))
@@ -2563,12 +2509,8 @@ and returns the icon."
 Display format is inherited from `battery-mode-line-format'."
     :setup (display-battery-mode 1)
     :fetch
-    (propertize
-     (concat "󰁿"
-             (string-trim
-              (battery-format "%p%"
-                              (funcall battery-status-function))))
-     'face 'mini-echo-battery))
+    (concat "󰂁"
+            (string-trim (mini-echo-segment--extract battery-mode-line-string) "\\[" "\\]")))
 
   (mini-echo-define-segment "which-function"
     "Return the function at point using `which-function-mode'"
@@ -2673,7 +2615,7 @@ Display format is inherited from `battery-mode-line-format'."
       (,(nerd-icons-sucicon "nf-seti-todo")
        " Agenda"
        "TODO Agenda"
-       (lambda (&rest _) (org-agenda)) warning "" " |")
+       (lambda (&rest _) (when d/on-droid (d/key-droid)) (org-agenda)) warning "" " |")
 
       (,(nerd-icons-mdicon "nf-md-bookmark")
        " Bookmark"
@@ -2741,28 +2683,30 @@ Display format is inherited from `battery-mode-line-format'."
   (org-log-into-drawer t)
   (org-export-exclude-tags '("noexport" "ignore") "excludes these tagged heading from export")
   (org-latex-compiler "lualatex" "Lualatex is fast and gets custom font too")
+  (org-link-file-path-type 'relative)
 
   (org-todo-keywords
    '((sequence "TODO(t)" "|" "DONE(d!)")
      (sequence "REVIEW(v)" "|" "CANC(k@)")))
 
   (org-refile-targets
-   '(("Archive.org" :maxlevel . 1)
-     ("tasks.org" :maxlevel . 1)))
+   '(("brain.org" :maxlevel . 1)
+     ("agenda.org" :maxlevel . 1)
+     ("tasks.org_archive" :maxlevel . 1)))
 
   (org-tag-alist
    '((:startgroup)
      (:endgroup)
-     ("@work" . ?W)
-     ("agenda" . ?a)
-     ("linux" . ?l)
-     ("planning" . ?p)
+     ("project" . ?p)
+     ("task" . ?t)
+     ("devel" . ?d)
      ("note" . ?n)
      ("idea" . ?i)))
 
   (fill-column 80)
   ;; Where the org files live
-  (org-directory "~/d-sync/notes")
+  (org-directory "~/d-sync/notes/")
+  (org-default-notes-file (concat org-directory "brain.org"))
   ;; Make sure we see syntax highlighting
   (org-src-fontify-natively t)
   ;; I dont use it for subs/super scripts
@@ -2803,8 +2747,6 @@ Display format is inherited from `battery-mode-line-format'."
   ;; Don't allow TODO's to close without their dependencies done
   (org-enforce-todo-dependencies t)
   (org-track-ordered-property-with-tag t)
-  ;; Where should notes go to? Dont even use them tho
-  (org-default-notes-file (concat org-directory "notes.org"))
 
   ;; Needed to allow helm to compute all refile options in buffer
   (org-outline-path-complete-in-steps nil)
@@ -2960,10 +2902,11 @@ Display format is inherited from `battery-mode-line-format'."
      (t . t)))
 
   (org-modern-block-name
-   '(("src" . "")
+   '(
+     ("src" . ("" ""))
      ("example" . "")
      ("html" . "")
-     ("quote" . "")
+     ("quote" . ("" ""))
      (t . t)))
 
   (org-modern-internal-target '("  " t " "))
@@ -3079,10 +3022,32 @@ Display format is inherited from `battery-mode-line-format'."
   (org-capture-bookmark nil)
   ;; also don't create bookmark in other things
   (org-bookmark-names-plist nil)
+  (org-default-notes-file (concat org-directory "brain.org"))
   (org-capture-templates
    `(
-     ("t" "Task" entry (file+function "~/d-sync/notes/tasks.org" (lambda () (completing-read "Heading: " my-org-agenda-headlines)))
-      "* TODO %?\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
+     ("a" "Agenda" entry (file+function "~/d-sync/notes/agenda.org" (lambda () (completing-read "Heading: " my-org-agenda-headlines)))
+      "* TODO %?%^g\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
+
+     ("n" "Notes")
+     ("nn" "Note to Brain" entry
+      (file+headline org-default-notes-file "Notes")
+      "** %?\n %T\n %i\n %a")
+     ("nt" "Note to Thought" entry
+      (file+headline org-default-notes-file "Thoughts")
+      "** %?\n %T\n %i\n %a")
+
+     ("nc" "Capture Note" entry
+      (file "~/d-sync/notes/inbox.org")
+      "** %?\n%^{date}p\n%i %a\n - ")
+
+     ("nr" "Reading note" entry
+      (file "~/d-sync/notes/reading.org")
+      "** %?\n %i\n %a\n -%?")
+
+     ("c" "Contacts")
+     ("cc" "New Contact" entry
+      (file "~/d-sync/notes/contacts.org")
+      "** %?")
 
      ("l" "Link" entry
       (file+headline "~/d-sync/notes/bookmarks.org" "elfeed") "* %a\n")
@@ -3091,12 +3056,15 @@ Display format is inherited from `battery-mode-line-format'."
 
      ("jj" "Journal" entry
       (file+olp+datetree "~/d-sync/notes/journal.org")
-      "\n* %<%I:%M %p> - Journal :journal:\n\n%?\n\n"
-      ;; ,(dw/read-file-as-string "~/Notes/Templates/Daily.org")
+      "\n* %<%I:%M %p> - %?\n\n%?\n\n"
       :clock-in :clock-resume
       :empty-lines 1)))
   :config
   (setq my-org-agenda-headlines `(projects university tasks one-timer)))
+
+(use-package org-list
+  :custom
+  (org-list-demote-modify-bullet '(("+" . "-") ("-" . "+"))))
 
 (use-package org-src
   :ensure nil
@@ -3148,7 +3116,7 @@ Display format is inherited from `battery-mode-line-format'."
   :custom
   ;; Don't ask every time when I run a code block
   (org-confirm-babel-evaluate t)
-
+  :config
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((emacs-lisp . t)
@@ -3398,47 +3366,60 @@ Display format is inherited from `battery-mode-line-format'."
   :defines
   (dired-mode-map
    denote-directory)
-  :hook ((find-file-hook . denote-link-buttonize-buffer)
 
-         (dired-mode . denote-dired-mode))
+  :hook
+  (find-file . denote-link-buttonize-buffer)
+  (dired-mode . denote-dired-mode)
+  (context-menu-functions . denote-context-menu)
+
   :bind
   ("C-c n j" . d/my-journal)
-  ("C-c n s" . denote)
-  ("C-c n t" . denote-type)
-  ("C-c n d" . denote-date)
-  ("C-c n n" . denote-subdirectory)
+  ("C-c n s" . denote-subdirectory)
+  ("C-c n n" . denote)
+  ("C-c n d" . denote-org-dblock-insert-links)
   ("M-s n" . denote-open-or-create)
   ("C-c n o" . denote-open-or-create)
   ("C-c n T" . denote-template)
   ("C-c n i" . denote-link)
-  ("C-c n I" . denote-link-add-links)
-  ("C-c n b" . denote-link-backlinks)
+  ("C-c n a" . denote-link-add-links)
+  ("C-c n A" . denote-link-backlinks)
   ("C-c n f f" . denote-link-find-file)
   ("C-c n f b" . denote-link-find-backlink)
   ("C-c n r" . denote-rename-file)
   ("C-c n R" . denote-rename-file-using-front-matter)
+
   (:map dired-mode-map
         ("C-c C-d C-i" . denote-link-dired-marked-notes)
         ("C-c C-d C-r" . denote-dired-rename-marked-files)
         ("C-c C-d C-R" . denote-dired-rename-marked-files-using-front-matter))
 
   :custom
-  (denote-directory (expand-file-name "~/d-sync/notes"))
+  (denote-directory (expand-file-name "~/d-sync/notes/"))
   (denote-known-keywords '("emacs" "blogs" "article"))
   (denote-infer-keywords t)
   (denote-sort-keywords t)
-  (denote-file-type nil)
-  (denote-prompts '(title keywords))
+  (denote-file-type 'org)
+  (denote-prompts '(title keywords date template signature))
   (denote-excluded-directories-regexp nil)
   (denote-excluded-keywords-regexp nil)
   (denote-date-prompt-use-org-read-date t)
   (denote-allow-multi-word-keywords t)
   (denote-date-format nil)
   (denote-backlinks-show-context t)
+
+  (denote-file-name-letter-casing
+   '((title . downcase)
+     (signature . verbatim)
+     (keywords . downcase)
+     (t . downcase)))
+
   (denote-dired-directories
    (list denote-directory
-         (thread-last denote-directory (expand-file-name "attachments"))
-         (expand-file-name "~/d-sync/notes/books/")))
+         (expand-file-name "~/d-git/d-site/content/")))
+
+  (denote-templates
+   '((project . "* Initial Idea\n\n** Requirements\n")
+     (none . "")))
 
   :config
   (defun d/my-journal ()
@@ -3459,7 +3440,7 @@ Display format is inherited from `battery-mode-line-format'."
   (with-eval-after-load 'org-capture
     (setq denote-org-capture-specifiers "%l\n%i\n%?")
     (add-to-list 'org-capture-templates
-                 '("n" "New note (denote)" plain
+                 '("d" "New note (denote)" plain
                    (file denote-last-path)
                    #'denote-org-capture
                    :no-save t
@@ -3480,3 +3461,7 @@ Display format is inherited from `battery-mode-line-format'."
   (interactive)
   (disable-mouse-mode 'toggle)
   (olivetti-mode 'toggle))
+
+(use-package denote-journal-extras
+  :custom
+  (denote-journal-extras-title-format 'day-date-month-year))

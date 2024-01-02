@@ -973,7 +973,7 @@
         binds = {
           p = "prev";
           n = "next";
-          "<Shift+d>" = "exec rm \"$imv_current_file\"; close";
+          "<Shift+D>" = "exec rm \"$imv_current_file\"; close";
           r = "exec mogrify -rotate 90 \"$imv_current_file\"";
         };
       };
@@ -1308,7 +1308,7 @@
 		        "mpv" = "🎵";
 	        };
 	        "status-icons" = {
-		        "paused" = "⏸";
+		        "paused" = "󰏤";
 	        };
 	        "max-length" = 20;
         };

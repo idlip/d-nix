@@ -1245,8 +1245,11 @@ It is as simple if I just record what it does, with proper link to rich resource
   (inhibit-x-resources t)
   (inhibit-startup-screen t "Don't show splash screen")
   (inhibit-startup-buffer-menu t)
+
+  (initial-major-mode 'org-mode)
   (initial-scratch-message
-   "--- Scratch Buffer ---\n\n\n")
+   "#+title: Scratch Buffer\n\nFor random thoughts.\n\n")
+
   (use-short-answers t)
   (use-dialog-box t "Disable dialog boxes")
   (x-gtk-use-system-tooltips nil)
@@ -1257,7 +1260,6 @@ It is as simple if I just record what it does, with proper link to rich resource
   (tab-width 4)
   (reb-re-syntax 'string)
   (debug-on-quit nil)
-  (initial-major-mode 'fundamental-mode)
 
   (history-delete-duplicates t)
   ;; window/pane

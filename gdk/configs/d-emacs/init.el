@@ -2577,7 +2577,7 @@ Display format is inherited from `battery-mode-line-format'."
       (,(nerd-icons-mdicon "nf-md-notebook")
        " Notes"
        "Denote Tree"
-       (lambda (&rest _) (call-interactively #'denote-open-or-create)) warning "" " |")
+       (lambda (&rest _) (find-file "~/d-sync/notes/")) warning "" " |")
 
       (,(nerd-icons-faicon "nf-fa-gitlab")
        " Project"
@@ -2593,7 +2593,7 @@ Display format is inherited from `battery-mode-line-format'."
       (,(nerd-icons-mdicon "nf-md-library")
        " Library"
        "Books and Docs"
-       (lambda (&rest _) (find-dired "~/d-sync/reads" "")) nil "" "")
+       (lambda (&rest _) (find-file "~/d-sync/reads")) nil "" "")
       )
      ;; line 2
      (

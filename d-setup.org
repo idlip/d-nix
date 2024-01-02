@@ -8860,7 +8860,8 @@ block but are passed literally to the \"example-block\"."
 #+end_src
 *** speed-type
 - to practise speed typing, or typing in general.
-- Thoughts and plans should be shapened not typing speed.
+- Thoughts and plans should flow swiftly and typing speed should not be an hindrance.
+- Key is to type when thought comes, because it is too easy to forget.
 - Or just type whatever comes to mind, then later analyze.
 #+name: orgmacs
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
@@ -8870,6 +8871,11 @@ block but are passed literally to the \"example-block\"."
   (speed-type-mode . olivetti-mode))
 #+end_src
 ** Denote
+- A good design for note-taking in emacs, by master Prot.
+- It is tool agnostic, yes written in elisp, but not very much dependent on emacs.
+- It can used with standard Unix tool very well.
+- Naming scheme is the huge bonus, except there is no graph or db stored. It aint that hard or late to write a script to generate one tho. I assume sacha or some other package might have already written a ~R~ or ~python~ script on it.
+- Except denote is not full fledge system or tool, but its a handy and convenient way of making notes in good practices scheme.
 #+name: orgmacs
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
 (use-package denote
@@ -8877,47 +8883,60 @@ block but are passed literally to the \"example-block\"."
   :defines
   (dired-mode-map
    denote-directory)
-  :hook ((find-file-hook . denote-link-buttonize-buffer)
 
-         (dired-mode . denote-dired-mode))
+  :hook
+  (find-file . denote-link-buttonize-buffer)
+  (dired-mode . denote-dired-mode)
+  (context-menu-functions . denote-context-menu)
+
   :bind
   ("C-c n j" . d/my-journal)
-  ("C-c n s" . denote)
-  ("C-c n t" . denote-type)
-  ("C-c n d" . denote-date)
-  ("C-c n n" . denote-subdirectory)
+  ("C-c n s" . denote-subdirectory)
+  ("C-c n n" . denote)
+  ("C-c n d" . denote-org-dblock-insert-links)
   ("M-s n" . denote-open-or-create)
   ("C-c n o" . denote-open-or-create)
   ("C-c n T" . denote-template)
   ("C-c n i" . denote-link)
-  ("C-c n I" . denote-link-add-links)
-  ("C-c n b" . denote-link-backlinks)
+  ("C-c n a" . denote-link-add-links)
+  ("C-c n A" . denote-link-backlinks)
   ("C-c n f f" . denote-link-find-file)
   ("C-c n f b" . denote-link-find-backlink)
   ("C-c n r" . denote-rename-file)
   ("C-c n R" . denote-rename-file-using-front-matter)
+
   (:map dired-mode-map
         ("C-c C-d C-i" . denote-link-dired-marked-notes)
         ("C-c C-d C-r" . denote-dired-rename-marked-files)
         ("C-c C-d C-R" . denote-dired-rename-marked-files-using-front-matter))
 
   :custom
-  (denote-directory (expand-file-name "~/d-sync/notes"))
+  (denote-directory (expand-file-name "~/d-sync/notes/"))
   (denote-known-keywords '("emacs" "blogs" "article"))
   (denote-infer-keywords t)
   (denote-sort-keywords t)
-  (denote-file-type nil)
-  (denote-prompts '(title keywords))
+  (denote-file-type 'org)
+  (denote-prompts '(title keywords date template signature))
   (denote-excluded-directories-regexp nil)
   (denote-excluded-keywords-regexp nil)
   (denote-date-prompt-use-org-read-date t)
   (denote-allow-multi-word-keywords t)
   (denote-date-format nil)
   (denote-backlinks-show-context t)
+
+  (denote-file-name-letter-casing
+   '((title . downcase)
+     (signature . verbatim)
+     (keywords . downcase)
+     (t . downcase)))
+
   (denote-dired-directories
    (list denote-directory
-         (thread-last denote-directory (expand-file-name "attachments"))
-         (expand-file-name "~/d-sync/notes/books/")))
+         (expand-file-name "~/d-git/d-site/content/")))
+
+  (denote-templates
+   '((project . "* Initial Idea\n\n** Requirements\n")
+     (none . "")))
 
   :config
   (defun d/my-journal ()
@@ -8938,7 +8957,7 @@ block but are passed literally to the \"example-block\"."
   (with-eval-after-load 'org-capture
     (setq denote-org-capture-specifiers "%l\n%i\n%?")
     (add-to-list 'org-capture-templates
-                 '("n" "New note (denote)" plain
+                 '("d" "New note (denote)" plain
                    (file denote-last-path)
                    #'denote-org-capture
                    :no-save t
@@ -8963,6 +8982,54 @@ block but are passed literally to the \"example-block\"."
   (interactive)
   (disable-mouse-mode 'toggle)
   (olivetti-mode 'toggle))
+#+end_src
+- Function to move org subtree as denote notes.
+- Refer info on denote.
+#+name: orgmacs
+#+begin_src emacs-lisp
+(defun my-denote-org-extract-subtree (&optional silo)
+  "Create new Denote note using current Org subtree.
+     Make the new note use the Org file type, regardless of the value
+     of `denote-file-type'.
+
+     With an optional SILO argument as a prefix (\\[universal-argument]),
+     ask user to select a SILO from `my-denote-silo-directories'.
+
+     Use the subtree title as the note's title.  If available, use the
+     tags of the heading are used as note keywords.
+
+     Delete the original subtree."
+  (interactive
+   (list (when current-prefix-arg
+           (completing-read "Select a silo: " my-denote-silo-directories nil t))))
+  (if-let ((text (org-get-entry))
+           (heading (org-get-heading :no-tags :no-todo :no-priority :no-comment)))
+      (let ((element (org-element-at-point))
+            (tags (org-get-tags))
+            (denote-user-enforced-denote-directory silo))
+        (delete-region (org-entry-beginning-position)
+                       (save-excursion (org-end-of-subtree t) (point)))
+        (denote heading
+                tags
+                'org
+                nil
+                (or
+                 ;; Check PROPERTIES drawer for :created: or :date:
+                 (org-element-property :CREATED element)
+                 (org-element-property :DATE element)
+                 ;; Check the subtree for CLOSED
+                 (org-element-property :raw-value
+                                       (org-element-property :closed element))))
+        (insert text))
+    (user-error "No subtree to extract; aborting")))
+#+end_src
+
+*** Denote Journal
+#+name: orgmacs
+#+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+(use-package denote-journal-extras
+  :custom
+  (denote-journal-extras-title-format 'day-date-month-year))
 #+end_src
 * EOF
 ** Nixos

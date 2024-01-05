@@ -2517,12 +2517,15 @@ css-mode css-ts-mode
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
 (use-package pixel-scroll
   :ensure nil
-  :init (pixel-scroll-mode 1)
   :commands
   (pixel-scroll-precision-scroll-down pixel-scroll-precision-scroll-up)
   :bind
-  (("C-v" . d/scroll-down)
-   ("M-v" . d/scroll-up)))
+  ([remap scroll-up-command]   . pixel-scroll-interpolate-down)
+  ([remap scroll-down-command] . pixel-scroll-interpolate-up)
+  :custom
+  (pixel-scroll-precision-interpolate-page t)
+  :init
+  (pixel-scroll-precision-mode 1))
 #+end_src
 + Function to smooth scroll up and down. Note: works only for Pgtk build.
 #+name: orgmacs
@@ -2538,6 +2541,20 @@ css-mode css-ts-mode
 You can do this by trackpad too (laptop)"
   (interactive)
   (pixel-scroll-precision-scroll-up 20))
+#+end_src
++ Function to use pixel-scroll for recenter.
++ Credits to [[https://github.com/KaratasFurkan/.emacs.d/tree/emacs-29#pixel-scroll][KaratasFurkan]]. Having some issues, does not stay with point?
+#+name: orgmacs
+#+begin_src emacs-lisp
+(defun d/pixel-recenter-top-bottom ()
+  "Similar to `recenter-top-bottom' but with pixel scrolling."
+  (interactive)
+  (let* ((current-row (cdr (nth 6 (posn-at-point))))
+         (target-row (save-window-excursion
+                       (recenter-top-bottom)
+                       (cdr (nth 6 (posn-at-point)))))
+         (distance-in-pixels (* (- target-row current-row) (line-pixel-height))))
+    (pixel-scroll-precision-interpolate distance-in-pixels)))
 #+end_src
 **** winner
 - to capture window/panes states.

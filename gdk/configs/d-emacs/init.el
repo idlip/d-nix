@@ -2304,6 +2304,30 @@ for the search engine used."
    '(touch-screen-display-keyboard t)
    '(browse-url-android-share t))
 
+  ;; credits to https://github.com/danijelcamdzic/dotemacs/
+  (setq display-buffer-alist
+        '((".*" (display-buffer-same-window) (inhibit-same-window . nil))))
+
+  ;; Add tool-bar options for zooming in
+  (tool-bar-add-item "zoom-in" 'text-scale-increase
+                     'text-scale-increase
+                     :help "Zoom In")
+
+  ;; Add tool-bar options for zooming out
+  (tool-bar-add-item "zoom-out" 'text-scale-decrease
+                     'text-scale-decrease
+                     :help "Zoom Out")
+
+  ;; Add tool-bar option for Org Cycle
+  (tool-bar-add-item "right-arrow" 'org-cycle
+                     'org-cycle
+                     :help "Org Cycle")
+
+  ;; Add tool-bar option for Org Ctrl-C Ctrl-C
+  (tool-bar-add-item "prev-node" 'org-ctrl-c-ctrl-c
+                     'org-ctrl-c-ctrl-c
+                     :help "Execute Org Ctrl-C Ctrl-C")
+
   (defun d/key-droid()
     "To enable touch screen keyboard"
     (interactive)

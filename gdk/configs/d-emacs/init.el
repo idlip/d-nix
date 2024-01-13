@@ -626,11 +626,12 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 
    ;; C-c bindings (mode-specific-map)
    ("C-c h" . consult-history)
-   ("C-c m" . consult-mode-command)
+   ("C-c M-x" . consult-mode-command)
    ("C-c k" . consult-kmacro)
    ("C-c t t" . consult-theme)
    ;; C-x bindings (ctl-x-map)
    ("C-x M-:" . consult-complex-command)
+   ("C-x M-x" . consult-mode-command)
    ("C-x b" . consult-buffer)
    ("C-x C-b" . consult-buffer)
    ("C-x 4 b" . consult-buffer-other-window)
@@ -1018,12 +1019,15 @@ Return nil if NAME does not designate a valid color."
 
 (use-package pixel-scroll
   :ensure nil
-  :init (pixel-scroll-mode 1)
   :commands
   (pixel-scroll-precision-scroll-down pixel-scroll-precision-scroll-up)
   :bind
-  (("C-v" . d/scroll-down)
-   ("M-v" . d/scroll-up)))
+  ([remap scroll-up-command]   . pixel-scroll-interpolate-down)
+  ([remap scroll-down-command] . pixel-scroll-interpolate-up)
+  :custom
+  (pixel-scroll-precision-interpolate-page t)
+  :init
+  (pixel-scroll-precision-mode 1))
 
 (defun d/scroll-down ()
   "Trust me, make scrolling alot smoother.
@@ -1184,11 +1188,13 @@ You can do this by trackpad too (laptop)"
    (lambda nil
      (concat
       "\n"
-      (propertize (concat " 󰪥 " (replace-regexp-in-string "~" " " (eshell/pwd))) 'face `(:foreground "lightblue1"))
+      (propertize " 󰪥 " 'face '(:inherit region))
+      " "
+      (propertize (replace-regexp-in-string "~" " " (eshell/pwd)) 'face '(:foreground "lightblue1"))
       (when (package-installed-p 'magit) (propertize (if (magit-get-current-branch) (concat "   " (magit-get-current-branch)) "") 'face '(:foreground "orangered1")))
       (when (package-installed-p 'envrc) (propertize (if (string= envrc--status 'none) "" "   ") 'face '(:foreground "mediumspringgreen")))
       (propertize (concat "   " (format-time-string "%H:%M" (current-time))) 'face '(:foreground "lightcyan1"))
-      (propertize "\n 𝝺 " 'face `(:foreground "palegreen"))
+      (propertize "\n 𝝺 " 'face '(:foreground "palegreen"))
       )))
   (eshell-prompt-regexp "^ 𝝺 "))
 
@@ -1650,7 +1656,7 @@ See URL `https://beta.ruff.rs/docs/'."
   :custom
   (doc-view-continuous t)
   (doc-view-mupdf-use-svg t)
-  (doc-view-scale-internally nil)
+  (doc-view-scale-internally t)
   (doc-view-image-width 900)
   (large-file-warning-threshold 700000000)
   (image-cache-eviction-delay 3))

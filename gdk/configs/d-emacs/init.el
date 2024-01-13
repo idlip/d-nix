@@ -3215,6 +3215,56 @@ Display format is inherited from `battery-mode-line-format'."
   (org-re-reveal-title-slide
    "<h1 class=\"title\">%t</h1> <br> <br> <h2 class=\"subtitle\">%s</h2> <h2 class=\"author\">%a</h2> <br> <br> <h4 class=\"misc\">%m</h4> <h3 class=\"misc\">%A</h3>"))
 
+(use-package org-ql)
+
+(use-package org-alert
+  :demand t
+  :custom
+  (org-alert-interval 300)
+  (org-alert-notification-title "Org Alert Reminder")
+  (org-alert-time-match-string
+   "\\(?:SCHEDULED\\|DEADLINE\\):.*?<.*?\\([0-9]\\{2\\}:[0-9]\\{2\\}\\).*>")
+  :config
+  (org-alert-enable))
+
+;;;;; Functions - Notification Titles
+
+(defconst d/notifier (if d/on-droid 'android-notifications-notify 'notifications-notify))
+
+(defun my/org-alert--get-todo-parent ()
+  "Get the immediate parent heading of a TODO. If no parents, use file title. If no file title
+use filename."
+  (if (org-up-heading-safe)
+      (org-get-heading t t t t)
+    (let ((title (cdr (assoc "TITLE" (org-collect-keywords '("TITLE"))))))
+      (if (and title (listp title))
+          (car title)
+        title))))
+
+(defun org-alert--parse-entry--use-parent-as-title-advice (orig-fun &rest args)
+  "Advice for `org-alert--parse-entry' function. It adapts it to accept parameters from the
+`my/org-alert--get-todo-parent' function which retrieves the parent heading or file title/name."
+  (let ((head (org-alert--strip-text-properties (org-get-heading t t t t)))
+        (parent-or-file-head (my/org-alert--get-todo-parent)))
+    (cl-destructuring-bind (body cutoff) (org-alert--grab-subtree)
+      (if (string-match org-alert-time-match-string body)
+          (list head parent-or-file-head (match-string 1 body) cutoff)
+        nil))))
+
+(defun org-alert--dispatch--use-parent-as-title-advice (orig-fun &rest args)
+  "Advice for `org-alert--dispatch' function."
+  (let ((entry (org-alert--parse-entry)))
+    (when entry
+      (cl-destructuring-bind (head parent-or-file-head time cutoff) entry
+        (if time
+            (when (org-alert--check-time time cutoff)
+              (funcall d/notifier :body (concat time ": " head) :title parent-or-file-head))
+          (funcall d/notifier :body head :title parent-or-file-head)
+          )))))
+
+(advice-add 'org-alert--parse-entry :around #'org-alert--parse-entry--use-parent-as-title-advice)
+(advice-add 'org-alert--dispatch :around #'org-alert--dispatch--use-parent-as-title-advice)
+
 (use-package org-present
   :defer t
   :unless d/on-droid

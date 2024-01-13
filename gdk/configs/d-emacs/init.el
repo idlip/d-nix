@@ -2336,6 +2336,34 @@ for the search engine used."
   )
 ;; (setq use-dialog-box nil)
 
+(require 'alert)
+(when d/on-droid
+  ;; Org-alert functions
+
+  (defun alert-android-notifications-notify (info)
+    "Send notifications using `android-notifications-notify'.
+`android-notifications-notify' is a built-in function in the native Emacs
+Android port."
+    (let ((title (or (plist-get info :title) "Android Notifications Alert"))
+          (body (or (plist-get info :message) ""))
+          (urgency (cdr (assq (plist-get info :severity)
+                              alert-notifications-priorities)))
+          (icon (or (plist-get info :icon) alert-default-icon))
+          (replaces-id (gethash (plist-get info :id) alert-notifications-ids)))
+      (android-notifications-notify
+       :title title
+       :body body
+       :urgency urgency
+       :icon icon
+       :replaces-id replaces-id)))
+
+
+  (alert-define-style 'android-notifications :title "Android Notifications"
+                      :notifier #'alert-android-notifications-notify
+                      )
+  (setq alert-default-icon "ic_popup_reminder")
+  )
+
 (defvar d/font-size (if d/on-droid 150 140)
   "Default font size based on the system.")
 (defvar d/variable-font-size (if d/on-droid 160 160)
@@ -2674,6 +2702,15 @@ Display format is inherited from `battery-mode-line-format'."
   (proced-mode . (lambda ()
                    (interactive)
                    (proced-toggle-auto-update 1))))
+
+(use-package alert
+  :custom
+    ;; Use different backends depending on the platform
+  (alert-default-style (if d/on-droid
+                           'android-notifications
+                         'libnotify))
+  (alert-libnotify-additional-args '("-u" "critical" "-t" "100"))
+  (alert-fade-time 100))
 
 (use-package org
   :ensure nil

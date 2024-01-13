@@ -3447,7 +3447,8 @@ use filename."
 (use-package remember
   :ensure nil
   :bind
-  ("C-c a r" . remember))
+  ("C-c r r" . remember)
+  ("C-c r n"))
 
 (use-package markdown-mode
   :defer t
@@ -3593,6 +3594,42 @@ use filename."
   (interactive)
   (disable-mouse-mode 'toggle)
   (olivetti-mode 'toggle))
+
+(defun my-denote-org-extract-subtree (&optional silo)
+  "Create new Denote note using current Org subtree.
+     Make the new note use the Org file type, regardless of the value
+     of `denote-file-type'.
+
+     With an optional SILO argument as a prefix (\\[universal-argument]),
+     ask user to select a SILO from `my-denote-silo-directories'.
+
+     Use the subtree title as the note's title.  If available, use the
+     tags of the heading are used as note keywords.
+
+     Delete the original subtree."
+  (interactive
+   (list (when current-prefix-arg
+           (completing-read "Select a silo: " my-denote-silo-directories nil t))))
+  (if-let ((text (org-get-entry))
+           (heading (org-get-heading :no-tags :no-todo :no-priority :no-comment)))
+      (let ((element (org-element-at-point))
+            (tags (org-get-tags))
+            (denote-user-enforced-denote-directory silo))
+        (delete-region (org-entry-beginning-position)
+                       (save-excursion (org-end-of-subtree t) (point)))
+        (denote heading
+                tags
+                'org
+                nil
+                (or
+                 ;; Check PROPERTIES drawer for :created: or :date:
+                 (org-element-property :CREATED element)
+                 (org-element-property :DATE element)
+                 ;; Check the subtree for CLOSED
+                 (org-element-property :raw-value
+                                       (org-element-property :closed element))))
+        (insert text))
+    (user-error "No subtree to extract; aborting")))
 
 (use-package denote-journal-extras
   :custom

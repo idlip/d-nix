@@ -1022,8 +1022,8 @@ Return nil if NAME does not designate a valid color."
   :commands
   (pixel-scroll-precision-scroll-down pixel-scroll-precision-scroll-up)
   :bind
-  ([remap scroll-up-command]   . pixel-scroll-interpolate-down)
-  ([remap scroll-down-command] . pixel-scroll-interpolate-up)
+  ("C-v" . pixel-scroll-interpolate-down)
+  ("M-v" . pixel-scroll-interpolate-up)
   :custom
   (pixel-scroll-precision-interpolate-page t)
   :init

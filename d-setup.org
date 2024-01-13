@@ -1882,11 +1882,12 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 
    ;; C-c bindings (mode-specific-map)
    ("C-c h" . consult-history)
-   ("C-c m" . consult-mode-command)
+   ("C-c M-x" . consult-mode-command)
    ("C-c k" . consult-kmacro)
    ("C-c t t" . consult-theme)
    ;; C-x bindings (ctl-x-map)
    ("C-x M-:" . consult-complex-command)
+   ("C-x M-x" . consult-mode-command)
    ("C-x b" . consult-buffer)
    ("C-x C-b" . consult-buffer)
    ("C-x 4 b" . consult-buffer-other-window)
@@ -3091,8 +3092,8 @@ You can do this by trackpad too (laptop)"
       sdcv elfeed elfeed-org powerthesaurus jinx meow
       doom-modeline el-fetch ox-hugo envrc dashboard
       ement kind-icon speed-type vc-backup aria2
-      ess org-re-reveal auctex julia-mode
-      toc-org el-patch disable-mouse org-ql
+      ess org-re-reveal auctex julia-mode webfeeder
+      toc-org el-patch disable-mouse org-ql org-alert
     ])
     );
   };
@@ -3831,7 +3832,7 @@ See URL `https://beta.ruff.rs/docs/'."
   :custom
   (doc-view-continuous t)
   (doc-view-mupdf-use-svg t)
-  (doc-view-scale-internally nil)
+  (doc-view-scale-internally t)
   (doc-view-image-width 900)
   (large-file-warning-threshold 700000000)
   (image-cache-eviction-delay 3))
@@ -5313,6 +5314,30 @@ for the search engine used."
    '(touch-screen-display-keyboard t)
    '(browse-url-android-share t))
 
+  ;; credits to https://github.com/danijelcamdzic/dotemacs/
+  (setq display-buffer-alist
+        '((".*" (display-buffer-same-window) (inhibit-same-window . nil))))
+
+  ;; Add tool-bar options for zooming in
+  (tool-bar-add-item "zoom-in" 'text-scale-increase
+                     'text-scale-increase
+                     :help "Zoom In")
+
+  ;; Add tool-bar options for zooming out
+  (tool-bar-add-item "zoom-out" 'text-scale-decrease
+                     'text-scale-decrease
+                     :help "Zoom Out")
+
+  ;; Add tool-bar option for Org Cycle
+  (tool-bar-add-item "right-arrow" 'org-cycle
+                     'org-cycle
+                     :help "Org Cycle")
+
+  ;; Add tool-bar option for Org Ctrl-C Ctrl-C
+  (tool-bar-add-item "prev-node" 'org-ctrl-c-ctrl-c
+                     'org-ctrl-c-ctrl-c
+                     :help "Execute Org Ctrl-C Ctrl-C")
+
   (defun d/key-droid()
     "To enable touch screen keyboard"
     (interactive)
@@ -5320,6 +5345,38 @@ for the search engine used."
     )
   )
 ;; (setq use-dialog-box nil)
+#+end_src
+**** notify-droid
+- Thanks to [[https://github.com/danijelcamdzic/dotemacs/blob/main/elisp/org-config.el][danijelcamdzic]], now emacs android can have notification from org agenda.
+#+name: orgmacs
+#+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+(require 'alert)
+(when d/on-droid
+  ;; Org-alert functions
+
+  (defun alert-android-notifications-notify (info)
+    "Send notifications using `android-notifications-notify'.
+`android-notifications-notify' is a built-in function in the native Emacs
+Android port."
+    (let ((title (or (plist-get info :title) "Android Notifications Alert"))
+          (body (or (plist-get info :message) ""))
+          (urgency (cdr (assq (plist-get info :severity)
+                              alert-notifications-priorities)))
+          (icon (or (plist-get info :icon) alert-default-icon))
+          (replaces-id (gethash (plist-get info :id) alert-notifications-ids)))
+      (android-notifications-notify
+       :title title
+       :body body
+       :urgency urgency
+       :icon icon
+       :replaces-id replaces-id)))
+
+
+  (alert-define-style 'android-notifications :title "Android Notifications"
+                      :notifier #'alert-android-notifications-notify
+                      )
+  (setq alert-default-icon "ic_popup_reminder")
+  )
 #+end_src
 ** bluetooth
 - I dont prefer to use bluetooth, dongle or wired equips are better.
@@ -5484,7 +5541,7 @@ exec-once = wl-paste --type image --watch cliphist store
 # exec-once = systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
 # exec-once = hyprctl setcursor Bibata-Modern-Classic
 #exec-once = swayidle timeout 150 'gtklock -b black & sleep 1 && systemctl suspend' before-sleep 'loginctl lock-session' lock 'gtklock -b black'
-exec-once = swayidle -w timeout 200 'gtklock -b black -d' timeout 210 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on' timeout 30 'if pgrep gtklock; then hyprctl dispatch dpms off; fi' resume 'if pgrep gtklock; then hyprctl dispatch dpms on; fi' before-sleep 'gtklock -b black -d' lock 'gtklock -b black -d' timeout 500 'd-idle'
+exec-once = swayidle -w timeout 300 'gtklock -b black -d' timeout 210 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on' timeout 301 'if pgrep gtklock; then hyprctl dispatch dpms off; fi' resume 'if pgrep gtklock; then hyprctl dispatch dpms on; fi' before-sleep 'gtklock -b black -d' lock 'gtklock -b black -d' timeout 1000 'systemctl suspend'
 # exec-once = gammastep -l 19:72 -t 6500:4100
 exec-once = d-walls
 exec-once = foot --server
@@ -5496,8 +5553,14 @@ exec-once = emacs --bg-daemon
 # }
 
 general {
-   col.active_border=rgba(2e8b57ff) rgba(87cefaff) 45deg
-  col.inactive_border=0xff382D2E
+col.active_border=rgba(2e8b57ff) rgba(87cefaff) 45deg
+col.inactive_border=0xff382D2E
+gaps_in = 0;
+gaps_out = 0;
+}
+
+decoration {
+rounding = 0;
 }
 
 
@@ -6803,19 +6866,25 @@ Display format is inherited from `battery-mode-line-format'."
   ;; (dashboard-startup-banner "~/.config/emacs/var/butterfly.png")
   (dashboard-startup-banner 'logo)
   (dashboard-image-banner-max-width 100) ;; 100 for logo
-  (dashboard-center-content nil)
+  (dashboard-center-content t)
   (dashboard-set-navigator t) ;; a custom made navigator
   (dashboard-projects-backend 'project-el)
   (dashboard-display-icons-p t)
   (dashboard-show-shortcuts nil)
   (dashboard-set-init-info nil)
   (dashboard-icon-type 'nerd-icons)
-  (dashboard-items '((recents . 4)
-                     (agenda . 10)
-                     (projects . 3)
-                     (bookmarks . 5)))
-  (dashboard-modify-heading-icons '((recents . "file-text")
-				                    (bookmarks . "book")))
+
+  (dashboard-agenda-prefix-format " %i %-12:c%?-12t% s")
+  (dashboard-agenda-time-string-format "%Y-%m-%d %H:%M")
+  (dashboard-agenda-sort-strategy '(time-up))
+
+  (dashboard-items
+   '(
+     ;; (recents . 4)
+     (agenda . 10)
+     ;; (projects . 3)
+     ;; (bookmarks . 5)
+     ))
 
   (dashboard-navigator-buttons
    `(;; line1
@@ -6879,10 +6948,42 @@ Display format is inherited from `battery-mode-line-format'."
      ;; Keybindings
      ))
 
-  (dashboard-footer-messages '("Power Maketh Man Beneath" "Manners Maketh Man" "Tasks, Break, Action Works all the time" "Stop thinking, Just do it"))
+  ;; (dashboard-footer-messages '("Power Maketh Man Beneath" "Manners Maketh Man" "Tasks, Break, Action Works all the time" "Stop thinking, Just do it"))
+  (dashboard-set-footer nil)
 
   :config
   (dashboard-setup-startup-hook))
+#+end_src
+** Beframe
+- To manage emacs frame effectively, instead of tabs.
+#+name: orgmacs
+#+begin_src emacs-lisp :tangle no
+(use-package beframe
+  :unless d/on-droid
+  :custom
+  (beframe-global-buffers '("*scratch*"))
+  :config
+  (beframe-mode 1))
+#+end_src
+- Support consult-buffer with beframe
+#+name: orgmacs
+#+begin_src emacs-lisp :tangle no
+(with-eval-after-load 'consult
+  (defface beframe-buffer
+    '((t :inherit font-lock-string-face))
+    "Face for `consult' framed buffers.")
+
+  (defvar beframe-consult-source
+    `( :name     "Frame-specific buffers (current frame)"
+       :narrow   ?F
+       :category buffer
+       :face     beframe-buffer
+       :history  beframe-history
+       :items    ,#'beframe-buffer-names
+       :action   ,#'switch-to-buffer
+       :state    ,#'consult--buffer-state))
+
+  (add-to-list 'consult-buffer-sources 'beframe-consult-source))
 #+end_src
 * Shell
 *** CLI
@@ -7435,6 +7536,21 @@ fi
   };
 }
 #+end_src
+**** notify-emacs
+- To get notifications from emacs using =alert= package.
+- So far only using it for org agenda
+- TODO create a class to control priority, so fade time can be avoided.
+#+name: orgmacs
+#+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+(use-package alert
+  :custom
+    ;; Use different backends depending on the platform
+  (alert-default-style (if d/on-droid
+                           'android-notifications
+                         'libnotify))
+  (alert-libnotify-additional-args '("-u" "critical" "-t" "100"))
+  (alert-fade-time 100))
+#+end_src
 *** games
 - Some games to play
 #+name: hm-config
@@ -7950,7 +8066,9 @@ lines:                       20;
   ("C-c t i" . d/set-timer)
   ("C-c t r" . d/bionic-read)
   (:map org-mode-map
-        ("C-x n n" . d/narrow-or-widen-dwim))
+        ("C-x n n" . d/narrow-or-widen-dwim)
+        ("C-c l" . org-store-link)
+        )
 
   :custom
   (org-startup-indented nil)
@@ -8028,6 +8146,8 @@ lines:                       20;
   (org-enforce-todo-dependencies t)
   (org-track-ordered-property-with-tag t)
 
+  (org-special-ctrl-k t)
+
   ;; Needed to allow helm to compute all refile options in buffer
   (org-outline-path-complete-in-steps nil)
   (org-deadline-warning-days 2)
@@ -8104,7 +8224,7 @@ lines:                       20;
   (split-window-below)
   (find-file "~/d-sync/notes/d-desk.org")
   (find-file-other-window "~/d-sync/notes/tasks.org"))
-(global-set-key (kbd "C-c r") 'd/desk-ready)
+;; (global-set-key (kbd "C-c r d") 'd/desk-ready)
 
 #+end_src
 - org bookmark
@@ -8330,7 +8450,7 @@ lines:                       20;
   (org-capture-templates
    `(
      ("a" "Agenda" entry (file+function "~/d-sync/notes/agenda.org" (lambda () (completing-read "Heading: " my-org-agenda-headlines)))
-      "* TODO %?%^g\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
+      "** TODO %?%^g\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
 
      ("n" "Notes")
      ("nn" "Note to Brain" entry
@@ -8346,7 +8466,11 @@ lines:                       20;
 
      ("nr" "Reading note" entry
       (file "~/d-sync/notes/reading.org")
-      "** %?\n %i\n %a\n -%?")
+      "** %?\n %i\n %a\n -")
+
+     ("nd" "Development note" entry
+      (file "~/d-sync/notes/development.org")
+      "** %?\n %i\n %a\n")
 
      ("c" "Contacts")
      ("cc" "New Contact" entry
@@ -8360,7 +8484,7 @@ lines:                       20;
 
      ("jj" "Journal" entry
       (file+olp+datetree "~/d-sync/notes/journal.org")
-      "\n* %<%I:%M %p> - %?\n\n%?\n\n"
+      "\n* %<%I:%M %p> - %?\n\n\n"
       :clock-in :clock-resume
       :empty-lines 1)))
   :config
@@ -8630,6 +8754,71 @@ block but are passed literally to the \"example-block\"."
   (org-re-reveal-title-slide
    "<h1 class=\"title\">%t</h1> <br> <br> <h2 class=\"subtitle\">%s</h2> <h2 class=\"author\">%a</h2> <br> <br> <h4 class=\"misc\">%m</h4> <h3 class=\"misc\">%A</h3>"))
 #+end_src
+*** org-ql
+- for quick search and queries
+- TODO expand and use bindings for it. Refer manual
+#+name: orgmacs
+#+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+(use-package org-ql)
+#+end_src
+*** org-alert
+- Alert, send notifications for schedules and deadline tasks.
+#+name: orgmacs
+#+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+(use-package org-alert
+  :demand t
+  :custom
+  (org-alert-interval 300)
+  (org-alert-notification-title "Org Alert Reminder")
+  (org-alert-time-match-string
+   "\\(?:SCHEDULED\\|DEADLINE\\):.*?<.*?\\([0-9]\\{2\\}:[0-9]\\{2\\}\\).*>")
+  :config
+  (org-alert-enable))
+#+end_src
+**** Enhance org-notify
+- Functions to enhance org-notify
+- org-alert does not need =alert= package itself, it does fine with built-in notifications package.
+#+name: orgmacs
+#+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+;;;;; Functions - Notification Titles
+
+(defconst d/notifier (if d/on-droid 'android-notifications-notify 'notifications-notify))
+
+(defun my/org-alert--get-todo-parent ()
+  "Get the immediate parent heading of a TODO. If no parents, use file title. If no file title
+use filename."
+  (if (org-up-heading-safe)
+      (org-get-heading t t t t)
+    (let ((title (cdr (assoc "TITLE" (org-collect-keywords '("TITLE"))))))
+      (if (and title (listp title))
+          (car title)
+        title))))
+
+(defun org-alert--parse-entry--use-parent-as-title-advice (orig-fun &rest args)
+  "Advice for `org-alert--parse-entry' function. It adapts it to accept parameters from the
+`my/org-alert--get-todo-parent' function which retrieves the parent heading or file title/name."
+  (let ((head (org-alert--strip-text-properties (org-get-heading t t t t)))
+        (parent-or-file-head (my/org-alert--get-todo-parent)))
+    (cl-destructuring-bind (body cutoff) (org-alert--grab-subtree)
+      (if (string-match org-alert-time-match-string body)
+          (list head parent-or-file-head (match-string 1 body) cutoff)
+        nil))))
+
+(defun org-alert--dispatch--use-parent-as-title-advice (orig-fun &rest args)
+  "Advice for `org-alert--dispatch' function."
+  (let ((entry (org-alert--parse-entry)))
+    (when entry
+      (cl-destructuring-bind (head parent-or-file-head time cutoff) entry
+        (if time
+            (when (org-alert--check-time time cutoff)
+              (funcall d/notifier :body (concat time ": " head) :title parent-or-file-head))
+          (funcall d/notifier :body head :title parent-or-file-head)
+          )))))
+
+(advice-add 'org-alert--parse-entry :around #'org-alert--parse-entry--use-parent-as-title-advice)
+(advice-add 'org-alert--dispatch :around #'org-alert--dispatch--use-parent-as-title-advice)
+#+end_src
+
 *** org-present
 - Presentation in emacs with org-mode, at its purest form.
 #+name: orgmacs
@@ -8821,7 +9010,8 @@ block but are passed literally to the \"example-block\"."
 (use-package remember
   :ensure nil
   :bind
-  ("C-c a r" . remember))
+  ("C-c r r" . remember)
+  ("C-c r n"))
 #+end_src
 ** Markdown
 #+name: orgmacs
@@ -9013,7 +9203,7 @@ block but are passed literally to the \"example-block\"."
 - Function to move org subtree as denote notes.
 - Refer info on denote.
 #+name: orgmacs
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
 (defun my-denote-org-extract-subtree (&optional silo)
   "Create new Denote note using current Org subtree.
      Make the new note use the Org file type, regardless of the value

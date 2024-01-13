@@ -119,6 +119,14 @@
     gpg = {
       enable = true;
       homedir = "${config.xdg.dataHome}/gnupg";
+      # to solve issue with emacs
+      # package = pkgs.gnupg.overrideAttrs (orig: {
+      #   version = "2.4.0";
+      #   src = pkgs.fetchurl {
+      #     url = "mirror://gnupg/gnupg/gnupg-2.4.0.tar.bz2";
+      #     hash = "sha256-HXkVjdAdmSQx3S4/rLif2slxJ/iXhOosthDGAPsMFIM=";
+      #   };
+      # });
     };
 
     tealdeer = {
@@ -298,8 +306,8 @@
       sdcv elfeed elfeed-org powerthesaurus jinx meow
       doom-modeline el-fetch ox-hugo envrc dashboard
       ement kind-icon speed-type vc-backup aria2
-      ess org-re-reveal auctex julia-mode
-      toc-org el-patch disable-mouse org-ql
+      ess org-re-reveal auctex julia-mode webfeeder
+      toc-org el-patch disable-mouse org-ql org-alert
     ])
     );
   };

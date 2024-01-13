@@ -2611,19 +2611,25 @@ Display format is inherited from `battery-mode-line-format'."
   ;; (dashboard-startup-banner "~/.config/emacs/var/butterfly.png")
   (dashboard-startup-banner 'logo)
   (dashboard-image-banner-max-width 100) ;; 100 for logo
-  (dashboard-center-content nil)
+  (dashboard-center-content t)
   (dashboard-set-navigator t) ;; a custom made navigator
   (dashboard-projects-backend 'project-el)
   (dashboard-display-icons-p t)
   (dashboard-show-shortcuts nil)
   (dashboard-set-init-info nil)
   (dashboard-icon-type 'nerd-icons)
-  (dashboard-items '((recents . 4)
-                     (agenda . 10)
-                     (projects . 3)
-                     (bookmarks . 5)))
-  (dashboard-modify-heading-icons '((recents . "file-text")
-				                    (bookmarks . "book")))
+
+  (dashboard-agenda-prefix-format " %i %-12:c%?-12t% s")
+  (dashboard-agenda-time-string-format "%Y-%m-%d %H:%M")
+  (dashboard-agenda-sort-strategy '(time-up))
+
+  (dashboard-items
+   '(
+     ;; (recents . 4)
+     (agenda . 10)
+     ;; (projects . 3)
+     ;; (bookmarks . 5)
+     ))
 
   (dashboard-navigator-buttons
    `(;; line1
@@ -2687,7 +2693,8 @@ Display format is inherited from `battery-mode-line-format'."
      ;; Keybindings
      ))
 
-  (dashboard-footer-messages '("Power Maketh Man Beneath" "Manners Maketh Man" "Tasks, Break, Action Works all the time" "Stop thinking, Just do it"))
+  ;; (dashboard-footer-messages '("Power Maketh Man Beneath" "Manners Maketh Man" "Tasks, Break, Action Works all the time" "Stop thinking, Just do it"))
+  (dashboard-set-footer nil)
 
   :config
   (dashboard-setup-startup-hook))

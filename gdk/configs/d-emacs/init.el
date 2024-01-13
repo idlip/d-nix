@@ -2744,7 +2744,9 @@ Display format is inherited from `battery-mode-line-format'."
   ("C-c t i" . d/set-timer)
   ("C-c t r" . d/bionic-read)
   (:map org-mode-map
-        ("C-x n n" . d/narrow-or-widen-dwim))
+        ("C-x n n" . d/narrow-or-widen-dwim)
+        ("C-c l" . org-store-link)
+        )
 
   :custom
   (org-startup-indented nil)
@@ -2822,6 +2824,8 @@ Display format is inherited from `battery-mode-line-format'."
   (org-enforce-todo-dependencies t)
   (org-track-ordered-property-with-tag t)
 
+  (org-special-ctrl-k t)
+
   ;; Needed to allow helm to compute all refile options in buffer
   (org-outline-path-complete-in-steps nil)
   (org-deadline-warning-days 2)
@@ -2895,7 +2899,7 @@ Display format is inherited from `battery-mode-line-format'."
   (split-window-below)
   (find-file "~/d-sync/notes/d-desk.org")
   (find-file-other-window "~/d-sync/notes/tasks.org"))
-(global-set-key (kbd "C-c r") 'd/desk-ready)
+;; (global-set-key (kbd "C-c r d") 'd/desk-ready)
 
 ;; credits to @xenodium
 (defun browser-bookmarks (org-file)
@@ -3100,7 +3104,7 @@ Display format is inherited from `battery-mode-line-format'."
   (org-capture-templates
    `(
      ("a" "Agenda" entry (file+function "~/d-sync/notes/agenda.org" (lambda () (completing-read "Heading: " my-org-agenda-headlines)))
-      "* TODO %?%^g\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
+      "** TODO %?%^g\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
 
      ("n" "Notes")
      ("nn" "Note to Brain" entry
@@ -3116,7 +3120,11 @@ Display format is inherited from `battery-mode-line-format'."
 
      ("nr" "Reading note" entry
       (file "~/d-sync/notes/reading.org")
-      "** %?\n %i\n %a\n -%?")
+      "** %?\n %i\n %a\n -")
+
+     ("nd" "Development note" entry
+      (file "~/d-sync/notes/development.org")
+      "** %?\n %i\n %a\n")
 
      ("c" "Contacts")
      ("cc" "New Contact" entry
@@ -3130,7 +3138,7 @@ Display format is inherited from `battery-mode-line-format'."
 
      ("jj" "Journal" entry
       (file+olp+datetree "~/d-sync/notes/journal.org")
-      "\n* %<%I:%M %p> - %?\n\n%?\n\n"
+      "\n* %<%I:%M %p> - %?\n\n\n"
       :clock-in :clock-resume
       :empty-lines 1)))
   :config

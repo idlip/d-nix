@@ -77,6 +77,7 @@ alias ytfzf="ytfzf -D"
 alias gc="git clone --depth=1"
 alias sudo="doas"
 alias sioyek="sioyek --new-window"
+alias webcam="mpv av://v4l2:/dev/video0 --profile=low-latency --untimed --video-zoom=1.3 --title='webcam'"
 
 # export BEMENU_OPTS="-i -l 10 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
 

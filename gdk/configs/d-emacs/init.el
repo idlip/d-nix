@@ -1166,6 +1166,7 @@ You can do this by trackpad too (laptop)"
                    (corfu-mode)))
   :bind
   ("<f12>" . d/eshell-toggle)
+  ("C-c d s" . eshell)
   (:map eshell-mode-map
         ("C-S-l" . d/clear-eshell))
 
@@ -1188,7 +1189,7 @@ You can do this by trackpad too (laptop)"
    (lambda nil
      (concat
       "\n"
-      (propertize " 󰪥 " 'face '(:inherit region))
+      (propertize " ◉ " 'face '(:inherit region))
       " "
       (propertize (replace-regexp-in-string "~" " " (eshell/pwd)) 'face '(:foreground "lightblue1"))
       (when (package-installed-p 'magit) (propertize (if (magit-get-current-branch) (concat "   " (magit-get-current-branch)) "") 'face '(:foreground "orangered1")))
@@ -2972,16 +2973,19 @@ Display format is inherited from `battery-mode-line-format'."
                          (?  . "")))
 
   (org-modern-keyword
-   '(("options" . "🔧")
-     ("title" . "💡")
-     ("author" . "🏫")
-     ("startup" . "🚀")
-     ("property" . "🏦")
+   '(("options" . "")
+     ("title" . "")
+     ("author" . "󱆀") ("email" . "")
+     ("startup" . "")
+     ("property" . "")
+     ("date" . "")
+     ("tags" . "")
+     ("todo" . "")
      (t . t)))
 
   (org-modern-block-name
    '(
-     ("src" . ("" ""))
+     ("src" . ("" ""))
      ("example" . "")
      ("html" . "")
      ("quote" . ("" ""))
@@ -3449,6 +3453,10 @@ use filename."
   :bind
   ("C-c r r" . remember)
   ("C-c r n"))
+
+(use-package calendar
+  :custom
+  (diary-file "~/d-sync/notes/diary"))
 
 (use-package markdown-mode
   :defer t

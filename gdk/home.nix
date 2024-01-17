@@ -1693,8 +1693,9 @@
 {
   home.packages = with pkgs; [
     languagetool
-    aspell aspellDicts.en-science aspellDicts.en nuspell
-    hunspell hunspellDicts.en-us
+    (aspellWithDicts (dicts: with dicts; [ en en-computers en-science es]))
+    nuspell
+    (hunspellWithDicst (dicts: with dicts; [ en-us ]))
   ];
 }
 

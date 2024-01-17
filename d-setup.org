@@ -8316,16 +8316,19 @@ lines:                       20;
                          (?  . "")))
 
   (org-modern-keyword
-   '(("options" . "🔧")
-     ("title" . "💡")
-     ("author" . "🏫")
-     ("startup" . "🚀")
-     ("property" . "🏦")
+   '(("options" . "")
+     ("title" . "")
+     ("author" . "󱆀") ("email" . "")
+     ("startup" . "")
+     ("property" . "")
+     ("date" . "")
+     ("tags" . "")
+     ("todo" . "")
      (t . t)))
 
   (org-modern-block-name
    '(
-     ("src" . ("" ""))
+     ("src" . ("" ""))
      ("example" . "")
      ("html" . "")
      ("quote" . ("" ""))
@@ -9021,6 +9024,13 @@ use filename."
   :bind
   ("C-c r r" . remember)
   ("C-c r n"))
+#+end_src
+*** calendar
+#+name: orgmacs
+#+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+(use-package calendar
+  :custom
+  (diary-file "~/d-sync/notes/diary"))
 #+end_src
 ** Markdown
 #+name: orgmacs

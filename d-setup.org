@@ -2943,6 +2943,7 @@ You can do this by trackpad too (laptop)"
                    (corfu-mode)))
   :bind
   ("<f12>" . d/eshell-toggle)
+  ("C-c d s" . eshell)
   (:map eshell-mode-map
         ("C-S-l" . d/clear-eshell))
 
@@ -2965,7 +2966,7 @@ You can do this by trackpad too (laptop)"
    (lambda nil
      (concat
       "\n"
-      (propertize " 󰪥 " 'face '(:inherit region))
+      (propertize " ◉ " 'face '(:inherit region))
       " "
       (propertize (replace-regexp-in-string "~" " " (eshell/pwd)) 'face '(:foreground "lightblue1"))
       (when (package-installed-p 'magit) (propertize (if (magit-get-current-branch) (concat "   " (magit-get-current-branch)) "") 'face '(:foreground "orangered1")))

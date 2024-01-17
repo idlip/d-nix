@@ -5542,7 +5542,7 @@ exec-once = wl-paste --type image --watch cliphist store
 # exec-once = systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
 # exec-once = hyprctl setcursor Bibata-Modern-Classic
 #exec-once = swayidle timeout 150 'gtklock -b black & sleep 1 && systemctl suspend' before-sleep 'loginctl lock-session' lock 'gtklock -b black'
-exec-once = swayidle -w timeout 300 'gtklock -b black -d' timeout 210 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on' timeout 301 'if pgrep gtklock; then hyprctl dispatch dpms off; fi' resume 'if pgrep gtklock; then hyprctl dispatch dpms on; fi' before-sleep 'gtklock -b black -d' lock 'gtklock -b black -d' timeout 1000 'systemctl suspend'
+exec-once = swayidle -w timeout 300 'gtklock -b black -d' timeout 210 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on' timeout 301 'if pgrep gtklock; then hyprctl dispatch dpms off; fi' resume 'if pgrep gtklock; then hyprctl dispatch dpms on; fi' before-sleep 'gtklock -b black -d' lock 'gtklock -b black -d' timeout 1000 'd-idle'
 # exec-once = gammastep -l 19:72 -t 6500:4100
 exec-once = d-walls
 exec-once = foot --server
@@ -5626,6 +5626,12 @@ windowrule = noblur,mpv
 windowrulev2 = move 80% 65%, class:^(mpv)$, title:^(podcast)$
 windowrulev2 = workspace special, class:^(mpv)$, title:^(podcast)$
 
+#### webcam setting #####
+windowrulev2 = rounding 20,title:^(webcam)$
+windowrule = size 20% 25%, title:webcam
+windowrulev2 = move 78% 72%, title:webcam
+bind = SUPER, F7, exec, mpv av://v4l2:/dev/video0 --profile=low-latency --untimed --video-zoom=1.3 --title=webcam
+
 windowrulev2 = fullscreen,class:(chromium)
 windowrulev2 = fullscreen,class:(emacs)
 windowrulev2 = float, class:^(firefox)$, title:^(Firefox — Sharing Indicator)$
@@ -5707,6 +5713,7 @@ bind=,XF86MonBrightnessDown, exec, brightnessctl set 2%-
 bind = SUPER,T,pseudo,
 bind = SUPER,F,fullscreen,
 bind = SUPER, S, togglesplit, # dwindle
+bind = SUPER, v, pin # pin a window to all workspace
 # Change Workspace Mode
 bind = SUPER SHIFT, Space, workspaceopt, allfloat
 bind = SUPER SHIFT, Space, exec, $notifycmd 'Toggled All Float Mode'
@@ -7209,6 +7216,7 @@ alias ytfzf="ytfzf -D"
 alias gc="git clone --depth=1"
 alias sudo="doas"
 alias sioyek="sioyek --new-window"
+alias webcam="mpv av://v4l2:/dev/video0 --profile=low-latency --untimed --video-zoom=1.3 --title='webcam'"
 
 # export BEMENU_OPTS="-i -l 10 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
 

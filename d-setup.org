@@ -515,7 +515,7 @@ It is as simple if I just record what it does, with proper link to rich resource
     # network discovery, mDNS
     avahi = {
       enable = true;
-      nssmdns = true;
+      nssmdns4 = true;
       publish = {
         enable = true;
         domain = true;
@@ -1006,6 +1006,7 @@ It is as simple if I just record what it does, with proper link to rich resource
 #+begin_src nix :tangle gdk/core.nix
 {
   nixpkgs = {
+    overlays = with inputs; [emacs-overlay.overlay];
     config = {
       allowUnfree = false;
       allowBroken = false;
@@ -3078,7 +3079,7 @@ You can do this by trackpad too (laptop)"
 
   programs.emacs = {
     enable = true;
-    package = pkgs.emacs29-pgtk;
+    package = pkgs.emacs-pgtk;
     extraPackages = (epkgs: (with epkgs; [
       treesit-grammars.with-all-grammars
       eat vundo undo-fu-session flycheck helpful flycheck-languagetool
@@ -3428,7 +3429,7 @@ with `venvPath' and `venv' set to the absolute path of
   home.packages = with pkgs; [
     ##### science ####
     # blast ncbi sra_toolkit
-    julia
+    julia-bin
   ];
 }
 #+end_src
@@ -4246,8 +4247,13 @@ Usable as favorites or bookmark."
 #+name: hm-config
 #+begin_src nix :tangle gdk/home.nix
 {
-  programs = {
+  home.packages = with pkgs; [
+    # mullvad-browser
+    ungoogled-chromium
+    nyxt
+  ];
 
+  programs = {
     firefox = {
       enable = true;
       # package = pkgs.firefox-wayland; # is there difference?
@@ -4396,66 +4402,72 @@ Usable as favorites or bookmark."
         };
 
         search = {
-          default = "DuckDuckGo";
+          default = "SearXNG";
           force = true;
           engines = {
+            "SearXNG" = {
+              urls = [{template = "https://searx.be/search?q={searchTerms}";}];
+              updateInterval = 24 * 60 * 60 * 1000; # every day
+              definedAliases = ["@sr"];
+            };
+
             "Nixpkgs-Package Search" = {
-              urls = [{ template = "https://search.nixos.org/packages?channel=unstable&size=250&sort=relevance&type=packages&query={searchTerms}"; }];
+              urls = [{template = "https://search.nixos.org/packages?channel=unstable&size=250&sort=relevance&type=packages&query={searchTerms}";}];
               iconUpdateURL = "https://nixos.org/favicon.png";
               updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = [ "@nps" ];
+              definedAliases = ["@nps"];
             };
 
             "Nixpkgs-Modules Search" = {
-              urls = [{ template = "https://search.nixos.org/options?channel=unstable&size=200&sort=relevance&query={searchTerms}"; }];
+              urls = [{template = "https://search.nixos.org/options?channel=unstable&size=200&sort=relevance&query={searchTerms}";}];
               iconUpdateURL = "https://nixos.org/favicon.png";
               updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = [ "@nms" ];
+              definedAliases = ["@nms"];
             };
 
             "NixOS-Wiki Search" = {
-              urls = [{ template = "https://nixos.wiki/index.php?search={searchTerms}&go=Go"; }];
+              urls = [{template = "https://nixos.wiki/index.php?search={searchTerms}&go=Go";}];
               iconUpdateURL = "https://nixos.org/favicon.png";
               updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = [ "@nws" ];
+              definedAliases = ["@nws"];
             };
 
             "Home-Manager Search" = {
-              urls = [{ template = "https://mipmip.github.io/home-manager-option-search/?query={searchTerms}"; }];
+              urls = [{template = "https://mipmip.github.io/home-manager-option-search/?query={searchTerms}";}];
               iconUpdateURL = "https://nixos.org/favicon.png";
               updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = [ "@hms" ];
+              definedAliases = ["@hms"];
             };
 
             "GitHub-Code Search" = {
-              urls = [{ template = "https://github.com/search?q={searchTerms}&type=code"; }];
+              urls = [{template = "https://github.com/search?q={searchTerms}&type=code";}];
               iconUpdateURL = "https://github.githubassets.com/favicons/favicon-dark.svg";
               updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = [ "@gcs" ];
+              definedAliases = ["@gcs"];
             };
 
             "Noogle.dev Search" = {
-              urls = [{ template = "https://noogle.dev/?term=%22{searchTerms}%22"; }];
+              urls = [{template = "https://noogle.dev/?term=%22{searchTerms}%22";}];
               iconUpdateURL = "https://noogle.dev/favicon.png";
               updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = [ "@ngd" "@nog" ];
+              definedAliases = ["@ngd" "@nog"];
             };
 
             "Nixpkgs PRs" = {
-              urls = [{ template = "https://nixpk.gs/pr-tracker.html?pr={searchTerms}"; }];
+              urls = [{template = "https://nixpk.gs/pr-tracker.html?pr={searchTerms}";}];
               iconUpdateURL = "https://nixos.org/favicon.png";
               updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = [ "@npr" ];
+              definedAliases = ["@npr"];
             };
           };
 
           order = [
+            "SearXNG"
             "DuckDuckGo"
           ];
         };
 
         userChrome = builtins.readFile ./configs/userChrome.css;
-
       };
     };
 
@@ -4481,7 +4493,6 @@ Usable as favorites or bookmark."
         {id = "cjpalhdlnbpafiamejdnhcphjbkeiagm";} # ublock origin
         {id = "dbepggeogbaibhgnhhndojpepiihcmeb";} # vimium
         {id = "eimadpbcbfnmbkopoojfekhnkhdbieeh";} # dark-reader
-        {id = "lljedihjnnjjefafchaljkhbpfhfkdic";} # jiffy reader
         {id = "mnjggcdmjocbbbhaepdhchncahnbgone";} # sponsorblock
       ];
     };
@@ -5184,7 +5195,8 @@ for the search engine used."
     transmission_4-gtk
 
     mpc_cli
-    ytfzf ani-cli ytmdl freetube
+    ytfzf ani-cli ytmdl
+    # freetube
     mangal
   ];
 }

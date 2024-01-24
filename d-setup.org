@@ -26,8 +26,9 @@ The concept I have used is to write several chunk of src/code blocks in some big
   3. =orgmacs= - To babel for Emacs.
 The idea was obtained from https://github.com/rasendubi/dotfiles, credits to him for creating elisp function for babeling repeating header names into a code block, with =noweb= support. Refer [[Orgmacs][Orgmacs-heading]] for elisp function for it.
 
-*Q*: Why not tangle src blocks?
-*→* Its a bit redundant to tangle each block, and also I found that org babel with =noweb= is pretty quicker than tangling 100+ src blocks.
++*Q*: Why not tangle src blocks?
+*→* Its a bit redundant to tangle each block, and also I found that org babel with =noweb= is pretty quicker than tangling 100++ +src blocks.+
+*Edit:* I changed back to using tangle on each block. Since headings can be =COMMENT= out, also I did not understand using el-patch and just wanted to simplify.
 
 Learning is the key here, its easy for me (maybe you?) to forget, and I don't want to visit each wiki page for each tool for what it does, or why did I write them.
 It is as simple if I just record what it does, with proper link to rich resource, and done. It would be snappy for me to remember and understand whatever I wrote after long time.
@@ -127,7 +128,7 @@ It is as simple if I just record what it does, with proper link to rich resource
   - Like include all mode specific templates in single =custom.eld= file.
   - Split and maintain it as language specific emacs-lisp data files.
 - [X] Why use =el-patches= and all?
-  - Simple split the block and tangle to each file, so you have it as modular config as well.
+  - Simply split the block and tangle to each file, so you have it as modular config as well.
   - Best of both world!
   - Not as modular config for now, no use too.
 * Flake

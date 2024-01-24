@@ -1229,7 +1229,7 @@ It is as simple if I just record what it does, with proper link to rich resource
   ("C-x C-z" . nil)
   ;; panes
   ("M-o" . other-window)
-  ("C-<tab>" . other-window)
+  ("C-<tab>" . tab-next)
   ("C-x C-k" . d/kill-buffer)
   ("C-x n n" . d/narrow-or-widen-dwim)
 
@@ -2268,7 +2268,6 @@ Return nil if NAME does not designate a valid color."
   ("C-c p s" . cape-elisp-symbol)
   ("C-c p e" . cape-elisp-block)
   ("C-c p a" . cape-abbrev)
-  ("C-c p i" . cape-ispell)
   ("C-c p l" . cape-line)
   ("C-c p w" . cape-dict)
   ("C-c p \\" . cape-tex)
@@ -2287,7 +2286,6 @@ Return nil if NAME does not designate a valid color."
   ;; (add-to-list 'completion-at-point-functions #'cape-sgml)
   ;; (add-to-list 'completion-at-point-functions #'cape-rfc1345)
   (add-to-list 'completion-at-point-functions #'cape-abbrev)
-  ;; (add-to-list 'completion-at-point-functions #'cape-ispell)
   ;;(add-to-list 'completion-at-point-functions #'cape-dict)
   ;; (add-to-list 'completion-at-point-functions #'cape-symbol)
   ;; (add-to-list 'completion-at-point-functions #'cape-line)
@@ -2928,7 +2926,7 @@ You can do this by trackpad too (laptop)"
 **** eshell
 #+name: orgmacs
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
-(use-package esh-mode
+(use-package eshell
   :ensure nil
   :defines
   (eshell-prompt-regexp)
@@ -2955,12 +2953,15 @@ You can do this by trackpad too (laptop)"
   (eshell-hist-ignoredups t)
   (eshell-cd-on-directory t)
   (eshell-visual-command nil)
+  (eshell-buffer-name "eshell-terminal")
   (eshell-pushd-dunique t)
   (eshell-last-dir-unique t)
   (eshell-last-dir-ring-size 32)
   (eshell-list-files-after-cd nil)
   (eshell-cd-shows-directory t)
   (eshell-prefer-lisp-functions nil)
+
+  (eshell-kill-processes-on-exit 'ask)
 
   (eshell-prompt-function
    (lambda nil
@@ -3072,6 +3073,7 @@ You can do this by trackpad too (laptop)"
 #+begin_src nix :tangle gdk/home.nix
 {
   # does not read local path properly. so ~/.local/bin does not work
+  # may need exec from path then. Why? Just emacs --bg-daemon in WM
   # services.emacs = {
   #   enable = true;
   #   socketactivation.enable = true;
@@ -3515,7 +3517,7 @@ See URL `https://beta.ruff.rs/docs/'."
     :next-checkers ((warning . python-mypy)))
   )
 #+end_src
-**** formatter
+**** reformatter
 - Legit, best made design for formatter package.
 #+name: orgmacs
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
@@ -3523,6 +3525,7 @@ See URL `https://beta.ruff.rs/docs/'."
   :hook
   (python-ts-mode . ruff-format-on-save-mode)
   (nix-mode . alejandra-format-on-save-mode)
+  (ess-r-mode . styler-format-on-save-mode)
   :config
   (reformatter-define ruff-format
     :program "ruff"
@@ -3531,7 +3534,15 @@ See URL `https://beta.ruff.rs/docs/'."
   (reformatter-define alejandra-format
     :program "alejandra"
     :group 'nix-mode
-    :lighter " AL"))
+    :lighter " AL")
+
+  (reformatter-define styler-format
+    :program "Rscript"
+    :args (list "--vanilla" "-e" "con <- file(\"stdin\")
+out <- styler::style_text(readLines(con))
+close(con)
+out")
+    :lighter " styler"))
 #+end_src
 **** eglot
 - the lsp gifted in emacs
@@ -3762,12 +3773,12 @@ See URL `https://beta.ruff.rs/docs/'."
   programs.sioyek = {
     enable = true;
     bindings = {
-      "move_up" = "k";
-      "move_down" = "j";
+      "move_up" = ["k" "<C-n>"];
+      "move_down" = ["j" "<C-p>"];
       "move_left" = "h";
       "move_right" = "l";
-      "screen_down" = [ "d" "" ];
-      "screen_up" = [ "u" "" ];
+      "screen_down" = [ "d" "<C-v>" ];
+      "screen_up" = [ "u" "<A-x>" ];
       "fit_to_page_width" = "<f9>";
       "fit_to_page_width_smart" = "<f10>";
       "toggle_fullscreen" = [ "f" "<f11>"  ];
@@ -6986,7 +6997,7 @@ Display format is inherited from `battery-mode-line-format'."
 #+end_src
 - Support consult-buffer with beframe
 #+name: orgmacs
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
 (with-eval-after-load 'consult
   (defface beframe-buffer
     '((t :inherit font-lock-string-face))
@@ -8048,9 +8059,6 @@ lines:                       20;
     groff mupdf
     keepassxc
 
-    # pioneer of web
-    # mullvad-browser
-    ungoogled-chromium
   ];
 }
 #+end_src
@@ -8187,6 +8195,7 @@ lines:                       20;
                  ol-bibtex
                  ol-docview
                  ol-gnus
+                 org-timer
                  ol-info
                  ol-irc
                  ol-mhe
@@ -8473,27 +8482,27 @@ lines:                       20;
   (org-capture-templates
    `(
      ("a" "Agenda" entry (file+function "~/d-sync/notes/agenda.org" (lambda () (completing-read "Heading: " my-org-agenda-headlines)))
-      "** TODO %?%^g\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
+      "** TODO %?%^g\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1 :clock-in t :clock-resume t)
 
      ("n" "Notes")
      ("nn" "Note to Brain" entry
       (file+headline org-default-notes-file "Notes")
-      "** %?\n %T\n %i\n %a")
+      "** %?\n %U\n %i\n %a")
      ("nt" "Note to Thought" entry
       (file+headline org-default-notes-file "Thoughts")
-      "** %?\n %T\n %i\n %a")
+      "** %?\n %U\n %i\n %a")
 
      ("nc" "Capture Note" entry
       (file "~/d-sync/notes/inbox.org")
-      "** %?\n%^{date}p\n%i %a\n - ")
+      "** %?\n %U\n %i %a\n - ")
 
      ("nr" "Reading note" entry
       (file "~/d-sync/notes/reading.org")
-      "** %?\n %i\n %a\n -")
+      "** %?\n %U\n %i\n %a\n -")
 
      ("nd" "Development note" entry
       (file "~/d-sync/notes/development.org")
-      "** %?\n %i\n %a\n")
+      "** %?\n %U\n %i\n %a\n")
 
      ("c" "Contacts")
      ("cc" "New Contact" entry
@@ -8506,10 +8515,11 @@ lines:                       20;
      ("j" "Journal Entries")
 
      ("jj" "Journal" entry
-      (file+olp+datetree "~/d-sync/notes/journal.org")
+      (file+datetree "~/d-sync/notes/journal.org")
       "\n* %<%I:%M %p> - %?\n\n\n"
-      :clock-in :clock-resume
-      :empty-lines 1)))
+      :clock-in t :clock-resume t
+      :empty-lines 1)
+     ))
   :config
   (setq my-org-agenda-headlines `(projects university tasks one-timer)))
 #+end_src

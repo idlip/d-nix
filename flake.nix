@@ -27,6 +27,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    emacs-overlay.url = "github:nix-community/emacs-overlay";
+
   };
 
   outputs = {nixpkgs, ...}@inputs:
@@ -70,7 +72,7 @@
             ];
           specialArgs = {
             inherit inputs;
-            inherit vars system pkgs;
+            inherit vars system;
           };
         };
       };

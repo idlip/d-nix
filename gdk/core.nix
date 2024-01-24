@@ -214,7 +214,7 @@
     # network discovery, mDNS
     avahi = {
       enable = true;
-      nssmdns = true;
+      nssmdns4 = true;
       publish = {
         enable = true;
         domain = true;
@@ -466,6 +466,7 @@
 
 {
   nixpkgs = {
+    overlays = with inputs; [emacs-overlay.overlay];
     config = {
       allowUnfree = false;
       allowBroken = false;
@@ -634,6 +635,22 @@
       };
     };
   };
+
+}
+
+{
+  environment.systemPackages = with pkgs; [
+    aspellDicts.en
+    aspellDicts.en-computers
+    aspellDicts.en-science
+  ];
+
+  # Configure aspell system wide
+  environment.etc."aspell.conf".text = ''
+    master en_US
+    add-extra-dicts en-computers.rws
+    add-extra-dicts fr.rws
+  '';
 
 }
 

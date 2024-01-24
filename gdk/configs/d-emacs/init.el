@@ -73,7 +73,7 @@
   ("C-x C-z" . nil)
   ;; panes
   ("M-o" . other-window)
-  ("C-<tab>" . other-window)
+  ("C-<tab>" . tab-next)
   ("C-x C-k" . d/kill-buffer)
   ("C-x n n" . d/narrow-or-widen-dwim)
 
@@ -952,7 +952,6 @@ Return nil if NAME does not designate a valid color."
   ("C-c p s" . cape-elisp-symbol)
   ("C-c p e" . cape-elisp-block)
   ("C-c p a" . cape-abbrev)
-  ("C-c p i" . cape-ispell)
   ("C-c p l" . cape-line)
   ("C-c p w" . cape-dict)
   ("C-c p \\" . cape-tex)
@@ -971,7 +970,6 @@ Return nil if NAME does not designate a valid color."
   ;; (add-to-list 'completion-at-point-functions #'cape-sgml)
   ;; (add-to-list 'completion-at-point-functions #'cape-rfc1345)
   (add-to-list 'completion-at-point-functions #'cape-abbrev)
-  ;; (add-to-list 'completion-at-point-functions #'cape-ispell)
   ;;(add-to-list 'completion-at-point-functions #'cape-dict)
   ;; (add-to-list 'completion-at-point-functions #'cape-symbol)
   ;; (add-to-list 'completion-at-point-functions #'cape-line)
@@ -1151,7 +1149,7 @@ You can do this by trackpad too (laptop)"
   :config
   (envrc-global-mode))
 
-(use-package esh-mode
+(use-package eshell
   :ensure nil
   :defines
   (eshell-prompt-regexp)
@@ -1178,12 +1176,15 @@ You can do this by trackpad too (laptop)"
   (eshell-hist-ignoredups t)
   (eshell-cd-on-directory t)
   (eshell-visual-command nil)
+  (eshell-buffer-name "eshell-terminal")
   (eshell-pushd-dunique t)
   (eshell-last-dir-unique t)
   (eshell-last-dir-ring-size 32)
   (eshell-list-files-after-cd nil)
   (eshell-cd-shows-directory t)
   (eshell-prefer-lisp-functions nil)
+
+  (eshell-kill-processes-on-exit 'ask)
 
   (eshell-prompt-function
    (lambda nil
@@ -1456,6 +1457,7 @@ See URL `https://beta.ruff.rs/docs/'."
   :hook
   (python-ts-mode . ruff-format-on-save-mode)
   (nix-mode . alejandra-format-on-save-mode)
+  (ess-r-mode . styler-format-on-save-mode)
   :config
   (reformatter-define ruff-format
     :program "ruff"
@@ -1464,7 +1466,15 @@ See URL `https://beta.ruff.rs/docs/'."
   (reformatter-define alejandra-format
     :program "alejandra"
     :group 'nix-mode
-    :lighter " AL"))
+    :lighter " AL")
+
+  (reformatter-define styler-format
+    :program "Rscript"
+    :args (list "--vanilla" "-e" "con <- file(\"stdin\")
+out <- styler::style_text(readLines(con))
+close(con)
+out")
+    :lighter " styler"))
 
 (use-package eglot
   :defer t
@@ -2846,6 +2856,7 @@ Display format is inherited from `battery-mode-line-format'."
                  ol-bibtex
                  ol-docview
                  ol-gnus
+                 org-timer
                  ol-info
                  ol-irc
                  ol-mhe
@@ -3108,27 +3119,27 @@ Display format is inherited from `battery-mode-line-format'."
   (org-capture-templates
    `(
      ("a" "Agenda" entry (file+function "~/d-sync/notes/agenda.org" (lambda () (completing-read "Heading: " my-org-agenda-headlines)))
-      "** TODO %?%^g\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1)
+      "** TODO %?%^g\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1 :clock-in t :clock-resume t)
 
      ("n" "Notes")
      ("nn" "Note to Brain" entry
       (file+headline org-default-notes-file "Notes")
-      "** %?\n %T\n %i\n %a")
+      "** %?\n %U\n %i\n %a")
      ("nt" "Note to Thought" entry
       (file+headline org-default-notes-file "Thoughts")
-      "** %?\n %T\n %i\n %a")
+      "** %?\n %U\n %i\n %a")
 
      ("nc" "Capture Note" entry
       (file "~/d-sync/notes/inbox.org")
-      "** %?\n%^{date}p\n%i %a\n - ")
+      "** %?\n %U\n %i %a\n - ")
 
      ("nr" "Reading note" entry
       (file "~/d-sync/notes/reading.org")
-      "** %?\n %i\n %a\n -")
+      "** %?\n %U\n %i\n %a\n -")
 
      ("nd" "Development note" entry
       (file "~/d-sync/notes/development.org")
-      "** %?\n %i\n %a\n")
+      "** %?\n %U\n %i\n %a\n")
 
      ("c" "Contacts")
      ("cc" "New Contact" entry
@@ -3141,10 +3152,11 @@ Display format is inherited from `battery-mode-line-format'."
      ("j" "Journal Entries")
 
      ("jj" "Journal" entry
-      (file+olp+datetree "~/d-sync/notes/journal.org")
+      (file+datetree "~/d-sync/notes/journal.org")
       "\n* %<%I:%M %p> - %?\n\n\n"
-      :clock-in :clock-resume
-      :empty-lines 1)))
+      :clock-in t :clock-resume t
+      :empty-lines 1)
+     ))
   :config
   (setq my-org-agenda-headlines `(projects university tasks one-timer)))
 

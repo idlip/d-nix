@@ -285,6 +285,7 @@
 
 {
   # does not read local path properly. so ~/.local/bin does not work
+  # may need exec from path then. Why? Just emacs --bg-daemon in WM
   # services.emacs = {
   #   enable = true;
   #   socketactivation.enable = true;
@@ -292,7 +293,7 @@
 
   programs.emacs = {
     enable = true;
-    package = pkgs.emacs29-pgtk;
+    package = pkgs.emacs-pgtk;
     extraPackages = (epkgs: (with epkgs; [
       treesit-grammars.with-all-grammars
       eat vundo undo-fu-session flycheck helpful flycheck-languagetool
@@ -485,7 +486,7 @@
   home.packages = with pkgs; [
     ##### science ####
     # blast ncbi sra_toolkit
-    julia
+    julia-bin
   ];
 }
 
@@ -499,12 +500,12 @@
   programs.sioyek = {
     enable = true;
     bindings = {
-      "move_up" = "k";
-      "move_down" = "j";
+      "move_up" = ["k" "<C-n>"];
+      "move_down" = ["j" "<C-p>"];
       "move_left" = "h";
       "move_right" = "l";
-      "screen_down" = [ "d" "" ];
-      "screen_up" = [ "u" "" ];
+      "screen_down" = [ "d" "<C-v>" ];
+      "screen_up" = [ "u" "<A-x>" ];
       "fit_to_page_width" = "<f9>";
       "fit_to_page_width_smart" = "<f10>";
       "toggle_fullscreen" = [ "f" "<f11>"  ];
@@ -556,8 +557,13 @@
 }
 
 {
-  programs = {
+  home.packages = with pkgs; [
+    # mullvad-browser
+    ungoogled-chromium
+    nyxt
+  ];
 
+  programs = {
     firefox = {
       enable = true;
       # package = pkgs.firefox-wayland; # is there difference?
@@ -706,66 +712,72 @@
         };
 
         search = {
-          default = "DuckDuckGo";
+          default = "SearXNG";
           force = true;
           engines = {
+            "SearXNG" = {
+              urls = [{template = "https://searx.be/search?q={searchTerms}";}];
+              updateInterval = 24 * 60 * 60 * 1000; # every day
+              definedAliases = ["@sr"];
+            };
+
             "Nixpkgs-Package Search" = {
-              urls = [{ template = "https://search.nixos.org/packages?channel=unstable&size=250&sort=relevance&type=packages&query={searchTerms}"; }];
+              urls = [{template = "https://search.nixos.org/packages?channel=unstable&size=250&sort=relevance&type=packages&query={searchTerms}";}];
               iconUpdateURL = "https://nixos.org/favicon.png";
               updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = [ "@nps" ];
+              definedAliases = ["@nps"];
             };
 
             "Nixpkgs-Modules Search" = {
-              urls = [{ template = "https://search.nixos.org/options?channel=unstable&size=200&sort=relevance&query={searchTerms}"; }];
+              urls = [{template = "https://search.nixos.org/options?channel=unstable&size=200&sort=relevance&query={searchTerms}";}];
               iconUpdateURL = "https://nixos.org/favicon.png";
               updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = [ "@nms" ];
+              definedAliases = ["@nms"];
             };
 
             "NixOS-Wiki Search" = {
-              urls = [{ template = "https://nixos.wiki/index.php?search={searchTerms}&go=Go"; }];
+              urls = [{template = "https://nixos.wiki/index.php?search={searchTerms}&go=Go";}];
               iconUpdateURL = "https://nixos.org/favicon.png";
               updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = [ "@nws" ];
+              definedAliases = ["@nws"];
             };
 
             "Home-Manager Search" = {
-              urls = [{ template = "https://mipmip.github.io/home-manager-option-search/?query={searchTerms}"; }];
+              urls = [{template = "https://mipmip.github.io/home-manager-option-search/?query={searchTerms}";}];
               iconUpdateURL = "https://nixos.org/favicon.png";
               updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = [ "@hms" ];
+              definedAliases = ["@hms"];
             };
 
             "GitHub-Code Search" = {
-              urls = [{ template = "https://github.com/search?q={searchTerms}&type=code"; }];
+              urls = [{template = "https://github.com/search?q={searchTerms}&type=code";}];
               iconUpdateURL = "https://github.githubassets.com/favicons/favicon-dark.svg";
               updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = [ "@gcs" ];
+              definedAliases = ["@gcs"];
             };
 
             "Noogle.dev Search" = {
-              urls = [{ template = "https://noogle.dev/?term=%22{searchTerms}%22"; }];
+              urls = [{template = "https://noogle.dev/?term=%22{searchTerms}%22";}];
               iconUpdateURL = "https://noogle.dev/favicon.png";
               updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = [ "@ngd" "@nog" ];
+              definedAliases = ["@ngd" "@nog"];
             };
 
             "Nixpkgs PRs" = {
-              urls = [{ template = "https://nixpk.gs/pr-tracker.html?pr={searchTerms}"; }];
+              urls = [{template = "https://nixpk.gs/pr-tracker.html?pr={searchTerms}";}];
               iconUpdateURL = "https://nixos.org/favicon.png";
               updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = [ "@npr" ];
+              definedAliases = ["@npr"];
             };
           };
 
           order = [
+            "SearXNG"
             "DuckDuckGo"
           ];
         };
 
         userChrome = builtins.readFile ./configs/userChrome.css;
-
       };
     };
 
@@ -791,7 +803,6 @@
         {id = "cjpalhdlnbpafiamejdnhcphjbkeiagm";} # ublock origin
         {id = "dbepggeogbaibhgnhhndojpepiihcmeb";} # vimium
         {id = "eimadpbcbfnmbkopoojfekhnkhdbieeh";} # dark-reader
-        {id = "lljedihjnnjjefafchaljkhbpfhfkdic";} # jiffy reader
         {id = "mnjggcdmjocbbbhaepdhchncahnbgone";} # sponsorblock
       ];
     };
@@ -999,7 +1010,8 @@
     transmission_4-gtk
 
     mpc_cli
-    ytfzf ani-cli ytmdl freetube
+    ytfzf ani-cli ytmdl
+    # freetube
     mangal
   ];
 }
@@ -1388,7 +1400,7 @@
 		      "exec" = "echo ' '";
 		      "tooltip" = "false";
 		      "exec-if" = "pgrep wl-screenrec";
-		      "on-click" = "exec d-record";
+		      "on-click" = "pkill -INT wl-screenrec";
 		      "signal" = 8;
 	      };
 
@@ -1684,18 +1696,14 @@
     groff mupdf
     keepassxc
 
-    # pioneer of web
-    # mullvad-browser
-    ungoogled-chromium
   ];
 }
 
 {
   home.packages = with pkgs; [
     languagetool
-    (aspellWithDicts (dicts: with dicts; [ en en-computers en-science es]))
-    nuspell
-    (hunspellWithDicst (dicts: with dicts; [ en-us ]))
+    # (aspellWithDicts (dicts: with dicts; [ en en-computers en-science es]))
+    hunspell hunspellDicts.en_US
   ];
 }
 

@@ -430,11 +430,11 @@ It is as simple if I just record what it does, with proper link to rich resource
   };
 }
 #+end_src
-*** sleep
+*** COMMENT sleep
 - for laptop hibernation.
 - Note: Hibernation wont be enabled with zramSwap.
 #+name: nixos-core
-#+begin_src nix :tangle no
+#+begin_src nix :tangle gdk/core.nix
 {
   systemd.sleep.extraConfig = ''
    AllowSuspendThenHibernate=yes
@@ -777,10 +777,10 @@ It is as simple if I just record what it does, with proper link to rich resource
   };
 }
 #+end_src
-*** seatd
+*** COMMENT seatd
 - idk what it does, maybe wayland needs it?
 #+name: nixos-core
-#+begin_src nix :tangle no
+#+begin_src nix :tangle gdk/core.nix
 {
   systemd.services = {
     seatd = {
@@ -5378,10 +5378,10 @@ Android port."
   (setq alert-default-icon "ic_popup_reminder")
   )
 #+end_src
-** bluetooth
+** COMMENT bluetooth
 - I dont prefer to use bluetooth, dongle or wired equips are better.
 #+name: nixos-core
-#+begin_src nix :tangle no
+#+begin_src nix :tangle gdk/core.nix
 {
   hardware.bluetooth = {
     enable = true;
@@ -6059,12 +6059,12 @@ stdenvNoCC.mkDerivation rec {
   :init
   (nerd-icons-completion-mode))
 #+end_src
-**** nerd icons in corfu
+**** COMMENT nerd icons in corfu
 + the code is directly taken from git [[https://github.com/LuigiPiucco/nerd-icons-corfu][repo]].
 + currently getting an error saying "void-variable kindfunc"
 + Don't know why suddenly throwing this error on <2023-12-28 17:00>, when before and all it worked well.
 #+name: orgmacs
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
 (define-widget 'nerd-icons-corfu-icon-type 'plist
   "The type of an icon mapping."
   :tag "Icon parameters"
@@ -6961,10 +6961,10 @@ Display format is inherited from `battery-mode-line-format'."
   :config
   (dashboard-setup-startup-hook))
 #+end_src
-** Beframe
+** COMMENT Beframe
 - To manage emacs frame effectively, instead of tabs.
 #+name: orgmacs
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
 (use-package beframe
   :unless d/on-droid
   :custom
@@ -7338,11 +7338,11 @@ fi
   ];
 }
 #+end_src
-*** starship
+*** COMMENT starship
 - for beautiful prompt
 - i have stopped using it, it makes shell little slow.
 #+name: hm-config
-#+begin_src nix :tangle no
+#+begin_src nix :tangle gdk/home.nix
 {
   programs.starship = {
     enable = true;
@@ -8578,11 +8578,11 @@ lines:                       20;
      (shell . t) (python . t)
      (julia . t))))
 #+end_src
-**** Orgmacs
+**** COMMENT Orgmacs
 - org-babel for tangling this org file with using single no-web reference
 - Useful for tangling of multiple blocks with same name using no-web.
 #+name: orgmacs
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
 (unless d/on-droid
 ;; credits to https://github.com/rasendubi
 

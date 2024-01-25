@@ -2421,6 +2421,13 @@ org-mode
  ":CREATED: " (format-time-string "[%Y-%m-%d %a %H:%M]") n
  ":END:" n
  )
+
+
+(shbin
+ "#+begin_src sh :shebang '#!/usr/bin/env bash' :tangle bin/" p
+ n n
+ "#+end_src"
+ :post (org-edit-src-code))
 #+end_src
 ***** markdown-templates
 #+begin_src emacs-lisp :tangle ~/.config/emacs/templates/markdown.eld
@@ -2477,6 +2484,14 @@ emacs-lisp-mode
 (dolist "(dolist (" p ")" n> r> ")")
 (obsolete-fun "(define-obsolete-function-alias" n> p n> p n> "\"" p "\")")
 (obsolete-var "(define-obsolete-function-alias" n> p n> p n> "\"" p "\")")
+
+
+#+end_src
+***** sh-templates
+- Templates for shell scripts
+#+name: orgmacs
+#+begin_src emacs-lisp :tangle ~/.config/emacs/templates/sh.eld
+bash-ts-mode
 
 
 #+end_src

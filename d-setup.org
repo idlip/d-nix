@@ -2676,7 +2676,6 @@ You can do this by trackpad too (laptop)"
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
 (use-package man
   :ensure nil
-  :defer t
   :custom
   (Man-notify-method 'pushy "show manpage HERE")
   :custom-face
@@ -3477,6 +3476,18 @@ with `venvPath' and `venv' set to the absolute path of
   :hook (after-save . executable-make-buffer-file-executable-if-script-p))
 #+end_src
 **** Linter
+***** Flymake
+- In-built are more than enough!
+#+name: orgmacs
+#+begin_src emacs-lisp
+(use-package flymake
+  :ensure nil
+  :hook
+  (prog-mode . flymake-mode)
+  :custom
+  (python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-")))
+#+end_src
+***** Flycheck
 - To lint and check for good practices in code.
 #+name: orgmacs
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el

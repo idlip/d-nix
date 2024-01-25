@@ -299,7 +299,6 @@ It is as simple if I just record what it does, with proper link to rich resource
     };
 
     loader = {
-      # FIXME change first line if you want to use Grub
       systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
       timeout = 1;
@@ -1182,7 +1181,6 @@ It is as simple if I just record what it does, with proper link to rich resource
 #+name: orgmacs
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
 (setq custom-file (locate-user-emacs-file "custom.el"))
-(setq nixos-treesit-path treesit-extra-load-path) ;; FIXME remove after next update
 #+end_src
 *** use-package
 - setup =package.el=
@@ -1598,9 +1596,6 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (no-littering-etc-directory (expand-file-name "config/" user-emacs-directory))
   (no-littering-var-directory (expand-file-name "data/" user-emacs-directory))
   :config
-  ;; remove it after next rolling update
-  ;; due to treesit var
-  (setq treesit-extra-load-path nixos-treesit-path)
   (add-to-list 'recentf-exclude
                (recentf-expand-file-name no-littering-var-directory))
   (add-to-list 'recentf-exclude

@@ -7129,6 +7129,12 @@ Display format is inherited from `battery-mode-line-format'."
   # symlink normal shell file to source for zsh
   home.file.".config/shell/source.sh".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/source.sh";
 
+  home.sessionVariables = {
+    PATH = "$PATH:$HOME/d-git/d-bin/bin:$HOME/.local/bin";
+    BEMENU_OPTS = "-i -s -l 10 -R 20 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'Code D Ace 16' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
+# BEMENU_OPTS="-i -p ' ' --fn 'Code D Ace 16' --nb '#00000090' --ab '#000000' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#2e8b57' --hf '#000000' --fb '#111111' --ff '#fafad2' --tb '#121212' --tf '#6ae4b9' "
+  };
+
   programs.zsh = {
     enable = true;
     dotDir = ".config/shell";
@@ -7148,29 +7154,26 @@ Display format is inherited from `battery-mode-line-format'."
     };
 
     envExtra = ''
-    export PATH="$PATH:$HOME/d-git/d-bin/bin:$HOME/.local/bin"
-  	export EDITOR="emacsclient -nw -a 'nvim'"
-    export BEMENU_OPTS="-i -s -l 10 -R 20 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'Code D Ace 16' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
-    export VISUAL=$EDITOR
-    export STARDICT_DATA_DIR="$HOME/.local/share/stardict"
-    export GRIM_DEFAULT_DIR="$HOME/pics/sshots/"
+      export VISUAL=$EDITOR
+      export STARDICT_DATA_DIR="$HOME/.local/share/stardict"
+      export GRIM_DEFAULT_DIR="$HOME/pics/sshots/"
 
-    	#if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
-      #  exec Hyprland
-     	#fi
-  	'';
+      	#if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
+        #  exec Hyprland
+       	#fi
+    '';
 
     initExtra = ''
-	source ~/.config/shell/source.sh
+      source ~/.config/shell/source.sh
 
-	source "${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-	source "${pkgs.zsh-history-substring-search}/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
-	source "${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-	source "${pkgs.nix-zsh-completions}/share/zsh/plugins/nix/nix-zsh-completions.plugin.zsh"
-	source "${pkgs.zsh-nix-shell}/share/zsh-nix-shell/nix-shell.plugin.zsh"
-	source "${pkgs.zsh-autopair}/share/zsh/zsh-autopair/autopair.zsh"
+      source "${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+      source "${pkgs.zsh-history-substring-search}/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
+      source "${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+      source "${pkgs.nix-zsh-completions}/share/zsh/plugins/nix/nix-zsh-completions.plugin.zsh"
+      source "${pkgs.zsh-nix-shell}/share/zsh-nix-shell/nix-shell.plugin.zsh"
+      source "${pkgs.zsh-autopair}/share/zsh/zsh-autopair/autopair.zsh"
 
-	'';
+    '';
 
     history = {
       save = 10000;
@@ -7296,22 +7299,34 @@ function {e,find-file,'emacsclient -t','emacsclient -nw'} () {
 }
 
 function manp () { # use emacs
-    if [[ $(man -k $1) ]]; then
+    if [[ $(man -f ${1}) ]]; then
         if [ -n "$INSIDE_EMACS" ]; then
-	          emacsclient -e "(funcall 'man (apply 'eshell-flatten-and-stringify '($1 $2)))"
+	        emacsclient -e "(man \"$1\")"
         elif [ "$(pgrep emacs)" ]; then
-	        emacsclient -nw -e "(funcall 'man (apply 'eshell-flatten-and-stringify '($1 $2)))"
+	        emacsclient -nw -e "(let ((Man-notify-method 'bully)) (man \"$1\"))"
         else
 	          man $1
         fi
     else
-        $1 --help
+        ${1} --help
     fi
 }
 
 whichpath () {
     realpath $(which $1)
 }
+
+if [[ ${INSIDE_EMACS:-no} != 'no' ]]; then
+    export EDITOR=emacsclient
+    export VISUAL=emacsclient
+    export PAGER=cat
+
+    alias magit="emacsclient -ne '(magit-status)'"
+
+    function man() { emacsclient -ne "(man \"$1\")"; }
+fi
+
+
 
 # TODOTHIS
 d-test () {
@@ -9115,25 +9130,6 @@ use filename."
   :hook org-mode
   :bind ("M-$". jinx-correct))
 #+end_src
-- Install aspell system-wide ?
-#+name: nixos-core
-#+begin_src nix :tangle gdk/core.nix
-{
-  environment.systemPackages = with pkgs; [
-    aspellDicts.en
-    aspellDicts.en-computers
-    aspellDicts.en-science
-  ];
-
-  # Configure aspell system wide
-  environment.etc."aspell.conf".text = ''
-    master en_US
-    add-extra-dicts en-computers.rws
-    add-extra-dicts fr.rws
-  '';
-
-}
-#+end_src
 *** Vocab
 - to use language-tool for corrections over grammar and vocabulary
 - And some spell correction tools.
@@ -9142,7 +9138,7 @@ use filename."
 {
   home.packages = with pkgs; [
     languagetool
-    # (aspellWithDicts (dicts: with dicts; [ en en-computers en-science es]))
+    (aspellWithDicts (dicts: with dicts; [ en en-computers en-science ]))
     hunspell hunspellDicts.en_US
   ];
 }
@@ -9159,7 +9155,7 @@ use filename."
   (flycheck-languagetool-language "auto"))
 #+end_src
 *** speed-type
-- to practise speed typing, or typing in general.
+- to practice speed typing, or typing in general.
 - Thoughts and plans should flow swiftly and typing speed should not be an hindrance.
 - Key is to type when thought comes, because it is too easy to forget.
 - Or just type whatever comes to mind, then later analyze.

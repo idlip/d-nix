@@ -54,7 +54,6 @@
     };
 
     loader = {
-      # FIXME change first line if you want to use Grub
       systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
       timeout = 1;
@@ -635,22 +634,6 @@
       };
     };
   };
-
-}
-
-{
-  environment.systemPackages = with pkgs; [
-    aspellDicts.en
-    aspellDicts.en-computers
-    aspellDicts.en-science
-  ];
-
-  # Configure aspell system wide
-  environment.etc."aspell.conf".text = ''
-    master en_US
-    add-extra-dicts en-computers.rws
-    add-extra-dicts fr.rws
-  '';
 
 }
 

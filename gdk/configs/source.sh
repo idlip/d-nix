@@ -110,22 +110,34 @@ function {e,find-file,'emacsclient -t','emacsclient -nw'} () {
 }
 
 function manp () { # use emacs
-    if [[ $(man -k $1) ]]; then
+    if [[ $(man -f ${1}) ]]; then
         if [ -n "$INSIDE_EMACS" ]; then
-	          emacsclient -e "(funcall 'man (apply 'eshell-flatten-and-stringify '($1 $2)))"
+	        emacsclient -e "(man \"$1\")"
         elif [ "$(pgrep emacs)" ]; then
-	        emacsclient -nw -e "(funcall 'man (apply 'eshell-flatten-and-stringify '($1 $2)))"
+	        emacsclient -nw -e "(let ((Man-notify-method 'bully)) (man \"$1\"))"
         else
 	          man $1
         fi
     else
-        $1 --help
+        ${1} --help
     fi
 }
 
 whichpath () {
     realpath $(which $1)
 }
+
+if [[ ${INSIDE_EMACS:-no} != 'no' ]]; then
+    export EDITOR=emacsclient
+    export VISUAL=emacsclient
+    export PAGER=cat
+
+    alias magit="emacsclient -ne '(magit-status)'"
+
+    function man() { emacsclient -ne "(man \"$1\")"; }
+fi
+
+
 
 # TODOTHIS
 d-test () {

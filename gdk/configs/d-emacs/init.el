@@ -38,7 +38,6 @@
   (battery-load-critical '29))
 
 (setq custom-file (locate-user-emacs-file "custom.el"))
-(setq nixos-treesit-path treesit-extra-load-path) ;; FIXME remove after next update
 
 ;; Initialize package sources
 (require 'package)
@@ -379,9 +378,6 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (no-littering-etc-directory (expand-file-name "config/" user-emacs-directory))
   (no-littering-var-directory (expand-file-name "data/" user-emacs-directory))
   :config
-  ;; remove it after next rolling update
-  ;; due to treesit var
-  (setq treesit-extra-load-path nixos-treesit-path)
   (add-to-list 'recentf-exclude
                (recentf-expand-file-name no-littering-var-directory))
   (add-to-list 'recentf-exclude
@@ -1097,7 +1093,7 @@ You can do this by trackpad too (laptop)"
 
 (use-package man
   :ensure nil
-  :defer t
+  :demand t
   :custom
   (Man-notify-method 'pushy "show manpage HERE")
   :custom-face
@@ -1410,8 +1406,16 @@ with `venvPath' and `venv' set to the absolute path of
   :ensure nil
   :hook (after-save . executable-make-buffer-file-executable-if-script-p))
 
+(use-package flymake
+  :ensure nil
+  :hook
+  (prog-mode . flymake-mode)
+  :custom
+  (python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-")))
+
 (use-package flycheck
   :defer t
+  :disabled t
   :hook (prog-mode . flycheck-mode)
   :custom
   (flycheck-check-syntax-automatically '(save idle-change mode-enabled))

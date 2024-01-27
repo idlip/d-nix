@@ -1702,7 +1702,7 @@
 {
   home.packages = with pkgs; [
     languagetool
-    # (aspellWithDicts (dicts: with dicts; [ en en-computers en-science es]))
+    (aspellWithDicts (dicts: with dicts; [ en en-computers en-science ]))
     hunspell hunspellDicts.en_US
   ];
 }

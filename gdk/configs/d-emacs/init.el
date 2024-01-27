@@ -37,8 +37,6 @@
   (battery-load-low '40)
   (battery-load-critical '29))
 
-(setq custom-file (locate-user-emacs-file "custom.el"))
-
 ;; Initialize package sources
 (require 'package)
 
@@ -96,13 +94,11 @@
   (use-short-answers t)
   (use-dialog-box t "Disable dialog boxes")
   (x-gtk-use-system-tooltips nil)
-  (use-file-dialog nil)
   (enable-recursive-minibuffers t "Allow minibuffer commands in the minibuffer")
   (indent-tabs-mode nil "Spaces!")
   (tab-always-indent 'complete)
   (tab-width 4)
   (reb-re-syntax 'string)
-  (debug-on-quit nil)
 
   (history-delete-duplicates t)
   ;; window/pane
@@ -116,17 +112,9 @@
 
   ;; select
   (selection-coding-system 'utf-8)
-  (x-select-request-type 'text/plain\;charset=utf-8)
-  (select-enable-clipboard t "Use the clipboard")
 
   :config
   (delete-selection-mode)
-
-  ;; Terminal emacs doesn't have it
-  (when (fboundp 'set-fontset-font)
-    ;; a workaround for old charsets
-    (set-fontset-font t 'unicode "Noto Color Emoji" nil 'append)
-    )
 
   (with-current-buffer "*scratch*"
 	(emacs-lock-mode 'kill))
@@ -363,8 +351,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   :custom
   (recentf-auto-cleanup 30)
   :config
-  (recentf-mode)
-  (run-with-idle-timer 30 t 'recentf-save-list))
+  (recentf-mode))
 
 (use-package no-littering
   :demand t
@@ -414,78 +401,6 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   :custom
   ;; Make dired-omit-mode hide all "dotfiles"
   (dired-omit-files "\\`[.]?#\\|\\`[.][.]?\\'\\|^\\..*$"))
-
-(use-package async
-  :unless d/on-droid
-  :demand t
-  :config
-  (autoload 'dired-async-mode "dired-async.el" nil t)
-  (dired-async-mode 1)
-  (async-bytecomp-package-mode 1))
-
-(use-package dirvish
-  :unless d/on-droid
-  :functions
-  (dirvish-override-dired-mode
-   dirvish-subtree-toggle-or-open
-   dired-mouse-drag-files
-   dired-mouse-find-file
-   dired-mouse-find-file-other-window)
-  :defines (dirvish-mode-map)
-
-  :init
-  (dirvish-override-dired-mode)
-  :custom
-  (dirvish-quick-access-entries
-   '(("h" "~/"                          "Home")
-     ("d" "~/dloads/"                "Downloads")
-     ;; ("m" "/mnt/"                       "Drives")
-     ("t" "~/.local/share/Trash/files/" "TrashCan")))
-
-  ;; (dirvish-peek-mode) ; Preview files in minibuffer
-  ;; (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
-  (dirvish-mode-line-format
-   '(:left (sort symlink) :right (omit yank index)))
-  (dirvish-attributes
-   '(file-time file-size collapse subtree-state vc-state git-msg))
-  (delete-by-moving-to-trash t)
-  (dired-listing-switches
-   "-l --almost-all --human-readable --group-directories-first --no-group")
-  (dirvish-hide-cursor nil)
-
-  (dirvish-use-header-line nil)
-  (dirvish-use-mode-line nil)
-
-  ;; with emacs29
-  (dired-mouse-drag-files t)
-  (mouse-drag-and-drop-region-cross-program t)
-  (mouse-1-click-follows-link nil)
-
-  :bind
-  (("C-c f d" . dirvish-fd)
-   ("C-x C-d" . dirvish)
-   ("C-c f t" . dirvish-side)
-   :map dirvish-mode-map
-   ("<mouse-1>" . 'dirvish-subtree-toggle-or-open)
-   ("<mouse-2>" . 'dired-mouse-find-file-other-window)
-   ("<mouse-3>" . 'dired-mouse-find-file)
-   ("a"   . dirvish-quick-access)
-   ("f"   . dirvish-file-info-menu)
-   ("y"   . dirvish-yank-menu)
-   ("N"   . dirvish-narrow)
-   ("^"   . dirvish-history-last)
-   ("h"   . dirvish-history-jump) ; remapped `describe-mode'
-   ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
-   ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
-   ("K"   . dired-do-kill-lines)
-   ("TAB" . dirvish-subtree-toggle)
-   ("M-f" . dirvish-history-go-forward)
-   ("M-b" . dirvish-history-go-backward)
-   ("M-l" . dirvish-ls-switches-menu)
-   ("M-m" . dirvish-mark-menu)
-   ("M-t" . dirvish-layout-toggle)
-   ("M-e" . dirvish-emerge-menu)
-   ("M-j" . dirvish-fd-jump)))
 
 (use-package dabbrev
   :ensure nil
@@ -642,7 +557,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
    ("M-y" . consult-yank-pop)
    ;; M-g bindings (goto-map)
    ("M-g e" . consult-compile-error)
-   ("M-g f" . consult-flycheck)
+   ("M-g f" . consult-flymake)
    ("M-g g" . consult-goto-line)
    ("M-g M-g" . consult-goto-line)
    ("M-g o" . consult-outline)
@@ -1413,50 +1328,6 @@ with `venvPath' and `venv' set to the absolute path of
   :custom
   (python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-")))
 
-(use-package flycheck
-  :defer t
-  :disabled t
-  :hook (prog-mode . flycheck-mode)
-  :custom
-  (flycheck-check-syntax-automatically '(save idle-change mode-enabled))
-  (flycheck-idle-change-delay 3)
-  ;; more form doom
-  (flycheck-emacs-lisp-load-path 'inherit)
-  (flycheck-buffer-switch-check-intermediate-buffers t)
-  (flycheck-display-errors-delay 0.25))
-
-(with-eval-after-load 'flycheck
-  (add-to-list 'flycheck-checkers 'python-ruff)
-
-  (flycheck-def-config-file-var flycheck-python-ruff-config python-ruff
-                                '("pyproject.toml" "ruff.toml" ".ruff.toml"))
-
-  (flycheck-define-checker python-ruff
-    "A Python syntax and style checker using the ruff.
-To override the path to the ruff executable, set
-`flycheck-python-ruff-executable'.
-
-See URL `https://beta.ruff.rs/docs/'."
-    :command ("ruff"
-              "check"
-              (config-file "--config" flycheck-python-ruff-config)
-              "--output-format=text"
-              "--stdin-filename" source-inplace
-              "-")
-    :standard-input t
-    :error-filter (lambda (errors)
-                    (let ((errors (flycheck-sanitize-errors errors)))
-                      (seq-map #'flycheck-flake8-fix-error-level errors)))
-    :error-patterns
-    ((warning line-start
-              (file-name) ":" line ":" (optional column ":") " "
-              (id (one-or-more (any alpha)) (one-or-more digit)) " "
-              (message (one-or-more not-newline))
-              line-end))
-    :modes (python-mode python-ts-mode)
-    :next-checkers ((warning . python-mypy)))
-  )
-
 (use-package reformatter
   :hook
   (python-ts-mode . ruff-format-on-save-mode)
@@ -2117,7 +1988,7 @@ Usable as favorites or bookmark."
         ("b" . nil))
   :custom
   (eww-auto-rename-buffer 'title)
-  (eww-search-prefix "https://duckduckgo.com/html/&q="))
+  (eww-search-prefix "https://searx.be/?q="))
 
 (defun eww-search-words ()
   "Search the web for the text in the region.
@@ -2158,36 +2029,6 @@ for the search engine used."
         (t (link-hint-copy-link)))
   (let ((url (current-kill 0)))
     (if d/on-droid (browse-url url) (browse-url-generic url))))
-
-(use-package ox-hugo
-  :unless d/on-droid
-  :after ox)
-
-(with-eval-after-load 'org-capture
-  (defun org-hugo-new-subtree-post-capture-template ()
-    "Returns `org-capture' template string for new Hugo post.
-  See `org-capture-templates' for more information."
-    (let* ((title (read-from-minibuffer "Post Title: ")) ;Prompt to enter the post title
-           (fname (org-hugo-slug title)))
-      (mapconcat #'identity
-                 `(
-                   ,(concat "* TODO " title)
-                   ":PROPERTIES:"
-                   ,(concat ":EXPORT_FILE_NAME: " fname)
-                   ":END:"
-                   "%?\n")          ;Place the cursor here finally
-                 "\n")))
-
-  (add-to-list 'org-capture-templates
-               '("w" "Website Organize"))
-  (add-to-list 'org-capture-templates
-               '("wt" "website Todo" entry (file+headline "~/d-git/d-site/README.org" "Ideas - TODO")
-                 "* TODO %?\n  SCHEDULED:%T\n " :empty-lines 1))
-  (add-to-list 'org-capture-templates
-               '("ww" "website work"
-                 entry
-                 (file+olp "~/d-git/d-site/org-mode/posts.org" "Posts")
-                 (function org-hugo-new-subtree-post-capture-template))))
 
 (use-package mingus
   :unless d/on-droid
@@ -2272,41 +2113,6 @@ for the search engine used."
   (setq webpaste-provider-priority '("dpaste.org" "dpaste.com" "paste.mozilla.org"))
   ;; Require confirmation before doing paste
   (setq webpaste-paste-confirmation t))
-
-(use-package ement
-  :defines
-  (ement-room-minibuffer-map
-   ement-room-mode-map)
-  :functions
-  (ement--read-sessions
-   ement-connect)
-  :commands
-  (d/ement-connect)
-
-  :bind
-  (:map ement-room-minibuffer-map
-        ("<f6>" . ement-room-compose-from-minibuffer))
-  (:map ement-room-mode-map
-        ("M-<" . ement-room-scroll-down-command))
-  :custom
-  (ement-room-send-message-filter 'ement-room-send-org-filter)
-  (ement-room-message-format-spec "%S> %L%B%r%R%t")
-  (ement-room-list-avatars nil)
-  (ement-save-sessions t)
-  :config
-  ;; copied from viru (ement github)
-  (defun d/ement-connect ()
-    (interactive)
-    (if (ement--read-sessions)
-        (call-interactively #'ement-connect)
-      (let* ((found (auth-source-search :max 1
-                                        :host "matrix.org"
-                                        :port "8448"
-                                        :require '(:user :secret)))
-             (entry (nth 0 found))
-             (password (funcall (plist-get entry :secret)))
-             (user (plist-get entry :user)))
-        (ement-connect :user-id user :password password)))))
 
 ;; access phone storage as default
 ;; Better is to symlink file to ~/ itself
@@ -2488,54 +2294,10 @@ Android port."
   (olivetti-recall-visual-line-mode-entry-state t)
   :delight " ⊛")
 
-(use-package doom-modeline
-  :disabled t
-  :functions
-  (doom-modeline-mode)
-  :init
-  (doom-modeline-mode 1)
-  :custom
-  (doom-modeline-bar-width 7)
-  (doom-modeline-major-mode-icon t)
-  (inhibit-compacting-font-caches t)
-  (doom-modeline-support-imenu t)
-  (doom-modeline-icon t)
-  (doom-modeline-major-mode-icon t)
-  (doom-modeline-major-mode-color-icon t)
-  (doom-modeline-buffer-state-icon t)
-  (doom-modeline-buffer-modification-icon t)
-  (doom-modeline-time-icon t)
-  (doom-modeline-unicode-fallback t)
-  (doom-modeline-buffer-name t)
-  (doom-modeline-highlight-modified-buffer-name t)
-  (doom-modeline-minor-modes nil)
-  (doom-modeline-enable-word-count t)
-  (doom-modeline-continuous-word-count-modes '(markdown-mode gfm-mode org-mode))
-  (doom-modeline-buffer-encoding nil)
-  (doom-modeline-indent-info nil)
-  (doom-modeline-checker-simple-format t)
-  (doom-modeline-number-limit 99)
-  (doom-modeline-vcs-max-length 12)
-  (doom-modeline-workspace-name nil)
-  (doom-modeline-persp-name nil)
-  (doom-modeline-display-default-persp-name nil)
-  (doom-modeline-persp-icon t)
-  (doom-modeline-lsp t)
-  (doom-modeline-github t)
-  (doom-modeline-modal t)
-  (doom-modeline-modal-icon t)
-  (doom-modeline-battery t)
-  (doom-modeline-env-version t)
-  (doom-modeline-env-python-executable "python") ; or `python-shell-interpreter'
-  (doom-modeline-env-load-string "...")
-
-  (doom-modeline-height 30)
-  (doom-modeline-buffer-encoding nil))
-
 ;; new way of using mode-line with `mini-echo-mode`
 (use-package mini-echo
   :unless d/on-droid
-  :load-path "~/d-git/forks/mini-echo"
+  ;; :load-path "~/d-git/forks/mini-echo"
   :defer 1
   :custom
   (mini-echo-window-divider-args '(t 0 0) "no indicator border")
@@ -2557,6 +2319,9 @@ Android port."
      (prog-mode :both (("vcs" . 1)))
      (dired-mode :both (("buffer-size" . 0)))))
 
+  (mini-echo--toggled-segments '(("battery" . t)
+                                 ("flymake" . t)
+                                 ("elfeed". t) ("time" . t)))
 
   :config
 
@@ -2593,10 +2358,6 @@ Display format is inherited from `battery-mode-line-format'."
              (string-trim
               (which-function)))
      'face 'which-func))
-
-  (setopt mini-echo--toggled-segments '(("battery" . t)
-                                        ("flycheck" . t)
-                                        ("elfeed". t) ("time" . t)))
 
   (mini-echo-mode 1))
 
@@ -3505,10 +3266,10 @@ use filename."
   :hook org-mode
   :bind ("M-$". jinx-correct))
 
-(use-package flycheck-languagetool
+(use-package flymake-languagetool
   :disabled
   :hook
-  (text-mode . flycheck-mode)
+  (text-mode . flymake-languagetool-load)
   :custom
   (flycheck-languagetool-server-command '("languagetool-http-server"))
   (flycheck-languagetool-language "auto"))

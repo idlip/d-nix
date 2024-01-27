@@ -296,19 +296,24 @@
     package = pkgs.emacs-pgtk;
     extraPackages = (epkgs: (with epkgs; [
       treesit-grammars.with-all-grammars
-      eat vundo undo-fu-session flycheck helpful flycheck-languagetool
+      eat vundo undo-fu-session helpful flymake-languagetool
       no-littering rainbow-delimiters rainbow-mode
       vertico orderless consult marginalia embark org-modern corfu cape corfu-terminal
-      org olivetti nerd-icons nerd-icons-completion nerd-icons-dired async dirvish
-      embark-consult consult-eglot consult-flycheck markdown-mode nix-mode
+      org olivetti nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
+      embark-consult consult-eglot markdown-mode nix-mode
       reddigg hnreader howdoyou mingus magit webpaste org-present
       shrface shr-tag-pre-highlight nov devdocs-browser reformatter
-      beframe denote tempel tempel-collection avy
-      sdcv elfeed elfeed-org powerthesaurus jinx meow
-      doom-modeline el-fetch ox-hugo envrc dashboard
-      ement kind-icon speed-type vc-backup aria2
+      denote tempel tempel-collection avy
+      sdcv elfeed elfeed-org jinx
+      el-fetch envrc dashboard mini-echo
+      speed-type vc-backup aria2
       ess org-re-reveal auctex julia-mode webfeeder
-      toc-org el-patch disable-mouse org-ql org-alert
+      toc-org disable-mouse org-ql org-alert
+      exwm
+      ## packages kept out to make more vanilla usage!
+      # flycheck async dirvish consult-flycheck beframe powerthesaurus meow
+      # doom-modeline ox-hugo ement kind-icon  el-patch
+
     ])
     );
   };
@@ -505,7 +510,7 @@
       "move_left" = "h";
       "move_right" = "l";
       "screen_down" = [ "d" "<C-v>" ];
-      "screen_up" = [ "u" "<A-x>" ];
+      "screen_up" = [ "u" "<A-v>" ];
       "fit_to_page_width" = "<f9>";
       "fit_to_page_width_smart" = "<f10>";
       "toggle_fullscreen" = [ "f" "<f11>"  ];
@@ -969,8 +974,8 @@
       show_thumbnails=0
       invidious_instance="https://vid.puffyan.us"
       external_menu () {
-           #bemenu -w 0.98 -l 24 -p '  play '
-           rofi -dmenu -i -config ~/.config/rofi/list.rasi -p '󰑈  play'
+           bemenu -w 0.98 -l 24 -p '  play '
+           # rofi -dmenu -i -config ~/.config/rofi/list.rasi -p '󰑈  play'
       }
 
       thumbnail_quality=high
@@ -1284,7 +1289,7 @@
         "custom/launcher" = {
 	        "format" = "";
 	        "tooltip" = false;
-	        "on-click" = "rofi -show drun";
+	        "on-click" = "bemenu-run";
           "interval" = 86400;
         };
 
@@ -1491,29 +1496,22 @@
     };
 
     envExtra = ''
-    export PATH="$PATH:$HOME/d-git/d-bin/bin:$HOME/.local/bin"
-  	export EDITOR="emacsclient -nw -a 'nvim'"
-    export BEMENU_OPTS="-i -s -l 10 -R 20 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'Code D Ace 16' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
-    export VISUAL=$EDITOR
-    export STARDICT_DATA_DIR="$HOME/.local/share/stardict"
-    export GRIM_DEFAULT_DIR="$HOME/pics/sshots/"
-
-    	#if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
-      #  exec Hyprland
-     	#fi
-  	'';
+      	#if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
+        #  exec Hyprland
+       	#fi
+    '';
 
     initExtra = ''
-	source ~/.config/shell/source.sh
+      source ~/.config/shell/source.sh
 
-	source "${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-	source "${pkgs.zsh-history-substring-search}/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
-	source "${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-	source "${pkgs.nix-zsh-completions}/share/zsh/plugins/nix/nix-zsh-completions.plugin.zsh"
-	source "${pkgs.zsh-nix-shell}/share/zsh-nix-shell/nix-shell.plugin.zsh"
-	source "${pkgs.zsh-autopair}/share/zsh/zsh-autopair/autopair.zsh"
+      source "${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+      source "${pkgs.zsh-history-substring-search}/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
+      source "${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+      source "${pkgs.nix-zsh-completions}/share/zsh/plugins/nix/nix-zsh-completions.plugin.zsh"
+      source "${pkgs.zsh-nix-shell}/share/zsh-nix-shell/nix-shell.plugin.zsh"
+      source "${pkgs.zsh-autopair}/share/zsh/zsh-autopair/autopair.zsh"
 
-	'';
+    '';
 
     history = {
       save = 10000;

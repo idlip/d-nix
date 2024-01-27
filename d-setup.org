@@ -2676,6 +2676,7 @@ You can do this by trackpad too (laptop)"
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
 (use-package man
   :ensure nil
+  :demand t
   :custom
   (Man-notify-method 'pushy "show manpage HERE")
   :custom-face
@@ -3479,7 +3480,7 @@ with `venvPath' and `venv' set to the absolute path of
 ***** Flymake
 - In-built are more than enough!
 #+name: orgmacs
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
 (use-package flymake
   :ensure nil
   :hook
@@ -3493,6 +3494,7 @@ with `venvPath' and `venv' set to the absolute path of
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
 (use-package flycheck
   :defer t
+  :disabled t
   :hook (prog-mode . flycheck-mode)
   :custom
   (flycheck-check-syntax-automatically '(save idle-change mode-enabled))
@@ -4830,7 +4832,7 @@ See the above repository for updates as well as full license text. */
         ("b" . nil))
   :custom
   (eww-auto-rename-buffer 'title)
-  (eww-search-prefix "https://duckduckgo.com/html/&q="))
+  (eww-search-prefix "https://searx.be/?q="))
 #+end_src
 - Function to search words or link at point, and also give us list from =eww-prompt-history= to choose.
 #+name: orgmacs

@@ -1177,11 +1177,6 @@ It is as simple if I just record what it does, with proper link to rich resource
 (provide 'init)
 ;;; init.el ends here
 #+end_src
-- Set a file for custom variables.
-#+name: orgmacs
-#+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
-(setq custom-file (locate-user-emacs-file "custom.el"))
-#+end_src
 *** use-package
 - setup =package.el=
 #+name: orgmacs
@@ -1251,13 +1246,11 @@ It is as simple if I just record what it does, with proper link to rich resource
   (use-short-answers t)
   (use-dialog-box t "Disable dialog boxes")
   (x-gtk-use-system-tooltips nil)
-  (use-file-dialog nil)
   (enable-recursive-minibuffers t "Allow minibuffer commands in the minibuffer")
   (indent-tabs-mode nil "Spaces!")
   (tab-always-indent 'complete)
   (tab-width 4)
   (reb-re-syntax 'string)
-  (debug-on-quit nil)
 
   (history-delete-duplicates t)
   ;; window/pane
@@ -1271,17 +1264,9 @@ It is as simple if I just record what it does, with proper link to rich resource
 
   ;; select
   (selection-coding-system 'utf-8)
-  (x-select-request-type 'text/plain\;charset=utf-8)
-  (select-enable-clipboard t "Use the clipboard")
 
   :config
   (delete-selection-mode)
-
-  ;; Terminal emacs doesn't have it
-  (when (fboundp 'set-fontset-font)
-    ;; a workaround for old charsets
-    (set-fontset-font t 'unicode "Noto Color Emoji" nil 'append)
-    )
 
   (with-current-buffer "*scratch*"
 	(emacs-lock-mode 'kill))
@@ -1331,7 +1316,7 @@ it narrows to region, or Org subtree."
   (when (derived-mode-p 'pdf-view-mode) (progn ((clear-image-cache) (pdf-cache-clear-data)))))
 #+end_src
 - Clipboard support in wayland using ~wl-clipboard~, especially for terminal use case.
-  - Credits to @yorichvP for github gist.
+- Credits to @yorichvP for github gist.
 #+name: orgmacs
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
 ;; credit: yorickvP on Github
@@ -1577,8 +1562,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   :custom
   (recentf-auto-cleanup 30)
   :config
-  (recentf-mode)
-  (run-with-idle-timer 30 t 'recentf-save-list))
+  (recentf-mode))
 #+end_src
 **** no-littering
 - To keep the emacs user directory clean and with less noise.
@@ -1640,7 +1624,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   ;; Make dired-omit-mode hide all "dotfiles"
   (dired-omit-files "\\`[.]?#\\|\\`[.][.]?\\'\\|^\\..*$"))
 #+end_src
-***** Async
+***** COMMENT Async
 - For asynchronous dired operations. To not jam emacs session for copy pasting files, and etc.
 #+name: orgmacs
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
@@ -1652,7 +1636,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (dired-async-mode 1)
   (async-bytecomp-package-mode 1))
 #+end_src
-**** Dirvish
+**** COMMENT Dirvish
 - Batteries packed for dired.
 #+name: orgmacs
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
@@ -1897,7 +1881,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
    ("M-y" . consult-yank-pop)
    ;; M-g bindings (goto-map)
    ("M-g e" . consult-compile-error)
-   ("M-g f" . consult-flycheck)
+   ("M-g f" . consult-flymake)
    ("M-g g" . consult-goto-line)
    ("M-g M-g" . consult-goto-line)
    ("M-g o" . consult-outline)
@@ -3094,19 +3078,24 @@ You can do this by trackpad too (laptop)"
     package = pkgs.emacs-pgtk;
     extraPackages = (epkgs: (with epkgs; [
       treesit-grammars.with-all-grammars
-      eat vundo undo-fu-session flycheck helpful flycheck-languagetool
+      eat vundo undo-fu-session helpful flymake-languagetool
       no-littering rainbow-delimiters rainbow-mode
       vertico orderless consult marginalia embark org-modern corfu cape corfu-terminal
-      org olivetti nerd-icons nerd-icons-completion nerd-icons-dired async dirvish
-      embark-consult consult-eglot consult-flycheck markdown-mode nix-mode
+      org olivetti nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
+      embark-consult consult-eglot markdown-mode nix-mode
       reddigg hnreader howdoyou mingus magit webpaste org-present
       shrface shr-tag-pre-highlight nov devdocs-browser reformatter
-      beframe denote tempel tempel-collection avy
-      sdcv elfeed elfeed-org powerthesaurus jinx meow
-      doom-modeline el-fetch ox-hugo envrc dashboard
-      ement kind-icon speed-type vc-backup aria2
+      denote tempel tempel-collection avy
+      sdcv elfeed elfeed-org jinx
+      el-fetch envrc dashboard mini-echo
+      speed-type vc-backup aria2
       ess org-re-reveal auctex julia-mode webfeeder
-      toc-org el-patch disable-mouse org-ql org-alert
+      toc-org disable-mouse org-ql org-alert
+      exwm
+      ## packages kept out to make more vanilla usage!
+      # flycheck async dirvish consult-flycheck beframe powerthesaurus meow
+      # doom-modeline ox-hugo ement kind-icon  el-patch
+
     ])
     );
   };
@@ -3488,7 +3477,7 @@ with `venvPath' and `venv' set to the absolute path of
   :custom
   (python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-")))
 #+end_src
-***** Flycheck
+***** COMMENT Flycheck
 - To lint and check for good practices in code.
 #+name: orgmacs
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
@@ -3801,7 +3790,7 @@ out")
       "move_left" = "h";
       "move_right" = "l";
       "screen_down" = [ "d" "<C-v>" ];
-      "screen_up" = [ "u" "<A-x>" ];
+      "screen_up" = [ "u" "<A-v>" ];
       "fit_to_page_width" = "<f9>";
       "fit_to_page_width_smart" = "<f10>";
       "toggle_fullscreen" = [ "f" "<f11>"  ];
@@ -4883,7 +4872,7 @@ for the search engine used."
   (let ((url (current-kill 0)))
     (if d/on-droid (browse-url url) (browse-url-generic url))))
 #+end_src
-**** ox-hugo
+**** COMMENT ox-hugo
 - for maintaining a static site generator with posts written in org-mode.
 - For anyone who has come this far, [[https://idlip.github.io][blog site]].
 #+name: orgmacs
@@ -5163,8 +5152,8 @@ for the search engine used."
       show_thumbnails=0
       invidious_instance="https://vid.puffyan.us"
       external_menu () {
-           #bemenu -w 0.98 -l 24 -p '  play '
-           rofi -dmenu -i -config ~/.config/rofi/list.rasi -p '󰑈  play'
+           bemenu -w 0.98 -l 24 -p '  play '
+           # rofi -dmenu -i -config ~/.config/rofi/list.rasi -p '󰑈  play'
       }
 
       thumbnail_quality=high
@@ -5306,7 +5295,7 @@ for the search engine used."
   ;; Require confirmation before doing paste
   (setq webpaste-paste-confirmation t))
 #+end_src
-*** matrix
+*** COMMENT matrix
 - wait, matrix in emacs? Yes, call it =ement.el=
 #+name: orgmacs
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
@@ -6414,7 +6403,7 @@ and returns the icon."
         "custom/launcher" = {
 	        "format" = "";
 	        "tooltip" = false;
-	        "on-click" = "rofi -show drun";
+	        "on-click" = "bemenu-run";
           "interval" = 86400;
         };
 
@@ -6767,7 +6756,7 @@ tooltip {
 /* } */
 #+end_src
 
-*** Doom-modeline
+*** COMMENT Doom-modeline
 - comprehensive mode-line information.
 #+name: orgmacs
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
@@ -6822,7 +6811,7 @@ tooltip {
 ;; new way of using mode-line with `mini-echo-mode`
 (use-package mini-echo
   :unless d/on-droid
-  :load-path "~/d-git/forks/mini-echo"
+  ;; :load-path "~/d-git/forks/mini-echo"
   :defer 1
   :custom
   (mini-echo-window-divider-args '(t 0 0) "no indicator border")
@@ -6844,6 +6833,9 @@ tooltip {
      (prog-mode :both (("vcs" . 1)))
      (dired-mode :both (("buffer-size" . 0)))))
 
+  (mini-echo--toggled-segments '(("battery" . t)
+                                 ("flymake" . t)
+                                 ("elfeed". t) ("time" . t)))
 
   :config
 
@@ -6880,10 +6872,6 @@ Display format is inherited from `battery-mode-line-format'."
              (string-trim
               (which-function)))
      'face 'which-func))
-
-  (setopt mini-echo--toggled-segments '(("battery" . t)
-                                        ("flycheck" . t)
-                                        ("elfeed". t) ("time" . t)))
 
   (mini-echo-mode 1))
 #+end_src
@@ -7129,12 +7117,6 @@ Display format is inherited from `battery-mode-line-format'."
   # symlink normal shell file to source for zsh
   home.file.".config/shell/source.sh".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/source.sh";
 
-  home.sessionVariables = {
-    PATH = "$PATH:$HOME/d-git/d-bin/bin:$HOME/.local/bin";
-    BEMENU_OPTS = "-i -s -l 10 -R 20 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'Code D Ace 16' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
-# BEMENU_OPTS="-i -p ' ' --fn 'Code D Ace 16' --nb '#00000090' --ab '#000000' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#2e8b57' --hf '#000000' --fb '#111111' --ff '#fafad2' --tb '#121212' --tf '#6ae4b9' "
-  };
-
   programs.zsh = {
     enable = true;
     dotDir = ".config/shell";
@@ -7154,10 +7136,6 @@ Display format is inherited from `battery-mode-line-format'."
     };
 
     envExtra = ''
-      export VISUAL=$EDITOR
-      export STARDICT_DATA_DIR="$HOME/.local/share/stardict"
-      export GRIM_DEFAULT_DIR="$HOME/pics/sshots/"
-
       	#if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
         #  exec Hyprland
        	#fi
@@ -7271,9 +7249,6 @@ alias sioyek="sioyek --new-window"
 
 # neovim as manpager, if not using emacs
 # export MANPAGER='nvim +Man! +"set nocul" +"set noshowcmd" +"set noruler" +"set noshowmode" +"set laststatus=0" +"set showtabline=0" +"set nonumber"'
-export MANPAGER='nvim +Man!'
-
-export STARDICT_DATA_DIR="$HOME/d-git/d-bin/treasure/dict/"
 
 # Functions
 function ytdl() {
@@ -9146,10 +9121,10 @@ use filename."
 - language tool as linter
 #+name: orgmacs
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
-(use-package flycheck-languagetool
+(use-package flymake-languagetool
   :disabled
   :hook
-  (text-mode . flycheck-mode)
+  (text-mode . flymake-languagetool-load)
   :custom
   (flycheck-languagetool-server-command '("languagetool-http-server"))
   (flycheck-languagetool-language "auto"))

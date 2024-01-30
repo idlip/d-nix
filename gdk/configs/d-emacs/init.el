@@ -1060,7 +1060,7 @@ You can do this by trackpad too (laptop)"
   :config
   (envrc-global-mode))
 
-(use-package eshell
+(use-package esh-mode
   :ensure nil
   :defines
   (eshell-prompt-regexp)
@@ -3262,6 +3262,7 @@ use filename."
     (variable-pitch-mode 1)))
 
 (use-package jinx
+  :unless d/on-droid
   ;; :init (global-jinx-mode)
   :hook org-mode
   :bind ("M-$". jinx-correct))

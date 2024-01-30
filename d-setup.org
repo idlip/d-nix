@@ -2920,7 +2920,7 @@ You can do this by trackpad too (laptop)"
 **** eshell
 #+name: orgmacs
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
-(use-package eshell
+(use-package esh-mode
   :ensure nil
   :defines
   (eshell-prompt-regexp)
@@ -9116,6 +9116,7 @@ use filename."
 #+name: orgmacs
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
 (use-package jinx
+  :unless d/on-droid
   ;; :init (global-jinx-mode)
   :hook org-mode
   :bind ("M-$". jinx-correct))

@@ -653,6 +653,10 @@ It is as simple if I just record what it does, with proper link to rich resource
     # This makes the user to autologin in all tty
     # Depends on you if you want login manager or prefer entering password manually
     # getty.autologinUser = "${vars.username}";
+    getty = {
+      greetingLine = "Greetings and Welcome back!";
+      helpLine = "Let's learn more and get productive!";
+    };
 
     atd.enable = true; # reminder tool, like @ 2:30 exec this
     fstrim.enable = true; # file system trim

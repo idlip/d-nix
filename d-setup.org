@@ -2352,6 +2352,22 @@ nix-mode
       (p (completing-read "Platform: " '("all" "allBut" "arm" "cygwin" "darwin" "freebsd" "gnu" "i686" "illumos" "linux" "mesaPlatforms" "mips" "netbsd" "none" "openbsd" "unix" "x86"))) ";" n> q "};" n> "}"
       )
 
+(shellnix "{ pkgs ? import <nixpkgs> {} }:" n>
+          "pkgs.mkShell {" n n>
+          "nativeBuildInputs = [ pkgs.bashInteractive ];" n n>
+          "buildInputs = builtins.attrValues {" n n>
+          "inherit (pkgs)" n>
+          (p "pkgs names") n>
+          ";" n> n>
+          "inherit (pkgs.rPackages)" n>
+          (p "rPackages names") n>
+          ";" n>
+          n>
+          "};"
+          n>
+          "}"
+          )
+
 #+end_src
 ***** org-templates
 #+begin_src emacs-lisp :tangle ~/.config/emacs/templates/org.eld

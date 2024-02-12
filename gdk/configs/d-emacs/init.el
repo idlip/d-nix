@@ -70,7 +70,6 @@
   ("C-x C-z" . nil)
   ;; panes
   ("M-o" . other-window)
-  ("C-<tab>" . tab-next)
   ("C-x C-k" . d/kill-buffer)
   ("C-x n n" . d/narrow-or-widen-dwim)
 
@@ -337,12 +336,17 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (vc-make-backup-files t)
   (vc-follow-symlinks t))
 
+(use-package autorevert
+  :init
+  (global-auto-revert-mode))
+
 (use-package savehist
   :ensure nil
   :defer 2
   :init
   (savehist-mode)
   :custom
+  (history-length t)
   (savehist-additional-variables '(kill-ring search-ring regexp-search-ring)))
 
 (use-package recentf
@@ -910,6 +914,14 @@ Return nil if NAME does not designate a valid color."
 (use-package tempel-collection
   :after tempel)
 
+(use-package tab-bar
+  :unless d/on-droid
+  :bind
+  ("C-<tab>" . tab-next)
+
+  :init
+  (tab-bar-mode))
+
 (use-package mwheel
   :ensure nil
   :bind
@@ -1230,6 +1242,7 @@ with `venvPath' and `venv' set to the absolute path of
   (ess-use-company nil)
   (ess-eval-visibly nil)
   (ess-ask-for-ess-directory t)
+  (ess-style 'RStudio)
 
   (ess-use-eldoc t)
   (ess-eldoc-show-on-symbol t)
@@ -2308,8 +2321,8 @@ Android port."
             "envrc"
             "buffer-position"
             ;; "buffer-size"
-            "flycheck" "selection-info"
-            "narrow"
+            "flymake" "selection-info"
+            "narrow" "elfeed"
             )
            :short ("buffer-name-short"
                    "selection-info" "narrow" "macro" "repeat")))
@@ -2864,7 +2877,9 @@ Display format is inherited from `battery-mode-line-format'."
   (org-agenda-start-on-weekday nil)
   (org-agenda-files
    '("~/d-sync/notes/"
-     "~/d-git/d-site/README.org")))
+     "~/d-git/d-site/README.org"
+     "~/d-sync/projects/nptel/bio-algorithms/notes.org"
+     )))
 
 (use-package org-capture
   :ensure nil
@@ -3268,12 +3283,11 @@ use filename."
   :bind ("M-$". jinx-correct))
 
 (use-package flymake-languagetool
-  :disabled
+  :unless d/on-droid
   :hook
   (text-mode . flymake-languagetool-load)
   :custom
-  (flycheck-languagetool-server-command '("languagetool-http-server"))
-  (flycheck-languagetool-language "auto"))
+  (flymake-languagetool-server-command '("languagetool-http-server")))
 
 (use-package speed-type
   :unless d/on-droid

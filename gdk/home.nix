@@ -590,6 +590,7 @@
           "browser.urlbar.placeholderName" = "Time to get Productive...";
           "gfx.webrender.all" = true;
           "gfx.webrender.enabled" = true;
+          "media.peerconnection.enabled" = true;
           "media.av1.enabled" = false;
           "media.ffmpeg.vaapi.enabled" = true;
           "media.hardware-video-decoding.force-enabled" = true;
@@ -797,6 +798,7 @@
         "media.av1.enabled" = false;
         "media.ffmpeg.vaapi.enabled" = true;
         "media.hardware-video-decoding.force-enabled" = true;
+        "media.peerconnection.enabled" = true;
       };
     };
 
@@ -1520,6 +1522,17 @@
       ignoreDups = true;
       path = "${config.xdg.configHome}/shell/zsh_history";
     };
+  };
+}
+
+{
+  home.sessionVariables = {
+    PATH = "$PATH:$HOME/d-git/d-bin/bin:$HOME/.local/bin";
+    BEMENU_OPTS = "-i -CT -p ' ' --fn 'Code D Ace 16' --nb '#00000090' --ab '#00000090' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#2e8b57' --hf '#000000' --fb '#111111' --ff '#fafad2' --tb '#121212' --tf '#6ae4b9' ";
+    VISUAL = "$EDITOR";
+    GRIM_DEFAULT_DIR = "$HOME/pics/sshots/";
+    MANPAGER = "nvim +Man!";
+    STARDICT_DATA_DIR = "$HOME/d-git/d-bin/treasure/dict/";
   };
 }
 

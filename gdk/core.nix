@@ -312,6 +312,10 @@
     # This makes the user to autologin in all tty
     # Depends on you if you want login manager or prefer entering password manually
     # getty.autologinUser = "${vars.username}";
+    getty = {
+      greetingLine = "Greetings and Welcome back!";
+      helpLine = "Let's learn more and get productive!";
+    };
 
     atd.enable = true; # reminder tool, like @ 2:30 exec this
     fstrim.enable = true; # file system trim
@@ -448,8 +452,8 @@
 {
   xdg.portal = {
     enable = true;
-    extraPortals = [ pkgs.xdg-desktop-portal-gtk pkgs.xdg-desktop-portal-hyprland ];
-    configPackages = [ pkgs.xdg-desktop-portal-hyprland ]; # needed from 23.11
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk pkgs.xdg-desktop-portal-hyprland pkgs.xdg-desktop-portal-kde ];
+    configPackages = [ pkgs.xdg-desktop-portal-hyprland pkgs.xdg-desktop-portal-kde ]; # needed from 23.11
   };
 }
 

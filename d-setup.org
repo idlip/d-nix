@@ -1562,6 +1562,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   :init
   (savehist-mode)
   :custom
+  (history-length t)
   (savehist-additional-variables '(kill-ring search-ring regexp-search-ring)))
 #+end_src
 - to record recently opened files. Useful to jump in quick
@@ -3371,6 +3372,7 @@ with `venvPath' and `venv' set to the absolute path of
   (ess-use-company nil)
   (ess-eval-visibly nil)
   (ess-ask-for-ess-directory t)
+  (ess-style 'RStudio)
 
   (ess-use-eldoc t)
   (ess-eldoc-show-on-symbol t)
@@ -4337,6 +4339,7 @@ Usable as favorites or bookmark."
           "browser.urlbar.placeholderName" = "Time to get Productive...";
           "gfx.webrender.all" = true;
           "gfx.webrender.enabled" = true;
+          "media.peerconnection.enabled" = true;
           "media.av1.enabled" = false;
           "media.ffmpeg.vaapi.enabled" = true;
           "media.hardware-video-decoding.force-enabled" = true;
@@ -4544,6 +4547,7 @@ Usable as favorites or bookmark."
         "media.av1.enabled" = false;
         "media.ffmpeg.vaapi.enabled" = true;
         "media.hardware-video-decoding.force-enabled" = true;
+        "media.peerconnection.enabled" = true;
       };
     };
 
@@ -5599,10 +5603,10 @@ Android port."
   xdg.configFile."hypr/hyprsea.conf".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/hyprsea.conf";
 }
 #+end_src
-*** hyprland.conf
+*** hyprsea
 - more additional hyprland conf for quick reloads
 #+begin_src conf :tangle ./gdk/configs/hyprsea.conf
-monitor = ,2880x1800@60,auto,auto
+monitor = ,2880x1800@90,auto,auto
 monitor = HDMI-A-1,1920x1080,0x0,1
 # monitor = HDMI-A-1,1920x1080,0x0,1,mirror,eDP-1
 
@@ -5635,6 +5639,8 @@ gaps_out = 0;
 
 decoration {
 rounding = 0;
+active_opacity=1.0
+inactive_opacity=1.0
 }
 
 
@@ -5673,10 +5679,10 @@ windowrulev2 = size 800 600,title:^(Volume Control)$
 
 windowrulev2 = idleinhibit fullscreen,class:^(Brave-browser)$
 # idle inhibit while watching videos
-windowrulev2 = idleinhibit focus, class:^(mpv|.+exe)$
+windowrulev2 = idleinhibit focus, class:^(mpv)$
 windowrulev2 = idleinhibit focus, class:^(Freetube)$
 windowrulev2 = idleinhibit focus, class:^(firefox)$, title:^(.*YouTube.*)$
-windowrulev2 = idleinhibit fullscreen, class:^(firefox)$
+# windowrulev2 = idleinhibit fullscreen, class:^(firefox)$
 
 # xwaylandvideobridge
 windowrulev2 = opacity 0.0 override 0.0 override,class:^(xwaylandvideobridge)$
@@ -6861,8 +6867,8 @@ tooltip {
             "envrc"
             "buffer-position"
             ;; "buffer-size"
-            "flycheck" "selection-info"
-            "narrow"
+            "flymake" "selection-info"
+            "narrow" "elfeed"
             )
            :short ("buffer-name-short"
                    "selection-info" "narrow" "macro" "repeat")))
@@ -7396,11 +7402,11 @@ fi
 *** HomeSession Variables
 - To set variables for all shell.
 #+name: hm-config
-#+begin_src nix :gdk/home.nix
+#+begin_src nix :tangle gdk/home.nix
 {
   home.sessionVariables = {
     PATH = "$PATH:$HOME/d-git/d-bin/bin:$HOME/.local/bin";
-    BEMENU_OPTS = "-i -p ' ' --fn 'Code D Ace 16' --nb '#00000090' --ab '#00000090' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#2e8b57' --hf '#000000' --fb '#111111' --ff '#fafad2' --tb '#121212' --tf '#6ae4b9' ";
+    BEMENU_OPTS = "-i -CT -p ' ' --fn 'Code D Ace 16' --nb '#00000090' --ab '#00000090' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#2e8b57' --hf '#000000' --fb '#111111' --ff '#fafad2' --tb '#121212' --tf '#6ae4b9' ";
     VISUAL = "$EDITOR";
     GRIM_DEFAULT_DIR = "$HOME/pics/sshots/";
     MANPAGER = "nvim +Man!";
@@ -8527,7 +8533,9 @@ lines:                       20;
   (org-agenda-start-on-weekday nil)
   (org-agenda-files
    '("~/d-sync/notes/"
-     "~/d-git/d-site/README.org")))
+     "~/d-git/d-site/README.org"
+     "~/d-sync/projects/nptel/bio-algorithms/notes.org"
+     )))
 #+end_src
 *** org-capture
 #+name: orgmacs
@@ -9177,12 +9185,11 @@ use filename."
 #+name: orgmacs
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
 (use-package flymake-languagetool
-  :disabled
+  :unless d/on-droid
   :hook
   (text-mode . flymake-languagetool-load)
   :custom
-  (flycheck-languagetool-server-command '("languagetool-http-server"))
-  (flycheck-languagetool-language "auto"))
+  (flymake-languagetool-server-command '("languagetool-http-server")))
 #+end_src
 *** speed-type
 - to practice speed typing, or typing in general.

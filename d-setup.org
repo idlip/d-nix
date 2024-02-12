@@ -1545,6 +1545,14 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (vc-make-backup-files t)
   (vc-follow-symlinks t))
 #+end_src
+**** Auto revert
+- Revert files with changes, so I can work with sync.
+#+name: orgmacs
+#+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+(use-package autorevert
+  :init
+  (global-auto-revert-mode))
+#+end_src
 **** File History
 - savehist of minibuffer candidates
 #+name: orgmacs

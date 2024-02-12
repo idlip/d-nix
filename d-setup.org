@@ -2436,7 +2436,7 @@ org-mode
 
 
 (shbin
- "#+begin_src sh :shebang '#!/usr/bin/env bash' :tangle bin/" p
+ "#+begin_src sh :shebang \"#!/usr/bin/env bash\" :tangle bin/" p
  n n
  "#+end_src"
  :post (org-edit-src-code))

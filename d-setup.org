@@ -1226,7 +1226,6 @@ It is as simple if I just record what it does, with proper link to rich resource
   ("C-x C-z" . nil)
   ;; panes
   ("M-o" . other-window)
-  ("C-<tab>" . tab-next)
   ("C-x C-k" . d/kill-buffer)
   ("C-x n n" . d/narrow-or-widen-dwim)
 
@@ -2514,6 +2513,18 @@ css-mode css-ts-mode
 (var "var(--" p ")")
 #+end_src
 *** Enhancements
+**** Tab bar
+- Use tab bar, instead of frames.
+#+name: orgmacs
+#+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+(use-package tab-bar
+  :unless d/on-droid
+  :bind
+  ("C-<tab>" . tab-next)
+
+  :init
+  (tab-bar-mode))
+#+end_src
 **** Mouse
 #+name: orgmacs
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el

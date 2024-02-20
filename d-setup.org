@@ -8182,6 +8182,7 @@ lines:                       20;
   :hook (org-mode . (lambda ()
                       (org-display-inline-images 0)
                       (variable-pitch-mode 1)))
+  (org-mode . org-indent-mode)
 
   :bind
   ("C-c c d" . calendar)
@@ -8392,7 +8393,7 @@ lines:                       20;
   :commands
   (shrface-mode
    global-org-modern-mode)
-  :hook (org-mode org-agenda-finalize-hook)
+  :hook (org-mode org-agenda-finalize)
 
   :custom
   ;; Edit settings
@@ -9207,6 +9208,7 @@ use filename."
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
 (use-package flymake-languagetool
   :unless d/on-droid
+  :disabled
   :hook
   (text-mode . flymake-languagetool-load)
   :custom

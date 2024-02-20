@@ -6329,9 +6329,9 @@ and returns the icon."
   :demand t
   :load-path "~/.config/emacs/var/theme"
   :custom
-  (haki-heading-font "Code D Zoro")
+  (haki-heading-font "Code D Ace")
   (haki-sans-font "Code D Haki")
-  (haki-title-font "Code D Zoro")
+  (haki-title-font "Code D Ace")
   (haki-link-font "Maple Mono")
   (haki-code-font "Code D Lip")
   :config

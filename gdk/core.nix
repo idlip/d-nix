@@ -139,7 +139,7 @@
   users.users.${vars.username} = {
     isNormalUser = true;
     shell = pkgs.zsh;
-    extraGroups = ["adbusers" "input" "libvirtd" "networkmanager" "plugdev" "transmission" "video" "wheel"];
+    extraGroups = ["adbusers" "input" "uinput" "libvirtd" "networkmanager" "plugdev" "transmission" "video" "wheel"];
   };
 }
 
@@ -331,11 +331,9 @@
 {
   # For Laptop, make lid close and power buttom click to suspend
   services.logind = {
-    lidSwitch = "suspend-then-hibernate";
-    lidSwitchExternalPower = "lock";
+    lidSwitch = "suspend";
     extraConfig = ''
-        HandlePowerKey=suspend-then-hibernate
-        HibernateDelaySec=3600
+        HandlePowerKey=suspend
       '';
   };
 }
@@ -399,6 +397,23 @@
 }
 
 {
+  systemd.services = {
+    seatd = {
+      enable = true;
+      description = "Seat management daemon";
+      script = "${pkgs.seatd}/bin/seatd -g wheel";
+      serviceConfig = {
+        Type = "simple";
+        Restart = "always";
+        RestartSec = "1";
+      };
+      wantedBy = ["multi-user.target"];
+    };
+  };
+
+}
+
+{
   services.syncthing = {
     enable = true;
     user = "${vars.username}";
@@ -452,8 +467,8 @@
 {
   xdg.portal = {
     enable = true;
-    extraPortals = [ pkgs.xdg-desktop-portal-gtk pkgs.xdg-desktop-portal-hyprland pkgs.xdg-desktop-portal-kde ];
-    configPackages = [ pkgs.xdg-desktop-portal-hyprland pkgs.xdg-desktop-portal-kde ]; # needed from 23.11
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk pkgs.xdg-desktop-portal-hyprland ];
+    configPackages = [ pkgs.xdg-desktop-portal-hyprland ]; # needed from 23.11
   };
 }
 
@@ -531,6 +546,10 @@
 
 {
   system.autoUpgrade.enable = false;
+}
+
+{
+  programs.nix-ld.enable = true;
 }
 
 {

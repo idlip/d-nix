@@ -1070,7 +1070,8 @@ You can do this by trackpad too (laptop)"
 (use-package envrc
   :defer 2
   :config
-  (envrc-global-mode))
+  (envrc-global-mode)
+  (advice-add 'org-babel-eval :around #'envrc-propagate-environment))
 
 (use-package esh-mode
   :ensure nil
@@ -1125,7 +1126,7 @@ You can do this by trackpad too (laptop)"
 
 (defun d/clear-eshell ()
   (interactive)
-  (eshell-send-input (eshell/clear t)))
+  (eshell-send-input (eshell/clear 1)))
 
 (defun d/eshell-toggle ()
   "Minimal hack to toggle eshell."
@@ -1350,6 +1351,10 @@ with `venvPath' and `venv' set to the absolute path of
   (reformatter-define ruff-format
     :program "ruff"
     :args (list "format" "--stdin-filename" input-file "-"))
+
+  (reformatter-define pyblack-format
+    :program "python"
+    :args (list "-m" "black" "-"))
 
   (reformatter-define alejandra-format
     :program "alejandra"
@@ -2261,9 +2266,9 @@ Android port."
   :demand t
   :load-path "~/.config/emacs/var/theme"
   :custom
-  (haki-heading-font "Code D Zoro")
+  (haki-heading-font "Code D Ace")
   (haki-sans-font "Code D Haki")
-  (haki-title-font "Code D Zoro")
+  (haki-title-font "Code D Ace")
   (haki-link-font "Maple Mono")
   (haki-code-font "Code D Lip")
   :config
@@ -2526,6 +2531,7 @@ Display format is inherited from `battery-mode-line-format'."
   :hook (org-mode . (lambda ()
                       (org-display-inline-images 0)
                       (variable-pitch-mode 1)))
+  (org-mode . org-indent-mode)
 
   :bind
   ("C-c c d" . calendar)
@@ -2723,7 +2729,7 @@ Display format is inherited from `battery-mode-line-format'."
   :commands
   (shrface-mode
    global-org-modern-mode)
-  :hook (org-mode org-agenda-finalize-hook)
+  :hook (org-mode org-agenda-finalize)
 
   :custom
   ;; Edit settings
@@ -3284,6 +3290,7 @@ use filename."
 
 (use-package flymake-languagetool
   :unless d/on-droid
+  :disabled
   :hook
   (text-mode . flymake-languagetool-load)
   :custom

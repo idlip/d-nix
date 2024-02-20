@@ -1463,15 +1463,17 @@
 
     ssh.enable = true;
 
-    skim = {
+    fzf = {
       enable = true;
-      enableZshIntegration = true;
-      defaultCommand = "rg --files --hidden";
-      changeDirWidgetOptions = [
-        "--preview 'eza --icons --git --color always -T -L 3 {} | head -200'"
-        "--exact"
-      ];
+      colors = {
+        bg = "#121212";
+        "bg+" = "#2e8b57";
+        fg = "#fdfdfd";
+        "fg+" = "#FFFFFF";
+      };
+      defaultCommand = "fd --type f";
     };
+
   };
 }
 
@@ -1542,7 +1544,6 @@
     zip
     unzip
 
-    fzf
     # wonderful spells
 
     ffmpeg-full sdcv nq
@@ -1701,7 +1702,7 @@
     libnotify
     # xdg-utils
 
-    pcmanfm
+    xfce.thunar
     libreoffice
     # pandoc
     groff mupdf

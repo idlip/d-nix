@@ -3026,7 +3026,7 @@ You can do this by trackpad too (laptop)"
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
 (defun d/clear-eshell ()
   (interactive)
-  (eshell-send-input (eshell/clear t)))
+  (eshell-send-input (eshell/clear 1)))
 
 (defun d/eshell-toggle ()
   "Minimal hack to toggle eshell."
@@ -3593,6 +3593,10 @@ See URL `https://beta.ruff.rs/docs/'."
   (reformatter-define ruff-format
     :program "ruff"
     :args (list "format" "--stdin-filename" input-file "-"))
+
+  (reformatter-define pyblack-format
+    :program "python"
+    :args (list "-m" "black" "-"))
 
   (reformatter-define alejandra-format
     :program "alejandra"

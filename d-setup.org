@@ -413,7 +413,7 @@ It is as simple if I just record what it does, with proper link to rich resource
   users.users.${vars.username} = {
     isNormalUser = true;
     shell = pkgs.zsh;
-    extraGroups = ["adbusers" "input" "libvirtd" "networkmanager" "plugdev" "transmission" "video" "wheel"];
+    extraGroups = ["adbusers" "input" "uinput" "libvirtd" "networkmanager" "plugdev" "transmission" "video" "wheel"];
   };
 }
 #+end_src
@@ -680,11 +680,9 @@ It is as simple if I just record what it does, with proper link to rich resource
 {
   # For Laptop, make lid close and power buttom click to suspend
   services.logind = {
-    lidSwitch = "suspend-then-hibernate";
-    lidSwitchExternalPower = "lock";
+    lidSwitch = "suspend";
     extraConfig = ''
-        HandlePowerKey=suspend-then-hibernate
-        HibernateDelaySec=3600
+        HandlePowerKey=suspend
       '';
   };
 }
@@ -780,8 +778,8 @@ It is as simple if I just record what it does, with proper link to rich resource
   };
 }
 #+end_src
-*** COMMENT seatd
-- idk what it does, maybe wayland needs it?
+*** seatd
+- Seat management to run some command without root
 #+name: nixos-core
 #+begin_src nix :tangle gdk/core.nix
 {

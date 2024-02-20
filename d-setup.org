@@ -2876,7 +2876,8 @@ You can do this by trackpad too (laptop)"
 (use-package envrc
   :defer 2
   :config
-  (envrc-global-mode))
+  (envrc-global-mode)
+  (advice-add 'org-babel-eval :around #'envrc-propagate-environment))
 #+end_src
 *** Terminal
 **** foot

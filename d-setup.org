@@ -7101,7 +7101,7 @@ Display format is inherited from `battery-mode-line-format'."
 | ripgrep | ~grep~ in rust | =rg=   | [[https://github.com/BurntSushi/ripgrep][git]]  |
 | btop    | better ~htop~  | =btop= | [[https://github.com/aristocratos/btop][git]]  |
 | bat     | ~cat~ in rust  | =bat=  | [[https://github.com/sharkdp/bat][git]]  |
-| skim    | ~fzf~ in rust  | =sk=   | [[https://github.com/lotabout/skim][git]]     |
+| fzf     | fuzzy search | =fzf=  | [[https://github.com/junegunn/fzf][git]]  |
 #+name: hm-config
 #+begin_src nix :tangle gdk/home.nix
 {
@@ -7148,15 +7148,17 @@ Display format is inherited from `battery-mode-line-format'."
 
     ssh.enable = true;
 
-    skim = {
+    fzf = {
       enable = true;
-      enableZshIntegration = true;
-      defaultCommand = "rg --files --hidden";
-      changeDirWidgetOptions = [
-        "--preview 'eza --icons --git --color always -T -L 3 {} | head -200'"
-        "--exact"
-      ];
+      colors = {
+        bg = "#121212";
+        "bg+" = "#2e8b57";
+        fg = "#fdfdfd";
+        "fg+" = "#FFFFFF";
+      };
+      defaultCommand = "fd --type f";
     };
+
   };
 }
 #+end_src
@@ -7443,7 +7445,6 @@ fi
     zip
     unzip
 
-    fzf
     # wonderful spells
 
     ffmpeg-full sdcv nq

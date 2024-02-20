@@ -1089,6 +1089,18 @@ It is as simple if I just record what it does, with proper link to rich resource
   programs.nix-index.enable = true;
 }
 #+end_src
+
+*** nix-ld
+- To use dynamic library for tools that are not built for nixos.
+#+begin_quote
+ Run unpatched dynamic binaries on NixOS
+#+end_quote
+#+name: nixos-core
+#+begin_src nix :tangle gdk/core.nix
+{
+  programs.nix-ld.enable = true;
+}
+#+end_src
 * EmacsOS
 - The ever growing environment, ecosystem that is tailored to the user's needs.
 - Power bestowed for the best, and to make the user the best!

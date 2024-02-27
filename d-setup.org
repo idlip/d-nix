@@ -6065,8 +6065,9 @@ submap=reset
       noto-fonts unifont
       # symbola # this font is unfree
       noto-fonts-emoji maple-mono julia-mono
-      (callPackage ./pkgs/code-d-font.nix {})
 
+      (callPackage ./pkgs/code-d-font.nix {})
+      merriweather iosevka-comfy.comfy iosevka-comfy.comfy-duo
       (nerdfonts.override {fonts = [ "JetBrainsMono"  ];})
     ];
 
@@ -6080,8 +6081,8 @@ submap=reset
 	        "JetBrainsMono Nerd Font"
 	        "Noto Color Emoji"
         ];
-        sansSerif = [ "Code D Haki" "Noto Sans" "Noto Serif" ];
-        serif = [ "Code D Haki" "Noto Sans" "Noto Serif"];
+        sansSerif = [ "Code D Haki" "Noto Sans" "Iosevka Comfy Duo" ];
+        serif = [ "Code D Haki" "Iosevka Comfy Duo" "Noto Serif"];
         emoji = [ "Noto Color Emoji" "Code D Lip" "Symbola" "Noto Sans" ];
       };
     };
@@ -6136,7 +6137,7 @@ stdenvNoCC.mkDerivation rec {
 (defvar d/fixed-pitch-font "Code D OnePiece"
   "The font to use for monospaced (fixed width) text.")
 
-(defvar d/variable-pitch-font "Code D Haki"
+(defvar d/variable-pitch-font "Code D Ace"
   "The font to use for variable-pitch (documents) text.")
 #+end_src
 - Invoking fonts.

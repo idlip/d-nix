@@ -3012,6 +3012,7 @@ You can do this by trackpad too (laptop)"
         ("C-S-l" . d/clear-eshell))
 
   :custom
+  (process-adaptive-read-buffering nil)
   (eshell-scroll-to-bottom-on-input t)
   (eshell-directory-name (expand-file-name "eshell" user-emacs-directory))
   (eshell-aliases-file (expand-file-name "alias" eshell-directory-name))
@@ -3033,15 +3034,15 @@ You can do this by trackpad too (laptop)"
    (lambda nil
      (concat
       "\n"
-      (propertize " ◉ " 'face '(:inherit region))
+      (propertize "  " 'face '(:inherit region))
       " "
       (propertize (replace-regexp-in-string "~" " " (eshell/pwd)) 'face '(:foreground "lightblue1"))
       (when (package-installed-p 'magit) (propertize (if (magit-get-current-branch) (concat "   " (magit-get-current-branch)) "") 'face '(:foreground "orangered1")))
       (when (package-installed-p 'envrc) (propertize (if (string= envrc--status 'none) "" "   ") 'face '(:foreground "mediumspringgreen")))
       (propertize (concat "   " (format-time-string "%H:%M" (current-time))) 'face '(:foreground "lightcyan1"))
-      (propertize "\n 𝝺 " 'face '(:foreground "palegreen"))
+      (propertize "\n  " 'face '(:foreground "palegreen"))
       )))
-  (eshell-prompt-regexp "^ 𝝺 "))
+  (eshell-prompt-regexp "^  "))
 #+end_src
 - eshell function to toggle and clear buffer
 #+name: orgmacs

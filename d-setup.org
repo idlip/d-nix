@@ -2374,19 +2374,17 @@ nix-mode
 (shellnix "{ pkgs ? import <nixpkgs> {} }:" n>
           "pkgs.mkShell {" n n>
           "nativeBuildInputs = [ pkgs.bashInteractive ];" n n>
-          "buildInputs = builtins.attrValues {" n n>
+          (p "EnvVars = ...") n n>
+          "buildInputs = builtins.attrValues {" n>
           "inherit (pkgs)" n>
           (p "pkgs names") n>
-          ";" n> n>
-          "inherit (pkgs.rPackages)" n>
-          (p "rPackages names") n>
-          ";" n>
-          n>
-          "};"
-          n>
+          ";" n n>
+          "};" n>
+          "shellHook = ''" n>
+          (p "Command to Run") n>
+          "'';" n
           "}"
           )
-
 #+end_src
 ***** org-templates
 #+begin_src emacs-lisp :tangle ~/.config/emacs/templates/org.eld
@@ -2419,7 +2417,7 @@ org-mode
            )
 
 (latimg n "#+CAPTION: " p n
-        "#+ATTR_LATEX: :height :center t" n
+        "#+ATTR_LATEX: :height :float nil" n
         :post (org-insert-link))
 
 (nixorg "#+name: nixos-core" n "#+begin_src nix" n
@@ -2452,12 +2450,35 @@ org-mode
  ":END:" n
  )
 
+(pdforg
+ "#+title: " p n
+ "#+author: " p n
+ "#+options: toc:nil num:nil" n
+ "#+date: " (format-time-string "%Y-%m-%d") nnn
+ "* Introduction" n p)
+
 
 (shbin
  "#+begin_src sh :shebang \"#!/usr/bin/env bash\" :tangle bin/" p
  n n
  "#+end_src"
  :post (org-edit-src-code))
+
+(revjs n
+"#+reveal_miscinfo: " p n n
+"#+REVEAL_ROOT: /home/idlip/learn/revjs/" n
+"#+OPTIONS: reveal_width:1920 reveal_height:1080" n
+"#+OPTIONS: toc:nil num:nil" n
+"#+REVEAL_MIN_SCALE: 0.2" n
+"#+REVEAL_MAX_SCALE: 1.0" n
+"#+OPTIONS: reveal_progress:nil" n
+"#+REVEAL_EXTRA_OPTIONS: navigationMode: 'linear', controls: false" n
+"#+REVEAL_MARGIN: 0.02" n
+"#+REVEAL_THEME: black" n
+"#+REVEAL_TRANS: none" n
+"#+EXCLUDE_TAGS: noexport" n
+"#+reveal_extra_css: ./local.scss" n n p
+)
 #+end_src
 ***** markdown-templates
 #+begin_src emacs-lisp :tangle ~/.config/emacs/templates/markdown.eld

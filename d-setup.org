@@ -1,6 +1,7 @@
 #+STARTUP: overview showall
 #+OPTIONS: num:nil author:nil toc:3
 #+PROPERTY: header-args :noweb yes :results silent :tangle-mode (identity #o444) :mkdirp yes
+#+STARTUP: hideblocks
 #+TITLE: Nix Organized with Emacs!
 #+AUTHOR: iDlip
 

@@ -6669,62 +6669,22 @@ and returns the icon."
 @define-color  bracket    #ffeeee;
 
 ,* {
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    font-weight: 700;
+    padding-bottom: 0px;
     border: none;
-    border-radius: 0px;
     font-family: "Code D Ace";
     font-weight: bold;
-    font-size: 15px;
-    min-height: 10px;
+    font-size: 14px;
 }
 
 window#waybar {
     background: @bg-main;
-}
-
-tooltip {
-    background: @bg-main;
+    background-color: transparent;
     color: @fg-main;
-    border-radius: 7px;
-    border-width: 0px;
 }
-
-#workspaces button,
-#taskbar button {
-    box-shadow: none;
-	text-shadow: none;
-    padding: 0px;
-    border-radius: 9px;
-    margin-top: 3px;
-    margin-bottom: 3px;
-    padding-left: 3px;
-    padding-right: 3px;
-    color: @fg-main;
-    animation: gradient_f 20s ease-in infinite;
-    transition: all 0.5s cubic-bezier(.55,-0.68,.48,1.682);
-}
-
-#workspaces button.active,
-#taskbar button.active {
-    background: @fg-region;
-    color: @bg-main;
-    margin-left: 3px;
-    padding-left: 12px;
-    padding-right: 12px;
-    margin-right: 3px;
-    animation: gradient_f 20s ease-in infinite;
-    transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
-}
-
-#workspaces button:hover,
-#taskbar button:hover {
-    background: @bg-dim;
-    color: @fg-dim;
-    padding-left: 3px;
-    padding-right: 3px;
-    animation: gradient_f 20s ease-in infinite;
-    transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
-}
-
 
 #mode,
 #clock,
@@ -6741,49 +6701,16 @@ tooltip {
 #custom-power,
 #submap,
 #window,
+#taskbar,
+tooltip,
 #workspaces {
+	margin: 5px 5px 2px 5px;
+    padding: 7px 10px 7px 11px;
+	border-radius: 10px;
+	background-color: @bg-main;
     color: @fg-main;
-    background: @bg-main;
     opacity: 1;
-    margin: 4px 0px 4px 0px;
-    padding-left: 4px;
-    padding-right: 4px;
-
-    /* color: transparent; */
 }
-
-/* /\* for window name *\/ */
-/* #window { */
-/*     color: @fg-region; */
-/*     color: @fg-main; */
-/* } */
-
-/* window#waybar { */
-/*     /\* background: @bg-main; *\/ */
-/*     background: transparent; */
-/* } */
-
-/* window#waybar.hidden { */
-/*     opacity: 0.2; */
-/* } */
-
-/* window#waybar.foot { */
-/*     /\* border: 2px solid @code; *\/ */
-/* } */
-/* window#waybar.footclient { */
-/*     /\* border: 2px solid @code; *\/ */
-/* } */
-
-/* window#waybar.emacs { */
-/*     /\* border: 2px solid @heading-1; *\/ */
-/* } */
-/* window#waybar.brave { */
-/*     /\* border: 2px solid @link; *\/ */
-/* } */
-
-/* #workspaces button { */
-/*     color: @fg-main; */
-/* } */
 
 #battery.charging{
     color: @heading-4;
@@ -6797,69 +6724,30 @@ tooltip {
     color: @bg-tag;
 }
 
-#workspaces,
-#taskbar {
-    padding: 0px;
+#workspaces button,
+#taskbar button {
+    animation: gradient_f 20s ease-in infinite;
+    transition: all 0.5s cubic-bezier(.55,-0.68,.48,1.682);
 }
 
+#workspaces button.active,
+#taskbar button.active,
+#workspaces button:hover,
+#taskbar button:hover
+ {
+     animation: gradient_f 20s ease-in infinite;
+     background: @fg-region;
+     color: @bg-main;
+     padding-left: 5px;
+     padding-right: 5px;
+     border-radius: 10px;
+     transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
+ }
 
-/* #mode { */
-/*     color: @heading-8; */
-/* } */
-
-/* #clock { */
-/*     color: @clock; */
-/* } */
-
-/* #mpd { */
-/*     color: @heading-3; */
-/*     font-family:Maple Mono; */
-/*     font-style: italic; */
-/* } */
-
-
-/* #cpu { */
-/*     color: @heading-4; */
-/* } */
-
-/* #memory { */
-/*     color: @heading-5; */
-/* } */
-
-/* #network.disabled { */
-/*     color: @done; */
-/* } */
-
-/* #network{ */
-/*     color: @heading-6; */
-/* } */
-
-
-/* #network.disconnected { */
-/*     color: @done; */
-/* } */
-
-/* #pulseaudio { */
-/*     color: @heading-9; */
-/* } */
-
-/* #pulseaudio.muted { */
-/*     color: @done; */
-/* } */
-
-/* #custom-launcher { */
-/*     /\* background: linear-gradient(90deg, @title 28%, @heading-5 85%, @title 100%); *\/ */
-/*     color: @fg-region; */
-/* } */
-
-/* #custom-power { */
-/*     /\* color: linear-gradient(90deg, @error 28%, @error 85%, @error 100%); *\/ */
-/*     color: @todo; */
-/* } */
-
-/* #submap { */
-/*     color: @code; */
-/* } */
+#workspaces button:hover,
+#taskbar button:hover {
+    background: @heading-2;
+}
 #+end_src
 
 *** COMMENT Doom-modeline

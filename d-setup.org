@@ -3879,8 +3879,8 @@ out")
   programs.sioyek = {
     enable = true;
     bindings = {
-      "move_up" = ["k" "<C-n>"];
-      "move_down" = ["j" "<C-p>"];
+      "move_up" = ["k" "<C-p>"];
+      "move_down" = ["j" "<C-n>"];
       "move_left" = "h";
       "move_right" = "l";
       "screen_down" = [ "d" "<C-v>" ];
@@ -5871,15 +5871,15 @@ bind = SUPER, j, cyclenext
 
 # █▀▄▀█ █▀█ █░█ █▀▀
 # █░▀░█ █▄█ ▀▄▀ ██▄
-bind = SUPER SHIFT, left, movewindow, l
-bind = SUPER SHIFT, right, movewindow, r
-bind = SUPER SHIFT, up, movewindow, u
-bind = SUPER SHIFT, down, movewindow, d
+bind = SUPER SHIFT, left, movewindoworgroup, l
+bind = SUPER SHIFT, right, movewindoworgroup, r
+bind = SUPER SHIFT, up, movewindoworgroup, u
+bind = SUPER SHIFT, down, movewindoworgroup, d
 
-bind = SUPER SHIFT, h, movewindow, l
-bind = SUPER SHIFT, l, movewindow, r
-bind = SUPER SHIFT, k, movewindow, u
-bind = SUPER SHIFT, j, movewindow, d
+bind = SUPER SHIFT, h, movewindoworgroup, l
+bind = SUPER SHIFT, l, movewindoworgroup, r
+bind = SUPER SHIFT, k, movewindoworgroup, u
+bind = SUPER SHIFT, j, movewindoworgroup, d
 
 # █▀█ █▀▀ █▀ █ ▀█ █▀▀
 # █▀▄ ██▄ ▄█ █ █▄ ██▄
@@ -5896,7 +5896,8 @@ bind = SUPER CTRL, j, resizeactive, 0 20
 # ▀█▀ ▄▀█ █▄▄ █▄▄ █▀▀ █▀▄
 # ░█░ █▀█ █▄█ █▄█ ██▄ █▄▀
 bind = SUPER, g, togglegroup
-bind = SUPER, t, changegroupactive
+bind = SUPER, t, changegroupactive, b
+bind = SUPER SHIFT, t, changegroupactive, f
 
 # █▀ █▀█ █▀▀ █▀▀ █ ▄▀█ █░░
 # ▄█ █▀▀ ██▄ █▄▄ █ █▀█ █▄▄

@@ -2,8 +2,8 @@
 autoload -U colors && colors  # Load colors
 # PS1="%B%{$fg[yellow]%}[%{$fg[cyan]%}%~%{$fg[yellow]%}]
  # %{$fg[blue]%} %b%{$reset_color%}%b"
-PS1=" %B%{$fg[blue]%}◉ %{$fg[yellow]%}[%{$fg[cyan]%}%~%f%}%{$fg[yellow]%}]
- %F{green}%f "
+PS1=" %B%{$fg[blue]%} %{$fg[yellow]%}[%{$fg[cyan]%}%~%f%}%{$fg[yellow]%}]
+ %F{green}%f "
 # setopt autocd		# Auto cd
 stty stop undef		# Disable ctrl-s to freeze terminal.
 # setopt interactive_comments

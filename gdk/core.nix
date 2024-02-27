@@ -607,8 +607,9 @@
       noto-fonts unifont
       # symbola # this font is unfree
       noto-fonts-emoji maple-mono julia-mono
-      (callPackage ./pkgs/code-d-font.nix {})
 
+      (callPackage ./pkgs/code-d-font.nix {})
+      merriweather iosevka-comfy.comfy iosevka-comfy.comfy-duo
       (nerdfonts.override {fonts = [ "JetBrainsMono"  ];})
     ];
 
@@ -622,8 +623,8 @@
 	        "JetBrainsMono Nerd Font"
 	        "Noto Color Emoji"
         ];
-        sansSerif = [ "Code D Haki" "Noto Sans" "Noto Serif" ];
-        serif = [ "Code D Haki" "Noto Sans" "Noto Serif"];
+        sansSerif = [ "Code D Haki" "Noto Sans" "Iosevka Comfy Duo" ];
+        serif = [ "Code D Haki" "Iosevka Comfy Duo" "Noto Serif"];
         emoji = [ "Noto Color Emoji" "Code D Lip" "Symbola" "Noto Sans" ];
       };
     };

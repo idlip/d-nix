@@ -39,6 +39,7 @@
     enable = true;
     cacheHome = config.home.homeDirectory + "/.local/cache";
 
+    mime.enable = true;
     mimeApps = let
       browser = ["d-stuff.desktop"];
     in {
@@ -291,6 +292,10 @@
   #   socketactivation.enable = true;
   # };
 
+  home.packages = with pkgs; [
+    emacs-lsp-booster
+  ];
+
   programs.emacs = {
     enable = true;
     package = pkgs.emacs-pgtk;
@@ -307,9 +312,9 @@
       sdcv elfeed elfeed-org jinx
       el-fetch envrc dashboard mini-echo
       speed-type vc-backup aria2
-      ess org-re-reveal auctex julia-mode webfeeder
+      ess org-re-reveal auctex julia-mode webfeeder engrave-faces
       toc-org disable-mouse org-ql org-alert
-      exwm
+      eglot-booster
       ## packages kept out to make more vanilla usage!
       # flycheck async dirvish consult-flycheck beframe powerthesaurus meow
       # doom-modeline ox-hugo ement kind-icon  el-patch
@@ -505,8 +510,8 @@
   programs.sioyek = {
     enable = true;
     bindings = {
-      "move_up" = ["k" "<C-n>"];
-      "move_down" = ["j" "<C-p>"];
+      "move_up" = ["k" "<C-p>"];
+      "move_down" = ["j" "<C-n>"];
       "move_left" = "h";
       "move_right" = "l";
       "screen_down" = [ "d" "<C-v>" ];
@@ -1605,11 +1610,11 @@
         frame_color = "#2e8b57";
         transparency = 0;
         follow = "none";
-        width = 400;
+        width = 300;
         height = 900;
         idle_threshold = 120;
         origin = "top-right";
-        offset = "10x50";
+        offset = "10x30";
         scale = 0;
         notification_limit = 0;
         progress_bar = "true";
@@ -1623,7 +1628,7 @@
         padding = 10;
         horizontal_padding = 5;
         text_icon_padding = 4;
-        frame_width = 3;
+        frame_width = 1;
         separator_color = "frame";
         sort = "yes";
         font = "Code D Ace 16";

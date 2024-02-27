@@ -120,7 +120,7 @@
   (prefer-coding-system 'utf-8)
   ;; Uppercase is same as lowercase
   (define-coding-system-alias 'UTF-8 'utf-8)
-  (modify-all-frames-parameters '((alpha-background . 90)))
+  (modify-all-frames-parameters '((alpha-background . 100)))
 
   ;; balance windows when split (https://zck.org/balance-emacs-windows)
   (seq-doseq (fn (list #'split-window #'delete-window))
@@ -1093,6 +1093,7 @@ You can do this by trackpad too (laptop)"
         ("C-S-l" . d/clear-eshell))
 
   :custom
+  (process-adaptive-read-buffering nil)
   (eshell-scroll-to-bottom-on-input t)
   (eshell-directory-name (expand-file-name "eshell" user-emacs-directory))
   (eshell-aliases-file (expand-file-name "alias" eshell-directory-name))
@@ -1114,15 +1115,15 @@ You can do this by trackpad too (laptop)"
    (lambda nil
      (concat
       "\n"
-      (propertize " ◉ " 'face '(:inherit region))
+      (propertize "  " 'face '(:inherit region))
       " "
       (propertize (replace-regexp-in-string "~" " " (eshell/pwd)) 'face '(:foreground "lightblue1"))
       (when (package-installed-p 'magit) (propertize (if (magit-get-current-branch) (concat "   " (magit-get-current-branch)) "") 'face '(:foreground "orangered1")))
       (when (package-installed-p 'envrc) (propertize (if (string= envrc--status 'none) "" "   ") 'face '(:foreground "mediumspringgreen")))
       (propertize (concat "   " (format-time-string "%H:%M" (current-time))) 'face '(:foreground "lightcyan1"))
-      (propertize "\n 𝝺 " 'face '(:foreground "palegreen"))
+      (propertize "\n  " 'face '(:foreground "palegreen"))
       )))
-  (eshell-prompt-regexp "^ 𝝺 "))
+  (eshell-prompt-regexp "^  "))
 
 (defun d/clear-eshell ()
   (interactive)
@@ -1387,6 +1388,7 @@ out")
   (eglot-autoshutdown t)
   (eglot-send-changes-idle-time 45)
   (eglot-auto-display-help-buffer nil)
+  (eglot-events-buffer-size 0)
 
   :bind
   (:map eglot-mode-map
@@ -1395,10 +1397,16 @@ out")
         ("C-c l a" . eglot-code-actions)
         ("C-c l i" . consult-eglot-symbols))
   :config
+  (fset #'jsonrpc--log-event #'ignore)
   (add-to-list 'eglot-server-programs '(nix-mode . ("nixd")))
   ;;   (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
   ;;   (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
   )
+
+(use-package eglot-booster
+  :after eglot
+  :config
+  (eglot-booster-mode))
 
 (use-package xref
   :ensure nil
@@ -2214,7 +2222,7 @@ Android port."
 (defvar d/fixed-pitch-font "Code D OnePiece"
   "The font to use for monospaced (fixed width) text.")
 
-(defvar d/variable-pitch-font "Code D Haki"
+(defvar d/variable-pitch-font "Code D Ace"
   "The font to use for variable-pitch (documents) text.")
 
 (use-package faces
@@ -2422,7 +2430,7 @@ Display format is inherited from `battery-mode-line-format'."
      ;; (recents . 4)
      (agenda . 10)
      ;; (projects . 3)
-     ;; (bookmarks . 5)
+     (bookmarks . 5)
      ))
 
   (dashboard-navigator-buttons
@@ -2759,9 +2767,9 @@ Display format is inherited from `battery-mode-line-format'."
   (org-modern-table nil) ;; issue with variable-pitch font
 
   (org-modern-list
-   '((?* . "⁍")
-     (?- . "❖")
-     (?+ . "➤")))
+   '((?* . "")
+     (?- . "")
+     (?+ . "")))
 
   (org-modern-checkbox '((?X . "")
                          (?- . "")
@@ -2942,6 +2950,12 @@ Display format is inherited from `battery-mode-line-format'."
       "\n* %<%I:%M %p> - %?\n\n\n"
       :clock-in t :clock-resume t
       :empty-lines 1)
+
+     ("jt" "Tasks for the Day" checkitem
+      (file+datetree "~/d-sync/notes/journal.org")
+      "[ ] %?\n"
+      )
+
      ))
   :config
   (setq my-org-agenda-headlines `(projects university tasks one-timer)))
@@ -3011,7 +3025,7 @@ Display format is inherited from `battery-mode-line-format'."
      (julia . t))))
 
 (use-package org-re-reveal
-  :after ox
+  :after org
   :unless d/on-droid
   :custom
   (org-re-reveal-title-slide

@@ -3146,6 +3146,10 @@ You can do this by trackpad too (laptop)"
   #   socketactivation.enable = true;
   # };
 
+  home.packages = with pkgs; [
+    emacs-lsp-booster
+  ];
+
   programs.emacs = {
     enable = true;
     package = pkgs.emacs-pgtk;
@@ -3162,9 +3166,9 @@ You can do this by trackpad too (laptop)"
       sdcv elfeed elfeed-org jinx
       el-fetch envrc dashboard mini-echo
       speed-type vc-backup aria2
-      ess org-re-reveal auctex julia-mode webfeeder
+      ess org-re-reveal auctex julia-mode webfeeder engrave-faces
       toc-org disable-mouse org-ql org-alert
-      exwm
+      eglot-booster
       ## packages kept out to make more vanilla usage!
       # flycheck async dirvish consult-flycheck beframe powerthesaurus meow
       # doom-modeline ox-hugo ement kind-icon  el-patch
@@ -3656,6 +3660,7 @@ out")
   (eglot-autoshutdown t)
   (eglot-send-changes-idle-time 45)
   (eglot-auto-display-help-buffer nil)
+  (eglot-events-buffer-size 0)
 
   :bind
   (:map eglot-mode-map
@@ -3664,11 +3669,22 @@ out")
         ("C-c l a" . eglot-code-actions)
         ("C-c l i" . consult-eglot-symbols))
   :config
+  (fset #'jsonrpc--log-event #'ignore)
   (add-to-list 'eglot-server-programs '(nix-mode . ("nixd")))
   ;;   (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
   ;;   (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
   )
 #+end_src
+
+- Eglot booster to speed up workflow.
+#+name: orgmacs
+#+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+(use-package eglot-booster
+  :after eglot
+  :config
+  (eglot-booster-mode))
+#+end_src
+
 **** xref
 - paired up with eglot, or ctags to reference symbols.
 #+name: orgmacs

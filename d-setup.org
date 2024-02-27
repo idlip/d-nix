@@ -6920,7 +6920,7 @@ Display format is inherited from `battery-mode-line-format'."
      ;; (recents . 4)
      (agenda . 10)
      ;; (projects . 3)
-     ;; (bookmarks . 5)
+     (bookmarks . 5)
      ))
 
   (dashboard-navigator-buttons
@@ -7165,8 +7165,8 @@ Display format is inherited from `battery-mode-line-format'."
 autoload -U colors && colors  # Load colors
 # PS1="%B%{$fg[yellow]%}[%{$fg[cyan]%}%~%{$fg[yellow]%}]
  # %{$fg[blue]%} %b%{$reset_color%}%b"
-PS1=" %B%{$fg[blue]%}◉ %{$fg[yellow]%}[%{$fg[cyan]%}%~%f%}%{$fg[yellow]%}]
- %F{green}%f "
+PS1=" %B%{$fg[blue]%} %{$fg[yellow]%}[%{$fg[cyan]%}%~%f%}%{$fg[yellow]%}]
+ %F{green}%f "
 # setopt autocd		# Auto cd
 stty stop undef		# Disable ctrl-s to freeze terminal.
 # setopt interactive_comments
@@ -7516,11 +7516,11 @@ fi
         frame_color = "#2e8b57";
         transparency = 0;
         follow = "none";
-        width = 400;
+        width = 300;
         height = 900;
         idle_threshold = 120;
         origin = "top-right";
-        offset = "10x50";
+        offset = "10x30";
         scale = 0;
         notification_limit = 0;
         progress_bar = "true";
@@ -7534,7 +7534,7 @@ fi
         padding = 10;
         horizontal_padding = 5;
         text_icon_padding = 4;
-        frame_width = 3;
+        frame_width = 1;
         separator_color = "frame";
         sort = "yes";
         font = "Code D Ace 16";
@@ -8077,7 +8077,7 @@ lines:                       20;
     libnotify
     # xdg-utils
 
-    pcmanfm
+    xfce.thunar
     libreoffice
     # pandoc
     groff mupdf
@@ -8352,9 +8352,9 @@ lines:                       20;
   (org-modern-table nil) ;; issue with variable-pitch font
 
   (org-modern-list
-   '((?* . "⁍")
-     (?- . "❖")
-     (?+ . "➤")))
+   '((?* . "")
+     (?- . "")
+     (?+ . "")))
 
   (org-modern-checkbox '((?X . "")
                          (?- . "")
@@ -8546,6 +8546,12 @@ lines:                       20;
       "\n* %<%I:%M %p> - %?\n\n\n"
       :clock-in t :clock-resume t
       :empty-lines 1)
+
+     ("jt" "Tasks for the Day" checkitem
+      (file+datetree "~/d-sync/notes/journal.org")
+      "[ ] %?\n"
+      )
+
      ))
   :config
   (setq my-org-agenda-headlines `(projects university tasks one-timer)))
@@ -8808,7 +8814,7 @@ block but are passed literally to the \"example-block\"."
 #+name: orgmacs
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
 (use-package org-re-reveal
-  :after ox
+  :after org
   :unless d/on-droid
   :custom
   (org-re-reveal-title-slide

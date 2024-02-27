@@ -1287,7 +1287,7 @@ It is as simple if I just record what it does, with proper link to rich resource
   (prefer-coding-system 'utf-8)
   ;; Uppercase is same as lowercase
   (define-coding-system-alias 'UTF-8 'utf-8)
-  (modify-all-frames-parameters '((alpha-background . 90)))
+  (modify-all-frames-parameters '((alpha-background . 98)))
 
   ;; balance windows when split (https://zck.org/balance-emacs-windows)
   (seq-doseq (fn (list #'split-window #'delete-window))

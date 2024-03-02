@@ -39,7 +39,6 @@
     enable = true;
     cacheHome = config.home.homeDirectory + "/.local/cache";
 
-    mime.enable = true;
     mimeApps = let
       browser = ["d-stuff.desktop"];
     in {
@@ -90,12 +89,11 @@
     };
 
   };
-
   xdg.dataFile."applications/d-stuff.desktop".text = ''
-  [desktop entry]
-  type=application
-  name=stuff handler
-  exec=d-stuff %u
+  [Desktop Entry]
+  Type=Application
+  Name=Stuff Handler
+  Exec=d-stuff %u
   '';
 
 }
@@ -314,7 +312,31 @@
       speed-type vc-backup aria2
       ess org-re-reveal auctex julia-mode webfeeder engrave-faces
       toc-org disable-mouse org-ql org-alert
-      eglot-booster
+
+      (trivialBuild {
+        pname = "combobulate";
+        version = "pre-2024-03-01";
+
+        src = pkgs.fetchFromGitHub {
+          owner = "mickeynp";
+          repo = "combobulate";
+          rev = "f220e87c7bc1792e5fd46efaa86f75a9f5bcc1d0";
+          hash = "sha256-jR8XlRAig/lgmaVoM3uPp+Odao0JIGG5x3FTHxnmJRo=";
+        };
+      })
+
+      (trivialBuild {
+        pname = "eglot-booster";
+        version = "pre-2024-03-01";
+
+        src = pkgs.fetchFromGitHub {
+          owner = "jdtsmith";
+          repo = "eglot-booster";
+          rev = "e79dea640356eb4a8ed9df3808fe73c7c6db4cc4";
+          hash = "sha256-ybNqMHCGjzT2+4OfywS7hNw551kIzwI3QqC8tU/GsQI=";
+        };
+      })
+
       ## packages kept out to make more vanilla usage!
       # flycheck async dirvish consult-flycheck beframe powerthesaurus meow
       # doom-modeline ox-hugo ement kind-icon  el-patch
@@ -438,49 +460,8 @@
   home.packages = with pkgs; [
     # better to manage it via development shell
 
-    ##### shell #####
-    nodePackages.bash-language-server shellcheck
-
     ##### core comp ####
-    gcc gnumake tree-sitter
     parallel
-  ];
-}
-
-{
-  home.packages = with pkgs; [
-    ### python
-    # python311packages.python-lsp-server
-    # nodePackages.pyright
-    ruff
-    (python311.withPackages(ps: with ps; [
-      python-lsp-server
-      biopython
-      python-lsp-black
-      python-lsp-ruff
-    ]))
-  ];
-}
-
-{
-  home.packages = with pkgs; [
-    # r
-    (rWrapper.override {
-      packages = with rPackages; [
-        ggplot2
-        # dplyr
-        # tidyverse # set of 9 packages
-        languageserver
-        lintr
-        styler
-        # stringr
-        BiocManager
-        # httr
-        # ggvis
-        # shiny
-        # rio
-        # rmarkdown
-      ]; })
   ];
 }
 
@@ -975,22 +956,21 @@
 
 {
   xdg.configFile."ytfzf/conf.sh".text = ''
-      #video_pref="248+bestaudio/best"
-      video_pref="[height<=1080]"
-      sub_link_count=1
-      show_thumbnails=0
-      invidious_instance="https://vid.puffyan.us"
-      external_menu () {
-           bemenu -w 0.98 -l 24 -p '  play '
-           # rofi -dmenu -i -config ~/.config/rofi/list.rasi -p '󰑈  play'
-      }
-
-      thumbnail_quality=high
-      scrape=youtube
-      #is_sort=1
-      #search_sort_by=upload_date
-
-    '';
+  #video_pref="248+bestaudio/best"
+  video_pref="[height<=1080]"
+  sub_link_count=1
+  show_thumbnails=0
+  invidious_instance="https://vid.puffyan.us"
+  external_menu () {
+  bemenu -w 0.98 -l 24 -p '  play '
+  # rofi -dmenu -i -config ~/.config/rofi/list.rasi -p '󰑈  play'
+  }
+  
+  thumbnail_quality=high
+  scrape=youtube
+  #is_sort=1
+  #search_sort_by=upload_date
+  '';
 }
 
 {
@@ -1148,19 +1128,71 @@
 {
   home.packages = with pkgs; [
     # screenshot
-    grim
-    slurp
+    # grim slurp
+    grimblast
 
     libnotify libsixel bemenu
     brightnessctl
-    wtype swaybg swayidle gtklock
-    rofi-wayland
+    wtype
+    swaybg
+    # swayidle gtklock
+    hypridle hyprlock
 
     # utils
     # ocrscript
     wl-screenrec
     wl-clipboard
   ];
+
+  xdg.configFile."hypr/hypridle.conf".text = ''
+  general {
+      lock_cmd = hyprlock
+      unlock_cmd = notify-send "unlock!"      # same as above, but unlock
+      before_sleep_cmd = loginctl lock-session
+      after_sleep_cmd = notify-send "Awake!"
+      ignore_dbus_inhibit = false             # whether to ignore dbus-sent idle-inhibit requests (used by e.g. firefox or steam)
+  }
+  
+  
+  
+  listener {
+      timeout = 210
+      on-timeout = d-idle "" "hyprctl dispatch dpms off"
+      on-resume = "hyprctl dispatch dpms on"
+      # on-resume = notify-send "Welcome back!"  # command to run when activity is detected after timeout has fired.
+  }
+  
+  listener {
+     timeout = 340
+     on-timeout = d-idle "" "systemctl suspend"
+  }
+  '';
+
+  xdg.configFile."hypr/hyprlock.conf".text = ''
+  background {
+      monitor =
+      path = /home/idlip/d-git/d-wallpapers/oled/wallhaven-4d2zy3_2880x1800.png
+  }
+  
+  input-field {
+      monitor =
+      size = 300, 50
+      hide_input = false
+  }
+  
+  label {
+      monitor =
+      text = cmd[update:1000] echo "$(date '+%R')"
+      color = rgba(255, 255, 255, 1.0)
+      font_size = 55
+      font_family = Code D Haki
+  
+      position = 0, 80
+      halign = center
+      valign = center
+  }
+  '';
+
 }
 
 {
@@ -1610,11 +1642,11 @@
         frame_color = "#2e8b57";
         transparency = 0;
         follow = "none";
-        width = 300;
+        width = 400;
         height = 900;
         idle_threshold = 120;
         origin = "top-right";
-        offset = "10x30";
+        offset = "10x20";
         scale = 0;
         notification_limit = 0;
         progress_bar = "true";
@@ -1624,11 +1656,8 @@
         progress_bar_min_width = 150;
         progress_bar_max_width = 500;
         indicate_hidden = "yes";
-        separator_height = 2;
-        padding = 10;
-        horizontal_padding = 5;
-        text_icon_padding = 4;
-        frame_width = 1;
+        padding = 2;
+        frame_width = 2;
         separator_color = "frame";
         sort = "yes";
         font = "Code D Ace 16";

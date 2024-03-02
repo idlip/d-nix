@@ -120,7 +120,7 @@
   (prefer-coding-system 'utf-8)
   ;; Uppercase is same as lowercase
   (define-coding-system-alias 'UTF-8 'utf-8)
-  (modify-all-frames-parameters '((alpha-background . 100)))
+  (modify-all-frames-parameters '((alpha-background . 98)))
 
   ;; balance windows when split (https://zck.org/balance-emacs-windows)
   (seq-doseq (fn (list #'split-window #'delete-window))
@@ -446,7 +446,6 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 	    ("C-v" . vertico-scroll-up)
 	    ("M-v" . vertico-scroll-down)
 	    ("M-q" . d/vertico-toggle)
-	    ("M-RET" . minibuffer-force-complete-and-exit)
 	    ("M-TAB" . minibuffer-complete)
         ("C->"     . embark-become)
         ("C-<tab>"   . embark-act-with-completing-read)
@@ -593,7 +592,11 @@ E.g. capitalize or decapitalize the next word, increment number at point."
    ;; Minibuffer history
    :map minibuffer-local-map
    ("M-s" . consult-history)
-   ("M-r" . consult-history))
+   ("M-r" . consult-history)
+
+   :map org-mode-map
+   ("M-g o" . consult-org-heading)
+   ("M-g a" . consult-org-agenda))
 
   :hook (completion-list-mode . consult-preview-at-point-mode)
 
@@ -920,7 +923,10 @@ Return nil if NAME does not designate a valid color."
   ("C-<tab>" . tab-next)
 
   :init
-  (tab-bar-mode))
+  (tab-bar-mode)
+  (tab-new) ;; to just open few tabs
+  (tab-new)
+  (tab-new))
 
 (use-package mwheel
   :ensure nil
@@ -1565,6 +1571,8 @@ out")
               )
   :hook
   (doc-view-minor-mode-hook . (lambda () (pixel-scroll-mode -1)))
+  :custom-face
+  (doc-view-svg-face ((t (:background "#edd1b0" :foreground "#000000"))))
   :custom
   (doc-view-continuous t)
   (doc-view-mupdf-use-svg t)
@@ -2330,8 +2338,8 @@ Android port."
   (mini-echo-separator " ")
   (mini-echo-buffer-status-style 'both)
   (mini-echo-default-segments
-   '(:long ("time" "battery" "buffer-name"
-            "envrc"
+   '(:long ("time" "battery" "buffer-name-short"
+            "envrc" "project" "eglot"
             "buffer-position"
             ;; "buffer-size"
             "flymake" "selection-info"
@@ -2892,7 +2900,6 @@ Display format is inherited from `battery-mode-line-format'."
   (org-agenda-files
    '("~/d-sync/notes/"
      "~/d-git/d-site/README.org"
-     "~/d-sync/projects/nptel/bio-algorithms/notes.org"
      )))
 
 (use-package org-capture

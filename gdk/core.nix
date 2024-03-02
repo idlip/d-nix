@@ -360,32 +360,7 @@
 }
 
 {
-  services = {
-    tlp = {
-      enable = true;
-      settings = {
-        CPU_SCALING_GOVERNOR_ON_AC = "balance_performance";
-        CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
-
-        CPU_ENERGY_PERF_POLICY_ON_BAT = "balance_power";
-        CPU_ENERGY_PERF_POLICY_ON_AC = "balance_performance";
-
-        USB_AUTOSUSPEND = 1;
-        DEVICES_TO_DISABLE_ON_STARTUP = "bluetooth";
-        DEVICES_TO_DISABLE_ON_BAT_NOT_IN_USE = "bluetooth";
-
-        CPU_BOOST_ON_AC = 0;
-        CPU_BOOST_ON_BAT = 0;
-        CPU_HWP_DYN_BOOST_ON_AC = 1;
-        CPU_HWP_DYN_BOOST_ON_BAT = 0;
-
-        CPU_MIN_PERF_ON_AC = 0;
-        CPU_MAX_PERF_ON_AC = 70;
-        CPU_MIN_PERF_ON_BAT = 0;
-        CPU_MAX_PERF_ON_BAT = 30;
-      };
-    };
-  };
+  services.power-profiles-daemon.enable = true;
 }
 
 {
@@ -496,6 +471,7 @@
   # Collect garbage and delete generation every 7 day. Will help to get some storage space.
   # Better to atleast keep it for few days, as you do major update (unstable), if something breaks you can roll back.
   nix = {
+    package = pkgs.nixVersions.nix_2_18; # 2.19 has issues with mkOutOfStoreSymlink
     optimise.automatic = true;
     gc = {
       automatic = true;

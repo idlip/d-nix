@@ -5704,8 +5704,9 @@ exec-once = wl-paste --type image --watch cliphist store
 # exec-once = systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
 # exec-once = hyprctl setcursor Bibata-Modern-Classic
 #exec-once = swayidle timeout 150 'gtklock -b black & sleep 1 && systemctl suspend' before-sleep 'loginctl lock-session' lock 'gtklock -b black'
-exec-once = swayidle -w timeout 300 'gtklock -i -b black -d' timeout 210 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on' timeout 302 'if pgrep gtklock; then hyprctl dispatch dpms off; fi' resume 'hyprctl dispatch dpms on' timeout 1000 'systemctl suspend'
+# exec-once = swayidle -w timeout 300 'gtklock -i -b black -d' timeout 210 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on' timeout 302 'if pgrep gtklock; then hyprctl dispatch dpms off; fi' resume 'hyprctl dispatch dpms on' timeout 1000 'systemctl suspend'
 # exec-once = gammastep -l 19:72 -t 6500:4100
+exec-once = hypridle
 exec-once = d-walls
 exec-once = foot --server
 exec-once = emacs --bg-daemon
@@ -5864,7 +5865,7 @@ bind = SUPER, RETURN, exec, pgrep emacs && emacsclient -c -e "(eshell)" || footc
 bind = SUPERSHIFT, RETURN, exec, footclient
 bind = SUPERSHIFT, Q, killactive,
 bind = SUPERSHIFT, R, exec, hyprctl reload
-bind = SUPERCONTROL, Q, exit,
+bind = SUPERCONTROL, Q, exec, hyprkill
 bind = SUPER, F12, exec, emacsclient -c -e "(multi-vterm)"
 bind = SUPER, SPACE, togglefloating,
 
@@ -6069,25 +6070,89 @@ submap=reset
 #+end_src
 *** wayland-packages
 #+name: hm-config
-#+begin_src nix :tangle gdk/home.nix
+#+begin_src nix :tangle gdk/home.nix :noweb yes
 {
   home.packages = with pkgs; [
     # screenshot
-    grim
-    slurp
+    # grim slurp
+    grimblast
 
-    libnotify libsixel bemenu
+    libnotify libsixel
     brightnessctl
-    wtype swaybg swayidle gtklock
-    rofi-wayland
+    wtype
+    swaybg
+    # swayidle gtklock
+    hypridle hyprlock
 
     # utils
     # ocrscript
     wl-screenrec
     wl-clipboard
   ];
+
+  xdg.configFile."hypr/hypridle.conf".text = ''
+  <<conf-hypridle>>
+  '';
+
+  xdg.configFile."hypr/hyprlock.conf".text = ''
+  <<conf-hyprlock>>
+  '';
+
 }
 #+end_src
+**** hypridle
+- Idle manager made for/with hyprland
+#+name: conf-hypridle
+#+begin_src conf :tangle ~/.config/hypr/hypridle.conf
+general {
+    lock_cmd = hyprlock
+    unlock_cmd = notify-send "unlock!"      # same as above, but unlock
+    before_sleep_cmd = loginctl lock-session
+    after_sleep_cmd = notify-send "Awake!"
+    ignore_dbus_inhibit = false             # whether to ignore dbus-sent idle-inhibit requests (used by e.g. firefox or steam)
+}
+
+
+
+listener {
+    timeout = 210
+    on-timeout = d-idle "" "hyprctl dispatch dpms off"
+    on-resume = "hyprctl dispatch dpms on"
+    # on-resume = notify-send "Welcome back!"  # command to run when activity is detected after timeout has fired.
+}
+
+listener {
+   timeout = 340
+   on-timeout = d-idle "" "systemctl suspend"
+}
+#+end_src
+**** hyprlock
+#+name: conf-hyprlock
+#+begin_src conf :tangle ~/.config/hypr/hyprlock.conf
+background {
+    monitor =
+    path = /home/idlip/d-git/d-wallpapers/oled/wallhaven-4d2zy3_2880x1800.png
+}
+
+input-field {
+    monitor =
+    size = 300, 50
+    hide_input = false
+}
+
+label {
+    monitor =
+    text = cmd[update:1000] echo "$(date '+%R')"
+    color = rgba(255, 255, 255, 1.0)
+    font_size = 55
+    font_family = Code D Haki
+
+    position = 0, 80
+    halign = center
+    valign = center
+}
+#+end_src
+
 ** Fonts
 #+name: nixos-core
 #+begin_src nix :tangle gdk/core.nix
@@ -6387,7 +6452,7 @@ and returns the icon."
 {
   qt = {
     enable = true;
-    platformTheme = "gtk3";
+    # platformTheme = "gtk3";
     style.name = "adwaita-dark";
   };
 }
@@ -7389,7 +7454,6 @@ fi
 {
   home.sessionVariables = {
     PATH = "$PATH:$HOME/d-git/d-bin/bin:$HOME/.local/bin";
-    BEMENU_OPTS = "-i -CT -p ' ' --fn 'Code D Ace 16' --nb '#00000090' --ab '#00000090' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#2e8b57' --hf '#000000' --fb '#111111' --ff '#fafad2' --tb '#121212' --tf '#6ae4b9' ";
     VISUAL = "$EDITOR";
     GRIM_DEFAULT_DIR = "$HOME/pics/sshots/";
     MANPAGER = "nvim +Man!";

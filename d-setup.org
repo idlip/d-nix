@@ -7713,6 +7713,40 @@ fi
 }
 #+end_src
 *** Launcher
+**** bemenu
+- The fast and suckless menu/launcher
+#+name: hm-config
+#+begin_src nix :tangle gdk/home.nix
+{
+  # funny it just converts the set to commandLineArgs and puts it as home sessionVariables
+  programs.bemenu = {
+    enable = true;
+    settings = {
+      no-cursor = true;
+      no-spacing = true;
+      ignorecase = true;
+      no-touch = true;
+      prompt = " ";
+
+      fn = "Code D Ace 16";
+
+      nb = "#00000090";
+      ab = "#00000090";
+      bdr = "#c6daff";
+      nf = "#ffffff";
+      af = "#ffffff";
+      hb = "#2e8b57";
+      hf = "#000000";
+      fb = "#111111";
+      ff = "#fafad2";
+      tb = "#121212";
+      tf = "#6ae4b9";
+
+    };
+  };
+}
+#+end_src
+**** COMMENT Launcher
 - rofi as the launcher and menu tool.
 #+name: hm-config
 #+begin_src nix :tangle gdk/home.nix

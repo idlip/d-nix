@@ -913,7 +913,8 @@ It is as simple if I just record what it does, with proper link to rich resource
 }
 #+end_src
 
-** xdg portal
+** xdg
+*** COMMENT xdg portal
 - To use hyprland xdg portal for screen sharing and other fixes on wayland.
 #+name: nixos-core
 #+begin_src nix :tangle gdk/core.nix

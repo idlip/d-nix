@@ -5674,6 +5674,20 @@ Android port."
   xdg.configFile."hypr/hyprsea.conf".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/hyprsea.conf";
 }
 #+end_src
+*** COMMENT kde plasma
+#+name: nixos-core
+#+begin_src nix :tangle gdk/core.nix
+{
+  services.xserver = {
+    enable = true;
+    displayManager.sddm = {
+      enable = true;
+      wayland.enable = true;
+    };
+    desktopManager.plasma6.enable = true;
+  };
+}
+#+end_src
 *** hyprsea
 - more additional hyprland conf for quick reloads
 #+begin_src conf :tangle ./gdk/configs/hyprsea.conf

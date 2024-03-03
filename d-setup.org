@@ -3193,7 +3193,31 @@ You can do this by trackpad too (laptop)"
       speed-type vc-backup aria2
       ess org-re-reveal auctex julia-mode webfeeder engrave-faces
       toc-org disable-mouse org-ql org-alert
-      eglot-booster
+
+      (trivialBuild {
+        pname = "combobulate";
+        version = "pre-2024-03-01";
+
+        src = pkgs.fetchFromGitHub {
+          owner = "mickeynp";
+          repo = "combobulate";
+          rev = "f220e87c7bc1792e5fd46efaa86f75a9f5bcc1d0";
+          hash = "sha256-jR8XlRAig/lgmaVoM3uPp+Odao0JIGG5x3FTHxnmJRo=";
+        };
+      })
+
+      (trivialBuild {
+        pname = "eglot-booster";
+        version = "pre-2024-03-01";
+
+        src = pkgs.fetchFromGitHub {
+          owner = "jdtsmith";
+          repo = "eglot-booster";
+          rev = "e79dea640356eb4a8ed9df3808fe73c7c6db4cc4";
+          hash = "sha256-ybNqMHCGjzT2+4OfywS7hNw551kIzwI3QqC8tU/GsQI=";
+        };
+      })
+
       ## packages kept out to make more vanilla usage!
       # flycheck async dirvish consult-flycheck beframe powerthesaurus meow
       # doom-modeline ox-hugo ement kind-icon  el-patch

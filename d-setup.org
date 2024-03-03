@@ -7757,7 +7757,7 @@ fi
   };
 }
 #+end_src
-**** config.rasi
+***** config.rasi
 - config file for rofi launcher.
 #+begin_src conf :tangle gdk/configs/rofi/config.rasi
 ,* {
@@ -8154,7 +8154,7 @@ background-color:            @background-colour;
 text-color:                  @foreground-colour;
 }
 #+end_src
-**** grid.rasi
+***** grid.rasi
 #+begin_src conf :tangle gdk/configs/rofi/grid.rasi
 @import				 "config.rasi"
 window {
@@ -8167,7 +8167,7 @@ columns:                     14;
 lines:                       20;
 }
 #+end_src
-**** list.rasi
+***** list.rasi
 #+begin_src conf :tangle gdk/configs/rofi/list.rasi
 @import				 "config.rasi"
 window {
@@ -8180,7 +8180,7 @@ lines:                       22;
 }
 
 #+end_src
-**** smenu.rasi
+***** smenu.rasi
 #+begin_src conf :tangle gdk/configs/rofi/smenu.rasi
 @import				 "config.rasi"
 window {

@@ -931,7 +931,7 @@ It is as simple if I just record what it does, with proper link to rich resource
 - xdg standard to maintain desktop.
 - The directories, and support.
 #+name: hm-config
-#+begin_src nix :tangle gdk/home.nix
+#+begin_src nix :tangle gdk/home.nix :noweb yes
 {
   xdg = {
     enable = true;
@@ -987,15 +987,20 @@ It is as simple if I just record what it does, with proper link to rich resource
     };
 
   };
-
   xdg.dataFile."applications/d-stuff.desktop".text = ''
-  [desktop entry]
-  type=application
-  name=stuff handler
-  exec=d-stuff %u
+  <<conf-dstuff>>
   '';
 
 }
+#+end_src
+
+**** d-stuff desktop
+#+name: conf-dstuff
+#+begin_src conf
+[Desktop Entry]
+Type=Application
+Name=Stuff Handler
+Exec=d-stuff %u
 #+end_src
 ** Nix
 *** flake-channel

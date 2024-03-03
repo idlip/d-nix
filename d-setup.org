@@ -5245,26 +5245,30 @@ for the search engine used."
 *** ytfzf
 - Just to write config file for bash tool =ytfzf=.
 #+name: hm-config
-#+begin_src nix :tangle gdk/home.nix
+#+begin_src nix :tangle gdk/home.nix :noweb yes
 {
   xdg.configFile."ytfzf/conf.sh".text = ''
-      #video_pref="248+bestaudio/best"
-      video_pref="[height<=1080]"
-      sub_link_count=1
-      show_thumbnails=0
-      invidious_instance="https://vid.puffyan.us"
-      external_menu () {
-           bemenu -w 0.98 -l 24 -p '  play '
-           # rofi -dmenu -i -config ~/.config/rofi/list.rasi -p '󰑈  play'
-      }
-
-      thumbnail_quality=high
-      scrape=youtube
-      #is_sort=1
-      #search_sort_by=upload_date
-
-    '';
+  <<conf-ytfzf>>
+  '';
 }
+#+end_src
+- Config
+#+name: conf-ytfzf
+#+begin_src conf
+#video_pref="248+bestaudio/best"
+video_pref="[height<=1080]"
+sub_link_count=1
+show_thumbnails=0
+invidious_instance="https://vid.puffyan.us"
+external_menu () {
+bemenu -w 0.98 -l 24 -p '  play '
+# rofi -dmenu -i -config ~/.config/rofi/list.rasi -p '󰑈  play'
+}
+
+thumbnail_quality=high
+scrape=youtube
+#is_sort=1
+#search_sort_by=upload_date
 #+end_src
 ** Image viewer
 *** imv
@@ -5543,6 +5547,14 @@ Android port."
 ** Wayland
 - Future of linux desktop? Idk why people call that, when legit Linux is the only desktop that does best.
 *** hyprland
+- Core
+#+name: nixos-core
+#+begin_src nix :tangle gdk/core.nix
+{
+  programs.hyprland.enable = true;
+}
+#+end_src
+- Home manager config
 #+name: hm-config
 #+begin_src nix :tangle gdk/home.nix
 {

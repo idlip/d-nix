@@ -501,7 +501,7 @@
       "fit_to_page_width_smart" = "<f10>";
       "toggle_fullscreen" = [ "f" "<f11>"  ];
       "quit" = "q";
-      "toggle_custom_color" = "<f8>";
+      "toggle_custom_color" = [ "<f8>" "I"];
       "toggle_highlight" = "<f1>";
       "command" = "<A-x>";
       "toggle_dark_mode" = "i";
@@ -512,9 +512,9 @@
     config = {
       "background_color" = "0.0 0.0 0.0";
       "dark_mode_background_color" = "0.0 0.0 0.0";
-      "custom_background_color" = "0.180 0.204 0.251";
-      "custom_text_color" = "0.847 0.871 0.914";
-      "dark_mode_contrast" = "0.8";
+      "custom_background_color" = "0.9 0.8 0.7";
+      "custom_text_color" = "0.0 0.0 0.0";
+      "dark_mode_contrast" = "1.0";
       "text_highlight_color" = "1.0 1.0 0.0";
       "search_url_s" = "https://scholar.google.com/scholar?q";
       "search_url_l" = "http://gen.lib.rus.ec/scimag/?q";
@@ -1131,7 +1131,7 @@
     # grim slurp
     grimblast
 
-    libnotify libsixel bemenu
+    libnotify libsixel
     brightnessctl
     wtype
     swaybg
@@ -1244,7 +1244,7 @@
 {
   qt = {
     enable = true;
-    platformTheme = "gtk3";
+    # platformTheme = "gtk3";
     style.name = "adwaita-dark";
   };
 }
@@ -1567,7 +1567,6 @@
 {
   home.sessionVariables = {
     PATH = "$PATH:$HOME/d-git/d-bin/bin:$HOME/.local/bin";
-    BEMENU_OPTS = "-i -CT -p ' ' --fn 'Code D Ace 16' --nb '#00000090' --ab '#00000090' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#2e8b57' --hf '#000000' --fb '#111111' --ff '#fafad2' --tb '#121212' --tf '#6ae4b9' ";
     VISUAL = "$EDITOR";
     GRIM_DEFAULT_DIR = "$HOME/pics/sshots/";
     MANPAGER = "nvim +Man!";
@@ -1724,9 +1723,31 @@
 }
 
 {
-  xdg.configFile."rofi" = {
-    recursive = true;
-    source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/rofi";
+  # funny it just converts the set to commandLineArgs and puts it as home sessionVariables
+  programs.bemenu = {
+    enable = true;
+    settings = {
+      no-cursor = true;
+      no-spacing = true;
+      ignorecase = true;
+      no-touch = true;
+      prompt = " ";
+
+      fn = "Code D Ace 16";
+
+      nb = "#00000090";
+      ab = "#00000090";
+      bdr = "#c6daff";
+      nf = "#ffffff";
+      af = "#ffffff";
+      hb = "#2e8b57";
+      hf = "#000000";
+      fb = "#111111";
+      ff = "#fafad2";
+      tb = "#121212";
+      tf = "#6ae4b9";
+
+    };
   };
 }
 

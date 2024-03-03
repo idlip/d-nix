@@ -3356,34 +3356,12 @@ You can do this by trackpad too (laptop)"
   home.packages = with pkgs; [
     # better to manage it via development shell
 
-    ##### shell #####
-    nodePackages.bash-language-server shellcheck
-
     ##### core comp ####
-    gcc gnumake tree-sitter
     parallel
   ];
 }
 #+end_src
 **** python
-- [ ] check on =ruff-lsp=
-#+name: hm-config
-#+begin_src nix :tangle gdk/home.nix
-{
-  home.packages = with pkgs; [
-    ### python
-    # python311packages.python-lsp-server
-    # nodePackages.pyright
-    ruff
-    (python311.withPackages(ps: with ps; [
-      python-lsp-server
-      biopython
-      python-lsp-black
-      python-lsp-ruff
-    ]))
-  ];
-}
-#+end_src
 - python in emacs, or emacs in python?
 #+name: orgmacs
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
@@ -3424,30 +3402,6 @@ with `venvPath' and `venv' set to the absolute path of
   (python-shell-completion-native-disabled-interpreters '("pypy")))
 #+end_src
 **** R
-#+name: hm-config
-#+begin_src nix :tangle gdk/home.nix
-{
-  home.packages = with pkgs; [
-    # r
-    (rWrapper.override {
-      packages = with rPackages; [
-        ggplot2
-        # dplyr
-        # tidyverse # set of 9 packages
-        languageserver
-        lintr
-        styler
-        # stringr
-        BiocManager
-        # httr
-        # ggvis
-        # shiny
-        # rio
-        # rmarkdown
-      ]; })
-  ];
-}
-#+end_src
 - Emacs speak statistics
 #+name: orgmacs
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el

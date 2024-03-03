@@ -3529,6 +3529,7 @@ with `venvPath' and `venv' set to the absolute path of
 (use-package julia-mode)
 #+end_src
 **** tex writing
+- For scientific latex files, pdf to produce from org mode files.
 #+name: hm-config
 #+begin_src nix :tangle gdk/home.nix
 {
@@ -3892,7 +3893,7 @@ out")
       "fit_to_page_width_smart" = "<f10>";
       "toggle_fullscreen" = [ "f" "<f11>"  ];
       "quit" = "q";
-      "toggle_custom_color" = "<f8>";
+      "toggle_custom_color" = [ "<f8>" "I"];
       "toggle_highlight" = "<f1>";
       "command" = "<A-x>";
       "toggle_dark_mode" = "i";
@@ -3903,9 +3904,9 @@ out")
     config = {
       "background_color" = "0.0 0.0 0.0";
       "dark_mode_background_color" = "0.0 0.0 0.0";
-      "custom_background_color" = "0.180 0.204 0.251";
-      "custom_text_color" = "0.847 0.871 0.914";
-      "dark_mode_contrast" = "0.8";
+      "custom_background_color" = "0.9 0.8 0.7";
+      "custom_text_color" = "0.0 0.0 0.0";
+      "dark_mode_contrast" = "1.0";
       "text_highlight_color" = "1.0 1.0 0.0";
       "search_url_s" = "https://scholar.google.com/scholar?q";
       "search_url_l" = "http://gen.lib.rus.ec/scimag/?q";

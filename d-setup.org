@@ -1,4 +1,4 @@
-#+STARTUP: overview showall
+#+STARTUP: overview
 #+OPTIONS: num:nil author:nil toc:3
 #+PROPERTY: header-args :noweb yes :results silent :tangle-mode (identity #o444) :mkdirp yes
 #+STARTUP: hideblocks
@@ -1152,6 +1152,7 @@ Exec=d-stuff %u
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
+
 (setq frame-inhibit-implied-resize t)
 #+end_src
 + Constant variable to check if on Android.
@@ -1794,7 +1795,6 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 	    ("C-v" . vertico-scroll-up)
 	    ("M-v" . vertico-scroll-down)
 	    ("M-q" . d/vertico-toggle)
-	    ("M-RET" . minibuffer-force-complete-and-exit)
 	    ("M-TAB" . minibuffer-complete)
         ("C->"     . embark-become)
         ("C-<tab>"   . embark-act-with-completing-read)
@@ -1952,7 +1952,11 @@ E.g. capitalize or decapitalize the next word, increment number at point."
    ;; Minibuffer history
    :map minibuffer-local-map
    ("M-s" . consult-history)
-   ("M-r" . consult-history))
+   ("M-r" . consult-history)
+
+   :map org-mode-map
+   ("M-g o" . consult-org-heading)
+   ("M-g a" . consult-org-agenda))
 
   :hook (completion-list-mode . consult-preview-at-point-mode)
 
@@ -2571,7 +2575,10 @@ css-mode css-ts-mode
   ("C-<tab>" . tab-next)
 
   :init
-  (tab-bar-mode))
+  (tab-bar-mode)
+  (tab-new) ;; to just open few tabs
+  (tab-new)
+  (tab-new))
 #+end_src
 **** Mouse
 #+name: orgmacs
@@ -2885,7 +2892,9 @@ You can do this by trackpad too (laptop)"
   :commands (magit-status magit-get-current-branch)
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
-  (magit-diff-refine-hunk t))
+  (magit-diff-refine-hunk t)
+  (magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1)
+  (magit-bury-buffer-function #'magit-restore-window-configuration))
 #+end_src
 **** ediff
 #+name: orgmacs

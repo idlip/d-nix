@@ -3951,6 +3951,8 @@ out")
               )
   :hook
   (doc-view-minor-mode-hook . (lambda () (pixel-scroll-mode -1)))
+  :custom-face
+  (doc-view-svg-face ((t (:background "#edd1b0" :foreground "#000000"))))
   :custom
   (doc-view-continuous t)
   (doc-view-mupdf-use-svg t)

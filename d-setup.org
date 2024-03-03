@@ -722,7 +722,7 @@ It is as simple if I just record what it does, with proper link to rich resource
   };
 }
 #+end_src
-**** tlp
+**** COMMENT tlp
 - works like charm for 13th gen, better than =autocpu-freq=.
 #+name: nixos-core
 #+begin_src nix :tangle gdk/core.nix
@@ -755,6 +755,15 @@ It is as simple if I just record what it does, with proper link to rich resource
   };
 }
 #+end_src
+**** power profile
+- A ppd used by gnome and kde plasma
+#+name: nixos-core
+#+begin_src nix :tangle gdk/core.nix
+{
+  services.power-profiles-daemon.enable = true;
+}
+#+end_src
+**** display-battery
 - Display battery in emacs
 #+name: orgmacs
 #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el

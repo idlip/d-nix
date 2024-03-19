@@ -3,7 +3,7 @@
 #+PROPERTY: header-args :noweb yes :results silent :tangle-mode (identity #o444) :mkdirp yes
 #+STARTUP: hideblocks
 #+TITLE: Nix Organized with Emacs!
-#+AUTHOR: iDlip
+#+AUTHOR: Dilip
 
 #+begin_html
 <p align="center">
@@ -34,11 +34,11 @@ The idea was obtained from https://github.com/rasendubi/dotfiles, credits to him
 Learning is the key here, its easy for me (maybe you?) to forget, and I don't want to visit each wiki page for each tool for what it does, or why did I write them.
 It is as simple if I just record what it does, with proper link to rich resource, and done. It would be snappy for me to remember and understand whatever I wrote after long time.
 
-* Table of Contents
+* Table of Contents :toc:
 :PROPERTIES:
 :TOC:      :include siblings :depth 2
 :END:
-
+- Note: Might not be updated, please make use of github's outlining present of top right.
 :CONTENTS:
 - [[#table-of-contents][Table of Contents]]
 - [[#review-plans][Review plans]]

@@ -1,12 +1,10 @@
 (use-package time
   :ensure nil
-  :defer t
   :hook
   (after-init . display-time)
   :custom
   (display-time-default-load-average nil)
-  (display-time-24hr-format t)
-  (display-time-format "%H:%M"))
+  (display-time-24hr-format t))
 
 (use-package tramp
   :ensure nil
@@ -37,66 +35,31 @@
   (battery-load-low '40)
   (battery-load-critical '29))
 
-;; Initialize package sources
-(require 'package)
-
-(add-to-list 'package-archives '( "melpa" . "https://melpa.org/packages/"))
-
-(unless (bound-and-true-p package--initialized)
-  (customize-set-variable 'package-enable-at-startup nil)
-  (package-initialize))
-
-(unless package-archive-contents
-  (package-refresh-contents))
-
-(eval-and-compile
-  (customize-set-variable 'use-package-verbose (not (bound-and-true-p byte-compile-current-file))))
-
-(put 'use-package 'lisp-indent-function 1)
-
-(use-package use-package
-  :ensure nil
-  :custom
-  (use-package-verbose nil)
-  (use-package-always-ensure nil)
-  (use-package-always-defer t)
-  (use-package-expand-minimally t)
-  (use-package-enable-imenu-support t))
-
 (use-package emacs
   :ensure nil
   :bind
-  ("C-z" . nil)
+  ("C-z" . nil) ;; avoid suspend-emacs
   ("C-x C-z" . nil)
   ;; panes
   ("M-o" . other-window)
-  ("C-x C-k" . d/kill-buffer)
+  ;; ("C-x C-k" . d/kill-buffer)
   ("C-x n n" . d/narrow-or-widen-dwim)
 
   (:map mode-specific-map
         ("C-g" . minibuffer-keyboard-quit))
 
-  :init
-  (put 'narrow-to-region 'disabled nil)
-  (put 'downcase-region 'disabled nil)
-  (fset 'x-popup-menu #'ignore)
   :custom
-  (scroll-step 1)
-  (inhibit-x-resources t)
   (inhibit-startup-screen t "Don't show splash screen")
-  (inhibit-startup-buffer-menu t)
 
   (initial-major-mode 'org-mode)
   (initial-scratch-message
    "#+title: Scratch Buffer\n\nFor random thoughts.\n\n")
 
   (use-short-answers t)
-  (use-dialog-box t "Disable dialog boxes")
-  (x-gtk-use-system-tooltips nil)
   (enable-recursive-minibuffers t "Allow minibuffer commands in the minibuffer")
   (indent-tabs-mode nil "Spaces!")
   (tab-always-indent 'complete)
-  (tab-width 4)
+  (tab-width 2)
   (reb-re-syntax 'string)
 
   (history-delete-duplicates t)
@@ -107,7 +70,7 @@
   (frame-inhibit-implied-resize t)
 
   (sentence-end-double-space nil)
-  (sentence-end "[.?!] ")
+  (sentence-end "[.?!,;-]")
 
   ;; select
   (selection-coding-system 'utf-8)
@@ -153,26 +116,6 @@ it narrows to region, or Org subtree."
   (when (derived-mode-p 'doc-view-mode) (progn (clear-image-cache) (doc-view-clear-cache)))
   (when (derived-mode-p 'pdf-view-mode) (progn ((clear-image-cache) (pdf-cache-clear-data)))))
 
-;; credit: yorickvP on Github
-(setq wl-copy-process nil)
-
-(defun wl-copy (text)
-  (setq wl-copy-process (make-process :name "wl-copy"
-                                      :buffer nil
-                                      :command '("wl-copy" "-f" "-n")
-                                      :connection-type 'pipe))
-  (process-send-string wl-copy-process text)
-  (process-send-eof wl-copy-process))
-
-(defun wl-paste ()
-  (if (and wl-copy-process (process-live-p wl-copy-process))
-      nil ; should return nil if we're the current paste owner
-    (shell-command-to-string "wl-paste -n | tr -d \r")))
-
-(unless d/on-droid
-  (setq interprogram-cut-function 'wl-copy)
-  (setq interprogram-paste-function 'wl-paste))
-
 (use-package saveplace
   :ensure nil
   :hook
@@ -180,7 +123,6 @@ it narrows to region, or Org subtree."
 
 (use-package simple
   :ensure nil
-  :defer 0.1
   :bind
   ("<f7>" . scratch-buffer)
   ("<escape>" . keyboard-quit)
@@ -209,6 +151,7 @@ Specify the separator by typing C-u before executing this command."
   (interactive "P")
   (require 's)
   (unless (region-active-p)
+    (delete-indentation)
     (message "select a region of lines first."))
   (let*
       ((separator (if (not specify-separator) ","
@@ -405,31 +348,6 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   :custom
   ;; Make dired-omit-mode hide all "dotfiles"
   (dired-omit-files "\\`[.]?#\\|\\`[.][.]?\\'\\|^\\..*$"))
-
-(use-package dabbrev
-  :ensure nil
-  :commands (dabbrev-expand dabbrev-completion)
-  :custom
-  (dabbrev-abbrev-char-regexp "\\sw\\|\\s_")
-  (dabbrev-abbrev-skip-leading-regexp "\\$\\|\\*\\|/\\|=")
-  (dabbrev-backward-only nil)
-  (dabbrev-case-distinction nil)
-  (dabbrev-case-fold-search t)
-  (dabbrev-case-replace nil)
-  (dabbrev-check-other-buffers t)
-  (dabbrev-eliminate-newlines nil)
-  (dabbrev-upcase-means-case-search t)
-  ;; Swap M-/ and C-M-/
-  :bind (("M-/" . dabbrev-completion)
-	     ("C-M-/" . dabbrev-expand))
-  ;; Other useful Dabbrev configurations.
-  :custom
-  (dabbrev-ignored-buffer-regexps '("\\.\\(?:pdf\\|jpe?g\\|png\\)\\'")))
-
-(use-package hippie-exp
-  :ensure nil
-  :bind
-  ("M-/" . hippie-expand))
 
 (use-package vertico
   :defines
@@ -933,16 +851,16 @@ Return nil if NAME does not designate a valid color."
   :bind
   ([mouse-9] . [prior]) ;; binds mouse fwd button to page up
   ([mouse-8] . [next]) ;; mouse bwd button to page down
-  :custom
-  ;; (mouse-wheel-scroll-amount '(1 ((shift) . 5) ((control))))
-  (mouse-wheel-progressive-speed nil)
-  (scroll-margin 4)
-  (scroll-conservatively 101))
+)
 
 (use-package disable-mouse
   :unless d/on-droid
   :bind
   ([f10] . disable-mouse-mode))
+
+(use-package xt-mouse
+  :init
+  (xterm-mouse-mode))
 
 (use-package pixel-scroll
   :ensure nil
@@ -967,6 +885,16 @@ Return nil if NAME does not designate a valid color."
 You can do this by trackpad too (laptop)"
   (interactive)
   (pixel-scroll-precision-scroll-up 20))
+
+(defun d/pixel-recenter-top-bottom ()
+  "Similar to `recenter-top-bottom' but with pixel scrolling."
+  (interactive)
+  (let* ((current-row (cdr (nth 6 (posn-at-point))))
+         (target-row (save-window-excursion
+                       (recenter-top-bottom)
+                       (cdr (nth 6 (posn-at-point)))))
+         (distance-in-pixels (* (- target-row current-row) (line-pixel-height))))
+    (pixel-scroll-precision-interpolate distance-in-pixels)))
 
 (use-package winner
   :ensure nil
@@ -1560,6 +1488,43 @@ out")
 ;;                                              0
 ;;                                              'compose-gstring-for-graphic)))))
 
+(use-package combobulate
+  :after treesit
+  :preface
+  (setq combobulate-key-prefix "C-c o")
+  :hook
+  ((python-ts-mode . combobulate-mode)
+   (js-ts-mode . combobulate-mode)
+   (html-ts-mode . combobulate-mode)
+   (css-ts-mode . combobulate-mode)
+   (yaml-ts-mode . combobulate-mode)
+   (typescript-ts-mode . combobulate-mode)
+   (json-ts-mode . combobulate-mode)
+   (tsx-ts-mode . combobulate-mode)))
+
+(defvar insert-pair-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [t] #'insert-pair)
+    map))
+
+(global-set-key (kbd "C-M-q") insert-pair-map)
+
+(setf insert-pair-alist
+      '((?\( ?\)) (?r ?\( ?\)) (?R "( " " )")
+        (?\[ ?\]) (?b ?\[ ?\]) (?B "[ " " ]")
+        (?\{ ?\}) (?c ?\{ ?\}) (?C "{ " " }")
+        (?\< ?\>) (?o ?\< ?\>) (?O "< " " >")
+        (?\" ?\") (?s ?\" ?\")
+        (?\' ?\') (?t ?\' ?\')
+        (?\` ?\') (?v ?\` ?\`)))
+
+(defun +insert-pair-default-a (&rest args)
+  (unless (caar args)
+    (setf (caar args) 1))
+  args)
+
+(advice-add #'insert-pair :filter-args #'+insert-pair-default-a)
+
 (use-package doc-view
   :ensure nil
   ;; :mode ("\\.epub\\'" . doc-view-mode)
@@ -1570,9 +1535,10 @@ out")
               ("k" . doc-view-previous-line-or-previous-page)
               ("C-v" . doc-view-scroll-up-or-next-page)
               ("M-v" . doc-view-scroll-down-or-previous-page)
+              ("I" . d/doc-view-theme)
               )
   :hook
-  (doc-view-minor-mode-hook . (lambda () (pixel-scroll-mode -1)))
+  (doc-view-mode . (lambda () (setq-local pixel-scroll-precision-mode nil)))
   :custom-face
   (doc-view-svg-face ((t (:background "#edd1b0" :foreground "#000000"))))
   :custom
@@ -1582,6 +1548,21 @@ out")
   (doc-view-image-width 900)
   (large-file-warning-threshold 700000000)
   (image-cache-eviction-delay 3))
+
+(defun d/doc-view-theme ()
+  "Toggle between dark and reading mode in Doc-view buffer."
+  (interactive)
+  (let ((choice (completing-read "theme: " '("black" "reader" "white" "tokyonight") nil t)))
+    (cond
+     ((string= "black" choice)
+      (set-face-attribute 'doc-view-svg-face nil :background "#050505" :foreground "#ffffff"))
+     ((string= "reader" choice)
+      (set-face-attribute 'doc-view-svg-face nil :background "#edd1b0" :foreground "#000000"))
+     ((string= "tokyonight" choice)
+      (set-face-attribute 'doc-view-svg-face nil :background "#24283b" :foreground "#fefefe"))
+     ((string= "white" choice)
+      (set-face-attribute 'doc-view-svg-face nil :background "#fefefe" :foreground "#000000"))))
+  (doc-view-next-page) (doc-view-previous-page))
 
 (use-package nov
   :functions
@@ -1700,170 +1681,37 @@ out")
 
 (add-hook 'view-mode-hook 'hl-line-mode)
 
-(use-package elfeed
-  :bind
-  ("C-c d e" . d/elfeed-open)
-  ("C-c d b" . embark-act)
-  :commands
-  (d/elfeed-open)
-  :config
-  (defface elfeed-search-star-title-face
-    '((t :foreground "#f77"))
-    "Marks a starred Elfeed entry.")
-  (push '(star elfeed-search-star-title-face) elfeed-search-face-alist)
-  (defun d/elfeed-open ()
-    "Wrapper to load the elfeed db from disk before opening"
-    (interactive)
-    (unless (get-buffer "*elfeed-search*") (elfeed-db-load))
-    (elfeed)
-    (elfeed-search-update--force)))
-   ;; (elfeed-update)))
-
-(defun elfeed-toggle-show-star ()
-  (interactive)
-  (if (elfeed-tagged-p 'star elfeed-show-entry)
-      (elfeed-show-untag 'star)
-    (elfeed-show-tag 'star)))
-;; (org-capture nil "l"))
-
-(defun elfeed-toggle-star ()
-  (interactive)
-  (elfeed-search-toggle-all 'star))
-;; (org-capture nil "l"))
-
-(defun d/elfeed-ui ()
-  (interactive)
-  ;; (setq-local header-line-format " ")
-  (variable-pitch-mode)
-  (shrface-mode))
-
-;;write to disk when quiting
-(defun d/elfeed-quit ()
-  "Wrapper to save the elfeed db to disk before burying buffer"
-  (interactive)
-  (elfeed-db-save)
-  (quit-window))
-
-(defun d/elfeed-add-podcast ()
-  "Play the enclosure URL in Mpd using 'mingus'."
-  (interactive)
-  (with-no-warnings
-    (let* ((count (length (elfeed-entry-enclosures elfeed-show-entry)))
-           (entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single)))
-           (dlink (shell-command-to-string (format "yt-dlp -f bestaudio -g '%s'" (shr-url-at-point nil)))))
-      (require 'mingus)
-      ;; (message (concat "Added: " (car (elt (elfeed-entry-enclosures elfeed-show-entry)
-      ;;                                      (- enclosure-index 1)))))
-      (message dlink)
-      (mingus-add dlink))))
-;; (cond ((shr-url-at-point nil) (shell-command-to-string (format "yt-dlp -f bestaudio -g '%s'" (shr-url-at-point current-prefix-arg))))
-;;       ((derived-mode-p 'elfeed-show-mode)
-;;        (if (zerop count)
-;;            (shell-command-to-string (format "yt-dlp -f bestaudio -g '%s'" (elfeed-entry-link entry)))
-;;          (car (elt (elfeed-entry-enclosures elfeed-show-entry)
-;;                    (- enclosure-index 1)))))
-;;       ((derived-mode-p 'elfeed-search-mode) (elfeed-search-selected :single))))))
-
-(defun d/elfeed-play ()
-  (interactive)
-  (let* ((count (length (elfeed-entry-enclosures elfeed-show-entry)))
-         (entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
-    (message (concat "Added: " (elfeed-entry-link entry)))
-    (if (zerop count)
-        (async-shell-command (format "mpc add $(yt-dlp -g \"%s\")" (elfeed-entry-link entry)) nil nil)
-      (with-no-warnings
-        (mingus-add (car (elt (elfeed-entry-enclosures elfeed-show-entry)
-                              (- enclosure-index 1))))))))
-
-(defun d/elfeed-org-mark ()
-  "use org file as bookmark for elfeed entries.
-Usable as favorites or bookmark."
-  (when elfeed-show-entry
-    (let* ((link (elfeed-entry-link elfeed-show-entry))
-           (title (elfeed-entry-title elfeed-show-entry)))
-      (org-store-link-props
-       :link link
-       :description title))))
-
-(defun elfeed-open-in-eww ()
-  "open elfeed entry in eww."
-  (interactive)
-  (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
-    (eww-browse-url (elfeed-entry-link entry) t)))
-
-(defun elfeed-open-in-reddit ()
-  "open elfeed entry in reddit"
-  (interactive)
-  (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
-    (reddigg-view-comments (elfeed-entry-link entry)))
-  (display-buffer-pop-up-window (reddigg--get-cmt-buffer) nil))
-
-(when d/on-droid
-  (with-eval-after-load 'elfeed
-    (define-key elfeed-show-mode-map (kbd "<volume-up>") #'elfeed-show-prev)
-    (define-key elfeed-show-mode-map (kbd "<volume-down>") #'elfeed-show-next)))
-
-;; credits to a user on github elfeed repo
-(defun d/elfeed-db-remove-entry (id)
-  "Removes the entry for ID"
-  (avl-tree-delete elfeed-db-index id)
-  (remhash id elfeed-db-entries))
-
-(defun d/elfeed-search-remove-selected ()
-  "Remove selected entries from database"
-  (interactive)
-  (let* ((entries (elfeed-search-selected))
-         (count (length entries)))
-    (when (y-or-n-p (format "Delete %d entires?" count))
-      (cl-loop for entry in entries
-               do (d/elfeed-db-remove-entry (elfeed-entry-id entry)))))
-  (elfeed-search-update--force))
-
-(use-package elfeed-show
+(use-package gnus
   :hook
-  (elfeed-show-mode . d/elfeed-ui)
-
-  :bind
-  (:map elfeed-show-mode-map
-        ("e" . elfeed-open-in-eww)
-        ("i" . d/bionic-read)
-        ("r" . elfeed-open-in-reddit)
-        ("m" . elfeed-toggle-show-star)
-        ("q" . d/elfeed-quit)
-        ("C-x C-k" . d/elfeed-quit)
-        ("P" . d/elfeed-add-podcast)
-        ("A" . d/elfeed-play)
-        ("b" . nil)))
-
-(use-package elfeed-search
-  :bind
-  (:map elfeed-search-mode-map
-        ("m" . elfeed-toggle-star)
-        ("q" . d/elfeed-quit)
-        ("G" . elfeed-search-fetch-visible)
-        ("C-x C-k" . d/elfeed-quit)
-        ("U" . elfeed-update)
-        ("u" . elfeed-update-feed))
-
+  (gnus-group-mode . gnus-topic-mode)
   :custom
-  ;; (setq-default elfeed-search-filter "@1-week-ago--1-day-ago +unread -news +")
-  (elfeed-search-filter "+unread +")
-  (elfeed-search-date-format (if d/on-droid `("" 0 :left)  `("%d-%m 📰" 7 :left)))
-  (elfeed-search-title-max-width 60)
-  (elfeed-search-title-min-width 60)
-  (elfeed-search-trailing-width 0))
+  (gnus-directory (expand-file-name "feeds/gnews" user-emacs-directory))
+  (gnus-startup-file (expand-file-name "newsrc" gnus-directory))
 
-(use-package elfeed-log
-  :after elfeed
-  :custom
-  (elfeed-log-level 'debug "debug, info, warn or error."))
+  (gnus-select-method '(nnnil))
+  (gnus-widen-article-window t)
 
-(use-package elfeed-org
-  :after elfeed
-  :custom
-  (rmh-elfeed-org-files (list "~/d-sync/notes/bookmarks.org"))
-  :init
-  (elfeed-org))
+  (gnus-secondary-select-methods
+   '((nntp "feedbase"
+           (nntp-open-connection-function nntp-open-tls-stream) ; feedbase does not do STARTTLS (yet?)
+           (nntp-port-number 563) ; nntps
+           (nntp-address "feedbase.org"))
+	 (nntp "gwene" (nntp-address "news.gwene.org"))
+	 ;; (nnrss "")
+	 ))
+
+  ;;; --- credits to u/unhammer
+  ;; Save time by not checking for new groups (I'm already subscribed to what I want,
+  ;; can always manually M-x gnus-find-new-newsgroups to check new groups)
+  (gnus-check-new-newsgroups nil)
+  ;; By default only check groups this level or lower on startup
+  ;; (use `C-u g' or `C-c M-g' to activate all groups):
+  (gnus-activate-level 2)
+
+  ;;;; Async prefetch – useful for newsgroups, maybe not so much for Maildir:
+  ;; https://www.gnu.org/software/emacs/manual/html_mono/gnus.html#Asynchronous-Fetching
+  (gnus-asynchronous t)
+  )
 
 (use-package sdcv
   :defer t
@@ -1971,15 +1819,13 @@ Usable as favorites or bookmark."
     (shr-ensure-newline)
     (setq start (point))
     (insert
-     (propertize (concat "#+BEGIN_SRC " lang "\n") 'face 'org-block-begin-line)
      (or (and (fboundp mode)
               (with-demoted-errors "Error while fontifying: %S"
                 (shr-tag-pre-highlight-fontify code mode)))
-         code)
-     (propertize "#+END_SRC" 'face 'org-block-end-line ))
+         code))
     (shr-ensure-newline)
     (setq end (point))
-    (add-face-text-property start end '(:background "#292b2e" :extend t :inherit fixed-pitch))
+    (add-face-text-property start end '(:inherit (fixed-pitch org-block)))
     (shr-ensure-newline)
     (insert "\n")))
 
@@ -2531,6 +2377,26 @@ Display format is inherited from `battery-mode-line-format'."
   (alert-libnotify-additional-args '("-u" "critical" "-t" "100"))
   (alert-fade-time 100))
 
+;; credit: yorickvP on Github
+(setq wl-copy-process nil)
+
+(defun wl-copy (text)
+  (setq wl-copy-process (make-process :name "wl-copy"
+                                      :buffer nil
+                                      :command '("wl-copy" "-f" "-n")
+                                      :connection-type 'pipe))
+  (process-send-string wl-copy-process text)
+  (process-send-eof wl-copy-process))
+
+(defun wl-paste ()
+  (if (and wl-copy-process (process-live-p wl-copy-process))
+      nil ; should return nil if we're the current paste owner
+    (shell-command-to-string "wl-paste -n | tr -d \r")))
+
+(unless d/on-droid
+  (setq interprogram-cut-function 'wl-copy)
+  (setq interprogram-paste-function 'wl-paste))
+
 (use-package org
   :ensure nil
   :defer t
@@ -2546,9 +2412,8 @@ Display format is inherited from `battery-mode-line-format'."
    org-element-map
    org-element-parse-buffer
    )
-  :hook (org-mode . (lambda ()
-                      (org-display-inline-images 0)
-                      (variable-pitch-mode 1)))
+  :hook
+  (org-mode . variable-pitch-mode)
   (org-mode . org-indent-mode)
 
   :bind
@@ -2562,12 +2427,7 @@ Display format is inherited from `battery-mode-line-format'."
         )
 
   :custom
-  (org-startup-indented nil)
-  (org-image-actual-width 400)
-  (org-startup-folded t)
   (org-ellipsis " ⮟")
-  (org-agenda-start-with-log-mode t)
-  (org-log-done 'time)
   (org-log-done 'note)
   (org-log-into-drawer t)
   (org-export-exclude-tags '("noexport" "ignore") "excludes these tagged heading from export")
@@ -2579,7 +2439,7 @@ Display format is inherited from `battery-mode-line-format'."
      (sequence "REVIEW(v)" "|" "CANC(k@)")))
 
   (org-refile-targets
-   '(("brain.org" :maxlevel . 1)
+   '(("journal.org" :maxlevel . 1)
      ("agenda.org" :maxlevel . 1)
      ("tasks.org_archive" :maxlevel . 1)))
 
@@ -2593,81 +2453,28 @@ Display format is inherited from `battery-mode-line-format'."
      ("idea" . ?i)))
 
   (fill-column 80)
-  ;; Where the org files live
   (org-directory "~/d-sync/notes/")
-  (org-default-notes-file (concat org-directory "brain.org"))
-  ;; Make sure we see syntax highlighting
+  (org-default-notes-file (concat org-directory "journal.org"))
   (org-src-fontify-natively t)
-  ;; I dont use it for subs/super scripts
-  (org-use-sub-superscripts nil)
-  ;; Should everything be hidden?
-  (org-startup-folded 'content)
-  (org-M-RET-may-split-line '((default . nil)))
-  ;; hide stars except for leader star
-  (org-hide-leading-stars t)
-  (org-hide-emphasis-markers nil)
-  ;; Show as utf-8 chars
   (org-pretty-entities t)
-  ;; put timestamp when finished a todo
-  (org-log-done 'time)
-  ;; timestamp when we reschedule
-  (org-log-reschedule t)
-  ;; Don't indent the stars
-  (org-startup-indented nil)
+  (org-log-reschedule 'note)
+  (org-startup-indented t)
   (org-list-allow-alphabetical t)
-  (org-image-actual-width nil)
-  ;; Save notes into log drawer
-  (org-log-into-drawer t)
-  ;;
+
   (org-fontify-whole-heading-line t)
   (org-fontify-done-headline t)
-  ;;
+
   (org-fontify-quote-and-verse-blocks t)
-  ;; See down arrow instead of "..." when we have subtrees
-  ;; (org-ellipsis "⤵")
-  ;; catch invisible edit
-  ( org-catch-invisible-edits 'show-and-error)
-  ;; Only useful for property searching only but can slow down search
+  (org-fold-catch-invisible-edits 'show-and-error)
   (org-use-property-inheritance t)
-  ;; Count all children TODO's not just direct ones
   (org-hierarchical-todo-statistics nil)
-  ;; Unchecked boxes will block switching the parent to DONE
   (org-enforce-todo-checkbox-dependencies t)
-  ;; Don't allow TODO's to close without their dependencies done
+
   (org-enforce-todo-dependencies t)
   (org-track-ordered-property-with-tag t)
 
   (org-special-ctrl-k t)
 
-  ;; Needed to allow helm to compute all refile options in buffer
-  (org-outline-path-complete-in-steps nil)
-  (org-deadline-warning-days 2)
-  (org-log-redeadline t)
-  (org-log-reschedule t)
-  ;; Repeat to previous todo state
-  ;; If there was no todo state, then dont set a state
-  (org-todo-repeat-to-state t)
-  ;; Refile options
-  (org-refile-use-outline-path 'file)
-  (org-refile-allow-creating-parent-nodes 'confirm)
-  ;; This worked ok, but lets try some more detail refiling
-  ;; (org-refile-targets '((org-agenda-files :level .  1)))
-  ;; Lets customize which modules we load up
-  (org-modules '(ol-w3m
-                 ol-bbdb
-                 ol-bibtex
-                 ol-docview
-                 ol-gnus
-                 org-timer
-                 ol-info
-                 ol-irc
-                 ol-mhe
-                 ol-rmail
-                 ol-eww
-                 ;; Stuff I've enabled below
-                 org-habit
-                 ;; org-checklist
-                 ))
   (org-special-ctrl-a/e t)
   (org-insert-heading-respect-content t)
 
@@ -2742,38 +2549,17 @@ Display format is inherited from `battery-mode-line-format'."
   (browse-url (seq-elt (split-string (completing-read  "Open: " (browser-bookmarks "~/d-sync/notes/bookmarks.org"))  "\n") 1)))
 
 (use-package org-modern
-  :defer 1
-
   :commands
-  (shrface-mode
-   global-org-modern-mode)
+  (global-org-modern-mode)
   :hook (org-mode org-agenda-finalize)
 
   :custom
-  ;; Edit settings
-  (org-auto-align-tags nil)
-  (org-tags-column 0)
-  (org-catch-invisible-edits 'show-and-error)
-  (org-special-ctrl-a/e t)
-  (org-insert-heading-respect-content t)
-
-  ;; Org styling, hide markup etc.
-  (org-hide-emphasis-markers t)
-  (org-pretty-entities t)
-  ;;   org-ellipsis "…"
-
-  ;; Reference:
-  ;; Heading: "◉ ○ ✸ ✿"
-  ;; Cool-Heading: ♥ ● ◇ ✚ ✜ ☯ ◆ ♠ ♣ ♦ ☢ ❀ ◆ ◖ ▶
-  ;; Small: ► • ★ ▸
-  ;; others: ▼, ↴, ⬎, ⤷,…, and ⋱.
-  ;; (org-ellipsis "⤵")
   ;; nerd-icons: "" "󰓏" "󰚀" "󰴈" "" "󰄄"
 
   ;; (org-modern-star '("◉" "✪" "◈" "✿" "❂"))
   ;; (org-modern-star '("" "󰓏" "󰚀" "󰴈" "" "󰄄"))
   (org-modern-star '("󰓏" "󰚀" "󰫤"  "󰴈" "" "󰄄"))
-  (org-modern-hide-stars 'leading)
+  (org-modern-hide-stars nil)
   (org-modern-table nil) ;; issue with variable-pitch font
 
   (org-modern-list
@@ -2806,75 +2592,8 @@ Display format is inherited from `battery-mode-line-format'."
 
   (org-modern-internal-target '("  " t " "))
 
-  ;; Agenda styling
-  (org-agenda-tags-column 0)
-  (org-agenda-block-separator ?─)
-  (org-agenda-time-grid
-   '((daily today require-timed)
-     (800 1000 1200 1400 1600 1800 2000)
-     " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄"))
-  (org-agenda-current-time-string
-   "⭠ now ─────────────────────────────────────────────────")
-
   :config
-  ;; Add frame borders and window dividers
-  (modify-all-frames-parameters
-   '((right-divider-width . 1)
-     (bottom-divider-width . 0)
-     (internal-border-width . 5)))
-  (dolist (face '(window-divider
-                  window-divider-first-pixel
-                  window-divider-last-pixel))
-    (face-spec-reset-face face)
-    (set-face-foreground face (face-attribute 'default :background)))
   (global-org-modern-mode))
-
-(unless (package-installed-p 'org-modern)
-  (add-hook 'org-mode-hook
-            (lambda ()
-              "Beautify Org Checkbox Symbol"
-              (push '("[ ]" .  "☐") prettify-symbols-alist)
-              (push '("[X]" . "☑" ) prettify-symbols-alist)
-              (push '("[-]" . "❍" ) prettify-symbols-alist)
-              (push '("**" . "") prettify-symbols-alist)
-              (push '("#+BEGIN_SRC" . "↦" ) prettify-symbols-alist)
-              (push '("#+END_SRC" . "⇤" ) prettify-symbols-alist)
-              (push '("#+BEGIN_EXAMPLE" . "↦" ) prettify-symbols-alist)
-              (push '("#+END_EXAMPLE" . "⇤" ) prettify-symbols-alist)
-              (push '("#+BEGIN_QUOTE" . "↦" ) prettify-symbols-alist)
-              (push '("#+END_QUOTE" . "⇤" ) prettify-symbols-alist)
-              (push '("#+begin_quote" . "↦" ) prettify-symbols-alist)
-              (push '("#+end_quote" . "⇤" ) prettify-symbols-alist)
-              (push '("#+begin_example" . "↦" ) prettify-symbols-alist)
-              (push '("#+end_example" . "⇤" ) prettify-symbols-alist)
-              (push '("#+begin_src" . "↦" ) prettify-symbols-alist)
-              (push '("#+end_src" . "⇤" ) prettify-symbols-alist)
-
-              (push '("#+TITLE:" . "") prettify-symbols-alist)
-              (push '("#+DESCRIPTION:" . "") prettify-symbols-alist)
-              (push '("#+LANG:" . "") prettify-symbols-alist)
-              (push '("#+ID:" . "") prettify-symbols-alist)
-              (push '("#+FILETAGS:" . "") prettify-symbols-alist)
-              (push '("#+STARTUP:" . "") prettify-symbols-alist)
-              (push '("#+ACTIVE:" . "") prettify-symbols-alist)
-              (push '("#+START_SPOILER" . "") prettify-symbols-alist)
-              (push '("#+CLOSE_SPOILER" . "") prettify-symbols-alist)
-              (push '("#+BEGIN_HIDDEN" . "") prettify-symbols-alist)
-              (push '("#+END_HIDDEN" . "") prettify-symbols-alist)
-
-
-              ;; (push '("#+TITLE:" . "") prettify-symbols-alist)
-              ;; (push '("#+DESCRIPTION:" . "") prettify-symbols-alist)
-              ;; (push '("#+ID:" . "") prettify-symbols-alist)
-              ;; (push '("#+FILETAGS:" . "") prettify-symbols-alist)
-              ;; (push '("#+STARTUP:" . "") prettify-symbols-alist)
-              ;; (push '("#+ACTIVE:" . "") prettify-symbols-alist)
-              ;; (push '("#+START_SPOILER" . "") prettify-symbols-alist)
-              ;; (push '("#+CLOSE_SPOILER" . "") prettify-symbols-alist)
-              ;; (push '("#+BEGIN_HIDDEN" . "") prettify-symbols-alist)
-              ;; (push '("#+END_HIDDEN" . "") prettify-symbols-alist)
-
-              (prettify-symbols-mode))))
 
 (use-package org-agenda
   :ensure nil
@@ -2887,20 +2606,17 @@ Display format is inherited from `battery-mode-line-format'."
 
   ;; :hook (org-agenda-finalize . org-agenda-entry-text-mode)
   :custom
-  (org-agenda-tags-column 'auto)
-  (org-agenda-window-setup 'only-window)
   (org-agenda-restore-windows-after-quit t)
   (org-agenda-log-mode-items '(closed clock state))
   ;; (org-agenda-todo-ignore-scheduled 'future)
   ;; TODO entries that can't be marked as done b/c of children are shown as dimmed in agenda view
   (org-agenda-dim-blocked-tasks nil)
   (org-agenda-inhibit-startup t)
-  (org-agenda-show-inherited-tags nil)
-  (org-agenda-ignore-drawer-properties '(effort appt category))
+  (org-agenda-ignore-properties '(effort appt category))
   ;; Start the week view on whatever day im on
   (org-agenda-start-on-weekday nil)
   (org-agenda-files
-   '("~/d-sync/notes/"
+   '("~/d-sync/notes/journal.org"
      "~/d-git/d-site/README.org"
      )))
 
@@ -2944,10 +2660,8 @@ Display format is inherited from `battery-mode-line-format'."
       (file "~/d-sync/notes/development.org")
       "** %?\n %U\n %i\n %a\n")
 
-     ("c" "Contacts")
-     ("cc" "New Contact" entry
-      (file "~/d-sync/notes/contacts.org")
-      "** %?")
+     ("c" "Contacts" entry (file "~/d-sync/notes/contacts.org")
+      "* %(tempel-insert 'contact)")
 
      ("l" "Link" entry
       (file+headline "~/d-sync/notes/bookmarks.org" "elfeed") "* %a\n")
@@ -2956,7 +2670,7 @@ Display format is inherited from `battery-mode-line-format'."
 
      ("jj" "Journal" entry
       (file+datetree "~/d-sync/notes/journal.org")
-      "\n* %<%I:%M %p> - %?\n\n\n"
+      "\n* %<%H:%M> - %? %^G\n\n\n"
       :clock-in t :clock-resume t
       :empty-lines 1)
 
@@ -3034,13 +2748,32 @@ Display format is inherited from `battery-mode-line-format'."
      (julia . t))))
 
 (use-package org-re-reveal
-  :after org
+  :after ox
   :unless d/on-droid
   :custom
+  (add-to-list 'org-export-backends 're-reveal)
   (org-re-reveal-title-slide
    "<h1 class=\"title\">%t</h1> <br> <br> <h2 class=\"subtitle\">%s</h2> <h2 class=\"author\">%a</h2> <br> <br> <h4 class=\"misc\">%m</h4> <h3 class=\"misc\">%A</h3>"))
 
-(use-package org-ql)
+(use-package org-ql
+  :bind
+  (:map org-mode-map
+        ("C-c o f" . org-ql-find)
+        ("C-c o s" . org-ql-search)
+        ("C-c o l" . org-ql-open-link)
+        ("C-c o v" . org-ql-view)))
+
+(use-package org-super-agenda
+  :after org
+  :hook
+  (org-agenda-mode . org-super-agenda-mode))
+
+(use-package org-fold
+  :after org
+  :custom
+  (org-fold-show-context-detail
+   '((agenda . local) (tags-tree . local) (bookmark-jump . lineage)
+     (isearch . lineage) (default . ancestors))))
 
 (use-package org-alert
   :demand t
@@ -3268,6 +3001,20 @@ use filename."
     (d/org-present-mode))
 
   )
+
+(use-package org-noter
+  :after org
+  :custom
+  (org-noter-auto-save-last-location t)
+  (org-noter-default-notes-file-names '("brain.org"))
+  (org-noter-notes-search-path '("~/d-sync/notes"))
+  (org-noter-notes-window-location 'vertical-split)
+  )
+
+(use-package ox
+  :after org
+  :custom
+  (org-export-backends '(org odt md man latex icalendar html ascii)))
 
 (use-package remember
   :ensure nil

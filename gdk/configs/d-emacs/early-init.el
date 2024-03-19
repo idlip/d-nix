@@ -10,10 +10,6 @@
 
 ;;; Code:
 
-(custom-set-variables
- '(native-comp-async-report-warnings-errors nil)
- '(native-comp-jit-compilation nil))
-
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)

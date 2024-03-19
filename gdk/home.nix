@@ -311,7 +311,7 @@
       el-fetch envrc dashboard mini-echo
       speed-type vc-backup aria2
       ess org-re-reveal auctex julia-mode webfeeder engrave-faces
-      toc-org disable-mouse org-ql org-alert
+      toc-org disable-mouse org-ql org-alert org-noter
 
       (trivialBuild {
         pname = "combobulate";
@@ -551,7 +551,7 @@
   home.packages = with pkgs; [
     # mullvad-browser
     ungoogled-chromium
-    nyxt
+    # nyxt
   ];
 
   programs = {
@@ -1056,10 +1056,6 @@
           middle_button_emulation = 1;
           tap-to-click = 1;
         };
-      };
-
-      "device:at-translated-set-2-keyboard" = {
-        enabled=true;
       };
 
       general  =  {
@@ -1711,6 +1707,10 @@
       };
     };
   };
+}
+
+{
+  services.cliphist.enable = true;
 }
 
 {

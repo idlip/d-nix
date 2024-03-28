@@ -4853,152 +4853,153 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
 **** userChrome
 - Css customization for Firefox UI.
   #+begin_src css :tangle ./gdk/configs/userChrome.css
-/*
-  __  __   _           _
- |  \/  | (_)         (_)
- | \  / |  _   _ __    _   _ __ ___     __ _
- | |\/| | | | | '_ \  | | | '_ ` _ \   / _` |
- | |  | | | | | | | | | | | | | | | | | (_| |
- |_|  |_| |_| |_| |_| |_| |_| |_| |_|  \__,_|
+  /*
+    __  __   _           _
+   |  \/  | (_)         (_)
+   | \  / |  _   _ __    _   _ __ ___     __ _
+   | |\/| | | | | '_ \  | | | '_ ` _ \   / _` |
+   | |  | | | | | | | | | | | | | | | | | (_| |
+   |_|  |_| |_| |_| |_| |_| |_| |_| |_|  \__,_|
 
 
-,*/
+  ,*/
 
 
-/* User changable variables */
+  /* User changable variables */
 
-:root {
-	--tab-font-size: 0.8em; /* Font size of the tab labels */
-	--tab-font-family: -apple-system, BlinkMacSystemFont, "Code D Haki", Roboto, Helvetica, Arial, sans-serif; /* The font used for the tab labels */
-	--max-tab-width: none; /* The maximum width a tab in the tab bar can use. Set this to none for no limit */
-	--show-titlebar-buttons: none; /* Hide the buttons (close/minimize/maximize) in the title bar. Required on some platforms (e.g macOS) to fully hide the title bar. `none` hides them, `block` shows them */
-	--tab-height: 20px;
-}
+  :root {
+    --tab-font-size: 0.8em; /* Font size of the tab labels */
+    --tab-font-family: -apple-system, BlinkMacSystemFont, "Code D Haki", Roboto, Helvetica, Arial, sans-serif; /* The font used for the tab labels */
+    --max-tab-width: none; /* The maximum width a tab in the tab bar can use. Set this to none for no limit */
+    --show-titlebar-buttons: none; /* Hide the buttons (close/minimize/maximize) in the title bar. Required on some platforms (e.g macOS) to fully hide the title bar. `none` hides them, `block` shows them */
+    --tab-height: 20px;
+  }
 
-/* Minima Source Code. Here be dragons. */
-/* Only change this if you know what you're doing */
+  /* Minima Source Code. Here be dragons. */
+  /* Only change this if you know what you're doing */
 
-.titlebar-buttonbox-container {
-	display: var(--show-titlebar-buttons);
-}
+  .titlebar-buttonbox-container {
+    display: var(--show-titlebar-buttons);
+  }
 
-:root:not([customizing]) #TabsToolbar {
-	margin-left: 1px !important;
-	margin-right: 1px !important;
-	border-radius: 0 !important;
-	padding: 0 !important;
-}
-.tabbrowser-tab * {
-	margin:0 !important;
-	border-radius: 0 !important;
-	font-family: var(--tab-font-family) !important;
-}
-.tabbrowser-tab {
-	height: var(--tab-height);
-	font-size: var(--tab-font-size) !important;
-	min-height: 0 !important;
-	align-items: center !important;
-}
-.tabbrowser-tab[fadein]:not([pinned]) {
-	max-width: var(--max-tab-width) !important;
-}
-.tab-close-button, .new-tab-button, #firefox-view-button, #scrollbutton-up, .tab-secondary-label {
-	display: none !important;
-}
-.tab-icon-image {
-	height: auto !important;
-	width: calc(var(--tab-height) / 1.5) !important;
-	margin-right: 4px !important;
-}
+  :root:not([customizing]) #TabsToolbar {
+    margin-left: 1px !important;
+    margin-right: 1px !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+  }
+  .tabbrowser-tab * {
+    margin:0 !important;
+    border-radius: 0 !important;
+    font-family: var(--tab-font-family) !important;
+  }
+  .tabbrowser-tab {
+    height: var(--tab-height);
+    font-size: var(--tab-font-size) !important;
+    min-height: 0 !important;
+    align-items: center !important;
+  }
+  .tabbrowser-tab[fadein]:not([pinned]) {
+    max-width: var(--max-tab-width) !important;
+  }
+  .tab-close-button, .new-tab-button, #firefox-view-button, #scrollbutton-up, .tab-secondary-label {
+    display: none !important;
+  }
+  .tab-icon-image {
+    height: auto !important;
+    width: calc(var(--tab-height) / 1.5) !important;
+    margin-right: 4px !important;
+  }
 
-#tabs-newtab-button, #titlebar spacer {
-	display: none !important;
-}
+  #tabs-newtab-button, #titlebar spacer {
+    display: none !important;
+  }
 
-:root:not([customizing]) #nav-bar
-{
-	min-height : 2.5em       !important;
-	height     : 2.5em       !important;
-	margin     : 0 0 -2.5em  !important;
-	z-index    : -1000       !important;
-	opacity    : 0           !important;
-}
+  :root:not([customizing]) #nav-bar
+  {
+    min-height : 2.5em       !important;
+    height     : 2.5em       !important;
+    margin     : 0 0 -2.5em  !important;
+    z-index    : -1000       !important;
+    opacity    : 0           !important;
+  }
 
-:root:not([customizing]) #nav-bar:focus-within
-{
-	z-index    : 1000        !important;
-	opacity    : 1           !important;
-}
+  :root:not([customizing]) #nav-bar:focus-within
+  {
+    z-index    : 1000        !important;
+    opacity    : 1           !important;
+  }
 
-#nav-bar{
-	border-inline: var(--uc-window-drag-space-width) solid var(--toolbar-bgcolor);
-}
-#new-tab-button, #alltabs-button, #scrollbutton-down, .tab-loading-burst{
-	display: none;
-}
-#titlebar {
-	overflow: none !important;
-}
+  #nav-bar{
+    border-inline: var(--uc-window-drag-space-width) solid var(--toolbar-bgcolor);
+  }
+  #new-tab-button, #alltabs-button, #scrollbutton-down, .tab-loading-burst{
+    display: none;
+  }
+  #titlebar {
+    overflow: none !important;
+  }
 
-/* Source file https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome/hide_tabs_with_one_tab.css made available under Mozilla Public License v. 2.0
-See the above repository for updates as well as full license text. */
+  /* Source file https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome/hide_tabs_with_one_tab.css made available under Mozilla Public License v. 2.0
+  See the above repository for updates as well as full license text. */
 
-/* Makes tabs toolbar items zero-height initially and sets enlarge them to fill up space equal to tab-min-height set on tabs. Optionally use privatemode_indicator_as_menu_button.css to replace main menu icon with private browsing indicator while tabs are hidden. */
-/* Firefox 65+ only */
+  /* Makes tabs toolbar items zero-height initially and sets enlarge them to fill up space equal to tab-min-height set on tabs. Optionally use privatemode_indicator_as_menu_button.css to replace main menu icon with private browsing indicator while tabs are hidden. */
+  /* Firefox 65+ only */
 
-:root[sizemode="normal"] #nav-bar{ --uc-window-drag-space-width: 20px }
+  :root[sizemode="normal"] #nav-bar{ --uc-window-drag-space-width: 20px }
 
-#titlebar{ -moz-appearance: none !important; }
-#TabsToolbar{ min-height: 0px !important }
+  #titlebar{ -moz-appearance: none !important; }
+  #TabsToolbar{ min-height: 0px !important }
 
-#tabbrowser-tabs, #tabbrowser-tabs > .tabbrowser-arrowscrollbox, #tabbrowser-arrowscrollbox{ min-height: 0 !important; }
+  #tabbrowser-tabs, #tabbrowser-tabs > .tabbrowser-arrowscrollbox, #tabbrowser-arrowscrollbox{ min-height: 0 !important; }
 
-:root:not([customizing]) #tabbrowser-tabs .tabs-newtab-button,
-:root:not([customizing]) #tabs-newtab-button,
-:root:not([customizing]) #TabsToolbar-customization-target > .toolbarbutton-1,
-:root:not([customizing]) #TabsToolbar .titlebar-button{
-	-moz-appearance: none !important;
-	height: 0px;
-	padding-top: 0px !important;
-	padding-bottom: 0px !important;
-	-moz-box-align: stretch;
-	margin: 0 !important;
-}
+  :root:not([customizing]) #tabbrowser-tabs .tabs-newtab-button,
+  :root:not([customizing]) #tabs-newtab-button,
+  :root:not([customizing]) #TabsToolbar-customization-target > .toolbarbutton-1,
+  :root:not([customizing]) #TabsToolbar .titlebar-button{
+    -moz-appearance: none !important;
+    height: 0px;
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+    -moz-box-align: stretch;
+    margin: 0 !important;
+  }
 
-.accessibility-indicator,
-.private-browsing-indicator{
-	height: unset !important;
-}
-.accessibility-indicator > hbox{ padding-block: 0 !important }
+  .accessibility-indicator,
+  .private-browsing-indicator{
+    height: unset !important;
+  }
+  .accessibility-indicator > hbox{ padding-block: 0 !important }
 
-#tabbrowser-tabs tab:only-of-type {
-	visibility: collapse !important;
-}
+  #tabbrowser-tabs tab:only-of-type {
+    visibility: collapse !important;
+  }
 
-/* Button re-styling */
-#tabs-newtab-button:hover,
-#tabbrowser-tabs .tabs-newtab-button:hover{ background-color: var(--toolbarbutton-hover-background) }
+  /* Button re-styling */
+  #tabs-newtab-button:hover,
+  #tabbrowser-tabs .tabs-newtab-button:hover{ background-color: var(--toolbarbutton-hover-background) }
 
-#tabs-newtab-button > .toolbarbutton-icon,
-#tabbrowser-tabs .tabs-newtab-button > .toolbarbutton-icon{
-	padding: 0 !important;
-	transform: scale(0.6);
-	background-color: transparent !important;
-}
-/* Extra top padding  in maximized window */
-@media (-moz-os-version: windows-win10){
-	:root[sizemode="maximized"] #navigator-toolbox{ padding-top:7px !important; }
-}
-/* Fix window controls not being clickable */
-:root[tabsintitlebar] #toolbar-menubar[autohide="true"][inactive]{
-	transition: height 0ms steps(1) 80ms;
-}
-#nav-bar{
-	border-inline: var(--uc-window-drag-space-width) solid var(--toolbar-bgcolor);
-}
-#navigator-toolbox {
-	appearance: toolbar !important; /* Pretty much anything except none */
-}
+  #tabs-newtab-button > .toolbarbutton-icon,
+  #tabbrowser-tabs .tabs-newtab-button > .toolbarbutton-icon{
+    padding: 0 !important;
+    transform: scale(0.6);
+    background-color: transparent !important;
+  }
+  /* Extra top padding  in maximized window */
+  @media (-moz-os-version: windows-win10){
+    :root[sizemode="maximized"] #navigator-toolbox{ padding-top:7px !important; }
+  }
+  /* Fix window controls not being clickable */
+  :root[tabsintitlebar] #toolbar-menubar[autohide="true"][inactive]{
+    transition: height 0ms steps(1) 80ms;
+  }
+  #nav-bar{
+    border-inline: var(--uc-window-drag-space-width) solid var(--toolbar-bgcolor);
+  }
+  #navigator-toolbox {
+    appearance: toolbar !important; /* Pretty much anything except none */
+  }
+
   #+end_src
 
 *** Web
@@ -5041,32 +5042,33 @@ See the above repository for updates as well as full license text. */
 - Shrface for extending faces of shr/url like org-mode.
   #+name: orgmacs
   #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
-(use-package shrface
-  :hook
-  (eww-after-render . shrface-mode)
-  (devdocs-browser-eww-mode . shrface-mode)
+  (use-package shrface
+    :hook
+    (eww-after-render . shrface-mode)
+    (devdocs-browser-eww-mode . shrface-mode)
+    (gnus-article-mode . shrface-mode)
 
-  :bind
-  (:map shrface-mode-map
-        ("<tab>" . shrface-outline-cycle)
-        ("<backtab>" . shrface-outline-cycle-buffer)
-        ("M-n" . shr-next-link)
-        ("M-p" . shr-previous-link)
-        ("M-l" . (lambda () (interactive) (shrface-links-consult) (embark-act)))
-        ("M-h" . mark-paragraph)
-        ("C-j" . shrface-next-headline)
-        ("C-k" . shrface-previous-headline))
-  :custom
-  (shrface-bullets-bullet-list '("󰓏" "󰚀" "󰫤"  "󰴈" "" "󰄄"))
-  (shrface-href-versatile t)
-  :config
-  (defun shrface-shr-item-bullet ()
-    "Build a `shr-bullet' based on `shrface-item-bullet'."
-    (setq shr-bullet "⁍ "))
+    :bind
+    (:map shrface-mode-map
+          ("<tab>" . shrface-outline-cycle)
+          ("<backtab>" . shrface-outline-cycle-buffer)
+          ("M-n" . shr-next-link)
+          ("M-p" . shr-previous-link)
+          ("M-l" . (lambda () (interactive) (shrface-links-consult) (embark-act)))
+          ("M-h" . mark-paragraph)
+          ("C-j" . shrface-next-headline)
+          ("C-k" . shrface-previous-headline))
+    :custom
+    (shrface-bullets-bullet-list '("󰓏" "󰚀" "󰫤"  "󰴈" "" "󰄄"))
+    (shrface-href-versatile t)
+    :config
+    (defun shrface-shr-item-bullet ()
+      "Build a `shr-bullet' based on `shrface-item-bullet'."
+      (setq shr-bullet "⁍ "))
 
-  (shrface-basic)
-  (shrface-trial)
-  (shrface-default-keybindings))
+    (shrface-basic)
+    (shrface-trial)
+    (shrface-default-keybindings))
   #+end_src
 - shr-pre-highlight, to highlight code blocks in eww. Does not guess the language correctly, but syntax highlight legit works.
   #+name: orgmacs
@@ -5408,46 +5410,59 @@ for the search engine used."
 - The most valuable program, to play any media content to play.
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  programs = {
-    mpv = {
-      enable = true;
-      scripts = with pkgs.mpvScripts; [ mpris ];
+  {
+    programs = {
+      mpv = {
+        enable = true;
+        scripts = with pkgs.mpvScripts; [ mpris manga-reader ];
 
-      bindings = {
-        l = "seek  5";
-        h = "seek -5";
-        k = "seek  30";
-        j = "seek -30";
-        J = "cycle sub";
-        K = "cycle sub down";
-      };
+        bindings = {
+          l = "seek  5";
+          h = "seek -5";
+          k = "seek  30";
+          j = "seek -30";
+          J = "cycle sub";
+          K = "cycle sub down";
+          B = "no-osd add contrast -4; no-osd add brightness 4; show-text 'Black Level: \${brightness}'";
+          N = "no-osd add contrast 4; no-osd add brightness -4; show-text 'Black Level: \${brightness}'";
+        };
 
-      config = {
-        force-window = true;
-        osc = true;
-        hwdec = "auto-safe";
-        vo = "gpu";
-        profile = "gpu-hq";
-        gpu-context = "wayland";
-        sub-border-size = 4.0;
-        sub-shadow-color = "0.0/0.0/0.0";
-        sub-shadow-offset = 1;
-        sub-auto = "fuzzy";
-        msg-level = "all=error";
-        # ytdl-format = "bestvideo[height<=?1080]+bestaudio/best";
-        ytdl-format = "best";
-        save-position-on-quit = true;
-        slang = "eng,en,eng,english";
-        alang = "jp,jpn,en,eng";
-        sub-font = "impress bt";
-        autofit = "50%";
-        sub-font-size = "48";
-        speed = "1.5";
+        config = {
+          force-window = true;
+          osc = true;
+          hwdec = "auto-safe";
+          vo = "gpu";
+          profile = "gpu-hq";
+          gpu-context = "wayland";
+          sub-border-size = 4.0;
+          sub-shadow-color = "0.0/0.0/0.0";
+          sub-shadow-offset = 1;
+          sub-auto = "fuzzy";
+          msg-level = "all=error";
+          # ytdl-format = "bestvideo[height<=?1080]+bestaudio/best";
+          ytdl-format = "best";
+          save-position-on-quit = true;
+          slang = "eng,en,eng,english";
+          alang = "jp,jpn,en,eng";
+          sub-font = "impress bt";
+          autofit = "50%";
+          sub-font-size = "48";
+          speed = "1.5";
+        };
+
+        profiles = {
+          manga = {
+            profile-desc = "Read Manga";
+            profile-cond = "filename and filename:match('%.cbz$') or filename:match('%.cbr$') or filename:match('%.zip$') or filename:match('%.rar$') ~= nil";
+            profile = high-quality;
+            dscale = mitchell;
+            deband = no;
+          };
+        };
+
       };
     };
-  };
-}
+  }
   #+end_src
 *** yt-dlp
   #+name: hm-config
@@ -5911,383 +5926,383 @@ Android port."
 *** hyprsea
 - more additional hyprland conf for quick reloads
   #+begin_src conf :tangle ./gdk/configs/hyprsea.conf
-#monitor = ,2880x1800@90,auto,auto
-#monitor = HDMI-A-1,1920x1080,0x0,1
-# monitor = HDMI-A-1,1920x1080,0x0,1,mirror,eDP-1
-
-# ---- Autostart Apps ----
-
-# exec-once=waybar
-# exec-once = dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
-# exec-once = wl-paste --type text --watch cliphist store
-# exec-once = wl-paste --type image --watch cliphist store
-# exec-once = systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
-# exec-once = hyprctl setcursor Bibata-Modern-Classic
-#exec-once = swayidle timeout 150 'gtklock -b black & sleep 1 && systemctl suspend' before-sleep 'loginctl lock-session' lock 'gtklock -b black'
-# exec-once = swayidle -w timeout 300 'gtklock -i -b black -d' timeout 210 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on' timeout 302 'if pgrep gtklock; then hyprctl dispatch dpms off; fi' resume 'hyprctl dispatch dpms on' timeout 1000 'systemctl suspend'
-# exec-once = gammastep -l 19:72 -t 6500:4100
-exec-once = hypridle
-exec-once = d-walls
-exec-once = foot --server
-exec-once = emacs --bg-daemon
-
-# --- Local var ---
-misc {
-swallow_regex=^(footclient)$
-}
-
-general {
-col.active_border=rgba(2e8b57ff) rgba(87cefaff) 45deg
-col.inactive_border=0xff382D2E
-gaps_in = 0;
-gaps_out = 0;
-}
-
-animations {
-enabled = false
-}
-decoration {
-blur {
-enabled = false
-}
-rounding = 0;
-active_opacity=1.0
-inactive_opacity=1.0
-}
-
-
-# █░█░█ █ █▄░█ █▀▄ █▀█ █░█░█   █▀█ █░█ █░░ █▀▀ █▀
-# ▀▄▀▄▀ █ █░▀█ █▄▀ █▄█ ▀▄▀▄▀   █▀▄ █▄█ █▄▄ ██▄ ▄█
-
-# Opacity
-# windowrulev2 = opacity 0.90 0.90,class:^(Brave-browser)$
-# windowrulev2 = opacity 0.80 0.80,class:^(pcmanfm)$
-
-# Position
-windowrulev2 = float,title:^(Media viewer)$
-windowrulev2 = float,title:^(Volume Control)$
-windowrulev2 = float,title:^(Picture-in-Picture)$
-windowrulev2 = float,class:^(Viewnior)$
-windowrulev2 = float,title:^(DevTools)$
-windowrulev2 = float,class:^(file_progress)$
-windowrulev2 = float,class:^(confirm)$
-windowrulev2 = float,class:^(dialog)$
-windowrulev2 = float,class:^(download)$
-windowrulev2 = float,class:^(notification)$
-windowrulev2 = float,class:^(error)$
-windowrulev2 = float,class:^(confirmreset)$
-windowrulev2 = float,title:^(Open File)$
-windowrulev2 = float,title:^(branchdialog)$
-windowrulev2 = float,title:^(Confirm to replace files)
-windowrulev2 = float,title:^(File Operation Progress)
-
-windowrulev2 = move 75 44%,title:^(Volume Control)$
-
-# Size
-windowrulev2 = size 800 600,class:^(download)$
-windowrulev2 = size 800 600,title:^(Open File)$
-windowrulev2 = size 800 600,title:^(Save File)$
-windowrulev2 = size 800 600,title:^(Volume Control)$
-
-windowrulev2 = idleinhibit fullscreen,class:^(Brave-browser)$
-# idle inhibit while watching videos
-windowrulev2 = idleinhibit focus, class:^(mpv)$
-windowrulev2 = idleinhibit focus, class:^(Freetube)$
-windowrulev2 = idleinhibit focus, class:^(firefox)$, title:^(.*YouTube.*)$
-# windowrulev2 = idleinhibit fullscreen, class:^(firefox)$
-
-# xwaylandvideobridge
-windowrulev2 = opacity 0.0 override 0.0 override,class:^(xwaylandvideobridge)$
-windowrulev2 = noanim,class:^(xwaylandvideobridge)$
-windowrulev2 = nofocus,class:^(xwaylandvideobridge)$
-windowrulev2 = noinitialfocus,class:^(xwaylandvideobridge)$
-
-windowrule = opaque,chromium
-windowrule = opaque,firefox
-windowrule = opaque,emacs
-windowrule = opaque,foot
-windowrule = opaque,sioyek
-
-windowrule = float,ncmpcpp
-windowrule = float,viewnior
-
-windowrule = float,mpv
-windowrule = opaque,mpv
-windowrule = noanim,mpv
-windowrule = noblur,mpv
-windowrulev2 = move 80% 65%, class:^(mpv)$, title:^(podcast)$
-windowrulev2 = workspace special, class:^(mpv)$, title:^(podcast)$
-
-#### webcam setting #####
-windowrulev2 = rounding 120,title:^(webcam)$
-# windowrulev2 = bordercolor rgba(2e8b57ff) rgba(2e8b57ff), title:webcam
-windowrule = size 17% 27%, title:webcam
-windowrulev2 = move 82% 71%, title:webcam
-bind = SUPER, F7, exec, d-webcam
-
-windowrulev2 = fullscreen,class:(chromium)
-windowrulev2 = fullscreen,class:(emacs)
-windowrulev2 = float, class:^(firefox)$, title:^(Firefox — Sharing Indicator)$
-windowrule = opaque,imv
-
-windowrulev2 = size 60% 70%,title:^(BrowserInput.*)$
-windowrulev2 = center,title:^(BrowserInput.*)
-windowrulev2 = float,title:^(BrowserInput.*)
-#windowrulev2 = workspace special, title:^(BrowserInput.*)
-windowrulev2 = size 800 600,class:^(download)$
-windowrulev2 = size 800 600,title:^(Open File)$
-windowrulev2 = size 800 600,title:^(Save File)$
-windowrulev2 = size 800 600,title:^(Volume Control)$
-
-windowrulev2 = idleinhibit fullscreen,class:^(Brave-browser)$
-
-
-blurls = rofi
-blurls = waybar
-blurls = menu
-blurls = gtk-layer-shell
-blurls = notifications
-
-# █▄▀ █▀▀ █▄█ █▄▄ █ █▄░█ █▀▄
-# █░█ ██▄ ░█░ █▄█ █ █░▀█ █▄▀
-bind = SUPER,e,exec,d-note
-bind = SUPER,y,exec,ytfzf -D
-bind = SUPER,x,exec,d-power
-# bind = SUPER,period,exec,d-dict
-bind = SUPERSHIFT,b,exec,d-bookmark
-bind = SUPER,m,exec,d-urls
-bind = SUPER,Insert,exec,d-urls
-bind = SUPER, w, exec, cliphist list | bemenu -l 10 | cliphist decode | wl-copy
-
-bind = SUPER,grave,exec,d-unicodes
-bind = SUPER,Delete,exec,pkill -INT wl-screenrec && pkill -RTMIN+8 waybar
-
-bind = CONTROL,F1,exec,hyprctl dispatch dpms on
-bind = SUPER,F1,exec,d-keys
-bind = SUPER,F2,exec,brightnessctl set 2%-
-bind = SUPER,F3,exec,brightnessctl set +2%
-bind = SUPER,F5,exec,d-walls
-bind = SUPER,F8,exec,mpv --untimed --geometry = 35%-30-30 --no-cache --no-osc --no-input-default-bindings --profile = low-latency --input-conf = /dev/null --title = webcam $(ls /dev/video[0,2,4,6,8] | tail -n 1)
-bind = SUPER,F11,exec,d-mpdplay
-bind = SUPER,F10,exec,mpc prev
-bind = SUPER,F12,exec,mpc next
-
-
-# █▀ █▀▀ █▀█ █▀▀ █▀▀ █▄░█ █▀ █░█ █▀█ ▀█▀
-# ▄█ █▄▄ █▀▄ ██▄ ██▄ █░▀█ ▄█ █▀█ █▄█ ░█░
-bind=,Print,exec,d-sshot
-bind=CONTROL,Insert,exec,d-sshot
-bind=SUPER,F4,exec,d-record
-
-
-# █▀▄▀█ █ █▀ █▀▀
-# █░▀░█ █ ▄█ █▄▄
-bind = SUPER, RETURN, exec, pgrep emacs && emacsclient -c -e "(eshell)" || footclient
-bind = SUPERSHIFT, RETURN, exec, footclient
-bind = SUPERSHIFT, Q, killactive,
-bind = SUPERSHIFT, R, exec, hyprctl reload
-bind = SUPERCONTROL, Q, exec, hyprkill
-bind = SUPER, F12, exec, emacsclient -c -e "(multi-vterm)"
-bind = SUPER, SPACE, togglefloating,
-
-bind = SUPER, d, exec, bemenu-run
-# bind = SUPER, d, exec, rofi -show drun
-
-bind = SUPER, b, exec, pkill -SIGUSR1 waybar || pidof -x waybar || waybar
-
-bind=,XF86AudioRaiseVolume,exec,d-volume up
-bind=,XF86AudioLowerVolume,exec,d-volume down
-bind=,XF86AudioMute,exec,d-volume mute
-bind=,XF86MonBrightnessUp, exec, brightnessctl set +2%
-bind=,XF86MonBrightnessDown, exec, brightnessctl set 2%-
-
-
-# █░█░█ █ █▄░█ █▀▄ █▀█ █░█░█   █▀▄▀█ ▄▀█ █▄░█ ▄▀█ █▀▀ █▀▄▀█ █▀▀ █▄░█ ▀█▀
-# ▀▄▀▄▀ █ █░▀█ █▄▀ █▄█ ▀▄▀▄▀   █░▀░█ █▀█ █░▀█ █▀█ █▄█ █░▀░█ ██▄ █░▀█ ░█░
-bind = SUPER,T,pseudo,
-bind = SUPER,F,fullscreen,
-bind = SUPER, S, togglesplit, # dwindle
-bind = SUPER, v, pin # pin a window to all workspace
-# Change Workspace Mode
-bind = SUPER SHIFT, Space, workspaceopt, allfloat
-bind = SUPER SHIFT, Space, exec, $notifycmd 'Toggled All Float Mode'
-bind = SUPER SHIFT, T, workspaceopt, allpseudo
-bind = SUPER SHIFT, T, exec, $notifycmd 'Toggled All Pseudo Mode'
-
-bind = SUPER ALT, j, cyclenext,
-bind = SUPER ALT, j, bringactivetotop,
-
-
-# █▀▀ █▀█ █▀▀ █░█ █▀
-# █▀░ █▄█ █▄▄ █▄█ ▄█
-bind = SUPER, k, cyclenext
-bind = SUPER, j, cyclenext
-
-# █▀▄▀█ █▀█ █░█ █▀▀
-# █░▀░█ █▄█ ▀▄▀ ██▄
-bind = SUPER SHIFT, left, movewindoworgroup, l
-bind = SUPER SHIFT, right, movewindoworgroup, r
-bind = SUPER SHIFT, up, movewindoworgroup, u
-bind = SUPER SHIFT, down, movewindoworgroup, d
-
-bind = SUPER SHIFT, h, movewindoworgroup, l
-bind = SUPER SHIFT, l, movewindoworgroup, r
-bind = SUPER SHIFT, k, movewindoworgroup, u
-bind = SUPER SHIFT, j, movewindoworgroup, d
-
-# █▀█ █▀▀ █▀ █ ▀█ █▀▀
-# █▀▄ ██▄ ▄█ █ █▄ ██▄
-bind = SUPER CTRL, left, resizeactive, -20 0
-bind = SUPER CTRL, right, resizeactive, 20 0
-bind = SUPER CTRL, up, resizeactive, 0 -20
-bind = SUPER CTRL, down, resizeactive, 0 20
-
-bind = SUPER CTRL, h, resizeactive, -20 0
-bind = SUPER CTRL, l, resizeactive, 20 0
-bind = SUPER CTRL, k, resizeactive, 0 -20
-bind = SUPER CTRL, j, resizeactive, 0 20
-
-# ▀█▀ ▄▀█ █▄▄ █▄▄ █▀▀ █▀▄
-# ░█░ █▀█ █▄█ █▄█ ██▄ █▄▀
-bind = SUPER, g, togglegroup
-bind = SUPER, t, changegroupactive, b
-bind = SUPER SHIFT, t, changegroupactive, f
-
-# █▀ █▀█ █▀▀ █▀▀ █ ▄▀█ █░░
-# ▄█ █▀▀ ██▄ █▄▄ █ █▀█ █▄▄
-bind = SUPER, a, togglespecialworkspace
-bind = SUPERSHIFT, a, movetoworkspace, special
-# bind = SUPER, a, exec, $notifycmd 'Toggled Special Workspace'
-bind = SUPER, c, exec, hyprctl dispatch centerwindow
-
-# █▀ █░█░█ █ ▀█▀ █▀▀ █░█
-# ▄█ ▀▄▀▄▀ █ ░█░ █▄▄ █▀█
-bind = SUPER, 1, workspace, 1
-bind = SUPER, 2, workspace, 2
-bind = SUPER, 3, workspace, 3
-bind = SUPER, 4, workspace, 4
-bind = SUPER, 5, workspace, 5
-bind = SUPER, 6, workspace, 6
-bind = SUPER, 7, workspace, 7
-bind = SUPER, 8, workspace, 8
-bind = SUPER, 9, workspace, 9
-bind = SUPER, 0, workspace, 10
-bind = SUPER, TAB, workspace, e+1
-bind = SUPERSHIFT, TAB, workspace, e-1
-
-# █▀▄▀█ █▀█ █░█ █▀▀
-# █░▀░█ █▄█ ▀▄▀ ██▄
-bind = SUPER ALT, 1, movetoworkspace, 1
-bind = SUPER ALT, 2, movetoworkspace, 2
-bind = SUPER ALT, 3, movetoworkspace, 3
-bind = SUPER ALT, 4, movetoworkspace, 4
-bind = SUPER ALT, 5, movetoworkspace, 5
-bind = SUPER ALT, 6, movetoworkspace, 6
-bind = SUPER ALT, 7, movetoworkspace, 7
-bind = SUPER ALT, 8, movetoworkspace, 8
-bind = SUPER ALT, 9, movetoworkspace, 9
-bind = SUPER ALT, 0, movetoworkspace, 10
-# Layout Change
-bind = SUPER, w, exec, hyprctl keyword general:layout "dwindle"
-bind = SUPERSHIFT, w, exec, hyprctl keyword general:layout "master"
-
-
-# █▀▄▀█ █▀█ █░█ █▀ █▀▀   █▄▄ █ █▄░█ █▀▄ █ █▄░█ █▀▀
-# █░▀░█ █▄█ █▄█ ▄█ ██▄   █▄█ █ █░▀█ █▄▀ █ █░▀█ █▄█
-bindm = SUPER, mouse:272, movewindow
-bindm = SUPER, mouse:273, resizewindow
-bind = SUPER, mouse_down, workspace, e+1
-bind = SUPER, mouse_up, workspace, e-1
-
-# Move window silently to workspace Super + Alt + [0-9]
-bind = SUPER SHIFT, 1, movetoworkspacesilent, 1
-bind = SUPER SHIFT, 2, movetoworkspacesilent, 2
-bind = SUPER SHIFT, 3, movetoworkspacesilent, 3
-bind = SUPER SHIFT, 4, movetoworkspacesilent, 4
-bind = SUPER SHIFT, 5, movetoworkspacesilent, 5
-bind = SUPER SHIFT, 6, movetoworkspacesilent, 6
-bind = SUPER SHIFT, 7, movetoworkspacesilent, 7
-bind = SUPER SHIFT, 8, movetoworkspacesilent, 8
-bind = SUPER SHIFT, 9, movetoworkspacesilent, 9
-bind = SUPER SHIFT, 0, movetoworkspacesilent, 10
-
-
-# Key Chords
-bind=SUPER,period,submap,Wordz
-submap=Wordz
-bind=,d,exec,d-dict
-bind=,d,submap,reset
-
-bind=,a,exec,d-vocab
-bind=,a,submap,reset
-
-bind=,v,exec,wtype "$(cat ~/.local/share/dict/myglossary | bemenu | awk '{print $1}')"
-bind=,v,submap,reset
-
-bind=,escape,submap,reset
-bind=CONTROL,g,submap,reset
-submap=reset
-
-
-bind=SUPER,O,submap,Scripts
-submap=Scripts
-bind=,o,exec,d-menu
-bind=,o,submap,reset
-
-bind=,i,exec,d-stuff
-bind=,i,submap,reset
-
-bind=,p,exec,d-pirt
-bind=,p,submap,reset
-
-bind=,x,exec,d-power
-bind=,x,submap,reset
-
-bind=,escape,submap,reset
-bind=CONTROL,g,submap,reset
-submap=reset
-
-bind=SUPER,P,submap,Apps
-submap=Apps
-
-bind=,p,exec,sioyek
-bind=,p,submap,reset
-
-bind=,f,exec,firefox
-bind=,f,submap,reset
-
-bind=,b,exec,brave
-bind=,b,submap,reset
-
-bind=,w,exec,librewolf
-bind=,w,submap,reset
-
-bind=,c,exec,chromium
-bind=,c,submap,reset
-
-bind=,y,exec,freetube
-bind=,y,submap,reset
-
-bind=,e,exec,emacsclient -c
-bind=,e,submap,reset
-
-bind=,escape,submap,reset
-bind=CONTROL,g,submap,reset
-submap=reset
-
-bind=SUPER,C,submap,Controls
-submap=Controls
-
-bind=SHIFT,equal,exec, pamixer -ui 5
-bind=,minus,exec, pamixer -ud 5
-bind=,m,exec, pamixer -t
-bind=,m,submap,reset
-bind=,p,exec, mpc toggle
-bind=,p,submap,reset
-
-bind=,escape,submap,reset
-bind=CONTROL,g,submap,reset
-submap=reset
+  monitor = ,2880x1800@90,auto,1.5
+  #monitor = HDMI-A-1,1920x1080,0x0,1
+  # monitor = HDMI-A-1,1920x1080,0x0,1,mirror,eDP-1
+
+  # ---- Autostart Apps ----
+
+  # exec-once=waybar
+  # exec-once = dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+  # exec-once = wl-paste --type text --watch cliphist store
+  # exec-once = wl-paste --type image --watch cliphist store
+  # exec-once = systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+  # exec-once = hyprctl setcursor Bibata-Modern-Classic
+  #exec-once = swayidle timeout 150 'gtklock -b black & sleep 1 && systemctl suspend' before-sleep 'loginctl lock-session' lock 'gtklock -b black'
+  # exec-once = swayidle -w timeout 300 'gtklock -i -b black -d' timeout 210 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on' timeout 302 'if pgrep gtklock; then hyprctl dispatch dpms off; fi' resume 'hyprctl dispatch dpms on' timeout 1000 'systemctl suspend'
+  # exec-once = gammastep -l 19:72 -t 6500:4100
+  exec-once = hypridle
+  exec-once = d-walls
+  exec-once = foot --server
+  exec-once = emacs --bg-daemon
+
+  # --- Local var ---
+  misc {
+  swallow_regex=^(footclient)$
+  }
+
+  general {
+  col.active_border=rgba(2e8b57ff) rgba(87cefaff) 45deg
+  col.inactive_border=0xff382D2E
+  gaps_in = 0;
+  gaps_out = 0;
+  }
+
+  animations {
+  enabled = false
+  }
+  decoration {
+  blur {
+  enabled = false
+  }
+  rounding = 0;
+  active_opacity=1.0
+  inactive_opacity=1.0
+  }
+
+
+  # █░█░█ █ █▄░█ █▀▄ █▀█ █░█░█   █▀█ █░█ █░░ █▀▀ █▀
+  # ▀▄▀▄▀ █ █░▀█ █▄▀ █▄█ ▀▄▀▄▀   █▀▄ █▄█ █▄▄ ██▄ ▄█
+
+  # Opacity
+  # windowrulev2 = opacity 0.90 0.90,class:^(Brave-browser)$
+  # windowrulev2 = opacity 0.80 0.80,class:^(pcmanfm)$
+
+  # Position
+  windowrulev2 = float,title:^(Media viewer)$
+  windowrulev2 = float,title:^(Volume Control)$
+  windowrulev2 = float,title:^(Picture-in-Picture)$
+  windowrulev2 = float,class:^(Viewnior)$
+  windowrulev2 = float,title:^(DevTools)$
+  windowrulev2 = float,class:^(file_progress)$
+  windowrulev2 = float,class:^(confirm)$
+  windowrulev2 = float,class:^(dialog)$
+  windowrulev2 = float,class:^(download)$
+  windowrulev2 = float,class:^(notification)$
+  windowrulev2 = float,class:^(error)$
+  windowrulev2 = float,class:^(confirmreset)$
+  windowrulev2 = float,title:^(Open File)$
+  windowrulev2 = float,title:^(branchdialog)$
+  windowrulev2 = float,title:^(Confirm to replace files)
+  windowrulev2 = float,title:^(File Operation Progress)
+
+  windowrulev2 = move 75 44%,title:^(Volume Control)$
+
+  # Size
+  windowrulev2 = size 800 600,class:^(download)$
+  windowrulev2 = size 800 600,title:^(Open File)$
+  windowrulev2 = size 800 600,title:^(Save File)$
+  windowrulev2 = size 800 600,title:^(Volume Control)$
+
+  windowrulev2 = idleinhibit fullscreen,class:^(Brave-browser)$
+  # idle inhibit while watching videos
+  windowrulev2 = idleinhibit focus, class:^(mpv)$
+  windowrulev2 = idleinhibit focus, class:^(Freetube)$
+  windowrulev2 = idleinhibit focus, class:^(firefox)$, title:^(.*YouTube.*)$
+  # windowrulev2 = idleinhibit fullscreen, class:^(firefox)$
+
+  # xwaylandvideobridge
+  windowrulev2 = opacity 0.0 override 0.0 override,class:^(xwaylandvideobridge)$
+  windowrulev2 = noanim,class:^(xwaylandvideobridge)$
+  windowrulev2 = nofocus,class:^(xwaylandvideobridge)$
+  windowrulev2 = noinitialfocus,class:^(xwaylandvideobridge)$
+
+  windowrule = opaque,chromium
+  windowrule = opaque,firefox
+  windowrule = opaque,emacs
+  windowrule = opaque,foot
+  windowrule = opaque,sioyek
+
+  windowrule = float,ncmpcpp
+  windowrule = float,viewnior
+
+  windowrule = float,mpv
+  windowrule = opaque,mpv
+  windowrule = noanim,mpv
+  windowrule = noblur,mpv
+  windowrulev2 = move 80% 65%, class:^(mpv)$, title:^(podcast)$
+  windowrulev2 = workspace special, class:^(mpv)$, title:^(podcast)$
+
+  #### webcam setting #####
+  windowrulev2 = rounding 120,title:^(webcam)$
+  # windowrulev2 = bordercolor rgba(2e8b57ff) rgba(2e8b57ff), title:webcam
+  windowrule = size 17% 27%, title:webcam
+  windowrulev2 = move 82% 71%, title:webcam
+  bind = SUPER, F7, exec, d-webcam
+
+  windowrulev2 = fullscreen,class:(chromium)
+  windowrulev2 = fullscreen,class:(emacs)
+  windowrulev2 = float, class:^(firefox)$, title:^(Firefox — Sharing Indicator)$
+  windowrule = opaque,imv
+
+  windowrulev2 = size 60% 70%,title:^(BrowserInput.*)$
+  windowrulev2 = center,title:^(BrowserInput.*)
+  windowrulev2 = float,title:^(BrowserInput.*)
+  #windowrulev2 = workspace special, title:^(BrowserInput.*)
+  windowrulev2 = size 800 600,class:^(download)$
+  windowrulev2 = size 800 600,title:^(Open File)$
+  windowrulev2 = size 800 600,title:^(Save File)$
+  windowrulev2 = size 800 600,title:^(Volume Control)$
+
+  windowrulev2 = idleinhibit fullscreen,class:^(Brave-browser)$
+
+
+  blurls = rofi
+  blurls = waybar
+  blurls = menu
+  blurls = gtk-layer-shell
+  blurls = notifications
+
+  # █▄▀ █▀▀ █▄█ █▄▄ █ █▄░█ █▀▄
+  # █░█ ██▄ ░█░ █▄█ █ █░▀█ █▄▀
+  bind = SUPER,e,exec,d-note
+  bind = SUPER,y,exec,ytfzf -D
+  bind = SUPER,x,exec,d-power
+  # bind = SUPER,period,exec,d-dict
+  bind = SUPERSHIFT,b,exec,d-bookmark
+  bind = SUPER,m,exec,d-urls
+  bind = SUPER,Insert,exec,d-urls
+  bind = SUPER, w, exec, cliphist list | bemenu -l 10 | cliphist decode | wl-copy
+
+  bind = SUPER,grave,exec,d-unicodes
+  bind = SUPER,Delete,exec,pkill -INT wl-screenrec && pkill -RTMIN+8 waybar
+
+  bind = CONTROL,F1,exec,hyprctl dispatch dpms on
+  bind = SUPER,F1,exec,d-keys
+  bind = SUPER,F2,exec,brightnessctl set 2%-
+  bind = SUPER,F3,exec,brightnessctl set +2%
+  bind = SUPER,F5,exec,d-walls
+  bind = SUPER,F8,exec,mpv --untimed --geometry = 35%-30-30 --no-cache --no-osc --no-input-default-bindings --profile = low-latency --input-conf = /dev/null --title = webcam $(ls /dev/video[0,2,4,6,8] | tail -n 1)
+  bind = SUPER,F11,exec,d-mpdplay
+  bind = SUPER,F10,exec,mpc prev
+  bind = SUPER,F12,exec,mpc next
+
+
+  # █▀ █▀▀ █▀█ █▀▀ █▀▀ █▄░█ █▀ █░█ █▀█ ▀█▀
+  # ▄█ █▄▄ █▀▄ ██▄ ██▄ █░▀█ ▄█ █▀█ █▄█ ░█░
+  bind=,Print,exec,d-sshot
+  bind=CONTROL,Insert,exec,d-sshot
+  bind=SUPER,F4,exec,d-record
+
+
+  # █▀▄▀█ █ █▀ █▀▀
+  # █░▀░█ █ ▄█ █▄▄
+  bind = SUPER, RETURN, exec, pgrep emacs && emacsclient -c -e "(eshell)" || footclient
+  bind = SUPERSHIFT, RETURN, exec, footclient
+  bind = SUPERSHIFT, Q, killactive,
+  bind = SUPERSHIFT, R, exec, hyprctl reload
+  bind = SUPERCONTROL, Q, exec, hyprkill
+  bind = SUPER, F12, exec, emacsclient -c -e "(multi-vterm)"
+  bind = SUPER, SPACE, togglefloating,
+
+  bind = SUPER, d, exec, bemenu-run
+  # bind = SUPER, d, exec, rofi -show drun
+
+  bind = SUPER, b, exec, pkill -SIGUSR1 waybar || pidof -x waybar || waybar
+
+  bind=,XF86AudioRaiseVolume,exec,d-volume up
+  bind=,XF86AudioLowerVolume,exec,d-volume down
+  bind=,XF86AudioMute,exec,d-volume mute
+  bind=,XF86MonBrightnessUp, exec, brightnessctl set +2%
+  bind=,XF86MonBrightnessDown, exec, brightnessctl set 2%-
+
+
+  # █░█░█ █ █▄░█ █▀▄ █▀█ █░█░█   █▀▄▀█ ▄▀█ █▄░█ ▄▀█ █▀▀ █▀▄▀█ █▀▀ █▄░█ ▀█▀
+  # ▀▄▀▄▀ █ █░▀█ █▄▀ █▄█ ▀▄▀▄▀   █░▀░█ █▀█ █░▀█ █▀█ █▄█ █░▀░█ ██▄ █░▀█ ░█░
+  bind = SUPER,T,pseudo,
+  bind = SUPER,F,fullscreen,
+  bind = SUPER, S, togglesplit, # dwindle
+  bind = SUPER, v, pin # pin a window to all workspace
+  # Change Workspace Mode
+  bind = SUPER SHIFT, Space, workspaceopt, allfloat
+  bind = SUPER SHIFT, Space, exec, $notifycmd 'Toggled All Float Mode'
+  bind = SUPER SHIFT, T, workspaceopt, allpseudo
+  bind = SUPER SHIFT, T, exec, $notifycmd 'Toggled All Pseudo Mode'
+
+  bind = SUPER ALT, j, cyclenext,
+  bind = SUPER ALT, j, bringactivetotop,
+
+
+  # █▀▀ █▀█ █▀▀ █░█ █▀
+  # █▀░ █▄█ █▄▄ █▄█ ▄█
+  bind = SUPER, k, cyclenext
+  bind = SUPER, j, cyclenext
+
+  # █▀▄▀█ █▀█ █░█ █▀▀
+  # █░▀░█ █▄█ ▀▄▀ ██▄
+  bind = SUPER SHIFT, left, movewindoworgroup, l
+  bind = SUPER SHIFT, right, movewindoworgroup, r
+  bind = SUPER SHIFT, up, movewindoworgroup, u
+  bind = SUPER SHIFT, down, movewindoworgroup, d
+
+  bind = SUPER SHIFT, h, movewindoworgroup, l
+  bind = SUPER SHIFT, l, movewindoworgroup, r
+  bind = SUPER SHIFT, k, movewindoworgroup, u
+  bind = SUPER SHIFT, j, movewindoworgroup, d
+
+  # █▀█ █▀▀ █▀ █ ▀█ █▀▀
+  # █▀▄ ██▄ ▄█ █ █▄ ██▄
+  bind = SUPER CTRL, left, resizeactive, -20 0
+  bind = SUPER CTRL, right, resizeactive, 20 0
+  bind = SUPER CTRL, up, resizeactive, 0 -20
+  bind = SUPER CTRL, down, resizeactive, 0 20
+
+  bind = SUPER CTRL, h, resizeactive, -20 0
+  bind = SUPER CTRL, l, resizeactive, 20 0
+  bind = SUPER CTRL, k, resizeactive, 0 -20
+  bind = SUPER CTRL, j, resizeactive, 0 20
+
+  # ▀█▀ ▄▀█ █▄▄ █▄▄ █▀▀ █▀▄
+  # ░█░ █▀█ █▄█ █▄█ ██▄ █▄▀
+  bind = SUPER, g, togglegroup
+  bind = SUPER, t, changegroupactive, b
+  bind = SUPER SHIFT, t, changegroupactive, f
+
+  # █▀ █▀█ █▀▀ █▀▀ █ ▄▀█ █░░
+  # ▄█ █▀▀ ██▄ █▄▄ █ █▀█ █▄▄
+  bind = SUPER, a, togglespecialworkspace
+  bind = SUPERSHIFT, a, movetoworkspace, special
+  # bind = SUPER, a, exec, $notifycmd 'Toggled Special Workspace'
+  bind = SUPER, c, exec, hyprctl dispatch centerwindow
+
+  # █▀ █░█░█ █ ▀█▀ █▀▀ █░█
+  # ▄█ ▀▄▀▄▀ █ ░█░ █▄▄ █▀█
+  bind = SUPER, 1, workspace, 1
+  bind = SUPER, 2, workspace, 2
+  bind = SUPER, 3, workspace, 3
+  bind = SUPER, 4, workspace, 4
+  bind = SUPER, 5, workspace, 5
+  bind = SUPER, 6, workspace, 6
+  bind = SUPER, 7, workspace, 7
+  bind = SUPER, 8, workspace, 8
+  bind = SUPER, 9, workspace, 9
+  bind = SUPER, 0, workspace, 10
+  bind = SUPER, TAB, workspace, e+1
+  bind = SUPERSHIFT, TAB, workspace, e-1
+
+  # █▀▄▀█ █▀█ █░█ █▀▀
+  # █░▀░█ █▄█ ▀▄▀ ██▄
+  bind = SUPER ALT, 1, movetoworkspace, 1
+  bind = SUPER ALT, 2, movetoworkspace, 2
+  bind = SUPER ALT, 3, movetoworkspace, 3
+  bind = SUPER ALT, 4, movetoworkspace, 4
+  bind = SUPER ALT, 5, movetoworkspace, 5
+  bind = SUPER ALT, 6, movetoworkspace, 6
+  bind = SUPER ALT, 7, movetoworkspace, 7
+  bind = SUPER ALT, 8, movetoworkspace, 8
+  bind = SUPER ALT, 9, movetoworkspace, 9
+  bind = SUPER ALT, 0, movetoworkspace, 10
+  # Layout Change
+  bind = SUPER, w, exec, hyprctl keyword general:layout "dwindle"
+  bind = SUPERSHIFT, w, exec, hyprctl keyword general:layout "master"
+
+
+  # █▀▄▀█ █▀█ █░█ █▀ █▀▀   █▄▄ █ █▄░█ █▀▄ █ █▄░█ █▀▀
+  # █░▀░█ █▄█ █▄█ ▄█ ██▄   █▄█ █ █░▀█ █▄▀ █ █░▀█ █▄█
+  bindm = SUPER, mouse:272, movewindow
+  bindm = SUPER, mouse:273, resizewindow
+  bind = SUPER, mouse_down, workspace, e+1
+  bind = SUPER, mouse_up, workspace, e-1
+
+  # Move window silently to workspace Super + Alt + [0-9]
+  bind = SUPER SHIFT, 1, movetoworkspacesilent, 1
+  bind = SUPER SHIFT, 2, movetoworkspacesilent, 2
+  bind = SUPER SHIFT, 3, movetoworkspacesilent, 3
+  bind = SUPER SHIFT, 4, movetoworkspacesilent, 4
+  bind = SUPER SHIFT, 5, movetoworkspacesilent, 5
+  bind = SUPER SHIFT, 6, movetoworkspacesilent, 6
+  bind = SUPER SHIFT, 7, movetoworkspacesilent, 7
+  bind = SUPER SHIFT, 8, movetoworkspacesilent, 8
+  bind = SUPER SHIFT, 9, movetoworkspacesilent, 9
+  bind = SUPER SHIFT, 0, movetoworkspacesilent, 10
+
+
+  # Key Chords
+  bind=SUPER,period,submap,Wordz
+  submap=Wordz
+  bind=,d,exec,d-dict
+  bind=,d,submap,reset
+
+  bind=,a,exec,d-vocab
+  bind=,a,submap,reset
+
+  bind=,v,exec,wtype "$(cat ~/.local/share/dict/myglossary | bemenu | awk '{print $1}')"
+  bind=,v,submap,reset
+
+  bind=,escape,submap,reset
+  bind=CONTROL,g,submap,reset
+  submap=reset
+
+
+  bind=SUPER,O,submap,Scripts
+  submap=Scripts
+  bind=,o,exec,d-menu
+  bind=,o,submap,reset
+
+  bind=,i,exec,d-stuff
+  bind=,i,submap,reset
+
+  bind=,p,exec,d-pirt
+  bind=,p,submap,reset
+
+  bind=,x,exec,d-power
+  bind=,x,submap,reset
+
+  bind=,escape,submap,reset
+  bind=CONTROL,g,submap,reset
+  submap=reset
+
+  bind=SUPER,P,submap,Apps
+  submap=Apps
+
+  bind=,p,exec,sioyek
+  bind=,p,submap,reset
+
+  bind=,f,exec,firefox
+  bind=,f,submap,reset
+
+  bind=,b,exec,brave
+  bind=,b,submap,reset
+
+  bind=,w,exec,librewolf
+  bind=,w,submap,reset
+
+  bind=,c,exec,chromium
+  bind=,c,submap,reset
+
+  bind=,y,exec,freetube
+  bind=,y,submap,reset
+
+  bind=,e,exec,emacsclient -c
+  bind=,e,submap,reset
+
+  bind=,escape,submap,reset
+  bind=CONTROL,g,submap,reset
+  submap=reset
+
+  bind=SUPER,C,submap,Controls
+  submap=Controls
+
+  bind=SHIFT,equal,exec, pamixer -ui 5
+  bind=,minus,exec, pamixer -ud 5
+  bind=,m,exec, pamixer -t
+  bind=,m,submap,reset
+  bind=,p,exec, mpc toggle
+  bind=,p,submap,reset
+
+  bind=,escape,submap,reset
+  bind=CONTROL,g,submap,reset
+  submap=reset
   #+end_src
 *** wayland-packages
   #+name: hm-config
@@ -6733,16 +6748,17 @@ and returns the icon."
 - Nice, focused writing environment for emacs.
   #+name: orgmacs
   #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
-(use-package olivetti
-  :defer t
-  :hook
-  (org-mode text-mode Info-mode helpful-mode ement-room-mode
-            sdcv-mode nov-mode elfeed-show-mode markdown-mode)
-  :custom
-  (olivetti-body-width 0.92)
-  (olivetti-minimum-body-width 40)
-  (olivetti-recall-visual-line-mode-entry-state t)
-  :delight " ⊛")
+  (use-package olivetti
+    :defer t
+    :hook
+    (org-mode text-mode Info-mode helpful-mode ement-room-mode
+              shrface-mode
+              sdcv-mode nov-mode elfeed-show-mode markdown-mode)
+    :custom
+    (olivetti-body-width 0.92)
+    (olivetti-minimum-body-width 40)
+    (olivetti-recall-visual-line-mode-entry-state t)
+    )
   #+end_src
 ** Status bar/Mode-line
 *** Waybar
@@ -7124,7 +7140,6 @@ tooltip,
 (use-package mini-echo
   :unless d/on-droid
   ;; :load-path "~/d-git/forks/mini-echo"
-  :defer 1
   :custom
   (mini-echo-window-divider-args '(t 0 0) "no indicator border")
   (mini-echo-separator " ")
@@ -8489,121 +8504,121 @@ lines:                       20;
 - https://orgmode.org
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package org
-  :ensure nil
-  :defer t
-  :commands
-  (org-capture
-   org-agenda
-   org-indent-mode
-   org-display-inline-images
-   org-map-entries
-   org-archive-subtree
-   org-element-property
-   org-element-at-point
-   org-element-map
-   org-element-parse-buffer
-   )
-  :hook
-  (org-mode . variable-pitch-mode)
-  (org-mode . org-indent-mode)
+  (use-package org
+    :ensure nil
+    :defer t
+    :commands
+    (org-capture
+     org-agenda
+     org-indent-mode
+     org-display-inline-images
+     org-map-entries
+     org-archive-subtree
+     org-element-property
+     org-element-at-point
+     org-element-map
+     org-element-parse-buffer
+     )
+    :hook
+    (org-mode . variable-pitch-mode)
+    (org-mode . org-indent-mode)
 
-  :bind
-  ("C-c c d" . calendar)
-  ("C-c t R" . d/bionic-region)
-  ("C-c t i" . d/set-timer)
-  ("C-c t r" . d/bionic-read)
-  (:map org-mode-map
-        ("C-x n n" . d/narrow-or-widen-dwim)
-        ("C-c l" . org-store-link)
-        ("M-n" . org-shiftdown)
-        ("M-p" . org-shiftup)
-        )
+    :bind
+    ("C-c c d" . calendar)
+    ("C-c t R" . d/bionic-region)
+    ("C-c t i" . d/set-timer)
+    ("C-c t r" . d/bionic-read)
+    (:map org-mode-map
+          ("C-x n n" . d/narrow-or-widen-dwim)
+          ("C-c l" . org-store-link)
+          ("M-n" . org-shiftdown)
+          ("M-p" . org-shiftup)
+          )
 
-  :custom
-  (org-ellipsis " ⮟")
-  (org-log-done 'note)
-  (org-log-into-drawer t)
-  (org-export-exclude-tags '("noexport" "ignore") "excludes these tagged heading from export")
-  (org-latex-compiler "lualatex" "Lualatex is fast and gets custom font too")
-  (org-link-file-path-type 'relative)
+    :custom
+    (org-ellipsis " ⮟")
+    (org-log-done 'note)
+    (org-log-into-drawer t)
+    (org-export-exclude-tags '("noexport" "ignore") "excludes these tagged heading from export")
+    (org-latex-compiler "lualatex" "Lualatex is fast and gets custom font too")
+    (org-link-file-path-type 'relative)
 
-  (org-todo-keywords
-   '((sequence "TODO(t)" "|" "DONE(d!)")
-     (sequence "REVIEW(v)" "|" "CANC(k@)")))
+    (org-todo-keywords
+     '((sequence "TODO(t)" "|" "DONE(d!)")
+       (sequence "REVIEW(v)" "|" "CANC(k@)")))
 
-  (org-refile-targets
-   '(("journal.org" :maxlevel . 1)
-     ("agenda.org" :maxlevel . 1)
-     ("tasks.org_archive" :maxlevel . 1)))
+    (org-refile-targets
+     '(("journal.org" :maxlevel . 1)
+       ("agenda.org" :maxlevel . 1)
+       ("tasks.org_archive" :maxlevel . 1)))
 
-  (org-tag-alist
-   '((:startgroup)
-     (:endgroup)
-     ("project" . ?p)
-     ("task" . ?t)
-     ("devel" . ?d)
-     ("note" . ?n)
-     ("idea" . ?i)))
+    (org-tag-alist
+     '((:startgroup)
+       (:endgroup)
+       ("project" . ?p)
+       ("task" . ?t)
+       ("devel" . ?d)
+       ("note" . ?n)
+       ("idea" . ?i)))
 
-  (fill-column 80)
-  (org-directory "~/d-sync/notes/")
-  (org-default-notes-file (concat org-directory "journal.org"))
-  (org-src-fontify-natively t)
-  (org-pretty-entities t)
-  (org-log-reschedule 'note)
-  (org-startup-indented t)
-  (org-list-allow-alphabetical t)
+    (fill-column 80)
+    (org-directory "~/d-sync/notes/")
+    (org-default-notes-file (concat org-directory "journal.org"))
+    (org-src-fontify-natively t)
+    (org-pretty-entities t)
+    (org-log-reschedule 'note)
+    (org-startup-indented t)
+    (org-list-allow-alphabetical t)
 
-  (org-fontify-whole-heading-line t)
-  (org-fontify-done-headline t)
+    (org-fontify-whole-heading-line t)
+    (org-fontify-done-headline t)
 
-  (org-fontify-quote-and-verse-blocks t)
-  (org-fold-catch-invisible-edits 'show-and-error)
-  (org-use-property-inheritance t)
-  (org-hierarchical-todo-statistics nil)
-  (org-enforce-todo-checkbox-dependencies t)
+    (org-fontify-quote-and-verse-blocks t)
+    (org-fold-catch-invisible-edits 'show-and-error)
+    (org-use-property-inheritance t)
+    (org-hierarchical-todo-statistics nil)
+    (org-enforce-todo-checkbox-dependencies t)
 
-  (org-enforce-todo-dependencies t)
-  (org-track-ordered-property-with-tag t)
+    (org-enforce-todo-dependencies t)
+    (org-track-ordered-property-with-tag t)
 
-  (org-special-ctrl-k t)
+    (org-special-ctrl-k t)
 
-  (org-special-ctrl-a/e t)
-  (org-insert-heading-respect-content t)
+    (org-special-ctrl-a/e t)
+    (org-insert-heading-respect-content t)
 
-  :config
-  (org-clock-persistence-insinuate)
+    :config
+    (org-clock-persistence-insinuate)
 
-  ;; Save Org buffers after refiling!
-  (advice-add 'org-refile :after 'org-save-all-org-buffers)
+    ;; Save Org buffers after refiling!
+    (advice-add 'org-refile :after 'org-save-all-org-buffers)
 
-  (defun org-archive-done-tasks ()
-    "From the org-heading, it throws all the Done tasks to filename_archive.org"
-    (interactive)
-    (org-map-entries
-     (lambda ()
-       (org-archive-subtree)
-       (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
-     "/DONE" 'tree))
+    (defun org-archive-done-tasks ()
+      "From the org-heading, it throws all the Done tasks to filename_archive.org"
+      (interactive)
+      (org-map-entries
+       (lambda ()
+         (org-archive-subtree)
+         (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+       "/DONE" 'tree))
 
-  ;; This is for managing literate nixos config in org file
-  (defun get-named-src-block-contents (name &optional trim)
-    "Return the contents of the named Org source block."
-    (let* ((block (org-element-map (org-element-parse-buffer) 'src-block
-                    (lambda (src-block)
-                      (when (string= name (org-element-property :name src-block))
-                        src-block))
-                    nil t))
-           (source (org-element-property :value block)))
-      (if trim
-          (string-trim source)
-        source)))
+    ;; This is for managing literate nixos config in org file
+    (defun get-named-src-block-contents (name &optional trim)
+      "Return the contents of the named Org source block."
+      (let* ((block (org-element-map (org-element-parse-buffer) 'src-block
+                      (lambda (src-block)
+                        (when (string= name (org-element-property :name src-block))
+                          src-block))
+                      nil t))
+             (source (org-element-property :value block)))
+        (if trim
+            (string-trim source)
+          source)))
 
 
-  (push '("conf-unix" . conf-unix) org-src-lang-modes)
-  (defalias 'd/set-timer (symbol-function 'org-timer-set-timer))
-  )
+    (push '("conf-unix" . conf-unix) org-src-lang-modes)
+    (defalias 'd/set-timer (symbol-function 'org-timer-set-timer))
+    )
   #+end_src
 - productive desk ready to go
   #+name: orgmacs
@@ -8868,21 +8883,21 @@ lines:                       20;
 *** org-src
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package org-src
-  :ensure nil
-  :after org
-  :custom
-  (org-src-preserve-indentation t)
-  ;; Don't ask if we already have an open Edit buffer
-  (org-src-window-setup 'current-window)
-  (org-src-ask-before-returning-to-edit-buffer nil)
-  (org-edit-src-content-indentation 0)
-  :config
-  (advice-add 'org-src-get-lang-mode :filter-return
-              (lambda (mode)
-                (pcase (assoc mode major-mode-remap-alist)
-                  (`(,mode . ,ts-mode) ts-mode)
-                  (_ mode)))))
+  (use-package org-src
+    :ensure nil
+    :after org
+    :custom
+    (org-src-preserve-indentation nil)
+    ;; Don't ask if we already have an open Edit buffer
+    (org-src-window-setup 'current-window)
+    (org-src-ask-before-returning-to-edit-buffer nil)
+    (org-edit-src-content-indentation 0)
+    :config
+    (advice-add 'org-src-get-lang-mode :filter-return
+                (lambda (mode)
+                  (pcase (assoc mode major-mode-remap-alist)
+                    (`(,mode . ,ts-mode) ts-mode)
+                    (_ mode)))))
   #+end_src
 *** org-clock
 - credits to [[https://github.com/gopar][@gopar]]
@@ -9115,13 +9130,13 @@ block but are passed literally to the \"example-block\"."
 - to make tidy presentations
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package org-re-reveal
-  :after ox
-  :unless d/on-droid
-  :custom
-  (add-to-list 'org-export-backends 're-reveal)
-  (org-re-reveal-title-slide
-   "<h1 class=\"title\">%t</h1> <br> <br> <h2 class=\"subtitle\">%s</h2> <h2 class=\"author\">%a</h2> <br> <br> <h4 class=\"misc\">%m</h4> <h3 class=\"misc\">%A</h3>"))
+  (use-package org-re-reveal
+    :after ox
+    :unless d/on-droid
+    :custom
+    (add-to-list 'org-export-backends 're-reveal)
+    (org-re-reveal-title-slide
+     "<h1 class=\"title\">%t</h1> <br> <br> <h2 class=\"subtitle\">%s</h2> <br> <h4 class=\"misc\">%m</h4> <h3 class=\"misc\">%A</h3> <br> <h2 class=\"author\">%a</h2>"))
   #+end_src
 *** org-ql
 - for quick search and queries
@@ -9156,58 +9171,57 @@ block but are passed literally to the \"example-block\"."
 - Alert, send notifications for schedules and deadline tasks.
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package org-alert
-  :demand t
-  :custom
-  (org-alert-interval 300)
-  (org-alert-notification-title "Org Alert Reminder")
-  (org-alert-time-match-string
-   "\\(?:SCHEDULED\\|DEADLINE\\):.*?<.*?\\([0-9]\\{2\\}:[0-9]\\{2\\}\\).*>")
-  :config
-  (org-alert-enable))
+  (use-package org-alert
+    :custom
+    (org-alert-interval 300)
+    (org-alert-notification-title "Org Alert Reminder")
+    (org-alert-time-match-string
+     "\\(?:SCHEDULED\\|DEADLINE\\):.*?<.*?\\([0-9]\\{2\\}:[0-9]\\{2\\}\\).*>")
+    :config
+    (org-alert-enable))
   #+end_src
-**** Enhance org-notify
+**** COMMENT Enhance org-notify
 - Functions to enhance org-notify
 - org-alert does not need =alert= package itself, it does fine with built-in notifications package.
   #+name: orgmacs
   #+begin_src emacs-lisp
-;;;;; Functions - Notification Titles
+  ;;;;; Functions - Notification Titles
 
-(defconst d/notifier (if d/on-droid 'android-notifications-notify 'notifications-notify))
+  (defconst d/notifier (if d/on-droid 'android-notifications-notify 'notifications-notify))
 
-(defun my/org-alert--get-todo-parent ()
-  "Get the immediate parent heading of a TODO. If no parents, use file title. If no file title
-use filename."
-  (if (org-up-heading-safe)
-      (org-get-heading t t t t)
-    (let ((title (cdr (assoc "TITLE" (org-collect-keywords '("TITLE"))))))
-      (if (and title (listp title))
-          (car title)
-        title))))
+  (defun my/org-alert--get-todo-parent ()
+    "Get the immediate parent heading of a TODO. If no parents, use file title. If no file title
+  use filename."
+    (if (org-up-heading-safe)
+        (org-get-heading t t t t)
+      (let ((title (cdr (assoc "TITLE" (org-collect-keywords '("TITLE"))))))
+        (if (and title (listp title))
+            (car title)
+          title))))
 
-(defun org-alert--parse-entry--use-parent-as-title-advice (orig-fun &rest args)
-  "Advice for `org-alert--parse-entry' function. It adapts it to accept parameters from the
-`my/org-alert--get-todo-parent' function which retrieves the parent heading or file title/name."
-  (let ((head (org-alert--strip-text-properties (org-get-heading t t t t)))
-        (parent-or-file-head (my/org-alert--get-todo-parent)))
-    (cl-destructuring-bind (body cutoff) (org-alert--grab-subtree)
-      (if (string-match org-alert-time-match-string body)
-          (list head parent-or-file-head (match-string 1 body) cutoff)
-        nil))))
+  (defun org-alert--parse-entry--use-parent-as-title-advice (orig-fun &rest args)
+    "Advice for `org-alert--parse-entry' function. It adapts it to accept parameters from the
+  `my/org-alert--get-todo-parent' function which retrieves the parent heading or file title/name."
+    (let ((head (org-alert--strip-text-properties (org-get-heading t t t t)))
+          (parent-or-file-head (my/org-alert--get-todo-parent)))
+      (cl-destructuring-bind (body cutoff) (org-alert--grab-subtree)
+        (if (string-match org-alert-time-match-string body)
+            (list head parent-or-file-head (match-string 1 body) cutoff)
+          nil))))
 
-(defun org-alert--dispatch--use-parent-as-title-advice (orig-fun &rest args)
-  "Advice for `org-alert--dispatch' function."
-  (let ((entry (org-alert--parse-entry)))
-    (when entry
-      (cl-destructuring-bind (head parent-or-file-head time cutoff) entry
-        (if time
-            (when (org-alert--check-time time cutoff)
-              (funcall d/notifier :body (concat time ": " head) :title parent-or-file-head))
-          (funcall d/notifier :body head :title parent-or-file-head)
-          )))))
+  (defun org-alert--dispatch--use-parent-as-title-advice (orig-fun &rest args)
+    "Advice for `org-alert--dispatch' function."
+    (let ((entry (org-alert--parse-entry)))
+      (when entry
+        (cl-destructuring-bind (head parent-or-file-head time cutoff) entry
+          (if time
+              (when (org-alert--check-time time cutoff)
+                (funcall d/notifier :body (concat time ": " head) :title parent-or-file-head))
+            (funcall d/notifier :body head :title parent-or-file-head)
+            )))))
 
-(advice-add 'org-alert--parse-entry :around #'org-alert--parse-entry--use-parent-as-title-advice)
-(advice-add 'org-alert--dispatch :around #'org-alert--dispatch--use-parent-as-title-advice)
+  (advice-add 'org-alert--parse-entry :around #'org-alert--parse-entry--use-parent-as-title-advice)
+  (advice-add 'org-alert--dispatch :around #'org-alert--dispatch--use-parent-as-title-advice)
   #+end_src
 
 *** org-present
@@ -9467,11 +9481,19 @@ use filename."
 - to check for simple spell corrections
   #+name: orgmacs
   #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
-(use-package jinx
-  :unless d/on-droid
-  ;; :init (global-jinx-mode)
-  :hook org-mode
-  :bind ("M-$". jinx-correct))
+  (use-package jinx
+    :unless d/on-droid
+    ;; :init (global-jinx-mode)
+    :hook org-mode
+    :bind ("M-$". jinx-correct))
+  #+end_src
+- Built-in spell checker
+  #+name: orgmacs
+  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  (use-package ispell
+    :demand t
+    :custom
+    (ispell-alternate-dictionary (expand-file-name "~/.config/enchant/en_US.dic")))
   #+end_src
 *** Vocab
 - to use language-tool for corrections over grammar and vocabulary

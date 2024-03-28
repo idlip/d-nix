@@ -220,7 +220,7 @@
         pad = "0x0center";
         notify = "notify-send -a \${app-id} -i \${app-id} \${title} \${body}";
         selection-target = "clipboard";
-	      dpi-aware = "true";
+        # dpi-aware = "true";
       };
 
       scrollback = {
@@ -903,7 +903,7 @@
   programs = {
     mpv = {
       enable = true;
-      scripts = with pkgs.mpvScripts; [ mpris ];
+      scripts = with pkgs.mpvScripts; [ mpris manga-reader ];
 
       bindings = {
         l = "seek  5";
@@ -912,6 +912,8 @@
         j = "seek -30";
         J = "cycle sub";
         K = "cycle sub down";
+        B = "no-osd add contrast -4; no-osd add brightness 4; show-text 'Black Level: \${brightness}'";
+        N = "no-osd add contrast 4; no-osd add brightness -4; show-text 'Black Level: \${brightness}'";
       };
 
       config = {
@@ -936,6 +938,17 @@
         sub-font-size = "48";
         speed = "1.5";
       };
+
+      profiles = {
+        manga = {
+          profile-desc = "Read Manga";
+          profile-cond = "filename and filename:match('%.cbz$') or filename:match('%.cbr$') or filename:match('%.zip$') or filename:match('%.rar$') ~= nil";
+          profile = high-quality;
+          dscale = mitchell;
+          deband = no;
+        };
+      };
+
     };
   };
 }

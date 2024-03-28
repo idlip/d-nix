@@ -35,6 +35,27 @@
   (battery-load-low '40)
   (battery-load-critical '29))
 
+;; Initialize package sources
+(require 'package)
+
+(add-to-list 'package-archives '( "melpa" . "https://melpa.org/packages/"))
+
+(unless (bound-and-true-p package--initialized)
+  (customize-set-variable 'package-enable-at-startup nil)
+  (package-initialize))
+
+(unless package-archive-contents
+  (package-refresh-contents))
+
+(use-package use-package
+  :ensure nil
+  :custom
+  (use-package-verbose nil)
+  (use-package-always-ensure nil)
+  (use-package-always-defer nil)
+  (use-package-expand-minimally t)
+  (use-package-enable-imenu-support t))
+
 (use-package emacs
   :ensure nil
   :bind
@@ -79,11 +100,11 @@
   (delete-selection-mode)
 
   (with-current-buffer "*scratch*"
-	(emacs-lock-mode 'kill))
+  (emacs-lock-mode 'kill))
   (prefer-coding-system 'utf-8)
   ;; Uppercase is same as lowercase
   (define-coding-system-alias 'UTF-8 'utf-8)
-  (modify-all-frames-parameters '((alpha-background . 98)))
+  (modify-all-frames-parameters '((alpha-background . 100)))
 
   ;; balance windows when split (https://zck.org/balance-emacs-windows)
   (seq-doseq (fn (list #'split-window #'delete-window))
@@ -296,7 +317,8 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   :ensure nil
   :demand t
   :custom
-  (recentf-auto-cleanup 30)
+  (recentf-max-menu-items 100)
+  (recentf-max-saved-items 100)
   :config
   (recentf-mode))
 
@@ -839,12 +861,10 @@ Return nil if NAME does not designate a valid color."
   :unless d/on-droid
   :bind
   ("C-<tab>" . tab-next)
-
+  :hook
+  (server-after-make-frame . tab-new)
   :init
-  (tab-bar-mode)
-  (tab-new) ;; to just open few tabs
-  (tab-new)
-  (tab-new))
+  (tab-bar-mode))
 
 (use-package mwheel
   :ensure nil
@@ -1762,7 +1782,7 @@ out")
   (shr-bullet "⁍ ")
   (shr-folding-mode t)
   (shr-max-width 110)
-  (shr-max-image-proportion 0.4)
+  (shr-max-image-proportion 0.6)
   (shr-width nil))
 
 (use-package shr-color
@@ -1775,6 +1795,7 @@ out")
   :hook
   (eww-after-render . shrface-mode)
   (devdocs-browser-eww-mode . shrface-mode)
+  (gnus-article-mode . shrface-mode)
 
   :bind
   (:map shrface-mode-map
@@ -2169,18 +2190,18 @@ Android port."
   :defer t
   :hook
   (org-mode text-mode Info-mode helpful-mode ement-room-mode
+            shrface-mode
             sdcv-mode nov-mode elfeed-show-mode markdown-mode)
   :custom
   (olivetti-body-width 0.92)
   (olivetti-minimum-body-width 40)
   (olivetti-recall-visual-line-mode-entry-state t)
-  :delight " ⊛")
+  )
 
 ;; new way of using mode-line with `mini-echo-mode`
 (use-package mini-echo
   :unless d/on-droid
   ;; :load-path "~/d-git/forks/mini-echo"
-  :defer 1
   :custom
   (mini-echo-window-divider-args '(t 0 0) "no indicator border")
   (mini-echo-separator " ")
@@ -2277,7 +2298,7 @@ Display format is inherited from `battery-mode-line-format'."
   (dashboard-set-init-info nil)
   (dashboard-icon-type 'nerd-icons)
 
-  (dashboard-agenda-prefix-format " %i %-12:c%?-12t% s")
+  (dashboard-agenda-prefix-format " %?-12t% s")
   (dashboard-agenda-time-string-format "%Y-%m-%d %H:%M")
   (dashboard-agenda-sort-strategy '(time-up))
 
@@ -2424,6 +2445,8 @@ Display format is inherited from `battery-mode-line-format'."
   (:map org-mode-map
         ("C-x n n" . d/narrow-or-widen-dwim)
         ("C-c l" . org-store-link)
+        ("M-n" . org-shiftdown)
+        ("M-p" . org-shiftup)
         )
 
   :custom
@@ -2753,7 +2776,7 @@ Display format is inherited from `battery-mode-line-format'."
   :custom
   (add-to-list 'org-export-backends 're-reveal)
   (org-re-reveal-title-slide
-   "<h1 class=\"title\">%t</h1> <br> <br> <h2 class=\"subtitle\">%s</h2> <h2 class=\"author\">%a</h2> <br> <br> <h4 class=\"misc\">%m</h4> <h3 class=\"misc\">%A</h3>"))
+   "<h1 class=\"title\">%t</h1> <br> <br> <h2 class=\"subtitle\">%s</h2> <br> <h4 class=\"misc\">%m</h4> <h3 class=\"misc\">%A</h3> <br> <h2 class=\"author\">%a</h2>"))
 
 (use-package org-ql
   :bind
@@ -2776,7 +2799,6 @@ Display format is inherited from `battery-mode-line-format'."
      (isearch . lineage) (default . ancestors))))
 
 (use-package org-alert
-  :demand t
   :custom
   (org-alert-interval 300)
   (org-alert-notification-title "Org Alert Reminder")
@@ -2784,44 +2806,6 @@ Display format is inherited from `battery-mode-line-format'."
    "\\(?:SCHEDULED\\|DEADLINE\\):.*?<.*?\\([0-9]\\{2\\}:[0-9]\\{2\\}\\).*>")
   :config
   (org-alert-enable))
-
-;;;;; Functions - Notification Titles
-
-(defconst d/notifier (if d/on-droid 'android-notifications-notify 'notifications-notify))
-
-(defun my/org-alert--get-todo-parent ()
-  "Get the immediate parent heading of a TODO. If no parents, use file title. If no file title
-use filename."
-  (if (org-up-heading-safe)
-      (org-get-heading t t t t)
-    (let ((title (cdr (assoc "TITLE" (org-collect-keywords '("TITLE"))))))
-      (if (and title (listp title))
-          (car title)
-        title))))
-
-(defun org-alert--parse-entry--use-parent-as-title-advice (orig-fun &rest args)
-  "Advice for `org-alert--parse-entry' function. It adapts it to accept parameters from the
-`my/org-alert--get-todo-parent' function which retrieves the parent heading or file title/name."
-  (let ((head (org-alert--strip-text-properties (org-get-heading t t t t)))
-        (parent-or-file-head (my/org-alert--get-todo-parent)))
-    (cl-destructuring-bind (body cutoff) (org-alert--grab-subtree)
-      (if (string-match org-alert-time-match-string body)
-          (list head parent-or-file-head (match-string 1 body) cutoff)
-        nil))))
-
-(defun org-alert--dispatch--use-parent-as-title-advice (orig-fun &rest args)
-  "Advice for `org-alert--dispatch' function."
-  (let ((entry (org-alert--parse-entry)))
-    (when entry
-      (cl-destructuring-bind (head parent-or-file-head time cutoff) entry
-        (if time
-            (when (org-alert--check-time time cutoff)
-              (funcall d/notifier :body (concat time ": " head) :title parent-or-file-head))
-          (funcall d/notifier :body head :title parent-or-file-head)
-          )))))
-
-(advice-add 'org-alert--parse-entry :around #'org-alert--parse-entry--use-parent-as-title-advice)
-(advice-add 'org-alert--dispatch :around #'org-alert--dispatch--use-parent-as-title-advice)
 
 (use-package org-present
   :defer t
@@ -3006,7 +2990,7 @@ use filename."
   :after org
   :custom
   (org-noter-auto-save-last-location t)
-  (org-noter-default-notes-file-names '("brain.org"))
+  (org-noter-default-notes-file-names '("journal.org"))
   (org-noter-notes-search-path '("~/d-sync/notes"))
   (org-noter-notes-window-location 'vertical-split)
   )
@@ -3057,6 +3041,11 @@ use filename."
   ;; :init (global-jinx-mode)
   :hook org-mode
   :bind ("M-$". jinx-correct))
+
+(use-package ispell
+  :demand t
+  :custom
+  (ispell-alternate-dictionary (expand-file-name "~/.config/enchant/en_US.dic")))
 
 (use-package flymake-languagetool
   :unless d/on-droid

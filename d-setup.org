@@ -1213,7 +1213,7 @@ Exec=d-stuff %u
 (provide 'init)
 ;;; init.el ends here
   #+end_src
-*** COMMENT use-package
+*** use-package
 - setup =package.el=
   #+name: orgmacs
   #+begin_src emacs-lisp
@@ -1232,74 +1232,74 @@ Exec=d-stuff %u
 - Use-package macro for the tidy and better emacs configuration.
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package use-package
-  :ensure nil
-  :custom
-  (use-package-verbose nil)
-  (use-package-always-ensure nil)
-  (use-package-always-defer t)
-  (use-package-expand-minimally t)
-  (use-package-enable-imenu-support t))
+  (use-package use-package
+    :ensure nil
+    :custom
+    (use-package-verbose nil)
+    (use-package-always-ensure nil)
+    (use-package-always-defer nil)
+    (use-package-expand-minimally t)
+    (use-package-enable-imenu-support t))
   #+end_src
 *** Core-Tweaks
 + Sane default, to make vanilla experience suitable for me, for betterment.
 + Some of the tweak should be self-explanatory, or else just hop on it and do =C-h o=.
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package emacs
-  :ensure nil
-  :bind
-  ("C-z" . nil) ;; avoid suspend-emacs
-  ("C-x C-z" . nil)
-  ;; panes
-  ("M-o" . other-window)
-  ;; ("C-x C-k" . d/kill-buffer)
-  ("C-x n n" . d/narrow-or-widen-dwim)
+  (use-package emacs
+    :ensure nil
+    :bind
+    ("C-z" . nil) ;; avoid suspend-emacs
+    ("C-x C-z" . nil)
+    ;; panes
+    ("M-o" . other-window)
+    ;; ("C-x C-k" . d/kill-buffer)
+    ("C-x n n" . d/narrow-or-widen-dwim)
 
-  (:map mode-specific-map
-        ("C-g" . minibuffer-keyboard-quit))
+    (:map mode-specific-map
+          ("C-g" . minibuffer-keyboard-quit))
 
-  :custom
-  (inhibit-startup-screen t "Don't show splash screen")
+    :custom
+    (inhibit-startup-screen t "Don't show splash screen")
 
-  (initial-major-mode 'org-mode)
-  (initial-scratch-message
-   "#+title: Scratch Buffer\n\nFor random thoughts.\n\n")
+    (initial-major-mode 'org-mode)
+    (initial-scratch-message
+     "#+title: Scratch Buffer\n\nFor random thoughts.\n\n")
 
-  (use-short-answers t)
-  (enable-recursive-minibuffers t "Allow minibuffer commands in the minibuffer")
-  (indent-tabs-mode nil "Spaces!")
-  (tab-always-indent 'complete)
-  (tab-width 2)
-  (reb-re-syntax 'string)
+    (use-short-answers t)
+    (enable-recursive-minibuffers t "Allow minibuffer commands in the minibuffer")
+    (indent-tabs-mode nil "Spaces!")
+    (tab-always-indent 'complete)
+    (tab-width 2)
+    (reb-re-syntax 'string)
 
-  (history-delete-duplicates t)
-  ;; window/pane
-  (recenter-positions '(top middle bottom))
-  ;; pane
-  (frame-resize-pixelwise t)
-  (frame-inhibit-implied-resize t)
+    (history-delete-duplicates t)
+    ;; window/pane
+    (recenter-positions '(top middle bottom))
+    ;; pane
+    (frame-resize-pixelwise t)
+    (frame-inhibit-implied-resize t)
 
-  (sentence-end-double-space nil)
-  (sentence-end "[.?!,;-]")
+    (sentence-end-double-space nil)
+    (sentence-end "[.?!,;-]")
 
-  ;; select
-  (selection-coding-system 'utf-8)
+    ;; select
+    (selection-coding-system 'utf-8)
 
-  :config
-  (delete-selection-mode)
+    :config
+    (delete-selection-mode)
 
-  (with-current-buffer "*scratch*"
-	(emacs-lock-mode 'kill))
-  (prefer-coding-system 'utf-8)
-  ;; Uppercase is same as lowercase
-  (define-coding-system-alias 'UTF-8 'utf-8)
-  (modify-all-frames-parameters '((alpha-background . 98)))
+    (with-current-buffer "*scratch*"
+    (emacs-lock-mode 'kill))
+    (prefer-coding-system 'utf-8)
+    ;; Uppercase is same as lowercase
+    (define-coding-system-alias 'UTF-8 'utf-8)
+    (modify-all-frames-parameters '((alpha-background . 100)))
 
-  ;; balance windows when split (https://zck.org/balance-emacs-windows)
-  (seq-doseq (fn (list #'split-window #'delete-window))
-    (advice-add fn :after #'(lambda (&rest args) (balance-windows))))
-  )
+    ;; balance windows when split (https://zck.org/balance-emacs-windows)
+    (seq-doseq (fn (list #'split-window #'delete-window))
+      (advice-add fn :after #'(lambda (&rest args) (balance-windows))))
+    )
   #+end_src
 - Functions to enhance core default behavior
   #+name: orgmacs
@@ -1569,6 +1569,17 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (recentf-max-saved-items 100)
   :config
   (recentf-mode))
+  #+end_src
+**** COMMENT desktop save
+- To save and stage the emacs session, since this is a laptop, it feels like I need this setting.
+- I cannot leave system without shutdown everyday.
+  #+name: orgmacs
+  #+begin_src emacs-lisp
+  (use-package desktop
+    :custom
+    (desktop-save-mode 1)
+    :hook
+    (server-after-make-frame . desktop-read))
   #+end_src
 **** no-littering
 - To keep the emacs user directory clean and with less noise.
@@ -2539,16 +2550,14 @@ css-mode css-ts-mode
 - Use tab bar, instead of frames.
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package tab-bar
-  :unless d/on-droid
-  :bind
-  ("C-<tab>" . tab-next)
-
-  :init
-  (tab-bar-mode)
-  (tab-new) ;; to just open few tabs
-  (tab-new)
-  (tab-new))
+  (use-package tab-bar
+    :unless d/on-droid
+    :bind
+    ("C-<tab>" . tab-next)
+    :hook
+    (server-after-make-frame . tab-new)
+    :init
+    (tab-bar-mode))
   #+end_src
 **** Mouse
   #+name: orgmacs

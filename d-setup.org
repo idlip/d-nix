@@ -8659,9 +8659,10 @@ lines:                       20;
        (sequence "REVIEW(v)" "|" "CANC(k@)")))
 
     (org-refile-targets
-     '(("journal.org" :maxlevel . 1)
-       ("agenda.org" :maxlevel . 1)
-       ("tasks.org_archive" :maxlevel . 1)))
+     '(
+       (org-default-notes-file :maxlevel . 6)
+       (nil :maxlevel . 6)
+       ))
 
     (org-tag-alist
      '((:startgroup)
@@ -8911,68 +8912,68 @@ lines:                       20;
 *** org-capture
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package org-capture
-  :ensure nil
-  :after org
-  :defines
-  (my-org-agenda-headlines)
+  (use-package org-capture
+    :ensure nil
+    :after org
+    :defines
+    (my-org-agenda-headlines)
 
-  :bind
-  ("C-c c c" . org-capture)
+    :bind
+    ("C-c c c" . org-capture)
 
-  :custom
-  ;; dont create a bookmark when calling org-capture
-  (org-capture-bookmark nil)
-  ;; also don't create bookmark in other things
-  (org-bookmark-names-plist nil)
-  (org-default-notes-file (concat org-directory "brain.org"))
-  (org-capture-templates
-   `(
-     ("a" "Agenda" entry (file+function "~/d-sync/notes/agenda.org" (lambda () (completing-read "Heading: " my-org-agenda-headlines)))
-      "** TODO %?%^g\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1 :clock-in t :clock-resume t)
+    :custom
+    ;; dont create a bookmark when calling org-capture
+    (org-capture-bookmark nil)
+    ;; also don't create bookmark in other things
+    (org-bookmark-names-plist nil)
+    (org-default-notes-file (concat org-directory "brain.org"))
+    (org-capture-templates
+     `(
+       ("a" "Agenda" entry (file+function "~/d-sync/notes/agenda.org" (lambda () (completing-read "Heading: " my-org-agenda-headlines)))
+        "** TODO %?%^g\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1 :clock-in t :clock-resume t)
 
-     ("n" "Notes")
-     ("nn" "Note to Brain" entry
-      (file+headline org-default-notes-file "Notes")
-      "** %?\n %U\n %i\n %a")
-     ("nt" "Note to Thought" entry
-      (file+headline org-default-notes-file "Thoughts")
-      "** %?\n %U\n %i\n %a")
+       ("n" "Notes")
+       ("nn" "Note to Brain" entry
+        (file+headline org-default-notes-file "Notes")
+        "** %?\n %U\n %i\n %a")
+       ("nt" "Note to Thought" entry
+        (file+headline org-default-notes-file "Thoughts")
+        "** %?\n %U\n %i\n %a")
 
-     ("nc" "Capture Note" entry
-      (file "~/d-sync/notes/inbox.org")
-      "** %?\n %U\n %i %a\n - ")
+       ("nr" "Reading note" entry
+        (file "~/d-sync/notes/reading.org")
+        "** %?\n %U\n %i\n %a\n -")
 
-     ("nr" "Reading note" entry
-      (file "~/d-sync/notes/reading.org")
-      "** %?\n %U\n %i\n %a\n -")
+       ("nd" "Development note" entry
+        (file "~/d-sync/notes/development.org")
+        "** %?\n %U\n %i\n %a\n")
 
-     ("nd" "Development note" entry
-      (file "~/d-sync/notes/development.org")
-      "** %?\n %U\n %i\n %a\n")
+       ("c" "Contacts" entry (file "~/d-sync/notes/contacts.org")
+        "* %(tempel-insert 'contact)")
 
-     ("c" "Contacts" entry (file "~/d-sync/notes/contacts.org")
-      "* %(tempel-insert 'contact)")
+       ("l" "Link" entry
+        (file+headline "~/d-sync/notes/bookmarks.org" "elfeed") "* %a\n")
 
-     ("l" "Link" entry
-      (file+headline "~/d-sync/notes/bookmarks.org" "elfeed") "* %a\n")
+       ("j" "Journal Entries")
 
-     ("j" "Journal Entries")
+       ("jj" "Journal" entry
+        (file+datetree "~/d-sync/notes/journal.org")
+        "\n* %<%H:%M> - %? %^G\n %a \n\n"
+        :clock-in t :clock-resume t
+        :empty-lines 1)
 
-     ("jj" "Journal" entry
-      (file+datetree "~/d-sync/notes/journal.org")
-      "\n* %<%H:%M> - %? %^G\n\n\n"
-      :clock-in t :clock-resume t
-      :empty-lines 1)
+       ("jt" "Tasks for the Day" checkitem
+        (file+datetree "~/d-sync/notes/journal.org")
+        "[ ] %?\n"
+        )
 
-     ("jt" "Tasks for the Day" checkitem
-      (file+datetree "~/d-sync/notes/journal.org")
-      "[ ] %?\n"
-      )
+       ("jc" "Rough Note" entry
+        (file "~/d-sync/notes/inbox.org")
+        "** %?\n %U\n %i %a\n - ")
 
-     ))
-  :config
-  (setq my-org-agenda-headlines `(projects university tasks one-timer)))
+       ))
+    :config
+    (setq my-org-agenda-headlines `(projects university tasks one-timer)))
   #+end_src
 *** COMMENT org-contact
   #+name: orgmacs
@@ -9009,6 +9010,17 @@ lines:                       20;
                   (pcase (assoc mode major-mode-remap-alist)
                     (`(,mode . ,ts-mode) ts-mode)
                     (_ mode)))))
+  #+end_src
+*** org-id
+  #+name: orgmacs
+  #+begin_src emacs-lisp
+  (use-package org-id
+    :commands org-id-create
+    :custom
+    (org-id-method 'ts)
+    (org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
+    ;; (org-id-ts-format (string-replace "here" (car (split-string (org-entry-get nil "ITEM") " ")) "%Y%m%dT%H%M%S-here"))
+  )
   #+end_src
 *** org-clock
 - credits to [[https://github.com/gopar][@gopar]]
@@ -9254,18 +9266,36 @@ block but are passed literally to the \"example-block\"."
 - TODO expand and use bindings for it. Refer manual
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package org-ql
-  :bind
-  (:map org-mode-map
-        ("C-c o f" . org-ql-find)
-        ("C-c o s" . org-ql-search)
-        ("C-c o l" . org-ql-open-link)
-        ("C-c o v" . org-ql-view)))
+  (use-package org-ql
+    :bind
+    (:map org-mode-map
+          ("C-c q f" . org-ql-find)
+          ("C-c q s" . org-ql-search)
+          ("C-c q l" . org-ql-open-link)
+          ("C-c q v" . org-ql-view)))
 
-(use-package org-super-agenda
-  :after org
-  :hook
-  (org-agenda-mode . org-super-agenda-mode))
+  (use-package org-super-agenda
+    :after org
+    :hook
+    (org-agenda-mode . org-super-agenda-mode))
+  #+end_src
+*** org-super-links
+- Package to create bi-directional backlinks.
+- Inspired by karl voit post: https://karl-voit.at/2020/07/22/org-super-links/
+  #+name: orgmacs
+  #+begin_src emacs-lisp
+  (use-package org-super-links
+    :bind (("C-c s s" . org-super-links-link)
+           ("C-c s l" . org-super-links-store-link)
+           ("C-c s C-l" . org-super-links-insert-link)
+           ("C-c s d" . org-super-links-quick-insert-drawer-link)
+           ("C-c s i" . org-super-links-quick-insert-inline-link)
+           ("C-c s C-d" . org-super-links-delete-link))
+    :custom
+    (org-super-links-related-into-drawer "REFERENCE")
+    (org-super-links-link-prefix 'org-super-links-link-prefix-timestamp)
+    (org-super-links-backlink-into-drawer "CITATION"))
+
   #+end_src
 *** org-fold
 - To set some decent workflow to maintain single big notes file.

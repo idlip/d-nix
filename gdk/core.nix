@@ -181,7 +181,7 @@
       unmanaged = ["docker0" "rndis0" "interface-name:ve-*" ];
       wifi.macAddress = "random";
       dns = "systemd-resolved";
-      wifi.powersave = true;
+      wifi.powersave = false;
     };
 
     # Firewall uses iptables underthehood

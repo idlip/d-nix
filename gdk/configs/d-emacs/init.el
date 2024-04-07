@@ -35,6 +35,39 @@
   (battery-load-low '40)
   (battery-load-critical '29))
 
+;;; early-init.el --- Emacs 27+ pre-initialisation config -*- lexical-binding: t; -*-
+
+;;; Commentary:
+
+;; Emacs 27+ loads this file before (normally) calling
+;; `package-initialize'.  We use this file to suppress that automatic
+;; behaviour so that startup is consistent across Emacs versions.
+
+;; Tangled File, no need to edit !!!
+
+;;; Code:
+
+(tool-bar-mode -1)
+(menu-bar-mode 1)
+(scroll-bar-mode -1)
+
+(setq frame-inhibit-implied-resize t)
+
+(defconst d/on-droid (eq system-type 'android))
+
+;; Emacs (gui app) is also amazing in android
+;; https://sourceforge.net/projects/android-ports-for-gnu-emacs/files/termux/
+(when d/on-droid
+  (setenv "PATH" (format "%s:%s" "/data/data/com.termux/files/usr/bin"
+		                 (getenv "PATH")))
+  (setenv "LD_LIBRARY_PATH" (format "%s:%s"
+				                    "/data/data/com.termux/files/usr/lib"
+				                    (getenv "LD_LIBRARY_PATH")))
+  (push "/data/data/com.termux/files/usr/bin" exec-path))
+
+(provide 'early-init)
+;;; early-init.el ends here
+
 ;; Initialize package sources
 (require 'package)
 
@@ -104,7 +137,7 @@
   (prefer-coding-system 'utf-8)
   ;; Uppercase is same as lowercase
   (define-coding-system-alias 'UTF-8 'utf-8)
-  (modify-all-frames-parameters '((alpha-background . 100)))
+  (modify-all-frames-parameters '((alpha-background . 92)))
 
   ;; balance windows when split (https://zck.org/balance-emacs-windows)
   (seq-doseq (fn (list #'split-window #'delete-window))
@@ -371,6 +404,31 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   ;; Make dired-omit-mode hide all "dotfiles"
   (dired-omit-files "\\`[.]?#\\|\\`[.][.]?\\'\\|^\\..*$"))
 
+(use-package dabbrev
+  :ensure nil
+  :commands (dabbrev-expand dabbrev-completion)
+  :custom
+  (dabbrev-abbrev-char-regexp "\\sw\\|\\s_")
+  (dabbrev-abbrev-skip-leading-regexp "\\$\\|\\*\\|/\\|=")
+  (dabbrev-backward-only nil)
+  (dabbrev-case-distinction nil)
+  (dabbrev-case-fold-search t)
+  (dabbrev-case-replace nil)
+  (dabbrev-check-other-buffers t)
+  (dabbrev-eliminate-newlines nil)
+  (dabbrev-upcase-means-case-search t)
+  ;; Swap M-/ and C-M-/
+  :bind (("M-/" . dabbrev-completion)
+	     ("C-M-/" . dabbrev-expand))
+  ;; Other useful Dabbrev configurations.
+  :custom
+  (dabbrev-ignored-buffer-regexps '("\\.\\(?:pdf\\|jpe?g\\|png\\)\\'")))
+
+(use-package hippie-exp
+  :ensure nil
+  :bind
+  ("M-/" . hippie-expand))
+
 (use-package vertico
   :defines
   (vertico-map)
@@ -518,7 +576,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
    ("M-s r" . consult-ripgrep)
    ("M-s i" . consult-info)
    ("M-s l" . consult-line)
-   ("C-s" . consult-line)
+   ;; ("C-s" . consult-line)
    ("M-s L" . consult-line-multi)
    ("M-s k" . consult-keep-lines)
    ("M-s u" . consult-focus-lines)
@@ -674,16 +732,19 @@ Return nil if NAME does not designate a valid color."
          ("b" . browse-url-of-dired-file))
    (:map embark-region-map
          ("U" . webpaste-paste-buffer-or-region)))
-  :init
-  (setq prefix-help-command #'embark-prefix-help-command)
-  ;; (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
-  ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
+
+  :custom
+  (prefix-help-command #'embark-prefix-help-command)
+  (eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
+  (embark-prompter 'embark-completing-read-prompter)
+  (embark-keymap-prompter-key "`")
 
   :config
   (add-to-list 'display-buffer-alist
                '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
                  nil
-                 (window-parameters (mode-line-format . none)))))
+                 (window-parameters (mode-line-format . none))))
+  (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target))
 
 ;; credits to karthinks
 (with-eval-after-load 'embark
@@ -1195,7 +1256,7 @@ with `venvPath' and `venv' set to the absolute path of
 
 (use-package ess
   :defer t
-
+  :unless d/on-droid
   :custom
   (ess-use-company nil)
   (ess-eval-visibly nil)
@@ -1239,6 +1300,7 @@ with `venvPath' and `venv' set to the absolute path of
 
 (use-package ess-r-mode
   ;; :hook (ess-r-mode . (lambda () (flycheck-mode 0)))
+  :unless d/on-droid
   :bind
   (:map ess-mode-map
         ("C-;" . ess-insert-assign))
@@ -1279,6 +1341,7 @@ with `venvPath' and `venv' set to the absolute path of
   :commands (nix-repl))
 
 (use-package ess-julia
+  :unless d/on-droid
   :hook (ess-julia-mode . (lambda () (setq-local devdocs-browser-active-docs '("Julia"))))
   :bind
   (:map ess-julia-mode-map
@@ -1286,7 +1349,8 @@ with `venvPath' and `venv' set to the absolute path of
   :custom
   (inferior-julia-args "--color=yes" "You get color in julia inferior process"))
 
-(use-package julia-mode)
+(use-package julia-mode
+  :unless d/on-droid)
 
 (use-package executable
   :ensure nil
@@ -1387,6 +1451,7 @@ out")
   :custom
   (treesit-font-lock-level 4)
   (treesit-font-lock-feature-list t)
+  (standard-indent 2)
   (major-mode-remap-alist
    '((c-mode . c-ts-mode)
      (c++-mode . c++-ts-mode)
@@ -1716,9 +1781,11 @@ out")
            (nntp-open-connection-function nntp-open-tls-stream) ; feedbase does not do STARTTLS (yet?)
            (nntp-port-number 563) ; nntps
            (nntp-address "feedbase.org"))
-	 (nntp "gwene" (nntp-address "news.gwene.org"))
-	 ;; (nnrss "")
-	 ))
+   (nntp "gwene" (nntp-address "news.gwene.org"))
+   ;; (nnrss "")
+   ))
+
+  ;; (gnus-summary-line-format "%U%R%z%d %I%(%[ %F %] %s %)\n")
 
   ;;; --- credits to u/unhammer
   ;; Save time by not checking for new groups (I'm already subscribed to what I want,
@@ -1760,6 +1827,66 @@ out")
         ("<backtab>" . show-entry)
         ("p" . sdcv-previous-dictionary)))
 
+(use-package pubmed
+  :commands (pubmed-search pubmed-advanced-search)
+  :bind
+  (:map pubmed-mode-map
+        ("o" . pubmed-save-note-file)
+        ("f" . pubmed-get-fulltext))
+
+  :custom
+  (pubmed-fulltext-functions
+   '(pubmed-pmc
+     ;; pubmed-scihub
+     ;; pubmed-springer
+     pubmed-openaccessbutton
+     pubmed-unpaywall
+     ;; pubmed-dissemin
+     ))
+
+  (pubmed-default-directory "~/d-sync/reads/")
+  )
+
+(defun pubmed-open (url)
+  "Open the fulltext PDF of URL."
+  (let* ((filename (url-file-nondirectory url))
+         (path (concat (temporary-file-directory) filename ".pdf")))
+    (when path
+      (condition-case err
+          (url-copy-file url path 1)
+        (file-already-exists
+         (message "%s" (error-message-string err))))
+      (funcall #'pubmed--open-file path))))
+
+(defun pubmed-save-as (url)
+  "Prompt for filename and save the fulltext PDF of URL."
+  (let* ((default-filename (expand-file-name "hello.pdf" pubmed-default-directory)))
+
+    (condition-case err
+        (progn
+          (url-copy-file url default-filename t)
+          (call-interactively 'denote-rename-file))
+
+      (file-already-exists
+       (message "%s" (error-message-string err))
+       ))))
+
+(defun pubmed-save-note-file ()
+  (interactive)
+  (let ((pubmed-fulltext-action 'pubmed-save-as))
+    (pubmed-get-fulltext))
+    (org-noter)
+    )
+
+(defun pubmed-copy-url ()
+  (interactive)
+  (let ((pubmedids (if (use-region-p)
+                       (pubmed-get-uids-in-region)
+                     (pubmed-get-uids)
+                     )))
+    (dolist (uids pubmedids)
+      (kill-new (format "https://pubmed.ncbi.nlm.nih.gov/%s" uids)))))
+
 (use-package url
   :ensure nil
   :custom
@@ -1795,7 +1922,7 @@ out")
   :hook
   (eww-after-render . shrface-mode)
   (devdocs-browser-eww-mode . shrface-mode)
-  (gnus-article-mode . shrface-mode)
+  ;; (gnus-article-mode . shrface-mode)
 
   :bind
   (:map shrface-mode-map
@@ -1920,10 +2047,9 @@ for the search engine used."
   :config
   ;; browser script
   (unless d/on-droid
-    (setq browse-url-browser-function 'browse-url-generic
-          browse-url-generic-program "d-stuff")
-    (setq browse-url-secondary-browser-function 'browse-url-generic
-          browse-url-generic-program "d-stuff")))
+    (setopt browse-url-browser-function 'browse-url-generic
+            browse-url-generic-program "d-stuff"
+            browse-url-secondary-browser-function 'browse-url-generic)))
 
 (defun d/external-browser ()
   (interactive)
@@ -2191,6 +2317,7 @@ Android port."
   :hook
   (org-mode text-mode Info-mode helpful-mode ement-room-mode
             shrface-mode
+            gnus-article-mode
             sdcv-mode nov-mode elfeed-show-mode markdown-mode)
   :custom
   (olivetti-body-width 0.92)
@@ -2201,6 +2328,7 @@ Android port."
 ;; new way of using mode-line with `mini-echo-mode`
 (use-package mini-echo
   :unless d/on-droid
+  :defer 1
   ;; :load-path "~/d-git/forks/mini-echo"
   :custom
   (mini-echo-window-divider-args '(t 0 0) "no indicator border")
@@ -2462,9 +2590,10 @@ Display format is inherited from `battery-mode-line-format'."
      (sequence "REVIEW(v)" "|" "CANC(k@)")))
 
   (org-refile-targets
-   '(("journal.org" :maxlevel . 1)
-     ("agenda.org" :maxlevel . 1)
-     ("tasks.org_archive" :maxlevel . 1)))
+   '(
+     (org-default-notes-file :maxlevel . 6)
+     (nil :maxlevel . 6)
+     ))
 
   (org-tag-alist
    '((:startgroup)
@@ -2671,10 +2800,6 @@ Display format is inherited from `battery-mode-line-format'."
       (file+headline org-default-notes-file "Thoughts")
       "** %?\n %U\n %i\n %a")
 
-     ("nc" "Capture Note" entry
-      (file "~/d-sync/notes/inbox.org")
-      "** %?\n %U\n %i %a\n - ")
-
      ("nr" "Reading note" entry
       (file "~/d-sync/notes/reading.org")
       "** %?\n %U\n %i\n %a\n -")
@@ -2693,7 +2818,7 @@ Display format is inherited from `battery-mode-line-format'."
 
      ("jj" "Journal" entry
       (file+datetree "~/d-sync/notes/journal.org")
-      "\n* %<%H:%M> - %? %^G\n\n\n"
+      "\n* %<%H:%M> - %? %^G\n %a \n\n"
       :clock-in t :clock-resume t
       :empty-lines 1)
 
@@ -2701,6 +2826,10 @@ Display format is inherited from `battery-mode-line-format'."
       (file+datetree "~/d-sync/notes/journal.org")
       "[ ] %?\n"
       )
+
+     ("jc" "Rough Note" entry
+      (file "~/d-sync/notes/inbox.org")
+      "** %?\n %U\n %i %a\n - ")
 
      ))
   :config
@@ -2725,6 +2854,14 @@ Display format is inherited from `battery-mode-line-format'."
                 (pcase (assoc mode major-mode-remap-alist)
                   (`(,mode . ,ts-mode) ts-mode)
                   (_ mode)))))
+
+(use-package org-id
+  :commands org-id-create
+  :custom
+  (org-id-method 'ts)
+  (org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
+  ;; (org-id-ts-format (string-replace "here" (car (split-string (org-entry-get nil "ITEM") " ")) "%Y%m%dT%H%M%S-here"))
+)
 
 (use-package org-clock
   :ensure nil
@@ -2781,15 +2918,27 @@ Display format is inherited from `battery-mode-line-format'."
 (use-package org-ql
   :bind
   (:map org-mode-map
-        ("C-c o f" . org-ql-find)
-        ("C-c o s" . org-ql-search)
-        ("C-c o l" . org-ql-open-link)
-        ("C-c o v" . org-ql-view)))
+        ("C-c q f" . org-ql-find)
+        ("C-c q s" . org-ql-search)
+        ("C-c q l" . org-ql-open-link)
+        ("C-c q v" . org-ql-view)))
 
 (use-package org-super-agenda
   :after org
   :hook
   (org-agenda-mode . org-super-agenda-mode))
+
+(use-package org-super-links
+  :bind (("C-c s s" . org-super-links-link)
+         ("C-c s l" . org-super-links-store-link)
+         ("C-c s C-l" . org-super-links-insert-link)
+         ("C-c s d" . org-super-links-quick-insert-drawer-link)
+         ("C-c s i" . org-super-links-quick-insert-inline-link)
+         ("C-c s C-d" . org-super-links-delete-link))
+  :custom
+  (org-super-links-related-into-drawer "REFERENCE")
+  (org-super-links-link-prefix 'org-super-links-link-prefix-timestamp)
+  (org-super-links-backlink-into-drawer "CITATION"))
 
 (use-package org-fold
   :after org

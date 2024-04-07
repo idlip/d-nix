@@ -12,7 +12,7 @@
       enable = true;
       enableSshSupport = true;
       enableZshIntegration = true;
-      pinentryFlavor = "gnome3";
+      pinentryPackage = pkgs.pinentry-bemenu;
     };
   };
 }
@@ -309,7 +309,7 @@
       denote tempel tempel-collection avy
       sdcv elfeed elfeed-org jinx
       el-fetch envrc dashboard mini-echo
-      speed-type vc-backup aria2
+      speed-type vc-backup aria2 pubmed
       ess org-re-reveal auctex julia-mode webfeeder engrave-faces
       toc-org disable-mouse org-ql org-alert org-noter
 
@@ -336,6 +336,19 @@
           hash = "sha256-ybNqMHCGjzT2+4OfywS7hNw551kIzwI3QqC8tU/GsQI=";
         };
       })
+
+      (trivialBuild {
+        pname = "org-super-links";
+        version = "pre-0.4";
+
+        src = pkgs.fetchFromGitHub {
+          owner = "toshism";
+          repo = "org-super-links";
+          rev = "0dd9ed22b4785f50c61051170db7c78b522a37ee";
+          hash = "sha256-OWHUQBKp74sVIFbk8f7Xw7K11jPcR3HIVjpp5xiNwzs=";
+        };
+      })
+
 
       ## packages kept out to make more vanilla usage!
       # flycheck async dirvish consult-flycheck beframe powerthesaurus meow
@@ -549,7 +562,13 @@
 
 {
   home.packages = with pkgs; [
-    # mullvad-browser
+    libxslt
+  ];
+}
+
+{
+  home.packages = with pkgs; [
+    mullvad-browser
     ungoogled-chromium
     # nyxt
   ];
@@ -903,7 +922,7 @@
   programs = {
     mpv = {
       enable = true;
-      scripts = with pkgs.mpvScripts; [ mpris manga-reader ];
+      scripts = with pkgs.mpvScripts; [ mpris ];
 
       bindings = {
         l = "seek  5";
@@ -943,9 +962,9 @@
         manga = {
           profile-desc = "Read Manga";
           profile-cond = "filename and filename:match('%.cbz$') or filename:match('%.cbr$') or filename:match('%.zip$') or filename:match('%.rar$') ~= nil";
-          profile = high-quality;
-          dscale = mitchell;
-          deband = no;
+          profile = "high-quality";
+          dscale = "mitchell";
+          deband = "no";
         };
       };
 
@@ -1075,8 +1094,8 @@
         gaps_in = 5;
         gaps_out = 15;
         border_size = 2;
-        "col.active_border"  =  "rgba(e5b9c6ff) rgba(c293a3ff) 45deg";
-        "col.inactive_border"  =  "0xff382d2e";
+        "col.active_border" = "rgba(2e8b57ff) rgba(87cefaff) 45deg";
+        "col.inactive_border" = "0xff382D2E";
         no_border_on_floating  =  false; # enable border on float window
         layout  =  "dwindle";
         no_cursor_warps  =  false;
@@ -1172,7 +1191,7 @@
   }
   
   listener {
-     timeout = 340
+     timeout = 540
      on-timeout = d-idle "" "systemctl suspend"
   }
   '';
@@ -1228,7 +1247,7 @@
 
     font = {
       name = "Code D Haki";
-      size = 17;
+      size = 15;
     };
 
     gtk2.configLocation = "${config.xdg.configHome}/gtk-2.0/gtkrc";
@@ -1471,7 +1490,6 @@
       enable = true;
       extraOptions = ["--group-directories-first" "--header"];
       icons = true;
-      enableAliases = false;
     };
 
     ripgrep = {

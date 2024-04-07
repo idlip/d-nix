@@ -12,7 +12,7 @@
 
 <a href="https://orgmode.org"><img src="https://img.shields.io/badge/Org-literate%20config-seagreen?style=for-the-badge&logo=org&labelColor=black"></a>
 
-<a href="https://www.gnu.org/software/emacs/emacs.html#Releases"><img src="https://img.shields.io/badge/Emacs-29.1-blueviolet.svg?style=for-the-badge&logo=GNU%20Emacs&labelColor=black"></a>
+<a href="https://www.gnu.org/software/emacs/emacs.html#Releases"><img src="https://img.shields.io/badge/Emacs-30.0.50-blueviolet.svg?style=for-the-badge&logo=GNU%20Emacs&labelColor=black"></a>
 </p>
 
 <h1 align="center">NixOrgMacs</h1>

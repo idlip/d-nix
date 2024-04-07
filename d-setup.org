@@ -448,61 +448,61 @@ It is as simple if I just record what it does, with proper link to rich resource
 - firewall with certain rules to let syncthing and kdeconnect operate as expected.
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-{
-  networking = {
+  {
+    networking = {
 
-    # Killer feature, Its a must these days.
-    # Adblocker!! It uses steven black hosts.
-    stevenBlackHosts = {
-      enable = true;
-      blockFakenews = true;
-      blockGambling = true;
-      blockPorn = true;
-      blockSocial = false;
+      # Killer feature, Its a must these days.
+      # Adblocker!! It uses steven black hosts.
+      stevenBlackHosts = {
+        enable = true;
+        blockFakenews = true;
+        blockGambling = true;
+        blockPorn = true;
+        blockSocial = false;
+      };
+
+      # dns
+      # mullvad dns
+      nameservers = [ "194.242.2.5" "194.242.2.9" ];
+      dhcpcd = {
+        wait = "background";
+        extraConfig = "noarp";
+      };
+
+      # NetworkManager replaces wpa_supplicant
+      wireless.enable = false;
+
+      networkmanager = {
+        enable = true;
+        unmanaged = ["docker0" "rndis0" "interface-name:ve-*" ];
+        wifi.macAddress = "random";
+        dns = "systemd-resolved";
+        wifi.powersave = false;
+      };
+
+      # Firewall uses iptables underthehood
+      # Rules are for syncthing
+      firewall = rec {
+        enable = true;
+        # For syncthing & kdeconnect
+        allowedTCPPortRanges = [ { from = 1714; to = 1764; } ];
+        allowedUDPPortRanges = allowedTCPPortRanges;
+        allowedTCPPorts = [8384 22000];
+        allowedUDPPorts = [22000 21027];
+        allowPing = false;
+        logReversePathDrops = true;
+      };
+
+      nat = { # for container or vm
+        enable = false;
+        internalInterfaces = ["ve-+"];
+        externalInterface = "wlp0s20f3";
+        # Lazy IPv6 connectivity for the container
+        enableIPv6 = true;
+      };
+
     };
-
-    # dns
-    # mullvad dns
-    nameservers = [ "194.242.2.5" "194.242.2.9" ];
-    dhcpcd = {
-      wait = "background";
-      extraConfig = "noarp";
-    };
-
-    # NetworkManager replaces wpa_supplicant
-    wireless.enable = false;
-
-    networkmanager = {
-      enable = true;
-      unmanaged = ["docker0" "rndis0" "interface-name:ve-*" ];
-      wifi.macAddress = "random";
-      dns = "systemd-resolved";
-      wifi.powersave = true;
-    };
-
-    # Firewall uses iptables underthehood
-    # Rules are for syncthing
-    firewall = rec {
-      enable = true;
-      # For syncthing & kdeconnect
-      allowedTCPPortRanges = [ { from = 1714; to = 1764; } ];
-      allowedUDPPortRanges = allowedTCPPortRanges;
-      allowedTCPPorts = [8384 22000];
-      allowedUDPPorts = [22000 21027];
-      allowPing = false;
-      logReversePathDrops = true;
-    };
-
-    nat = { # for container or vm
-      enable = false;
-      internalInterfaces = ["ve-+"];
-      externalInterface = "wlp0s20f3";
-      # Lazy IPv6 connectivity for the container
-      enableIPv6 = true;
-    };
-
-  };
-}
+  }
   #+end_src
 *** networking-services
 - networking oriented services.
@@ -812,16 +812,16 @@ It is as simple if I just record what it does, with proper link to rich resource
 - gpg agent for polkit, and pinentry?
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  services = {
-    gpg-agent = {
-      enable = true;
-      enableSshSupport = true;
-      enableZshIntegration = true;
-      pinentryFlavor = "gnome3";
+  {
+    services = {
+      gpg-agent = {
+        enable = true;
+        enableSshSupport = true;
+        enableZshIntegration = true;
+        pinentryPackage = pkgs.pinentry-bemenu;
+      };
     };
-  };
-}
+  }
   #+end_src
 
 *** wlsunset
@@ -5527,7 +5527,7 @@ for the search engine used."
     programs = {
       mpv = {
         enable = true;
-        scripts = with pkgs.mpvScripts; [ mpris manga-reader ];
+        scripts = with pkgs.mpvScripts; [ mpris ];
 
         bindings = {
           l = "seek  5";
@@ -5567,9 +5567,9 @@ for the search engine used."
           manga = {
             profile-desc = "Read Manga";
             profile-cond = "filename and filename:match('%.cbz$') or filename:match('%.cbr$') or filename:match('%.zip$') or filename:match('%.rar$') ~= nil";
-            profile = high-quality;
-            dscale = mitchell;
-            deband = no;
+            profile = "high-quality";
+            dscale = "mitchell";
+            deband = "no";
           };
         };
 
@@ -5909,132 +5909,118 @@ Android port."
 - Home manager config
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  # the thing is you won't get xdg-portal-hyprland
-  # refer: https://github.com/nix-community/home-manager/issues/1167
-  # # enable hyprland
-  wayland.windowManager.hyprland = {
-    enable = true;
-    systemd.enable = true;
-
-    extraConfig = ''
-    source					= ~/.config/hypr/hyprsea.conf
-    '';
-
-    settings = {
-
-      decoration = {
-        rounding = 10;
-        inactive_opacity = 0.8;
-        active_opacity = 0.9;
-        fullscreen_opacity = 1.0;
-        dim_inactive = false;
-        shadow_offset = "0 5";
-        "col.shadow" = "rgba(00000099)";
-
-        blur = {
-          enabled = 1;
-          size = 6;
-          passes = 3;
-          new_optimizations = true;
-          ignore_opacity = true;
-        };
-      };
-
-      "$mod" = "super";
-
-      input = {
-        kb_layout = "us";
-        kb_options = "ctrl:nocaps";
-        follow_mouse = 0;
-        sensitivity = 0.1;
-        #    repeat_delay = 250
-
-        touchpad = {
-          natural_scroll = "no";
-          disable_while_typing = 1;
-          clickfinger_behavior = 0; # double tap > right click
-          middle_button_emulation = 1;
-          tap-to-click = 1;
-        };
-      };
-
-      general  =  {
-        gaps_in = 5;
-        gaps_out = 15;
-        border_size = 2;
-        "col.active_border"  =  "rgba(e5b9c6ff) rgba(c293a3ff) 45deg";
-        "col.inactive_border"  =  "0xff382d2e";
-        no_border_on_floating  =  false; # enable border on float window
-        layout  =  "dwindle";
-        no_cursor_warps  =  false;
-      };
-
-      misc = {
-        disable_hyprland_logo = true;
-        disable_splash_rendering = true;
-        mouse_move_enables_dpms = true;
-        enable_swallow = true;
-        swallow_regex = "^(foot)$";
-        vrr = false;
-      };
-
-      animations = {
-        enabled = true;
-      };
-
-      dwindle = {
-        pseudotile = true;
-        preserve_split = true;
-        force_split = true;
-        no_gaps_when_only = false;
-        default_split_ratio = 1.0;
-        smart_split = false;
-      };
-
-      master = {
-        new_is_master = false;
-        new_on_top = false;
-        allow_small_split = true;
-        no_gaps_when_only = false;
-      };
-
-      gestures  =  {
-        workspace_swipe = 1;
-        workspace_swipe_distance = 400;
-        workspace_swipe_invert = 1;
-        workspace_swipe_min_speed_to_force = 30;
-        workspace_swipe_cancel_ratio = 0.5;
-      };
-
-      bindm = [
-        # mouse movements
-        "$mod, mouse:272, movewindow"
-        "$mod, mouse:273, resizewindow"
-        "$mod alt, mouse:272, resizewindow"
-      ];
-
-
-    };
-  };
-
-  # naming it main.conf becuase hm writes hyprland.conf, so just as an import
-  xdg.configFile."hypr/hyprsea.conf".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/hyprsea.conf";
-}
-  #+end_src
-*** COMMENT kde plasma
-  #+name: nixos-core
-  #+begin_src nix :tangle gdk/core.nix
-{
-  services.xserver = {
-    enable = true;
-    displayManager.sddm = {
+  {
+    # the thing is you won't get xdg-portal-hyprland
+    # refer: https://github.com/nix-community/home-manager/issues/1167
+    # # enable hyprland
+    wayland.windowManager.hyprland = {
       enable = true;
-      wayland.enable = true;
+      systemd.enable = true;
+
+      extraConfig = ''
+      source					= ~/.config/hypr/hyprsea.conf
+      '';
+
+      settings = {
+
+        decoration = {
+          rounding = 10;
+          inactive_opacity = 0.8;
+          active_opacity = 0.9;
+          fullscreen_opacity = 1.0;
+          dim_inactive = false;
+          shadow_offset = "0 5";
+          "col.shadow" = "rgba(00000099)";
+
+          blur = {
+            enabled = 1;
+            size = 6;
+            passes = 3;
+            new_optimizations = true;
+            ignore_opacity = true;
+          };
+        };
+
+        "$mod" = "super";
+
+        input = {
+          kb_layout = "us";
+          kb_options = "ctrl:nocaps";
+          follow_mouse = 0;
+          sensitivity = 0.1;
+          #    repeat_delay = 250
+
+          touchpad = {
+            natural_scroll = "no";
+            disable_while_typing = 1;
+            clickfinger_behavior = 0; # double tap > right click
+            middle_button_emulation = 1;
+            tap-to-click = 1;
+          };
+        };
+
+        general  =  {
+          gaps_in = 5;
+          gaps_out = 15;
+          border_size = 2;
+          "col.active_border" = "rgba(2e8b57ff) rgba(87cefaff) 45deg";
+          "col.inactive_border" = "0xff382D2E";
+          no_border_on_floating  =  false; # enable border on float window
+          layout  =  "dwindle";
+          no_cursor_warps  =  false;
+        };
+
+        misc = {
+          disable_hyprland_logo = true;
+          disable_splash_rendering = true;
+          mouse_move_enables_dpms = true;
+          enable_swallow = true;
+          swallow_regex = "^(foot)$";
+          vrr = false;
+        };
+
+        animations = {
+          enabled = true;
+        };
+
+        dwindle = {
+          pseudotile = true;
+          preserve_split = true;
+          force_split = true;
+          no_gaps_when_only = false;
+          default_split_ratio = 1.0;
+          smart_split = false;
+        };
+
+        master = {
+          new_is_master = false;
+          new_on_top = false;
+          allow_small_split = true;
+          no_gaps_when_only = false;
+        };
+
+        gestures  =  {
+          workspace_swipe = 1;
+          workspace_swipe_distance = 400;
+          workspace_swipe_invert = 1;
+          workspace_swipe_min_speed_to_force = 30;
+          workspace_swipe_cancel_ratio = 0.5;
+        };
+
+        bindm = [
+          # mouse movements
+          "$mod, mouse:272, movewindow"
+          "$mod, mouse:273, resizewindow"
+          "$mod alt, mouse:272, resizewindow"
+        ];
+
+
+      };
     };
-    desktopManager.plasma6.enable = true;
-  };
-}
+
+    # naming it main.conf becuase hm writes hyprland.conf, so just as an import
+    xdg.configFile."hypr/hyprsea.conf".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/hyprsea.conf";
+  }
   #+end_src
 *** hyprsea
 - more additional hyprland conf for quick reloads
@@ -6064,24 +6050,24 @@ Android port."
   swallow_regex=^(footclient)$
   }
 
-  general {
-  col.active_border=rgba(2e8b57ff) rgba(87cefaff) 45deg
-  col.inactive_border=0xff382D2E
-  gaps_in = 0;
-  gaps_out = 0;
-  }
+  # general {
+  # col.active_border=rgba(2e8b57ff) rgba(87cefaff) 45deg
+  # col.inactive_border=0xff382D2E
+  # gaps_in = 0;
+  # gaps_out = 0;
+  # }
 
-  animations {
-  enabled = false
-  }
-  decoration {
-  blur {
-  enabled = false
-  }
-  rounding = 0;
-  active_opacity=1.0
-  inactive_opacity=1.0
-  }
+  # animations {
+  # enabled = false
+  # }
+  # decoration {
+  # blur {
+  # enabled = false
+  # }
+  # rounding = 0;
+  # active_opacity=1.0
+  # inactive_opacity=1.0
+  # }
 
 
   # █░█░█ █ █▄░█ █▀▄ █▀█ █░█░█   █▀█ █░█ █░░ █▀▀ █▀
@@ -6416,6 +6402,20 @@ Android port."
   bind=,escape,submap,reset
   bind=CONTROL,g,submap,reset
   submap=reset
+  #+end_src
+*** COMMENT kde plasma
+  #+name: nixos-core
+  #+begin_src nix :tangle gdk/core.nix
+{
+  services.xserver = {
+    enable = true;
+    displayManager.sddm = {
+      enable = true;
+      wayland.enable = true;
+    };
+    desktopManager.plasma6.enable = true;
+  };
+}
   #+end_src
 *** wayland-packages
   #+name: hm-config
@@ -6771,7 +6771,7 @@ and returns the icon."
 
     font = {
       name = "Code D Haki";
-      size = 17;
+      size = 15;
     };
 
     gtk2.configLocation = "${config.xdg.configHome}/gtk-2.0/gtkrc";
@@ -6798,20 +6798,20 @@ and returns the icon."
 - to set qt theme appropriately, even with this config, kdeConnect looks bare bone.
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  qt = {
-    enable = true;
-    # platformTheme = "gtk3";
-    style.name = "adwaita-dark";
-  };
-}
+  {
+    qt = {
+      enable = true;
+      # platformTheme = "gtk3";
+      style.name = "adwaita-dark";
+    };
+  }
   #+end_src
 
 *** Editor theme
 - Emacs theme are good, there is doom-themes, modus-themes (masterpiece).
 - After long usage, I felt every theme did not suit me, so I just wrote a theme ([[https://github.com/idlip/haki][haki]])
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package haki-theme
   :demand t
   :load-path "~/.config/emacs/var/theme"
@@ -7481,67 +7481,66 @@ tooltip,
 | fzf     | fuzzy search | =fzf=  | [[https://github.com/junegunn/fzf][git]]  |
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  programs = {
-    eza = {
-      enable = true;
-      extraOptions = ["--group-directories-first" "--header"];
-      icons = true;
-      enableAliases = false;
-    };
-
-    ripgrep = {
-      enable = true;
-      arguments = [
-        "--max-columns-preview"
-        "--colors=line:style:bold"
-        "--ignore-case"
-      ];
-    };
-
-    btop = {
-      enable = true;
-      settings = {
-        color_theme = "default";
-        theme_background = false;
-        vim_keys = true;
-        shown_boxes = "proc cpu";
-        rounded_corners = true ;
-        graph_symbol = "block";
-        proc_sorting = "memory";
-        proc_reversed = false;
-        proc_gradient = true;
+  {
+    programs = {
+      eza = {
+        enable = true;
+        extraOptions = ["--group-directories-first" "--header"];
+        icons = true;
       };
-    };
 
-    bat = {
-      enable = true;
-      extraPackages = with pkgs.bat-extras; [ batdiff batman batgrep batwatch ];
-      config = {
-        pager = "less -fr";
-        theme = "TwoDark";
+      ripgrep = {
+        enable = true;
+        arguments = [
+          "--max-columns-preview"
+          "--colors=line:style:bold"
+          "--ignore-case"
+        ];
       };
-    };
 
-    ssh.enable = true;
-
-    fzf = {
-      enable = true;
-      colors = {
-        bg = "#121212";
-        "bg+" = "#2e8b57";
-        fg = "#fdfdfd";
-        "fg+" = "#FFFFFF";
+      btop = {
+        enable = true;
+        settings = {
+          color_theme = "default";
+          theme_background = false;
+          vim_keys = true;
+          shown_boxes = "proc cpu";
+          rounded_corners = true ;
+          graph_symbol = "block";
+          proc_sorting = "memory";
+          proc_reversed = false;
+          proc_gradient = true;
+        };
       };
-      defaultCommand = "fd --type f";
-    };
 
-  };
-}
+      bat = {
+        enable = true;
+        extraPackages = with pkgs.bat-extras; [ batdiff batman batgrep batwatch ];
+        config = {
+          pager = "less -fr";
+          theme = "TwoDark";
+        };
+      };
+
+      ssh.enable = true;
+
+      fzf = {
+        enable = true;
+        colors = {
+          bg = "#121212";
+          "bg+" = "#2e8b57";
+          fg = "#fdfdfd";
+          "fg+" = "#FFFFFF";
+        };
+        defaultCommand = "fd --type f";
+      };
+
+    };
+  }
   #+end_src
 - =htop= in emacs, its =proced=
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package proced
   :bind ("C-x x p" . 'proced)
   :init (setq proced-auto-update-interval 1

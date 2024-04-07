@@ -1,6 +1,7 @@
 #+STARTUP: overview
 #+OPTIONS: num:nil author:nil toc:3
 #+PROPERTY: header-args :noweb yes :results silent :tangle-mode (identity #o444) :mkdirp yes
+#+property: header-args:emacs-lisp :tangle gdk/configs/d-emacs/init.el
 #+STARTUP: hideblocks
 #+TITLE: Nix Organized with Emacs!
 #+AUTHOR: Dilip
@@ -396,7 +397,7 @@ It is as simple if I just record what it does, with proper link to rich resource
   #+end_src
 - display time in mode-line
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package time
   :ensure nil
   :hook
@@ -572,7 +573,7 @@ It is as simple if I just record what it does, with proper link to rich resource
 - Transparent remote (file) access, multiple protocol
 - some of the configs are suggestions from =drivish= readme.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package tramp
   :ensure nil
   :defer t
@@ -764,7 +765,7 @@ It is as simple if I just record what it does, with proper link to rich resource
 **** display-battery
 - Display battery in emacs
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package battery
   :ensure nil
   :hook
@@ -1185,9 +1186,6 @@ Exec=d-stuff %u
 ;;; early-init.el ends here
   #+end_src
 ** Init
-:PROPERTIES:
-:header-args: :tangle gdk/configs/d-emacs/init.el
-:END:
 - To initialize the environment.
   #+begin_src emacs-lisp :tangle no
 ;;; init.el --- Load the full configuration -*- lexical-binding: t -*-
@@ -1294,7 +1292,7 @@ Exec=d-stuff %u
     (prefer-coding-system 'utf-8)
     ;; Uppercase is same as lowercase
     (define-coding-system-alias 'UTF-8 'utf-8)
-    (modify-all-frames-parameters '((alpha-background . 100)))
+    (modify-all-frames-parameters '((alpha-background . 92)))
 
     ;; balance windows when split (https://zck.org/balance-emacs-windows)
     (seq-doseq (fn (list #'split-window #'delete-window))
@@ -1724,7 +1722,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 *** Completions
 + the best part of enjoying emacs, is getting the desired way of completing a text.
 + completions everywhere, that make you use emacs for everything.
-**** COMMENT Dabbrev
+**** Dabbrev
 - dynamic abbrev expansion.
   #+name: orgmacs
   #+begin_src emacs-lisp
@@ -1854,109 +1852,109 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 - like doctor diagnosis the candidate for completion
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package consult
-  :functions
-  (consult-register-window
-   eww-read-bookmarks
-   consult--read
-   consult-colors--web-list
-   color-rgb-to-hex
-   list-colors-duplicates)
+  (use-package consult
+    :functions
+    (consult-register-window
+     eww-read-bookmarks
+     consult--read
+     consult-colors--web-list
+     color-rgb-to-hex
+     list-colors-duplicates)
 
-  :defines
-  (consult-buffer-sources
-   eww-bookmarks
-   add-unicodes
-   shr-color-html-colors-alist
-   d/on-droid)
+    :defines
+    (consult-buffer-sources
+     eww-bookmarks
+     add-unicodes
+     shr-color-html-colors-alist
+     d/on-droid)
 
-  :bind
-  (
-   ("C-c d i" . d/insert-unicodes)
-   ("C-c d c" . d/insert-colors)
+    :bind
+    (
+     ("C-c d i" . d/insert-unicodes)
+     ("C-c d c" . d/insert-colors)
 
-   ;; C-c bindings (mode-specific-map)
-   ("C-c h" . consult-history)
-   ("C-c M-x" . consult-mode-command)
-   ("C-c k" . consult-kmacro)
-   ("C-c t t" . consult-theme)
-   ;; C-x bindings (ctl-x-map)
-   ("C-x M-:" . consult-complex-command)
-   ("C-x M-x" . consult-mode-command)
-   ("C-x b" . consult-buffer)
-   ("C-x C-b" . consult-buffer)
-   ("C-x 4 b" . consult-buffer-other-window)
-   ("C-x 5 b" . consult-buffer-other-frame)
-   ("C-x r b" . consult-bookmark)
-   ("C-x p b" . consult-project-buffer)
-   ;; Custom M-# bindings for fast register access
-   ("M-#" . consult-register-load)
-   ("M-'" . consult-register-store)
-   ("C-M-#" . consult-register)
-   ;; Other custom bindings
-   ("M-y" . consult-yank-pop)
-   ;; M-g bindings (goto-map)
-   ("M-g e" . consult-compile-error)
-   ("M-g f" . consult-flymake)
-   ("M-g g" . consult-goto-line)
-   ("M-g M-g" . consult-goto-line)
-   ("M-g o" . consult-outline)
-   ("M-g m" . consult-mark)
-   ("M-g k" . consult-global-mark)
-   ("M-g i" . consult-imenu)
-   ("M-g I" . consult-imenu-multi)
-   ("M-g s" . consult-eglot-symbols)
-   ;; M-s bindings (search-map)
-   ("M-s d" . consult-fd)
-   ("M-s D" . consult-locate)
-   ("M-s g" . consult-ripgrep)
-   ("M-s m" . consult-man)
-   ("M-s G" . consult-git-grep)
-   ("M-s r" . consult-ripgrep)
-   ("M-s i" . consult-info)
-   ("M-s l" . consult-line)
-   ("C-s" . consult-line)
-   ("M-s L" . consult-line-multi)
-   ("M-s k" . consult-keep-lines)
-   ("M-s u" . consult-focus-lines)
-   ;; Isearch integration
-   ("M-s e" . consult-isearch-history)
-   :map isearch-mode-map
-   ("M-e" . consult-isearch-history)
-   ("M-s e" . consult-isearch-history)
-   ("M-s l" . consult-line)
-   ("M-s L" . consult-line-multi)
-   ;; Minibuffer history
-   :map minibuffer-local-map
-   ("M-s" . consult-history)
-   ("M-r" . consult-history)
+     ;; C-c bindings (mode-specific-map)
+     ("C-c h" . consult-history)
+     ("C-c M-x" . consult-mode-command)
+     ("C-c k" . consult-kmacro)
+     ("C-c t t" . consult-theme)
+     ;; C-x bindings (ctl-x-map)
+     ("C-x M-:" . consult-complex-command)
+     ("C-x M-x" . consult-mode-command)
+     ("C-x b" . consult-buffer)
+     ("C-x C-b" . consult-buffer)
+     ("C-x 4 b" . consult-buffer-other-window)
+     ("C-x 5 b" . consult-buffer-other-frame)
+     ("C-x r b" . consult-bookmark)
+     ("C-x p b" . consult-project-buffer)
+     ;; Custom M-# bindings for fast register access
+     ("M-#" . consult-register-load)
+     ("M-'" . consult-register-store)
+     ("C-M-#" . consult-register)
+     ;; Other custom bindings
+     ("M-y" . consult-yank-pop)
+     ;; M-g bindings (goto-map)
+     ("M-g e" . consult-compile-error)
+     ("M-g f" . consult-flymake)
+     ("M-g g" . consult-goto-line)
+     ("M-g M-g" . consult-goto-line)
+     ("M-g o" . consult-outline)
+     ("M-g m" . consult-mark)
+     ("M-g k" . consult-global-mark)
+     ("M-g i" . consult-imenu)
+     ("M-g I" . consult-imenu-multi)
+     ("M-g s" . consult-eglot-symbols)
+     ;; M-s bindings (search-map)
+     ("M-s d" . consult-fd)
+     ("M-s D" . consult-locate)
+     ("M-s g" . consult-ripgrep)
+     ("M-s m" . consult-man)
+     ("M-s G" . consult-git-grep)
+     ("M-s r" . consult-ripgrep)
+     ("M-s i" . consult-info)
+     ("M-s l" . consult-line)
+     ;; ("C-s" . consult-line)
+     ("M-s L" . consult-line-multi)
+     ("M-s k" . consult-keep-lines)
+     ("M-s u" . consult-focus-lines)
+     ;; Isearch integration
+     ("M-s e" . consult-isearch-history)
+     :map isearch-mode-map
+     ("M-e" . consult-isearch-history)
+     ("M-s e" . consult-isearch-history)
+     ("M-s l" . consult-line)
+     ("M-s L" . consult-line-multi)
+     ;; Minibuffer history
+     :map minibuffer-local-map
+     ("M-s" . consult-history)
+     ("M-r" . consult-history)
 
-   :map org-mode-map
-   ("M-g o" . consult-org-heading)
-   ("M-g a" . consult-org-agenda))
+     :map org-mode-map
+     ("M-g o" . consult-org-heading)
+     ("M-g a" . consult-org-agenda))
 
-  :hook (completion-list-mode . consult-preview-at-point-mode)
+    :hook (completion-list-mode . consult-preview-at-point-mode)
 
-  :custom
-  (register-preview-delay 0.5)
-  (register-preview-function #'consult-register-format)
-  (xref-show-xrefs-function #'consult-xref)
-  (xref-show-definitions-function #'consult-xref)
-  (consult-narrow-key "<")
-  (consult-ripgrep-args "rg --follow --null --line-buffered --no-ignore --color=never --max-columns=1000 --path-separator /   --smart-case --no-heading --with-filename --line-number --search-zip")
+    :custom
+    (register-preview-delay 0.5)
+    (register-preview-function #'consult-register-format)
+    (xref-show-xrefs-function #'consult-xref)
+    (xref-show-definitions-function #'consult-xref)
+    (consult-narrow-key "<")
+    (consult-ripgrep-args "rg --follow --null --line-buffered --no-ignore --color=never --max-columns=1000 --path-separator /   --smart-case --no-heading --with-filename --line-number --search-zip")
 
-  (consult-customize
-   consult-theme :preview-key '(:debounce 1.5 any)
-   consult-ripgrep consult-git-grep consult-grep
-   consult-bookmark consult-recent-file consult-xref
-   consult--source-bookmark consult--source-file-register
-   consult--source-recent-file consult--source-project-recent-file
-   ;; :preview-key (kbd "M-.")
-   :preview-key '(:debounce 0.4 any))
+    (consult-customize
+     consult-theme :preview-key '(:debounce 1.5 any)
+     consult-ripgrep consult-git-grep consult-grep
+     consult-bookmark consult-recent-file consult-xref
+     consult--source-bookmark consult--source-file-register
+     consult--source-recent-file consult--source-project-recent-file
+     ;; :preview-key (kbd "M-.")
+     :preview-key '(:debounce 0.4 any))
 
-  :config
-  (advice-add #'register-preview :override #'consult-register-window)
-  (add-to-list 'consult-buffer-sources 'consult--source-eww 'append))
+    :config
+    (advice-add #'register-preview :override #'consult-register-window)
+    (add-to-list 'consult-buffer-sources 'consult--source-eww 'append))
   #+end_src
 - Function to insert and get colors list. Although built-in way of ~M-x read-color~ satisfies replacing this function.
   #+name: orgmacs
@@ -2070,41 +2068,44 @@ Return nil if NAME does not designate a valid color."
 - Pretty OP and dope package, one of my most used and favorite package.
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package embark
-  :defer t
+  (use-package embark
+    :defer t
 
-  :functions
-  (embark-prefix-help-command
-   embark-eldoc-first-target)
+    :functions
+    (embark-prefix-help-command
+     embark-eldoc-first-target)
 
-  :bind
-  (("C-." . embark-act)
-   ("C-;" . embark-act-all)
-   ("M-." . embark-dwim)
-   ("C-h B" . embark-bindings)
-   (:map embark-identifier-map
-         ("d" . sdcv-search-input)
-         ("ch" . color-name-to-hex)
-         ("cr" . color-name-to-rgb))
-   (:map embark-url-map
-         ("b" . browse-url-generic)
-         ("e" . eww-open-in-new-buffer)
-         ("h" . hnreader-comment)
-         ("r" . reddigg-view-comments))
-   (:map embark-file-map
-         ("b" . browse-url-of-dired-file))
-   (:map embark-region-map
-         ("U" . webpaste-paste-buffer-or-region)))
-  :init
-  (setq prefix-help-command #'embark-prefix-help-command)
-  ;; (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
-  ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
+    :bind
+    (("C-." . embark-act)
+     ("C-;" . embark-act-all)
+     ("M-." . embark-dwim)
+     ("C-h B" . embark-bindings)
+     (:map embark-identifier-map
+           ("d" . sdcv-search-input)
+           ("ch" . color-name-to-hex)
+           ("cr" . color-name-to-rgb))
+     (:map embark-url-map
+           ("b" . browse-url-generic)
+           ("e" . eww-open-in-new-buffer)
+           ("h" . hnreader-comment)
+           ("r" . reddigg-view-comments))
+     (:map embark-file-map
+           ("b" . browse-url-of-dired-file))
+     (:map embark-region-map
+           ("U" . webpaste-paste-buffer-or-region)))
 
-  :config
-  (add-to-list 'display-buffer-alist
-               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
-                 nil
-                 (window-parameters (mode-line-format . none)))))
+    :custom
+    (prefix-help-command #'embark-prefix-help-command)
+    (eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
+    (embark-prompter 'embark-completing-read-prompter)
+    (embark-keymap-prompter-key "`")
+
+    :config
+    (add-to-list 'display-buffer-alist
+                 '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                   nil
+                   (window-parameters (mode-line-format . none))))
+    (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target))
   #+end_src
 - Function to open a file as =sudo= from embark action. Credits to @karthinks for code
   #+name: orgmacs
@@ -2730,7 +2731,7 @@ You can do this by trackpad too (laptop)"
 **** Manual pages
 - view man pages in emacs! ~M-x man~
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package man
   :ensure nil
   :demand t
@@ -2747,7 +2748,7 @@ You can do this by trackpad too (laptop)"
   #+end_src
 - For not depending on =man= program.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package woman
   :ensure nil
   :defer t
@@ -2758,7 +2759,7 @@ You can do this by trackpad too (laptop)"
 **** Helpful
 - enhanced help page =describe-=  for emacs.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package helpful
   :defines (helpful-mode-map)
   :hook (helpful-mode . toggle-mode-line)
@@ -2865,7 +2866,7 @@ You can do this by trackpad too (laptop)"
   #+end_src
 **** magit
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package magit
   :defer t
   :commands (magit-status magit-get-current-branch)
@@ -2877,7 +2878,7 @@ You can do this by trackpad too (laptop)"
   #+end_src
 **** ediff
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package ediff
   :ensure nil
   :custom
@@ -2898,7 +2899,7 @@ You can do this by trackpad too (laptop)"
   #+end_src
 - envrc for emacs to ensure direcory environment is set for those specific buffers
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package envrc
   :defer 2
   :config
@@ -2995,7 +2996,7 @@ You can do this by trackpad too (laptop)"
   #+end_src
 **** eshell
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package esh-mode
   :ensure nil
   :defines
@@ -3050,7 +3051,7 @@ You can do this by trackpad too (laptop)"
   #+end_src
 - eshell function to toggle and clear buffer
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (defun d/clear-eshell ()
   (interactive)
   (eshell-send-input (eshell/clear 1)))
@@ -3067,7 +3068,7 @@ You can do this by trackpad too (laptop)"
   #+end_src
 - eshell history
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package em-hist
   :ensure nil
   :bind
@@ -3089,7 +3090,7 @@ You can do this by trackpad too (laptop)"
 **** eat
 - emulate a terminal
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package eat
   :defines
   (d/on-droid
@@ -3120,7 +3121,7 @@ You can do this by trackpad too (laptop)"
   #+end_src
 - function to toggle and set binding state in eat
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (defun d/eat-read-write ()
   (interactive)
   (if eat--semi-char-mode (eat-emacs-mode) (eat-semi-char-mode))
@@ -3142,74 +3143,87 @@ You can do this by trackpad too (laptop)"
 - The GOAT-Editor.
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  # does not read local path properly. so ~/.local/bin does not work
-  # may need exec from path then. Why? Just emacs --bg-daemon in WM
-  # services.emacs = {
-  #   enable = true;
-  #   socketactivation.enable = true;
-  # };
+  {
+    # does not read local path properly. so ~/.local/bin does not work
+    # may need exec from path then. Why? Just emacs --bg-daemon in WM
+    # services.emacs = {
+    #   enable = true;
+    #   socketactivation.enable = true;
+    # };
 
-  home.packages = with pkgs; [
-    emacs-lsp-booster
-  ];
+    home.packages = with pkgs; [
+      emacs-lsp-booster
+    ];
 
-  programs.emacs = {
-    enable = true;
-    package = pkgs.emacs-pgtk;
-    extraPackages = (epkgs: (with epkgs; [
-      treesit-grammars.with-all-grammars
-      eat vundo undo-fu-session helpful flymake-languagetool
-      no-littering rainbow-delimiters rainbow-mode
-      vertico orderless consult marginalia embark org-modern corfu cape corfu-terminal
-      org olivetti nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
-      embark-consult consult-eglot markdown-mode nix-mode
-      reddigg hnreader howdoyou mingus magit webpaste org-present
-      shrface shr-tag-pre-highlight nov devdocs-browser reformatter
-      denote tempel tempel-collection avy
-      sdcv elfeed elfeed-org jinx
-      el-fetch envrc dashboard mini-echo
-      speed-type vc-backup aria2
-      ess org-re-reveal auctex julia-mode webfeeder engrave-faces
-      toc-org disable-mouse org-ql org-alert org-noter
+    programs.emacs = {
+      enable = true;
+      package = pkgs.emacs-pgtk;
+      extraPackages = (epkgs: (with epkgs; [
+        treesit-grammars.with-all-grammars
+        eat vundo undo-fu-session helpful flymake-languagetool
+        no-littering rainbow-delimiters rainbow-mode
+        vertico orderless consult marginalia embark org-modern corfu cape corfu-terminal
+        org olivetti nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
+        embark-consult consult-eglot markdown-mode nix-mode
+        reddigg hnreader howdoyou mingus magit webpaste org-present
+        shrface shr-tag-pre-highlight nov devdocs-browser reformatter
+        denote tempel tempel-collection avy
+        sdcv elfeed elfeed-org jinx
+        el-fetch envrc dashboard mini-echo
+        speed-type vc-backup aria2 pubmed
+        ess org-re-reveal auctex julia-mode webfeeder engrave-faces
+        toc-org disable-mouse org-ql org-alert org-noter
 
-      (trivialBuild {
-        pname = "combobulate";
-        version = "pre-2024-03-01";
+        (trivialBuild {
+          pname = "combobulate";
+          version = "pre-2024-03-01";
 
-        src = pkgs.fetchFromGitHub {
-          owner = "mickeynp";
-          repo = "combobulate";
-          rev = "f220e87c7bc1792e5fd46efaa86f75a9f5bcc1d0";
-          hash = "sha256-jR8XlRAig/lgmaVoM3uPp+Odao0JIGG5x3FTHxnmJRo=";
-        };
-      })
+          src = pkgs.fetchFromGitHub {
+            owner = "mickeynp";
+            repo = "combobulate";
+            rev = "f220e87c7bc1792e5fd46efaa86f75a9f5bcc1d0";
+            hash = "sha256-jR8XlRAig/lgmaVoM3uPp+Odao0JIGG5x3FTHxnmJRo=";
+          };
+        })
 
-      (trivialBuild {
-        pname = "eglot-booster";
-        version = "pre-2024-03-01";
+        (trivialBuild {
+          pname = "eglot-booster";
+          version = "pre-2024-03-01";
 
-        src = pkgs.fetchFromGitHub {
-          owner = "jdtsmith";
-          repo = "eglot-booster";
-          rev = "e79dea640356eb4a8ed9df3808fe73c7c6db4cc4";
-          hash = "sha256-ybNqMHCGjzT2+4OfywS7hNw551kIzwI3QqC8tU/GsQI=";
-        };
-      })
+          src = pkgs.fetchFromGitHub {
+            owner = "jdtsmith";
+            repo = "eglot-booster";
+            rev = "e79dea640356eb4a8ed9df3808fe73c7c6db4cc4";
+            hash = "sha256-ybNqMHCGjzT2+4OfywS7hNw551kIzwI3QqC8tU/GsQI=";
+          };
+        })
 
-      ## packages kept out to make more vanilla usage!
-      # flycheck async dirvish consult-flycheck beframe powerthesaurus meow
-      # doom-modeline ox-hugo ement kind-icon  el-patch
+        (trivialBuild {
+          pname = "org-super-links";
+          version = "pre-0.4";
 
-    ])
-    );
-  };
+          src = pkgs.fetchFromGitHub {
+            owner = "toshism";
+            repo = "org-super-links";
+            rev = "0dd9ed22b4785f50c61051170db7c78b522a37ee";
+            hash = "sha256-OWHUQBKp74sVIFbk8f7Xw7K11jPcR3HIVjpp5xiNwzs=";
+          };
+        })
 
-  xdg.configFile."emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/d-emacs/init.el";
 
-  xdg.configFile."emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/d-emacs/early-init.el";
+        ## packages kept out to make more vanilla usage!
+        # flycheck async dirvish consult-flycheck beframe powerthesaurus meow
+        # doom-modeline ox-hugo ement kind-icon  el-patch
 
-}
+      ])
+      );
+    };
+
+    xdg.configFile."emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/d-emacs/init.el";
+
+    xdg.configFile."emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/d-emacs/early-init.el";
+
+  }
   #+end_src
 **** neovim
 - just to be there, why use vim when emacs can do everything.
@@ -3343,7 +3357,7 @@ You can do this by trackpad too (laptop)"
 **** python
 - python in emacs, or emacs in python?
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 ;; taken from Robb Enzmann
 (defun d/pyrightconfig-write (virtualenv)
   "Write a `pyrightconfig.json' file at the Git root of a project,
@@ -3380,68 +3394,69 @@ with `venvPath' and `venv' set to the absolute path of
   (python-indent-guess-indent-offset-verbose nil)
   (python-shell-completion-native-disabled-interpreters '("pypy")))
   #+end_src
-**** R
+**** R-stats
 - Emacs speak statistics
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
-(use-package ess
-  :defer t
+  #+begin_src emacs-lisp
+  (use-package ess
+    :defer t
+    :unless d/on-droid
+    :custom
+    (ess-use-company nil)
+    (ess-eval-visibly nil)
+    (ess-ask-for-ess-directory t)
+    (ess-style 'RStudio)
 
-  :custom
-  (ess-use-company nil)
-  (ess-eval-visibly nil)
-  (ess-ask-for-ess-directory t)
-  (ess-style 'RStudio)
+    (ess-use-eldoc t)
+    (ess-eldoc-show-on-symbol t)
 
-  (ess-use-eldoc t)
-  (ess-eldoc-show-on-symbol t)
+    (ess-R-font-lock-keywords
+     '((ess-R-fl-keyword:keywords . t)
+       (ess-R-fl-keyword:constants . t)
+       (ess-R-fl-keyword:modifiers . t)
+       (ess-R-fl-keyword:fun-defs . t)
+       (ess-R-fl-keyword:assign-ops . t)
+       (ess-R-fl-keyword:%op% . t)
+       (ess-fl-keyword:fun-calls . t)
+       (ess-fl-keyword:numbers . t)
+       (ess-fl-keyword:operators . t)
+       (ess-fl-keyword:delimiters . t)
+       (ess-fl-keyword:= . t)
+       (ess-R-fl-keyword:F&T . t)))
 
-  (ess-R-font-lock-keywords
-   '((ess-R-fl-keyword:keywords . t)
-     (ess-R-fl-keyword:constants . t)
-     (ess-R-fl-keyword:modifiers . t)
-     (ess-R-fl-keyword:fun-defs . t)
-     (ess-R-fl-keyword:assign-ops . t)
-     (ess-R-fl-keyword:%op% . t)
-     (ess-fl-keyword:fun-calls . t)
-     (ess-fl-keyword:numbers . t)
-     (ess-fl-keyword:operators . t)
-     (ess-fl-keyword:delimiters . t)
-     (ess-fl-keyword:= . t)
-     (ess-R-fl-keyword:F&T . t)))
+    (inferior-R-font-lock-keywords
+     '((ess-S-fl-keyword:prompt . t)
+       (ess-R-fl-keyword:keywords . t)
+       (ess-R-fl-keyword:constants . t)
+       (ess-R-fl-keyword:modifiers . t)
+       (ess-R-fl-keyword:messages . t)
+       (ess-R-fl-keyword:fun-defs . t)
+       (ess-R-fl-keyword:assign-ops . t)
+       (ess-fl-keyword:matrix-labels . t)
+       (ess-fl-keyword:fun-calls . t)
+       (ess-fl-keyword:numbers . t)
+       (ess-fl-keyword:operators . t)
+       (ess-fl-keyword:delimiters . t)
+       (ess-fl-keyword:= . t)
+       (ess-R-fl-keyword:F&T . t)))
 
-  (inferior-R-font-lock-keywords
-   '((ess-S-fl-keyword:prompt . t)
-     (ess-R-fl-keyword:keywords . t)
-     (ess-R-fl-keyword:constants . t)
-     (ess-R-fl-keyword:modifiers . t)
-     (ess-R-fl-keyword:messages . t)
-     (ess-R-fl-keyword:fun-defs . t)
-     (ess-R-fl-keyword:assign-ops . t)
-     (ess-fl-keyword:matrix-labels . t)
-     (ess-fl-keyword:fun-calls . t)
-     (ess-fl-keyword:numbers . t)
-     (ess-fl-keyword:operators . t)
-     (ess-fl-keyword:delimiters . t)
-     (ess-fl-keyword:= . t)
-     (ess-R-fl-keyword:F&T . t)))
+    )
 
-  )
+  (use-package ess-r-mode
+    ;; :hook (ess-r-mode . (lambda () (flycheck-mode 0)))
+    :unless d/on-droid
+    :bind
+    (:map ess-mode-map
+          ("C-;" . ess-insert-assign))
+    (:map inferior-ess-r-mode-map
+          ("C-;" . ess-insert-assign))
 
-(use-package ess-r-mode
-  ;; :hook (ess-r-mode . (lambda () (flycheck-mode 0)))
-  :bind
-  (:map ess-mode-map
-        ("C-;" . ess-insert-assign))
-  (:map inferior-ess-r-mode-map
-        ("C-;" . ess-insert-assign))
-
-  :custom
-  (ess-indent-with-fancy-comments nil))
+    :custom
+    (ess-indent-with-fancy-comments nil))
   #+end_src
 **** nix
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package nix-mode
   :mode ("\\.nix\\'" "\\.nix.in\\'")
   :defines (nix-mode-map)
@@ -3496,16 +3511,18 @@ with `venvPath' and `venv' set to the absolute path of
   #+end_src
 - learning julia
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
-(use-package ess-julia
-  :hook (ess-julia-mode . (lambda () (setq-local devdocs-browser-active-docs '("Julia"))))
-  :bind
-  (:map ess-julia-mode-map
-        ("C-c C-d" . devdocs-browser-open))
-  :custom
-  (inferior-julia-args "--color=yes" "You get color in julia inferior process"))
+  #+begin_src emacs-lisp
+  (use-package ess-julia
+    :unless d/on-droid
+    :hook (ess-julia-mode . (lambda () (setq-local devdocs-browser-active-docs '("Julia"))))
+    :bind
+    (:map ess-julia-mode-map
+          ("C-c C-d" . devdocs-browser-open))
+    :custom
+    (inferior-julia-args "--color=yes" "You get color in julia inferior process"))
 
-(use-package julia-mode)
+  (use-package julia-mode
+    :unless d/on-droid)
   #+end_src
 **** tex writing
 - For scientific latex files, pdf to produce from org mode files.
@@ -3521,7 +3538,7 @@ with `venvPath' and `venv' set to the absolute path of
 **** executable
 - makes =*.sh= files executable by save
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package executable
   :ensure nil
   :hook (after-save . executable-make-buffer-file-executable-if-script-p))
@@ -3530,7 +3547,7 @@ with `venvPath' and `venv' set to the absolute path of
 ***** Flymake
 - In-built are more than enough!
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package flymake
   :ensure nil
   :hook
@@ -3541,7 +3558,7 @@ with `venvPath' and `venv' set to the absolute path of
 ***** COMMENT Flycheck
 - To lint and check for good practices in code.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package flycheck
   :defer t
   :disabled t
@@ -3557,7 +3574,7 @@ with `venvPath' and `venv' set to the absolute path of
 - Add flycheck support for =ruff= fast python linter.
 - changed =source-original= to ~source-inplace~ to work on org-edit-special too.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (with-eval-after-load 'flycheck
   (add-to-list 'flycheck-checkers 'python-ruff)
 
@@ -3593,7 +3610,7 @@ See URL `https://beta.ruff.rs/docs/'."
 **** reformatter
 - Legit, best made design for formatter package.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package reformatter
   :hook
   (python-ts-mode . ruff-format-on-save-mode)
@@ -3624,7 +3641,7 @@ out")
 **** eglot
 - the lsp gifted in emacs
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package eglot
   :defer t
   :ensure nil
@@ -3661,7 +3678,7 @@ out")
 
 - Eglot booster to speed up workflow.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package eglot-booster
   :after eglot
   :config
@@ -3671,7 +3688,7 @@ out")
 **** xref
 - paired up with eglot, or ctags to reference symbols.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package xref
   :ensure nil
   :custom
@@ -3680,7 +3697,7 @@ out")
 **** emacs-lisp
 - no words, without elisp, this whole file would not exist.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package elisp-mode
   :ensure nil
   :bind
@@ -3693,40 +3710,41 @@ out")
 - not full fledge =tree-sitter= experience in emacs, but does the job for now.
 - could try =combobulate= package.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
-(use-package treesit
-  :ensure nil
-  :mode
-  ("\\.yaml\\'" . yaml-ts-mode)
-  ("\\.toml\\'" . toml-ts-mode)
-  ("\\.jsonrc\\'" . json-ts-mode)
+  #+begin_src emacs-lisp
+  (use-package treesit
+    :ensure nil
+    :mode
+    ("\\.yaml\\'" . yaml-ts-mode)
+    ("\\.toml\\'" . toml-ts-mode)
+    ("\\.jsonrc\\'" . json-ts-mode)
 
-  :custom
-  (treesit-font-lock-level 4)
-  (treesit-font-lock-feature-list t)
-  (major-mode-remap-alist
-   '((c-mode . c-ts-mode)
-     (c++-mode . c++-ts-mode)
-     (csharp-mode . csharp-ts-mode)
-     (css-mode . css-ts-mode)
-     (java-mode . java-ts-mode)
-     (js-mode . js-ts-mode)
-     (js-json-mode . json-ts-mode)
-     ;; (org-mode . org-ts-mode) ;; not mature yet
-     (python-mode . python-ts-mode)
-     (julia-mode . ess-julia-mode)
-     (typescript-mode . typescript-ts-mode)
-     (sh-mode . bash-ts-mode)
-     (ruby-mode . ruby-ts-mode)
-     (rust-mode . rust-ts-mode)
-     (toml-mode . toml-ts-mode)
-     (yaml-mode . yaml-ts-mode))))
+    :custom
+    (treesit-font-lock-level 4)
+    (treesit-font-lock-feature-list t)
+    (standard-indent 2)
+    (major-mode-remap-alist
+     '((c-mode . c-ts-mode)
+       (c++-mode . c++-ts-mode)
+       (csharp-mode . csharp-ts-mode)
+       (css-mode . css-ts-mode)
+       (java-mode . java-ts-mode)
+       (js-mode . js-ts-mode)
+       (js-json-mode . json-ts-mode)
+       ;; (org-mode . org-ts-mode) ;; not mature yet
+       (python-mode . python-ts-mode)
+       (julia-mode . ess-julia-mode)
+       (typescript-mode . typescript-ts-mode)
+       (sh-mode . bash-ts-mode)
+       (ruby-mode . ruby-ts-mode)
+       (rust-mode . rust-ts-mode)
+       (toml-mode . toml-ts-mode)
+       (yaml-mode . yaml-ts-mode))))
   #+end_src
 **** devdocs
 - devdocs in offline mode, for most decent documentation on language.
 - mostly it inherits official doc, maybe little spiced up ;).
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package devdocs-browser
   :bind
   ("C-c d v" . devdocs-browser-open-in)
@@ -3753,7 +3771,7 @@ out")
 **** electric-pair
 - to enclose pairs or delimiters
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package elec-pair
   :ensure nil
   :hook
@@ -3782,7 +3800,7 @@ out")
 **** paren
 - try to escape the parenthesis
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package paren
   :ensure nil
   :hook (after-init . show-paren-mode)
@@ -3796,7 +3814,7 @@ out")
 **** rainbow
 - add color to delimiters.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package rainbow-delimiters
   :defer t
   :hook (prog-mode . rainbow-delimiters-mode))
@@ -3809,7 +3827,7 @@ out")
 **** avy
 - to jump to places quick and easy with few keypress.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package avy
   :bind
   ("M-j" . avy-goto-char-timer)
@@ -3824,7 +3842,7 @@ out")
 - Extracted from [[https://github.com/Artawower/.emacs.d][Artawower]]
 - Gives ligature somehow everywhere, should try can be made toggle
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (defconst jetbrains-ligature-mode--ligatures
   '("-->" "//" "/**" "/*" "*/" "<!--" ":=" "->>" "<<-" "->" "<-"
     "<=>" "==" "!=" "<=" ">=" "=:=" "!==" "&&" "||" "..." ".."
@@ -3855,7 +3873,7 @@ out")
 **** combobulate
 - Sructured editing and navigating for =treesit=
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package combobulate
   :after treesit
   :preface
@@ -3874,7 +3892,7 @@ out")
 - Function to enhance inserting pair delimiters without hindrance.
 - Credits to u/lastnamebird & u/oantolin
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (defvar insert-pair-map
   (let ((map (make-sparse-keymap)))
     (define-key map [t] #'insert-pair)
@@ -3963,7 +3981,7 @@ out")
 - the emacs way for viewing documents.
 - I found =pdf-tools= to be taking more memory than doc-view.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package doc-view
   :ensure nil
   ;; :mode ("\\.epub\\'" . doc-view-mode)
@@ -3990,7 +4008,7 @@ out")
   #+end_src
 - Function to toggle between dark and reading mode
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (defun d/doc-view-theme ()
   "Toggle between dark and reading mode in Doc-view buffer."
   (interactive)
@@ -4019,7 +4037,7 @@ out")
 *** nov.el
 - to read in comfort couch of emacs!
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package nov
   :functions
   (toggle-mode-line)
@@ -4040,7 +4058,7 @@ out")
 - supports org, texi, md, News file.
 - credits to [[https://emacsnotes.wordpress.com/2023/09/11/view-info-texi-org-and-md-files-as-info-manual][blog post]]
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 ;; Read normal text files as emacs info manuals
 ;; thanks to:
 ;;https://emacsnotes.wordpress.com/2023/09/11/view-info-texi-org-and-md-files-as-info-manual/
@@ -4114,7 +4132,7 @@ out")
   #+end_src
 - view-mode - to just leisurely view file
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (add-hook
  'view-mode-hook
  (lambda ()
@@ -4152,7 +4170,7 @@ out")
 - I primarily use Emacs on android for reading rss feeds in sync with PC. This is easily achieved by syncthing over the DataBase folder, and symlinking them to =var/elfeed= .
 - Certain functions to write DB when quitting buffer helps to make syncing quicker.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package elfeed
   :bind
   ("C-c d e" . d/elfeed-open)
@@ -4177,7 +4195,7 @@ out")
 **** elfeed functions
 - to toggle star tag on feeds marked or current in =elfeed-show-mode=.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (defun elfeed-toggle-show-star ()
   (interactive)
   (if (elfeed-tagged-p 'star elfeed-show-entry)
@@ -4187,7 +4205,7 @@ out")
   #+end_src
 - toggle star tag in =elfeed-search-mode=
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (defun elfeed-toggle-star ()
   (interactive)
   (elfeed-search-toggle-all 'star))
@@ -4195,7 +4213,7 @@ out")
   #+end_src
 - enhance elfeed reading integrating with hook
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (defun d/elfeed-ui ()
   (interactive)
   ;; (setq-local header-line-format " ")
@@ -4204,7 +4222,7 @@ out")
   #+end_src
 - write to disk when quit, so helps to sync the DB on android as well.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 ;;write to disk when quiting
 (defun d/elfeed-quit ()
   "Wrapper to save the elfeed db to disk before burying buffer"
@@ -4216,7 +4234,7 @@ out")
 - I have replaced this with bash script link handler (=d-stuff=), simpe and easy.
 - https://github.com/idlip/d-bin
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (defun d/elfeed-add-podcast ()
   "Play the enclosure URL in Mpd using 'mingus'."
   (interactive)
@@ -4240,7 +4258,7 @@ out")
   #+end_src
 - play enclosure mp3 in mpd
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (defun d/elfeed-play ()
   (interactive)
   (let* ((count (length (elfeed-entry-enclosures elfeed-show-entry)))
@@ -4254,7 +4272,7 @@ out")
   #+end_src
 - to store a feed in org file as bookmark
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (defun d/elfeed-org-mark ()
   "use org file as bookmark for elfeed entries.
 Usable as favorites or bookmark."
@@ -4267,7 +4285,7 @@ Usable as favorites or bookmark."
   #+end_src
 - opens the feed in =reddigg= for reddit and =eww= for html url.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (defun elfeed-open-in-eww ()
   "open elfeed entry in eww."
   (interactive)
@@ -4283,7 +4301,7 @@ Usable as favorites or bookmark."
   #+end_src
 - use volume button for next and prev feed on android
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (when d/on-droid
   (with-eval-after-load 'elfeed
     (define-key elfeed-show-mode-map (kbd "<volume-up>") #'elfeed-show-prev)
@@ -4291,7 +4309,7 @@ Usable as favorites or bookmark."
   #+end_src
 - remove feeds from DB. Credits to a user on elfeed github repo
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 ;; credits to a user on github elfeed repo
 (defun d/elfeed-db-remove-entry (id)
   "Removes the entry for ID"
@@ -4310,7 +4328,7 @@ Usable as favorites or bookmark."
   #+end_src
 **** elfeed-show
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package elfeed-show
   :hook
   (elfeed-show-mode . d/elfeed-ui)
@@ -4340,7 +4358,7 @@ Usable as favorites or bookmark."
   - =~= - for not matching (inverse) entry's feed
   - rest all regular expression work.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package elfeed-search
   :bind
   (:map elfeed-search-mode-map
@@ -4361,7 +4379,7 @@ Usable as favorites or bookmark."
   #+end_src
 **** elfeed-log
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package elfeed-log
   :after elfeed
   :custom
@@ -4371,7 +4389,7 @@ Usable as favorites or bookmark."
 - to parse org file as elfeed feed links.
 - super handy and convenient way.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package elfeed-org
   :after elfeed
   :custom
@@ -4385,7 +4403,7 @@ Usable as favorites or bookmark."
 - As on 2024-03-15, I'm not moving with newsticker. synchronous way of fetching feeds everytime opening the tree-view takes away lot of time to wait.
 - Instead, I became a happy gnus user.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package newsticker
   :commands
   (rss-org-feeds-to-newst-opml)
@@ -4408,7 +4426,7 @@ Usable as favorites or bookmark."
 
 - Function to convert org-buffer to opml. It parses from tag containing =drssfeeds=
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (defun rss-org-convert-org-to-opml (org-buffer)
   "Convert Org buffer content to OPML format.
 Argument ORG-BUFFER the buffer to write the OPML content to."
@@ -4474,7 +4492,7 @@ Argument ORG-BUFFER the buffer to write the OPML content to."
 
 - Function
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (defun rss-org-import-trees (tree-id)
   "Get trees with \":ID:\" property or tag of value TREE-ID.
 Return trees with TREE-ID as the value of the id property or
@@ -4490,7 +4508,7 @@ current users."
   #+end_src
 - Function to convert org buffer feeds to opml and append it to ~newsticker-url-list~.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (defun rss-org-feeds-to-newst-opml ()
   "A modified function which imports the feeds from org file to opml.
 And save it in a file and imports the opml feeds in newsticker. So it updates with org file."
@@ -4524,44 +4542,57 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
 - First time using a newsgroup or usenet or NNTP.
 - But seems interesting when I tried, I can see how it becomes a unified workflow for mailing lists, email and rss feeds.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
-(use-package gnus
-  :hook
-  (gnus-group-mode . gnus-topic-mode)
-  :custom
-  (gnus-directory (expand-file-name "feeds/gnews" user-emacs-directory))
-  (gnus-startup-file (expand-file-name "newsrc" gnus-directory))
+  #+begin_src emacs-lisp
+  (use-package gnus
+    :hook
+    (gnus-group-mode . gnus-topic-mode)
+    :custom
+    (gnus-directory (expand-file-name "feeds/gnews" user-emacs-directory))
+    (gnus-startup-file (expand-file-name "newsrc" gnus-directory))
 
-  (gnus-select-method '(nnnil))
-  (gnus-widen-article-window t)
+    (gnus-select-method '(nnnil))
+    (gnus-widen-article-window t)
 
-  (gnus-secondary-select-methods
-   '((nntp "feedbase"
-           (nntp-open-connection-function nntp-open-tls-stream) ; feedbase does not do STARTTLS (yet?)
-           (nntp-port-number 563) ; nntps
-           (nntp-address "feedbase.org"))
-	 (nntp "gwene" (nntp-address "news.gwene.org"))
-	 ;; (nnrss "")
-	 ))
+    (gnus-secondary-select-methods
+     '((nntp "feedbase"
+             (nntp-open-connection-function nntp-open-tls-stream) ; feedbase does not do STARTTLS (yet?)
+             (nntp-port-number 563) ; nntps
+             (nntp-address "feedbase.org"))
+     (nntp "gwene" (nntp-address "news.gwene.org"))
+     ;; (nnrss "")
+     ))
 
-  ;;; --- credits to u/unhammer
-  ;; Save time by not checking for new groups (I'm already subscribed to what I want,
-  ;; can always manually M-x gnus-find-new-newsgroups to check new groups)
-  (gnus-check-new-newsgroups nil)
-  ;; By default only check groups this level or lower on startup
-  ;; (use `C-u g' or `C-c M-g' to activate all groups):
-  (gnus-activate-level 2)
+    ;; (gnus-summary-line-format "%U%R%z%d %I%(%[ %F %] %s %)\n")
 
-  ;;;; Async prefetch – useful for newsgroups, maybe not so much for Maildir:
-  ;; https://www.gnu.org/software/emacs/manual/html_mono/gnus.html#Asynchronous-Fetching
-  (gnus-asynchronous t)
-  )
+    ;;; --- credits to u/unhammer
+    ;; Save time by not checking for new groups (I'm already subscribed to what I want,
+    ;; can always manually M-x gnus-find-new-newsgroups to check new groups)
+    (gnus-check-new-newsgroups nil)
+    ;; By default only check groups this level or lower on startup
+    ;; (use `C-u g' or `C-c M-g' to activate all groups):
+    (gnus-activate-level 2)
+
+    ;;;; Async prefetch – useful for newsgroups, maybe not so much for Maildir:
+    ;; https://www.gnu.org/software/emacs/manual/html_mono/gnus.html#Asynchronous-Fetching
+    (gnus-asynchronous t)
+    )
 
   #+end_src
-** nDictionary
+
+- Package to convert atom to rss so can be readable in gnus.
+  #+name: hm-config
+  #+begin_src nix :tangle gdk/home.nix
+  {
+    home.packages = with pkgs; [
+      libxslt
+    ];
+  }
+  #+end_src
+
+** Dictionary
 *** sdcv
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package sdcv
   :defer t
   :unless d/on-droid
@@ -4589,266 +4620,349 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
         ("<backtab>" . show-entry)
         ("p" . sdcv-previous-dictionary)))
   #+end_src
+** Research
+*** Pubmed
+- An emacs package for pubmed to search and read. So cooolie!
+  #+name: orgmacs
+  #+begin_src emacs-lisp
+  (use-package pubmed
+    :commands (pubmed-search pubmed-advanced-search)
+    :bind
+    (:map pubmed-mode-map
+          ("o" . pubmed-save-note-file)
+          ("f" . pubmed-get-fulltext))
+
+    :custom
+    (pubmed-fulltext-functions
+     '(pubmed-pmc
+       ;; pubmed-scihub
+       ;; pubmed-springer
+       pubmed-openaccessbutton
+       pubmed-unpaywall
+       ;; pubmed-dissemin
+       ))
+
+    (pubmed-default-directory "~/d-sync/reads/")
+    )
+  #+end_src
+
+- A function to rename file name with ".pdf"
+  #+name: orgmacs
+  #+begin_src emacs-lisp
+  (defun pubmed-open (url)
+    "Open the fulltext PDF of URL."
+    (let* ((filename (url-file-nondirectory url))
+           (path (concat (temporary-file-directory) filename ".pdf")))
+      (when path
+        (condition-case err
+            (url-copy-file url path 1)
+          (file-already-exists
+           (message "%s" (error-message-string err))))
+        (funcall #'pubmed--open-file path))))
+
+  #+end_src
+
+- Function to save pdf to home folder and call =denote-rename-file=
+  #+name: orgmacs
+  #+begin_src emacs-lisp
+  (defun pubmed-save-as (url)
+    "Prompt for filename and save the fulltext PDF of URL."
+    (let* ((default-filename (expand-file-name "hello.pdf" pubmed-default-directory)))
+
+      (condition-case err
+          (progn
+            (url-copy-file url default-filename t)
+            (call-interactively 'denote-rename-file))
+
+        (file-already-exists
+         (message "%s" (error-message-string err))
+         ))))
+  #+end_src
+
+- Function to rename and open file
+  #+begin_src emacs-lisp
+  (defun pubmed-save-note-file ()
+    (interactive)
+    (let ((pubmed-fulltext-action 'pubmed-save-as))
+      (pubmed-get-fulltext))
+      (org-noter)
+      )
+  #+end_src
+
+- Function to copy the urls of pubmed ids
+    #+name: orgmacs
+  #+begin_src emacs-lisp
+  (defun pubmed-copy-url ()
+    (interactive)
+    (let ((pubmedids (if (use-region-p)
+                         (pubmed-get-uids-in-region)
+                       (pubmed-get-uids)
+                       )))
+      (dolist (uids pubmedids)
+        (kill-new (format "https://pubmed.ncbi.nlm.nih.gov/%s" uids)))))
+
+  #+end_src
+
 * Media
 ** Browser
 - The pioneer of modern day Internet.
 *** Firefox
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  home.packages = with pkgs; [
-    # mullvad-browser
-    ungoogled-chromium
-    # nyxt
-  ];
+  {
+    home.packages = with pkgs; [
+      mullvad-browser
+      ungoogled-chromium
+      # nyxt
+    ];
 
-  programs = {
-    firefox = {
-      enable = true;
-      # package = pkgs.firefox-wayland; # is there difference?
-      profiles.ihome = {
-        isDefault = true;
-        # extensions = with pkgs.nur.repos.rycee.firefox-addons; [
-        #   ff2mpv
-        #   vimium
-        #   languagetool
-        #   ublock-origin
-        #   darkreader
-        #   libredirect
-        #   multi-account-containers
-        #   vertical-tabs-reloaded
-        # ];
+    programs = {
+      firefox = {
+        enable = true;
+        # package = pkgs.firefox-wayland; # is there difference?
+        profiles.ihome = {
+          isDefault = true;
+          # extensions = with pkgs.nur.repos.rycee.firefox-addons; [
+          #   ff2mpv
+          #   vimium
+          #   languagetool
+          #   ublock-origin
+          #   darkreader
+          #   libredirect
+          #   multi-account-containers
+          #   vertical-tabs-reloaded
+          # ];
 
+          settings = {
+            "browser.startup.homepage" = "about:blank";
+            "browser.urlbar.placeholderName" = "Time to get Productive...";
+            "gfx.webrender.all" = true;
+            "gfx.webrender.enabled" = true;
+            "media.peerconnection.enabled" = true;
+            "media.av1.enabled" = false;
+            "media.ffmpeg.vaapi.enabled" = true;
+            "media.hardware-video-decoding.force-enabled" = true;
+            "media.navigator.mediadatadecoder_vpx_enabled" = true;
+            "signon.rememberSignons" = false;
+            "app.normandy.api_url" = "";
+            "app.normandy.enabled" = false;
+            "app.shield.optoutstudies.enabled" = false;
+            "beacon.enabled" = false;
+            "breakpad.reportURL" = "";
+            "browser.aboutConfig.showWarning" = false;
+            "browser.cache.offline.enable" = false;
+            "browser.crashReports.unsubmittedCheck.autoSubmit" = false;
+            "browser.crashReports.unsubmittedCheck.autoSubmit2" = false;
+            "browser.crashReports.unsubmittedCheck.enabled" = false;
+            "browser.disableResetPrompt" = true;
+            "browser.newtab.preload" = false;
+            "browser.newtabpage.activity-stream.section.highlights.includePocket" = false;
+            "extensions.pocket.enabled" = false;
+            "browser.newtabpage.enhanced" = false;
+            "browser.newtabpage.introShown" = true;
+            "browser.safebrowsing.appRepURL" = "";
+            "browser.safebrowsing.blockedURIs.enabled" = false;
+            "browser.safebrowsing.downloads.enabled" = false;
+            "browser.safebrowsing.downloads.remote.enabled" = false;
+            "browser.safebrowsing.downloads.remote.url" = "";
+            "browser.safebrowsing.enabled" = false;
+            "browser.safebrowsing.malware.enabled" = false;
+            "browser.safebrowsing.phishing.enabled" = false;
+            "browser.selfsupport.url" = "";
+            "browser.send_pings" = false;
+            "browser.sessionstore.privacy_level" = 2;
+            "browser.startup.homepage_override.mstone" = "ignore";
+            "browser.tabs.crashReporting.sendReport" = false;
+            "browser.urlbar.groupLabels.enabled" = false;
+            "browser.urlbar.quicksuggest.enabled" = false;
+            "browser.urlbar.speculativeConnect.enabled" = false;
+            "datareporting.healthreport.service.enabled" = false;
+            "datareporting.healthreport.uploadEnabled" = false;
+            "datareporting.policy.dataSubmissionEnabled" = false;
+            "device.sensors.ambientLight.enabled" = false;
+            "device.sensors.enabled" = false;
+            "device.sensors.motion.enabled" = false;
+            "device.sensors.orientation.enabled" = false;
+            "device.sensors.proximity.enabled" = false;
+            "dom.battery.enabled" = false;
+            "dom.event.clipboardevents.enabled" = true;
+            "dom.webaudio.enabled" = false;
+            "experiments.activeExperiment" = false;
+            "experiments.enabled" = false;
+            "experiments.manifest.uri" = "";
+            "experiments.supported" = false;
+            "extensions.getAddons.cache.enabled" = false;
+            "extensions.getAddons.showPane" = false;
+            "extensions.greasemonkey.stats.optedin" = false;
+            "extensions.greasemonkey.stats.url" = "";
+            "extensions.shield-recipe-client.api_url" = "";
+            "extensions.shield-recipe-client.enabled" = false;
+            "extensions.webservice.discoverURL" = "";
+            "fission.autostart" = true;
+            "media.autoplay.default" = 1;
+            "media.autoplay.enabled" = false;
+            "media.eme.enabled" = false;
+            "media.gmp-widevinecdm.enabled" = false;
+            "media.navigator.enabled" = false;
+            "media.video_stats.enabled" = false;
+            "network.IDN_show_punycode" = true;
+            "network.allow-experiments" = false;
+            "network.captive-portal-service.enabled" = false;
+            "network.cookie.cookieBehavior" = 1;
+            "network.dns.disablePrefetch" = true;
+            "network.dns.disablePrefetchFromHTTPS" = true;
+            "network.http.referer.spoofSource" = true;
+            "network.http.speculative-parallel-limit" = 0;
+            "dom.security.https_only_mode" = true;
+            "network.predictor.enable-prefetch" = false;
+            "network.predictor.enabled" = false;
+            "network.prefetch-next" = false;
+            "network.trr.mode" = 5;
+            "privacy.donottrackheader.enabled" = true;
+            "privacy.donottrackheader.value" = 1;
+            "privacy.firstparty.isolate" = true;
+            "privacy.trackingprotection.cryptomining.enabled" = true;
+            "privacy.trackingprotection.enabled" = true;
+            "privacy.trackingprotection.fingerprinting.enabled" = true;
+            "privacy.trackingprotection.pbmode.enabled" = true;
+            "privacy.usercontext.about_newtab_segregation.enabled" = true;
+            "security.ssl.disable_session_identifiers" = true;
+            "services.sync.prefs.sync.browser.newtabpage.activity-stream.showSponsoredTopSite" = false;
+            "browser.newtabpage.activity-stream.showSponsored" = false;
+            "signon.autofillForms" = false;
+            "toolkit.telemetry.archive.enabled" = false;
+            "toolkit.telemetry.bhrPing.enabled" = false;
+            "toolkit.telemetry.cachedClientID" = "";
+            "toolkit.telemetry.enabled" = false;
+            "toolkit.telemetry.firstShutdownPing.enabled" = false;
+            "toolkit.telemetry.hybridContent.enabled" = false;
+            "toolkit.telemetry.newProfilePing.enabled" = false;
+            "toolkit.telemetry.prompted" = 2;
+            "toolkit.telemetry.rejected" = true;
+            "toolkit.telemetry.reportingpolicy.firstRun" = false;
+            "toolkit.telemetry.server" = "";
+            "toolkit.telemetry.shutdownPingSender.enabled" = false;
+            "toolkit.telemetry.unified" = false;
+            "toolkit.telemetry.unifiedIsOptIn" = false;
+            "toolkit.telemetry.updatePing.enabled" = false;
+            "webgl.disabled" = true;
+            "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+            "webgl.renderer-string-override" = " ";
+            "webgl.vendor-string-override" = " ";
+            "browser.urlbar.update2.engineAliasRefresh" = true;
+            "signon.passwordEditCapture.enabled" = false;
+            "browser.search.hiddenOneOffs" = "Google,Yahoo,Bing,Amazon.com,Twitter";
+            "browser.newtabpage.activity-stream.improvesearch.topSiteSearchShortcuts" = false;
+            "browser.urlbar.trimURLs" = false;
+            "findbar.modalHighlight" = true;
+            "browser.fullscreen.autohide" = true;
+            "browser.newtabpage.activity-stream.topSitesRows" = 0;
+            "browser.urlbar.quickactions.enabled" = true;
+            "pdfjs.annotationEditorMode" = 0;
+            "pdfjs.annotationmode" = 2;
+            "layers.acceleration.force-enabled" = true;
+            "layout.css.backdrop-filter.enabled" = true;
+            "svg.context-properties.content.enabled" = true;
+          };
+
+          search = {
+            default = "SearXNG";
+            force = true;
+            engines = {
+              "SearXNG" = {
+                urls = [{template = "https://searx.be/search?q={searchTerms}";}];
+                updateInterval = 24 * 60 * 60 * 1000; # every day
+                definedAliases = ["@sr"];
+              };
+
+              "Nixpkgs-Package Search" = {
+                urls = [{template = "https://search.nixos.org/packages?channel=unstable&size=250&sort=relevance&type=packages&query={searchTerms}";}];
+                iconUpdateURL = "https://nixos.org/favicon.png";
+                updateInterval = 24 * 60 * 60 * 1000; # every day
+                definedAliases = ["@nps"];
+              };
+
+              "Nixpkgs-Modules Search" = {
+                urls = [{template = "https://search.nixos.org/options?channel=unstable&size=200&sort=relevance&query={searchTerms}";}];
+                iconUpdateURL = "https://nixos.org/favicon.png";
+                updateInterval = 24 * 60 * 60 * 1000; # every day
+                definedAliases = ["@nms"];
+              };
+
+              "NixOS-Wiki Search" = {
+                urls = [{template = "https://nixos.wiki/index.php?search={searchTerms}&go=Go";}];
+                iconUpdateURL = "https://nixos.org/favicon.png";
+                updateInterval = 24 * 60 * 60 * 1000; # every day
+                definedAliases = ["@nws"];
+              };
+
+              "Home-Manager Search" = {
+                urls = [{template = "https://mipmip.github.io/home-manager-option-search/?query={searchTerms}";}];
+                iconUpdateURL = "https://nixos.org/favicon.png";
+                updateInterval = 24 * 60 * 60 * 1000; # every day
+                definedAliases = ["@hms"];
+              };
+
+              "GitHub-Code Search" = {
+                urls = [{template = "https://github.com/search?q={searchTerms}&type=code";}];
+                iconUpdateURL = "https://github.githubassets.com/favicons/favicon-dark.svg";
+                updateInterval = 24 * 60 * 60 * 1000; # every day
+                definedAliases = ["@gcs"];
+              };
+
+              "Noogle.dev Search" = {
+                urls = [{template = "https://noogle.dev/?term=%22{searchTerms}%22";}];
+                iconUpdateURL = "https://noogle.dev/favicon.png";
+                updateInterval = 24 * 60 * 60 * 1000; # every day
+                definedAliases = ["@ngd" "@nog"];
+              };
+
+              "Nixpkgs PRs" = {
+                urls = [{template = "https://nixpk.gs/pr-tracker.html?pr={searchTerms}";}];
+                iconUpdateURL = "https://nixos.org/favicon.png";
+                updateInterval = 24 * 60 * 60 * 1000; # every day
+                definedAliases = ["@npr"];
+              };
+            };
+
+            order = [
+              "SearXNG"
+              "DuckDuckGo"
+            ];
+          };
+
+          userChrome = builtins.readFile ./configs/userChrome.css;
+        };
+      };
+
+      librewolf = {
+        enable = true;
         settings = {
-          "browser.startup.homepage" = "about:blank";
-          "browser.urlbar.placeholderName" = "Time to get Productive...";
           "gfx.webrender.all" = true;
           "gfx.webrender.enabled" = true;
-          "media.peerconnection.enabled" = true;
+          "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+          "layers.acceleration.force-enabled" = true;
+          "layout.css.backdrop-filter.enabled" = true;
           "media.av1.enabled" = false;
           "media.ffmpeg.vaapi.enabled" = true;
           "media.hardware-video-decoding.force-enabled" = true;
-          "media.navigator.mediadatadecoder_vpx_enabled" = true;
-          "signon.rememberSignons" = false;
-          "app.normandy.api_url" = "";
-          "app.normandy.enabled" = false;
-          "app.shield.optoutstudies.enabled" = false;
-          "beacon.enabled" = false;
-          "breakpad.reportURL" = "";
-          "browser.aboutConfig.showWarning" = false;
-          "browser.cache.offline.enable" = false;
-          "browser.crashReports.unsubmittedCheck.autoSubmit" = false;
-          "browser.crashReports.unsubmittedCheck.autoSubmit2" = false;
-          "browser.crashReports.unsubmittedCheck.enabled" = false;
-          "browser.disableResetPrompt" = true;
-          "browser.newtab.preload" = false;
-          "browser.newtabpage.activity-stream.section.highlights.includePocket" = false;
-          "extensions.pocket.enabled" = false;
-          "browser.newtabpage.enhanced" = false;
-          "browser.newtabpage.introShown" = true;
-          "browser.safebrowsing.appRepURL" = "";
-          "browser.safebrowsing.blockedURIs.enabled" = false;
-          "browser.safebrowsing.downloads.enabled" = false;
-          "browser.safebrowsing.downloads.remote.enabled" = false;
-          "browser.safebrowsing.downloads.remote.url" = "";
-          "browser.safebrowsing.enabled" = false;
-          "browser.safebrowsing.malware.enabled" = false;
-          "browser.safebrowsing.phishing.enabled" = false;
-          "browser.selfsupport.url" = "";
-          "browser.send_pings" = false;
-          "browser.sessionstore.privacy_level" = 2;
-          "browser.startup.homepage_override.mstone" = "ignore";
-          "browser.tabs.crashReporting.sendReport" = false;
-          "browser.urlbar.groupLabels.enabled" = false;
-          "browser.urlbar.quicksuggest.enabled" = false;
-          "browser.urlbar.speculativeConnect.enabled" = false;
-          "datareporting.healthreport.service.enabled" = false;
-          "datareporting.healthreport.uploadEnabled" = false;
-          "datareporting.policy.dataSubmissionEnabled" = false;
-          "device.sensors.ambientLight.enabled" = false;
-          "device.sensors.enabled" = false;
-          "device.sensors.motion.enabled" = false;
-          "device.sensors.orientation.enabled" = false;
-          "device.sensors.proximity.enabled" = false;
-          "dom.battery.enabled" = false;
-          "dom.event.clipboardevents.enabled" = true;
-          "dom.webaudio.enabled" = false;
-          "experiments.activeExperiment" = false;
-          "experiments.enabled" = false;
-          "experiments.manifest.uri" = "";
-          "experiments.supported" = false;
-          "extensions.getAddons.cache.enabled" = false;
-          "extensions.getAddons.showPane" = false;
-          "extensions.greasemonkey.stats.optedin" = false;
-          "extensions.greasemonkey.stats.url" = "";
-          "extensions.shield-recipe-client.api_url" = "";
-          "extensions.shield-recipe-client.enabled" = false;
-          "extensions.webservice.discoverURL" = "";
-          "fission.autostart" = true;
-          "media.autoplay.default" = 1;
-          "media.autoplay.enabled" = false;
-          "media.eme.enabled" = false;
-          "media.gmp-widevinecdm.enabled" = false;
-          "media.navigator.enabled" = false;
-          "media.video_stats.enabled" = false;
-          "network.IDN_show_punycode" = true;
-          "network.allow-experiments" = false;
-          "network.captive-portal-service.enabled" = false;
-          "network.cookie.cookieBehavior" = 1;
-          "network.dns.disablePrefetch" = true;
-          "network.dns.disablePrefetchFromHTTPS" = true;
-          "network.http.referer.spoofSource" = true;
-          "network.http.speculative-parallel-limit" = 0;
-          "dom.security.https_only_mode" = true;
-          "network.predictor.enable-prefetch" = false;
-          "network.predictor.enabled" = false;
-          "network.prefetch-next" = false;
-          "network.trr.mode" = 5;
-          "privacy.donottrackheader.enabled" = true;
-          "privacy.donottrackheader.value" = 1;
-          "privacy.firstparty.isolate" = true;
-          "privacy.trackingprotection.cryptomining.enabled" = true;
-          "privacy.trackingprotection.enabled" = true;
-          "privacy.trackingprotection.fingerprinting.enabled" = true;
-          "privacy.trackingprotection.pbmode.enabled" = true;
-          "privacy.usercontext.about_newtab_segregation.enabled" = true;
-          "security.ssl.disable_session_identifiers" = true;
-          "services.sync.prefs.sync.browser.newtabpage.activity-stream.showSponsoredTopSite" = false;
-          "browser.newtabpage.activity-stream.showSponsored" = false;
-          "signon.autofillForms" = false;
-          "toolkit.telemetry.archive.enabled" = false;
-          "toolkit.telemetry.bhrPing.enabled" = false;
-          "toolkit.telemetry.cachedClientID" = "";
-          "toolkit.telemetry.enabled" = false;
-          "toolkit.telemetry.firstShutdownPing.enabled" = false;
-          "toolkit.telemetry.hybridContent.enabled" = false;
-          "toolkit.telemetry.newProfilePing.enabled" = false;
-          "toolkit.telemetry.prompted" = 2;
-          "toolkit.telemetry.rejected" = true;
-          "toolkit.telemetry.reportingpolicy.firstRun" = false;
-          "toolkit.telemetry.server" = "";
-          "toolkit.telemetry.shutdownPingSender.enabled" = false;
-          "toolkit.telemetry.unified" = false;
-          "toolkit.telemetry.unifiedIsOptIn" = false;
-          "toolkit.telemetry.updatePing.enabled" = false;
-          "webgl.disabled" = true;
-          "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
-          "webgl.renderer-string-override" = " ";
-          "webgl.vendor-string-override" = " ";
-          "browser.urlbar.update2.engineAliasRefresh" = true;
-          "signon.passwordEditCapture.enabled" = false;
-          "browser.search.hiddenOneOffs" = "Google,Yahoo,Bing,Amazon.com,Twitter";
-          "browser.newtabpage.activity-stream.improvesearch.topSiteSearchShortcuts" = false;
-          "browser.urlbar.trimURLs" = false;
-          "findbar.modalHighlight" = true;
-          "browser.fullscreen.autohide" = true;
-          "browser.newtabpage.activity-stream.topSitesRows" = 0;
-          "browser.urlbar.quickactions.enabled" = true;
-          "pdfjs.annotationEditorMode" = 0;
-          "pdfjs.annotationmode" = 2;
-          "layers.acceleration.force-enabled" = true;
-          "layout.css.backdrop-filter.enabled" = true;
-          "svg.context-properties.content.enabled" = true;
+          "media.peerconnection.enabled" = true;
         };
+      };
 
-        search = {
-          default = "SearXNG";
-          force = true;
-          engines = {
-            "SearXNG" = {
-              urls = [{template = "https://searx.be/search?q={searchTerms}";}];
-              updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = ["@sr"];
-            };
-
-            "Nixpkgs-Package Search" = {
-              urls = [{template = "https://search.nixos.org/packages?channel=unstable&size=250&sort=relevance&type=packages&query={searchTerms}";}];
-              iconUpdateURL = "https://nixos.org/favicon.png";
-              updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = ["@nps"];
-            };
-
-            "Nixpkgs-Modules Search" = {
-              urls = [{template = "https://search.nixos.org/options?channel=unstable&size=200&sort=relevance&query={searchTerms}";}];
-              iconUpdateURL = "https://nixos.org/favicon.png";
-              updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = ["@nms"];
-            };
-
-            "NixOS-Wiki Search" = {
-              urls = [{template = "https://nixos.wiki/index.php?search={searchTerms}&go=Go";}];
-              iconUpdateURL = "https://nixos.org/favicon.png";
-              updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = ["@nws"];
-            };
-
-            "Home-Manager Search" = {
-              urls = [{template = "https://mipmip.github.io/home-manager-option-search/?query={searchTerms}";}];
-              iconUpdateURL = "https://nixos.org/favicon.png";
-              updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = ["@hms"];
-            };
-
-            "GitHub-Code Search" = {
-              urls = [{template = "https://github.com/search?q={searchTerms}&type=code";}];
-              iconUpdateURL = "https://github.githubassets.com/favicons/favicon-dark.svg";
-              updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = ["@gcs"];
-            };
-
-            "Noogle.dev Search" = {
-              urls = [{template = "https://noogle.dev/?term=%22{searchTerms}%22";}];
-              iconUpdateURL = "https://noogle.dev/favicon.png";
-              updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = ["@ngd" "@nog"];
-            };
-
-            "Nixpkgs PRs" = {
-              urls = [{template = "https://nixpk.gs/pr-tracker.html?pr={searchTerms}";}];
-              iconUpdateURL = "https://nixos.org/favicon.png";
-              updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = ["@npr"];
-            };
-          };
-
-          order = [
-            "SearXNG"
-            "DuckDuckGo"
-          ];
-        };
-
-        userChrome = builtins.readFile ./configs/userChrome.css;
+      chromium = {
+        enable = true;
+        package = pkgs.brave;
+        commandLineArgs = ["--enable-features=TouchpadOverscrollHistoryNavigation"];
+        extensions = [
+          {id = "cjpalhdlnbpafiamejdnhcphjbkeiagm";} # ublock origin
+          {id = "dbepggeogbaibhgnhhndojpepiihcmeb";} # vimium
+          {id = "eimadpbcbfnmbkopoojfekhnkhdbieeh";} # dark-reader
+          {id = "mnjggcdmjocbbbhaepdhchncahnbgone";} # sponsorblock
+        ];
       };
     };
-
-    librewolf = {
-      enable = true;
-      settings = {
-        "gfx.webrender.all" = true;
-        "gfx.webrender.enabled" = true;
-        "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
-        "layers.acceleration.force-enabled" = true;
-        "layout.css.backdrop-filter.enabled" = true;
-        "media.av1.enabled" = false;
-        "media.ffmpeg.vaapi.enabled" = true;
-        "media.hardware-video-decoding.force-enabled" = true;
-        "media.peerconnection.enabled" = true;
-      };
-    };
-
-    chromium = {
-      enable = true;
-      package = pkgs.brave;
-      commandLineArgs = ["--enable-features=TouchpadOverscrollHistoryNavigation"];
-      extensions = [
-        {id = "cjpalhdlnbpafiamejdnhcphjbkeiagm";} # ublock origin
-        {id = "dbepggeogbaibhgnhhndojpepiihcmeb";} # vimium
-        {id = "eimadpbcbfnmbkopoojfekhnkhdbieeh";} # dark-reader
-        {id = "mnjggcdmjocbbbhaepdhchncahnbgone";} # sponsorblock
-      ];
-    };
-  };
-}
+  }
   #+end_src
 **** userChrome
 - Css customization for Firefox UI.
@@ -5007,7 +5121,7 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
 **** Shr
 - Shr, the basic html rendering done in emacs web browser (eww).
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package url
   :ensure nil
   :custom
@@ -5041,12 +5155,12 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
   #+end_src
 - Shrface for extending faces of shr/url like org-mode.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
   (use-package shrface
     :hook
     (eww-after-render . shrface-mode)
     (devdocs-browser-eww-mode . shrface-mode)
-    (gnus-article-mode . shrface-mode)
+    ;; (gnus-article-mode . shrface-mode)
 
     :bind
     (:map shrface-mode-map
@@ -5072,7 +5186,7 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
   #+end_src
 - shr-pre-highlight, to highlight code blocks in eww. Does not guess the language correctly, but syntax highlight legit works.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package shr-tag-pre-highlight
   :demand
   :config
@@ -5131,7 +5245,7 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
 **** Eww
 - The emacs web browsing, mostly I like to read articles, readable materials in it.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package eww
   :ensure nil
   :demand t
@@ -5153,7 +5267,7 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
   #+end_src
 - Function to search words or link at point, and also give us list from =eww-prompt-history= to choose.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (defun eww-search-words ()
   "Search the web for the text in the region.
 If region is active (and not whitespace), search the web for
@@ -5172,46 +5286,45 @@ for the search engine used."
   #+end_src
 - Browse-url with custom bash script, a link handler.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
-(use-package gnutls
-  :ensure nil
-  :defer t
-  :custom
-  (gnutls-verify-error t))
+  #+begin_src emacs-lisp
+  (use-package gnutls
+    :ensure nil
+    :defer t
+    :custom
+    (gnutls-verify-error t))
 
-(use-package browse-url
-  :ensure nil
-  :config
-  ;; browser script
-  (unless d/on-droid
-    (setq browse-url-browser-function 'browse-url-generic
-          browse-url-generic-program "d-stuff")
-    (setq browse-url-secondary-browser-function 'browse-url-generic
-          browse-url-generic-program "d-stuff")))
+  (use-package browse-url
+    :ensure nil
+    :config
+    ;; browser script
+    (unless d/on-droid
+      (setopt browse-url-browser-function 'browse-url-generic
+              browse-url-generic-program "d-stuff"
+              browse-url-secondary-browser-function 'browse-url-generic)))
   #+end_src
 - Browser url in dwim way. Function is replaced by =embark-act=.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
-(defun d/external-browser ()
-  (interactive)
-  (cond ((image-at-point-p) (kill-new (or (shr-url-at-point nil) (plist-get (cdr (image--get-image)) :file))))
-        ((or (thing-at-point 'url t) (dired-file-name-at-point) (shr-url-at-point nil)) (link-hint-copy-link-at-point))
-        (t (link-hint-copy-link)))
-  (let ((url (current-kill 0)))
-    (if d/on-droid (browse-url url) (browse-url-generic url))))
+  #+begin_src emacs-lisp
+  (defun d/external-browser ()
+    (interactive)
+    (cond ((image-at-point-p) (kill-new (or (shr-url-at-point nil) (plist-get (cdr (image--get-image)) :file))))
+          ((or (thing-at-point 'url t) (dired-file-name-at-point) (shr-url-at-point nil)) (link-hint-copy-link-at-point))
+          (t (link-hint-copy-link)))
+    (let ((url (current-kill 0)))
+      (if d/on-droid (browse-url url) (browse-url-generic url))))
   #+end_src
 **** COMMENT ox-hugo
 - for maintaining a static site generator with posts written in org-mode.
 - For anyone who has come this far, [[https://idlip.github.io][blog site]].
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package ox-hugo
   :unless d/on-droid
   :after ox)
   #+end_src
 - Org-capture for writing blog post.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (with-eval-after-load 'org-capture
   (defun org-hugo-new-subtree-post-capture-template ()
     "Returns `org-capture' template string for new Hugo post.
@@ -5314,7 +5427,7 @@ for the search engine used."
 - Mingus - An mpd interface in emacs, its simple and clean to use.
 - Ik EMMS and mpc exist, but mingus is straight forward simple and minimal.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package mingus
   :unless d/on-droid
   :commands (d/elfeed-add-podcast)
@@ -5537,7 +5650,7 @@ scrape=youtube
 *** image-mode
 - Emacs mode for displaying images.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package image-mode
   :ensure nil
   :defines (d/on-droid olivetti-body-width)
@@ -5573,7 +5686,7 @@ scrape=youtube
 *** reddit
 - experience the reddit posts in the comfort of org-mode.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package reddigg
   :defer t
 
@@ -5611,14 +5724,14 @@ scrape=youtube
   #+end_src
 *** hacker news
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package hnreader
   :defer t
   :unless d/on-droid)
   #+end_src
 *** stackoverflow
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package howdoyou
   :defer t
   :unless d/on-droid)
@@ -5626,7 +5739,7 @@ scrape=youtube
 *** pastebin
 - to share, paste and forget
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package webpaste
   :defer t
   :defines
@@ -5643,7 +5756,7 @@ scrape=youtube
 *** COMMENT matrix
 - wait, matrix in emacs? Yes, call it =ement.el=
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package ement
   :defines
   (ement-room-minibuffer-map
@@ -5682,7 +5795,7 @@ scrape=youtube
 *** droidMacs
 - Legit Emacs works very well on Android.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 ;; access phone storage as default
 ;; Better is to symlink file to ~/ itself
 
@@ -5729,7 +5842,7 @@ scrape=youtube
 **** notify-droid
 - Thanks to [[https://github.com/danijelcamdzic/dotemacs/blob/main/elisp/org-config.el][danijelcamdzic]], now emacs android can have notification from org agenda.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (require 'alert)
 (when d/on-droid
   ;; Org-alert functions
@@ -6340,27 +6453,27 @@ Android port."
 - Idle manager made for/with hyprland
   #+name: conf-hypridle
   #+begin_src conf :tangle ~/.config/hypr/hypridle.conf
-general {
-    lock_cmd = hyprlock
-    unlock_cmd = notify-send "unlock!"      # same as above, but unlock
-    before_sleep_cmd = loginctl lock-session
-    after_sleep_cmd = notify-send "Awake!"
-    ignore_dbus_inhibit = false             # whether to ignore dbus-sent idle-inhibit requests (used by e.g. firefox or steam)
-}
+  general {
+      lock_cmd = hyprlock
+      unlock_cmd = notify-send "unlock!"      # same as above, but unlock
+      before_sleep_cmd = loginctl lock-session
+      after_sleep_cmd = notify-send "Awake!"
+      ignore_dbus_inhibit = false             # whether to ignore dbus-sent idle-inhibit requests (used by e.g. firefox or steam)
+  }
 
 
 
-listener {
-    timeout = 210
-    on-timeout = d-idle "" "hyprctl dispatch dpms off"
-    on-resume = "hyprctl dispatch dpms on"
-    # on-resume = notify-send "Welcome back!"  # command to run when activity is detected after timeout has fired.
-}
+  listener {
+      timeout = 210
+      on-timeout = d-idle "" "hyprctl dispatch dpms off"
+      on-resume = "hyprctl dispatch dpms on"
+      # on-resume = notify-send "Welcome back!"  # command to run when activity is detected after timeout has fired.
+  }
 
-listener {
-   timeout = 340
-   on-timeout = d-idle "" "systemctl suspend"
-}
+  listener {
+     timeout = 540
+     on-timeout = d-idle "" "systemctl suspend"
+  }
   #+end_src
 **** hyprlock
   #+name: conf-hyprlock
@@ -6458,7 +6571,7 @@ stdenvNoCC.mkDerivation rec {
 - Set fonts for emacs.
 - Defining some variables for adjusting size and font name.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (defvar d/font-size (if d/on-droid 150 140)
   "Default font size based on the system.")
 (defvar d/variable-font-size (if d/on-droid 160 160)
@@ -6475,7 +6588,7 @@ stdenvNoCC.mkDerivation rec {
   #+end_src
 - Invoking fonts.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package faces
   :ensure nil
   :defines
@@ -6499,7 +6612,7 @@ stdenvNoCC.mkDerivation rec {
   #+end_src
 - font-lock
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package font-lock
   :ensure nil
   :defer t
@@ -6514,21 +6627,21 @@ stdenvNoCC.mkDerivation rec {
 - To visualize and minimize the text.
 - Nerd-icons
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package nerd-icons
   :custom
   (nerd-icons-font-family d/fixed-pitch-font))
   #+end_src
 - Nerd icons in dired
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package nerd-icons-dired
   :hook
   (dired-mode . nerd-icons-dired-mode))
   #+end_src
 - nerd icons in completions
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package nerd-icons-completion
   :functions (nerd-icons-completion-mode)
   :unless d/on-droid
@@ -6540,7 +6653,7 @@ stdenvNoCC.mkDerivation rec {
 + currently getting an error saying "void-variable kindfunc"
 + Don't know why suddenly throwing this error on <2023-12-28 17:00>, when before and all it worked well.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (define-widget 'nerd-icons-corfu-icon-type 'plist
   "The type of an icon mapping."
   :tag "Icon parameters"
@@ -6713,12 +6826,12 @@ and returns the icon."
   #+end_src
 - Set colors properly for foot terminal.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (add-to-list 'term-file-aliases '("foot" . "xterm"))
   #+end_src
 - Modus-themes, the built-in master crafted.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package emacs
   :ensure nil
 
@@ -6747,12 +6860,13 @@ and returns the icon."
 ** Olivetti
 - Nice, focused writing environment for emacs.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
   (use-package olivetti
     :defer t
     :hook
     (org-mode text-mode Info-mode helpful-mode ement-room-mode
               shrface-mode
+              gnus-article-mode
               sdcv-mode nov-mode elfeed-show-mode markdown-mode)
     :custom
     (olivetti-body-width 0.92)
@@ -7087,7 +7201,7 @@ tooltip,
 *** COMMENT Doom-modeline
 - comprehensive mode-line information.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package doom-modeline
   :disabled t
   :functions
@@ -7135,77 +7249,78 @@ tooltip,
 *** mini-Echo
 - A new better way of looking at mode-line in echo area.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
-;; new way of using mode-line with `mini-echo-mode`
-(use-package mini-echo
-  :unless d/on-droid
-  ;; :load-path "~/d-git/forks/mini-echo"
-  :custom
-  (mini-echo-window-divider-args '(t 0 0) "no indicator border")
-  (mini-echo-separator " ")
-  (mini-echo-buffer-status-style 'both)
-  (mini-echo-default-segments
-   '(:long ("time" "battery" "buffer-name-short"
-            "envrc" "project" "eglot"
-            "buffer-position"
-            ;; "buffer-size"
-            "flymake" "selection-info"
-            "narrow" "elfeed"
-            )
-           :short ("buffer-name-short"
-                   "selection-info" "narrow" "macro" "repeat")))
+  #+begin_src emacs-lisp
+  ;; new way of using mode-line with `mini-echo-mode`
+  (use-package mini-echo
+    :unless d/on-droid
+    :defer 1
+    ;; :load-path "~/d-git/forks/mini-echo"
+    :custom
+    (mini-echo-window-divider-args '(t 0 0) "no indicator border")
+    (mini-echo-separator " ")
+    (mini-echo-buffer-status-style 'both)
+    (mini-echo-default-segments
+     '(:long ("time" "battery" "buffer-name-short"
+              "envrc" "project" "eglot"
+              "buffer-position"
+              ;; "buffer-size"
+              "flymake" "selection-info"
+              "narrow" "elfeed"
+              )
+             :short ("buffer-name-short"
+                     "selection-info" "narrow" "macro" "repeat")))
 
-  (mini-echo-rules
-   '((special-mode :both (("buffer-size" . 0)))
-     (prog-mode :both (("vcs" . 1)))
-     (dired-mode :both (("buffer-size" . 0)))))
+    (mini-echo-rules
+     '((special-mode :both (("buffer-size" . 0)))
+       (prog-mode :both (("vcs" . 1)))
+       (dired-mode :both (("buffer-size" . 0)))))
 
-  (mini-echo--toggled-segments '(("battery" . t)
-                                 ("flymake" . t)
-                                 ("elfeed". t) ("time" . t)))
+    (mini-echo--toggled-segments '(("battery" . t)
+                                   ("flymake" . t)
+                                   ("elfeed". t) ("time" . t)))
 
-  :config
+    :config
 
-  (defface mini-echo-elfeed
-    '((t (:inherit elfeed-search-unread-count-face)))
-    "Face for mini-echo segment of word count."
-    :group 'mini-echo)
+    (defface mini-echo-elfeed
+      '((t (:inherit elfeed-search-unread-count-face)))
+      "Face for mini-echo segment of word count."
+      :group 'mini-echo)
 
-  ;; add elfeed unread counts
-  (mini-echo-define-segment "elfeed"
-    "Return unread feeds counts from elfeed."
-    :fetch
-    (propertize
-     (let ((bufn "*elfeed-search*"))
-       (if (get-buffer bufn)
-           (concat "󰎕 "
-                   (string-trim-right
-                    (with-current-buffer bufn (elfeed-search--count-unread))
-                    "/.*")) "")) 'face 'mini-echo-elfeed))
+    ;; add elfeed unread counts
+    (mini-echo-define-segment "elfeed"
+      "Return unread feeds counts from elfeed."
+      :fetch
+      (propertize
+       (let ((bufn "*elfeed-search*"))
+         (if (get-buffer bufn)
+             (concat "󰎕 "
+                     (string-trim-right
+                      (with-current-buffer bufn (elfeed-search--count-unread))
+                      "/.*")) "")) 'face 'mini-echo-elfeed))
 
-  (mini-echo-define-segment "battery"
-    "Return the battery status.
-Display format is inherited from `battery-mode-line-format'."
-    :setup (display-battery-mode 1)
-    :fetch
-    (concat "󰂁"
-            (string-trim (mini-echo-segment--extract battery-mode-line-string) "\\[" "\\]")))
+    (mini-echo-define-segment "battery"
+      "Return the battery status.
+  Display format is inherited from `battery-mode-line-format'."
+      :setup (display-battery-mode 1)
+      :fetch
+      (concat "󰂁"
+              (string-trim (mini-echo-segment--extract battery-mode-line-string) "\\[" "\\]")))
 
-  (mini-echo-define-segment "which-function"
-    "Return the function at point using `which-function-mode'"
-    :fetch
-    (propertize
-     (concat "󰡱 :"
-             (string-trim
-              (which-function)))
-     'face 'which-func))
+    (mini-echo-define-segment "which-function"
+      "Return the function at point using `which-function-mode'"
+      :fetch
+      (propertize
+       (concat "󰡱 :"
+               (string-trim
+                (which-function)))
+       'face 'which-func))
 
-  (mini-echo-mode 1))
+    (mini-echo-mode 1))
   #+end_src
 *** Toggle mode-line
 - To toggle mode-line on and off.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (global-set-key [f9] #'toggle-mode-line)
 
 (defun toggle-mode-line ()
@@ -7219,7 +7334,7 @@ Display format is inherited from `battery-mode-line-format'."
 ** Dashboard
 - Emacs dashboard to welcome and greet us!
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package dashboard
   :functions (dashboard-setup-startup-hook)
 
@@ -7327,7 +7442,7 @@ Display format is inherited from `battery-mode-line-format'."
 ** COMMENT Beframe
 - To manage emacs frame effectively, instead of tabs.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package beframe
   :unless d/on-droid
   :custom
@@ -7337,7 +7452,7 @@ Display format is inherited from `battery-mode-line-format'."
   #+end_src
 - Support consult-buffer with beframe
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (with-eval-after-load 'consult
   (defface beframe-buffer
     '((t :inherit font-lock-string-face))
@@ -7936,7 +8051,7 @@ fi
 - So far only using it for org agenda
 - TODO create a class to control priority, so fade time can be avoided.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package alert
   :custom
     ;; Use different backends depending on the platform
@@ -7958,7 +8073,7 @@ fi
 - Clipboard support in wayland using ~wl-clipboard~, especially for terminal use case.
 - Credits to @yorichvP for github gist.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 ;; credit: yorickvP on Github
 (setq wl-copy-process nil)
 
@@ -8497,9 +8612,6 @@ lines:                       20;
 
 * Note taking
 ** Org
-:PROPERTIES:
-:header-args: :tangle gdk/configs/d-emacs/init.el
-:END:
 - the way to organize stuffs, and get things done!
 - https://orgmode.org
   #+name: orgmacs
@@ -9450,7 +9562,7 @@ block but are passed literally to the \"example-block\"."
   #+end_src
 ** Markdown
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package markdown-mode
   :defer t
   :defines (markdown-mode-map)
@@ -9480,7 +9592,7 @@ block but are passed literally to the \"example-block\"."
 ** Spell
 - to check for simple spell corrections
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
   (use-package jinx
     :unless d/on-droid
     ;; :init (global-jinx-mode)
@@ -9489,7 +9601,7 @@ block but are passed literally to the \"example-block\"."
   #+end_src
 - Built-in spell checker
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
   (use-package ispell
     :demand t
     :custom
@@ -9510,7 +9622,7 @@ block but are passed literally to the \"example-block\"."
   #+end_src
 - language tool as linter
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package flymake-languagetool
   :unless d/on-droid
   :disabled
@@ -9525,7 +9637,7 @@ block but are passed literally to the \"example-block\"."
 - Key is to type when thought comes, because it is too easy to forget.
 - Or just type whatever comes to mind, then later analyze.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package speed-type
   :unless d/on-droid
   :hook
@@ -9538,7 +9650,7 @@ block but are passed literally to the \"example-block\"."
 - Naming scheme is the huge bonus, except there is no graph or db stored. It aint that hard or late to write a script to generate one tho. I assume sacha or some other package might have already written a ~R~ or ~python~ script on it.
 - Except denote is not full fledge system or tool, but its a handy and convenient way of making notes in good practices scheme.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package denote
   :defer t
   :defines
@@ -9638,7 +9750,7 @@ block but are passed literally to the \"example-block\"."
 - Function to disable mouse when writing. Trackpad taps annoys while typing.
 - Toggles both [[#olivetti][olivetti-mode]] and mouse on and off.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (defun d/writing-mode ()
   (interactive)
   (disable-mouse-mode 'toggle)
@@ -9647,7 +9759,7 @@ block but are passed literally to the \"example-block\"."
 - Function to move org subtree as denote notes.
 - Refer info on denote.
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (defun my-denote-org-extract-subtree (&optional silo)
   "Create new Denote note using current Org subtree.
      Make the new note use the Org file type, regardless of the value
@@ -9687,7 +9799,7 @@ block but are passed literally to the \"example-block\"."
 
 *** Denote Journal
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 (use-package denote-journal-extras
   :custom
   (denote-journal-extras-title-format 'day-date-month-year))
@@ -9696,7 +9808,7 @@ block but are passed literally to the \"example-block\"."
 *** Denote silos
 - Some function obtained from a mastodon user (@taonaw) for converting denote link to normal file link
   #+name: orgmacs
-  #+begin_src emacs-lisp :tangle gdk/configs/d-emacs/init.el
+  #+begin_src emacs-lisp
 ;;;; Convert links from `:denote' to `:file' and vice versa
 
 ;; TODO 2024-02-28: Do we need to convert between other link types?  I

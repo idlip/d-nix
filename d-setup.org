@@ -712,50 +712,52 @@ It is as simple if I just record what it does, with proper link to rich resource
   #+end_src
 *** powerManagement
 - laptop efficient power management
+**** COMMENT powertop
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-{
-  powerManagement = {
-    enable = true;
-    powertop.enable = true;
-  };
-}
+  {
+    powerManagement = {
+      enable = true;
+      powertop.enable = true;
+    };
+  }
   #+end_src
-**** COMMENT tlp
+**** tlp
 - works like charm for 13th gen, better than =autocpu-freq=.
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-{
-  services = {
-    tlp = {
-      enable = true;
-      settings = {
-        CPU_SCALING_GOVERNOR_ON_AC = "balance_performance";
-        CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
+  {
+    services = {
+      tlp = {
+        enable = true;
+        settings = {
+          CPU_SCALING_GOVERNOR_ON_AC = "balance_performance";
+          CPU_SCALING_GOVERNOR_ON_BAT = "power";
 
-        CPU_ENERGY_PERF_POLICY_ON_BAT = "balance_power";
-        CPU_ENERGY_PERF_POLICY_ON_AC = "balance_performance";
+          CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
+          CPU_ENERGY_PERF_POLICY_ON_BAT = "balance_power";
 
-        USB_AUTOSUSPEND = 1;
-        DEVICES_TO_DISABLE_ON_STARTUP = "bluetooth";
-        DEVICES_TO_DISABLE_ON_BAT_NOT_IN_USE = "bluetooth";
+          USB_AUTOSUSPEND = 1;
+          DEVICES_TO_DISABLE_ON_STARTUP = "bluetooth";
+          DEVICES_TO_DISABLE_ON_BAT_NOT_IN_USE = "bluetooth";
 
-        CPU_BOOST_ON_AC = 0;
-        CPU_BOOST_ON_BAT = 0;
-        CPU_HWP_DYN_BOOST_ON_AC = 1;
-        CPU_HWP_DYN_BOOST_ON_BAT = 0;
+          CPU_BOOST_ON_AC = 1;
+          CPU_BOOST_ON_BAT = 0;
+          CPU_HWP_DYN_BOOST_ON_AC = 1;
+          CPU_HWP_DYN_BOOST_ON_BAT = 0;
 
-        CPU_MIN_PERF_ON_AC = 0;
-        CPU_MAX_PERF_ON_AC = 70;
-        CPU_MIN_PERF_ON_BAT = 0;
-        CPU_MAX_PERF_ON_BAT = 30;
+          CPU_MIN_PERF_ON_AC = 0;
+          CPU_MAX_PERF_ON_AC = 100;
+          CPU_MIN_PERF_ON_BAT = 0;
+          CPU_MAX_PERF_ON_BAT = 30;
+        };
       };
     };
-  };
-}
+  }
   #+end_src
-**** power profile
+**** COMMENT power profile
 - A ppd used by gnome and kde plasma
+- Commenting as on [2024-04-11], read that ppd is better recommended to AMD cpu, so switching to tlp.
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
 {

@@ -96,7 +96,7 @@
   ("C-x C-z" . nil)
   ;; panes
   ("M-o" . other-window)
-  ;; ("C-x C-k" . d/kill-buffer)
+  ("C-x C-k" . d/kill-buffer)
   ("C-x n n" . d/narrow-or-widen-dwim)
 
   (:map mode-specific-map
@@ -494,19 +494,18 @@ E.g. capitalize or decapitalize the next word, increment number at point."
      (consult-completion-in-region reverse)
      (consult-recoll buffer)
      (completion-at-point reverse)
-     (embark-completing-read-prompter reverse)
-     (embark-act-with-completing-read reverse)
-     (embark-prefix-help-command reverse)
-     (embark-bindings reverse)
      (consult-org-heading reverse)
      (consult-dff unobtrusive)
      (embark-find-definition reverse)
+     (embark-act grid)
      (xref-find-definitions reverse)))
 
   (vertico-multiform-categories
    '((file grid reverse)
      (consult-grep buffer)
      (jinx grid (vertico-grid-annotate . 20))
+     (embark-bindings grid reverse)
+     (embark-keybinding grid)
      (kill-ring reverse)
      (buffer flat (vertico-cycle . t)))))
 
@@ -923,7 +922,7 @@ Return nil if NAME does not designate a valid color."
   :bind
   ("C-<tab>" . tab-next)
   :hook
-  (server-after-make-frame . tab-new)
+  (server-after-make-frame . (lambda () (tab-new) (tab-new) (tab-new)))
   :init
   (tab-bar-mode))
 
@@ -976,6 +975,10 @@ You can do this by trackpad too (laptop)"
                        (cdr (nth 6 (posn-at-point)))))
          (distance-in-pixels (* (- target-row current-row) (line-pixel-height))))
     (pixel-scroll-precision-interpolate distance-in-pixels)))
+
+(use-package frame
+  :custom
+  (use-system-tooltips t))
 
 (use-package winner
   :ensure nil
@@ -1528,14 +1531,10 @@ out")
   (show-paren-style 'parenthesis)
   (show-paren-context-when-offscreen t))
 
-(use-package rainbow-delimiters
-  :defer t
-  :hook (prog-mode . rainbow-delimiters-mode))
-
-(use-package rainbow-mode
-  :defer t
-  :hook '(prog-mode help-mode)
-  :bind ("C-c t c" . rainbow-mode))
+(use-package colorful-mode
+  :unless d/on-droid
+  :config
+  (global-colorful-mode))
 
 (use-package avy
   :bind
@@ -1632,12 +1631,12 @@ out")
   (doc-view-scale-internally t)
   (doc-view-image-width 900)
   (large-file-warning-threshold 700000000)
-  (image-cache-eviction-delay 3))
+  (image-cache-eviction-delay 5))
 
 (defun d/doc-view-theme ()
   "Toggle between dark and reading mode in Doc-view buffer."
   (interactive)
-  (let ((choice (completing-read "theme: " '("black" "reader" "white" "tokyonight") nil t)))
+  (let ((choice (completing-read "theme Color: " '("black" "reader" "white" "tokyonight") nil t)))
     (cond
      ((string= "black" choice)
       (set-face-attribute 'doc-view-svg-face nil :background "#050505" :foreground "#ffffff"))
@@ -1648,6 +1647,75 @@ out")
      ((string= "white" choice)
       (set-face-attribute 'doc-view-svg-face nil :background "#fefefe" :foreground "#000000"))))
   (doc-view-next-page) (doc-view-previous-page))
+
+(use-package pdf-tools
+  :unless d/on-droid
+  :mode ("\\.pdf\\'" . pdf-view-mode)
+  :magic ("%PDF" . pdf-view-mode)
+
+  ;; :init
+  ;; (pdf-tools-install)
+
+  :hook
+  (pdf-view-mode . pdf-view-midnight-minor-mode)
+
+  :bind
+  (:map pdf-view-mode-map
+        ("h" . pdf-annot-add-highlight-markup-annotation)
+        ("t" . pdf-annot-add-text-annotation)
+        ("D" . pdf-annot-delete)
+        ("M-g M-g" . pdf-view-goto-page)
+        ("j" . pdf-view-next-line-or-next-page)
+        ("k" . pdf-view-previous-line-or-previous-page)
+        ("i" . d/pdf-tools-theme)
+        ("C-v" . pdf-view-scroll-up-or-next-page)
+        ("M-v" . pdf-view-scroll-down-or-previous-page))
+
+  :custom
+  (pdf-view-display-size 'fit-page)
+  (pdf-view-continuous t)
+  (pdf-cache-image-limit 10)
+  (pdf-cache-prefetch-delay 0.5)
+  (pdf-annot-activate-created-annotations t)
+  (pdf-view-use-scaling nil)
+  (pdf-view-use-dedicated-register nil)
+  ;; (pdf-view-max-image-width 2000)
+  (pdf-outline-imenu-use-flat-menus t)
+  (pdf-view-resize-factor 1.1)
+  (pdf-view-midnight-colors '("#fff" . "#000"))
+
+  :config
+  (pdf-tools-install-noverify)
+  ;; (add-hook 'pdf-view-mode-hook (lambda () (cua-mode 0)))
+
+  )
+
+;; basically can use this function
+;; (pdf-info-setoptions
+;;  :render/foreground "#eee"
+;;  :render/background "#b00"
+;;  :render/usecolors 2
+;;  )
+
+;; or option: 2
+;; use the custom variable and toggle mode
+
+(defun d/pdf-tools-theme ()
+  "Toggle between dark and reading mode in pdf-tools reading buffer."
+  (interactive)
+  (let ((choice (completing-read "theme Color: " '("black" "reader" "white" "tokyonight" "more choice") nil t)))
+    (cond
+     ((string= "black" choice)
+      (setopt pdf-view-midnight-colors '("#fff" . "#000")))
+     ((string= "reader" choice)
+      (setopt pdf-view-midnight-colors '("#000" . "#edd1b0")))
+     ((string= "tokyonight" choice)
+      (setopt pdf-view-midnight-colors '("#fff" . "#24283b")))
+     ((string= "white" choice)
+      (setopt pdf-view-midnight-colors '("#000" . "#fff")))
+     (t
+      (setopt pdf-view-midnight-colors (cons (read-color "Foreground: ") (read-color "Background: "))))))
+  (pdf-view-midnight-minor-mode))
 
 (use-package nov
   :functions
@@ -1892,7 +1960,7 @@ out")
   :custom
   (url-user-agent "")
   (url-privacy-level 'paranoid)
-  (url-mime-accept-string "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8 ")
+  ;; (url-mime-accept-string "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8 ")
   (url-mime-charset-string nil)
   (url-mime-language-string "en-US,en;q=0.5")
   (url-mime-encoding-string "gzip, deflate")
@@ -1909,7 +1977,7 @@ out")
   (shr-bullet "⁍ ")
   (shr-folding-mode t)
   (shr-max-width 110)
-  (shr-max-image-proportion 0.6)
+  (shr-max-image-proportion 0.9)
   (shr-width nil))
 
 (use-package shr-color
@@ -1922,7 +1990,7 @@ out")
   :hook
   (eww-after-render . shrface-mode)
   (devdocs-browser-eww-mode . shrface-mode)
-  ;; (gnus-article-mode . shrface-mode)
+  (gnus-article-mode . shrface-mode)
 
   :bind
   (:map shrface-mode-map
@@ -1937,6 +2005,15 @@ out")
   :custom
   (shrface-bullets-bullet-list '("󰓏" "󰚀" "󰫤"  "󰴈" "" "󰄄"))
   (shrface-href-versatile t)
+
+  :init
+  (setopt shrface-supported-faces-alist
+          '((em . shrface-tag-em) (u . shrface-tag-u) (strong . shrface-tag-strong)
+            (svg . shrface-tag-svg) (h1 . shrface-tag-h1) (h2 . shrface-tag-h2)
+            (h3 . shrface-tag-h3) (h4 . shrface-tag-h4) (h5 . shrface-tag-h5)
+            (h6 . shrface-tag-h6) (p . shrface-tag-p)
+            (li . shrface-tag-li) (dt . shrface-tag-dt) (figure . shrface-tag-figure)))
+
   :config
   (defun shrface-shr-item-bullet ()
     "Build a `shr-bullet' based on `shrface-item-bullet'."
@@ -2214,9 +2291,9 @@ Android port."
   (setq alert-default-icon "ic_popup_reminder")
   )
 
-(defvar d/font-size (if d/on-droid 150 140)
+(defvar d/font-size (if d/on-droid 150 200)
   "Default font size based on the system.")
-(defvar d/variable-font-size (if d/on-droid 160 160)
+(defvar d/variable-font-size (if d/on-droid 160 220)
   "Default variable pitch size")
 
 ;; Dont worry about the font name, I use fork of Recursive font
@@ -2340,7 +2417,7 @@ Android port."
             "buffer-position"
             ;; "buffer-size"
             "flymake" "selection-info"
-            "narrow" "elfeed"
+            "narrow"
             )
            :short ("buffer-name-short"
                    "selection-info" "narrow" "macro" "repeat")))
@@ -2352,10 +2429,15 @@ Android port."
 
   (mini-echo--toggled-segments '(("battery" . t)
                                  ("flymake" . t)
-                                 ("elfeed". t) ("time" . t)))
+                                 ;; ("elfeed". t)
+                                 ("pdf-tools". t)
+                                 ("doc-view" . t)
+                                 ("time" . t)))
 
   :config
+  (mini-echo-mode 1))
 
+(unless d/on-droid
   (defface mini-echo-elfeed
     '((t (:inherit elfeed-search-unread-count-face)))
     "Face for mini-echo segment of word count."
@@ -2390,7 +2472,26 @@ Display format is inherited from `battery-mode-line-format'."
               (which-function)))
      'face 'which-func))
 
-  (mini-echo-mode 1))
+  (mini-echo-define-segment "doc-view"
+    "Return the page number of the current document in Doc-view."
+    :fetch
+    (when (derived-mode-p 'doc-view-mode)
+      (propertize
+       (concat "  "
+               (number-to-string (doc-view-current-page)) "/" (number-to-string (doc-view-last-page-number)))
+       'face 'doc-view-svg-face)))
+
+
+
+  (mini-echo-define-segment "pdf-tools"
+    "Return the page number of current pdf in pdf-view."
+    :fetch
+    (when (derived-mode-p 'pdf-view-mode)
+      (propertize
+       (concat "  "
+               (number-to-string (pdf-view-current-page)) "/" (number-to-string (pdf-cache-number-of-pages)))
+       'face 'pdf-occur-page-face)))
+  )
 
 (global-set-key [f9] #'toggle-mode-line)
 
@@ -2929,6 +3030,7 @@ Display format is inherited from `battery-mode-line-format'."
   (org-agenda-mode . org-super-agenda-mode))
 
 (use-package org-super-links
+  :unless d/on-droid
   :bind (("C-c s s" . org-super-links-link)
          ("C-c s l" . org-super-links-store-link)
          ("C-c s C-l" . org-super-links-insert-link)
@@ -3141,8 +3243,11 @@ Display format is inherited from `battery-mode-line-format'."
   (org-noter-auto-save-last-location t)
   (org-noter-default-notes-file-names '("journal.org"))
   (org-noter-notes-search-path '("~/d-sync/notes"))
-  (org-noter-notes-window-location 'vertical-split)
+  (org-noter-notes-window-location 'horizontal-split)
   )
+
+;; empty function so org-noter does not scroll the display which hides the left margin, like -+ indicator
+(defun org-noter--set-notes-scroll () )
 
 (use-package ox
   :after org

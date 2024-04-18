@@ -353,14 +353,32 @@
 }
 
 {
-  powerManagement = {
-    enable = true;
-    powertop.enable = true;
-  };
-}
+  services = {
+    tlp = {
+      enable = true;
+      settings = {
+        CPU_SCALING_GOVERNOR_ON_AC = "balance_performance";
+        CPU_SCALING_GOVERNOR_ON_BAT = "power";
 
-{
-  services.power-profiles-daemon.enable = true;
+        CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
+        CPU_ENERGY_PERF_POLICY_ON_BAT = "balance_power";
+
+        USB_AUTOSUSPEND = 1;
+        DEVICES_TO_DISABLE_ON_STARTUP = "bluetooth";
+        DEVICES_TO_DISABLE_ON_BAT_NOT_IN_USE = "bluetooth";
+
+        CPU_BOOST_ON_AC = 1;
+        CPU_BOOST_ON_BAT = 0;
+        CPU_HWP_DYN_BOOST_ON_AC = 1;
+        CPU_HWP_DYN_BOOST_ON_BAT = 0;
+
+        CPU_MIN_PERF_ON_AC = 0;
+        CPU_MAX_PERF_ON_AC = 100;
+        CPU_MIN_PERF_ON_BAT = 0;
+        CPU_MAX_PERF_ON_BAT = 30;
+      };
+    };
+  };
 }
 
 {
@@ -567,6 +585,27 @@
     jack.enable = true;
   };
 
+}
+
+{
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+    # package = pkgs.bluez;
+    # settings = {
+    #   General = {
+    #     FastConnectable = true;
+    #     JustWorksRepairing = "always";
+    #     Privacy = "device";
+    #     Experimental = true;
+    #   };
+    # };
+  };
+
+  services.blueman.enable = true;
+
+  # https://github.com/NixOS/nixpkgs/issues/114222
+  # systemd.user.services.telephony_client.enable = false;
 }
 
 {

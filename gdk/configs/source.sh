@@ -77,6 +77,7 @@ alias ytfzf="ytfzf -D"
 alias gc="git clone --depth=1"
 alias sudo="doas"
 alias sioyek="sioyek --new-window"
+alias hyunlock="pkill -SIGUSR1 hyprlock"
 
 # export BEMENU_OPTS="-i -l 10 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
 
@@ -100,20 +101,20 @@ function shellnix() {
 
 function {e,find-file,'emacsclient -t','emacsclient -nw'} () {
     if [ -n "$INSIDE_EMACS" ]; then
-	emacsclient $1 >/dev/null 2>&1 || echo "Give a file to open"
+  emacsclient $1 >/dev/null 2>&1 || echo "Give a file to open"
     else
-	emacsclient -t $1 || echo "Start emacs daemon"
+  emacsclient -t $1 || echo "Start emacs daemon"
     fi
 }
 
 function manp () { # use emacs
     if [[ $(man -f ${1}) ]]; then
         if [ -n "$INSIDE_EMACS" ]; then
-	        emacsclient -e "(man \"$1\")"
+          emacsclient -e "(man \"$1\")"
         elif [[ -n "$(pgrep emacs)" ]]; then
-	        emacsclient -nw -e "(let ((Man-notify-method 'bully)) (man \"$1\"))"
+          emacsclient -nw -e "(let ((Man-notify-method 'bully)) (man \"$1\"))"
         else
-	          man $1
+            man $1
         fi
     else
         ${1} --help

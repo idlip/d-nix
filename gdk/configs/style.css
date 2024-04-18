@@ -36,7 +36,7 @@
     border: none;
     font-family: "Code D Ace";
     font-weight: bold;
-    font-size: 14px;
+    font-size: 20px;
 }
 
 window#waybar {
@@ -63,10 +63,10 @@ window#waybar {
 #taskbar,
 tooltip,
 #workspaces {
-	margin: 5px 5px 2px 5px;
+  margin: 5px 5px 2px 5px;
     padding: 7px 10px 7px 11px;
-	border-radius: 10px;
-	background-color: @bg-main;
+  border-radius: 10px;
+  background-color: @bg-main;
     color: @fg-main;
     opacity: 1;
 }

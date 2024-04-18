@@ -12,7 +12,7 @@
       enable = true;
       enableSshSupport = true;
       enableZshIntegration = true;
-      pinentryPackage = pkgs.pinentry-bemenu;
+      # pinentryPackage = pkgs.pinentry-bemenu;
     };
   };
 }
@@ -213,8 +213,8 @@
     settings = {
       main = {
         term = "xterm-256color";
-        font = "Code D OnePiece:size=12, Noto Color Emoji:size=15";
-        font-bold = "Code D Lip:size=12, Noto Color Emoji:size=15";
+        font = "Code D OnePiece:size=20, Noto Color Emoji:size=20";
+        font-bold = "Code D Lip:size=20, Noto Color Emoji:size=20";
         letter-spacing = "1";
         box-drawings-uses-font-glyphs = "no";
         pad = "0x0center";
@@ -300,7 +300,7 @@
     extraPackages = (epkgs: (with epkgs; [
       treesit-grammars.with-all-grammars
       eat vundo undo-fu-session helpful flymake-languagetool
-      no-littering rainbow-delimiters rainbow-mode
+      no-littering rainbow-delimiters
       vertico orderless consult marginalia embark org-modern corfu cape corfu-terminal
       org olivetti nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
       embark-consult consult-eglot markdown-mode nix-mode
@@ -312,6 +312,8 @@
       speed-type vc-backup aria2 pubmed
       ess org-re-reveal auctex julia-mode webfeeder engrave-faces
       toc-org disable-mouse org-ql org-alert org-noter
+      pdf-tools flycheck
+      ef-themes doom-themes kanagawa-theme catppuccin-theme
 
       (trivialBuild {
         pname = "combobulate";
@@ -349,10 +351,24 @@
         };
       })
 
+      (trivialBuild {
+        pname = "colorful-mode";
+        version = "pre-0.1";
+
+        src = pkgs.fetchFromGitHub {
+          owner = "DevelopmentCool2449/";
+          repo = "colorful-mode";
+          rev = "main";
+          hash = "sha256-1Mt6K+W55g4T0JJbg5CBeM2LR6GaC8iQjb3NXAadwX4=";
+        };
+      })
+
 
       ## packages kept out to make more vanilla usage!
-      # flycheck async dirvish consult-flycheck beframe powerthesaurus meow
-      # doom-modeline ox-hugo ement kind-icon  el-patch
+      # async dirvish consult-flycheck beframe powerthesaurus meow
+      # doom-modeline ox-hugo ement kind-icon el-patch
+      # rainbow-mode -> replcaed by new package, colorful-mode
+
 
     ])
     );
@@ -947,8 +963,8 @@
         sub-shadow-offset = 1;
         sub-auto = "fuzzy";
         msg-level = "all=error";
-        # ytdl-format = "bestvideo[height<=?1080]+bestaudio/best";
-        ytdl-format = "best";
+        ytdl-format = "bestvideo[height<=?1080]+bestaudio/best";
+        # ytdl-format = "bestvideo";
         save-position-on-quit = true;
         slang = "eng,en,eng,english";
         alang = "jp,jpn,en,eng";
@@ -1181,11 +1197,9 @@
       ignore_dbus_inhibit = false             # whether to ignore dbus-sent idle-inhibit requests (used by e.g. firefox or steam)
   }
   
-  
-  
   listener {
       timeout = 210
-      on-timeout = d-idle "" "hyprctl dispatch dpms off"
+      on-timeout = d-idle "" "hyprlock & hyprctl dispatch dpms off"
       on-resume = "hyprctl dispatch dpms on"
       # on-resume = notify-send "Welcome back!"  # command to run when activity is detected after timeout has fired.
   }
@@ -1247,7 +1261,7 @@
 
     font = {
       name = "Code D Haki";
-      size = 15;
+      size = 20;
     };
 
     gtk2.configLocation = "${config.xdg.configHome}/gtk-2.0/gtkrc";

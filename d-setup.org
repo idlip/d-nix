@@ -1253,7 +1253,7 @@ Exec=d-stuff %u
     ("C-x C-z" . nil)
     ;; panes
     ("M-o" . other-window)
-    ;; ("C-x C-k" . d/kill-buffer)
+    ("C-x C-k" . d/kill-buffer)
     ("C-x n n" . d/narrow-or-widen-dwim)
 
     (:map mode-specific-map
@@ -1328,13 +1328,13 @@ it narrows to region, or Org subtree."
 - Kill buffer and window, also clear cache if quitting doc-view or pdf-view
   #+name: orgmacs
   #+begin_src emacs-lisp
-(defun d/kill-buffer ()
-  "Clear the image cache (to release memory) after killing a pdf buffer."
-  (interactive)
-  (if (one-window-p) (kill-this-buffer)
-    (kill-buffer-and-window))
-  (when (derived-mode-p 'doc-view-mode) (progn (clear-image-cache) (doc-view-clear-cache)))
-  (when (derived-mode-p 'pdf-view-mode) (progn ((clear-image-cache) (pdf-cache-clear-data)))))
+  (defun d/kill-buffer ()
+    "Clear the image cache (to release memory) after killing a pdf buffer."
+    (interactive)
+    (if (one-window-p) (kill-this-buffer)
+      (kill-buffer-and-window))
+    (when (derived-mode-p 'doc-view-mode) (progn (clear-image-cache) (doc-view-clear-cache)))
+    (when (derived-mode-p 'pdf-view-mode) (progn ((clear-image-cache) (pdf-cache-clear-data)))))
   #+end_src
 *** Simple
 - Bag of simple basic commands, to enhance.
@@ -1798,48 +1798,47 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 - vertico-multiform: To have some forms of vertico UI. Grid, one-liner, indexed...
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package vertico-multiform
-  :commands (vertico-multiform-mode)
+  (use-package vertico-multiform
+    :commands (vertico-multiform-mode)
 
-  :init
-  (vertico-multiform-mode)
+    :init
+    (vertico-multiform-mode)
 
-  :custom
-  (vertico-multiform-commands
-   '(("\\`execute-extended-command" unobtrusive
-      (vertico-flat-annotate . t)
-      (marginalia-annotator-registry (command marginalia-annotate-command marginalia-annotate-binding builtin none)))
-     (jinx-correct reverse)
-     (tab-bookmark-open reverse)
-     (dired-goto-file unobtrusive)
-     (load-theme grid reverse)
-     (org-refile reverse)
-     (org-agenda-refile reverse)
-     (org-capture-refile reverse)
-     (consult-find reverse)
-     (dired-goto-file flat)
-     (consult-dir-maybe reverse)
-     (consult-dir reverse)
-     (consult-flymake reverse)
-     (consult-history reverse)
-     (consult-completion-in-region reverse)
-     (consult-recoll buffer)
-     (completion-at-point reverse)
-     (embark-completing-read-prompter reverse)
-     (embark-act-with-completing-read reverse)
-     (embark-prefix-help-command reverse)
-     (embark-bindings reverse)
-     (consult-org-heading reverse)
-     (consult-dff unobtrusive)
-     (embark-find-definition reverse)
-     (xref-find-definitions reverse)))
+    :custom
+    (vertico-multiform-commands
+     '(("\\`execute-extended-command" unobtrusive
+        (vertico-flat-annotate . t)
+        (marginalia-annotator-registry (command marginalia-annotate-command marginalia-annotate-binding builtin none)))
+       (jinx-correct reverse)
+       (tab-bookmark-open reverse)
+       (dired-goto-file unobtrusive)
+       (load-theme grid reverse)
+       (org-refile reverse)
+       (org-agenda-refile reverse)
+       (org-capture-refile reverse)
+       (consult-find reverse)
+       (dired-goto-file flat)
+       (consult-dir-maybe reverse)
+       (consult-dir reverse)
+       (consult-flymake reverse)
+       (consult-history reverse)
+       (consult-completion-in-region reverse)
+       (consult-recoll buffer)
+       (completion-at-point reverse)
+       (consult-org-heading reverse)
+       (consult-dff unobtrusive)
+       (embark-find-definition reverse)
+       (embark-act grid)
+       (xref-find-definitions reverse)))
 
-  (vertico-multiform-categories
-   '((file grid reverse)
-     (consult-grep buffer)
-     (jinx grid (vertico-grid-annotate . 20))
-     (kill-ring reverse)
-     (buffer flat (vertico-cycle . t)))))
+    (vertico-multiform-categories
+     '((file grid reverse)
+       (consult-grep buffer)
+       (jinx grid (vertico-grid-annotate . 20))
+       (embark-bindings grid reverse)
+       (embark-keybinding grid)
+       (kill-ring reverse)
+       (buffer flat (vertico-cycle . t)))))
   #+end_src
 - mouse support in vertico
   #+name: orgmacs
@@ -2329,9 +2328,10 @@ Return nil if NAME does not designate a valid color."
 - Templates for all modes.
   #+name: orgmacs
   #+begin_src emacs-lisp :tangle ~/.config/emacs/templates/fun.eld
-fundamental-mode
+  fundamental-mode
 
-(datime (format-time-string "%Y-%m-%d %A %d %B %Y"))
+  (datime (format-time-string "%Y-%m-%d %A %d %B %Y"))
+  (24time (format-time-string "%H:%M - "))
   #+end_src
 ***** nix-templates
 - handy templates to use for quick running thought process.
@@ -2558,7 +2558,7 @@ css-mode css-ts-mode
     :bind
     ("C-<tab>" . tab-next)
     :hook
-    (server-after-make-frame . tab-new)
+    (server-after-make-frame . (lambda () (tab-new) (tab-new) (tab-new)))
     :init
     (tab-bar-mode))
   #+end_src
@@ -2624,6 +2624,13 @@ You can do this by trackpad too (laptop)"
                        (cdr (nth 6 (posn-at-point)))))
          (distance-in-pixels (* (- target-row current-row) (line-pixel-height))))
     (pixel-scroll-precision-interpolate distance-in-pixels)))
+  #+end_src
+**** pgtk
+  #+name: orgmacs
+  #+begin_src emacs-lisp
+  (use-package frame
+    :custom
+    (use-system-tooltips t))
   #+end_src
 **** winner
 - to capture window/panes states.
@@ -3163,7 +3170,7 @@ You can do this by trackpad too (laptop)"
       extraPackages = (epkgs: (with epkgs; [
         treesit-grammars.with-all-grammars
         eat vundo undo-fu-session helpful flymake-languagetool
-        no-littering rainbow-delimiters rainbow-mode
+        no-littering rainbow-delimiters
         vertico orderless consult marginalia embark org-modern corfu cape corfu-terminal
         org olivetti nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
         embark-consult consult-eglot markdown-mode nix-mode
@@ -3175,6 +3182,8 @@ You can do this by trackpad too (laptop)"
         speed-type vc-backup aria2 pubmed
         ess org-re-reveal auctex julia-mode webfeeder engrave-faces
         toc-org disable-mouse org-ql org-alert org-noter
+        pdf-tools flycheck
+        ef-themes doom-themes kanagawa-theme catppuccin-theme
 
         (trivialBuild {
           pname = "combobulate";
@@ -3212,10 +3221,24 @@ You can do this by trackpad too (laptop)"
           };
         })
 
+        (trivialBuild {
+          pname = "colorful-mode";
+          version = "pre-0.1";
+
+          src = pkgs.fetchFromGitHub {
+            owner = "DevelopmentCool2449/";
+            repo = "colorful-mode";
+            rev = "main";
+            hash = "sha256-1Mt6K+W55g4T0JJbg5CBeM2LR6GaC8iQjb3NXAadwX4=";
+          };
+        })
+
 
         ## packages kept out to make more vanilla usage!
-        # flycheck async dirvish consult-flycheck beframe powerthesaurus meow
-        # doom-modeline ox-hugo ement kind-icon  el-patch
+        # async dirvish consult-flycheck beframe powerthesaurus meow
+        # doom-modeline ox-hugo ement kind-icon el-patch
+        # rainbow-mode -> replcaed by new package, colorful-mode
+        # saveplace-pdf-view
 
       ])
       );
@@ -3813,7 +3836,7 @@ out")
   (show-paren-style 'parenthesis)
   (show-paren-context-when-offscreen t))
   #+end_src
-**** rainbow
+**** COMMENT rainbow
 - add color to delimiters.
   #+name: orgmacs
   #+begin_src emacs-lisp
@@ -3825,6 +3848,15 @@ out")
   :defer t
   :hook '(prog-mode help-mode)
   :bind ("C-c t c" . rainbow-mode))
+  #+end_src
+**** colorful-mode
+- Alternate to rainbow-mode, with simplicity and more features.
+  #+name: orgmacs
+  #+begin_src emacs-lisp
+  (use-package colorful-mode
+    :unless d/on-droid
+    :config
+    (global-colorful-mode))
   #+end_src
 **** avy
 - to jump to places quick and easy with few keypress.
@@ -3984,47 +4016,47 @@ out")
 - I found =pdf-tools= to be taking more memory than doc-view.
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package doc-view
-  :ensure nil
-  ;; :mode ("\\.epub\\'" . doc-view-mode)
-  :bind (:map doc-view-mode-map
-              ("M-g M-g" . doc-view-goto-page)
-              ("<f8>" . doc-view-presentation)
-              ("j" . doc-view-next-line-or-next-page)
-              ("k" . doc-view-previous-line-or-previous-page)
-              ("C-v" . doc-view-scroll-up-or-next-page)
-              ("M-v" . doc-view-scroll-down-or-previous-page)
-              ("I" . d/doc-view-theme)
-              )
-  :hook
-  (doc-view-mode . (lambda () (setq-local pixel-scroll-precision-mode nil)))
-  :custom-face
-  (doc-view-svg-face ((t (:background "#edd1b0" :foreground "#000000"))))
-  :custom
-  (doc-view-continuous t)
-  (doc-view-mupdf-use-svg t)
-  (doc-view-scale-internally t)
-  (doc-view-image-width 900)
-  (large-file-warning-threshold 700000000)
-  (image-cache-eviction-delay 3))
+  (use-package doc-view
+    :ensure nil
+    ;; :mode ("\\.epub\\'" . doc-view-mode)
+    :bind (:map doc-view-mode-map
+                ("M-g M-g" . doc-view-goto-page)
+                ("<f8>" . doc-view-presentation)
+                ("j" . doc-view-next-line-or-next-page)
+                ("k" . doc-view-previous-line-or-previous-page)
+                ("C-v" . doc-view-scroll-up-or-next-page)
+                ("M-v" . doc-view-scroll-down-or-previous-page)
+                ("I" . d/doc-view-theme)
+                )
+    :hook
+    (doc-view-mode . (lambda () (setq-local pixel-scroll-precision-mode nil)))
+    :custom-face
+    (doc-view-svg-face ((t (:background "#edd1b0" :foreground "#000000"))))
+    :custom
+    (doc-view-continuous t)
+    (doc-view-mupdf-use-svg t)
+    (doc-view-scale-internally t)
+    (doc-view-image-width 900)
+    (large-file-warning-threshold 700000000)
+    (image-cache-eviction-delay 5))
   #+end_src
 - Function to toggle between dark and reading mode
   #+name: orgmacs
   #+begin_src emacs-lisp
-(defun d/doc-view-theme ()
-  "Toggle between dark and reading mode in Doc-view buffer."
-  (interactive)
-  (let ((choice (completing-read "theme: " '("black" "reader" "white" "tokyonight") nil t)))
-    (cond
-     ((string= "black" choice)
-      (set-face-attribute 'doc-view-svg-face nil :background "#050505" :foreground "#ffffff"))
-     ((string= "reader" choice)
-      (set-face-attribute 'doc-view-svg-face nil :background "#edd1b0" :foreground "#000000"))
-     ((string= "tokyonight" choice)
-      (set-face-attribute 'doc-view-svg-face nil :background "#24283b" :foreground "#fefefe"))
-     ((string= "white" choice)
-      (set-face-attribute 'doc-view-svg-face nil :background "#fefefe" :foreground "#000000"))))
-  (doc-view-next-page) (doc-view-previous-page))
+  (defun d/doc-view-theme ()
+    "Toggle between dark and reading mode in Doc-view buffer."
+    (interactive)
+    (let ((choice (completing-read "theme Color: " '("black" "reader" "white" "tokyonight") nil t)))
+      (cond
+       ((string= "black" choice)
+        (set-face-attribute 'doc-view-svg-face nil :background "#050505" :foreground "#ffffff"))
+       ((string= "reader" choice)
+        (set-face-attribute 'doc-view-svg-face nil :background "#edd1b0" :foreground "#000000"))
+       ((string= "tokyonight" choice)
+        (set-face-attribute 'doc-view-svg-face nil :background "#24283b" :foreground "#fefefe"))
+       ((string= "white" choice)
+        (set-face-attribute 'doc-view-svg-face nil :background "#fefefe" :foreground "#000000"))))
+    (doc-view-next-page) (doc-view-previous-page))
   #+end_src
 - packages required for doc-view to view/render some pdf/text.
   #+name: hm-config
@@ -4035,6 +4067,87 @@ out")
   ];
 }
   #+end_src
+*** pdf-tools
+- More extended pdf reader for emacs.
+- Initially I was having issues with high memory usage and lags, was wondering if Pgtk build was to blame. Accidentally I discovered while playing with my Hyprland (wm) scaling, to low it worked pretty good.
+- My system's native resolution is ~2880x1800~, so using =1920x1200= kinda fixes, and hopefully I think laptop battery might also be saved.
+  #+name: orgmacs
+  #+begin_src emacs-lisp
+  (use-package pdf-tools
+    :unless d/on-droid
+    :mode ("\\.pdf\\'" . pdf-view-mode)
+    :magic ("%PDF" . pdf-view-mode)
+
+    ;; :init
+    ;; (pdf-tools-install)
+
+    :hook
+    (pdf-view-mode . pdf-view-midnight-minor-mode)
+
+    :bind
+    (:map pdf-view-mode-map
+          ("h" . pdf-annot-add-highlight-markup-annotation)
+          ("t" . pdf-annot-add-text-annotation)
+          ("D" . pdf-annot-delete)
+          ("M-g M-g" . pdf-view-goto-page)
+          ("j" . pdf-view-next-line-or-next-page)
+          ("k" . pdf-view-previous-line-or-previous-page)
+          ("i" . d/pdf-tools-theme)
+          ("C-v" . pdf-view-scroll-up-or-next-page)
+          ("M-v" . pdf-view-scroll-down-or-previous-page))
+
+    :custom
+    (pdf-view-display-size 'fit-page)
+    (pdf-view-continuous t)
+    (pdf-cache-image-limit 10)
+    (pdf-cache-prefetch-delay 0.5)
+    (pdf-annot-activate-created-annotations t)
+    (pdf-view-use-scaling nil)
+    (pdf-view-use-dedicated-register nil)
+    ;; (pdf-view-max-image-width 2000)
+    (pdf-outline-imenu-use-flat-menus t)
+    (pdf-view-resize-factor 1.1)
+    (pdf-view-midnight-colors '("#fff" . "#000"))
+
+    :config
+    (pdf-tools-install-noverify)
+    ;; (add-hook 'pdf-view-mode-hook (lambda () (cua-mode 0)))
+
+    )
+  #+end_src
+
+- Function to theme the pdf reading experience.
+  #+name: orgmacs
+  #+begin_src emacs-lisp
+  ;; basically can use this function
+  ;; (pdf-info-setoptions
+  ;;  :render/foreground "#eee"
+  ;;  :render/background "#b00"
+  ;;  :render/usecolors 2
+  ;;  )
+
+  ;; or option: 2
+  ;; use the custom variable and toggle mode
+
+  (defun d/pdf-tools-theme ()
+    "Toggle between dark and reading mode in pdf-tools reading buffer."
+    (interactive)
+    (let ((choice (completing-read "theme Color: " '("black" "reader" "white" "tokyonight" "more choice") nil t)))
+      (cond
+       ((string= "black" choice)
+        (setopt pdf-view-midnight-colors '("#fff" . "#000")))
+       ((string= "reader" choice)
+        (setopt pdf-view-midnight-colors '("#000" . "#edd1b0")))
+       ((string= "tokyonight" choice)
+        (setopt pdf-view-midnight-colors '("#fff" . "#24283b")))
+       ((string= "white" choice)
+        (setopt pdf-view-midnight-colors '("#000" . "#fff")))
+       (t
+        (setopt pdf-view-midnight-colors (cons (read-color "Foreground: ") (read-color "Background: "))))))
+    (pdf-view-midnight-minor-mode))
+
+  #+end_src
+
 ** Novel
 *** nov.el
 - to read in comfort couch of emacs!
@@ -4969,153 +5082,28 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
 **** userChrome
 - Css customization for Firefox UI.
   #+begin_src css :tangle ./gdk/configs/userChrome.css
-  /*
-    __  __   _           _
-   |  \/  | (_)         (_)
-   | \  / |  _   _ __    _   _ __ ___     __ _
-   | |\/| | | | | '_ \  | | | '_ ` _ \   / _` |
-   | |  | | | | | | | | | | | | | | | | | (_| |
-   |_|  |_| |_| |_| |_| |_| |_| |_| |_|  \__,_|
-
-
-  ,*/
-
-
-  /* User changable variables */
-
-  :root {
-    --tab-font-size: 0.8em; /* Font size of the tab labels */
-    --tab-font-family: -apple-system, BlinkMacSystemFont, "Code D Haki", Roboto, Helvetica, Arial, sans-serif; /* The font used for the tab labels */
-    --max-tab-width: none; /* The maximum width a tab in the tab bar can use. Set this to none for no limit */
-    --show-titlebar-buttons: none; /* Hide the buttons (close/minimize/maximize) in the title bar. Required on some platforms (e.g macOS) to fully hide the title bar. `none` hides them, `block` shows them */
-    --tab-height: 20px;
-  }
-
-  /* Minima Source Code. Here be dragons. */
-  /* Only change this if you know what you're doing */
-
-  .titlebar-buttonbox-container {
-    display: var(--show-titlebar-buttons);
-  }
-
-  :root:not([customizing]) #TabsToolbar {
-    margin-left: 1px !important;
-    margin-right: 1px !important;
-    border-radius: 0 !important;
-    padding: 0 !important;
-  }
-  .tabbrowser-tab * {
-    margin:0 !important;
-    border-radius: 0 !important;
-    font-family: var(--tab-font-family) !important;
-  }
-  .tabbrowser-tab {
-    height: var(--tab-height);
-    font-size: var(--tab-font-size) !important;
-    min-height: 0 !important;
-    align-items: center !important;
-  }
-  .tabbrowser-tab[fadein]:not([pinned]) {
-    max-width: var(--max-tab-width) !important;
-  }
-  .tab-close-button, .new-tab-button, #firefox-view-button, #scrollbutton-up, .tab-secondary-label {
-    display: none !important;
-  }
-  .tab-icon-image {
-    height: auto !important;
-    width: calc(var(--tab-height) / 1.5) !important;
-    margin-right: 4px !important;
-  }
-
-  #tabs-newtab-button, #titlebar spacer {
-    display: none !important;
-  }
-
-  :root:not([customizing]) #nav-bar
-  {
-    min-height : 2.5em       !important;
-    height     : 2.5em       !important;
-    margin     : 0 0 -2.5em  !important;
-    z-index    : -1000       !important;
-    opacity    : 0           !important;
-  }
-
-  :root:not([customizing]) #nav-bar:focus-within
-  {
-    z-index    : 1000        !important;
-    opacity    : 1           !important;
-  }
-
-  #nav-bar{
-    border-inline: var(--uc-window-drag-space-width) solid var(--toolbar-bgcolor);
-  }
-  #new-tab-button, #alltabs-button, #scrollbutton-down, .tab-loading-burst{
-    display: none;
-  }
-  #titlebar {
-    overflow: none !important;
-  }
-
-  /* Source file https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome/hide_tabs_with_one_tab.css made available under Mozilla Public License v. 2.0
-  See the above repository for updates as well as full license text. */
-
-  /* Makes tabs toolbar items zero-height initially and sets enlarge them to fill up space equal to tab-min-height set on tabs. Optionally use privatemode_indicator_as_menu_button.css to replace main menu icon with private browsing indicator while tabs are hidden. */
-  /* Firefox 65+ only */
-
-  :root[sizemode="normal"] #nav-bar{ --uc-window-drag-space-width: 20px }
-
-  #titlebar{ -moz-appearance: none !important; }
-  #TabsToolbar{ min-height: 0px !important }
-
-  #tabbrowser-tabs, #tabbrowser-tabs > .tabbrowser-arrowscrollbox, #tabbrowser-arrowscrollbox{ min-height: 0 !important; }
-
-  :root:not([customizing]) #tabbrowser-tabs .tabs-newtab-button,
-  :root:not([customizing]) #tabs-newtab-button,
-  :root:not([customizing]) #TabsToolbar-customization-target > .toolbarbutton-1,
-  :root:not([customizing]) #TabsToolbar .titlebar-button{
-    -moz-appearance: none !important;
-    height: 0px;
-    padding-top: 0px !important;
-    padding-bottom: 0px !important;
-    -moz-box-align: stretch;
-    margin: 0 !important;
-  }
-
-  .accessibility-indicator,
-  .private-browsing-indicator{
-    height: unset !important;
-  }
-  .accessibility-indicator > hbox{ padding-block: 0 !important }
-
-  #tabbrowser-tabs tab:only-of-type {
-    visibility: collapse !important;
-  }
-
-  /* Button re-styling */
-  #tabs-newtab-button:hover,
-  #tabbrowser-tabs .tabs-newtab-button:hover{ background-color: var(--toolbarbutton-hover-background) }
-
-  #tabs-newtab-button > .toolbarbutton-icon,
-  #tabbrowser-tabs .tabs-newtab-button > .toolbarbutton-icon{
-    padding: 0 !important;
-    transform: scale(0.6);
-    background-color: transparent !important;
-  }
-  /* Extra top padding  in maximized window */
-  @media (-moz-os-version: windows-win10){
-    :root[sizemode="maximized"] #navigator-toolbox{ padding-top:7px !important; }
-  }
-  /* Fix window controls not being clickable */
-  :root[tabsintitlebar] #toolbar-menubar[autohide="true"][inactive]{
-    transition: height 0ms steps(1) 80ms;
-  }
-  #nav-bar{
-    border-inline: var(--uc-window-drag-space-width) solid var(--toolbar-bgcolor);
-  }
+  /* Basically to hide off the toolbar */
   #navigator-toolbox {
-    appearance: toolbar !important; /* Pretty much anything except none */
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: 9999!important;
+  transform: translateY(-80%); /* Adjust detection size. Keep in mind that this value is inverted, so subtract it from 100 to achieve the desired result. Default is 10% --> -90% */
+  width: 100%;
+  transition: all 0.1s 0.4s; /* The second number is the delay before dissapearing again. Default is 0.4s */
   }
 
+  /* To get the toolbar back when hover or focused, or get with CTRL-L */
+  #navigator-toolbox:hover,
+  #navigator-toolbox:focus-within {
+  opacity: 1;
+  overflow: visible;
+  transform: translateY(0px);
+  transition: all 0.05s;
+  }
+
+  /* Too hide away tab bar, embrace SideBerry */
+  #TabsToolbar { visibility: collapse; }
   #+end_src
 
 *** Web
@@ -5124,36 +5112,36 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
 - Shr, the basic html rendering done in emacs web browser (eww).
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package url
-  :ensure nil
-  :custom
-  (url-user-agent "")
-  (url-privacy-level 'paranoid)
-  (url-mime-accept-string "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8 ")
-  (url-mime-charset-string nil)
-  (url-mime-language-string "en-US,en;q=0.5")
-  (url-mime-encoding-string "gzip, deflate")
-  :config
-  (url-setup-privacy-info))
+  (use-package url
+    :ensure nil
+    :custom
+    (url-user-agent "")
+    (url-privacy-level 'paranoid)
+    ;; (url-mime-accept-string "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8 ")
+    (url-mime-charset-string nil)
+    (url-mime-language-string "en-US,en;q=0.5")
+    (url-mime-encoding-string "gzip, deflate")
+    :config
+    (url-setup-privacy-info))
 
-(use-package shr
-  :ensure nil
-  :demand t
-  :custom
-  (shr-use-fonts  t)
-  (shr-use-colors nil)
-  (shr-indentation 4)
-  (shr-bullet "⁍ ")
-  (shr-folding-mode t)
-  (shr-max-width 110)
-  (shr-max-image-proportion 0.6)
-  (shr-width nil))
+  (use-package shr
+    :ensure nil
+    :demand t
+    :custom
+    (shr-use-fonts  t)
+    (shr-use-colors nil)
+    (shr-indentation 4)
+    (shr-bullet "⁍ ")
+    (shr-folding-mode t)
+    (shr-max-width 110)
+    (shr-max-image-proportion 0.9)
+    (shr-width nil))
 
-(use-package shr-color
-  :ensure nil
-  :defer t
-  :custom
-  (shr-color-visible-luminance-min 40 "Improve the contrast"))
+  (use-package shr-color
+    :ensure nil
+    :defer t
+    :custom
+    (shr-color-visible-luminance-min 40 "Improve the contrast"))
   #+end_src
 - Shrface for extending faces of shr/url like org-mode.
   #+name: orgmacs
@@ -5162,7 +5150,7 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
     :hook
     (eww-after-render . shrface-mode)
     (devdocs-browser-eww-mode . shrface-mode)
-    ;; (gnus-article-mode . shrface-mode)
+    (gnus-article-mode . shrface-mode)
 
     :bind
     (:map shrface-mode-map
@@ -5177,6 +5165,15 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
     :custom
     (shrface-bullets-bullet-list '("󰓏" "󰚀" "󰫤"  "󰴈" "" "󰄄"))
     (shrface-href-versatile t)
+
+    :init
+    (setopt shrface-supported-faces-alist
+            '((em . shrface-tag-em) (u . shrface-tag-u) (strong . shrface-tag-strong)
+              (svg . shrface-tag-svg) (h1 . shrface-tag-h1) (h2 . shrface-tag-h2)
+              (h3 . shrface-tag-h3) (h4 . shrface-tag-h4) (h5 . shrface-tag-h5)
+              (h6 . shrface-tag-h6) (p . shrface-tag-p)
+              (li . shrface-tag-li) (dt . shrface-tag-dt) (figure . shrface-tag-figure)))
+
     :config
     (defun shrface-shr-item-bullet ()
       "Build a `shr-bullet' based on `shrface-item-bullet'."
@@ -5554,8 +5551,8 @@ for the search engine used."
           sub-shadow-offset = 1;
           sub-auto = "fuzzy";
           msg-level = "all=error";
-          # ytdl-format = "bestvideo[height<=?1080]+bestaudio/best";
-          ytdl-format = "best";
+          ytdl-format = "bestvideo[height<=?1080]+bestaudio/best";
+          # ytdl-format = "bestvideo";
           save-position-on-quit = true;
           slang = "eng,en,eng,english";
           alang = "jp,jpn,en,eng";
@@ -6576,43 +6573,43 @@ stdenvNoCC.mkDerivation rec {
 - Defining some variables for adjusting size and font name.
   #+name: orgmacs
   #+begin_src emacs-lisp
-(defvar d/font-size (if d/on-droid 150 140)
-  "Default font size based on the system.")
-(defvar d/variable-font-size (if d/on-droid 160 160)
-  "Default variable pitch size")
+  (defvar d/font-size (if d/on-droid 150 200)
+    "Default font size based on the system.")
+  (defvar d/variable-font-size (if d/on-droid 160 220)
+    "Default variable pitch size")
 
-;; Dont worry about the font name, I use fork of Recursive font
+  ;; Dont worry about the font name, I use fork of Recursive font
 
-;; Set reusable font name variables
-(defvar d/fixed-pitch-font "Code D OnePiece"
-  "The font to use for monospaced (fixed width) text.")
+  ;; Set reusable font name variables
+  (defvar d/fixed-pitch-font "Code D OnePiece"
+    "The font to use for monospaced (fixed width) text.")
 
-(defvar d/variable-pitch-font "Code D Ace"
-  "The font to use for variable-pitch (documents) text.")
+  (defvar d/variable-pitch-font "Code D Ace"
+    "The font to use for variable-pitch (documents) text.")
   #+end_src
 - Invoking fonts.
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package faces
-  :ensure nil
-  :defines
-  (d/on-droid
-   d/variable-font-size
-   d/fixed-pitch-font
-   d/variable-pitch-font
-   d/font-size)
+  (use-package faces
+    :ensure nil
+    :defines
+    (d/on-droid
+     d/variable-font-size
+     d/fixed-pitch-font
+     d/variable-pitch-font
+     d/font-size)
 
-  :custom
-  (face-font-family-alternatives
-   '(("Monospace" "Code D OnePiece" "JetBrainsMono Nerd Font")
-     ("Consolas" "JetBrainsMono Nerd Font" "Roboto Mono" "PT Mono" "Terminus" "Monospace")
-     ("Monospace Serif" "CMU Typewriter Text" "Courier 10 Pitch" "Monospace")
-     ("Serif" "Alegreya" "Noto Sans" "Georgia" "Cambria" "Times New Roman" "DejaVu Serif" "serif")))
+    :custom
+    (face-font-family-alternatives
+     '(("Monospace" "Code D OnePiece" "JetBrainsMono Nerd Font")
+       ("Consolas" "JetBrainsMono Nerd Font" "Roboto Mono" "PT Mono" "Terminus" "Monospace")
+       ("Monospace Serif" "CMU Typewriter Text" "Courier 10 Pitch" "Monospace")
+       ("Serif" "Alegreya" "Noto Sans" "Georgia" "Cambria" "Times New Roman" "DejaVu Serif" "serif")))
 
-  :custom-face
-  (variable-pitch ((t (:family ,d/variable-pitch-font :height ,d/variable-font-size))))
-  (fixed-pitch ((t (:family ,d/fixed-pitch-font :height ,d/font-size))))
-  (default ((t (:family ,d/fixed-pitch-font :height ,d/font-size)))))
+    :custom-face
+    (variable-pitch ((t (:family ,d/variable-pitch-font :height ,d/variable-font-size))))
+    (fixed-pitch ((t (:family ,d/fixed-pitch-font :height ,d/font-size))))
+    (default ((t (:family ,d/fixed-pitch-font :height ,d/font-size)))))
   #+end_src
 - font-lock
   #+name: orgmacs
@@ -6751,51 +6748,51 @@ and returns the icon."
 - Glorious, aesthetic and pleasant desktop colourscheme.
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  # cursor theme
-  home.pointerCursor = {
-    name = "Bibata-Modern-Classic";
-    package = pkgs.bibata-cursors;
-    size = 24;
-    gtk.enable = true;
-  };
-
-  gtk = {
-    enable = true;
-
-    theme = {
-      name = "adw-gtk3-dark";
-      package = pkgs.adw-gtk3;
+  {
+    # cursor theme
+    home.pointerCursor = {
+      name = "Bibata-Modern-Classic";
+      package = pkgs.bibata-cursors;
+      size = 24;
+      gtk.enable = true;
     };
 
-    iconTheme = {
-      name = "Papirus-Dark";
-      package = pkgs.papirus-icon-theme;
+    gtk = {
+      enable = true;
+
+      theme = {
+        name = "adw-gtk3-dark";
+        package = pkgs.adw-gtk3;
+      };
+
+      iconTheme = {
+        name = "Papirus-Dark";
+        package = pkgs.papirus-icon-theme;
+      };
+
+      font = {
+        name = "Code D Haki";
+        size = 20;
+      };
+
+      gtk2.configLocation = "${config.xdg.configHome}/gtk-2.0/gtkrc";
+
+      gtk3.extraConfig = {
+        gtk-xft-antialias = 1;
+        gtk-xft-hinting = 1;
+        gtk-xft-hintstyle = "hintslight";
+        gtk-xft-rgba = "rgb";
+      };
+
+      gtk2.extraConfig = ''
+      gtk-xft-antialias=1
+      gtk-xft-hinting=1
+      gtk-xft-hintstyle="hintslight"
+      gtk-xft-rgba="rgb"
+      '';
+
     };
-
-    font = {
-      name = "Code D Haki";
-      size = 15;
-    };
-
-    gtk2.configLocation = "${config.xdg.configHome}/gtk-2.0/gtkrc";
-
-    gtk3.extraConfig = {
-      gtk-xft-antialias = 1;
-      gtk-xft-hinting = 1;
-      gtk-xft-hintstyle = "hintslight";
-      gtk-xft-rgba = "rgb";
-    };
-
-    gtk2.extraConfig = ''
-    gtk-xft-antialias=1
-    gtk-xft-hinting=1
-    gtk-xft-hintstyle="hintslight"
-    gtk-xft-rgba="rgb"
-    '';
-
-  };
-}
+  }
   #+end_src
 
 *** qt
@@ -7091,115 +7088,115 @@ and returns the icon."
   #+end_src
 **** style.css
   #+begin_src css :tangle ./gdk/configs/style.css
-/* My own theme (Haki) made for emacs */
+  /* My own theme (Haki) made for emacs */
 
-@define-color  bg-main	     #050505;
-@define-color  bg-dim	     #121212;
-@define-color  fg-main	     #ffffff;
-@define-color  fg-dim	     #D8DEE9;
-@define-color  fg-region     #2e8b6d;
+  @define-color  bg-main	     #050505;
+  @define-color  bg-dim	     #121212;
+  @define-color  fg-main	     #ffffff;
+  @define-color  fg-dim	     #D8DEE9;
+  @define-color  fg-region     #2e8b6d;
 
-@define-color  title        #6ae4b9;
-@define-color  heading-1    #ab82ff;
-@define-color  heading-2    #ffec8b;
-@define-color  heading-3    #3cb6df;
-@define-color  heading-4    #9aff9a;
-@define-color  heading-5    #97ffff;
-@define-color  heading-6    #ffa07a;
-@define-color  heading-7    #eeb4b4;
-@define-color  heading-8    #ee4000;
-@define-color  heading-9    #cd96cd;
+  @define-color  title        #6ae4b9;
+  @define-color  heading-1    #ab82ff;
+  @define-color  heading-2    #ffec8b;
+  @define-color  heading-3    #3cb6df;
+  @define-color  heading-4    #9aff9a;
+  @define-color  heading-5    #97ffff;
+  @define-color  heading-6    #ffa07a;
+  @define-color  heading-7    #eeb4b4;
+  @define-color  heading-8    #ee4000;
+  @define-color  heading-9    #cd96cd;
 
-@define-color  error      #ee6363;
-@define-color  link       #fcde69;
-@define-color  todo       #54ff9f;
-@define-color  done       #b4dddd;
-@define-color  code       #77ee77;
-@define-color  verbatim   #ee77ee;
-@define-color  clock      #eedc82;
-@define-color  bg-tag     #ffe1ff;
-@define-color  bracket    #ffeeee;
+  @define-color  error      #ee6363;
+  @define-color  link       #fcde69;
+  @define-color  todo       #54ff9f;
+  @define-color  done       #b4dddd;
+  @define-color  code       #77ee77;
+  @define-color  verbatim   #ee77ee;
+  @define-color  clock      #eedc82;
+  @define-color  bg-tag     #ffe1ff;
+  @define-color  bracket    #ffeeee;
 
-,* {
-    min-height: 0;
-    margin: 0;
-    padding: 0;
-    font-weight: 700;
-    padding-bottom: 0px;
-    border: none;
-    font-family: "Code D Ace";
-    font-weight: bold;
-    font-size: 14px;
-}
+  ,* {
+      min-height: 0;
+      margin: 0;
+      padding: 0;
+      font-weight: 700;
+      padding-bottom: 0px;
+      border: none;
+      font-family: "Code D Ace";
+      font-weight: bold;
+      font-size: 20px;
+  }
 
-window#waybar {
-    background: @bg-main;
-    background-color: transparent;
-    color: @fg-main;
-}
+  window#waybar {
+      background: @bg-main;
+      background-color: transparent;
+      color: @fg-main;
+  }
 
-#mode,
-#clock,
-#mpd,
-#mpris,
-#cpu,
-#tray,
-#memory,
-#network,
-#battery,
-#pulseaudio,
-#pulseaudio.muted,
-#custom-launcher,
-#custom-power,
-#submap,
-#window,
-#taskbar,
-tooltip,
-#workspaces {
-	margin: 5px 5px 2px 5px;
-    padding: 7px 10px 7px 11px;
-	border-radius: 10px;
-	background-color: @bg-main;
-    color: @fg-main;
-    opacity: 1;
-}
+  #mode,
+  #clock,
+  #mpd,
+  #mpris,
+  #cpu,
+  #tray,
+  #memory,
+  #network,
+  #battery,
+  #pulseaudio,
+  #pulseaudio.muted,
+  #custom-launcher,
+  #custom-power,
+  #submap,
+  #window,
+  #taskbar,
+  tooltip,
+  #workspaces {
+    margin: 5px 5px 2px 5px;
+      padding: 7px 10px 7px 11px;
+    border-radius: 10px;
+    background-color: @bg-main;
+      color: @fg-main;
+      opacity: 1;
+  }
 
-#battery.charging{
-    color: @heading-4;
-}
+  #battery.charging{
+      color: @heading-4;
+  }
 
-#battery.warning { background: orange; }
-#battery.critical { background: red; }
+  #battery.warning { background: orange; }
+  #battery.critical { background: red; }
 
 
-#tray{
-    color: @bg-tag;
-}
+  #tray{
+      color: @bg-tag;
+  }
 
-#workspaces button,
-#taskbar button {
-    animation: gradient_f 20s ease-in infinite;
-    transition: all 0.5s cubic-bezier(.55,-0.68,.48,1.682);
-}
+  #workspaces button,
+  #taskbar button {
+      animation: gradient_f 20s ease-in infinite;
+      transition: all 0.5s cubic-bezier(.55,-0.68,.48,1.682);
+  }
 
-#workspaces button.active,
-#taskbar button.active,
-#workspaces button:hover,
-#taskbar button:hover
- {
-     animation: gradient_f 20s ease-in infinite;
-     background: @fg-region;
-     color: @bg-main;
-     padding-left: 5px;
-     padding-right: 5px;
-     border-radius: 10px;
-     transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
- }
+  #workspaces button.active,
+  #taskbar button.active,
+  #workspaces button:hover,
+  #taskbar button:hover
+   {
+       animation: gradient_f 20s ease-in infinite;
+       background: @fg-region;
+       color: @bg-main;
+       padding-left: 5px;
+       padding-right: 5px;
+       border-radius: 10px;
+       transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
+   }
 
-#workspaces button:hover,
-#taskbar button:hover {
-    background: @heading-2;
-}
+  #workspaces button:hover,
+  #taskbar button:hover {
+      background: @heading-2;
+  }
   #+end_src
 
 *** COMMENT Doom-modeline
@@ -7269,7 +7266,7 @@ tooltip,
               "buffer-position"
               ;; "buffer-size"
               "flymake" "selection-info"
-              "narrow" "elfeed"
+              "narrow"
               )
              :short ("buffer-name-short"
                      "selection-info" "narrow" "macro" "repeat")))
@@ -7281,10 +7278,19 @@ tooltip,
 
     (mini-echo--toggled-segments '(("battery" . t)
                                    ("flymake" . t)
-                                   ("elfeed". t) ("time" . t)))
+                                   ;; ("elfeed". t)
+                                   ("pdf-tools". t)
+                                   ("doc-view" . t)
+                                   ("time" . t)))
 
     :config
+    (mini-echo-mode 1))
+  #+end_src
 
+- Some mini-echo segments
+  #+name: orgmacs
+  #+begin_src emacs-lisp
+  (unless d/on-droid
     (defface mini-echo-elfeed
       '((t (:inherit elfeed-search-unread-count-face)))
       "Face for mini-echo segment of word count."
@@ -7319,8 +7325,28 @@ tooltip,
                 (which-function)))
        'face 'which-func))
 
-    (mini-echo-mode 1))
+    (mini-echo-define-segment "doc-view"
+      "Return the page number of the current document in Doc-view."
+      :fetch
+      (when (derived-mode-p 'doc-view-mode)
+        (propertize
+         (concat "  "
+                 (number-to-string (doc-view-current-page)) "/" (number-to-string (doc-view-last-page-number)))
+         'face 'doc-view-svg-face)))
+
+
+
+    (mini-echo-define-segment "pdf-tools"
+      "Return the page number of current pdf in pdf-view."
+      :fetch
+      (when (derived-mode-p 'pdf-view-mode)
+        (propertize
+         (concat "  "
+                 (number-to-string (pdf-view-current-page)) "/" (number-to-string (pdf-cache-number-of-pages)))
+         'face 'pdf-occur-page-face)))
+    )
   #+end_src
+
 *** Toggle mode-line
 - To toggle mode-line on and off.
   #+name: orgmacs
@@ -7612,194 +7638,195 @@ tooltip,
   #+end_src
 **** source
   #+begin_src bash :tangle ./gdk/configs/source.sh
-# Make zsh better simply
-autoload -U colors && colors  # Load colors
-# PS1="%B%{$fg[yellow]%}[%{$fg[cyan]%}%~%{$fg[yellow]%}]
- # %{$fg[blue]%} %b%{$reset_color%}%b"
-PS1=" %B%{$fg[blue]%} %{$fg[yellow]%}[%{$fg[cyan]%}%~%f%}%{$fg[yellow]%}]
- %F{green}%f "
-# setopt autocd		# Auto cd
-stty stop undef		# Disable ctrl-s to freeze terminal.
-# setopt interactive_comments
+  # Make zsh better simply
+  autoload -U colors && colors  # Load colors
+  # PS1="%B%{$fg[yellow]%}[%{$fg[cyan]%}%~%{$fg[yellow]%}]
+   # %{$fg[blue]%} %b%{$reset_color%}%b"
+  PS1=" %B%{$fg[blue]%} %{$fg[yellow]%}[%{$fg[cyan]%}%~%f%}%{$fg[yellow]%}]
+   %F{green}%f "
+  # setopt autocd		# Auto cd
+  stty stop undef		# Disable ctrl-s to freeze terminal.
+  # setopt interactive_comments
 
-# Basic auto/tab complete:
-autoload -U compinit
-zstyle ':completion:*' menu select
-zmodload zsh/complist
-compinit
-_comp_options+=(globdots)		# Include hidden files.
+  # Basic auto/tab complete:
+  autoload -U compinit
+  zstyle ':completion:*' menu select
+  zmodload zsh/complist
+  compinit
+  _comp_options+=(globdots)		# Include hidden files.
 
-# search history based on what's typed in the prompt
-autoload -U history-search-end
-zle -N history-beginning-search-backward-end history-search-end
-zle -N history-beginning-search-forward-end history-search-end
-bindkey "^[OA" history-beginning-search-backward-end
-bindkey "^[OB" history-beginning-search-forward-end
+  # search history based on what's typed in the prompt
+  autoload -U history-search-end
+  zle -N history-beginning-search-backward-end history-search-end
+  zle -N history-beginning-search-forward-end history-search-end
+  bindkey "^[OA" history-beginning-search-backward-end
+  bindkey "^[OB" history-beginning-search-forward-end
 
-# case insensitive tab completion
-zstyle ':completion:*' completer _complete _ignored _approximate
-zstyle ':completion:*' list-colors '\'
-zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
-zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
-zstyle ':completion:*' menu select
-zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p%s
-zstyle ':completion:*' verbose true
-_comp_options+=(globdots)
-
-
-# Use vim keys in tab complete menu:
-bindkey -M menuselect 'h' vi-backward-char
-bindkey -M menuselect 'k' vi-up-line-or-history
-bindkey -M menuselect 'l' vi-forward-char
-bindkey -M menuselect 'j' vi-down-line-or-history
-
-# get emacs bindings
-bindkey -e
-# useful for deleting words backwards like bash (M-DEL)
-WORDCHARS='*?[]~=&;!$%^(){}<>'
-
-# Aliases
-alias cleanup="doas nix-collect-garbage --delete-older-than 7d"
-alias bloat="nix path-info -Sh /run/current-system"
-alias ytmp3="yt-dlp -x --continue --add-metadata --embed-thumbnail --audio-format mp3 --audio-quality 0 --metadata-from-title='%(artist)s - %(title)s' --prefer-ffmpeg -o '%(title)s.%(ext)s' "
-alias cat="bat --style=plain"
-alias grep='rg'
-alias du='dust'
-# alias ps='procs'
-alias m="mkdir -p"
-alias ls="exa -h --git --icons --color=auto --group-directories-first -s extension"
-alias l="ls -lF --time-style=long-iso --icons"
-alias la="exa -lah --tree"
-alias tree="exa --tree --icons --tree"
-alias http="python3 -m http.server"
-alias burn="pkill -9"
-alias diff="diff --color=auto"
-alias kys="doas shutdown now"
-alias killall="pkill"
-alias ".1"="cd .."
-alias ".2"="cd ../.."
-alias ".3"="cd ../../.."
-alias c="clear"
-alias v="nvim"
-alias emd="emacs --daemon"
-alias cp="cp -iv"
-alias mv="mv -iv"
-alias rm="rm -vI"
-alias bc="bc -ql"
-alias mkd="mkdir -pv"
-alias ytfzf="ytfzf -D"
-alias gc="git clone --depth=1"
-alias sudo="doas"
-alias sioyek="sioyek --new-window"
-
-# export BEMENU_OPTS="-i -l 10 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
-
-# neovim as manpager, if not using emacs
-# export MANPAGER='nvim +Man! +"set nocul" +"set noshowcmd" +"set noruler" +"set noshowmode" +"set laststatus=0" +"set showtabline=0" +"set nonumber"'
-
-# Functions
-function ytdl() {
-    yt-dlp --embed-metadata --embed-subs -f 22 "$1"
-}
-
-function fcd() {
-    cd "$(fd -t d | fzf)"
-}
-
-function shellnix() {
-    nix shell nixpkgs#"$1"
-}
-
-## Emacs all time
-
-function {e,find-file,'emacsclient -t','emacsclient -nw'} () {
-    if [ -n "$INSIDE_EMACS" ]; then
-	emacsclient $1 >/dev/null 2>&1 || echo "Give a file to open"
-    else
-	emacsclient -t $1 || echo "Start emacs daemon"
-    fi
-}
-
-function manp () { # use emacs
-    if [[ $(man -f ${1}) ]]; then
-        if [ -n "$INSIDE_EMACS" ]; then
-	        emacsclient -e "(man \"$1\")"
-        elif [[ -n "$(pgrep emacs)" ]]; then
-	        emacsclient -nw -e "(let ((Man-notify-method 'bully)) (man \"$1\"))"
-        else
-	          man $1
-        fi
-    else
-        ${1} --help
-    fi
-}
-
-whichpath () {
-    realpath $(which $1)
-}
-
-if [[ ${INSIDE_EMACS:-no} != 'no' ]]; then
-    export EDITOR=emacsclient
-    export VISUAL=emacsclient
-    export PAGER=cat
-
-    alias magit="emacsclient -ne '(magit-status)'"
-
-    function man() { emacsclient -ne "(man \"$1\")"; }
-fi
+  # case insensitive tab completion
+  zstyle ':completion:*' completer _complete _ignored _approximate
+  zstyle ':completion:*' list-colors '\'
+  zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
+  zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+  zstyle ':completion:*' menu select
+  zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p%s
+  zstyle ':completion:*' verbose true
+  _comp_options+=(globdots)
 
 
+  # Use vim keys in tab complete menu:
+  bindkey -M menuselect 'h' vi-backward-char
+  bindkey -M menuselect 'k' vi-up-line-or-history
+  bindkey -M menuselect 'l' vi-forward-char
+  bindkey -M menuselect 'j' vi-down-line-or-history
 
-# TODOTHIS
-d-test () {
-    local editor="nvim"
-    local tmpf="$(mktemp)"
-    printf '%s\n' "$READLINE_LINE" >| "$tmpf"
-    "$editor" "$tmpf"
-    READLINE_LINE="$(<"$tmpf")"
-    READLINE_POINT="${#READLINE_LINE}"
-    rm -f "$tmpf" >/dev/null 2>&1
-}
+  # get emacs bindings
+  bindkey -e
+  # useful for deleting words backwards like bash (M-DEL)
+  WORDCHARS='*?[]~=&;!$%^(){}<>'
 
-# zle -N d-test
-# bindkey '^o' 'd-test'
+  # Aliases
+  alias cleanup="doas nix-collect-garbage --delete-older-than 7d"
+  alias bloat="nix path-info -Sh /run/current-system"
+  alias ytmp3="yt-dlp -x --continue --add-metadata --embed-thumbnail --audio-format mp3 --audio-quality 0 --metadata-from-title='%(artist)s - %(title)s' --prefer-ffmpeg -o '%(title)s.%(ext)s' "
+  alias cat="bat --style=plain"
+  alias grep='rg'
+  alias du='dust'
+  # alias ps='procs'
+  alias m="mkdir -p"
+  alias ls="exa -h --git --icons --color=auto --group-directories-first -s extension"
+  alias l="ls -lF --time-style=long-iso --icons"
+  alias la="exa -lah --tree"
+  alias tree="exa --tree --icons --tree"
+  alias http="python3 -m http.server"
+  alias burn="pkill -9"
+  alias diff="diff --color=auto"
+  alias kys="doas shutdown now"
+  alias killall="pkill"
+  alias ".1"="cd .."
+  alias ".2"="cd ../.."
+  alias ".3"="cd ../../.."
+  alias c="clear"
+  alias v="nvim"
+  alias emd="emacs --daemon"
+  alias cp="cp -iv"
+  alias mv="mv -iv"
+  alias rm="rm -vI"
+  alias bc="bc -ql"
+  alias mkd="mkdir -pv"
+  alias ytfzf="ytfzf -D"
+  alias gc="git clone --depth=1"
+  alias sudo="doas"
+  alias sioyek="sioyek --new-window"
+  alias hyunlock="pkill -SIGUSR1 hyprlock"
 
+  # export BEMENU_OPTS="-i -l 10 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
 
-function prefetch-sri() {
-    nix-prefetch-url "$1" | xargs nix hash to-sri --type sha256
-}
+  # neovim as manpager, if not using emacs
+  # export MANPAGER='nvim +Man! +"set nocul" +"set noshowcmd" +"set noruler" +"set noshowmode" +"set laststatus=0" +"set showtabline=0" +"set nonumber"'
 
-depends-on-installed () {
-  nix-store --query --referrers $(which $1)
-}
+  # Functions
+  function ytdl() {
+      yt-dlp --embed-metadata --embed-subs -f 22 "$1"
+  }
 
-dependencies-installed () {
-  nix-store --query --references $(which $1)
-}
+  function fcd() {
+      cd "$(fd -t d | fzf)"
+  }
 
-depends-on () {
-  nix-store --query --referrers\
-    $(nix-instantiate '<nixpkgs>' -A $1) | rg -v home-manager-path
-}
+  function shellnix() {
+      nix shell nixpkgs#"$1"
+  }
 
-dependencies () {
-  nix-store --query --references\
-    $(nix-instantiate '<nixpkgs>' -A $1)
-}
+  ## Emacs all time
 
-if [ -n "${commands[fzf-share]}" ]; then
-  source "$(fzf-share)/key-bindings.zsh"
-  source "$(fzf-share)/completion.zsh"
-fi
+  function {e,find-file,'emacsclient -t','emacsclient -nw'} () {
+      if [ -n "$INSIDE_EMACS" ]; then
+    emacsclient $1 >/dev/null 2>&1 || echo "Give a file to open"
+      else
+    emacsclient -t $1 || echo "Start emacs daemon"
+      fi
+  }
+
+  function manp () { # use emacs
+      if [[ $(man -f ${1}) ]]; then
+          if [ -n "$INSIDE_EMACS" ]; then
+            emacsclient -e "(man \"$1\")"
+          elif [[ -n "$(pgrep emacs)" ]]; then
+            emacsclient -nw -e "(let ((Man-notify-method 'bully)) (man \"$1\"))"
+          else
+              man $1
+          fi
+      else
+          ${1} --help
+      fi
+  }
+
+  whichpath () {
+      realpath $(which $1)
+  }
+
+  if [[ ${INSIDE_EMACS:-no} != 'no' ]]; then
+      export EDITOR=emacsclient
+      export VISUAL=emacsclient
+      export PAGER=cat
+
+      alias magit="emacsclient -ne '(magit-status)'"
+
+      function man() { emacsclient -ne "(man \"$1\")"; }
+  fi
 
 
 
-[ -n "$EAT_SHELL_INTEGRATION_DIR" ] && source "$EAT_SHELL_INTEGRATION_DIR/zsh"
+  # TODOTHIS
+  d-test () {
+      local editor="nvim"
+      local tmpf="$(mktemp)"
+      printf '%s\n' "$READLINE_LINE" >| "$tmpf"
+      "$editor" "$tmpf"
+      READLINE_LINE="$(<"$tmpf")"
+      READLINE_POINT="${#READLINE_LINE}"
+      rm -f "$tmpf" >/dev/null 2>&1
+  }
+
+  # zle -N d-test
+  # bindkey '^o' 'd-test'
 
 
-# precmd() {
-#     print ""
-# }
+  function prefetch-sri() {
+      nix-prefetch-url "$1" | xargs nix hash to-sri --type sha256
+  }
+
+  depends-on-installed () {
+    nix-store --query --referrers $(which $1)
+  }
+
+  dependencies-installed () {
+    nix-store --query --references $(which $1)
+  }
+
+  depends-on () {
+    nix-store --query --referrers\
+      $(nix-instantiate '<nixpkgs>' -A $1) | rg -v home-manager-path
+  }
+
+  dependencies () {
+    nix-store --query --references\
+      $(nix-instantiate '<nixpkgs>' -A $1)
+  }
+
+  if [ -n "${commands[fzf-share]}" ]; then
+    source "$(fzf-share)/key-bindings.zsh"
+    source "$(fzf-share)/completion.zsh"
+  fi
+
+
+
+  [ -n "$EAT_SHELL_INTEGRATION_DIR" ] && source "$EAT_SHELL_INTEGRATION_DIR/zsh"
+
+
+  # precmd() {
+  #     print ""
+  # }
   #+end_src
 *** HomeSession Variables
 - To set variables for all shell.
@@ -8117,34 +8144,34 @@ fi
 - The fast and suckless menu/launcher
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  # funny it just converts the set to commandLineArgs and puts it as home sessionVariables
-  programs.bemenu = {
-    enable = true;
-    settings = {
-      no-cursor = true;
-      no-spacing = true;
-      ignorecase = true;
-      no-touch = true;
-      prompt = " ";
+  {
+    # funny it just converts the set to commandLineArgs and puts it as home sessionVariables
+    programs.bemenu = {
+      enable = true;
+      settings = {
+        no-cursor = true;
+        no-spacing = true;
+        ignorecase = true;
+        no-touch = true;
+        prompt = " ";
 
-      fn = "Code D Ace 16";
+        fn = "Code D Ace 24";
 
-      nb = "#00000090";
-      ab = "#00000090";
-      bdr = "#c6daff";
-      nf = "#ffffff";
-      af = "#ffffff";
-      hb = "#2e8b57";
-      hf = "#000000";
-      fb = "#111111";
-      ff = "#fafad2";
-      tb = "#121212";
-      tf = "#6ae4b9";
+        nb = "#00000090";
+        ab = "#00000090";
+        bdr = "#c6daff";
+        nf = "#ffffff";
+        af = "#ffffff";
+        hb = "#2e8b57";
+        hf = "#000000";
+        fb = "#111111";
+        ff = "#fafad2";
+        tb = "#121212";
+        tf = "#6ae4b9";
 
+      };
     };
-  };
-}
+  }
   #+end_src
 **** COMMENT Launcher
 - rofi as the launcher and menu tool.
@@ -8786,52 +8813,52 @@ lines:                       20;
 - for modern emacs, modern org looks
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package org-modern
-  :commands
-  (global-org-modern-mode)
-  :hook (org-mode org-agenda-finalize)
+  (use-package org-modern
+    :commands
+    (global-org-modern-mode)
+    :hook (org-mode org-agenda-finalize)
 
-  :custom
-  ;; nerd-icons: "" "󰓏" "󰚀" "󰴈" "" "󰄄"
+    :custom
+    ;; nerd-icons: "" "󰓏" "󰚀" "󰴈" "" "󰄄"
 
-  ;; (org-modern-star '("◉" "✪" "◈" "✿" "❂"))
-  ;; (org-modern-star '("" "󰓏" "󰚀" "󰴈" "" "󰄄"))
-  (org-modern-star '("󰓏" "󰚀" "󰫤"  "󰴈" "" "󰄄"))
-  (org-modern-hide-stars nil)
-  (org-modern-table nil) ;; issue with variable-pitch font
+    ;; (org-modern-star '("◉" "✪" "◈" "✿" "❂"))
+    ;; (org-modern-star '("" "󰓏" "󰚀" "󰴈" "" "󰄄"))
+    (org-modern-star '("󰓏" "󰚀" "󰫤"  "󰴈" "" "󰄄"))
+    (org-modern-hide-stars nil)
+    (org-modern-table nil) ;; issue with variable-pitch font
 
-  (org-modern-list
-   '((?* . "")
-     (?- . "")
-     (?+ . "")))
+    (org-modern-list
+     '((?* . "")
+       (?- . "")
+       (?+ . "")))
 
-  (org-modern-checkbox '((?X . "")
-                         (?- . "")
-                         (?  . "")))
+    (org-modern-checkbox '((?X . "")
+                           (?- . "")
+                           (?  . "")))
 
-  (org-modern-keyword
-   '(("options" . "")
-     ("title" . "")
-     ("author" . "󱆀") ("email" . "")
-     ("startup" . "")
-     ("property" . "")
-     ("date" . "")
-     ("tags" . "")
-     ("todo" . "")
-     (t . t)))
+    (org-modern-keyword
+     '(("options" . "")
+       ("title" . "")
+       ("author" . "󱆀") ("email" . "")
+       ("startup" . "")
+       ("property" . "")
+       ("date" . "")
+       ("tags" . "")
+       ("todo" . "")
+       (t . t)))
 
-  (org-modern-block-name
-   '(
-     ("src" . ("" ""))
-     ("example" . "")
-     ("html" . "")
-     ("quote" . ("" ""))
-     (t . t)))
+    (org-modern-block-name
+     '(
+       ("src" . ("" ""))
+       ("example" . "")
+       ("html" . "")
+       ("quote" . ("" ""))
+       (t . t)))
 
-  (org-modern-internal-target '("  " t " "))
+    (org-modern-internal-target '("  " t " "))
 
-  :config
-  (global-org-modern-mode))
+    :config
+    (global-org-modern-mode))
   #+end_src
 *** COMMENT org-prettify
 - Credits to Artawower.
@@ -9289,6 +9316,7 @@ block but are passed literally to the \"example-block\"."
   #+name: orgmacs
   #+begin_src emacs-lisp
   (use-package org-super-links
+    :unless d/on-droid
     :bind (("C-c s s" . org-super-links-link)
            ("C-c s l" . org-super-links-store-link)
            ("C-c s C-l" . org-super-links-insert-link)
@@ -9557,14 +9585,17 @@ block but are passed literally to the \"example-block\"."
 - To annotate and note on docs in plain text. Seems useful and handy rather than manual work.
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package org-noter
-  :after org
-  :custom
-  (org-noter-auto-save-last-location t)
-  (org-noter-default-notes-file-names '("journal.org"))
-  (org-noter-notes-search-path '("~/d-sync/notes"))
-  (org-noter-notes-window-location 'vertical-split)
-  )
+  (use-package org-noter
+    :after org
+    :custom
+    (org-noter-auto-save-last-location t)
+    (org-noter-default-notes-file-names '("journal.org"))
+    (org-noter-notes-search-path '("~/d-sync/notes"))
+    (org-noter-notes-window-location 'horizontal-split)
+    )
+
+  ;; empty function so org-noter does not scroll the display which hides the left margin, like -+ indicator
+  (defun org-noter--set-notes-scroll () )
   #+end_src
 
 *** org-export

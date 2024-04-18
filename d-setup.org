@@ -820,7 +820,7 @@ It is as simple if I just record what it does, with proper link to rich resource
         enable = true;
         enableSshSupport = true;
         enableZshIntegration = true;
-        pinentryPackage = pkgs.pinentry-bemenu;
+        # pinentryPackage = pkgs.pinentry-bemenu;
       };
     };
   }
@@ -2923,8 +2923,8 @@ You can do this by trackpad too (laptop)"
       settings = {
         main = {
           term = "xterm-256color";
-          font = "Code D OnePiece:size=12, Noto Color Emoji:size=15";
-          font-bold = "Code D Lip:size=12, Noto Color Emoji:size=15";
+          font = "Code D OnePiece:size=20, Noto Color Emoji:size=20";
+          font-bold = "Code D Lip:size=20, Noto Color Emoji:size=20";
           letter-spacing = "1";
           box-drawings-uses-font-glyphs = "no";
           pad = "0x0center";
@@ -5873,27 +5873,30 @@ Android port."
   (setq alert-default-icon "ic_popup_reminder")
   )
   #+end_src
-** COMMENT bluetooth
-- I dont prefer to use bluetooth, dongle or wired equips are better.
+** bluetooth
+- I dont prefer to use bluetooth, dongle; wired equips are better.
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-{
-  hardware.bluetooth = {
-    enable = true;
-    package = pkgs.bluez;
-    settings = {
-      General = {
-        FastConnectable = true;
-        JustWorksRepairing = "always";
-        Privacy = "device";
-        Experimental = true;
-      };
+  {
+    hardware.bluetooth = {
+      enable = true;
+      powerOnBoot = true;
+      # package = pkgs.bluez;
+      # settings = {
+      #   General = {
+      #     FastConnectable = true;
+      #     JustWorksRepairing = "always";
+      #     Privacy = "device";
+      #     Experimental = true;
+      #   };
+      # };
     };
-  };
 
-  # https://github.com/NixOS/nixpkgs/issues/114222
-  systemd.user.services.telephony_client.enable = false;
-}
+    services.blueman.enable = true;
+
+    # https://github.com/NixOS/nixpkgs/issues/114222
+    # systemd.user.services.telephony_client.enable = false;
+  }
   #+end_src
 
 * Appearance
@@ -6027,7 +6030,8 @@ Android port."
 *** hyprsea
 - more additional hyprland conf for quick reloads
   #+begin_src conf :tangle ./gdk/configs/hyprsea.conf
-  monitor = ,2880x1800@90,auto,1.5
+  monitor = ,2880x1800@90,auto,1
+  # monitor = ,1920x1200@90,auto,1
   #monitor = HDMI-A-1,1920x1080,0x0,1
   # monitor = HDMI-A-1,1920x1080,0x0,1,mirror,eDP-1
 
@@ -6213,7 +6217,7 @@ Android port."
 
   bind=,XF86AudioRaiseVolume,exec,d-volume up
   bind=,XF86AudioLowerVolume,exec,d-volume down
-  bind=,XF86AudioMute,exec,d-volume mute
+  bind=,XF86AudioMute,exec,d-volume toggle
   bind=,XF86MonBrightnessUp, exec, brightnessctl set +2%
   bind=,XF86MonBrightnessDown, exec, brightnessctl set 2%-
 
@@ -6394,9 +6398,9 @@ Android port."
   bind=SUPER,C,submap,Controls
   submap=Controls
 
-  bind=SHIFT,equal,exec, pamixer -ui 5
-  bind=,minus,exec, pamixer -ud 5
-  bind=,m,exec, pamixer -t
+  bind=SHIFT,equal,exec, d-volume up
+  bind=,minus,exec, d-volume down
+  bind=,m,exec, d-volume toggle
   bind=,m,submap,reset
   bind=,p,exec, mpc toggle
   bind=,p,submap,reset
@@ -6463,11 +6467,9 @@ Android port."
       ignore_dbus_inhibit = false             # whether to ignore dbus-sent idle-inhibit requests (used by e.g. firefox or steam)
   }
 
-
-
   listener {
       timeout = 210
-      on-timeout = d-idle "" "hyprctl dispatch dpms off"
+      on-timeout = d-idle "" "hyprlock & hyprctl dispatch dpms off"
       on-resume = "hyprctl dispatch dpms on"
       # on-resume = notify-send "Welcome back!"  # command to run when activity is detected after timeout has fired.
   }

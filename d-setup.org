@@ -2561,8 +2561,8 @@ css-mode css-ts-mode
     :unless d/on-droid
     :bind
     ("C-<tab>" . tab-next)
-    :hook
-    (server-after-make-frame . (lambda () (tab-new) (tab-new) (tab-new)))
+    ;; :hook
+    ;; (server-after-make-frame . (lambda () (tab-new) (tab-new) (tab-new)))
     :init
     (tab-bar-mode))
   #+end_src

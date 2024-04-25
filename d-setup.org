@@ -2389,100 +2389,104 @@ nix-mode
   #+end_src
 ***** org-templates
   #+begin_src emacs-lisp :tangle ~/.config/emacs/templates/org.eld
-org-mode
+  org-mode
 
-(hugosite ":PROPERTIES:"  n ":EXPORT_FILE_NAME: " (p "simple-name") n ":EXPORT_DATE: " (format-time-string "%Y-%m-%d") n ":EXPORT_HUGO_DRAFT: false" n ":END:")
-(readonly ":tangle-mode (identity #o444) :mkdirp yes" n)
-(variablweb "  #+name: " (p "noweb-ref") n "#+begin_src " p n> r> n> "#+end_src" :post (org-edit-src-code))
-(gitcollapse  "*** " p n "#+begin_html" n "<details>" n "<summary> " (p "heading")  " </summary>" n "#+end_html" n (p "link or any comments") n n "#+begin_html" n "</details>" n "#+end_html" n n)
+  (hugosite ":PROPERTIES:"  n ":EXPORT_FILE_NAME: " (p "simple-name") n ":EXPORT_DATE: " (format-time-string "%Y-%m-%d") n ":EXPORT_HUGO_DRAFT: false" n ":END:")
+  (readonly ":tangle-mode (identity #o444) :mkdirp yes" n)
+  (variablweb "  #+name: " (p "noweb-ref") n "#+begin_src " p n> r> n> "#+end_src" :post (org-edit-src-code))
+  (gitcollapse  "*** " p n "#+begin_html" n "<details>" n "<summary> " (p "heading")  " </summary>" n "#+end_html" n (p "link or any comments") n n "#+begin_html" n "</details>" n "#+end_html" n n)
 
-(eval n> "  #+name: " (p "name" fname) n> "#+begin_src " (p "C++" lang) n> r> n> "#+end_src" :post (org-edit-src-code))
+  (eval n> "  #+name: " (p "name" fname) n> "#+begin_src " (p "C++" lang) n> r> n> "#+end_src" :post (org-edit-src-code))
 
-(pyeval n "  #+name: " (p "name" fname) n "#+begin_src python :tangle ./codes/python/"
-        (s fname) ".py " n> r> n> "#+end_src" :post (org-edit-src-code))
+  (pyeval n "  #+name: " (p "name" fname) n "#+begin_src python :tangle ./codes/python/"
+          (s fname) ".py " n> r> n> "#+end_src" :post (org-edit-src-code))
 
-(reval n "  #+name: " (p "name" fname) n "#+begin_src R :tangle ./codes/rstats/"
-       (s fname) ".R " n> r> n> "#+end_src" :post (org-edit-src-code))
+  (reval n "  #+name: " (p "name" fname) n "#+begin_src R :tangle ./codes/rstats/"
+         (s fname) ".R " n> r> n> "#+end_src" :post (org-edit-src-code))
 
-(jleval n "  #+name: " (p "name" fname) n "#+begin_src julia :tangle ./codes/"
-        (s fname) ".jl " n> r> n> "#+end_src" :post (org-edit-src-code))
+  (jleval n "  #+name: " (p "name" fname) n "#+begin_src julia :tangle ./codes/"
+          (s fname) ".jl " n> r> n> "#+end_src" :post (org-edit-src-code))
 
-(labmanual "* " p n
-           "** Pre-requisites" n p n
-           "** Aim" n n
-           "** Tools" n n
-           "** Introduction" n n
-           "** Methodology" n n
-           "** Results" n n
-           "** Conclusion" n n
-           )
+  (labmanual "* " p n
+             "** Pre-requisites" n p n
+             "** Aim" n n
+             "** Tools" n n
+             "** Introduction" n n
+             "** Methodology" n n
+             "** Results" n n
+             "** Conclusion" n n
+             )
 
-(latimg n "#+CAPTION: " p n
-        "#+ATTR_LATEX: :height :float nil" n
-        :post (org-insert-link))
+  (latimg n "#+CAPTION: " p n
+          "#+ATTR_LATEX: :height :float nil" n
+          :post (org-insert-link))
 
-(nixorg "  #+name: nixos-core" n> "#+begin_src nix :tangle gdk/core.nix" n>
-        n> "#+end_src" :post (org-edit-src-code))
+  (htmlimg n "#+caption: " p n
+           "#+attr_html: :width 70%" n
+           :post (org-insert-link))
 
-(hmorg "  #+name: hm-config" n> "#+begin_src nix :tangle gdk/home.nix" n>
-       n> "#+end_src" :post (org-edit-src-code))
+  (nixorg "  #+name: nixos-core" n> "#+begin_src nix :tangle gdk/core.nix" n>
+          n> "#+end_src" :post (org-edit-src-code))
 
-
-(elisp "  #+name: " (p "name") n "#+begin_src emacs-lisp" n n "#+end_src" :post (org-edit-src-code))
-(orgmacs "  #+name: orgmacs" n> "#+begin_src emacs-lisp " n> n> "#+end_src" :post (org-edit-src-code))
-
-(blogorg "#+title: " (p "title") n
-         "#+date: [" (format-time-string "%Y-%m-%d %a") "]")
-
-(contact
- (p "Person Name") n
- ":PROPERTIES: " n
- ":EMAIL: " p n
- ":URL: " p n
- ":MOBILE: " p n
- ":WORKPHONE: " n
- ":COMPANY: " n
- ":CITY: " p n
- ":BIRTHDAY: " p n
- ":ICON:" n
- ":ADDRESS:" n
- ":ITOLDTHEM_EMAIL: " n
- ":ITOLDTHEM_ADDRESS: " n
- ":ITOLDTHEM_PHONE: " n
- ":IGNORE: " n
- ":CREATED: " (format-time-string "[%Y-%m-%d %a %H:%M]") n
- ":END:" n
- )
-
-(pdforg
- "#+title: " p n
- "#+author: " p n
- "#+options: toc:nil num:nil" n
- "#+date: " (format-time-string "%Y-%m-%d") nnn
- "* Introduction" n p)
+  (hmorg "  #+name: hm-config" n> "#+begin_src nix :tangle gdk/home.nix" n>
+         n> "#+end_src" :post (org-edit-src-code))
 
 
-(shbin
- "#+begin_src sh :shebang \"#!/usr/bin/env bash\" :tangle bin/" p
- n n
- "#+end_src"
- :post (org-edit-src-code))
+  (elisp "  #+name: " (p "name") n "#+begin_src emacs-lisp" n n "#+end_src" :post (org-edit-src-code))
+  (orgmacs "  #+name: orgmacs" n> "#+begin_src emacs-lisp " n> n> "#+end_src" :post (org-edit-src-code))
 
-(revjs n
-"#+reveal_miscinfo: " p n n
-"#+REVEAL_ROOT: /home/idlip/learn/revjs/" n
-"#+OPTIONS: reveal_width:1920 reveal_height:1080" n
-"#+OPTIONS: toc:nil num:nil" n
-"#+REVEAL_MIN_SCALE: 0.2" n
-"#+REVEAL_MAX_SCALE: 1.0" n
-"#+OPTIONS: reveal_progress:nil" n
-"#+REVEAL_EXTRA_OPTIONS: navigationMode: 'linear', controls: false" n
-"#+REVEAL_MARGIN: 0.02" n
-"#+REVEAL_THEME: black" n
-"#+REVEAL_TRANS: none" n
-"#+EXCLUDE_TAGS: noexport" n
-"#+reveal_extra_css: ./local.scss" n n p
-)
+  (blogorg "#+title: " (p "title") n
+           "#+date: [" (format-time-string "%Y-%m-%d %a") "]")
+
+  (contact
+   (p "Person Name") n
+   ":PROPERTIES: " n
+   ":EMAIL: " p n
+   ":URL: " p n
+   ":MOBILE: " p n
+   ":WORKPHONE: " n
+   ":COMPANY: " n
+   ":CITY: " p n
+   ":BIRTHDAY: " p n
+   ":ICON:" n
+   ":ADDRESS:" n
+   ":ITOLDTHEM_EMAIL: " n
+   ":ITOLDTHEM_ADDRESS: " n
+   ":ITOLDTHEM_PHONE: " n
+   ":IGNORE: " n
+   ":CREATED: " (format-time-string "[%Y-%m-%d %a %H:%M]") n
+   ":END:" n
+   )
+
+  (pdforg
+   "#+title: " p n
+   "#+author: " p n
+   "#+options: toc:nil num:nil" n
+   "#+date: " (format-time-string "%Y-%m-%d") nnn
+   "* Introduction" n p)
+
+
+  (shbin
+   "#+begin_src sh :shebang \"#!/usr/bin/env bash\" :tangle bin/" p
+   n n
+   "#+end_src"
+   :post (org-edit-src-code))
+
+  (revjs n
+  "#+reveal_miscinfo: " p n n
+  "#+REVEAL_ROOT: /home/idlip/learn/revjs/" n
+  "#+OPTIONS: reveal_width:1920 reveal_height:1080" n
+  "#+OPTIONS: toc:nil num:nil" n
+  "#+REVEAL_MIN_SCALE: 0.2" n
+  "#+REVEAL_MAX_SCALE: 1.0" n
+  "#+OPTIONS: reveal_progress:nil" n
+  "#+REVEAL_EXTRA_OPTIONS: navigationMode: 'linear', controls: false" n
+  "#+REVEAL_MARGIN: 0.02" n
+  "#+REVEAL_THEME: black" n
+  "#+REVEAL_TRANS: none" n
+  "#+EXCLUDE_TAGS: noexport" n
+  "#+reveal_extra_css: ./local.scss" n n p
+  )
   #+end_src
 ***** markdown-templates
   #+begin_src emacs-lisp :tangle ~/.config/emacs/templates/markdown.eld

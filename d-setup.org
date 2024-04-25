@@ -4982,6 +4982,7 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
             "layers.acceleration.force-enabled" = true;
             "layout.css.backdrop-filter.enabled" = true;
             "svg.context-properties.content.enabled" = true;
+            "full-screen-api.ignore-widgets" = true;
           };
 
           search = {
@@ -5066,6 +5067,7 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
           "media.ffmpeg.vaapi.enabled" = true;
           "media.hardware-video-decoding.force-enabled" = true;
           "media.peerconnection.enabled" = true;
+          "full-screen-api.ignore-widgets" = true;
         };
       };
 

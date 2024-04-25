@@ -7188,7 +7188,7 @@ and returns the icon."
 
   window#waybar {
       background: @bg-main;
-      background-color: transparent;
+      /* background-color: transparent; */
       color: @fg-main;
   }
 
@@ -8187,14 +8187,14 @@ and returns the icon."
 - Some games to play
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  home.packages = with pkgs; [
-    openttd
-    zeroad
-    superTux
-    # supertuxkart
-  ];
-}
+  {
+    home.packages = with pkgs; [
+      openttd
+      # zeroad
+      superTux
+      # supertuxkart
+    ];
+  }
   #+end_src
 *** Launcher
 **** bemenu

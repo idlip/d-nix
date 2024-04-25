@@ -41,7 +41,7 @@
 
 window#waybar {
     background: @bg-main;
-    background-color: transparent;
+    /* background-color: transparent; */
     color: @fg-main;
 }
 

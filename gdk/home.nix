@@ -368,7 +368,7 @@
       # async dirvish consult-flycheck beframe powerthesaurus meow
       # doom-modeline ox-hugo ement kind-icon el-patch
       # rainbow-mode -> replcaed by new package, colorful-mode
-
+      # saveplace-pdf-view
 
     ])
     );
@@ -736,6 +736,7 @@
           "layers.acceleration.force-enabled" = true;
           "layout.css.backdrop-filter.enabled" = true;
           "svg.context-properties.content.enabled" = true;
+          "full-screen-api.ignore-widgets" = true;
         };
 
         search = {
@@ -820,6 +821,7 @@
         "media.ffmpeg.vaapi.enabled" = true;
         "media.hardware-video-decoding.force-enabled" = true;
         "media.peerconnection.enabled" = true;
+        "full-screen-api.ignore-widgets" = true;
       };
     };
 
@@ -1778,7 +1780,7 @@
       no-touch = true;
       prompt = " ";
 
-      fn = "Code D Ace 16";
+      fn = "Code D Ace 24";
 
       nb = "#00000090";
       ab = "#00000090";

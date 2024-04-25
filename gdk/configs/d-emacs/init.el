@@ -921,8 +921,8 @@ Return nil if NAME does not designate a valid color."
   :unless d/on-droid
   :bind
   ("C-<tab>" . tab-next)
-  :hook
-  (server-after-make-frame . (lambda () (tab-new) (tab-new) (tab-new)))
+  ;; :hook
+  ;; (server-after-make-frame . (lambda () (tab-new) (tab-new) (tab-new)))
   :init
   (tab-bar-mode))
 
@@ -2302,7 +2302,7 @@ Android port."
 (defvar d/fixed-pitch-font "Code D OnePiece"
   "The font to use for monospaced (fixed width) text.")
 
-(defvar d/variable-pitch-font "Code D Ace"
+(defvar d/variable-pitch-font "Code D Haki"
   "The font to use for variable-pitch (documents) text.")
 
 (use-package faces

@@ -1,4 +1,3 @@
-/* Basically to hide off the toolbar */
 #navigator-toolbox {
 opacity: 0;
 overflow: hidden;
@@ -9,8 +8,7 @@ width: 100%;
 transition: all 0.1s 0.4s; /* The second number is the delay before dissapearing again. Default is 0.4s */
 }
 
-/* To get the toolbar back when hover or focused, or get with CTRL-L */
-#navigator-toolbox:hover,
+n#navigator-toolbox:hover,
 #navigator-toolbox:focus-within {
 opacity: 1;
 overflow: visible;
@@ -18,5 +16,43 @@ transform: translateY(0px);
 transition: all 0.05s;
 }
 
-/* Too hide away tab bar, embrace SideBerry */
 #TabsToolbar { visibility: collapse; }
+
+
+
+/* Sidebery */
+#sidebar-box[sidebarcommand="_3c078156-979c-498b-8990-85f7987dd929_-sidebar-action"] #sidebar-header {
+  visibility: collapse;
+}
+
+/* Source file https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome/autohide_sidebar.css made available under Mozilla Public License v. 2.0
+See the above repository for updates as well as full license text. */
+
+/* Show sidebar only when the cursor is over it  */
+/* The border controlling sidebar width will be removed so you'll need to modify these values to change width */
+
+#sidebar-box[sidebarcommand="_3c078156-979c-498b-8990-85f7987dd929_-sidebar-action"] {
+  --uc-sidebar-width: 65px;
+  --uc-sidebar-hover-width: 232px;
+  --uc-autohide-sidebar-delay: 0ms;
+  /* Wait 0.6s before hiding sidebar */
+  position: relative;
+  min-width: var(--uc-sidebar-width) !important;
+  width: var(--uc-sidebar-width) !important;
+  max-width: var(--uc-sidebar-width) !important;
+  z-index: 1;
+  margin-top: -1px;
+}
+
+#sidebar-box[sidebarcommand="_3c078156-979c-498b-8990-85f7987dd929_-sidebar-action"]>#sidebar {
+  transition: min-width 115ms linear !important;
+  min-width: var(--uc-sidebar-width) !important;
+  will-change: min-width;
+}
+
+#sidebar-box[sidebarcommand="_3c078156-979c-498b-8990-85f7987dd929_-sidebar-action"]:hover>#sidebar {
+  min-width: var(--uc-sidebar-hover-width) !important;
+  transition: min-width 100ms linear var(--uc-autohide-sidebar-delay), box-shadow 500ms linear !important;
+  box-shadow: 0 0 4px rgba(10, 10, 10, .5);
+  clip-path: inset(0px -15px 0px -15px);
+}

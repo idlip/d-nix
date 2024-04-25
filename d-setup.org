@@ -6641,7 +6641,7 @@ stdenvNoCC.mkDerivation rec {
   (defvar d/fixed-pitch-font "Code D OnePiece"
     "The font to use for monospaced (fixed width) text.")
 
-  (defvar d/variable-pitch-font "Code D Ace"
+  (defvar d/variable-pitch-font "Code D Haki"
     "The font to use for variable-pitch (documents) text.")
   #+end_src
 - Invoking fonts.
@@ -9390,12 +9390,13 @@ block but are passed literally to the \"example-block\"."
 - To set some decent workflow to maintain single big notes file.
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package org-fold
-  :after org
-  :custom
-  (org-fold-show-context-detail
-   '((agenda . local) (tags-tree . local) (bookmark-jump . lineage)
-     (isearch . lineage) (default . ancestors))))
+  (use-package org-fold
+    :after org
+    :custom
+    (org-fold-show-context-detail
+     '((agenda . local) (tags-tree . local) (bookmark-jump . lineage)
+       (isearch . lineage) (default . ancestors)))
+    (org-fold-core-style 'overlays))
   #+end_src
 *** org-alert
 - Alert, send notifications for schedules and deadline tasks.

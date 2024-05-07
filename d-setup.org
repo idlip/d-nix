@@ -4206,7 +4206,7 @@ out")
     (pdf-view-use-scaling nil)
     (pdf-view-use-dedicated-register nil)
     ;; (pdf-view-max-image-width 2000)
-    (pdf-outline-imenu-use-flat-menus t)
+    (pdf-outline-imenu-use-flat-menus nil)
     (pdf-view-resize-factor 1.1)
     (pdf-view-midnight-colors '("#fff" . "#000"))
 
@@ -4233,16 +4233,18 @@ out")
   (defun d/pdf-tools-theme ()
     "Toggle between dark and reading mode in pdf-tools reading buffer."
     (interactive)
-    (let ((choice (completing-read "theme Color: " '("black" "reader" "white" "tokyonight" "more choice") nil t)))
+    (let ((choice (completing-read "theme Color: " '("black" "reader" "white" "tokyonight" "light" "more choice") nil t)))
       (cond
-       ((string= "black" choice)
+       ((string= choice "black")
         (setopt pdf-view-midnight-colors '("#fff" . "#000")))
-       ((string= "reader" choice)
+       ((string= choice "reader")
         (setopt pdf-view-midnight-colors '("#000" . "#edd1b0")))
-       ((string= "tokyonight" choice)
+       ((string= choice "tokyonight")
         (setopt pdf-view-midnight-colors '("#fff" . "#24283b")))
-       ((string= "white" choice)
+       ((string= choice "white")
         (setopt pdf-view-midnight-colors '("#000" . "#fff")))
+       ((string= choice "light")
+       (setopt pdf-view-midnight-colors '("white smoke" . "dark slate gray")))
        (t
         (setopt pdf-view-midnight-colors (cons (read-color "Foreground: ") (read-color "Background: "))))))
     (pdf-view-midnight-minor-mode))
@@ -4784,15 +4786,57 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
     ;; Save time by not checking for new groups (I'm already subscribed to what I want,
     ;; can always manually M-x gnus-find-new-newsgroups to check new groups)
     (gnus-check-new-newsgroups nil)
+    (gnus-check-bogus-newsgroups nil)
     ;; By default only check groups this level or lower on startup
     ;; (use `C-u g' or `C-c M-g' to activate all groups):
     (gnus-activate-level 2)
 
+    (gnus-auto-center-summary nil)
+    (gnus-nov-is-evil nil)
+    (gnus-show-threads t)
+    (gnus-use-cross-reference nil)
     ;;;; Async prefetch – useful for newsgroups, maybe not so much for Maildir:
     ;; https://www.gnu.org/software/emacs/manual/html_mono/gnus.html#Asynchronous-Fetching
     (gnus-asynchronous t)
-    )
 
+    ;;; credits - https://libreddit.kavin.rocks/r/emacs/comments/1cfv84p/tipps_on_gnus_summary_formatting/ - u/ballfresno
+    ;; (gnus-summary-line-format "%1{%U%R%O %4k%} %3{%&user-date;%*%ud│%}%I%(%-16,16f%) %4{%s%}\n")
+    (gnus-user-date-format-alist
+     '(((gnus-seconds-today) . " %k:%M")
+       ((+ (gnus-seconds-today) (* 24 3600)) . " %l %p")
+       (604800 . " %a")
+       (31536000 . "%e %b")
+       (t . " %Y")))
+
+    ;;; credits - https://github.com/jbranso/.emacs.d/blob/master/lisp/init-gnus.org
+    (gnus-sum-thread-tree-indent "  ")
+    (gnus-sum-thread-tree-root "● ")
+    (gnus-sum-thread-tree-false-root "◯ ")
+    (gnus-sum-thread-tree-single-indent "󰎕 ")
+    (gnus-sum-thread-tree-vertical        "│")
+    (gnus-sum-thread-tree-leaf-with-other "├─► ")
+    (gnus-sum-thread-tree-single-leaf     "╰─► ")
+
+    (gnus-summary-line-format
+     (concat
+      "%0{%U%R%z%}"
+      "%3{│%}" "%1{%d%}" "%3{│%}" ;; date
+      "  "
+      "%4{%-20,20f%}"               ;; name
+      "  "
+      "%3{│%}"
+      " "
+      "%1{%B%}"
+      "%s\n"))
+
+    (gnus-summary-display-arrow t)
+
+
+    (gnus-face-1 'italic)
+    (gnus-face-2 'bold)
+    (gnus-face-3 'bold-italic)
+
+    )
   #+end_src
 
 - Package to convert atom to rss so can be readable in gnus.

@@ -28,49 +28,52 @@
     emacs-overlay.url = "github:nix-community/emacs-overlay";
   };
 
-  outputs = {nixpkgs, ...} @ inputs: let
-    system = "x86_64-linux";
-    pkgs = nixpkgs.legacyPackages.x86_64-linux;
+  outputs =
+    { nixpkgs, ... }@inputs:
+    let
+      system = "x86_64-linux";
+      pkgs = nixpkgs.legacyPackages.x86_64-linux;
 
-    vars = {
-      username = "idlip";
-      editor = "emacs";
-    };
-  in {
-    devShells.x86_64-linux.default = pkgs.mkShell {
-      packages = with pkgs; [
-        alejandra
-        deadnix
-        git
-        statix
-      ];
-      name = "dots";
-      DIRENV_LOG_FORMAT = "";
-    };
-
-    nixosConfigurations = {
-      gdk = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        modules = [
-          ./gdk/core.nix
-          inputs.hosts.nixosModule
-          inputs.home-manager.nixosModules.home-manager
-          {
-            home-manager = {
-              useUserPackages = true;
-              useGlobalPkgs = true;
-              extraSpecialArgs = {
-                inherit inputs vars;
-              };
-              users.${vars.username} = import ./gdk/home.nix;
-            };
-          }
+      vars = {
+        username = "idlip";
+        editor = "emacs";
+      };
+    in
+    {
+      devShells.x86_64-linux.default = pkgs.mkShell {
+        packages = with pkgs; [
+          alejandra
+          deadnix
+          git
+          statix
         ];
-        specialArgs = {
-          inherit inputs;
-          inherit vars system;
+        name = "dots";
+        DIRENV_LOG_FORMAT = "";
+      };
+
+      nixosConfigurations = {
+        gdk = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            ./gdk/core.nix
+            inputs.hosts.nixosModule
+            inputs.home-manager.nixosModules.home-manager
+            {
+              home-manager = {
+                useUserPackages = true;
+                useGlobalPkgs = true;
+                extraSpecialArgs = {
+                  inherit inputs vars;
+                };
+                users.${vars.username} = import ./gdk/home.nix;
+              };
+            }
+          ];
+          specialArgs = {
+            inherit inputs;
+            inherit vars system;
+          };
         };
       };
     };
-  };
 }

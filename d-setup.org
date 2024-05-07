@@ -6247,6 +6247,8 @@ Android port."
   exec-once = foot --server
   exec-once = emacs --bg-daemon
 
+  env = QT_SCALE_FACTOR, 1.5
+
   # --- Local var ---
   misc {
   swallow_regex=^(footclient)$
@@ -6258,6 +6260,12 @@ Android port."
   # gaps_in = 0;
   # gaps_out = 0;
   # }
+
+  input {
+    touchpad {
+      disable_while_typing=0
+    }
+  }
 
   # animations {
   # enabled = false

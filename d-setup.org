@@ -5553,19 +5553,20 @@ for the search engine used."
 - gpu acceleration
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-{
-  hardware = {
-    pulseaudio.enable = lib.mkForce false;
-    opengl = {
-      enable = true;
-      extraPackages = with pkgs; [
-        libva intel-media-driver
-        vaapiVdpau vaapiIntel
-        libvdpau-va-gl
-      ];
+  {
+    hardware = {
+      pulseaudio.enable = lib.mkForce false;
+      opengl = {
+        enable = true;
+        extraPackages = with pkgs; [
+          libva intel-media-driver
+          intel-vaapi-driver
+          vaapiVdpau vaapiIntel
+          libvdpau-va-gl
+        ];
+      };
     };
-  };
-}
+  }
   #+end_src
 *** Pipewire
   #+name: nixos-core

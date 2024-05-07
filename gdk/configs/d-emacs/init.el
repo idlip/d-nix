@@ -26,6 +26,50 @@
   (tramp-chunksize 2000)
   (tramp-use-ssh-controlmaster-options nil))
 
+(defcustom tramp-nspawn-machinectl-program "machinectl" ;; like nixos-container
+  "Name of the machinectl program."
+  :type 'string)
+
+(defconst tramp-nspawn-method "nspawn"
+  "Tramp method name to use to connect to systemd-nspawn containers.")
+
+(defun tramp-nspawn--completion-function (&rest _args)
+  "List systemd-nspawn containers available for connection.
+
+This function is used by ‘tramp-set-completion-function’, please
+see its function help for a description of the format."
+  (let* ((raw-list (shell-command-to-string
+                    (concat tramp-nspawn-machinectl-program
+                            " list -q")))
+         (lines (cdr (split-string raw-list "\n")))
+         (first-words (mapcar (lambda (line) (car (split-string line)))
+                              lines))
+         (machines (seq-take-while (lambda (name) name) first-words)))
+    (mapcar (lambda (m) (list nil m)) machines)))
+
+
+;; todo: check tramp-async-args and tramp-direct-async
+(defun tramp-nspawn--add-method ()
+  "Add Tramp method handler for nspawn containers."
+  (push `(,tramp-nspawn-method
+          (tramp-login-program ,tramp-nspawn-machinectl-program)
+          (tramp-login-args (("shell")
+                             ("-q")
+                             ("--uid" "%u")
+                             ("%h")))
+          (tramp-remote-shell "/bin/sh")
+          (tramp-remote-shell-login ("-l"))
+          (tramp-remote-shell-args ("-i" "-c")))
+        tramp-methods))
+
+(defun tramp-nspawn-setup ()
+  "Initialize systemd-nspawn support for Tramp."
+  (tramp-nspawn--add-method)
+  (tramp-set-completion-function tramp-nspawn-method
+                                 '((tramp-nspawn--completion-function ""))))
+
+(add-hook 'after-init-hook 'tramp-nspawn-setup)
+
 (use-package battery
   :ensure nil
   :hook
@@ -137,7 +181,10 @@
   (prefer-coding-system 'utf-8)
   ;; Uppercase is same as lowercase
   (define-coding-system-alias 'UTF-8 'utf-8)
-  (modify-all-frames-parameters '((alpha-background . 92)))
+  (modify-all-frames-parameters
+   '((alpha-background . 92)
+     (right-divider-width . 40)
+     (internal-border-width . 40)))
 
   ;; balance windows when split (https://zck.org/balance-emacs-windows)
   (seq-doseq (fn (list #'split-window #'delete-window))
@@ -197,6 +244,7 @@ it narrows to region, or Org subtree."
   (kill-do-not-save-duplicates t)
 
   :config
+  (global-hl-line-mode 1)
   (global-visual-line-mode 1))
 
 (defun d/join-lines (specify-separator)
@@ -1221,6 +1269,39 @@ You can do this by trackpad too (laptop)"
              (if (derived-mode-p 'eat-mode) (delete-window)
                (progn (other-window -1) (split-window-below) (other-window 1) (eat) (shrink-window 7)))))))
 
+(use-package comint
+  :bind
+  ("M-g r" . d/comint-page-output)
+  :custom
+  (comint-pager "cat")
+  :config
+  (setenv "MANPAGER" "cat"))
+
+(defun d/comint-page-output ()
+  "Get the comint output pager in temporary buffer."
+  (interactive)
+  (let ((buf (message "*%s: %s*" mode-name (comint-previous-input-string 0))))
+    (unless (get-buffer buf)
+      (let ((proc (get-buffer-process (current-buffer)))
+            (replacement nil)
+            (inhibit-read-only t))
+        (save-excursion
+          (let ((pmark (progn (goto-char (process-mark proc))
+                              (forward-line 0)
+                              (point-marker))))
+            (let ((contents (buffer-substring comint-last-input-end pmark)))
+              (with-current-buffer (get-buffer-create buf)
+                (insert contents)
+                (view-mode)))
+            (delete-region comint-last-input-end pmark)
+            (goto-char (process-mark proc))
+            (setq replacement (concat "*** output flushed ***\n"
+                                      (buffer-substring pmark (point))))
+            (delete-region pmark (point))))
+        ;; Output message and put back prompt
+        (comint-output-filter proc replacement)))
+    (pop-to-buffer buf)))
+
 ;; taken from Robb Enzmann
 (defun d/pyrightconfig-write (virtualenv)
   "Write a `pyrightconfig.json' file at the Git root of a project,
@@ -1536,6 +1617,10 @@ out")
   :config
   (global-colorful-mode))
 
+(use-package rainbow-delimiters
+  :defer t
+  :hook (prog-mode . rainbow-delimiters-mode))
+
 (use-package avy
   :bind
   ("M-j" . avy-goto-char-timer)
@@ -1680,7 +1765,7 @@ out")
   (pdf-view-use-scaling nil)
   (pdf-view-use-dedicated-register nil)
   ;; (pdf-view-max-image-width 2000)
-  (pdf-outline-imenu-use-flat-menus t)
+  (pdf-outline-imenu-use-flat-menus nil)
   (pdf-view-resize-factor 1.1)
   (pdf-view-midnight-colors '("#fff" . "#000"))
 
@@ -1703,16 +1788,18 @@ out")
 (defun d/pdf-tools-theme ()
   "Toggle between dark and reading mode in pdf-tools reading buffer."
   (interactive)
-  (let ((choice (completing-read "theme Color: " '("black" "reader" "white" "tokyonight" "more choice") nil t)))
+  (let ((choice (completing-read "theme Color: " '("black" "reader" "white" "tokyonight" "light" "more choice") nil t)))
     (cond
-     ((string= "black" choice)
+     ((string= choice "black")
       (setopt pdf-view-midnight-colors '("#fff" . "#000")))
-     ((string= "reader" choice)
+     ((string= choice "reader")
       (setopt pdf-view-midnight-colors '("#000" . "#edd1b0")))
-     ((string= "tokyonight" choice)
+     ((string= choice "tokyonight")
       (setopt pdf-view-midnight-colors '("#fff" . "#24283b")))
-     ((string= "white" choice)
+     ((string= choice "white")
       (setopt pdf-view-midnight-colors '("#000" . "#fff")))
+     ((string= choice "light")
+     (setopt pdf-view-midnight-colors '("white smoke" . "dark slate gray")))
      (t
       (setopt pdf-view-midnight-colors (cons (read-color "Foreground: ") (read-color "Background: "))))))
   (pdf-view-midnight-minor-mode))
@@ -1859,13 +1946,56 @@ out")
   ;; Save time by not checking for new groups (I'm already subscribed to what I want,
   ;; can always manually M-x gnus-find-new-newsgroups to check new groups)
   (gnus-check-new-newsgroups nil)
+  (gnus-check-bogus-newsgroups nil)
   ;; By default only check groups this level or lower on startup
   ;; (use `C-u g' or `C-c M-g' to activate all groups):
   (gnus-activate-level 2)
 
+  (gnus-auto-center-summary nil)
+  (gnus-nov-is-evil nil)
+  (gnus-show-threads t)
+  (gnus-use-cross-reference nil)
   ;;;; Async prefetch – useful for newsgroups, maybe not so much for Maildir:
   ;; https://www.gnu.org/software/emacs/manual/html_mono/gnus.html#Asynchronous-Fetching
   (gnus-asynchronous t)
+
+  ;;; credits - https://libreddit.kavin.rocks/r/emacs/comments/1cfv84p/tipps_on_gnus_summary_formatting/ - u/ballfresno
+  ;; (gnus-summary-line-format "%1{%U%R%O %4k%} %3{%&user-date;%*%ud│%}%I%(%-16,16f%) %4{%s%}\n")
+  (gnus-user-date-format-alist
+   '(((gnus-seconds-today) . " %k:%M")
+     ((+ (gnus-seconds-today) (* 24 3600)) . " %l %p")
+     (604800 . " %a")
+     (31536000 . "%e %b")
+     (t . " %Y")))
+
+  ;;; credits - https://github.com/jbranso/.emacs.d/blob/master/lisp/init-gnus.org
+  (gnus-sum-thread-tree-indent "  ")
+  (gnus-sum-thread-tree-root "● ")
+  (gnus-sum-thread-tree-false-root "◯ ")
+  (gnus-sum-thread-tree-single-indent "󰎕 ")
+  (gnus-sum-thread-tree-vertical        "│")
+  (gnus-sum-thread-tree-leaf-with-other "├─► ")
+  (gnus-sum-thread-tree-single-leaf     "╰─► ")
+
+  (gnus-summary-line-format
+   (concat
+    "%0{%U%R%z%}"
+    "%3{│%}" "%1{%d%}" "%3{│%}" ;; date
+    "  "
+    "%4{%-20,20f%}"               ;; name
+    "  "
+    "%3{│%}"
+    " "
+    "%1{%B%}"
+    "%s\n"))
+
+  (gnus-summary-display-arrow t)
+
+
+  (gnus-face-1 'italic)
+  (gnus-face-2 'bold)
+  (gnus-face-3 'bold-italic)
+
   )
 
 (use-package sdcv
@@ -2326,6 +2456,15 @@ Android port."
   (fixed-pitch ((t (:family ,d/fixed-pitch-font :height ,d/font-size))))
   (default ((t (:family ,d/fixed-pitch-font :height ,d/font-size)))))
 
+(defun d/change-font ()
+  "Function to prompt for font change in simple way."
+  (interactive)
+  (let ((fpitch (completing-read "Fixed Pitch Font: " '("Iosevka Comfy" "JetBrainsMono Nerd Font")))
+        (vpitch (completing-read "Variable Font: " '("Merriweather" "Code D Haki"))))
+    (set-face-attribute 'fixed-pitch nil :font fpitch)
+    (set-face-attribute 'variable-pitch nil :family vpitch))
+  )
+
 (use-package font-lock
   :ensure nil
   :defer t
@@ -2539,6 +2678,14 @@ Display format is inherited from `battery-mode-line-format'."
      (bookmarks . 5)
      ))
 
+  (dashboard-startupify-list
+   '(dashboard-insert-page-break
+     dashboard-insert-banner dashboard-insert-newline dashboard-insert-banner-title
+     ;; dashboard-insert-newline dashboard-insert-init-info
+     dashboard-insert-items dashboard-insert-newline
+     ;; dashboard-insert-footer
+     ))
+
   (dashboard-navigator-buttons
    `(;; line1
      ((,(nerd-icons-faicon "nf-fa-newspaper_o")
@@ -2602,7 +2749,7 @@ Display format is inherited from `battery-mode-line-format'."
      ))
 
   ;; (dashboard-footer-messages '("Power Maketh Man Beneath" "Manners Maketh Man" "Tasks, Break, Action Works all the time" "Stop thinking, Just do it"))
-  (dashboard-set-footer nil)
+  ;; (dashboard-set-footer nil) ;; deprecated
 
   :config
   (dashboard-setup-startup-hook))
@@ -2811,8 +2958,9 @@ Display format is inherited from `battery-mode-line-format'."
 
   ;; (org-modern-star '("◉" "✪" "◈" "✿" "❂"))
   ;; (org-modern-star '("" "󰓏" "󰚀" "󰴈" "" "󰄄"))
-  (org-modern-star '("󰓏" "󰚀" "󰫤"  "󰴈" "" "󰄄"))
-  (org-modern-hide-stars nil)
+  (org-modern-replace-stars (string-replace " " "" "󰓏 󰚀 󰫤 󰴈  󰄄"))
+  (org-modern-hide-stars 'leading)
+  (org-modern-star 'replace)
   (org-modern-table nil) ;; issue with variable-pitch font
 
   (org-modern-list
@@ -2868,6 +3016,17 @@ Display format is inherited from `battery-mode-line-format'."
   (org-agenda-ignore-properties '(effort appt category))
   ;; Start the week view on whatever day im on
   (org-agenda-start-on-weekday nil)
+ ;; Agenda styling
+  (org-agenda-tags-column 0)
+  (org-agenda-block-separator ?─)
+  (org-agenda-time-grid
+   '((daily today require-timed)
+     (800 1000 1200 1400 1600 1800 2000)
+     " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄"))
+  (org-agenda-current-time-string
+   "◀── now ─────────────────────────────────────────────────")
+
+
   (org-agenda-files
    '("~/d-sync/notes/journal.org"
      "~/d-git/d-site/README.org"
@@ -3008,14 +3167,6 @@ Display format is inherited from `battery-mode-line-format'."
      (shell . t) (python . t)
      (julia . t))))
 
-(use-package org-re-reveal
-  :after ox
-  :unless d/on-droid
-  :custom
-  (add-to-list 'org-export-backends 're-reveal)
-  (org-re-reveal-title-slide
-   "<h1 class=\"title\">%t</h1> <br> <br> <h2 class=\"subtitle\">%s</h2> <br> <h4 class=\"misc\">%m</h4> <h3 class=\"misc\">%A</h3> <br> <h2 class=\"author\">%a</h2>"))
-
 (use-package org-ql
   :bind
   (:map org-mode-map
@@ -3047,15 +3198,16 @@ Display format is inherited from `battery-mode-line-format'."
   :custom
   (org-fold-show-context-detail
    '((agenda . local) (tags-tree . local) (bookmark-jump . lineage)
-     (isearch . lineage) (default . ancestors))))
+     (isearch . lineage) (default . ancestors)))
+  ;; (org-fold-core-style 'overlays)
+  )
 
 (use-package org-alert
-  :custom
-  (org-alert-interval 300)
-  (org-alert-notification-title "Org Alert Reminder")
-  (org-alert-time-match-string
-   "\\(?:SCHEDULED\\|DEADLINE\\):.*?<.*?\\([0-9]\\{2\\}:[0-9]\\{2\\}\\).*>")
   :config
+  (setopt org-alert-interval 300)
+  (setopt org-alert-notification-title "Org Alert Reminder")
+  (setopt org-alert-time-match-string
+   "\\(?:SCHEDULED\\|DEADLINE\\):.*?<.*?\\([0-9]\\{2\\}:[0-9]\\{2\\}\\).*>")
   (org-alert-enable))
 
 (use-package org-present

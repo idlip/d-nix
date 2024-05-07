@@ -481,7 +481,7 @@
   # Collect garbage and delete generation every 7 day. Will help to get some storage space.
   # Better to atleast keep it for few days, as you do major update (unstable), if something breaks you can roll back.
   nix = {
-    package = pkgs.nixVersions.nix_2_18; # 2.19 has issues with mkOutOfStoreSymlink
+    package = pkgs.nixUnstable; # 2.19 has issues with mkOutOfStoreSymlink
     optimise.automatic = true;
     gc = {
       automatic = true;
@@ -563,6 +563,7 @@
       enable = true;
       extraPackages = with pkgs; [
         libva intel-media-driver
+        intel-vaapi-driver
         vaapiVdpau vaapiIntel
         libvdpau-va-gl
       ];

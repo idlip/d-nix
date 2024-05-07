@@ -32,7 +32,7 @@ See the above repository for updates as well as full license text. */
 /* The border controlling sidebar width will be removed so you'll need to modify these values to change width */
 
 #sidebar-box[sidebarcommand="_3c078156-979c-498b-8990-85f7987dd929_-sidebar-action"] {
-  --uc-sidebar-width: 65px;
+  --uc-sidebar-width: 85px;
   --uc-sidebar-hover-width: 232px;
   --uc-autohide-sidebar-delay: 0ms;
   /* Wait 0.6s before hiding sidebar */
@@ -55,4 +55,19 @@ See the above repository for updates as well as full license text. */
   transition: min-width 100ms linear var(--uc-autohide-sidebar-delay), box-shadow 500ms linear !important;
   box-shadow: 0 0 4px rgba(10, 10, 10, .5);
   clip-path: inset(0px -15px 0px -15px);
+}
+
+/* For vimium */
+div > .vimiumHintMarker {
+/* linkhint boxes */
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFF785),
+  color-stop(100%,#FFC542));
+border: 1px solid #E3BE23;
+}
+
+div > .vimiumHintMarker span {
+/* linkhint text */
+color: black;
+font-weight: bold;
+font-size: 2em;
 }

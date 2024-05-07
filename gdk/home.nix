@@ -310,10 +310,11 @@
       sdcv elfeed elfeed-org jinx
       el-fetch envrc dashboard mini-echo
       speed-type vc-backup aria2 pubmed
-      ess org-re-reveal auctex julia-mode webfeeder engrave-faces
+      ess auctex julia-mode webfeeder engrave-faces
       toc-org disable-mouse org-ql org-alert org-noter
       pdf-tools flycheck
-      ef-themes doom-themes kanagawa-theme catppuccin-theme
+      ef-themes doom-themes
+      # org-re-reveal
 
       (trivialBuild {
         pname = "combobulate";
@@ -1566,7 +1567,7 @@
     dotDir = ".config/shell";
     autocd = true;
     enableCompletion = true;
-    enableAutosuggestions = true;
+    autosuggestion.enable = true;
     history.extended = true;
 
     dirHashes = {
@@ -1580,9 +1581,9 @@
     };
 
     envExtra = ''
-      	#if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
+        #if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
         #  exec Hyprland
-       	#fi
+        #fi
     '';
 
     initExtra = ''
@@ -1614,6 +1615,7 @@
     GRIM_DEFAULT_DIR = "$HOME/pics/sshots/";
     MANPAGER = "nvim +Man!";
     STARDICT_DATA_DIR = "$HOME/d-git/d-bin/treasure/dict/";
+    LIBVA_DRIVER_NAME = "iHD";
   };
 }
 
@@ -1763,7 +1765,7 @@
 {
   home.packages = with pkgs; [
     openttd
-    zeroad
+    # zeroad
     superTux
     # supertuxkart
   ];

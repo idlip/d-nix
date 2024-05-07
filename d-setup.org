@@ -6818,6 +6818,17 @@ stdenvNoCC.mkDerivation rec {
     (fixed-pitch ((t (:family ,d/fixed-pitch-font :height ,d/font-size))))
     (default ((t (:family ,d/fixed-pitch-font :height ,d/font-size)))))
   #+end_src
+- Function to change font easily.
+  #+begin_src emacs-lisp
+  (defun d/change-font ()
+    "Function to prompt for font change in simple way."
+    (interactive)
+    (let ((fpitch (completing-read "Fixed Pitch Font: " '("Iosevka Comfy" "JetBrainsMono Nerd Font")))
+          (vpitch (completing-read "Variable Font: " '("Merriweather" "Code D Haki"))))
+      (set-face-attribute 'fixed-pitch nil :font fpitch)
+      (set-face-attribute 'variable-pitch nil :family vpitch))
+    )
+#+end_src
 - font-lock
   #+name: orgmacs
   #+begin_src emacs-lisp
@@ -7572,109 +7583,117 @@ and returns the icon."
 - Emacs dashboard to welcome and greet us!
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package dashboard
-  :functions (dashboard-setup-startup-hook)
+  (use-package dashboard
+    :functions (dashboard-setup-startup-hook)
 
-  :bind (:map dashboard-mode-map
-              ("n" . 'dashboard-next-line)
-              ("p" . 'dashboard-previous-line)
-              )
+    :bind (:map dashboard-mode-map
+                ("n" . 'dashboard-next-line)
+                ("p" . 'dashboard-previous-line)
+                )
 
-  :custom
-  (initial-buffer-choice 'dashboard-open)
-  (dashboard-set-heading-icons t)
-  (dashboard-set-file-icons t)
-  (dashboard-banner-logo-title "let's get to more 🔱 tasks today!")
-  ;; (dashboard-startup-banner "~/.config/emacs/var/butterfly.png")
-  (dashboard-startup-banner 'logo)
-  (dashboard-image-banner-max-width 100) ;; 100 for logo
-  (dashboard-center-content t)
-  (dashboard-set-navigator t) ;; a custom made navigator
-  (dashboard-projects-backend 'project-el)
-  (dashboard-display-icons-p t)
-  (dashboard-show-shortcuts nil)
-  (dashboard-set-init-info nil)
-  (dashboard-icon-type 'nerd-icons)
+    :custom
+    (initial-buffer-choice 'dashboard-open)
+    (dashboard-set-heading-icons t)
+    (dashboard-set-file-icons t)
+    (dashboard-banner-logo-title "let's get to more 🔱 tasks today!")
+    ;; (dashboard-startup-banner "~/.config/emacs/var/butterfly.png")
+    (dashboard-startup-banner 'logo)
+    (dashboard-image-banner-max-width 100) ;; 100 for logo
+    (dashboard-center-content t)
+    (dashboard-set-navigator t) ;; a custom made navigator
+    (dashboard-projects-backend 'project-el)
+    (dashboard-display-icons-p t)
+    (dashboard-show-shortcuts nil)
+    (dashboard-set-init-info nil)
+    (dashboard-icon-type 'nerd-icons)
 
-  (dashboard-agenda-prefix-format " %?-12t% s")
-  (dashboard-agenda-time-string-format "%Y-%m-%d %H:%M")
-  (dashboard-agenda-sort-strategy '(time-up))
+    (dashboard-agenda-prefix-format " %?-12t% s")
+    (dashboard-agenda-time-string-format "%Y-%m-%d %H:%M")
+    (dashboard-agenda-sort-strategy '(time-up))
 
-  (dashboard-items
-   '(
-     ;; (recents . 4)
-     (agenda . 10)
-     ;; (projects . 3)
-     (bookmarks . 5)
-     ))
+    (dashboard-items
+     '(
+       ;; (recents . 4)
+       (agenda . 10)
+       ;; (projects . 3)
+       (bookmarks . 5)
+       ))
 
-  (dashboard-navigator-buttons
-   `(;; line1
-     ((,(nerd-icons-faicon "nf-fa-newspaper_o")
-       " News"
-       "Opens Elfeed"
-       (lambda (&rest _) (d/elfeed-open)) nil "" " |")
+    (dashboard-startupify-list
+     '(dashboard-insert-page-break
+       dashboard-insert-banner dashboard-insert-newline dashboard-insert-banner-title
+       ;; dashboard-insert-newline dashboard-insert-init-info
+       dashboard-insert-items dashboard-insert-newline
+       ;; dashboard-insert-footer
+       ))
 
-      (,(nerd-icons-mdicon "nf-md-notebook")
-       " Notes"
-       "Denote Tree"
-       (lambda (&rest _) (find-file "~/d-sync/notes/")) warning "" " |")
+    (dashboard-navigator-buttons
+     `(;; line1
+       ((,(nerd-icons-faicon "nf-fa-newspaper_o")
+         " News"
+         "Opens Elfeed"
+         (lambda (&rest _) (d/elfeed-open)) nil "" " |")
 
-      (,(nerd-icons-faicon "nf-fa-gitlab")
-       " Project"
-       "Open Project finder"
-       (lambda (&rest _) (project-find-file)) error "" " |")
+        (,(nerd-icons-mdicon "nf-md-notebook")
+         " Notes"
+         "Denote Tree"
+         (lambda (&rest _) (find-file "~/d-sync/notes/")) warning "" " |")
 
-      (,(nerd-icons-octicon "nf-oct-terminal")
-       " Terminal"
-       "Open Eshell/Eat"
-       (lambda (&rest _) (if (string= (completing-read "Hello : " '("eat" "eshell")) "eat")
-                             (eat) (eshell))) warning "" " |")
+        (,(nerd-icons-faicon "nf-fa-gitlab")
+         " Project"
+         "Open Project finder"
+         (lambda (&rest _) (project-find-file)) error "" " |")
 
-      (,(nerd-icons-mdicon "nf-md-library")
-       " Library"
-       "Books and Docs"
-       (lambda (&rest _) (find-file "~/d-sync/reads")) nil "" "")
-      )
-     ;; line 2
-     (
-      (,(nerd-icons-faicon "nf-fa-music")
-       " Music"
-       "Play Jazz/Rhythm"
-       (lambda (&rest _) (if d/on-droid (d/key-droid) (mingus))) error "" " |")
+        (,(nerd-icons-octicon "nf-oct-terminal")
+         " Terminal"
+         "Open Eshell/Eat"
+         (lambda (&rest _) (if (string= (completing-read "Hello : " '("eat" "eshell")) "eat")
+                               (eat) (eshell))) warning "" " |")
 
-      (,(nerd-icons-faicon "nf-fa-reddit_alien")
-       " Geek"
-       "Browse Info"
-       (lambda (&rest _) (reddigg-view-sub)) warning "" " |")
+        (,(nerd-icons-mdicon "nf-md-library")
+         " Library"
+         "Books and Docs"
+         (lambda (&rest _) (find-file "~/d-sync/reads")) nil "" "")
+        )
+       ;; line 2
+       (
+        (,(nerd-icons-faicon "nf-fa-music")
+         " Music"
+         "Play Jazz/Rhythm"
+         (lambda (&rest _) (if d/on-droid (d/key-droid) (mingus))) error "" " |")
 
-      (,(nerd-icons-mdicon "nf-md-apple_keyboard_command")
-       " M-x"
-       "Execute Command"
-       (lambda (&rest _) (call-interactively #'execute-extended-command)) nil "" " |")
+        (,(nerd-icons-faicon "nf-fa-reddit_alien")
+         " Geek"
+         "Browse Info"
+         (lambda (&rest _) (reddigg-view-sub)) warning "" " |")
 
-      (,(nerd-icons-sucicon "nf-seti-todo")
-       " Agenda"
-       "TODO Agenda"
-       (lambda (&rest _) (when d/on-droid (d/key-droid)) (org-agenda)) warning "" " |")
+        (,(nerd-icons-mdicon "nf-md-apple_keyboard_command")
+         " M-x"
+         "Execute Command"
+         (lambda (&rest _) (call-interactively #'execute-extended-command)) nil "" " |")
 
-      (,(nerd-icons-mdicon "nf-md-bookmark")
-       " Bookmark"
-       "Open Bookmark File"
-       (lambda (&rest _) (d/open-bookmark)) error "" "")
+        (,(nerd-icons-sucicon "nf-seti-todo")
+         " Agenda"
+         "TODO Agenda"
+         (lambda (&rest _) (when d/on-droid (d/key-droid)) (org-agenda)) warning "" " |")
 
-      )
-     ;; Empty line
-     ;; (("" "\n" "" nil nil "" ""))
+        (,(nerd-icons-mdicon "nf-md-bookmark")
+         " Bookmark"
+         "Open Bookmark File"
+         (lambda (&rest _) (d/open-bookmark)) error "" "")
 
-     ;; Keybindings
-     ))
+        )
+       ;; Empty line
+       ;; (("" "\n" "" nil nil "" ""))
 
-  ;; (dashboard-footer-messages '("Power Maketh Man Beneath" "Manners Maketh Man" "Tasks, Break, Action Works all the time" "Stop thinking, Just do it"))
-  (dashboard-set-footer nil)
+       ;; Keybindings
+       ))
 
-  :config
-  (dashboard-setup-startup-hook))
+    ;; (dashboard-footer-messages '("Power Maketh Man Beneath" "Manners Maketh Man" "Tasks, Break, Action Works all the time" "Stop thinking, Just do it"))
+    ;; (dashboard-set-footer nil) ;; deprecated
+
+    :config
+    (dashboard-setup-startup-hook))
   #+end_src
 ** COMMENT Beframe
 - To manage emacs frame effectively, instead of tabs.
@@ -7793,55 +7812,55 @@ and returns the icon."
 - The Z Shell
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  # symlink normal shell file to source for zsh
-  home.file.".config/shell/source.sh".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/source.sh";
+  {
+    # symlink normal shell file to source for zsh
+    home.file.".config/shell/source.sh".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/source.sh";
 
-  programs.zsh = {
-    enable = true;
-    dotDir = ".config/shell";
-    autocd = true;
-    enableCompletion = true;
-    enableAutosuggestions = true;
-    history.extended = true;
+    programs.zsh = {
+      enable = true;
+      dotDir = ".config/shell";
+      autocd = true;
+      enableCompletion = true;
+      autosuggestion.enable = true;
+      history.extended = true;
 
-    dirHashes = {
-      dl = "$HOME/dloads";
-      docs = "$HOME/docs";
-      code = "$HOME/d-git/codes";
-      dots = "$HOME/d-git/d-nix";
-      pics = "$HOME/pics";
-      vids = "$HOME/vids";
-      nixpkgs = "$HOME/d-git/forks/nixpkgs";
+      dirHashes = {
+        dl = "$HOME/dloads";
+        docs = "$HOME/docs";
+        code = "$HOME/d-git/codes";
+        dots = "$HOME/d-git/d-nix";
+        pics = "$HOME/pics";
+        vids = "$HOME/vids";
+        nixpkgs = "$HOME/d-git/forks/nixpkgs";
+      };
+
+      envExtra = ''
+          #if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
+          #  exec Hyprland
+          #fi
+      '';
+
+      initExtra = ''
+        source ~/.config/shell/source.sh
+
+        source "${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+        source "${pkgs.zsh-history-substring-search}/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
+        source "${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+        source "${pkgs.nix-zsh-completions}/share/zsh/plugins/nix/nix-zsh-completions.plugin.zsh"
+        source "${pkgs.zsh-nix-shell}/share/zsh-nix-shell/nix-shell.plugin.zsh"
+        source "${pkgs.zsh-autopair}/share/zsh/zsh-autopair/autopair.zsh"
+
+      '';
+
+      history = {
+        save = 10000;
+        size = 10000;
+        expireDuplicatesFirst = true;
+        ignoreDups = true;
+        path = "${config.xdg.configHome}/shell/zsh_history";
+      };
     };
-
-    envExtra = ''
-      	#if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
-        #  exec Hyprland
-       	#fi
-    '';
-
-    initExtra = ''
-      source ~/.config/shell/source.sh
-
-      source "${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-      source "${pkgs.zsh-history-substring-search}/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
-      source "${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-      source "${pkgs.nix-zsh-completions}/share/zsh/plugins/nix/nix-zsh-completions.plugin.zsh"
-      source "${pkgs.zsh-nix-shell}/share/zsh-nix-shell/nix-shell.plugin.zsh"
-      source "${pkgs.zsh-autopair}/share/zsh/zsh-autopair/autopair.zsh"
-
-    '';
-
-    history = {
-      save = 10000;
-      size = 10000;
-      expireDuplicatesFirst = true;
-      ignoreDups = true;
-      path = "${config.xdg.configHome}/shell/zsh_history";
-    };
-  };
-}
+  }
   #+end_src
 **** source
   #+begin_src bash :tangle ./gdk/configs/source.sh
@@ -7924,7 +7943,7 @@ and returns the icon."
   alias gc="git clone --depth=1"
   alias sudo="doas"
   alias sioyek="sioyek --new-window"
-  alias hyunlock="pkill -SIGUSR1 hyprlock"
+  alias hyprunlock="pkill -SIGUSR1 hyprlock"
 
   # export BEMENU_OPTS="-i -l 10 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
 
@@ -8039,15 +8058,16 @@ and returns the icon."
 - To set variables for all shell.
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  home.sessionVariables = {
-    PATH = "$PATH:$HOME/d-git/d-bin/bin:$HOME/.local/bin";
-    VISUAL = "$EDITOR";
-    GRIM_DEFAULT_DIR = "$HOME/pics/sshots/";
-    MANPAGER = "nvim +Man!";
-    STARDICT_DATA_DIR = "$HOME/d-git/d-bin/treasure/dict/";
-  };
-}
+  {
+    home.sessionVariables = {
+      PATH = "$PATH:$HOME/d-git/d-bin/bin:$HOME/.local/bin";
+      VISUAL = "$EDITOR";
+      GRIM_DEFAULT_DIR = "$HOME/pics/sshots/";
+      MANPAGER = "nvim +Man!";
+      STARDICT_DATA_DIR = "$HOME/d-git/d-bin/treasure/dict/";
+      LIBVA_DRIVER_NAME = "iHD";
+    };
+  }
   #+end_src
 *** cli-packages
   #+name: hm-config
@@ -9030,8 +9050,9 @@ lines:                       20;
 
     ;; (org-modern-star '("◉" "✪" "◈" "✿" "❂"))
     ;; (org-modern-star '("" "󰓏" "󰚀" "󰴈" "" "󰄄"))
-    (org-modern-star '("󰓏" "󰚀" "󰫤"  "󰴈" "" "󰄄"))
-    (org-modern-hide-stars nil)
+    (org-modern-replace-stars (string-replace " " "" "󰓏 󰚀 󰫤 󰴈  󰄄"))
+    (org-modern-hide-stars 'leading)
+    (org-modern-star 'replace)
     (org-modern-table nil) ;; issue with variable-pitch font
 
     (org-modern-list
@@ -9122,30 +9143,41 @@ lines:                       20;
 *** org-agenda
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package org-agenda
-  :ensure nil
-  :after org
-  :bind
-  ("C-c d a" . org-agenda)
-  ("C-c a a" . org-agenda)
-  (:map org-agenda-mode-map
-        ("C-x C-k" . org-agenda-exit))
+  (use-package org-agenda
+    :ensure nil
+    :after org
+    :bind
+    ("C-c d a" . org-agenda)
+    ("C-c a a" . org-agenda)
+    (:map org-agenda-mode-map
+          ("C-x C-k" . org-agenda-exit))
 
-  ;; :hook (org-agenda-finalize . org-agenda-entry-text-mode)
-  :custom
-  (org-agenda-restore-windows-after-quit t)
-  (org-agenda-log-mode-items '(closed clock state))
-  ;; (org-agenda-todo-ignore-scheduled 'future)
-  ;; TODO entries that can't be marked as done b/c of children are shown as dimmed in agenda view
-  (org-agenda-dim-blocked-tasks nil)
-  (org-agenda-inhibit-startup t)
-  (org-agenda-ignore-properties '(effort appt category))
-  ;; Start the week view on whatever day im on
-  (org-agenda-start-on-weekday nil)
-  (org-agenda-files
-   '("~/d-sync/notes/journal.org"
-     "~/d-git/d-site/README.org"
-     )))
+    ;; :hook (org-agenda-finalize . org-agenda-entry-text-mode)
+    :custom
+    (org-agenda-restore-windows-after-quit t)
+    (org-agenda-log-mode-items '(closed clock state))
+    ;; (org-agenda-todo-ignore-scheduled 'future)
+    ;; TODO entries that can't be marked as done b/c of children are shown as dimmed in agenda view
+    (org-agenda-dim-blocked-tasks nil)
+    (org-agenda-inhibit-startup t)
+    (org-agenda-ignore-properties '(effort appt category))
+    ;; Start the week view on whatever day im on
+    (org-agenda-start-on-weekday nil)
+   ;; Agenda styling
+    (org-agenda-tags-column 0)
+    (org-agenda-block-separator ?─)
+    (org-agenda-time-grid
+     '((daily today require-timed)
+       (800 1000 1200 1400 1600 1800 2000)
+       " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄"))
+    (org-agenda-current-time-string
+     "◀── now ─────────────────────────────────────────────────")
+
+
+    (org-agenda-files
+     '("~/d-sync/notes/journal.org"
+       "~/d-git/d-site/README.org"
+       )))
   #+end_src
 *** org-capture
   #+name: orgmacs
@@ -9487,7 +9519,7 @@ block but are passed literally to the \"example-block\"."
      body t t 2)))
 )
   #+end_src
-*** org-re-reveal
+*** COMMENT org-re-reveal
 - to make tidy presentations
   #+name: orgmacs
   #+begin_src emacs-lisp
@@ -9546,19 +9578,19 @@ block but are passed literally to the \"example-block\"."
     (org-fold-show-context-detail
      '((agenda . local) (tags-tree . local) (bookmark-jump . lineage)
        (isearch . lineage) (default . ancestors)))
-    (org-fold-core-style 'overlays))
+    ;; (org-fold-core-style 'overlays)
+    )
   #+end_src
 *** org-alert
 - Alert, send notifications for schedules and deadline tasks.
   #+name: orgmacs
   #+begin_src emacs-lisp
   (use-package org-alert
-    :custom
-    (org-alert-interval 300)
-    (org-alert-notification-title "Org Alert Reminder")
-    (org-alert-time-match-string
-     "\\(?:SCHEDULED\\|DEADLINE\\):.*?<.*?\\([0-9]\\{2\\}:[0-9]\\{2\\}\\).*>")
     :config
+    (setopt org-alert-interval 300)
+    (setopt org-alert-notification-title "Org Alert Reminder")
+    (setopt org-alert-time-match-string
+     "\\(?:SCHEDULED\\|DEADLINE\\):.*?<.*?\\([0-9]\\{2\\}:[0-9]\\{2\\}\\).*>")
     (org-alert-enable))
   #+end_src
 **** COMMENT Enhance org-notify

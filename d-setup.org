@@ -597,6 +597,55 @@ It is as simple if I just record what it does, with proper link to rich resource
   (tramp-chunksize 2000)
   (tramp-use-ssh-controlmaster-options nil))
   #+end_src
+**** systemd-nspawn (container) support for tramp
+- Credits to https://github.com/bjc/tramp-nspawn
+- Since it is few LOC; decided to paste code minimally.
+#+begin_src emacs-lisp
+(defcustom tramp-nspawn-machinectl-program "machinectl" ;; like nixos-container
+  "Name of the machinectl program."
+  :type 'string)
+
+(defconst tramp-nspawn-method "nspawn"
+  "Tramp method name to use to connect to systemd-nspawn containers.")
+
+(defun tramp-nspawn--completion-function (&rest _args)
+  "List systemd-nspawn containers available for connection.
+
+This function is used by ‘tramp-set-completion-function’, please
+see its function help for a description of the format."
+  (let* ((raw-list (shell-command-to-string
+                    (concat tramp-nspawn-machinectl-program
+                            " list -q")))
+         (lines (cdr (split-string raw-list "\n")))
+         (first-words (mapcar (lambda (line) (car (split-string line)))
+                              lines))
+         (machines (seq-take-while (lambda (name) name) first-words)))
+    (mapcar (lambda (m) (list nil m)) machines)))
+
+
+;; todo: check tramp-async-args and tramp-direct-async
+(defun tramp-nspawn--add-method ()
+  "Add Tramp method handler for nspawn containers."
+  (push `(,tramp-nspawn-method
+          (tramp-login-program ,tramp-nspawn-machinectl-program)
+          (tramp-login-args (("shell")
+                             ("-q")
+                             ("--uid" "%u")
+                             ("%h")))
+          (tramp-remote-shell "/bin/sh")
+          (tramp-remote-shell-login ("-l"))
+          (tramp-remote-shell-args ("-i" "-c")))
+        tramp-methods))
+
+(defun tramp-nspawn-setup ()
+  "Initialize systemd-nspawn support for Tramp."
+  (tramp-nspawn--add-method)
+  (tramp-set-completion-function tramp-nspawn-method
+                                 '((tramp-nspawn--completion-function ""))))
+
+(add-hook 'after-init-hook 'tramp-nspawn-setup)
+
+#+end_src
 * Security
 - some security copied from others config.
 - =doas= is minimal replacement for sudo, to be very minimal, just give me root access that's it.

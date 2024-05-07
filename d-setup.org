@@ -1087,58 +1087,58 @@ Exec=d-stuff %u
 *** nix conf
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-{
-  # Collect garbage and delete generation every 7 day. Will help to get some storage space.
-  # Better to atleast keep it for few days, as you do major update (unstable), if something breaks you can roll back.
-  nix = {
-    package = pkgs.nixVersions.nix_2_18; # 2.19 has issues with mkOutOfStoreSymlink
-    optimise.automatic = true;
-    gc = {
-      automatic = true;
-      dates = "weekly";
-      options = "--delete-older-than 7d";
+  {
+    # Collect garbage and delete generation every 7 day. Will help to get some storage space.
+    # Better to atleast keep it for few days, as you do major update (unstable), if something breaks you can roll back.
+    nix = {
+      package = pkgs.nixUnstable; # 2.19 has issues with mkOutOfStoreSymlink
+      optimise.automatic = true;
+      gc = {
+        automatic = true;
+        dates = "weekly";
+        options = "--delete-older-than 7d";
+      };
+
+      # Make builds run with low priority so my system stays responsive
+      daemonCPUSchedPolicy = "idle";
+      daemonIOSchedClass = "idle";
+
+      # pin the registry to avoid downloading and evaling a new nixpkgs version every time
+      registry = lib.mapAttrs (_: value: { flake = value; }) inputs;
+
+      # This will additionally add your inputs to the system's legacy channels
+      # Making legacy nix commands consistent as well, awesome!
+      nixPath = lib.mapAttrsToList (key: value: "${key}=${value.to.path}") config.nix.registry;
+
+      settings = {
+        flake-registry = "/etc/nix/registry.json";
+        auto-optimise-store = true;
+        builders-use-substitutes = true;
+        # allow sudo users to mark the following values as trusted
+        allowed-users = ["@wheel"];
+        # only allow sudo users to manage the nix store
+        trusted-users = ["@wheel" "root"];
+        keep-outputs = true;
+        warn-dirty = false;
+        keep-derivations = true;
+        sandbox = true;
+        max-jobs = "auto";
+        # continue building derivations if one fails
+        keep-going = true;
+        log-lines = 20;
+        extra-experimental-features = ["flakes" "nix-command" ];
+
+        # use binary cache, its not gentoo
+        substituters = [
+          "https://nix-community.cachix.org"
+        ];
+
+        trusted-public-keys = [
+          "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+        ];
+      };
     };
-
-    # Make builds run with low priority so my system stays responsive
-    daemonCPUSchedPolicy = "idle";
-    daemonIOSchedClass = "idle";
-
-    # pin the registry to avoid downloading and evaling a new nixpkgs version every time
-    registry = lib.mapAttrs (_: value: { flake = value; }) inputs;
-
-    # This will additionally add your inputs to the system's legacy channels
-    # Making legacy nix commands consistent as well, awesome!
-    nixPath = lib.mapAttrsToList (key: value: "${key}=${value.to.path}") config.nix.registry;
-
-    settings = {
-      flake-registry = "/etc/nix/registry.json";
-      auto-optimise-store = true;
-      builders-use-substitutes = true;
-      # allow sudo users to mark the following values as trusted
-      allowed-users = ["@wheel"];
-      # only allow sudo users to manage the nix store
-      trusted-users = ["@wheel" "root"];
-      keep-outputs = true;
-      warn-dirty = false;
-      keep-derivations = true;
-      sandbox = true;
-      max-jobs = "auto";
-      # continue building derivations if one fails
-      keep-going = true;
-      log-lines = 20;
-      extra-experimental-features = ["flakes" "nix-command" ];
-
-      # use binary cache, its not gentoo
-      substituters = [
-        "https://nix-community.cachix.org"
-      ];
-
-      trusted-public-keys = [
-        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-      ];
-    };
-  };
-}
+  }
   #+end_src
 - system upgrade: to disable autoupgrading system
   #+name: nixos-core
@@ -1346,7 +1346,10 @@ Exec=d-stuff %u
     (prefer-coding-system 'utf-8)
     ;; Uppercase is same as lowercase
     (define-coding-system-alias 'UTF-8 'utf-8)
-    (modify-all-frames-parameters '((alpha-background . 92)))
+    (modify-all-frames-parameters
+     '((alpha-background . 92)
+       (right-divider-width . 40)
+       (internal-border-width . 40)))
 
     ;; balance windows when split (https://zck.org/balance-emacs-windows)
     (seq-doseq (fn (list #'split-window #'delete-window))
@@ -1392,34 +1395,35 @@ it narrows to region, or Org subtree."
 - Bag of simple basic commands, to enhance.
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package saveplace
-  :ensure nil
-  :hook
-  (after-init . save-place-mode))
+  (use-package saveplace
+    :ensure nil
+    :hook
+    (after-init . save-place-mode))
 
-(use-package simple
-  :ensure nil
-  :bind
-  ("<f7>" . scratch-buffer)
-  ("<escape>" . keyboard-quit)
-  ("M-^" . d/join-lines)
-  ("M-z" . zap-up-to-char)
+  (use-package simple
+    :ensure nil
+    :bind
+    ("<f7>" . scratch-buffer)
+    ("<escape>" . keyboard-quit)
+    ("M-^" . d/join-lines)
+    ("M-z" . zap-up-to-char)
 
-  ("M-%" . query-replace-regexp)
+    ("M-%" . query-replace-regexp)
 
-  ("M-c" . d/flex)
-  ("M-l" . downcase-dwim)
+    ("M-c" . d/flex)
+    ("M-l" . downcase-dwim)
 
-  ("M-@" . d/mark-word)
-  ("M-h" . d/mark-paragraph)
+    ("M-@" . d/mark-word)
+    ("M-h" . d/mark-paragraph)
 
-  :custom
-  (kill-ring-max 30000)
-  (column-number-mode 1)
-  (kill-do-not-save-duplicates t)
+    :custom
+    (kill-ring-max 30000)
+    (column-number-mode 1)
+    (kill-do-not-save-duplicates t)
 
-  :config
-  (global-visual-line-mode 1))
+    :config
+    (global-hl-line-mode 1)
+    (global-visual-line-mode 1))
   #+end_src
 - DWIM way of joining lines with prefix argument.
   #+name: orgmacs
@@ -3203,6 +3207,47 @@ You can do this by trackpad too (laptop)"
              (if (derived-mode-p 'eat-mode) (delete-window)
                (progn (other-window -1) (split-window-below) (other-window 1) (eat) (shrink-window 7)))))))
   #+end_src
+**** comint
+- A command interpreter for emacs, used by many repls.
+  #+name: orgmacs
+  #+begin_src emacs-lisp
+  (use-package comint
+    :bind
+    ("M-g r" . d/comint-page-output)
+    :custom
+    (comint-pager "cat")
+    :config
+    (setenv "MANPAGER" "cat"))
+  #+end_src
+- Function to get comint messages in temp buffer and flush long output.
+  Credits to [[https://old.reddit.com/r/emacs/comments/11wmmsu/replacing_comint_for_inferiorpython_mode_with_eg/jd3cidg/][u/ieure]]
+  #+name: orgmacs
+  #+begin_src emacs-lisp
+  (defun d/comint-page-output ()
+    "Get the comint output pager in temporary buffer."
+    (interactive)
+    (let ((buf (message "*%s: %s*" mode-name (comint-previous-input-string 0))))
+      (unless (get-buffer buf)
+        (let ((proc (get-buffer-process (current-buffer)))
+              (replacement nil)
+              (inhibit-read-only t))
+          (save-excursion
+            (let ((pmark (progn (goto-char (process-mark proc))
+                                (forward-line 0)
+                                (point-marker))))
+              (let ((contents (buffer-substring comint-last-input-end pmark)))
+                (with-current-buffer (get-buffer-create buf)
+                  (insert contents)
+                  (view-mode)))
+              (delete-region comint-last-input-end pmark)
+              (goto-char (process-mark proc))
+              (setq replacement (concat "*** output flushed ***\n"
+                                        (buffer-substring pmark (point))))
+              (delete-region pmark (point))))
+          ;; Output message and put back prompt
+          (comint-output-filter proc replacement)))
+      (pop-to-buffer buf)))
+  #+end_src
 *** Editor
 **** Emacs
 - The GOAT-Editor.
@@ -3236,10 +3281,11 @@ You can do this by trackpad too (laptop)"
         sdcv elfeed elfeed-org jinx
         el-fetch envrc dashboard mini-echo
         speed-type vc-backup aria2 pubmed
-        ess org-re-reveal auctex julia-mode webfeeder engrave-faces
+        ess auctex julia-mode webfeeder engrave-faces
         toc-org disable-mouse org-ql org-alert org-noter
         pdf-tools flycheck
-        ef-themes doom-themes kanagawa-theme catppuccin-theme
+        ef-themes doom-themes
+        # org-re-reveal
 
         (trivialBuild {
           pname = "combobulate";
@@ -3439,41 +3485,41 @@ You can do this by trackpad too (laptop)"
 - python in emacs, or emacs in python?
   #+name: orgmacs
   #+begin_src emacs-lisp
-;; taken from Robb Enzmann
-(defun d/pyrightconfig-write (virtualenv)
-  "Write a `pyrightconfig.json' file at the Git root of a project,
-with `venvPath' and `venv' set to the absolute path of
-`virtualenv'.  When run interactively, prompts for a directory to select."
-  (interactive "DEnv: ")
-  ;; Naming convention for venvPath matches the field for pyrightconfig.json
-  (let* ((venv-dir (tramp-file-local-name (file-truename virtualenv)))
-         (venv-file-name (directory-file-name venv-dir))
-         (venvPath (file-name-directory venv-file-name))
-         (venv (file-name-base venv-file-name))
-         (base-dir (vc-git-root default-directory))
-         (out-file (expand-file-name "pyrightconfig.json" base-dir))
-         (out-contents (json-encode (list :venvPath venvPath :venv venv))))
-    (with-temp-file out-file (insert out-contents))
-    (message (concat "Configured `" out-file "` to use environment `" venv-dir))))
+  ;; taken from Robb Enzmann
+  (defun d/pyrightconfig-write (virtualenv)
+    "Write a `pyrightconfig.json' file at the Git root of a project,
+  with `venvPath' and `venv' set to the absolute path of
+  `virtualenv'.  When run interactively, prompts for a directory to select."
+    (interactive "DEnv: ")
+    ;; Naming convention for venvPath matches the field for pyrightconfig.json
+    (let* ((venv-dir (tramp-file-local-name (file-truename virtualenv)))
+           (venv-file-name (directory-file-name venv-dir))
+           (venvPath (file-name-directory venv-file-name))
+           (venv (file-name-base venv-file-name))
+           (base-dir (vc-git-root default-directory))
+           (out-file (expand-file-name "pyrightconfig.json" base-dir))
+           (out-contents (json-encode (list :venvPath venvPath :venv venv))))
+      (with-temp-file out-file (insert out-contents))
+      (message (concat "Configured `" out-file "` to use environment `" venv-dir))))
 
-(use-package python
-  :ensure nil
-  :hook ((python-mode . (lambda ()
-                          (setq-local completion-at-point-functions
-                                      '(cape-file python-completion-at-point cape-dabbrev)
-                                      devdocs-browser-active-docs
-                                      '("Python")))))
+  (use-package python
+    :ensure nil
+    :hook ((python-mode . (lambda ()
+                            (setq-local completion-at-point-functions
+                                        '(cape-file python-completion-at-point cape-dabbrev)
+                                        devdocs-browser-active-docs
+                                        '("Python")))))
 
-  :bind
-  (:map python-mode-map
-        ("C-c C-d" . devdocs-browser-open))
-  :custom
-  (python-shell-dedicated 'project)
-  (python-shell-interpreter "python")
-  (python-shell-interpreter-args "-i")
-  ;; (python-forward-sexp-function nil)
-  (python-indent-guess-indent-offset-verbose nil)
-  (python-shell-completion-native-disabled-interpreters '("pypy")))
+    :bind
+    (:map python-mode-map
+          ("C-c C-d" . devdocs-browser-open))
+    :custom
+    (python-shell-dedicated 'project)
+    (python-shell-interpreter "python")
+    (python-shell-interpreter-args "-i")
+    ;; (python-forward-sexp-function nil)
+    (python-indent-guess-indent-offset-verbose nil)
+    (python-shell-completion-native-disabled-interpreters '("pypy")))
   #+end_src
 **** R-stats
 - Emacs speak statistics
@@ -3620,9 +3666,9 @@ with `venvPath' and `venv' set to the absolute path of
 - makes =*.sh= files executable by save
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package executable
-  :ensure nil
-  :hook (after-save . executable-make-buffer-file-executable-if-script-p))
+  (use-package executable
+    :ensure nil
+    :hook (after-save . executable-make-buffer-file-executable-if-script-p))
   #+end_src
 **** Linter
 ***** Flymake
@@ -3896,10 +3942,6 @@ out")
 - add color to delimiters.
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package rainbow-delimiters
-  :defer t
-  :hook (prog-mode . rainbow-delimiters-mode))
-
 (use-package rainbow-mode
   :defer t
   :hook '(prog-mode help-mode)
@@ -3913,6 +3955,10 @@ out")
     :unless d/on-droid
     :config
     (global-colorful-mode))
+
+  (use-package rainbow-delimiters
+    :defer t
+    :hook (prog-mode . rainbow-delimiters-mode))
   #+end_src
 **** avy
 - to jump to places quick and easy with few keypress.
@@ -4126,7 +4172,6 @@ out")
 *** pdf-tools
 - More extended pdf reader for emacs.
 - Initially I was having issues with high memory usage and lags, was wondering if Pgtk build was to blame. Accidentally I discovered while playing with my Hyprland (wm) scaling, to low it worked pretty good.
-- My system's native resolution is ~2880x1800~, so using =1920x1200= kinda fixes, and hopefully I think laptop battery might also be saved.
   #+name: orgmacs
   #+begin_src emacs-lisp
   (use-package pdf-tools

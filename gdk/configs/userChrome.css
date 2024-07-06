@@ -1,24 +1,5 @@
-#navigator-toolbox {
-opacity: 0;
-overflow: hidden;
-position: absolute;
-z-index: 9999!important;
-transform: translateY(-80%); /* Adjust detection size. Keep in mind that this value is inverted, so subtract it from 100 to achieve the desired result. Default is 10% --> -90% */
-width: 100%;
-transition: all 0.1s 0.4s; /* The second number is the delay before dissapearing again. Default is 0.4s */
-}
-
-n#navigator-toolbox:hover,
-#navigator-toolbox:focus-within {
-opacity: 1;
-overflow: visible;
-transform: translateY(0px);
-transition: all 0.05s;
-}
-
+/* Hide the tab bar! */
 #TabsToolbar { visibility: collapse; }
-
-
 
 /* Sidebery */
 #sidebar-box[sidebarcommand="_3c078156-979c-498b-8990-85f7987dd929_-sidebar-action"] #sidebar-header {

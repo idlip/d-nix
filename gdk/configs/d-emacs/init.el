@@ -26,49 +26,52 @@
   (tramp-chunksize 2000)
   (tramp-use-ssh-controlmaster-options nil))
 
-(defcustom tramp-nspawn-machinectl-program "machinectl" ;; like nixos-container
-  "Name of the machinectl program."
-  :type 'string)
+(unless d/on-droid
+  (defcustom tramp-nspawn-machinectl-program "machinectl" ;; like nixos-container
+    "Name of the machinectl program."
+    :type 'string)
 
-(defconst tramp-nspawn-method "nspawn"
-  "Tramp method name to use to connect to systemd-nspawn containers.")
+  (defconst tramp-nspawn-method "nspawn"
+    "Tramp method name to use to connect to systemd-nspawn containers.")
 
-(defun tramp-nspawn--completion-function (&rest _args)
-  "List systemd-nspawn containers available for connection.
+  (defun tramp-nspawn--completion-function (&rest _args)
+    "List systemd-nspawn containers available for connection.
 
 This function is used by ‘tramp-set-completion-function’, please
 see its function help for a description of the format."
-  (let* ((raw-list (shell-command-to-string
-                    (concat tramp-nspawn-machinectl-program
-                            " list -q")))
-         (lines (cdr (split-string raw-list "\n")))
-         (first-words (mapcar (lambda (line) (car (split-string line)))
-                              lines))
-         (machines (seq-take-while (lambda (name) name) first-words)))
-    (mapcar (lambda (m) (list nil m)) machines)))
+    (let* ((raw-list (shell-command-to-string
+                      (concat tramp-nspawn-machinectl-program
+                              " list -q")))
+           (lines (cdr (split-string raw-list "\n")))
+           (first-words (mapcar (lambda (line) (car (split-string line)))
+                                lines))
+           (machines (seq-take-while (lambda (name) name) first-words)))
+      (mapcar (lambda (m) (list nil m)) machines)))
 
 
-;; todo: check tramp-async-args and tramp-direct-async
-(defun tramp-nspawn--add-method ()
-  "Add Tramp method handler for nspawn containers."
-  (push `(,tramp-nspawn-method
-          (tramp-login-program ,tramp-nspawn-machinectl-program)
-          (tramp-login-args (("shell")
-                             ("-q")
-                             ("--uid" "%u")
-                             ("%h")))
-          (tramp-remote-shell "/bin/sh")
-          (tramp-remote-shell-login ("-l"))
-          (tramp-remote-shell-args ("-i" "-c")))
-        tramp-methods))
+  ;; todo: check tramp-async-args and tramp-direct-async
+  (defun tramp-nspawn--add-method ()
+    "Add Tramp method handler for nspawn containers."
+    (push `(,tramp-nspawn-method
+            (tramp-login-program ,tramp-nspawn-machinectl-program)
+            (tramp-login-args (("shell")
+                               ("-q")
+                               ("--uid" "%u")
+                               ("%h")))
+            (tramp-remote-shell "/bin/sh")
+            (tramp-remote-shell-login ("-l"))
+            (tramp-remote-shell-args ("-i" "-c")))
+          tramp-methods))
 
-(defun tramp-nspawn-setup ()
-  "Initialize systemd-nspawn support for Tramp."
-  (tramp-nspawn--add-method)
-  (tramp-set-completion-function tramp-nspawn-method
-                                 '((tramp-nspawn--completion-function ""))))
+  (defun tramp-nspawn-setup ()
+    "Initialize systemd-nspawn support for Tramp."
+    (tramp-nspawn--add-method)
+    (tramp-set-completion-function tramp-nspawn-method
+                                   '((tramp-nspawn--completion-function ""))))
 
-(add-hook 'after-init-hook 'tramp-nspawn-setup)
+  (add-hook 'after-init-hook 'tramp-nspawn-setup)
+
+  )
 
 (use-package battery
   :ensure nil
@@ -92,7 +95,7 @@ see its function help for a description of the format."
 ;;; Code:
 
 (tool-bar-mode -1)
-(menu-bar-mode 1)
+(menu-bar-mode -1)
 (scroll-bar-mode -1)
 
 (setq frame-inhibit-implied-resize t)
@@ -182,9 +185,9 @@ see its function help for a description of the format."
   ;; Uppercase is same as lowercase
   (define-coding-system-alias 'UTF-8 'utf-8)
   (modify-all-frames-parameters
-   '((alpha-background . 92)
-     (right-divider-width . 40)
-     (internal-border-width . 40)))
+   '((alpha-background . 100)
+     (right-divider-width . 0)
+     (internal-border-width . 0)))
 
   ;; balance windows when split (https://zck.org/balance-emacs-windows)
   (seq-doseq (fn (list #'split-window #'delete-window))
@@ -212,10 +215,10 @@ it narrows to region, or Org subtree."
 (defun d/kill-buffer ()
   "Clear the image cache (to release memory) after killing a pdf buffer."
   (interactive)
-  (if (one-window-p) (kill-this-buffer)
-    (kill-buffer-and-window))
   (when (derived-mode-p 'doc-view-mode) (progn (clear-image-cache) (doc-view-clear-cache)))
-  (when (derived-mode-p 'pdf-view-mode) (progn ((clear-image-cache) (pdf-cache-clear-data)))))
+  (when (derived-mode-p 'pdf-view-mode) (progn (clear-image-cache) (pdf-cache-clear-data)))
+  (if (one-window-p) (kill-this-buffer)
+    (kill-buffer-and-window)))
 
 (use-package saveplace
   :ensure nil
@@ -244,7 +247,7 @@ it narrows to region, or Org subtree."
   (kill-do-not-save-duplicates t)
 
   :config
-  (global-hl-line-mode 1)
+  ;; (global-hl-line-mode 1)
   (global-visual-line-mode 1))
 
 (defun d/join-lines (specify-separator)
@@ -439,12 +442,15 @@ E.g. capitalize or decapitalize the next word, increment number at point."
         ("k" . dired-previous-line)
         ("l" . dired-find-file)
         ("h" . dired-up-directory)
-        ("b" . embark-act))
+        ("b" . embark-act)
+        ("e" . dired-do-eww))
 
   :custom
   (dired-listing-switches "-agho --group-directories-first")
   (delete-by-moving-to-trash t)
-  (dired-dwim-target t))
+  (dired-dwim-target t)
+  ;; (dired-kill-when-opening-new-dired-buffer t) ;; in case sinlge buffer is preferred
+  )
 
 (use-package dired-x
   :ensure nil
@@ -654,7 +660,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (consult-ripgrep-args "rg --follow --null --line-buffered --no-ignore --color=never --max-columns=1000 --path-separator /   --smart-case --no-heading --with-filename --line-number --search-zip")
 
   (consult-customize
-   consult-theme :preview-key '(:debounce 1.5 any)
+   consult-theme :preview-key '(:debounce 2.5 any)
    consult-ripgrep consult-git-grep consult-grep
    consult-bookmark consult-recent-file consult-xref
    consult--source-bookmark consult--source-file-register
@@ -965,6 +971,9 @@ Return nil if NAME does not designate a valid color."
 (use-package tempel-collection
   :after tempel)
 
+(use-package tempel-eglot
+  :after eglot)
+
 (use-package tab-bar
   :unless d/on-droid
   :bind
@@ -979,6 +988,8 @@ Return nil if NAME does not designate a valid color."
   :bind
   ([mouse-9] . [prior]) ;; binds mouse fwd button to page up
   ([mouse-8] . [next]) ;; mouse bwd button to page down
+  :custom
+  (mouse-autoselect-window t)
 )
 
 (use-package disable-mouse
@@ -1028,12 +1039,26 @@ You can do this by trackpad too (laptop)"
   :custom
   (use-system-tooltips t))
 
+(use-package repeat
+  :custom
+  (repeat-exit-timeout 5)
+  :config
+  (repeat-mode 1))
+
 (use-package winner
   :ensure nil
   :hook after-init
+  :bind-keymap
+  ("C-c w" . windmove-rmaps)
   :bind
-  ("C-c w n" . winner-undo)
-  ("C-c w p" . winner-redo)
+  (:repeat-map windmove-rmaps
+               ("h" . windmove-left)
+               ("j" . windmove-down)
+               ("k" . windmove-up)
+               ("l" . windmove-right)
+               ("n" . winner-undo)
+               ("p" . winner-redo)
+               )
   :commands (winner-undo winnner-redo))
 
 ;; Taken from gopar's config (via Yt video)
@@ -1331,12 +1356,11 @@ with `venvPath' and `venv' set to the absolute path of
   (:map python-mode-map
         ("C-c C-d" . devdocs-browser-open))
   :custom
-  (python-shell-dedicated 'project)
+  (python-shell-dedicated nil)
   (python-shell-interpreter "python")
-  (python-shell-interpreter-args "-i")
+  (python-shell-interpreter-args "")
   ;; (python-forward-sexp-function nil)
-  (python-indent-guess-indent-offset-verbose nil)
-  (python-shell-completion-native-disabled-interpreters '("pypy")))
+  (python-indent-guess-indent-offset-verbose nil))
 
 (use-package ess
   :defer t
@@ -1395,12 +1419,15 @@ with `venvPath' and `venv' set to the absolute path of
   (ess-indent-with-fancy-comments nil))
 
 (use-package nix-mode
-  :mode ("\\.nix\\'" "\\.nix.in\\'")
   :defines (nix-mode-map)
   :functions
   (comint-send-input)
   :bind (:map nix-mode-map
               ("C-c C-e" . nix-eval-line)))
+
+(use-package nix-ts-mode
+  :mode ("\\.nix\\'" "\\.nix.in\\'"))
+
 (defun nix-eval-dwim ()
   (interactive)
   (let* ((start (line-beginning-position))
@@ -1575,7 +1602,9 @@ out")
      ("py" . python-ts-mode)
      ("bash" . bash-ts-mode)
      ("shell" . bash-ts-mode)
-     ("python" . python-ts-mode))))
+     ("python" . python-ts-mode)))
+
+  (devdocs-browser-data-directory (expand-file-name "var/devdocs" user-emacs-directory)))
 
 (use-package elec-pair
   :ensure nil
@@ -1620,16 +1649,6 @@ out")
 (use-package rainbow-delimiters
   :defer t
   :hook (prog-mode . rainbow-delimiters-mode))
-
-(use-package avy
-  :bind
-  ("M-j" . avy-goto-char-timer)
-  ("M-g w" . avy-goto-char-timer)
-  ("M-K" . avy-kill-region)
-  ("C-S-k" . avy-kill-whole-line)
-  :custom
-  (avy-background t)
-  (avy-keys '(?s ?h ?t ?n ?e ?o ?d ?r ?u ?p)))
 
 (defconst jetbrains-ligature-mode--ligatures
   '("-->" "//" "/**" "/*" "*/" "<!--" ":=" "->>" "<<-" "->" "<-"
@@ -1709,7 +1728,7 @@ out")
   :hook
   (doc-view-mode . (lambda () (setq-local pixel-scroll-precision-mode nil)))
   :custom-face
-  (doc-view-svg-face ((t (:background "#edd1b0" :foreground "#000000"))))
+  (doc-view-svg-face ((t (:background "#000000" :foreground "#ffffff"))))
   :custom
   (doc-view-continuous t)
   (doc-view-mupdf-use-svg t)
@@ -1733,76 +1752,9 @@ out")
       (set-face-attribute 'doc-view-svg-face nil :background "#fefefe" :foreground "#000000"))))
   (doc-view-next-page) (doc-view-previous-page))
 
-(use-package pdf-tools
+(use-package saveplace-pdf-view
   :unless d/on-droid
-  :mode ("\\.pdf\\'" . pdf-view-mode)
-  :magic ("%PDF" . pdf-view-mode)
-
-  ;; :init
-  ;; (pdf-tools-install)
-
-  :hook
-  (pdf-view-mode . pdf-view-midnight-minor-mode)
-
-  :bind
-  (:map pdf-view-mode-map
-        ("h" . pdf-annot-add-highlight-markup-annotation)
-        ("t" . pdf-annot-add-text-annotation)
-        ("D" . pdf-annot-delete)
-        ("M-g M-g" . pdf-view-goto-page)
-        ("j" . pdf-view-next-line-or-next-page)
-        ("k" . pdf-view-previous-line-or-previous-page)
-        ("i" . d/pdf-tools-theme)
-        ("C-v" . pdf-view-scroll-up-or-next-page)
-        ("M-v" . pdf-view-scroll-down-or-previous-page))
-
-  :custom
-  (pdf-view-display-size 'fit-page)
-  (pdf-view-continuous t)
-  (pdf-cache-image-limit 10)
-  (pdf-cache-prefetch-delay 0.5)
-  (pdf-annot-activate-created-annotations t)
-  (pdf-view-use-scaling nil)
-  (pdf-view-use-dedicated-register nil)
-  ;; (pdf-view-max-image-width 2000)
-  (pdf-outline-imenu-use-flat-menus nil)
-  (pdf-view-resize-factor 1.1)
-  (pdf-view-midnight-colors '("#fff" . "#000"))
-
-  :config
-  (pdf-tools-install-noverify)
-  ;; (add-hook 'pdf-view-mode-hook (lambda () (cua-mode 0)))
-
-  )
-
-;; basically can use this function
-;; (pdf-info-setoptions
-;;  :render/foreground "#eee"
-;;  :render/background "#b00"
-;;  :render/usecolors 2
-;;  )
-
-;; or option: 2
-;; use the custom variable and toggle mode
-
-(defun d/pdf-tools-theme ()
-  "Toggle between dark and reading mode in pdf-tools reading buffer."
-  (interactive)
-  (let ((choice (completing-read "theme Color: " '("black" "reader" "white" "tokyonight" "light" "more choice") nil t)))
-    (cond
-     ((string= choice "black")
-      (setopt pdf-view-midnight-colors '("#fff" . "#000")))
-     ((string= choice "reader")
-      (setopt pdf-view-midnight-colors '("#000" . "#edd1b0")))
-     ((string= choice "tokyonight")
-      (setopt pdf-view-midnight-colors '("#fff" . "#24283b")))
-     ((string= choice "white")
-      (setopt pdf-view-midnight-colors '("#000" . "#fff")))
-     ((string= choice "light")
-     (setopt pdf-view-midnight-colors '("white smoke" . "dark slate gray")))
-     (t
-      (setopt pdf-view-midnight-colors (cons (read-color "Foreground: ") (read-color "Background: "))))))
-  (pdf-view-midnight-minor-mode))
+  :after saveplace)
 
 (use-package nov
   :functions
@@ -1924,12 +1876,17 @@ out")
 (use-package gnus
   :hook
   (gnus-group-mode . gnus-topic-mode)
+  :bind
+  ("C-c d e" . gnus)
+
   :custom
   (gnus-directory (expand-file-name "feeds/gnews" user-emacs-directory))
   (gnus-startup-file (expand-file-name "newsrc" gnus-directory))
 
-  (gnus-select-method '(nnnil))
   (gnus-widen-article-window t)
+
+  (gnus-select-method
+   '(nnnil))
 
   (gnus-secondary-select-methods
    '((nntp "feedbase"
@@ -1937,8 +1894,16 @@ out")
            (nntp-port-number 563) ; nntps
            (nntp-address "feedbase.org"))
    (nntp "gwene" (nntp-address "news.gwene.org"))
-   ;; (nnrss "")
+   (nnrss "")
    ))
+
+  ;; refer: https://github.com/redguardtoo/mastering-emacs-in-one-year-guide/blob/master/gnus-guide-en.org
+  (gnus-thread-sort-functions
+   '(gnus-thread-sort-by-most-recent-date
+     (not gnus-thread-sort-by-number)))
+  (gnus-use-cache t)
+  (gnus-thread-hide-subtree t)
+
 
   ;; (gnus-summary-line-format "%U%R%z%d %I%(%[ %F %] %s %)\n")
 
@@ -1972,7 +1937,7 @@ out")
   (gnus-sum-thread-tree-indent "  ")
   (gnus-sum-thread-tree-root "● ")
   (gnus-sum-thread-tree-false-root "◯ ")
-  (gnus-sum-thread-tree-single-indent "󰎕 ")
+  (gnus-sum-thread-tree-single-indent "📰")
   (gnus-sum-thread-tree-vertical        "│")
   (gnus-sum-thread-tree-leaf-with-other "├─► ")
   (gnus-sum-thread-tree-single-leaf     "╰─► ")
@@ -1989,12 +1954,24 @@ out")
     "%1{%B%}"
     "%s\n"))
 
+  (gnus-group-line-format "%P│%M%S%4y %B%(%G%)\n")
+
+  (gnus-topic-line-format "%i╭ %(%{✪ %n%}%) %A   %g %v\n")
+
+
   (gnus-summary-display-arrow t)
 
 
   (gnus-face-1 'italic)
   (gnus-face-2 'bold)
   (gnus-face-3 'bold-italic)
+
+  :config
+  (setopt
+   nnrss-group-alist
+   '(
+     ("manga" "https://nyaa.si/?page=rss&c=3_1&f=0")
+     ))
 
   )
 
@@ -2028,8 +2005,11 @@ out")
 (use-package pubmed
   :commands (pubmed-search pubmed-advanced-search)
   :bind
+  ("C-c s p" . pubmed-search)
+  ("M-s p" . pubmed-search)
   (:map pubmed-mode-map
         ("o" . pubmed-save-note-file)
+        ("d" . pubmed-save-file)
         ("f" . pubmed-get-fulltext))
 
   :custom
@@ -2058,23 +2038,31 @@ out")
 
 (defun pubmed-save-as (url)
   "Prompt for filename and save the fulltext PDF of URL."
-  (let* ((default-filename (expand-file-name "hello.pdf" pubmed-default-directory)))
+  (let* ((default-filename (read-file-name "Article File name: ")))
 
     (condition-case err
         (progn
           (url-copy-file url default-filename t)
-          (call-interactively 'denote-rename-file))
+          ;; (call-interactively 'denote-rename-file)
+          )
 
       (file-already-exists
        (message "%s" (error-message-string err))
        ))))
 
+(defun pubmed-save-file ()
+  "Function that can save the pubmed file with prompting a directory."
+  (interactive)
+  (let ((pubmed-fulltext-action 'pubmed-save-as))
+    (pubmed-get-fulltext)))
+
 (defun pubmed-save-note-file ()
   (interactive)
   (let ((pubmed-fulltext-action 'pubmed-save-as))
     (pubmed-get-fulltext))
-    (org-noter)
-    )
+  (org-capture nil "jj")
+  (org-noter)
+  )
 
 (defun pubmed-copy-url ()
   (interactive)
@@ -2256,7 +2244,7 @@ for the search engine used."
   (unless d/on-droid
     (setopt browse-url-browser-function 'browse-url-generic
             browse-url-generic-program "d-stuff"
-            browse-url-secondary-browser-function 'browse-url-generic)))
+            browse-url-secondary-browser-function 'browse-url-default-browser)))
 
 (defun d/external-browser ()
   (interactive)
@@ -2266,33 +2254,37 @@ for the search engine used."
   (let ((url (current-kill 0)))
     (if d/on-droid (browse-url url) (browse-url-generic url))))
 
-(use-package mingus
-  :unless d/on-droid
-  :commands (d/elfeed-add-podcast)
-  :defines
-  (mingus-browse-mode-map)
+(use-package mpc
+  :bind
+  ("C-c d m" . mpc)
+  (:map mpc-mode-map
+        ("SPC" . mpc-playlist-add)
+        ("RET" . mpc-select)
+        ("C-k" . mpc-playlist-delete)
+        ("m" . mpc-select-dwim)
+        ("C-r" . mpc-songs-search)
+        ("f" . mpc-ffwd)
+        ("b" . mpc-rewind)
+        )
 
-  :bind ("C-c d m" . mingus-browse)
-  (:map mingus-browse-mode-map
-        ("h" . mingus-browse-top-level)
-        ("l" . mingus-down-dir-or-play-song))
   :custom
-  (mingus-mode-always-modeline t)
-  (mingus-mode-line-string-max 15)
-  (mingus-mode-line-show-volume nil)
-  (mingus-mode-line-show-elapsed-time nil)
-  (mingus-mode-line-show-elapsed-percentage t)
-  (mingus-mode-line-show-consume-and-single-status nil))
+  (mpc-browser-tags '(Title|Album|Playlist))
+
+  :config
+  (defun mpc-select-dwim ()
+    (interactive)
+    (mpc-select-toggle)
+    (next-line)
+    )
+ )
 
 (use-package image-mode
   :ensure nil
   :defines (d/on-droid olivetti-body-width)
-  :functions (olivetti-mode)
   :unless d/on-droid
   :bind (:map image-mode-map
               ("q" . d/kill-buffer))
-  :hook
-  (image-mode . (lambda () (olivetti-mode) (setq olivetti-body-width 0.45))))
+)
 
 (use-package reddigg
   :defer t
@@ -2421,18 +2413,18 @@ Android port."
   (setq alert-default-icon "ic_popup_reminder")
   )
 
-(defvar d/font-size (if d/on-droid 150 200)
+(defvar d/font-size (if d/on-droid 150 240)
   "Default font size based on the system.")
-(defvar d/variable-font-size (if d/on-droid 160 220)
+(defvar d/variable-font-size (if d/on-droid 160 240)
   "Default variable pitch size")
 
 ;; Dont worry about the font name, I use fork of Recursive font
 
 ;; Set reusable font name variables
-(defvar d/fixed-pitch-font "Code D OnePiece"
+(defvar d/fixed-pitch-font "Code OnePiece"
   "The font to use for monospaced (fixed width) text.")
 
-(defvar d/variable-pitch-font "Code D Haki"
+(defvar d/variable-pitch-font "Code Haki"
   "The font to use for variable-pitch (documents) text.")
 
 (use-package faces
@@ -2452,15 +2444,15 @@ Android port."
      ("Serif" "Alegreya" "Noto Sans" "Georgia" "Cambria" "Times New Roman" "DejaVu Serif" "serif")))
 
   :custom-face
-  (variable-pitch ((t (:family ,d/variable-pitch-font :height ,d/variable-font-size))))
+  (variable-pitch ((t (:family ,d/variable-pitch-font :height ,d/font-size))))
   (fixed-pitch ((t (:family ,d/fixed-pitch-font :height ,d/font-size))))
   (default ((t (:family ,d/fixed-pitch-font :height ,d/font-size)))))
 
 (defun d/change-font ()
   "Function to prompt for font change in simple way."
   (interactive)
-  (let ((fpitch (completing-read "Fixed Pitch Font: " '("Iosevka Comfy" "JetBrainsMono Nerd Font")))
-        (vpitch (completing-read "Variable Font: " '("Merriweather" "Code D Haki"))))
+  (let ((fpitch (completing-read "Fixed Pitch Font: " '("Iosevka Comfy" "JetBrainsMono Nerd Font" "Julia Mono" "Code OnePiece")))
+        (vpitch (completing-read "Variable Font: " '("Merriweather" "Code Haki" "Iosevka Comfy Duo"))))
     (set-face-attribute 'fixed-pitch nil :font fpitch)
     (set-face-attribute 'variable-pitch nil :family vpitch))
   )
@@ -2489,6 +2481,11 @@ Android port."
   :init
   (nerd-icons-completion-mode))
 
+(use-package nerd-icons-corfu
+  :after corfu
+  :config
+  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
+
 (use-package haki-theme
   :demand t
   :load-path "~/.config/emacs/var/theme"
@@ -2496,7 +2493,7 @@ Android port."
   (haki-heading-font "Code D Ace")
   (haki-sans-font "Code D Haki")
   (haki-title-font "Code D Ace")
-  (haki-link-font "Maple Mono")
+  ;; (haki-link-font "")
   (haki-code-font "Code D Lip")
   :config
   (load-theme 'haki t))
@@ -2566,14 +2563,15 @@ Android port."
      (prog-mode :both (("vcs" . 1)))
      (dired-mode :both (("buffer-size" . 0)))))
 
-  (mini-echo--toggled-segments '(("battery" . t)
-                                 ("flymake" . t)
-                                 ;; ("elfeed". t)
-                                 ("pdf-tools". t)
-                                 ("doc-view" . t)
-                                 ("time" . t)))
-
   :config
+  (setopt mini-echo--toggled-segments
+          '(("battery" . t)
+            ("flymake" . t)
+            ;; ("elfeed". t)
+            ;; ("pdf-tools". t)
+            ("doc-view" . t)
+            ("time" . t)))
+
   (mini-echo-mode 1))
 
 (unless d/on-droid
@@ -2599,7 +2597,7 @@ Android port."
 Display format is inherited from `battery-mode-line-format'."
     :setup (display-battery-mode 1)
     :fetch
-    (concat "󰂁"
+    (concat (nerd-icons-mdicon "nf-md-battery")
             (string-trim (mini-echo-segment--extract battery-mode-line-string) "\\[" "\\]")))
 
   (mini-echo-define-segment "which-function"
@@ -2673,7 +2671,7 @@ Display format is inherited from `battery-mode-line-format'."
   (dashboard-items
    '(
      ;; (recents . 4)
-     (agenda . 10)
+     (agenda . 15)
      ;; (projects . 3)
      (bookmarks . 5)
      ))
@@ -2681,6 +2679,7 @@ Display format is inherited from `battery-mode-line-format'."
   (dashboard-startupify-list
    '(dashboard-insert-page-break
      dashboard-insert-banner dashboard-insert-newline dashboard-insert-banner-title
+     dashboard-insert-newline dashboard-insert-navigator
      ;; dashboard-insert-newline dashboard-insert-init-info
      dashboard-insert-items dashboard-insert-newline
      ;; dashboard-insert-footer
@@ -2690,13 +2689,13 @@ Display format is inherited from `battery-mode-line-format'."
    `(;; line1
      ((,(nerd-icons-faicon "nf-fa-newspaper_o")
        " News"
-       "Opens Elfeed"
-       (lambda (&rest _) (d/elfeed-open)) nil "" " |")
+       "Opens Gnus"
+       (lambda (&rest _) (gnus)) nil "" " |")
 
       (,(nerd-icons-mdicon "nf-md-notebook")
        " Notes"
        "Denote Tree"
-       (lambda (&rest _) (find-file "~/d-sync/notes/")) warning "" " |")
+       (lambda (&rest _) (find-file "~/d-sync/notes/journal.org")) warning "" " |")
 
       (,(nerd-icons-faicon "nf-fa-gitlab")
        " Project"
@@ -2877,6 +2876,8 @@ Display format is inherited from `battery-mode-line-format'."
 
   (org-special-ctrl-a/e t)
   (org-insert-heading-respect-content t)
+
+  (org-image-actual-width nil)
 
   :config
   (org-clock-persistence-insinuate)
@@ -3102,6 +3103,9 @@ Display format is inherited from `battery-mode-line-format'."
 (use-package org-src
   :ensure nil
   :after org
+  :bind
+  (:map org-mode-map
+        ("C-c ;" . d/org-babel-edit))
   :custom
   (org-src-preserve-indentation nil)
   ;; Don't ask if we already have an open Edit buffer
@@ -3114,6 +3118,28 @@ Display format is inherited from `battery-mode-line-format'."
                 (pcase (assoc mode major-mode-remap-alist)
                   (`(,mode . ,ts-mode) ts-mode)
                   (_ mode)))))
+
+(defun d/org-babel-edit ()
+  "Edit any src block with lsp support by tangling the block and
+then setting the org-edit-special buffer-file-name to the
+absolute path. Finally load eglot."
+  (interactive)
+
+  ;; org-babel-get-src-block-info returns lang, code_src, and header
+  ;; params; Use nth 2 to get the params and then retrieve the :tangle
+  ;; to get the filename
+  (setq d/tangled-file-name (expand-file-name (assoc-default :tangle (nth 2 (org-babel-get-src-block-info)))))
+
+  ;; tangle the src block at point
+  (org-babel-tangle '(4))
+  (org-edit-special)
+
+  ;; Now we should be in the special edit buffer with python-mode. Set
+  ;; the buffer-file-name to the tangled file so that pylsp and
+  ;; plugins can see an actual file.
+  (setq-local buffer-file-name d/tangled-file-name)
+  (eglot-ensure)
+  )
 
 (use-package org-id
   :commands org-id-create
@@ -3168,6 +3194,7 @@ Display format is inherited from `battery-mode-line-format'."
      (julia . t))))
 
 (use-package org-ql
+  :after org
   :bind
   (:map org-mode-map
         ("C-c q f" . org-ql-find)
@@ -3182,12 +3209,14 @@ Display format is inherited from `battery-mode-line-format'."
 
 (use-package org-super-links
   :unless d/on-droid
-  :bind (("C-c s s" . org-super-links-link)
-         ("C-c s l" . org-super-links-store-link)
-         ("C-c s C-l" . org-super-links-insert-link)
-         ("C-c s d" . org-super-links-quick-insert-drawer-link)
-         ("C-c s i" . org-super-links-quick-insert-inline-link)
-         ("C-c s C-d" . org-super-links-delete-link))
+  :bind
+  (:map org-mode-map
+        ("C-c s s" . org-super-links-link)
+        ("C-c s l" . org-super-links-store-link)
+        ("C-c s C-l" . org-super-links-insert-link)
+        ("C-c s d" . org-super-links-quick-insert-drawer-link)
+        ("C-c s i" . org-super-links-quick-insert-inline-link)
+        ("C-c s C-d" . org-super-links-delete-link))
   :custom
   (org-super-links-related-into-drawer "REFERENCE")
   (org-super-links-link-prefix 'org-super-links-link-prefix-timestamp)
@@ -3210,186 +3239,8 @@ Display format is inherited from `battery-mode-line-format'."
    "\\(?:SCHEDULED\\|DEADLINE\\):.*?<.*?\\([0-9]\\{2\\}:[0-9]\\{2\\}\\).*>")
   (org-alert-enable))
 
-(use-package org-present
-  :defer t
-  :unless d/on-droid
-  :after org
-  :bind (:map org-present-mode-keymap
-              ("<right>" . d/org-present-next-slide)
-              ("<left>" . d/org-present-previous-slide)
-              ("<up>" . d/org-present-up)
-              ("C-c j" . d/org-present-next-slide)
-              ("C-c k" . d/org-present-previous-slide)
-              ("C-c h" . d/org-present-up)
-              ("<f5>" . d/org-present-refresh))
-  (:map org-mode-map
-        ("<f8>" . d/org-present-mode))
-  :hook ((org-present-mode . d/org-present-enable-hook)
-         (org-present-mode-quit . d/org-present-disable-hook))
-  :config
-
-  (defun org-present-header-line ()
-    ;; (let* ((levelhead (concat "org-level-" (org-current-level)))
-    ;;        )
-    (setq-local header-line-format (concat "   󰨖 " (propertize (org-get-title) 'face 'org-document-title)  " : " (propertize (if (org-get-heading) (nth 4 (org-heading-components)) " ") 'face 'org-level-1)  "       -         " (propertize "Dilip" 'face 'org-document-info)))
-
-    )
-
-  (defvar d/org-present-org-modern-keyword '(("title"       . "")
-                                             ("description" . "")
-                                             ("subtitle"    . "")
-                                             ("date"        . "")
-                                             ("author"      . "")
-                                             ("email"       . "")
-                                             ("language"    . "")
-                                             ("options"     . "")
-                                             (t . t)))
-
-  (define-minor-mode d/org-present-mode
-    "Toggle Presentation Mode."
-    :global nil
-    :lighter "d/org-present-mode"
-    (if d/org-present-mode
-        (org-present)
-      (org-present-quit)))
-
-  (defun d/org-present-enable-hook ()
-    (setq d/org-present--inhibit-message inhibit-message
-          d/org-present--echo-keystrokes echo-keystrokes
-          d/org-present--visual-line-mode visual-line-mode
-          d/org-present--org-ellipsis org-ellipsis)
-    ;; d/org-present--org-indent-mode org-indent-mode)
-    ;; (org-indent-mode 1)
-
-    ;; Disable 'org-modern-mode' to setup adjustment if it's installed
-    (if (package-installed-p 'org-modern)
-        (org-modern-mode 0))
-
-    (if (package-installed-p 'org-modern)
-        (setq-local d/org-present--org-modern-hide-stars org-modern-hide-stars
-                    d/org-present--org-modern-keyword org-modern-keyword
-                    d/org-present--org-modern-block-fringe org-modern-block-fringe
-
-                    org-modern-hide-stars 'leading
-                    org-modern-block-fringe t
-                    org-modern-keyword d/org-present-org-modern-keyword))
-
-    (display-line-numbers-mode 0)
-
-    (if (package-installed-p 'org-modern)
-        (org-modern-mode 1))
-
-    (setq-local inhibit-message t
-                echo-keystrokes nil
-                cursor-type t
-                org-image-actual-width 300
-                header-line-format " "
-                org-ellipsis "󱞤")
-
-    (dolist (face '((org-block . 1.0)
-                    (org-block-begin-line . 0.1)
-                    (org-document-info . 1.2)
-                    (org-document-title . 1.2)
-                    (org-level-1 . 1.2)
-                    (org-level-2 . 1.2)
-                    (org-level-3 . 1.1)
-                    (org-level-4 . 1.1)
-                    (org-level-5 . 1.1)
-                    (org-level-6 . 1.1)
-                    (org-code . 1.15)
-                    (header-line . 1.0)
-                    (org-verbatim . 1.15)
-                    (variable-pitch . 1.1)
-                    (org-level-7 . 1.1)))
-      (face-remap-add-relative (car face) :height (cdr face)))
-
-
-    (if (package-installed-p 'hide-mode-line)
-        (hide-mode-line-mode 1))
-    ;; (org-present-header-line)
-
-    (toggle-mode-line)
-
-    (olivetti-set-width 0.80)
-
-    (org-display-inline-images)
-    (read-only-mode 1))
-
-  (defun d/org-present-prepare-slide ()
-    (org-overview)
-    (org-show-entry)
-    (org-show-children))
-  ;; (org-present-header-line))
-
-  (defun d/org-present-disable-hook ()
-    (setq-local header-line-format nil
-                face-remapping-alist '((default variable-pitch default))
-                org-adapt-indentation nil
-                visual-line-mode d/org-present--visual-line-mode
-                org-ellipsis d/org-present--org-ellipsis
-                inhibit-message d/org-present--inhibit-message
-                echo-keystrokes d/org-present--echo-keystrokes)
-    (org-present-small)
-
-
-    ;; (org-indent-mode d/org-present--org-indent-mode)
-
-    (if (package-installed-p 'hide-mode-line)
-        (hide-mode-line-mode 0))
-    (toggle-mode-line)
-    ;; (load-theme 'haki t)
-    (org-mode-restart)
-    (org-remove-inline-images))
-
-  (defun d/org-present-up ()
-    "Go to higher heading from current heading."
-    (interactive)
-    (widen)
-    (org-up-heading-safe)
-    (org-present-narrow)
-    (org-present-run-after-navigate-functions))
-
-
-  (defun d/org-present-next-slide ()
-    "Go to next sibling."
-    (interactive)
-    (widen)
-    (unless (org-goto-first-child)
-      (org-get-next-sibling))
-    (org-present-narrow)
-    (org-fold-hide-sublevels 5)
-    (org-show-entry)
-    (org-present-run-after-navigate-functions))
-
-
-  (defun d/org-present--last-child ()
-    "Find last child of current heading."
-    (when (org-goto-sibling) (d/org-present--last-child))
-    (when (org-goto-first-child) (d/org-present--last-child)))
-
-
-  (defun d/org-present-previous-slide ()
-    "Go to previous sibling."
-    (interactive)
-    (widen)
-    (when (org-current-level)
-      (org-back-to-heading)
-      (if (and (org-get-previous-sibling) (org-current-level))
-          (when (org-goto-first-child)
-            (d/org-present--last-child))))
-    (org-present-narrow)
-    (org-fold-hide-sublevels 5)
-    (org-show-entry)
-    (org-present-run-after-navigate-functions))
-
-  (defun d/org-present-refresh ()
-    (interactive)
-    (d/org-present-mode)
-    (d/org-present-mode))
-
-  )
-
 (use-package org-noter
+  :unless d/on-droid
   :after org
   :custom
   (org-noter-auto-save-last-location t)
@@ -3420,7 +3271,9 @@ Display format is inherited from `battery-mode-line-format'."
   :defer t
   :defines (markdown-mode-map)
   :functions (markdown-view-mode)
-  :mode "\\.md\\'"
+  :mode
+  "\\.md\\'"
+  "\\.Rmd\\'"
   :hook (markdown-mode . variable-pitch-mode)
   :bind (:map markdown-mode-map
               ("<f8>" . d/markdown-toggle))
@@ -3465,209 +3318,3 @@ Display format is inherited from `battery-mode-line-format'."
   :unless d/on-droid
   :hook
   (speed-type-mode . olivetti-mode))
-
-(use-package denote
-  :defer t
-  :defines
-  (dired-mode-map
-   denote-directory)
-
-  :hook
-  (find-file . denote-link-buttonize-buffer)
-  (dired-mode . denote-dired-mode)
-  (context-menu-functions . denote-context-menu)
-
-  :bind
-  ("C-c n j" . d/my-journal)
-  ("C-c n s" . denote-subdirectory)
-  ("C-c n n" . denote)
-  ("C-c n d" . denote-org-dblock-insert-links)
-  ("M-s n" . denote-open-or-create)
-  ("C-c n o" . denote-open-or-create)
-  ("C-c n T" . denote-template)
-  ("C-c n i" . denote-link)
-  ("C-c n a" . denote-link-add-links)
-  ("C-c n A" . denote-link-backlinks)
-  ("C-c n f f" . denote-link-find-file)
-  ("C-c n f b" . denote-link-find-backlink)
-  ("C-c n r" . denote-rename-file)
-  ("C-c n R" . denote-rename-file-using-front-matter)
-
-  (:map dired-mode-map
-        ("C-c C-d C-i" . denote-link-dired-marked-notes)
-        ("C-c C-d C-r" . denote-dired-rename-marked-files)
-        ("C-c C-d C-R" . denote-dired-rename-marked-files-using-front-matter))
-
-  :custom
-  (denote-directory (expand-file-name "~/d-sync/notes/"))
-  (denote-known-keywords '("emacs" "blogs" "article"))
-  (denote-infer-keywords t)
-  (denote-sort-keywords t)
-  (denote-file-type 'org)
-  (denote-prompts '(title keywords date template signature))
-  (denote-excluded-directories-regexp nil)
-  (denote-excluded-keywords-regexp nil)
-  (denote-date-prompt-use-org-read-date t)
-  (denote-allow-multi-word-keywords t)
-  (denote-date-format nil)
-  (denote-backlinks-show-context t)
-
-  (denote-file-name-letter-casing
-   '((title . downcase)
-     (signature . verbatim)
-     (keywords . downcase)
-     (t . downcase)))
-
-  (denote-dired-directories
-   (list denote-directory
-         (expand-file-name "~/d-git/d-site/content/")))
-
-  (denote-templates
-   '((project . "* Initial Idea\n\n** Requirements\n")
-     (none . "")))
-
-  :config
-  (defun d/my-journal ()
-    (interactive)
-    (let* ((date (org-read-date))
-           (time (org-time-string-to-time date))
-           (title (format-time-string "%A %d %B %Y" time))
-           (initial (denote-sluggify title))
-           (target (read-file-name "Select note: " (denote-directory) nil nil initial
-                                   (lambda (f)
-                                     (or (denote-file-has-identifier-p f)
-                                         (file-directory-p f))))))
-      (if (file-exists-p target)
-          (find-file target)
-        (denote title '("journal") denote-file-type nil date))))
-
-
-  (with-eval-after-load 'org-capture
-    (setq denote-org-capture-specifiers "%l\n%i\n%?")
-    (add-to-list 'org-capture-templates
-                 '("d" "New note (denote)" plain
-                   (file denote-last-path)
-                   #'denote-org-capture
-                   :no-save t
-                   :immediate-finish nil
-                   :kill-buffer t
-                   :jump-to-captured t)))
-
-  (defun d/denote-add-to-agenda-files (keyword)
-    "Append list of files containing 'keyword' to org-agenda-files"
-    (interactive)
-    ;; (jab/init-org-agenda-files) ;; start over
-    (setq org-agenda-files (append org-agenda-files (directory-files denote-directory t keyword))))
-
-  ;; (d/denote-add-to-agenda-files "_project")
-  )
-
-(defun d/writing-mode ()
-  (interactive)
-  (disable-mouse-mode 'toggle)
-  (olivetti-mode 'toggle))
-
-(defun my-denote-org-extract-subtree (&optional silo)
-  "Create new Denote note using current Org subtree.
-     Make the new note use the Org file type, regardless of the value
-     of `denote-file-type'.
-
-     With an optional SILO argument as a prefix (\\[universal-argument]),
-     ask user to select a SILO from `my-denote-silo-directories'.
-
-     Use the subtree title as the note's title.  If available, use the
-     tags of the heading are used as note keywords.
-
-     Delete the original subtree."
-  (interactive
-   (list (when current-prefix-arg
-           (completing-read "Select a silo: " my-denote-silo-directories nil t))))
-  (if-let ((text (org-get-entry))
-           (heading (org-get-heading :no-tags :no-todo :no-priority :no-comment)))
-      (let ((element (org-element-at-point))
-            (tags (org-get-tags))
-            (denote-user-enforced-denote-directory silo))
-        (delete-region (org-entry-beginning-position)
-                       (save-excursion (org-end-of-subtree t) (point)))
-        (denote heading
-                tags
-                'org
-                nil
-                (or
-                 ;; Check PROPERTIES drawer for :created: or :date:
-                 (org-element-property :CREATED element)
-                 (org-element-property :DATE element)
-                 ;; Check the subtree for CLOSED
-                 (org-element-property :raw-value
-                                       (org-element-property :closed element))))
-        (insert text))
-    (user-error "No subtree to extract; aborting")))
-
-(use-package denote-journal-extras
-  :custom
-  (denote-journal-extras-title-format 'day-date-month-year))
-
-;;;; Convert links from `:denote' to `:file' and vice versa
-
-;; TODO 2024-02-28: Do we need to convert between other link types?  I
-;; think not, since the `denote:' type is modelled after the `file:'
-;; one.
-(defun denote-org-extras--get-link-type-regexp (type)
-  "Return regexp for Org link TYPE.
-TYPE is a symbol of either `file' or `denote'.
-
-    The regexp consists of four groups.  Group 1 is the link type, 2
-    is the target, 3 is the target's search terms, and 4 is the
-    description."
-  (let ((group-1))
-    (pcase type
-      ('denote (setq group-1 "denote"))
-      ('file (setq group-1 "file"))
-      (_ (error "`%s' is an unknown link type" type)))
-    (format "\\[\\[\\(?1:%s:\\)\\(?:\\(?2:.*?\\)\\(?3:::.*\\)?\\]\\|\\]\\)\\(?4:\\[\\(?:.*?\\)\\]\\)?\\]" group-1)))
-
-    ;;;###autoload: this converts from denote links to org links
-(defun denote-org-extras-convert-links-to-file-type ()
-  "Convert denote: links to file: links in the current Org buffer.
-Ignore all other link types.  Also ignore links that do not
-    resolve to a file in the variable `denote-directory'."
-  (interactive nil org-mode)
-  (if (derived-mode-p 'org-mode)
-      (progn
-        (goto-char (point-min))
-        (while (re-search-forward (denote-org-extras--get-link-type-regexp 'denote) nil :no-error)
-          (let* ((id (match-string-no-properties 2))
-                 (search (or (match-string-no-properties 3) ""))
-                 (desc (or (match-string-no-properties 4) ""))
-                 (file (save-match-data (file-name-nondirectory (denote-get-path-by-id id)))))
-            (when id
-              (let ((new-text (if desc
-                                  (format "[[file:%s%s]%s]" file search desc)
-                                (format "[[file:%s%s]]" file search))))
-                (replace-match new-text :fixed-case :literal)))))
-        ;; TODO 2024-02-28: notify how many changed.
-        (message "Converted `denote:' links to `file:' links"))
-    (user-error "The current file is not using Org mode")))
-
-    ;;;###autoload  this converts fromd  org links to denote links
-(defun denote-org-extras-convert-links-to-denote-type ()
-  "Convert file: links to denote: links in the current Org buffer.
-Ignore all other link types.  Also ignore file: links that do not
-    point to a file with a Denote file name."
-  (interactive nil org-mode)
-  (if (derived-mode-p 'org-mode)
-      (progn
-        (goto-char (point-min))
-        (while (re-search-forward (denote-org-extras--get-link-type-regexp 'file) nil :no-error)
-          (let* ((file (match-string-no-properties 2))
-                 (search (or (match-string-no-properties 3) ""))
-                 (desc (or (match-string-no-properties 4) ""))
-                 (id (save-match-data (denote-retrieve-filename-identifier file))))
-            (when id
-              (let ((new-text (if desc
-                                  (format "[[denote:%s%s]%s]" id search desc)
-                                (format "[[denote:%s%s]]" id search))))
-                (replace-match new-text :fixed-case :literal)))))
-        ;; TODO 2024-02-28: notify how many changed.
-        (message "Converted as `file:' links to `denote:' links"))
-    (user-error "The current file is not using Org mode")))

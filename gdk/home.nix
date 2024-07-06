@@ -213,8 +213,8 @@
     settings = {
       main = {
         term = "xterm-256color";
-        font = "Code D OnePiece:size=20, Noto Color Emoji:size=20";
-        font-bold = "Code D Lip:size=20, Noto Color Emoji:size=20";
+        font = "Code OnePiece:size=26, Noto Color Emoji:size=25";
+        font-bold = "Code OnePiece:size=26, Noto Color Emoji:size=25";
         letter-spacing = "1";
         box-drawings-uses-font-glyphs = "no";
         pad = "0x0center";
@@ -292,6 +292,7 @@
 
   home.packages = with pkgs; [
     emacs-lsp-booster
+    imagemagick # for image-dired and other converts
   ];
 
   programs.emacs = {
@@ -299,44 +300,43 @@
     package = pkgs.emacs-pgtk;
     extraPackages = (epkgs: (with epkgs; [
       treesit-grammars.with-all-grammars
-      eat vundo undo-fu-session helpful flymake-languagetool
-      no-littering rainbow-delimiters
+      eat vundo undo-fu-session helpful
+      no-littering rainbow-delimiters colorful-mode
       vertico orderless consult marginalia embark org-modern corfu cape corfu-terminal
-      org olivetti nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
-      embark-consult consult-eglot markdown-mode nix-mode
-      reddigg hnreader howdoyou mingus magit webpaste org-present
+      olivetti nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
+      embark-consult consult-eglot markdown-mode nix-mode nix-ts-mode
+      reddigg hnreader howdoyou magit webpaste
       shrface shr-tag-pre-highlight nov devdocs-browser reformatter
-      denote tempel tempel-collection avy
-      sdcv elfeed elfeed-org jinx
-      el-fetch envrc dashboard mini-echo
+      tempel tempel-collection eglot-tempel
+      sdcv jinx envrc dashboard mini-echo
       speed-type vc-backup aria2 pubmed
       ess auctex julia-mode webfeeder engrave-faces
-      toc-org disable-mouse org-ql org-alert org-noter
-      pdf-tools flycheck
+      toc-org org-ql org-alert org-noter
+      saveplace-pdf-view flycheck consult-flycheck
       ef-themes doom-themes
-      # org-re-reveal
+      org-re-reveal
 
       (trivialBuild {
         pname = "combobulate";
-        version = "pre-2024-03-01";
+        version = "pre-2024-03-11";
 
         src = pkgs.fetchFromGitHub {
           owner = "mickeynp";
           repo = "combobulate";
-          rev = "f220e87c7bc1792e5fd46efaa86f75a9f5bcc1d0";
-          hash = "sha256-jR8XlRAig/lgmaVoM3uPp+Odao0JIGG5x3FTHxnmJRo=";
+          rev = "ee82c568ad639605518f62f82fae4bcc0dfdbb81";
+          hash = "sha256-rww0/6304xZWTFRo1BVcfSDdXOXtlgmfZOxAoOIjYsk=";
         };
       })
 
       (trivialBuild {
         pname = "eglot-booster";
-        version = "pre-2024-03-01";
+        version = "pre-2024-04-11";
 
         src = pkgs.fetchFromGitHub {
           owner = "jdtsmith";
           repo = "eglot-booster";
-          rev = "e79dea640356eb4a8ed9df3808fe73c7c6db4cc4";
-          hash = "sha256-ybNqMHCGjzT2+4OfywS7hNw551kIzwI3QqC8tU/GsQI=";
+          rev = "e19dd7ea81bada84c66e8bdd121408d9c0761fe6";
+          hash = "sha256-vF34ZoUUj8RENyH9OeKGSPk34G6KXZhEZozQKEcRNhs=";
         };
       })
 
@@ -352,24 +352,13 @@
         };
       })
 
-      (trivialBuild {
-        pname = "colorful-mode";
-        version = "pre-0.1";
-
-        src = pkgs.fetchFromGitHub {
-          owner = "DevelopmentCool2449/";
-          repo = "colorful-mode";
-          rev = "main";
-          hash = "sha256-1Mt6K+W55g4T0JJbg5CBeM2LR6GaC8iQjb3NXAadwX4=";
-        };
-      })
 
 
       ## packages kept out to make more vanilla usage!
-      # async dirvish consult-flycheck beframe powerthesaurus meow
+      # async dirvish beframe powerthesaurus meow
       # doom-modeline ox-hugo ement kind-icon el-patch
       # rainbow-mode -> replcaed by new package, colorful-mode
-      # saveplace-pdf-view
+      # saveplace-pdf-view pdf-tools
 
     ])
     );
@@ -379,111 +368,6 @@
 
   xdg.configFile."emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/d-emacs/early-init.el";
 
-}
-
-{
-  programs.neovim = {
-    enable = true;
-    viAlias = true;
-    vimAlias = true;
-    vimdiffAlias = true;
-  };
-}
-
-{
-  programs.helix = {
-    enable = true;
-
-    settings = {
-      theme = "gruvbox_dark_hard";
-
-      keys.normal = {
-        "{" = "goto_prev_paragraph";
-        "}" = "goto_next_paragraph";
-        "X" = "extend_line_above";
-        "esc" = ["collapse_selection" "keep_primary_selection"];
-        space.space = "file_picker";
-        space.w = ":w";
-        space.q = ":bc";
-        "C-q" = ":xa";
-        space.u = {
-          f = ":format"; # format using LSP formatter
-          w = ":set whitespace.render all";
-          W = ":set whitespace.render none";
-        };
-      };
-
-      keys.insert = {
-        A-x = "normal_mode";
-        j = { k = "normal_mode"; };
-      };
-
-      keys.select = {
-        "%" = "match_brackets";
-      };
-
-      editor = {
-        line-number = "relative";
-        cursorline = true;
-        auto-completion = true;
-        auto-format = true;
-        mouse = true;
-        color-modes = true;
-        idle-timeout = 1;
-        scrolloff = 5;
-        bufferline = "always";
-        true-color = true;
-        rulers = [80];
-        indent-guides = {
-          render = true;
-        };
-        gutters = ["diagnostics" "line-numbers" "spacer" "diff"];
-
-        statusline = {
-          separator = "";
-          left = ["mode" "selections" "spinner" "file-name" "total-line-numbers"];
-          center = [];
-          right = ["diagnostics" "file-encoding" "file-line-ending" "file-type" "position-percentage" "position"];
-          mode = {
-            normal = "NORMAL";
-            insert = "INSERT";
-            select = "SELECT";
-          };
-        };
-
-        whitespace.characters = {
-          space = "·";
-          nbsp = "⍽";
-          tab = "→";
-          newline = "⤶";
-        };
-
-        cursor-shape = {
-          insert = "bar";
-          normal = "block";
-          select = "block";
-        };
-
-        auto-pairs = {
-          "(" = ")";
-          "{" = "}";
-          "[" = "]";
-          "\"" = "\"";
-          "`" = "`";
-          "<" = ">";
-        };
-
-        lsp = {
-          enable = true;
-          display-messages = true;
-          display-inlay-hints = true;
-          snippets = true;
-        };
-
-      };
-    };
-
-  };
 }
 
 {
@@ -567,6 +451,7 @@
       "item_list_prefix" = ">";
       "#ignore_whitespace_in_presentation_mode" = "0";
       "prerender_next_page_presentation" = "1";
+      "display_resolution_scale" = "1.0";
     };
   };
 }
@@ -579,21 +464,17 @@
 
 {
   home.packages = with pkgs; [
-    libxslt
-  ];
-}
-
-{
-  home.packages = with pkgs; [
     mullvad-browser
-    ungoogled-chromium
+    # ungoogled-chromium
     # nyxt
+    # brave
   ];
 
   programs = {
     firefox = {
       enable = true;
       # package = pkgs.firefox-wayland; # is there difference?
+
       profiles.ihome = {
         isDefault = true;
         # extensions = with pkgs.nur.repos.rycee.firefox-addons; [
@@ -604,8 +485,21 @@
         #   darkreader
         #   libredirect
         #   multi-account-containers
-        #   vertical-tabs-reloaded
+        # sideberry
         # ];
+
+        # container = {
+        #   dangerous = {
+        #     color = "red";
+        #     icon = "fruit";
+        #     id = 2;
+        #   };
+        #   shopping = {
+        #     color = "blue";
+        #     icon = "cart";
+        #     id = 1;
+        #   };
+        # };
 
         settings = {
           "browser.startup.homepage" = "about:blank";
@@ -810,33 +704,6 @@
       };
     };
 
-    librewolf = {
-      enable = true;
-      settings = {
-        "gfx.webrender.all" = true;
-        "gfx.webrender.enabled" = true;
-        "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
-        "layers.acceleration.force-enabled" = true;
-        "layout.css.backdrop-filter.enabled" = true;
-        "media.av1.enabled" = false;
-        "media.ffmpeg.vaapi.enabled" = true;
-        "media.hardware-video-decoding.force-enabled" = true;
-        "media.peerconnection.enabled" = true;
-        "full-screen-api.ignore-widgets" = true;
-      };
-    };
-
-    chromium = {
-      enable = true;
-      package = pkgs.brave;
-      commandLineArgs = ["--enable-features=TouchpadOverscrollHistoryNavigation"];
-      extensions = [
-        {id = "cjpalhdlnbpafiamejdnhcphjbkeiagm";} # ublock origin
-        {id = "dbepggeogbaibhgnhhndojpepiihcmeb";} # vimium
-        {id = "eimadpbcbfnmbkopoojfekhnkhdbieeh";} # dark-reader
-        {id = "mnjggcdmjocbbbhaepdhchncahnbgone";} # sponsorblock
-      ];
-    };
   };
 }
 
@@ -869,79 +736,9 @@
 
 {
   programs = {
-    ncmpcpp = {
-      enable = true;
-
-      settings = {
-        ncmpcpp_directory = "${config.xdg.configHome}/ncmpcpp";
-        lyrics_directory = "${config.xdg.dataHome}/lyrics";
-        message_delay_time = "1";
-        song_list_format = "{$4%a - }{%t}|{$8%f$9}$r{$3(%l)$9}";
-        song_status_format = "$b{{$8'%t'}} $3by {$4%a{ $3in $7%b{ (%y)}} $3}|{$8%f}";
-        song_library_format = "{%n - }{%t}|{%f}";
-        alternative_header_first_line_format = "$b$1$aqqu$/a$9 {%t}|{%f} $1$atqq$/a$9$/b";
-        alternative_header_second_line_format = "{{$4$b%a$/b$9}{ - $7%b$9}{ ($4%y$9)}}|{%d}";
-        current_item_prefix = "$(cyan)$r$b";
-        current_item_suffix = "$/r$(end)$/b";
-        current_item_inactive_column_prefix = "$(magenta)$r";
-        current_item_inactive_column_suffix = "$/r$(end)";
-        playlist_display_mode = "columns";
-        browser_display_mode = "columns";
-        progressbar_look = "->";
-        media_library_primary_tag = "album_artist";
-        media_library_albums_split_by_date = "no";
-        startup_screen = "media_library";
-        display_volume_level = "no";
-        ignore_leading_the = "yes";
-        external_editor = "nvim";
-        use_console_editor = "yes";
-        empty_tag_color = "magenta";
-        main_window_color = "white";
-        progressbar_color = "black:b";
-        progressbar_elapsed_color = "blue:b";
-        statusbar_color = "red";
-        statusbar_time_color = "cyan:b";
-      };
-
-      bindings =
-        [
-          { key = "k"; command = [ "select_item" "scroll_up" ]; }
-          { key = "+"; command = "show_clock"; }
-          { key = "="; command = "volume_up"; }
-          { key = "j"; command = "scroll_down"; }
-          { key = "k"; command = "scroll_up"; }
-          { key = "ctrl-u"; command = "page_up"; }
-          { key = "ctrl-d"; command = "page_down"; }
-          { key = "u"; command = "page_up"; }
-          { key = "d"; command = "page_down"; }
-          { key = "h"; command = [ "previous_column" "jump_to_parent_directory" ]; }
-          { key = "l"; command = [ "next_column" "enter_directory" "run_action" "play_item" ]; }
-          { key = "."; command = "show_lyrics"; }
-          { key = "n"; command = "next_found_item"; }
-          { key = "n"; command = "previous_found_item"; }
-          { key = "j"; command = "move_sort_order_down"; }
-          { key = "k"; command = "move_sort_order_up"; }
-          { key = "m"; command = [ "show_media_library" "toggle_media_library_columns_mode" ]; }
-          { key = "t"; command = "show_tag_editor"; }
-          { key = "v"; command = "show_visualizer"; }
-          { key = "g"; command = "move_end"; }
-          { key = "g"; command = "move_home"; }
-          { key = "u"; command = "update_database"; }
-          { key = "s"; command = [ "reset_search_engine" "show_search_engine" ]; }
-          { key = "f"; command = [ "show_browser" "change_browse_mode" ]; }
-          { key = "x"; command = "delete_playlist_items"; }
-          { key = "p"; command = "show_playlist"; }
-        ];
-
-    };
-  };
-}
-
-{
-  programs = {
     mpv = {
       enable = true;
-      scripts = with pkgs.mpvScripts; [ mpris ];
+      scripts = with pkgs.mpvScripts; [ mpris manga-reader ];
 
       bindings = {
         l = "seek  5";
@@ -966,7 +763,7 @@
         sub-shadow-offset = 1;
         sub-auto = "fuzzy";
         msg-level = "all=error";
-        ytdl-format = "bestvideo[height<=?1080]+bestaudio/best";
+        ytdl-format = "bestvideo[height<1080]+bestaudio/best";
         # ytdl-format = "bestvideo";
         save-position-on-quit = true;
         slang = "eng,en,eng,english";
@@ -999,7 +796,7 @@
         embed-thumbnail = true;
         embed-metadata = true;
         embed-subs = true;
-        sub-langs = "all";
+        sub-langs = "en";
       };
     };
   };
@@ -1096,7 +893,7 @@
       input = {
         kb_layout = "us";
         kb_options = "ctrl:nocaps";
-        follow_mouse = 0;
+        follow_mouse = 1;
         sensitivity = 0.1;
         #    repeat_delay = 250
 
@@ -1113,11 +910,10 @@
         gaps_in = 5;
         gaps_out = 15;
         border_size = 2;
-        "col.active_border" = "rgba(2e8b57ff) rgba(87cefaff) 45deg";
+        "col.active_border" = "rgba(2e8b57ff) rgba(87cefaff) rgba(ffec8bff) rgba(ffaeb9ff) 90deg";
         "col.inactive_border" = "0xff382D2E";
         no_border_on_floating  =  false; # enable border on float window
         layout  =  "dwindle";
-        no_cursor_warps  =  false;
       };
 
       misc = {
@@ -1131,6 +927,8 @@
 
       animations = {
         enabled = true;
+        bezier = "linear, 0.0, 0.0, 1.0, 1.0";
+        animation = "borderangle, 1, 180, linear, loop"; #used by rainbow borders and rotating colors
       };
 
       dwindle = {
@@ -1143,7 +941,6 @@
       };
 
       master = {
-        new_is_master = false;
         new_on_top = false;
         allow_small_split = true;
         no_gaps_when_only = false;
@@ -1183,61 +980,117 @@
     wtype
     swaybg
     # swayidle gtklock
-    hypridle hyprlock
 
     # utils
     # ocrscript
     wl-screenrec
     wl-clipboard
   ];
+}
 
-  xdg.configFile."hypr/hypridle.conf".text = ''
-  general {
-      lock_cmd = hyprlock
-      unlock_cmd = notify-send "unlock!"      # same as above, but unlock
-      before_sleep_cmd = loginctl lock-session
-      after_sleep_cmd = notify-send "Awake!"
-      ignore_dbus_inhibit = false             # whether to ignore dbus-sent idle-inhibit requests (used by e.g. firefox or steam)
-  }
-  
-  listener {
-      timeout = 210
-      on-timeout = d-idle "" "hyprlock & hyprctl dispatch dpms off"
-      on-resume = "hyprctl dispatch dpms on"
-      # on-resume = notify-send "Welcome back!"  # command to run when activity is detected after timeout has fired.
-  }
-  
-  listener {
-     timeout = 540
-     on-timeout = d-idle "" "systemctl suspend"
-  }
-  '';
+{
+  services.hypridle = {
+    enable = true;
+    settings ={
+      general = {
+        lock_cmd = "pidof hyprlock || hyprlock";       # avoid starting multiple hyprlock instances.
+        before_sleep_cmd = "loginctl lock-session";    # lock before suspend.
+        after_sleep_cmd = "hyprctl dispatch dpms on";  # to avoid having to press a key twice to turn on the display.
+        unlock_cmd = "notify-send 'Welcome back!'";
+      };
 
-  xdg.configFile."hypr/hyprlock.conf".text = ''
-  background {
-      monitor =
-      path = /home/idlip/d-git/d-wallpapers/oled/wallhaven-4d2zy3_2880x1800.png
-  }
-  
-  input-field {
-      monitor =
-      size = 300, 50
-      hide_input = false
-  }
-  
-  label {
-      monitor =
-      text = cmd[update:1000] echo "$(date '+%R')"
-      color = rgba(255, 255, 255, 1.0)
-      font_size = 55
-      font_family = Code D Haki
-  
-      position = 0, 80
-      halign = center
-      valign = center
-  }
-  '';
+      listener = [
+        {
+          timeout = 150;
+          on-timeout = "brightnessctl -s set 10";         # set monitor backlight to minimum, avoid 0 on OLED monitor.
+          on-resume = "brightnessctl -r";                 # monitor backlight restore.
+        }
+        {
+          timeout = 210;
+          on-timeout = "loginctl lock-session";
+        }
+        {
+          timeout = 250;
+          on-timeout = "hyprctl dispatch dpms off";
+          on-resume = "hyprctl dispatch dpms on";
+        }
+        {
+          timeout = 900;
+          on-timeout = "systemctl suspend";
+        }
+      ];
+    };
+  };
+}
 
+{
+  programs.hyprlock = {
+    enable = true;
+    settings = {
+      background = [
+        {
+          path = "/home/idlip/.local/share/bg.jpg";
+          blur_size = 8;
+          blur_passes = 3;
+        }
+      ];
+
+      input-field = [
+        {
+          size = "300, 50";
+          monitor = "";
+          dots_center = true;
+          shadow_passes = 2;
+          outline_thickness = 3;
+          dots_size = 0.3;
+          dots_spacing = 0.1;
+          fade_on_empty = true;
+          placeholder_text = "<i>Pass</i>";
+          position = "0, 200";
+          halign = "center";
+          valign = "bottom";
+        }
+      ];
+
+      label = [
+        {
+          color = "rgba(255, 255, 255, 1.0)";
+          font_size = 35;
+          text = ''
+          cmd[update:1000] echo "<b> "$(date +'%A, %-d %B %Y @ %T')" </b>"
+          '';
+          position = "0, 0";
+          halign = "center";
+          valign = "bottom";
+        }
+
+        {
+          color = "rgba(255, 255, 255, 1.0)";
+          font_size = 35;
+          text = ''
+            $USER, Welcome back!
+          '';
+          position = "0, 100";
+          halign = "center";
+          valign = "bottom";
+        }
+      ];
+
+      image =[
+        {
+          path = "/home/idlip/d-git/d-wallpapers/oled/one-piece.jpg";
+          size = 200;
+          rounding = -1;
+          border_size = 2;
+          reload_time = -1;
+          position = "0, 350";
+          halign = "center";
+          valign = "bottom";
+        }
+      ];
+
+    };
+  };
 }
 
 {
@@ -1263,8 +1116,8 @@
     };
 
     font = {
-      name = "Code D Haki";
-      size = 20;
+      name = "Code Haki";
+      size = 26;
     };
 
     gtk2.configLocation = "${config.xdg.configHome}/gtk-2.0/gtkrc";
@@ -1274,6 +1127,7 @@
       gtk-xft-hinting = 1;
       gtk-xft-hintstyle = "hintslight";
       gtk-xft-rgba = "rgb";
+      gtk-key-theme-name = "Emacs";
     };
 
     gtk2.extraConfig = ''
@@ -1281,6 +1135,7 @@
     gtk-xft-hinting=1
     gtk-xft-hintstyle="hintslight"
     gtk-xft-rgba="rgb"
+    gtk-key-theme-name="Emacs"
     '';
 
   };
@@ -1308,84 +1163,84 @@
         exclusive = true;
 
         modules-left = [
-	        "custom/launcher"
-	        "hyprland/workspaces"
+          "custom/launcher"
+          "hyprland/workspaces"
           "wlr/taskbar"
-	        "hyprland/window"
-	        "hyprland/submap"
+          "hyprland/window"
+          "hyprland/submap"
         ];
 
         modules-center = [
-	        "custom/recorder" "clock" "mpd" "mpris"
+          "custom/recorder" "clock" "mpd" "mpris"
         ];
 
         modules-right = [ "tray" "network" "battery" "memory" "pulseaudio" "custom/power" ];
 
         "hyprland/workspaces" = {
-	        format = "{icon}";
+          format = "{icon}";
           disable-scroll = true;
           all-outputs = true;
-	        active-only = false;
+          active-only = false;
           show-special = true;
-	        on-click = "activate";
-	        format-icons = {
-		        active = "";
-		        default = "";
-		        "1" = "1";
-		        "2" = "2";
-		        "3" = "3";
-		        "4" = "4";
-		        "5" = "5";
-		        "6" = "6";
-	        };
+          on-click = "activate";
+          format-icons = {
+            active = "";
+            default = "";
+            "1" = "1";
+            "2" = "2";
+            "3" = "3";
+            "4" = "4";
+            "5" = "5";
+            "6" = "6";
+          };
         };
 
         "hyprland/window" = {
-	        "format" = "{}";
-	        "separate-outputs" = true;
+          "format" = "{}";
+          "separate-outputs" = true;
           "max-length" = 35;
-	        "rewrite" = {
-		        "(.*) - Mozilla Firefox" = "🦊 $1";
-		        "(.*) - LibreWolf" = "🐺 $1";
-		        "(.*) - Brave" = "🦁 $1";
-		        "(.*) - GNU Emacs (.*)" = " $1";
-		        "(.*).epub(.*)" = "󰂽 $1";
-		        "(.*)foot" = " Terminal $1";
-	        };
+          "rewrite" = {
+            "(.*) - Mozilla Firefox" = "🦊 $1";
+            "(.*) - LibreWolf" = "🐺 $1";
+            "(.*) - Brave" = "🦁 $1";
+            "(.*) - GNU Emacs (.*)" = " $1";
+            "(.*).epub(.*)" = "󰂽 $1";
+            "(.*)foot" = " Terminal $1";
+          };
         };
 
         "hyprland/submap" = {
-	        "format" = " {}";
-	        "max-length" = 14;
-	        "tooltip" = false;
+          "format" = " {}";
+          "max-length" = 14;
+          "tooltip" = false;
         };
 
-	      "wlr/taskbar"=  {
-		      "format"=  "{icon}";
-		      "icon-size"=  18;
+        "wlr/taskbar"=  {
+          "format"=  "{icon}";
+          "icon-size"=  18;
           "spacing"=  0;
-		      "tooltip-format"=  "{title}";
-		      "on-click"=  "activate";
-		      "on-click-middle"=  "close";
-	      };
+          "tooltip-format"=  "{title}";
+          "on-click"=  "activate";
+          "on-click-middle"=  "close";
+        };
 
 
         "custom/launcher" = {
-	        "format" = "";
-	        "tooltip" = false;
-	        "on-click" = "bemenu-run";
+          "format" = "";
+          "tooltip" = false;
+          "on-click" = "bemenu-run";
           "interval" = 86400;
         };
 
         "battery" =  {
-	        "bat" =  "BAT1";
-	        "interval" =  60;
-	        "states" =  {
+          "bat" =  "BAT1";
+          "interval" =  60;
+          "states" =  {
             "good" = 95;
-		        "warning" = 40;
-		        "critical" = 20;
-	        };
-	        "max-length" =  25;
+            "warning" = 40;
+            "critical" = 20;
+          };
+          "max-length" =  25;
           "format" = "{icon} {capacity}%";
           "format-charging" = " {capacity}%";
           "format-plugged" = " {capacity}%";
@@ -1395,47 +1250,60 @@
         };
 
         "mpd" = {
-	        "format" = "{stateIcon} {title}  ";
-	        "format-disconnected" = "  ";
-	        "format-stopped" = "  ";
-	        "title-len" = 20;
-	        "interval" = 10;
-	        "on-click" = "mpc toggle";
-	        "state-icons" = {
-		        "paused" = "";
-		        "playing" = "";
-	        };
-	        "tooltip-format" = "Mpd Connected";
-	        "tooltip-format-disconnected" = "";
+          "format" = "{stateIcon} {title}  ";
+          "format-disconnected" = "  ";
+          "format-stopped" = "  ";
+          "title-len" = 20;
+          "interval" = 10;
+          "on-click" = "mpc toggle";
+          "state-icons" = {
+            "paused" = "";
+            "playing" = "";
+          };
+          "tooltip-format" = "Mpd Connected";
+          "tooltip-format-disconnected" = "";
         };
 
         "mpris" = {
-	        "format" = " {player_icon} {dynamic}";
-	        "format-paused" = "{status_icon} <i>{dynamic}</i>";
-	        "player-icons" = {
-		        "default" = "▶";
-		        "mpv" = "🎵";
-	        };
-	        "status-icons" = {
-		        "paused" = "󰏤";
-	        };
-	        "max-length" = 20;
+          "format" = " {player_icon} {dynamic}";
+          "format-paused" = "{status_icon} <i>{dynamic}</i>";
+          "player-icons" = {
+            "default" = "▶";
+            "mpv" = "🎵";
+          };
+          "status-icons" = {
+            "paused" = "󰏤";
+          };
+          "max-length" = 20;
         };
 
-	      "custom/power" = {
-	        "format" = "⏻";
-	        "on-click" = "d-power";
-	        "tooltip" = false;
+        "custom/power" = {
+          "format" = "⏻";
+          "on-click" = "d-power";
+          "tooltip" = false;
           "interval" = 86400;
         };
 
         "clock" = {
-	        "tooltip-format" = "{:%A %B %d %Y | %H:%M}";
-	        "format-alt" = " {:%a %d %b  %I:%M %p}";
-	        "format" = " {:%H:%M}";
-	        ##"timezones" = [ "Kolkata" ];
-	        ##"max-length" = 200;
-	        "interval" = 1;
+          "format-alt" = " {:%a %d %b  %I:%M %p}";
+          "format" = " {:%H:%M}";
+          ##"timezones" = [ "Kolkata" ];
+          ##"max-length" = 200;
+          "interval" = 1;
+          "calendar" = {
+            "mode"           = "year";
+            "mode-mon-col"   = 3;
+            "weeks-pos"      = "right";
+            "on-scroll"      = 1;
+            "format" = {
+              "months" =     "<span color='#ffead3'><b>{}</b></span>";
+              "days" =       "<span color='#ecc6d9'><b>{}</b></span>";
+              "weeks" =      "<span color='#99ffdd'><b>W{}</b></span>";
+              "weekdays" =   "<span color='#ffcc66'><b>{}</b></span>";
+              "today" =      "<span color='#ff6699'><b><u>{}</u></b></span>";
+            };
+          };
+          "tooltip-format" = "<tt><small>{calendar}</small></tt>";
         };
 
         "tray" = {
@@ -1444,54 +1312,54 @@
         };
 
         "cpu" = {
-	        "format" = "﬙ {usage: >3}%";
-	        "on-click" = "footclient -e btop";
+          "format" = " {usage: >3}%";
+          "on-click" = "footclient -e btop";
         };
 
         "memory" = {
-	        "on-click" = "foot -e btop";
+          "on-click" = "foot -e btop";
           "interval" = 30;
-          "format" = "󰾆 {percentage}%";
-          "format-alt" = "󰾅 {used}GB";
+          "format" = " {percentage}%";
+          "format-alt" = " {used}GB";
           "max-length" = 10;
         };
 
         "network" = {
-	        # "interface" = "wlp2s0";
-	        "format" = "⚠ Disabled";
-	        "format-wifi" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
-          "format-ethernet" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
-	        "format-disconnected" = "⚠ Disconnected";
-	        "on-click" = "d-wifi";
-	        "interval" = 2;
+          # "interface" = "wlp2s0";
+          "format" = "⚠ Disabled";
+          "format-wifi" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
+          "format-ethernet" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
+          "format-disconnected" = "⚠ Disconnected";
+          "on-click" = "d-wifi";
+          "interval" = 2;
         };
 
         "pulseaudio" = {
-	        "scroll-step" = 2;
-	        "format" = "{icon} {volume: >3}%";
-	        "format-bluetooth" = "{icon} {volume: >3}%";
-	        "format-muted" =" muted";
-	        "on-click" = "pamixer -t";
-	        "format-icons" = {
-		        "headphones" = "";
-		        "handsfree" = "";
-		        "headset" = "";
-		        "phone" = "";
-		        "portable" = "";
-		        "car" = "";
-		        "default" = ["" ""];
-	        };
+          "scroll-step" = 2;
+          "format" = "{icon} {volume: >3}%";
+          "format-bluetooth" = "{icon} {volume: >3}%";
+          "format-muted" =" muted";
+          "on-click" = "pamixer -t";
+          "format-icons" = {
+            "headphones" = "";
+            "handsfree" = "";
+            "headset" = "";
+            "phone" = "";
+            "portable" = "";
+            "car" = "";
+            "default" = ["" ""];
+          };
         };
 
         "custom/recorder" = {
-		      "format" = "{}";
-		      "interval" = "once";
-		      "exec" = "echo ' '";
-		      "tooltip" = "false";
-		      "exec-if" = "pgrep wl-screenrec";
-		      "on-click" = "pkill -INT wl-screenrec";
-		      "signal" = 8;
-	      };
+          "format" = "{}";
+          "interval" = "once";
+          "exec" = "echo ' '";
+          "tooltip" = "false";
+          "exec-if" = "pgrep wl-screenrec";
+          "on-click" = "pkill -INT wl-screenrec";
+          "signal" = 8;
+        };
 
       };
     };
@@ -1616,6 +1484,7 @@
     MANPAGER = "nvim +Man!";
     STARDICT_DATA_DIR = "$HOME/d-git/d-bin/treasure/dict/";
     LIBVA_DRIVER_NAME = "iHD";
+    LESS = "-J -i -W --status-line --incsearch --use-color -R";
   };
 }
 
@@ -1704,7 +1573,7 @@
         frame_width = 2;
         separator_color = "frame";
         sort = "yes";
-        font = "Code D Ace 16";
+        font = "Code Haki 26";
         line_height = 0;
         markup = "full";
         stack_duplicates = "true";
@@ -1781,8 +1650,10 @@
       ignorecase = true;
       no-touch = true;
       prompt = " ";
+      counter = "always";
+      prefix = " ";
 
-      fn = "Code D Ace 24";
+      fn = "Code Haki 28";
 
       nb = "#00000090";
       ab = "#00000090";
@@ -1818,7 +1689,7 @@
 {
   home.packages = with pkgs; [
     languagetool
-    (aspellWithDicts (dicts: with dicts; [ en en-computers en-science ]))
+    (aspellWithDicts (dicts: with dicts; [ en en-computers ]))
     hunspell hunspellDicts.en_US
   ];
 }

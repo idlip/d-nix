@@ -481,13 +481,13 @@
   # Collect garbage and delete generation every 7 day. Will help to get some storage space.
   # Better to atleast keep it for few days, as you do major update (unstable), if something breaks you can roll back.
   nix = {
-    package = pkgs.nixUnstable; # 2.19 has issues with mkOutOfStoreSymlink
-    optimise.automatic = true;
-    gc = {
-      automatic = true;
-      dates = "weekly";
-      options = "--delete-older-than 7d";
-    };
+    # package = pkgs.nixUnstable; # 2.19 has issues with mkOutOfStoreSymlink
+    # optimise.automatic = true;
+    # gc = {
+    #   automatic = true;
+    #   dates = "weekly";
+    #   options = "--delete-older-than 7d";
+    # };
 
     # Make builds run with low priority so my system stays responsive
     daemonCPUSchedPolicy = "idle";
@@ -559,7 +559,7 @@
 {
   hardware = {
     pulseaudio.enable = lib.mkForce false;
-    opengl = {
+    graphics = {
       enable = true;
       extraPackages = with pkgs; [
         libva intel-media-driver
@@ -611,6 +611,7 @@
 
 {
   programs.hyprland.enable = true;
+  programs.hyprlock.enable = true; # for pam auth config
 }
 
 {
@@ -618,11 +619,13 @@
     packages = with pkgs; [
       noto-fonts unifont
       # symbola # this font is unfree
-      noto-fonts-emoji maple-mono julia-mono
+      noto-fonts-emoji
 
       (callPackage ./pkgs/code-d-font.nix {})
-      merriweather iosevka-comfy.comfy iosevka-comfy.comfy-duo
-      (nerdfonts.override {fonts = [ "JetBrainsMono"  ];})
+      (callPackage ./pkgs/code-nika.nix {})
+      merriweather
+      iosevka-comfy.comfy iosevka-comfy.comfy-duo
+      (nerdfonts.override {fonts = [ "JetBrainsMono" ];})
     ];
 
     enableDefaultPackages = true;
@@ -631,13 +634,13 @@
     fontconfig = {
       defaultFonts = {
         monospace = [
-	        "Code D OnePiece"
-	        "JetBrainsMono Nerd Font"
+          "Code OnePiece"
+          "Iosevka Comfy"
 	        "Noto Color Emoji"
         ];
-        sansSerif = [ "Code D Haki" "Noto Sans" "Iosevka Comfy Duo" ];
-        serif = [ "Code D Haki" "Iosevka Comfy Duo" "Noto Serif"];
-        emoji = [ "Noto Color Emoji" "Code D Lip" "Symbola" "Noto Sans" ];
+        sansSerif = [ "Code Haki" "Iosevka Comfy Duo" "Code D Haki" "Noto Sans" ];
+        serif = [ "Code Haki" "Iosevka Comfy Motion Duo" "Code D Haki" "Noto Serif"];
+        emoji = [ "Noto Color Emoji" "Code OnePiece" "Symbola" "Noto Sans" ];
       };
     };
   };

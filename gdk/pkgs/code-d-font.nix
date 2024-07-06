@@ -1,11 +1,13 @@
-{ lib, fetchgit, stdenvNoCC }:
+{ lib, fetchFromGitHub, stdenvNoCC }:
 
 stdenvNoCC.mkDerivation rec {
   pname = "code-d-font";
-  version = "1.085";
+  version = "0.1";
 
-  src = fetchgit {
-    url = "https://github.com/idlip/code-d-font";
+  src = fetchFromGitHub {
+    owner = "idlip";
+    repo = "code-d-font";
+    rev = "ea588e0890037719962ed49ccbfdc5381d9ab7f4";
     sparseCheckout = [
       "fonts"
     ];
@@ -13,9 +15,13 @@ stdenvNoCC.mkDerivation rec {
   };
 
   installPhase = ''
-    install -D -t $out/share/fonts/truetype/ $(find $src -type f -name '*.ttf')
-  '';
+    runHook preInstall
 
+    mkdir -p $out/share/fonts
+    mv fonts $out/share/fonts/truetype
+
+    runHook postInstall
+  '';
 
   meta = with lib; {
     homepage = "https://github.com/arrowtype/recursive-code-config/";

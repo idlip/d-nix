@@ -39,7 +39,7 @@ It is as simple if I just record what it does, with proper link to rich resource
 :PROPERTIES:
 :TOC:      :include siblings :depth 2
 :END:
-- Note: Might not be updated, please make use of github's outlining present of top right.
+- Note: Might not be updated, please make use of github's outlining present in top right.
 :CONTENTS:
 - [[#table-of-contents][Table of Contents]]
 - [[#review-plans][Review plans]]
@@ -191,6 +191,7 @@ It is as simple if I just record what it does, with proper link to rich resource
               deadnix
               git
               statix
+              nixd
             ];
             name = "dots";
             DIRENV_LOG_FORMAT = "";
@@ -601,50 +602,52 @@ It is as simple if I just record what it does, with proper link to rich resource
 - Credits to https://github.com/bjc/tramp-nspawn
 - Since it is few LOC; decided to paste code minimally.
 #+begin_src emacs-lisp
-(defcustom tramp-nspawn-machinectl-program "machinectl" ;; like nixos-container
-  "Name of the machinectl program."
-  :type 'string)
+(unless d/on-droid
+  (defcustom tramp-nspawn-machinectl-program "machinectl" ;; like nixos-container
+    "Name of the machinectl program."
+    :type 'string)
 
-(defconst tramp-nspawn-method "nspawn"
-  "Tramp method name to use to connect to systemd-nspawn containers.")
+  (defconst tramp-nspawn-method "nspawn"
+    "Tramp method name to use to connect to systemd-nspawn containers.")
 
-(defun tramp-nspawn--completion-function (&rest _args)
-  "List systemd-nspawn containers available for connection.
+  (defun tramp-nspawn--completion-function (&rest _args)
+    "List systemd-nspawn containers available for connection.
 
 This function is used by ‘tramp-set-completion-function’, please
 see its function help for a description of the format."
-  (let* ((raw-list (shell-command-to-string
-                    (concat tramp-nspawn-machinectl-program
-                            " list -q")))
-         (lines (cdr (split-string raw-list "\n")))
-         (first-words (mapcar (lambda (line) (car (split-string line)))
-                              lines))
-         (machines (seq-take-while (lambda (name) name) first-words)))
-    (mapcar (lambda (m) (list nil m)) machines)))
+    (let* ((raw-list (shell-command-to-string
+                      (concat tramp-nspawn-machinectl-program
+                              " list -q")))
+           (lines (cdr (split-string raw-list "\n")))
+           (first-words (mapcar (lambda (line) (car (split-string line)))
+                                lines))
+           (machines (seq-take-while (lambda (name) name) first-words)))
+      (mapcar (lambda (m) (list nil m)) machines)))
 
 
-;; todo: check tramp-async-args and tramp-direct-async
-(defun tramp-nspawn--add-method ()
-  "Add Tramp method handler for nspawn containers."
-  (push `(,tramp-nspawn-method
-          (tramp-login-program ,tramp-nspawn-machinectl-program)
-          (tramp-login-args (("shell")
-                             ("-q")
-                             ("--uid" "%u")
-                             ("%h")))
-          (tramp-remote-shell "/bin/sh")
-          (tramp-remote-shell-login ("-l"))
-          (tramp-remote-shell-args ("-i" "-c")))
-        tramp-methods))
+  ;; todo: check tramp-async-args and tramp-direct-async
+  (defun tramp-nspawn--add-method ()
+    "Add Tramp method handler for nspawn containers."
+    (push `(,tramp-nspawn-method
+            (tramp-login-program ,tramp-nspawn-machinectl-program)
+            (tramp-login-args (("shell")
+                               ("-q")
+                               ("--uid" "%u")
+                               ("%h")))
+            (tramp-remote-shell "/bin/sh")
+            (tramp-remote-shell-login ("-l"))
+            (tramp-remote-shell-args ("-i" "-c")))
+          tramp-methods))
 
-(defun tramp-nspawn-setup ()
-  "Initialize systemd-nspawn support for Tramp."
-  (tramp-nspawn--add-method)
-  (tramp-set-completion-function tramp-nspawn-method
-                                 '((tramp-nspawn--completion-function ""))))
+  (defun tramp-nspawn-setup ()
+    "Initialize systemd-nspawn support for Tramp."
+    (tramp-nspawn--add-method)
+    (tramp-set-completion-function tramp-nspawn-method
+                                   '((tramp-nspawn--completion-function ""))))
 
-(add-hook 'after-init-hook 'tramp-nspawn-setup)
+  (add-hook 'after-init-hook 'tramp-nspawn-setup)
 
+  )
 #+end_src
 * Security
 - some security copied from others config.
@@ -652,36 +655,36 @@ see its function help for a description of the format."
 - TODO notes on this.
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-{
-  # this makes our system more secure
-  # note that it might break some stuff, eg webcam
+  {
+    # this makes our system more secure
+    # note that it might break some stuff, eg webcam
 
-  security = {
-    protectKernelImage = true;
-    lockKernelModules = false;
-    rtkit.enable = true;
-    polkit.enable = true;
+    security = {
+      protectKernelImage = true;
+      lockKernelModules = false;
+      rtkit.enable = true;
+      polkit.enable = true;
 
-    # required for lockscreens
-    # also for finger print
-    pam = {
-      services.gtklock = {
-        text = "auth include login";
+      # required for lockscreens
+      # also for finger print
+      pam = {
+        services.gtklock = {
+          text = "auth include login";
+        };
       };
-    };
 
-    doas = {
-      enable = true;
-      extraRules = [{
-        users = [ "${vars.username}" ];
-        keepEnv = true;
-        persist = true;
-      }];
-    };
+      doas = {
+        enable = true;
+        extraRules = [{
+          users = [ "${vars.username}" ];
+          keepEnv = true;
+          persist = true;
+        }];
+      };
 
-    sudo.enable = false;
-  };
-}
+      sudo.enable = false;
+    };
+  }
   #+end_src
 * Services
 - Utilities that run as service.
@@ -985,66 +988,66 @@ see its function help for a description of the format."
 - The directories, and support.
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix :noweb yes
-{
-  xdg = {
-    enable = true;
-    cacheHome = config.home.homeDirectory + "/.local/cache";
-
-    mimeApps = let
-      browser = ["d-stuff.desktop"];
-    in {
+  {
+    xdg = {
       enable = true;
+      cacheHome = config.home.homeDirectory + "/.local/cache";
 
-      defaultApplications = {
-        "application/x-extension-htm" = browser;
-        "application/x-extension-html" = browser;
-        "application/x-extension-shtml" = browser;
-        "application/x-extension-xht" = browser;
-        "application/x-extension-xhtml" = browser;
-        "application/xhtml+xml" = browser;
-        "text/html" = browser;
-        "x-scheme-handler/about" = browser;
-        "x-scheme-handler/chrome" = ["chromium-browser.desktop"];
-        "x-scheme-handler/ftp" = browser;
-        "x-scheme-handler/http" = browser;
-        "x-scheme-handler/https" = browser;
-        "x-scheme-handler/unknown" = browser;
+      mimeApps = let
+        browser = ["d-stuff.desktop"];
+      in {
+        enable = true;
 
-        "audio/*" = ["mpv.desktop"];
-        "video/*" = ["mpv.dekstop"];
-        "image/*" = ["imv.desktop"];
-        "application/json" = browser;
-        "application/pdf" = ["sioyek.desktop"];
-        "x-scheme-handler/magnet" = ["d-stuff.desktop"];
-        "application/epub+zip" = ["sioyek.desktop"];
-        "application/zip" = ["sioyek.desktop"];
-        "application/x.bittorrent" = ["d-stuff.desktop"];
+        defaultApplications = {
+          "application/x-extension-htm" = browser;
+          "application/x-extension-html" = browser;
+          "application/x-extension-shtml" = browser;
+          "application/x-extension-xht" = browser;
+          "application/x-extension-xhtml" = browser;
+          "application/xhtml+xml" = browser;
+          "text/html" = browser;
+          "x-scheme-handler/about" = browser;
+          "x-scheme-handler/chrome" = ["chromium-browser.desktop"];
+          "x-scheme-handler/ftp" = browser;
+          "x-scheme-handler/http" = browser;
+          "x-scheme-handler/https" = browser;
+          "x-scheme-handler/unknown" = browser;
+
+          "audio/*" = ["mpv.desktop"];
+          "video/*" = ["mpv.dekstop"];
+          "image/*" = ["imv.desktop"];
+          "application/json" = browser;
+          "application/pdf" = ["sioyek.desktop"];
+          "x-scheme-handler/magnet" = ["d-stuff.desktop"];
+          "application/epub+zip" = ["sioyek.desktop"];
+          "application/zip" = ["sioyek.desktop"];
+          "application/x.bittorrent" = ["d-stuff.desktop"];
+        };
+
+        associations.added = {
+          "x-scheme-handler/magnet" = ["d-stuff.desktop"];
+        };
       };
 
-      associations.added = {
-        "x-scheme-handler/magnet" = ["d-stuff.desktop"];
+      userDirs = {
+        enable = true;
+        createDirectories = false;
+        documents =  "${config.home.homeDirectory}/docs";
+        download = "${config.home.homeDirectory}/dloads";
+        videos = "${config.home.homeDirectory}/vids";
+        music = "${config.home.homeDirectory}/music";
+        pictures = "${config.home.homeDirectory}/pics";
+        extraConfig = {
+          xdg_screenshots_dir = "${config.xdg.userDirs.pictures}/sshots";
+        };
       };
+
     };
+    xdg.dataFile."applications/d-stuff.desktop".text = ''
+    <<conf-dstuff>>
+    '';
 
-    userDirs = {
-      enable = true;
-      createDirectories = false;
-      documents =  "${config.home.homeDirectory}/docs";
-      download = "${config.home.homeDirectory}/dloads";
-      videos = "${config.home.homeDirectory}/vids";
-      music = "${config.home.homeDirectory}/music";
-      pictures = "${config.home.homeDirectory}/pics";
-      extraConfig = {
-        xdg_screenshots_dir = "${config.xdg.userDirs.pictures}/sshots";
-      };
-    };
-
-  };
-  xdg.dataFile."applications/d-stuff.desktop".text = ''
-  <<conf-dstuff>>
-  '';
-
-}
+  }
   #+end_src
 
 **** d-stuff desktop
@@ -1091,13 +1094,13 @@ Exec=d-stuff %u
     # Collect garbage and delete generation every 7 day. Will help to get some storage space.
     # Better to atleast keep it for few days, as you do major update (unstable), if something breaks you can roll back.
     nix = {
-      package = pkgs.nixUnstable; # 2.19 has issues with mkOutOfStoreSymlink
-      optimise.automatic = true;
-      gc = {
-        automatic = true;
-        dates = "weekly";
-        options = "--delete-older-than 7d";
-      };
+      # package = pkgs.nixUnstable; # 2.19 has issues with mkOutOfStoreSymlink
+      # optimise.automatic = true;
+      # gc = {
+      #   automatic = true;
+      #   dates = "weekly";
+      #   options = "--delete-older-than 7d";
+      # };
 
       # Make builds run with low priority so my system stays responsive
       daemonCPUSchedPolicy = "idle";
@@ -1206,7 +1209,7 @@ Exec=d-stuff %u
   #+name: early-init
   #+begin_src emacs-lisp
 (tool-bar-mode -1)
-(menu-bar-mode 1)
+(menu-bar-mode -1)
 (scroll-bar-mode -1)
 
 (setq frame-inhibit-implied-resize t)
@@ -1347,9 +1350,9 @@ Exec=d-stuff %u
     ;; Uppercase is same as lowercase
     (define-coding-system-alias 'UTF-8 'utf-8)
     (modify-all-frames-parameters
-     '((alpha-background . 92)
-       (right-divider-width . 40)
-       (internal-border-width . 40)))
+     '((alpha-background . 100)
+       (right-divider-width . 0)
+       (internal-border-width . 0)))
 
     ;; balance windows when split (https://zck.org/balance-emacs-windows)
     (seq-doseq (fn (list #'split-window #'delete-window))
@@ -1386,10 +1389,10 @@ it narrows to region, or Org subtree."
   (defun d/kill-buffer ()
     "Clear the image cache (to release memory) after killing a pdf buffer."
     (interactive)
-    (if (one-window-p) (kill-this-buffer)
-      (kill-buffer-and-window))
     (when (derived-mode-p 'doc-view-mode) (progn (clear-image-cache) (doc-view-clear-cache)))
-    (when (derived-mode-p 'pdf-view-mode) (progn ((clear-image-cache) (pdf-cache-clear-data)))))
+    (when (derived-mode-p 'pdf-view-mode) (progn (clear-image-cache) (pdf-cache-clear-data)))
+    (if (one-window-p) (kill-this-buffer)
+      (kill-buffer-and-window)))
   #+end_src
 *** Simple
 - Bag of simple basic commands, to enhance.
@@ -1422,7 +1425,7 @@ it narrows to region, or Org subtree."
     (kill-do-not-save-duplicates t)
 
     :config
-    (global-hl-line-mode 1)
+    ;; (global-hl-line-mode 1)
     (global-visual-line-mode 1))
   #+end_src
 - DWIM way of joining lines with prefix argument.
@@ -1662,31 +1665,34 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 - The directory editor
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package dired
-  :defer t
-  :init (file-name-shadow-mode 1)
-  :ensure nil
-  :hook
-  (dired-mode . dired-hide-details-mode)
-  (dired-mode . dired-omit-mode)
-  :commands (dired dired-jump)
-  :bind (("C-x C-j" . dired-jump)
-         ("C-c f f" . window-focus-mode)
-         ("C-c f e" . (lambda () (interactive) (find-file "~/.config/emacs/lisp/")))
-         ("C-c f s" . (lambda () (interactive) (find-file "~/d-git/d-nix/")))
-         ("C-c f m" . (lambda () (interactive) (find-file "~/d-git/d-nix/README.org"))))
-  (:map dired-mode-map
-        ("q" . kill-buffer-and-window)
-        ("j" . dired-next-line)
-        ("k" . dired-previous-line)
-        ("l" . dired-find-file)
-        ("h" . dired-up-directory)
-        ("b" . embark-act))
+  (use-package dired
+    :defer t
+    :init (file-name-shadow-mode 1)
+    :ensure nil
+    :hook
+    (dired-mode . dired-hide-details-mode)
+    (dired-mode . dired-omit-mode)
+    :commands (dired dired-jump)
+    :bind (("C-x C-j" . dired-jump)
+           ("C-c f f" . window-focus-mode)
+           ("C-c f e" . (lambda () (interactive) (find-file "~/.config/emacs/lisp/")))
+           ("C-c f s" . (lambda () (interactive) (find-file "~/d-git/d-nix/")))
+           ("C-c f m" . (lambda () (interactive) (find-file "~/d-git/d-nix/README.org"))))
+    (:map dired-mode-map
+          ("q" . kill-buffer-and-window)
+          ("j" . dired-next-line)
+          ("k" . dired-previous-line)
+          ("l" . dired-find-file)
+          ("h" . dired-up-directory)
+          ("b" . embark-act)
+          ("e" . dired-do-eww))
 
-  :custom
-  (dired-listing-switches "-agho --group-directories-first")
-  (delete-by-moving-to-trash t)
-  (dired-dwim-target t))
+    :custom
+    (dired-listing-switches "-agho --group-directories-first")
+    (delete-by-moving-to-trash t)
+    (dired-dwim-target t)
+    ;; (dired-kill-when-opening-new-dired-buffer t) ;; in case sinlge buffer is preferred
+    )
   #+end_src
 - dired-x for some more functionality.
   #+name: orgmacs
@@ -2001,7 +2007,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
     (consult-ripgrep-args "rg --follow --null --line-buffered --no-ignore --color=never --max-columns=1000 --path-separator /   --smart-case --no-heading --with-filename --line-number --search-zip")
 
     (consult-customize
-     consult-theme :preview-key '(:debounce 1.5 any)
+     consult-theme :preview-key '(:debounce 2.5 any)
      consult-ripgrep consult-git-grep consult-grep
      consult-bookmark consult-recent-file consult-xref
      consult--source-bookmark consult--source-file-register
@@ -2380,6 +2386,13 @@ Return nil if NAME does not designate a valid color."
 (use-package tempel-collection
   :after tempel)
   #+end_src
+
++ Tempel support for eglot
+  #+name: orgmacs
+  #+begin_src emacs-lisp
+  (use-package tempel-eglot
+    :after eglot)
+  #+end_src
 ***** fundamental-templates
 - Templates for all modes.
   #+name: orgmacs
@@ -2393,55 +2406,56 @@ Return nil if NAME does not designate a valid color."
 - handy templates to use for quick running thought process.
   #+name: template
   #+begin_src emacs-lisp :tangle ~/.config/emacs/templates/nix.eld
-;; Refer: `tempo-define-template' for doc.
-;;  • (s NAME) Inserts a named field.
-;;  • (p/r PROMPT <NAME> <NOINSERT>) Insert an optionally named field with a prompt. The PROMPT is
-;;  displayed directly in the buffer as default value. If NOINSERT is non-nil, no field is inserted.
-;;  Then the minibuffer is used for prompting and the value is bound to NAME.
+  ;; Refer: `tempo-define-template' for doc.
+  ;;  • (s NAME) Inserts a named field.
+  ;;  • (p/r PROMPT <NAME> <NOINSERT>) Insert an optionally named field with a prompt. The PROMPT is
+  ;;  displayed directly in the buffer as default value. If NOINSERT is non-nil, no field is inserted.
+  ;;  Then the minibuffer is used for prompting and the value is bound to NAME.
 
-nix-mode
+  nix-mode
+  nix-ts-mode
 
-(buildphase > "buildPhase= ''" n (p "Build Instructions") n " '';")
-(checkPhase > "checkPhase= ''" n (p "") n " '';")
-(configurephase > "configurePhase= ''" n (p "") n " '';")
-(fixupphase > "fixupPhase= ''" n (p "") n " '';")
-(distphase > "distPhase= ''" n (p "") n " '';")
-(patchphase > "patchPhase= ''" n (p "") n " '';")
-(unpackphase > "unpackPhase= ''" n (p "") n " '';")
-(installCheckPhasephase > "installCheckPhasePhase= ''" n (p "") n " '';")
-(installphase > "installphase= ''" n p " mkdir -p $out/bin" n> "for f in $(find . -executable -type f);" n> "do" n> "cp $f $out/bin" n> "done}" n> " '';")
+  (buildphase > "buildPhase= ''" n (p "Build Instructions") n " '';")
+  (checkPhase > "checkPhase= ''" n (p "") n " '';")
+  (configurephase > "configurePhase= ''" n (p "") n " '';")
+  (fixupphase > "fixupPhase= ''" n (p "") n " '';")
+  (distphase > "distPhase= ''" n (p "") n " '';")
+  (patchphase > "patchPhase= ''" n (p "") n " '';")
+  (unpackphase > "unpackPhase= ''" n (p "") n " '';")
+  (installCheckPhasephase > "installCheckPhasePhase= ''" n (p "") n " '';")
+  (installphase > "installphase= ''" n p " mkdir -p $out/bin" n> "for f in $(find . -executable -type f);" n> "do" n> "cp $f $out/bin" n> "done}" n> " '';")
 
-(hmpkgs "{" n> "home.packages = with pkgs; [" n> (r "pkgnames") n> n> "];" n> "}")
+  (hmpkgs "{" n> "home.packages = with pkgs; [" n> (r "pkgnames") n> n> "];" n> "}")
 
-(gitpackage "{ lib" n ", stdenv" n ", fetchFromGitHub" n ", " (p "inputs") n ", " (p "inputs") n "}:" n n>
-            "stdenv.mkDerivation rec {" n> "pname = \"" (p "" pkgn nil) "\";" n> "version = \"" p "\";" n n>
-      "src = fetchFromGitHub {" n> "owner = \"" (p "" own) "\";" n> "repo = \"" (s pkgn) "\";" n>
-      "rev = \"" "v${version}" "\";" n> "sha256 = \"" "${lib.fakeSha256}" "\";" n> "};" n n>
-      "nativeBuildInputs = [ " (p "makeWrapper") " ];" n n> "BuildInputs = [ " (p) " ];" n n>
-      "meta = with lib; {" n>
-      "homepage = \"" "https://github.com/" (s own) "/" (s pkgn) "\";" n>
-      "description = \"" (p) "\";" n>
-      "license = licenses." (p (completing-read "License: " '("agpl3" "asl20" "bsd1" "bsd2" "bsd3" "free" "gpl2" "gpl2Only" "gpl2Plus" "gpl3" "gpl3Only" "gpl3Plus" "isc" "lgpl21Only" "lgpl21Plus" "lgpl2Only" "lgpl2Plus" "lgpl3" "lgpl3Only" "mit" "mpl20" "ofl" "unfree"))) ";" n>
-      "maintainers = with maintainers; [ " (s own) " ];" n>
-      "platforms = platforms."
-      (p (completing-read "Platform: " '("all" "allBut" "arm" "cygwin" "darwin" "freebsd" "gnu" "i686" "illumos" "linux" "mesaPlatforms" "mips" "netbsd" "none" "openbsd" "unix" "x86"))) ";" n> q "};" n> "}"
-      )
+  (gitpackage "{ lib" n ", stdenv" n ", fetchFromGitHub" n ", " (p "inputs") n ", " (p "inputs") n "}:" n n>
+              "stdenv.mkDerivation rec {" n> "pname = \"" (p "" pkgn nil) "\";" n> "version = \"" p "\";" n n>
+        "src = fetchFromGitHub {" n> "owner = \"" (p "" own) "\";" n> "repo = \"" (s pkgn) "\";" n>
+        "rev = \"" "v${version}" "\";" n> "sha256 = \"" "${lib.fakeSha256}" "\";" n> "};" n n>
+        "nativeBuildInputs = [ " (p "makeWrapper") " ];" n n> "BuildInputs = [ " (p) " ];" n n>
+        "meta = with lib; {" n>
+        "homepage = \"" "https://github.com/" (s own) "/" (s pkgn) "\";" n>
+        "description = \"" (p) "\";" n>
+        "license = licenses." (p (completing-read "License: " '("agpl3" "asl20" "bsd1" "bsd2" "bsd3" "free" "gpl2" "gpl2Only" "gpl2Plus" "gpl3" "gpl3Only" "gpl3Plus" "isc" "lgpl21Only" "lgpl21Plus" "lgpl2Only" "lgpl2Plus" "lgpl3" "lgpl3Only" "mit" "mpl20" "ofl" "unfree"))) ";" n>
+        "maintainers = with maintainers; [ " (s own) " ];" n>
+        "platforms = platforms."
+        (p (completing-read "Platform: " '("all" "allBut" "arm" "cygwin" "darwin" "freebsd" "gnu" "i686" "illumos" "linux" "mesaPlatforms" "mips" "netbsd" "none" "openbsd" "unix" "x86"))) ";" n> q "};" n> "}"
+        )
 
-(shellnix "with import <nixpkgs> {};" n>
-          "pkgs.mkShell {" n n>
-          "nativeBuildInputs = [ pkgs.bashInteractive ];" n n>
-          "# EnvVars = The thung" n
-          "# NIX_LD_LIBRARY_PATH = lib.makeLibraryPath [" n>
-          "# pkgs" n> "# ];" n>
-          "# NIX_LD = lib.fileContents \"${stdenv.cc}/nix-support/dynamic-linker\";" n n>
-          "buildInputs = with pkgs; [" n>
-          (p "pkgs names") n n>
-          "];" n n>
-          "shellHook = ''" n>
-          (p "Command to Run") n>
-          "'';" n
-          "}"
-          )
+  (shellnix "with import <nixpkgs> {};" n>
+            "pkgs.mkShell {" n n>
+            "nativeBuildInputs = [ pkgs.bashInteractive ];" n n>
+            "# EnvVars = The thung" n
+            "# NIX_LD_LIBRARY_PATH = lib.makeLibraryPath [" n>
+            "# pkgs" n> "# ];" n>
+            "# NIX_LD = lib.fileContents \"${stdenv.cc}/nix-support/dynamic-linker\";" n n>
+            "buildInputs = with pkgs; [" n>
+            (p "pkgs names") n n>
+            "];" n n>
+            "shellHook = ''" n>
+            (p "Command to Run") n>
+            "'';" n
+            "}"
+            )
   #+end_src
 ***** org-templates
   #+begin_src emacs-lisp :tangle ~/.config/emacs/templates/org.eld
@@ -2602,6 +2616,228 @@ emacs-lisp-mode
 
 
   #+end_src
+***** python-templates
+- Credits to jgarte (https://git.sr.ht/~whereiseveryone/dot/tree/master/item/snippets)
+  #+name: orgmacs
+  #+begin_src emacs-lisp :tangle ~/.config/emacs/templates/python.eld
+  python-ts-mode python-mode
+
+  (if "if " p ":" p % "else:" n> p)
+
+  ;; https://issues.genenetwork.org/topics/using-pdb-to-troubleshoot.html
+  (post-mortem "try:" n> "return " p n> "except Exception:" n> "import pdb; pdb.post_mortem()")
+
+  ;; subprocess
+  ;; https://realpython.com/python-subprocess/
+  (subprocess-su "subprocess.run([\"ls\", \"-l\", \"/dev/null\"], capture_output=True)")
+  (subprocess-sl "subprocess.run([" p "])")
+  (subprocess-sc "completed_process = subprocess.run(" n> "[" p "]," n> "check=True" n ")")
+  (subprocess-so "subprocess.run(["python", "timer.py", "5"], timeout=1)")
+  (subprocess-st "subprocess.run([\"ls /usr/bin | grep pycode\"], shell=True)")
+
+  ;; json
+  (json-w "with open(\"data_file.json\", \"w\") as write_file:" n> "json.dump(data, write_file)")
+  (json-r "with open(\"data_file.json\", \"r\") as read_file:" n> "data = json.load(read_file)")
+  (json-get-loads "response = requests.get(\"https://jsonplaceholder.typicode.com/todos\")"
+      n
+      "todos = json.loads(response.text)")
+
+  ;; pathlib
+  (pc "pathlib.Path.cwd()")
+  (ph "pathlib.Path.home() / 'python' / 'scripts' / 'test.py'")
+
+  (type "type(" p ")")
+  (list "list(" p ")")
+  (len "len(" p ")")
+  (str "str(" p ")")
+  (dir "dir(" p ")")
+
+  ;; files
+  (withopen-read "with open('data.txt', 'r') as f:" n> "data = f.read()")
+  (withopen-write "with open('data.txt', 'w') as f:" n> "data = 'some data to be written to the file'" n> "f.write(data)")
+
+  (init "def __init__(self, " p "):")
+
+  (al "__all__ = [" n> p n "]")
+
+  (pa "parser.add_argument(")
+
+  ;; types
+  (typing-union " Union[" p ", " p "]:")
+  (typing-optional " -> Optional[" p "]:" n>)
+  (typing-sequence " Sequence[" p "]")
+  (typing-string " -> str:" n>)
+  (typing-int " -> int:" n>)
+  (typing-typevar "T = TypeVar('T')" n)
+
+  (asserts "assert " p)
+
+  (shebang "#!/usr/bin/env python")
+
+  (classmethod "@classmethod" n "def " p "(cls, " p "):" n>)
+
+  (class "class " p ":" n>)
+  (class-pass "class " p ":" n> "pass")
+  (class-employee "class Employee:" n> "def __init__(self, id, name):" n> "self.id = id" n> "self.name = name")
+  (class-rectangle "class Rectangle:" n>
+                   "def __init__(self, length, height):" n>
+                   "self._length = length" n> "self._height = height" n> n
+                   "@property" n>
+                   "def area(self):" n>
+                   "return self._length * self._height" n> n
+                   "def resize(self, new_length, new_height):" n>
+                   "self._length = new_length" n>
+                   "self._height = new_height" n>)
+
+
+  (dataclass "@dataclass" n> "class " p ":" n>)
+
+
+  (main "if __name__ == '__main__':" n> "main()")
+
+  (lambda "lambda " p ": "  p)
+
+  ;; comprehensions
+
+  (list-comprehension-fruits "fruits = []"
+      n
+      "newlist = [x for x in fruits if "a" in x]")
+
+  (list-comprehension-in "[ " p "for " p " in " p "]")
+  (list-comprehension-squares "squares = [i * i for i in range(" p ")]")
+  (list-comprehension-sentence "sentence = 'the rocket came back from mars'"
+      n
+      "vowels = [i for i in sentence if i in 'aeiou']")
+  (lp "original_prices = [1.25, -9.45, 10.22, 3.78, -5.92, 1.16]"
+      n
+      "prices = [i if i > 0 else 0 for i in original_prices]")
+
+  (ld "quote = 'life, uh, finds a way'"
+      n
+      "unique_vowels = {i for i in quote if i in 'aeiou'}")
+  (lds "squares = {i: i * i for i in range(10)}")
+
+  ;; debugging
+  (lo "logger = logging.getLogger(" p ")")
+  (b "breakpoint()")
+  (in "import code; code.interact(local=locals())")
+  (pu "from pudb import set_trace; set_trace()")
+
+  ;; is this one really useful?
+  (r "return " p)
+  (s "self." p)
+  (se "self." p " = " p)
+
+  ;; docstrings
+  (docstring-google "\"\"\"" p n "Args:" n> p "Returns:" n "\"\"\"")
+  (docstring-module "\"\"\"" p n "\"\"\"")
+
+  ;; regex
+  (regex-split-word "re.split(r'\W+', " p)
+  (regex-split-word-one "re.split(r'\W+', " p ", 1)")
+  (regex-split-ignorecase "re.split('[a-f]+', " p "flags=re.IGNORECASE)")
+
+  ;; isinstance
+  (isinstance-bytes "if isinstance(line, bytes):" n>)
+
+  ;; dicts
+  (dicts-print "dictionary = {\"raj\": 2, \"striver\": 3, \"vikram\": 4}"
+      n
+      "print(dictionary.values())")
+
+  ;; pytest
+  (pytest-fixture "@pytest.fixture(params=TERMS_LIST)" n
+       "def poly(request):" n>
+       "return Polynomial(request.param)")
+
+  ;; mocking
+  (mock-return "mock = Mock()" n "mock.__str__ = Mock(return_value='wheeeeee')")
+
+  ;; numpy
+
+  ;; csv
+
+  (csv "import csv" n
+       "with open('eggs.csv', newline='') as csvfile:" n>
+       "spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')" n>
+       "for row in spamreader:" n>
+       "print(', '.join(row))")
+
+  ;; sets
+
+  ;; scipy
+
+  ;; urllib
+  (ul "from urllib.request import urlopen" n
+      "with urlopen('http://worldtimeapi.org/api/timezone/etc/UTC.txt') as response:" n>
+      "for line in response:" n>
+      "line = line.decode()             # Convert bytes to a str" n>
+      "if line.startswith('datetime'):" n>
+      "print(line.rstrip()) ")
+
+  ;; datetime
+  (now "now = date.today()")
+  (nstf "now.strftime(\"%m-%d-%y. %d %b %Y is a %A on the %d day of %B.\")")
+
+  ;; sqlite
+  (sqlite-connect "con = sqlite3.connect('example.db')")
+  (sqlite-create "cur = con.cursor()" n
+       "cur.execute('''CREATE TABLE stocks (date text, trans text, symbol text, qty real, price real)''')" n
+       "cur.execute(\"INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14)\")" n
+       "con.commit()" n
+       "con.close()" n)
+
+
+  ;; tempfile
+  (tw "fp = tempfile.TemporaryFile()" n
+      "fp.write(b'Hello world!')" n
+      "fp.seek(0)" n
+      "fp.read()" n
+      "fp.close()")
+
+  (tc "with tempfile.TemporaryDirectory() as tmpdirname:" n>
+      "print('created temporary directory', tmpdirname)")
+
+  ;; https://docs.python.org/3/library/glob.html
+  (gr "glob.glob('**/*.txt', recursive=True)")
+
+  ;; time
+  (time "from time import gmtime, strftime" n
+        "strftime(\"%a, %d %b %Y %H:%M:%S +0000\", gmtime())")
+
+  ;; timeit
+  (teit "import timeit"
+       "timeit.timeit('\"-\".join(str(n) for n in range(100))', number=10000)")
+
+  ;; ast
+  (ast "print(ast.dump(ast.parse('123', mode='eval'), indent=4))")
+
+  ;; icecream
+  (icecream "ic(" p ")")
+  (icecream-install "from icecream import install" n "install()")
+  (icecream-import "from icecream import ic; ic(" p ")")
+
+  ;; sys
+  (sys-getsizeof "print(sys.getsizeof(" p "))")
+
+  ;; https://stackoverflow.com/questions/6579496/using-print-statements-only-to-debug
+  (logging "import logging, sys" n
+       "logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)" n
+       "logging.debug('A debug message!')" n
+       "logging.info('We processed %d records', len(processed_records))")
+
+  ;; https://github.com/AbhijithAJ/clrprint
+  (clrprint "from clrprint import *" n
+       "clrprint('ERROR:', information,clr=['r','y'], debug=True)")
+
+  ;; what am I doing with this?
+  (csl "clr = clr.strip().lower()")
+
+  (fixtures "@pytest.fixture" n
+            "def example_fixture():" n> "return 1" n n
+            "def test_with_fixture(example_fixture):" n>
+            "assert example_fixture == 1")
+  #+end_src
 ***** css-templates
   #+begin_src emacs-lisp :tangle ~/.config/emacs/templates/css.eld
 css-mode css-ts-mode
@@ -2625,21 +2861,23 @@ css-mode css-ts-mode
 **** Mouse
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package mwheel
-  :ensure nil
-  :bind
-  ([mouse-9] . [prior]) ;; binds mouse fwd button to page up
-  ([mouse-8] . [next]) ;; mouse bwd button to page down
-)
+  (use-package mwheel
+    :ensure nil
+    :bind
+    ([mouse-9] . [prior]) ;; binds mouse fwd button to page up
+    ([mouse-8] . [next]) ;; mouse bwd button to page down
+    :custom
+    (mouse-autoselect-window t)
+  )
 
-(use-package disable-mouse
-  :unless d/on-droid
-  :bind
-  ([f10] . disable-mouse-mode))
+  (use-package disable-mouse
+    :unless d/on-droid
+    :bind
+    ([f10] . disable-mouse-mode))
 
-(use-package xt-mouse
-  :init
-  (xterm-mouse-mode))
+  (use-package xt-mouse
+    :init
+    (xterm-mouse-mode))
   #+end_src
 **** pixel scroll
   #+name: orgmacs
@@ -2692,17 +2930,35 @@ You can do this by trackpad too (laptop)"
     :custom
     (use-system-tooltips t))
   #+end_src
+**** repeat-mode
+- To repeat some obstrusive commands, without invoking painful modifers.
+  #+name: orgmacs
+  #+begin_src emacs-lisp
+  (use-package repeat
+    :custom
+    (repeat-exit-timeout 5)
+    :config
+    (repeat-mode 1))
+  #+end_src
 **** winner
 - to capture window/panes states.
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package winner
-  :ensure nil
-  :hook after-init
-  :bind
-  ("C-c w n" . winner-undo)
-  ("C-c w p" . winner-redo)
-  :commands (winner-undo winnner-redo))
+  (use-package winner
+    :ensure nil
+    :hook after-init
+    :bind-keymap
+    ("C-c w" . windmove-rmaps)
+    :bind
+    (:repeat-map windmove-rmaps
+                 ("h" . windmove-left)
+                 ("j" . windmove-down)
+                 ("k" . windmove-up)
+                 ("l" . windmove-right)
+                 ("n" . winner-undo)
+                 ("p" . winner-redo)
+                 )
+    :commands (winner-undo winnner-redo))
   #+end_src
 **** time break
 - to take break timely with some stats.
@@ -2980,75 +3236,75 @@ You can do this by trackpad too (laptop)"
 - foot is decent, but emacs tho has got it covered too!
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-  {
-    programs.foot = {
-      enable = true;
+    {
+      programs.foot = {
+        enable = true;
 
-      # doesnt work properly; Enable it in hyprland or sway config
-      server.enable = false;
+        # doesnt work properly; Enable it in hyprland or sway config
+        server.enable = false;
 
-      settings = {
-        main = {
-          term = "xterm-256color";
-          font = "Code D OnePiece:size=20, Noto Color Emoji:size=20";
-          font-bold = "Code D Lip:size=20, Noto Color Emoji:size=20";
-          letter-spacing = "1";
-          box-drawings-uses-font-glyphs = "no";
-          pad = "0x0center";
-          notify = "notify-send -a \${app-id} -i \${app-id} \${title} \${body}";
-          selection-target = "clipboard";
-          # dpi-aware = "true";
+        settings = {
+          main = {
+            term = "xterm-256color";
+            font = "Code OnePiece:size=26, Noto Color Emoji:size=25";
+            font-bold = "Code OnePiece:size=26, Noto Color Emoji:size=25";
+            letter-spacing = "1";
+            box-drawings-uses-font-glyphs = "no";
+            pad = "0x0center";
+            notify = "notify-send -a \${app-id} -i \${app-id} \${title} \${body}";
+            selection-target = "clipboard";
+            # dpi-aware = "true";
+          };
+
+          scrollback = {
+            lines = 10000;
+            multiplier = 3;
+          };
+
+          url = {
+            launch = "d-stuff \${url}";
+            label-letters = "sadfjklewcmpgh";
+            osc8-underline = "url-mode";
+            protocols = "http, https, ftp, ftps, file";
+            uri-characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.,~:;/?#@!$&%*+=\"'()[]";
+          };
+
+          key-bindings = {
+            clipboard-copy = "Control+Shift+c";
+            clipboard-paste = "Control+Shift+v Control+y";
+            primary-paste = "Shift+Insert";
+
+          };
+
+          colors = {
+            background = "050505";
+            foreground = "ffffff";
+            regular0 = "030303";
+            regular1 = "ff8059";
+            regular2 = "44bc44";
+            regular3 = "d0bc00";
+            regular4 = "2fafff";
+            regular5 = "feacd0";
+            regular6 = "00d3d0";
+            regular7 = "bfbfbf";
+            bright0 = "595959";
+            bright1 = "ef8b50";
+            bright2 = "70b900";
+            bright3 = "c0c530";
+            bright4 = "79a8ff";
+            bright5 = "b6a0ff";
+            bright6 = "6ae4b9";
+            bright7 = "ffffff";
+            alpha = "0.9";
+          };
+
+          mouse = {
+            hide-when-typing = "yes";
+          };
+
         };
-
-        scrollback = {
-          lines = 10000;
-          multiplier = 3;
-        };
-
-        url = {
-          launch = "d-stuff \${url}";
-          label-letters = "sadfjklewcmpgh";
-          osc8-underline = "url-mode";
-          protocols = "http, https, ftp, ftps, file";
-          uri-characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.,~:;/?#@!$&%*+=\"'()[]";
-        };
-
-        key-bindings = {
-          clipboard-copy = "Control+Shift+c";
-          clipboard-paste = "Control+Shift+v Control+y";
-          primary-paste = "Shift+Insert";
-
-        };
-
-        colors = {
-          background = "050505";
-          foreground = "ffffff";
-          regular0 = "030303";
-          regular1 = "ff8059";
-          regular2 = "44bc44";
-          regular3 = "d0bc00";
-          regular4 = "2fafff";
-          regular5 = "feacd0";
-          regular6 = "00d3d0";
-          regular7 = "bfbfbf";
-          bright0 = "595959";
-          bright1 = "ef8b50";
-          bright2 = "70b900";
-          bright3 = "c0c530";
-          bright4 = "79a8ff";
-          bright5 = "b6a0ff";
-          bright6 = "6ae4b9";
-          bright7 = "ffffff";
-          alpha = "0.9";
-        };
-
-        mouse = {
-          hide-when-typing = "yes";
-        };
-
       };
-    };
-  }
+    }
   #+end_src
 **** Zellij
 - Its a decent multiplexer
@@ -3263,6 +3519,7 @@ You can do this by trackpad too (laptop)"
 
     home.packages = with pkgs; [
       emacs-lsp-booster
+      imagemagick # for image-dired and other converts
     ];
 
     programs.emacs = {
@@ -3270,44 +3527,43 @@ You can do this by trackpad too (laptop)"
       package = pkgs.emacs-pgtk;
       extraPackages = (epkgs: (with epkgs; [
         treesit-grammars.with-all-grammars
-        eat vundo undo-fu-session helpful flymake-languagetool
-        no-littering rainbow-delimiters
+        eat vundo undo-fu-session helpful
+        no-littering rainbow-delimiters colorful-mode
         vertico orderless consult marginalia embark org-modern corfu cape corfu-terminal
-        org olivetti nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
-        embark-consult consult-eglot markdown-mode nix-mode
-        reddigg hnreader howdoyou mingus magit webpaste org-present
+        olivetti nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
+        embark-consult consult-eglot markdown-mode nix-mode nix-ts-mode
+        reddigg hnreader howdoyou magit webpaste
         shrface shr-tag-pre-highlight nov devdocs-browser reformatter
-        denote tempel tempel-collection avy
-        sdcv elfeed elfeed-org jinx
-        el-fetch envrc dashboard mini-echo
+        tempel tempel-collection eglot-tempel
+        sdcv jinx envrc dashboard mini-echo
         speed-type vc-backup aria2 pubmed
         ess auctex julia-mode webfeeder engrave-faces
-        toc-org disable-mouse org-ql org-alert org-noter
-        pdf-tools flycheck
+        toc-org org-ql org-alert org-noter
+        saveplace-pdf-view flycheck consult-flycheck
         ef-themes doom-themes
-        # org-re-reveal
+        org-re-reveal
 
         (trivialBuild {
           pname = "combobulate";
-          version = "pre-2024-03-01";
+          version = "pre-2024-03-11";
 
           src = pkgs.fetchFromGitHub {
             owner = "mickeynp";
             repo = "combobulate";
-            rev = "f220e87c7bc1792e5fd46efaa86f75a9f5bcc1d0";
-            hash = "sha256-jR8XlRAig/lgmaVoM3uPp+Odao0JIGG5x3FTHxnmJRo=";
+            rev = "ee82c568ad639605518f62f82fae4bcc0dfdbb81";
+            hash = "sha256-rww0/6304xZWTFRo1BVcfSDdXOXtlgmfZOxAoOIjYsk=";
           };
         })
 
         (trivialBuild {
           pname = "eglot-booster";
-          version = "pre-2024-03-01";
+          version = "pre-2024-04-11";
 
           src = pkgs.fetchFromGitHub {
             owner = "jdtsmith";
             repo = "eglot-booster";
-            rev = "e79dea640356eb4a8ed9df3808fe73c7c6db4cc4";
-            hash = "sha256-ybNqMHCGjzT2+4OfywS7hNw551kIzwI3QqC8tU/GsQI=";
+            rev = "e19dd7ea81bada84c66e8bdd121408d9c0761fe6";
+            hash = "sha256-vF34ZoUUj8RENyH9OeKGSPk34G6KXZhEZozQKEcRNhs=";
           };
         })
 
@@ -3323,24 +3579,13 @@ You can do this by trackpad too (laptop)"
           };
         })
 
-        (trivialBuild {
-          pname = "colorful-mode";
-          version = "pre-0.1";
-
-          src = pkgs.fetchFromGitHub {
-            owner = "DevelopmentCool2449/";
-            repo = "colorful-mode";
-            rev = "main";
-            hash = "sha256-1Mt6K+W55g4T0JJbg5CBeM2LR6GaC8iQjb3NXAadwX4=";
-          };
-        })
 
 
         ## packages kept out to make more vanilla usage!
-        # async dirvish consult-flycheck beframe powerthesaurus meow
+        # async dirvish beframe powerthesaurus meow
         # doom-modeline ox-hugo ement kind-icon el-patch
         # rainbow-mode -> replcaed by new package, colorful-mode
-        # saveplace-pdf-view
+        # saveplace-pdf-view pdf-tools
 
       ])
       );
@@ -3352,7 +3597,7 @@ You can do this by trackpad too (laptop)"
 
   }
   #+end_src
-**** neovim
+**** COMMENT neovim
 - just to be there, why use vim when emacs can do everything.
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
@@ -3366,7 +3611,7 @@ You can do this by trackpad too (laptop)"
 }
   #+end_src
 
-**** helix
+**** COMMENT helix
 - just to test the cool editor out there.
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
@@ -3514,12 +3759,11 @@ You can do this by trackpad too (laptop)"
     (:map python-mode-map
           ("C-c C-d" . devdocs-browser-open))
     :custom
-    (python-shell-dedicated 'project)
+    (python-shell-dedicated nil)
     (python-shell-interpreter "python")
-    (python-shell-interpreter-args "-i")
+    (python-shell-interpreter-args "")
     ;; (python-forward-sexp-function nil)
-    (python-indent-guess-indent-offset-verbose nil)
-    (python-shell-completion-native-disabled-interpreters '("pypy")))
+    (python-indent-guess-indent-offset-verbose nil))
   #+end_src
 **** R-stats
 - Emacs speak statistics
@@ -3584,35 +3828,38 @@ You can do this by trackpad too (laptop)"
 **** nix
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package nix-mode
-  :mode ("\\.nix\\'" "\\.nix.in\\'")
-  :defines (nix-mode-map)
-  :functions
-  (comint-send-input)
-  :bind (:map nix-mode-map
-              ("C-c C-e" . nix-eval-line)))
-(defun nix-eval-dwim ()
-  (interactive)
-  (let* ((start (line-beginning-position))
-         (end (line-end-position))
-         (region-string (buffer-substring (region-beginning) (region-end)))
-         (msg (format "%s" (if (use-region-p) region-string (buffer-substring start end)))))
-    (pop-to-buffer "*Nix-REPL*")
-    (insert msg)
+  (use-package nix-mode
+    :defines (nix-mode-map)
+    :functions
     (comint-send-input)
-    (other-window 1)))
+    :bind (:map nix-mode-map
+                ("C-c C-e" . nix-eval-line)))
 
-(use-package nix-drv-mode
-  :ensure nix-mode
-  :mode "\\.drv\\'")
+  (use-package nix-ts-mode
+    :mode ("\\.nix\\'" "\\.nix.in\\'"))
 
-(use-package nix-shell
-  :ensure nix-mode
-  :commands (nix-shell-unpack nix-shell-configure nix-shell-build))
+  (defun nix-eval-dwim ()
+    (interactive)
+    (let* ((start (line-beginning-position))
+           (end (line-end-position))
+           (region-string (buffer-substring (region-beginning) (region-end)))
+           (msg (format "%s" (if (use-region-p) region-string (buffer-substring start end)))))
+      (pop-to-buffer "*Nix-REPL*")
+      (insert msg)
+      (comint-send-input)
+      (other-window 1)))
 
-(use-package nix-repl
-  :ensure nix-mode
-  :commands (nix-repl))
+  (use-package nix-drv-mode
+    :ensure nix-mode
+    :mode "\\.drv\\'")
+
+  (use-package nix-shell
+    :ensure nix-mode
+    :commands (nix-shell-unpack nix-shell-configure nix-shell-build))
+
+  (use-package nix-repl
+    :ensure nix-mode
+    :commands (nix-repl))
   #+end_src
 **** stack
   #+name: hm-config
@@ -3686,17 +3933,17 @@ You can do this by trackpad too (laptop)"
 - To lint and check for good practices in code.
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package flycheck
-  :defer t
-  :disabled t
-  :hook (prog-mode . flycheck-mode)
-  :custom
-  (flycheck-check-syntax-automatically '(save idle-change mode-enabled))
-  (flycheck-idle-change-delay 3)
-  ;; more form doom
-  (flycheck-emacs-lisp-load-path 'inherit)
-  (flycheck-buffer-switch-check-intermediate-buffers t)
-  (flycheck-display-errors-delay 0.25))
+  (use-package flycheck
+    :defer t
+
+    :hook (prog-mode . flycheck-mode)
+    :custom
+    (flycheck-check-syntax-automatically '(save idle-change mode-enabled))
+    (flycheck-idle-change-delay 3)
+    ;; more form doom
+    (flycheck-emacs-lisp-load-path 'inherit)
+    (flycheck-buffer-switch-check-intermediate-buffers t)
+    (flycheck-display-errors-delay 0.25))
   #+end_src
 - Add flycheck support for =ruff= fast python linter.
 - changed =source-original= to ~source-inplace~ to work on org-edit-special too.
@@ -3872,28 +4119,30 @@ out")
 - mostly it inherits official doc, maybe little spiced up ;).
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package devdocs-browser
-  :bind
-  ("C-c d v" . devdocs-browser-open-in)
-  :hook
-  (devdocs-browser-eww-mode . shrface-mode)
-  :custom
-  (devdocs-browser-major-mode-docs-alist
-   '((c++-ts-mode "cpp")
-     (c-ts-mode "c")
-     (go-ts-mode "go")
-     (python-ts-mode "Python")
-     (emacs-lisp-mode "elisp")
-     (rust-ts-mode "rust")
-     (cmake-mode "CMake")))
+  (use-package devdocs-browser
+    :bind
+    ("C-c d v" . devdocs-browser-open-in)
+    :hook
+    (devdocs-browser-eww-mode . shrface-mode)
+    :custom
+    (devdocs-browser-major-mode-docs-alist
+     '((c++-ts-mode "cpp")
+       (c-ts-mode "c")
+       (go-ts-mode "go")
+       (python-ts-mode "Python")
+       (emacs-lisp-mode "elisp")
+       (rust-ts-mode "rust")
+       (cmake-mode "CMake")))
 
-  (devdocs-browser-highlight-lang-mode-alist
-   '(("c" . c-ts-mode)
-     ("cpp" . c++-ts-mode)
-     ("py" . python-ts-mode)
-     ("bash" . bash-ts-mode)
-     ("shell" . bash-ts-mode)
-     ("python" . python-ts-mode))))
+    (devdocs-browser-highlight-lang-mode-alist
+     '(("c" . c-ts-mode)
+       ("cpp" . c++-ts-mode)
+       ("py" . python-ts-mode)
+       ("bash" . bash-ts-mode)
+       ("shell" . bash-ts-mode)
+       ("python" . python-ts-mode)))
+
+    (devdocs-browser-data-directory (expand-file-name "var/devdocs" user-emacs-directory)))
   #+end_src
 **** electric-pair
 - to enclose pairs or delimiters
@@ -3960,7 +4209,7 @@ out")
     :defer t
     :hook (prog-mode . rainbow-delimiters-mode))
   #+end_src
-**** avy
+**** COMMENT avy
 - to jump to places quick and easy with few keypress.
   #+name: orgmacs
   #+begin_src emacs-lisp
@@ -4059,59 +4308,60 @@ out")
 - the best pdf reader
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  programs.sioyek = {
-    enable = true;
-    bindings = {
-      "move_up" = ["k" "<C-p>"];
-      "move_down" = ["j" "<C-n>"];
-      "move_left" = "h";
-      "move_right" = "l";
-      "screen_down" = [ "d" "<C-v>" ];
-      "screen_up" = [ "u" "<A-v>" ];
-      "fit_to_page_width" = "<f9>";
-      "fit_to_page_width_smart" = "<f10>";
-      "toggle_fullscreen" = [ "f" "<f11>"  ];
-      "quit" = "q";
-      "toggle_custom_color" = [ "<f8>" "I"];
-      "toggle_highlight" = "<f1>";
-      "command" = "<A-x>";
-      "toggle_dark_mode" = "i";
-      "toggle_presentation_mode" = "<f5>";
-      "toggle_statusbar" = "B";
-    };
+  {
+    programs.sioyek = {
+      enable = true;
+      bindings = {
+        "move_up" = ["k" "<C-p>"];
+        "move_down" = ["j" "<C-n>"];
+        "move_left" = "h";
+        "move_right" = "l";
+        "screen_down" = [ "d" "<C-v>" ];
+        "screen_up" = [ "u" "<A-v>" ];
+        "fit_to_page_width" = "<f9>";
+        "fit_to_page_width_smart" = "<f10>";
+        "toggle_fullscreen" = [ "f" "<f11>"  ];
+        "quit" = "q";
+        "toggle_custom_color" = [ "<f8>" "I"];
+        "toggle_highlight" = "<f1>";
+        "command" = "<A-x>";
+        "toggle_dark_mode" = "i";
+        "toggle_presentation_mode" = "<f5>";
+        "toggle_statusbar" = "B";
+      };
 
-    config = {
-      "background_color" = "0.0 0.0 0.0";
-      "dark_mode_background_color" = "0.0 0.0 0.0";
-      "custom_background_color" = "0.9 0.8 0.7";
-      "custom_text_color" = "0.0 0.0 0.0";
-      "dark_mode_contrast" = "1.0";
-      "text_highlight_color" = "1.0 1.0 0.0";
-      "search_url_s" = "https://scholar.google.com/scholar?q";
-      "search_url_l" = "http://gen.lib.rus.ec/scimag/?q";
-      "search_url_g" = "https://www.google.com/search?q";
-      "middle_click_search_engine" = "s";
-      "shift_middle_click_search_engine" = "l";
-      "zoom_inc_factor" = "1.2";
-      "flat_toc" = "0";
-      "should_launch_new_instance" = "1";
-      "should_launch_new_window" = "1";
-      "default_dark_mode" = "1";
-      "sort_bookmarks_by_location" = "1";
-      "ui_font" = "'Code D Haki'";
-      "font_size" = "24";
-      "wheel_zoom_on_cursor" = "1";
-      "status_bar_font_size" = "22";
-      "collapsed_toc" = "1";
-      "ruler_mode" = "1";
-      "single_click_selects_words" = "1";
-      "item_list_prefix" = ">";
-      "#ignore_whitespace_in_presentation_mode" = "0";
-      "prerender_next_page_presentation" = "1";
+      config = {
+        "background_color" = "0.0 0.0 0.0";
+        "dark_mode_background_color" = "0.0 0.0 0.0";
+        "custom_background_color" = "0.9 0.8 0.7";
+        "custom_text_color" = "0.0 0.0 0.0";
+        "dark_mode_contrast" = "1.0";
+        "text_highlight_color" = "1.0 1.0 0.0";
+        "search_url_s" = "https://scholar.google.com/scholar?q";
+        "search_url_l" = "http://gen.lib.rus.ec/scimag/?q";
+        "search_url_g" = "https://www.google.com/search?q";
+        "middle_click_search_engine" = "s";
+        "shift_middle_click_search_engine" = "l";
+        "zoom_inc_factor" = "1.2";
+        "flat_toc" = "0";
+        "should_launch_new_instance" = "1";
+        "should_launch_new_window" = "1";
+        "default_dark_mode" = "1";
+        "sort_bookmarks_by_location" = "1";
+        "ui_font" = "'Code D Haki'";
+        "font_size" = "24";
+        "wheel_zoom_on_cursor" = "1";
+        "status_bar_font_size" = "22";
+        "collapsed_toc" = "1";
+        "ruler_mode" = "1";
+        "single_click_selects_words" = "1";
+        "item_list_prefix" = ">";
+        "#ignore_whitespace_in_presentation_mode" = "0";
+        "prerender_next_page_presentation" = "1";
+        "display_resolution_scale" = "1.0";
+      };
     };
-  };
-}
+  }
   #+end_src
 *** doc-view
 - the emacs way for viewing documents.
@@ -4133,7 +4383,7 @@ out")
     :hook
     (doc-view-mode . (lambda () (setq-local pixel-scroll-precision-mode nil)))
     :custom-face
-    (doc-view-svg-face ((t (:background "#edd1b0" :foreground "#000000"))))
+    (doc-view-svg-face ((t (:background "#000000" :foreground "#ffffff"))))
     :custom
     (doc-view-continuous t)
     (doc-view-mupdf-use-svg t)
@@ -4169,7 +4419,18 @@ out")
   ];
 }
   #+end_src
-*** pdf-tools
+
+**** saveplace-pdf-view
+- To save and remember position of pdf or doc view
+-  Credits: https://github.com/nicolaisingh/saveplace-pdf-fview
+  #+name: orgmacs
+  #+begin_src emacs-lisp
+  (use-package saveplace-pdf-view
+    :unless d/on-droid
+    :after saveplace)
+  #+end_src
+
+*** COMMENT pdf-tools
 - More extended pdf reader for emacs.
 - Initially I was having issues with high memory usage and lags, was wondering if Pgtk build was to blame. Accidentally I discovered while playing with my Hyprland (wm) scaling, to low it worked pretty good.
   #+name: orgmacs
@@ -4198,16 +4459,16 @@ out")
           ("M-v" . pdf-view-scroll-down-or-previous-page))
 
     :custom
-    (pdf-view-display-size 'fit-page)
+    (pdf-view-display-size 'fit-width)
     (pdf-view-continuous t)
-    (pdf-cache-image-limit 10)
+    (pdf-cache-image-limit 5)
     (pdf-cache-prefetch-delay 0.5)
     (pdf-annot-activate-created-annotations t)
-    (pdf-view-use-scaling nil)
-    (pdf-view-use-dedicated-register nil)
-    ;; (pdf-view-max-image-width 2000)
+    (pdf-view-use-scaling t)
+    (pdf-view-use-dedicated-register t)
+    (pdf-view-max-image-width 2880)
     (pdf-outline-imenu-use-flat-menus nil)
-    (pdf-view-resize-factor 1.1)
+    (pdf-view-resize-factor 1.25)
     (pdf-view-midnight-colors '("#fff" . "#000"))
 
     :config
@@ -4250,7 +4511,6 @@ out")
     (pdf-view-midnight-minor-mode))
 
   #+end_src
-
 ** Novel
 *** nov.el
 - to read in comfort couch of emacs!
@@ -4759,17 +5019,23 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
 *** gnus
 - First time using a newsgroup or usenet or NNTP.
 - But seems interesting when I tried, I can see how it becomes a unified workflow for mailing lists, email and rss feeds.
+- I use gnus, and spend most of the time on emacs in gnus. It replace elfeed for me, and has taken over most of my content assumption thanks to providers like gwene and feedbase.
   #+name: orgmacs
   #+begin_src emacs-lisp
   (use-package gnus
     :hook
     (gnus-group-mode . gnus-topic-mode)
+    :bind
+    ("C-c d e" . gnus)
+
     :custom
     (gnus-directory (expand-file-name "feeds/gnews" user-emacs-directory))
     (gnus-startup-file (expand-file-name "newsrc" gnus-directory))
 
-    (gnus-select-method '(nnnil))
     (gnus-widen-article-window t)
+
+    (gnus-select-method
+     '(nnnil))
 
     (gnus-secondary-select-methods
      '((nntp "feedbase"
@@ -4777,8 +5043,16 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
              (nntp-port-number 563) ; nntps
              (nntp-address "feedbase.org"))
      (nntp "gwene" (nntp-address "news.gwene.org"))
-     ;; (nnrss "")
+     (nnrss "")
      ))
+
+    ;; refer: https://github.com/redguardtoo/mastering-emacs-in-one-year-guide/blob/master/gnus-guide-en.org
+    (gnus-thread-sort-functions
+     '(gnus-thread-sort-by-most-recent-date
+       (not gnus-thread-sort-by-number)))
+    (gnus-use-cache t)
+    (gnus-thread-hide-subtree t)
+
 
     ;; (gnus-summary-line-format "%U%R%z%d %I%(%[ %F %] %s %)\n")
 
@@ -4812,7 +5086,7 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
     (gnus-sum-thread-tree-indent "  ")
     (gnus-sum-thread-tree-root "● ")
     (gnus-sum-thread-tree-false-root "◯ ")
-    (gnus-sum-thread-tree-single-indent "󰎕 ")
+    (gnus-sum-thread-tree-single-indent "📰")
     (gnus-sum-thread-tree-vertical        "│")
     (gnus-sum-thread-tree-leaf-with-other "├─► ")
     (gnus-sum-thread-tree-single-leaf     "╰─► ")
@@ -4829,6 +5103,11 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
       "%1{%B%}"
       "%s\n"))
 
+    (gnus-group-line-format "%P│%M%S%4y %B%(%G%)\n")
+
+    (gnus-topic-line-format "%i╭ %(%{✪ %n%}%) %A   %g %v\n")
+
+
     (gnus-summary-display-arrow t)
 
 
@@ -4836,17 +5115,14 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
     (gnus-face-2 'bold)
     (gnus-face-3 'bold-italic)
 
-    )
-  #+end_src
+    :config
+    (setopt
+     nnrss-group-alist
+     '(
+       ("manga" "https://nyaa.si/?page=rss&c=3_1&f=0")
+       ))
 
-- Package to convert atom to rss so can be readable in gnus.
-  #+name: hm-config
-  #+begin_src nix :tangle gdk/home.nix
-  {
-    home.packages = with pkgs; [
-      libxslt
-    ];
-  }
+    )
   #+end_src
 
 ** Dictionary
@@ -4888,8 +5164,11 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
   (use-package pubmed
     :commands (pubmed-search pubmed-advanced-search)
     :bind
+    ("C-c s p" . pubmed-search)
+    ("M-s p" . pubmed-search)
     (:map pubmed-mode-map
           ("o" . pubmed-save-note-file)
+          ("d" . pubmed-save-file)
           ("f" . pubmed-get-fulltext))
 
     :custom
@@ -4927,16 +5206,23 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
   #+begin_src emacs-lisp
   (defun pubmed-save-as (url)
     "Prompt for filename and save the fulltext PDF of URL."
-    (let* ((default-filename (expand-file-name "hello.pdf" pubmed-default-directory)))
+    (let* ((default-filename (read-file-name "Article File name: ")))
 
       (condition-case err
           (progn
             (url-copy-file url default-filename t)
-            (call-interactively 'denote-rename-file))
+            ;; (call-interactively 'denote-rename-file)
+            )
 
         (file-already-exists
          (message "%s" (error-message-string err))
          ))))
+
+  (defun pubmed-save-file ()
+    "Function that can save the pubmed file with prompting a directory."
+    (interactive)
+    (let ((pubmed-fulltext-action 'pubmed-save-as))
+      (pubmed-get-fulltext)))
   #+end_src
 
 - Function to rename and open file
@@ -4945,8 +5231,9 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
     (interactive)
     (let ((pubmed-fulltext-action 'pubmed-save-as))
       (pubmed-get-fulltext))
-      (org-noter)
-      )
+    (org-capture nil "jj")
+    (org-noter)
+    )
   #+end_src
 
 - Function to copy the urls of pubmed ids
@@ -4972,14 +5259,16 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
   {
     home.packages = with pkgs; [
       mullvad-browser
-      ungoogled-chromium
+      # ungoogled-chromium
       # nyxt
+      # brave
     ];
 
     programs = {
       firefox = {
         enable = true;
         # package = pkgs.firefox-wayland; # is there difference?
+
         profiles.ihome = {
           isDefault = true;
           # extensions = with pkgs.nur.repos.rycee.firefox-addons; [
@@ -4990,8 +5279,21 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
           #   darkreader
           #   libredirect
           #   multi-account-containers
-          #   vertical-tabs-reloaded
+          # sideberry
           # ];
+
+          # container = {
+          #   dangerous = {
+          #     color = "red";
+          #     icon = "fruit";
+          #     id = 2;
+          #   };
+          #   shopping = {
+          #     color = "blue";
+          #     icon = "cart";
+          #     id = 1;
+          #   };
+          # };
 
           settings = {
             "browser.startup.homepage" = "about:blank";
@@ -5196,60 +5498,14 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
         };
       };
 
-      librewolf = {
-        enable = true;
-        settings = {
-          "gfx.webrender.all" = true;
-          "gfx.webrender.enabled" = true;
-          "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
-          "layers.acceleration.force-enabled" = true;
-          "layout.css.backdrop-filter.enabled" = true;
-          "media.av1.enabled" = false;
-          "media.ffmpeg.vaapi.enabled" = true;
-          "media.hardware-video-decoding.force-enabled" = true;
-          "media.peerconnection.enabled" = true;
-          "full-screen-api.ignore-widgets" = true;
-        };
-      };
-
-      chromium = {
-        enable = true;
-        package = pkgs.brave;
-        commandLineArgs = ["--enable-features=TouchpadOverscrollHistoryNavigation"];
-        extensions = [
-          {id = "cjpalhdlnbpafiamejdnhcphjbkeiagm";} # ublock origin
-          {id = "dbepggeogbaibhgnhhndojpepiihcmeb";} # vimium
-          {id = "eimadpbcbfnmbkopoojfekhnkhdbieeh";} # dark-reader
-          {id = "mnjggcdmjocbbbhaepdhchncahnbgone";} # sponsorblock
-        ];
-      };
     };
   }
   #+end_src
 **** userChrome
 - Css customization for Firefox UI.
   #+begin_src css :tangle ./gdk/configs/userChrome.css
-  #navigator-toolbox {
-  opacity: 0;
-  overflow: hidden;
-  position: absolute;
-  z-index: 9999!important;
-  transform: translateY(-80%); /* Adjust detection size. Keep in mind that this value is inverted, so subtract it from 100 to achieve the desired result. Default is 10% --> -90% */
-  width: 100%;
-  transition: all 0.1s 0.4s; /* The second number is the delay before dissapearing again. Default is 0.4s */
-  }
-
-  n#navigator-toolbox:hover,
-  #navigator-toolbox:focus-within {
-  opacity: 1;
-  overflow: visible;
-  transform: translateY(0px);
-  transition: all 0.05s;
-  }
-
+  /* Hide the tab bar! */
   #TabsToolbar { visibility: collapse; }
-
-
 
   /* Sidebery */
   #sidebar-box[sidebarcommand="_3c078156-979c-498b-8990-85f7987dd929_-sidebar-action"] #sidebar-header {
@@ -5497,7 +5753,7 @@ for the search engine used."
     (unless d/on-droid
       (setopt browse-url-browser-function 'browse-url-generic
               browse-url-generic-program "d-stuff"
-              browse-url-secondary-browser-function 'browse-url-generic)))
+              browse-url-secondary-browser-function 'browse-url-default-browser)))
   #+end_src
 - Browser url in dwim way. Function is replaced by =embark-act=.
   #+name: orgmacs
@@ -5556,7 +5812,7 @@ for the search engine used."
   {
     hardware = {
       pulseaudio.enable = lib.mkForce false;
-      opengl = {
+      graphics = {
         enable = true;
         extraPackages = with pkgs; [
           libva intel-media-driver
@@ -5594,57 +5850,88 @@ for the search engine used."
 **** mpd
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  services = {
-    mpd = {
-      enable = true;
-      musicDirectory = config.xdg.userDirs.music;
-      network = {
-        listenAddress = "127.0.0.1";
-        port = 6600;
-        startWhenNeeded = true;
+  {
+    services = {
+      mpd = {
+        enable = true;
+        musicDirectory = config.xdg.userDirs.music;
+        network = {
+          listenAddress = "127.0.0.1";
+          port = 6600;
+          startWhenNeeded = true;
+        };
+        extraConfig = ''
+        audio_output {
+          type            "pipewire"
+          name            "pipewire sound server"
+        }
+        auto_update "yes"
+      '';
       };
-      extraConfig = ''
-      audio_output {
-        type            "pipewire"
-        name            "pipewire sound server"
-      }
-      auto_update "yes"
-    '';
+
+      playerctld.enable = true;
+
     };
 
-    playerctld.enable = true;
-
-  };
-
-  # if mpd not working, check here
-  # home.sessionvariables.mpd_host = config.services.mpd.network.listenaddress;
-}
+    # if mpd not working, check here
+    # home.sessionvariables.mpd_host = config.services.mpd.network.listenaddress;
+  }
   #+end_src
-**** mingus
+**** mpc
+- An emacs built-in frontend for MPD.
+  #+name: orgmacs
+  #+begin_src emacs-lisp
+  (use-package mpc
+    :bind
+    ("C-c d m" . mpc)
+    (:map mpc-mode-map
+          ("SPC" . mpc-playlist-add)
+          ("RET" . mpc-select)
+          ("C-k" . mpc-playlist-delete)
+          ("m" . mpc-select-dwim)
+          ("C-r" . mpc-songs-search)
+          ("f" . mpc-ffwd)
+          ("b" . mpc-rewind)
+          )
+
+    :custom
+    (mpc-browser-tags '(Title|Album|Playlist))
+
+    :config
+    (defun mpc-select-dwim ()
+      (interactive)
+      (mpc-select-toggle)
+      (next-line)
+      )
+   )
+  #+end_src
+**** COMMENT mingus
 - Mingus - An mpd interface in emacs, its simple and clean to use.
 - Ik EMMS and mpc exist, but mingus is straight forward simple and minimal.
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package mingus
-  :unless d/on-droid
-  :commands (d/elfeed-add-podcast)
-  :defines
-  (mingus-browse-mode-map)
+  (use-package mingus
+    :unless d/on-droid
+    :commands (d/elfeed-add-podcast)
+    :defines
+    (mingus-browse-mode-map)
 
-  :bind ("C-c d m" . mingus-browse)
-  (:map mingus-browse-mode-map
-        ("h" . mingus-browse-top-level)
-        ("l" . mingus-down-dir-or-play-song))
-  :custom
-  (mingus-mode-always-modeline t)
-  (mingus-mode-line-string-max 15)
-  (mingus-mode-line-show-volume nil)
-  (mingus-mode-line-show-elapsed-time nil)
-  (mingus-mode-line-show-elapsed-percentage t)
-  (mingus-mode-line-show-consume-and-single-status nil))
+    :bind ("C-c d m" . mingus-browse)
+    (:map mingus-browse-mode-map
+          ("h" . mingus-browse-top-level)
+          ("l" . mingus-down-dir-or-play-song)
+          ("M-n" . mingus-move-down)
+          ("M-p" . mingus-move-up)
+          )
+    :custom
+    (mingus-mode-always-modeline t)
+    (mingus-mode-line-string-max 15)
+    (mingus-mode-line-show-volume nil)
+    (mingus-mode-line-show-elapsed-time nil)
+    (mingus-mode-line-show-elapsed-percentage t)
+    (mingus-mode-line-show-consume-and-single-status nil))
   #+end_src
-**** ncmpcpp
+**** COMMENT ncmpcpp
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
 {
@@ -5725,7 +6012,7 @@ for the search engine used."
     programs = {
       mpv = {
         enable = true;
-        scripts = with pkgs.mpvScripts; [ mpris ];
+        scripts = with pkgs.mpvScripts; [ mpris manga-reader ];
 
         bindings = {
           l = "seek  5";
@@ -5750,7 +6037,7 @@ for the search engine used."
           sub-shadow-offset = 1;
           sub-auto = "fuzzy";
           msg-level = "all=error";
-          ytdl-format = "bestvideo[height<=?1080]+bestaudio/best";
+          ytdl-format = "bestvideo[height<1080]+bestaudio/best";
           # ytdl-format = "bestvideo";
           save-position-on-quit = true;
           slang = "eng,en,eng,english";
@@ -5786,7 +6073,7 @@ for the search engine used."
         embed-thumbnail = true;
         embed-metadata = true;
         embed-subs = true;
-        sub-langs = "all";
+        sub-langs = "en";
       };
     };
   };
@@ -5852,33 +6139,31 @@ scrape=youtube
 (use-package image-mode
   :ensure nil
   :defines (d/on-droid olivetti-body-width)
-  :functions (olivetti-mode)
   :unless d/on-droid
   :bind (:map image-mode-map
               ("q" . d/kill-buffer))
-  :hook
-  (image-mode . (lambda () (olivetti-mode) (setq olivetti-body-width 0.45))))
+)
   #+end_src
 
 ** Application
 *** media-pkgs
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  home.packages = with pkgs; [
-    # audio control
-    pavucontrol
-    playerctl
-    pulsemixer
-    pamixer
-    transmission_4-gtk
+  {
+    home.packages = with pkgs; [
+      # audio control
+      pavucontrol
+      playerctl
+      pulsemixer
+      pamixer
+      transmission_4-gtk
 
-    mpc_cli
-    ytfzf ani-cli ytmdl
-    # freetube
-    mangal
-  ];
-}
+      mpc_cli
+      ytfzf ani-cli ytmdl
+      # freetube
+      mangal
+    ];
+  }
   #+end_src
 
 *** reddit
@@ -6103,9 +6388,10 @@ Android port."
 - Core
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-{
-  programs.hyprland.enable = true;
-}
+  {
+    programs.hyprland.enable = true;
+    programs.hyprlock.enable = true; # for pam auth config
+  }
   #+end_src
 - Home manager config
   #+name: hm-config
@@ -6147,7 +6433,7 @@ Android port."
         input = {
           kb_layout = "us";
           kb_options = "ctrl:nocaps";
-          follow_mouse = 0;
+          follow_mouse = 1;
           sensitivity = 0.1;
           #    repeat_delay = 250
 
@@ -6164,11 +6450,10 @@ Android port."
           gaps_in = 5;
           gaps_out = 15;
           border_size = 2;
-          "col.active_border" = "rgba(2e8b57ff) rgba(87cefaff) 45deg";
+          "col.active_border" = "rgba(2e8b57ff) rgba(87cefaff) rgba(ffec8bff) rgba(ffaeb9ff) 90deg";
           "col.inactive_border" = "0xff382D2E";
           no_border_on_floating  =  false; # enable border on float window
           layout  =  "dwindle";
-          no_cursor_warps  =  false;
         };
 
         misc = {
@@ -6182,6 +6467,8 @@ Android port."
 
         animations = {
           enabled = true;
+          bezier = "linear, 0.0, 0.0, 1.0, 1.0";
+          animation = "borderangle, 1, 180, linear, loop"; #used by rainbow borders and rotating colors
         };
 
         dwindle = {
@@ -6194,7 +6481,6 @@ Android port."
         };
 
         master = {
-          new_is_master = false;
           new_on_top = false;
           allow_small_split = true;
           no_gaps_when_only = false;
@@ -6242,7 +6528,6 @@ Android port."
   #exec-once = swayidle timeout 150 'gtklock -b black & sleep 1 && systemctl suspend' before-sleep 'loginctl lock-session' lock 'gtklock -b black'
   # exec-once = swayidle -w timeout 300 'gtklock -i -b black -d' timeout 210 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on' timeout 302 'if pgrep gtklock; then hyprctl dispatch dpms off; fi' resume 'hyprctl dispatch dpms on' timeout 1000 'systemctl suspend'
   # exec-once = gammastep -l 19:72 -t 6500:4100
-  exec-once = hypridle
   exec-once = d-walls
   exec-once = foot --server
   exec-once = emacs --bg-daemon
@@ -6583,7 +6868,7 @@ Android port."
   bind=,b,exec,brave
   bind=,b,submap,reset
 
-  bind=,w,exec,librewolf
+  bind=,w,exec,mullvad-browser
   bind=,w,submap,reset
 
   bind=,c,exec,chromium
@@ -6616,182 +6901,375 @@ Android port."
 *** COMMENT kde plasma
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-{
-  services.xserver = {
-    enable = true;
-    displayManager.sddm = {
+  {
+    services.desktopManager.plasma6.enable = true;
+    services.power-profiles-daemon.enable = lib.mkForce false;
+  }
+  #+end_src
+*** COMMENT gnome
+- gnome desktop for elegance
+  #+name: nixos-core
+  #+begin_src nix :tangle gdk/core.nix
+  {
+    services.xserver = {
       enable = true;
-      wayland.enable = true;
+      displayManager.gdm.enable = true;
+      desktopManager.gnome.enable = true;
     };
-    desktopManager.plasma6.enable = true;
-  };
-}
+  }
   #+end_src
 *** wayland-packages
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix :noweb yes
-{
-  home.packages = with pkgs; [
-    # screenshot
-    # grim slurp
-    grimblast
+  {
+    home.packages = with pkgs; [
+      # screenshot
+      # grim slurp
+      grimblast
 
-    libnotify libsixel
-    brightnessctl
-    wtype
-    swaybg
-    # swayidle gtklock
-    hypridle hyprlock
+      libnotify libsixel
+      brightnessctl
+      wtype
+      swaybg
+      # swayidle gtklock
 
-    # utils
-    # ocrscript
-    wl-screenrec
-    wl-clipboard
-  ];
-
-  xdg.configFile."hypr/hypridle.conf".text = ''
-  <<conf-hypridle>>
-  '';
-
-  xdg.configFile."hypr/hyprlock.conf".text = ''
-  <<conf-hyprlock>>
-  '';
-
-}
+      # utils
+      # ocrscript
+      wl-screenrec
+      wl-clipboard
+    ];
+  }
   #+end_src
 **** hypridle
 - Idle manager made for/with hyprland
-  #+name: conf-hypridle
-  #+begin_src conf :tangle ~/.config/hypr/hypridle.conf
-  general {
-      lock_cmd = hyprlock
-      unlock_cmd = notify-send "unlock!"      # same as above, but unlock
-      before_sleep_cmd = loginctl lock-session
-      after_sleep_cmd = notify-send "Awake!"
-      ignore_dbus_inhibit = false             # whether to ignore dbus-sent idle-inhibit requests (used by e.g. firefox or steam)
-  }
+  #+name: hm-config
+  #+begin_src nix :tangle gdk/home.nix
+    {
+      services.hypridle = {
+        enable = true;
+        settings ={
+          general = {
+            lock_cmd = "pidof hyprlock || hyprlock";       # avoid starting multiple hyprlock instances.
+            before_sleep_cmd = "loginctl lock-session";    # lock before suspend.
+            after_sleep_cmd = "hyprctl dispatch dpms on";  # to avoid having to press a key twice to turn on the display.
+            unlock_cmd = "notify-send 'Welcome back!'";
+          };
 
-  listener {
-      timeout = 210
-      on-timeout = d-idle "" "hyprlock & hyprctl dispatch dpms off"
-      on-resume = "hyprctl dispatch dpms on"
-      # on-resume = notify-send "Welcome back!"  # command to run when activity is detected after timeout has fired.
-  }
-
-  listener {
-     timeout = 540
-     on-timeout = d-idle "" "systemctl suspend"
-  }
+          listener = [
+            {
+              timeout = 150;
+              on-timeout = "brightnessctl -s set 10";         # set monitor backlight to minimum, avoid 0 on OLED monitor.
+              on-resume = "brightnessctl -r";                 # monitor backlight restore.
+            }
+            {
+              timeout = 210;
+              on-timeout = "loginctl lock-session";
+            }
+            {
+              timeout = 250;
+              on-timeout = "hyprctl dispatch dpms off";
+              on-resume = "hyprctl dispatch dpms on";
+            }
+            {
+              timeout = 900;
+              on-timeout = "systemctl suspend";
+            }
+          ];
+        };
+      };
+    }
   #+end_src
+
 **** hyprlock
-  #+name: conf-hyprlock
-  #+begin_src conf :tangle ~/.config/hypr/hyprlock.conf
-background {
-    monitor =
-    path = /home/idlip/d-git/d-wallpapers/oled/wallhaven-4d2zy3_2880x1800.png
-}
+  #+name: hm-config
+  #+begin_src nix :tangle gdk/home.nix
+  {
+    programs.hyprlock = {
+      enable = true;
+      settings = {
+        background = [
+          {
+            path = "/home/idlip/.local/share/bg.jpg";
+            blur_size = 8;
+            blur_passes = 3;
+          }
+        ];
 
-input-field {
-    monitor =
-    size = 300, 50
-    hide_input = false
-}
+        input-field = [
+          {
+            size = "300, 50";
+            monitor = "";
+            dots_center = true;
+            shadow_passes = 2;
+            outline_thickness = 3;
+            dots_size = 0.3;
+            dots_spacing = 0.1;
+            fade_on_empty = true;
+            placeholder_text = "<i>Pass</i>";
+            position = "0, 200";
+            halign = "center";
+            valign = "bottom";
+          }
+        ];
 
-label {
-    monitor =
-    text = cmd[update:1000] echo "$(date '+%R')"
-    color = rgba(255, 255, 255, 1.0)
-    font_size = 55
-    font_family = Code D Haki
+        label = [
+          {
+            color = "rgba(255, 255, 255, 1.0)";
+            font_size = 35;
+            text = ''
+            cmd[update:1000] echo "<b> "$(date +'%A, %-d %B %Y @ %T')" </b>"
+            '';
+            position = "0, 0";
+            halign = "center";
+            valign = "bottom";
+          }
 
-    position = 0, 80
-    halign = center
-    valign = center
-}
+          {
+            color = "rgba(255, 255, 255, 1.0)";
+            font_size = 35;
+            text = ''
+              $USER, Welcome back!
+            '';
+            position = "0, 100";
+            halign = "center";
+            valign = "bottom";
+          }
+        ];
+
+        image =[
+          {
+            path = "/home/idlip/d-git/d-wallpapers/oled/one-piece.jpg";
+            size = 200;
+            rounding = -1;
+            border_size = 2;
+            reload_time = -1;
+            position = "0, 350";
+            halign = "center";
+            valign = "bottom";
+          }
+        ];
+
+      };
+    };
+  }
   #+end_src
 
 ** Fonts
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-{
-  fonts = {
-    packages = with pkgs; [
-      noto-fonts unifont
-      # symbola # this font is unfree
-      noto-fonts-emoji maple-mono julia-mono
+  {
+    fonts = {
+      packages = with pkgs; [
+        noto-fonts unifont
+        # symbola # this font is unfree
+        noto-fonts-emoji
 
-      (callPackage ./pkgs/code-d-font.nix {})
-      merriweather iosevka-comfy.comfy iosevka-comfy.comfy-duo
-      (nerdfonts.override {fonts = [ "JetBrainsMono"  ];})
-    ];
+        (callPackage ./pkgs/code-d-font.nix {})
+        (callPackage ./pkgs/code-nika.nix {})
+        merriweather
+        iosevka-comfy.comfy iosevka-comfy.comfy-duo
+        (nerdfonts.override {fonts = [ "JetBrainsMono" ];})
+      ];
 
-    enableDefaultPackages = true;
+      enableDefaultPackages = true;
 
-    # this fixes emoji stuff
-    fontconfig = {
-      defaultFonts = {
-        monospace = [
-	        "Code D OnePiece"
-	        "JetBrainsMono Nerd Font"
-	        "Noto Color Emoji"
-        ];
-        sansSerif = [ "Code D Haki" "Noto Sans" "Iosevka Comfy Duo" ];
-        serif = [ "Code D Haki" "Iosevka Comfy Duo" "Noto Serif"];
-        emoji = [ "Noto Color Emoji" "Code D Lip" "Symbola" "Noto Sans" ];
+      # this fixes emoji stuff
+      fontconfig = {
+        defaultFonts = {
+          monospace = [
+            "Code OnePiece"
+            "Iosevka Comfy"
+  	        "Noto Color Emoji"
+          ];
+          sansSerif = [ "Code Haki" "Iosevka Comfy Duo" "Code D Haki" "Noto Sans" ];
+          serif = [ "Code Haki" "Iosevka Comfy Motion Duo" "Code D Haki" "Noto Serif"];
+          emoji = [ "Noto Color Emoji" "Code OnePiece" "Symbola" "Noto Sans" ];
+        };
       };
     };
-  };
 
-}
+  }
   #+end_src
 *** code-d-font
+- Recursive font built with a name change and nerd font patch!
   #+begin_src nix :tangle gdk/pkgs/code-d-font.nix
-{ lib, fetchgit, stdenvNoCC }:
+  { lib, fetchFromGitHub, stdenvNoCC }:
 
-stdenvNoCC.mkDerivation rec {
-  pname = "code-d-font";
-  version = "1.085";
+  stdenvNoCC.mkDerivation rec {
+    pname = "code-d-font";
+    version = "0.1";
 
-  src = fetchgit {
-    url = "https://github.com/idlip/code-d-font";
-    sparseCheckout = [
-      "fonts"
-    ];
-    sha256 = "sha256-+0yK0CEZsXJGoOxJY12ARrHvmWhaQGER+BXi0xzR7uk=";
-  };
+    src = fetchFromGitHub {
+      owner = "idlip";
+      repo = "code-d-font";
+      rev = "ea588e0890037719962ed49ccbfdc5381d9ab7f4";
+      sparseCheckout = [
+        "fonts"
+      ];
+      sha256 = "sha256-+0yK0CEZsXJGoOxJY12ARrHvmWhaQGER+BXi0xzR7uk=";
+    };
 
-  installPhase = ''
-    install -D -t $out/share/fonts/truetype/ $(find $src -type f -name '*.ttf')
-  '';
+    installPhase = ''
+      runHook preInstall
 
+      mkdir -p $out/share/fonts
+      mv fonts $out/share/fonts/truetype
 
-  meta = with lib; {
-    homepage = "https://github.com/arrowtype/recursive-code-config/";
-    description = "A variable font family for code & UI";
-    license = licenses.ofl;
-    maintainers = [ maintainers.idlip ];
-    platforms = platforms.all;
-  };
-}
+      runHook postInstall
+    '';
 
+    meta = with lib; {
+      homepage = "https://github.com/arrowtype/recursive-code-config/";
+      description = "A variable font family for code & UI";
+      license = licenses.ofl;
+      maintainers = [ maintainers.idlip ];
+      platforms = platforms.all;
+    };
+  }
   #+end_src
+
+- Iosevka custom font
+#+begin_src nix :tangle gdk/pkgs/code-nika.nix
+  { lib, fetchzip, stdenvNoCC }:
+
+  stdenvNoCC.mkDerivation rec {
+    pname = "code-nika-font";
+    version = "0.3";
+
+    src = fetchzip {
+      url = "https://github.com/idlip/Iosevka/releases/download/${version}/code-nika.tar.gz";
+      stripRoot = false;
+      hash = "sha256-ZXWZVGOCTnVnGSkOWrQx8HEuJYdnGb3IbFHO3UXxnps=";
+    };
+
+
+    installPhase = ''
+      runHook preInstall
+
+      mkdir -p $out/share/fonts/
+      mv fonts $out/share/fonts/truetype
+
+      runHook postInstall
+    '';
+
+    meta = with lib; {
+      homepage = "https://typeof.net/Iosevka/";
+      description = "Custom Iosevka Font";
+      license = licenses.ofl;
+      maintainers = [ maintainers.idlip ];
+      platforms = platforms.all;
+    };
+  }
+#+end_src
+*** code-iosevka
+- Customized Iosevka font, with my preffered styling.
+- https://typeof.net/Iosevka/customizer
+#+begin_src toml
+[buildPlans.CodeHaki]
+family = "Code Haki"
+spacing = "quasi-proportional"
+serifs = "sans"
+
+[buildPlans.CodeHaki.variants.design]
+capital-a = "curly-top-serifed"
+capital-b = "standard-interrupted-bilateral-serifed"
+capital-c = "bilateral-inward-serifed"
+capital-d = "standard-unilateral-serifed"
+capital-e = "top-left-serifed"
+capital-f = "top-left-serifed"
+capital-g = "toothless-corner-serifed-hooked"
+capital-h = "top-left-bottom-right-serifed"
+capital-i = "short-serifed"
+capital-j = "serifed-both-sides"
+capital-k = "symmetric-touching-top-left-and-bottom-right-serifed"
+capital-l = "motion-serifed"
+capital-m = "hanging-serifed"
+capital-n = "standard-motion-serifed"
+capital-p = "open-motion-serifed"
+capital-q = "crossing"
+capital-r = "curly-open-top-left-and-bottom-right-serifed"
+capital-s = "serifless"
+capital-t = "motion-serifed"
+capital-u = "tailed-serifless"
+capital-v = "straight-motion-serifed"
+capital-w = "straight-vertical-sides-motion-serifed"
+capital-x = "straight-motion-serifed"
+capital-y = "straight-motion-serifed"
+capital-z = "cursive"
+a = "double-storey-serifed"
+b = "toothed-motion-serifed"
+c = "bilateral-inward-serifed"
+d = "toothed-bottom-serifed"
+e = "rounded"
+f = "flat-hook-serifed"
+g = "single-storey-serifed"
+h = "straight-motion-serifed"
+i = "serifed-diagonal-tailed"
+j = "diagonal-tailed-serifless"
+k = "symmetric-connected-top-left-and-bottom-right-serifed"
+l = "serifed-diagonal-tailed"
+m = "serifed"
+n = "straight-motion-serifed"
+p = "eared-motion-serifed"
+q = "diagonal-tailed-serifless"
+r = "hookless-top-serifed"
+s = "bilateral-inward-serifed"
+t = "bent-hook-short-neck2"
+u = "toothed-motion-serifed"
+v = "straight-motion-serifed"
+w = "straight-vertical-sides-motion-serifed"
+x = "straight-motion-serifed"
+y = "straight-motion-serifed"
+z = "cursive"
+long-s = "bent-hook-double-serifed"
+eszet = "longs-s-lig-tailed-middle-serifed-xh"
+lower-alpha = "crossing"
+lower-chi = "curly-serifed"
+cyrl-u = "straight-turn-serifed"
+zero = "unslashed"
+one = "no-base-top-cut"
+two = "curly-neck-serifed"
+seven = "straight-serifless"
+number-sign = "upright-tall"
+ampersand = "closed"
+dollar = "interrupted"
+
+[buildPlans.CodeHaki.ligations]
+inherits = "dlig"
+
+[buildPlans.CodeHaki.weights.Regular]
+shape = 500
+menu = 500
+css = 500
+
+[buildPlans.CodeHaki.weights.Bold]
+shape = 700
+menu = 700
+css = 700
+
+[buildPlans.CodeHaki.widths.Normal]
+shape = 548
+menu = 6
+css = "normal"
+
+#+end_src
 *** set-face
 - Set fonts for emacs.
 - Defining some variables for adjusting size and font name.
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (defvar d/font-size (if d/on-droid 150 200)
+  (defvar d/font-size (if d/on-droid 150 240)
     "Default font size based on the system.")
-  (defvar d/variable-font-size (if d/on-droid 160 220)
+  (defvar d/variable-font-size (if d/on-droid 160 240)
     "Default variable pitch size")
 
   ;; Dont worry about the font name, I use fork of Recursive font
 
   ;; Set reusable font name variables
-  (defvar d/fixed-pitch-font "Code D OnePiece"
+  (defvar d/fixed-pitch-font "Code OnePiece"
     "The font to use for monospaced (fixed width) text.")
 
-  (defvar d/variable-pitch-font "Code D Haki"
+  (defvar d/variable-pitch-font "Code Haki"
     "The font to use for variable-pitch (documents) text.")
   #+end_src
 - Invoking fonts.
@@ -6814,7 +7292,7 @@ stdenvNoCC.mkDerivation rec {
        ("Serif" "Alegreya" "Noto Sans" "Georgia" "Cambria" "Times New Roman" "DejaVu Serif" "serif")))
 
     :custom-face
-    (variable-pitch ((t (:family ,d/variable-pitch-font :height ,d/variable-font-size))))
+    (variable-pitch ((t (:family ,d/variable-pitch-font :height ,d/font-size))))
     (fixed-pitch ((t (:family ,d/fixed-pitch-font :height ,d/font-size))))
     (default ((t (:family ,d/fixed-pitch-font :height ,d/font-size)))))
   #+end_src
@@ -6823,8 +7301,8 @@ stdenvNoCC.mkDerivation rec {
   (defun d/change-font ()
     "Function to prompt for font change in simple way."
     (interactive)
-    (let ((fpitch (completing-read "Fixed Pitch Font: " '("Iosevka Comfy" "JetBrainsMono Nerd Font")))
-          (vpitch (completing-read "Variable Font: " '("Merriweather" "Code D Haki"))))
+    (let ((fpitch (completing-read "Fixed Pitch Font: " '("Iosevka Comfy" "JetBrainsMono Nerd Font" "Julia Mono" "Code OnePiece")))
+          (vpitch (completing-read "Variable Font: " '("Merriweather" "Code Haki" "Iosevka Comfy Duo"))))
       (set-face-attribute 'fixed-pitch nil :font fpitch)
       (set-face-attribute 'variable-pitch nil :family vpitch))
     )
@@ -6867,99 +7345,13 @@ stdenvNoCC.mkDerivation rec {
   :init
   (nerd-icons-completion-mode))
   #+end_src
-**** COMMENT nerd icons in corfu
-+ the code is directly taken from git [[https://github.com/LuigiPiucco/nerd-icons-corfu][repo]].
-+ currently getting an error saying "void-variable kindfunc"
-+ Don't know why suddenly throwing this error on <2023-12-28 17:00>, when before and all it worked well.
+- nerd icons in corfu
   #+name: orgmacs
   #+begin_src emacs-lisp
-(define-widget 'nerd-icons-corfu-icon-type 'plist
-  "The type of an icon mapping."
-  :tag "Icon parameters"
-  :options '((:style (choice (const :tag "wicon" "w")
-                             (const :tag "faicon" "fa")
-                             (const :tag "flicon" "fl")
-                             (const :tag "mdicon" "md")
-                             (const :tag "codicon" "cod")
-                             (const :tag "devicon" "dev")
-                             (const :tag "ipsicon" "ips")
-                             (const :tag "octicon" "oct")
-                             (const :tag "pomicon" "pom")
-                             (const :tag "sucicon" "suc")))
-             (:icon string)
-             (:face face)))
-
-(defcustom nerd-icons-corfu-mapping
-  '((array :style "cod" :icon "symbol_array" :face font-lock-type-face)
-    (boolean :style "cod" :icon "symbol_boolean" :face font-lock-builtin-face)
-    (class :style "cod" :icon "symbol_class" :face font-lock-type-face)
-    (color :style "cod" :icon "symbol_color" :face success)
-    (command :style "cod" :icon "terminal" :face default)
-    (constant :style "cod" :icon "symbol_constant" :face font-lock-constant-face)
-    (constructor :style "cod" :icon "triangle_right" :face font-lock-function-name-face)
-    (enummember :style "cod" :icon "symbol_enum_member" :face font-lock-builtin-face)
-    (enum-member :style "cod" :icon "symbol_enum_member" :face font-lock-builtin-face)
-    (enum :style "cod" :icon "symbol_enum" :face font-lock-builtin-face)
-    (event :style "cod" :icon "symbol_event" :face font-lock-warning-face)
-    (field :style "cod" :icon "symbol_field" :face font-lock-variable-name-face)
-    (file :style "cod" :icon "symbol_file" :face font-lock-string-face)
-    (folder :style "cod" :icon "folder" :face font-lock-doc-face)
-    (interface :style "cod" :icon "symbol_interface" :face font-lock-type-face)
-    (keyword :style "cod" :icon "symbol_keyword" :face font-lock-keyword-face)
-    (macro :style "cod" :icon "symbol_misc" :face font-lock-keyword-face)
-    (magic :style "cod" :icon "wand" :face font-lock-builtin-face)
-    (method :style "cod" :icon "symbol_method" :face font-lock-function-name-face)
-    (function :style "cod" :icon "symbol_method" :face font-lock-function-name-face)
-    (module :style "cod" :icon "file_submodule" :face font-lock-preprocessor-face)
-    (numeric :style "cod" :icon "symbol_numeric" :face font-lock-builtin-face)
-    (operator :style "cod" :icon "symbol_operator" :face font-lock-comment-delimiter-face)
-    (param :style "cod" :icon "symbol_parameter" :face default)
-    (property :style "cod" :icon "symbol_property" :face font-lock-variable-name-face)
-    (reference :style "cod" :icon "references" :face font-lock-variable-name-face)
-    (snippet :style "cod" :icon "symbol_snippet" :face font-lock-string-face)
-    (string :style "cod" :icon "symbol_string" :face font-lock-string-face)
-    (struct :style "cod" :icon "symbol_structure" :face font-lock-variable-name-face)
-    (text :style "cod" :icon "text_size" :face font-lock-doc-face)
-    (typeparameter :style "cod" :icon "list_unordered" :face font-lock-type-face)
-    (type-parameter :style "cod" :icon "list_unordered" :face font-lock-type-face)
-    (unit :style "cod" :icon "symbol_ruler" :face font-lock-constant-face)
-    (value :style "cod" :icon "symbol_field" :face font-lock-builtin-face)
-    (variable :style "cod" :icon "symbol_variable" :face font-lock-variable-name-face)
-    (t :style "cod" :icon "code" :face font-lock-warning-face))
-  "Mapping of completion kinds to icons.
-
-It should be a list of elements with the form (KIND :style ICON-STY :icon
-ICON-NAME [:face FACE]).  KIND is a symbol determining what the completion is,
-and comes from calling the `:company-kind' property of the completion. ICON-STY
-is a string with the icon style to use, from those available in Nerd Fonts.
-ICON-NAME is a string with the name of the icon.  FACE, if present, is applied
-to the icon, mainly for its color. The special t symbol should be used for KIND
-to represent the default icon, and must be present."
-  :type '(alist :key-type symbol :value-type nerd-icons-corfu-icon-type)
-  :group 'nerd-icons-corfu)
-
-;;;###autoload
-(defun nerd-icons-corfu-formatter (_)
-  "A margin formatter for Corfu, adding icons.
-
-It receives METADATA, ignores it, and outputs a function that takes a candidate
-and returns the icon."
-  (when-let ((kindfunc (plist-get completion-extra-properties :company-kind)))
-    (lambda (cand)
-      (let* ((kind (funcall kindfunc cand))
-             (icon-entry (or (alist-get (or kind t) nerd-icons-corfu-mapping)
-                             (alist-get t nerd-icons-corfu-mapping)))
-             (style (plist-get icon-entry :style))
-             (icon (plist-get icon-entry :icon))
-             (icon-fun (intern (concat "nerd-icons-" style "icon")))
-             (icon-name (concat "nf-" style "-" icon))
-             (face (plist-get icon-entry :face))
-             (str (or (and (fboundp icon-fun) (funcall icon-fun icon-name :face face)) "?"))
-             (space (propertize " " 'display '(space :width 1))))
-        (concat " " str space)))))
-
-(with-eval-after-load 'corfu
-  (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
+  (use-package nerd-icons-corfu
+    :after corfu
+    :config
+    (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
   #+end_src
 ** Theme
 *** GTK
@@ -6989,8 +7381,8 @@ and returns the icon."
       };
 
       font = {
-        name = "Code D Haki";
-        size = 20;
+        name = "Code Haki";
+        size = 26;
       };
 
       gtk2.configLocation = "${config.xdg.configHome}/gtk-2.0/gtkrc";
@@ -7000,6 +7392,7 @@ and returns the icon."
         gtk-xft-hinting = 1;
         gtk-xft-hintstyle = "hintslight";
         gtk-xft-rgba = "rgb";
+        gtk-key-theme-name = "Emacs";
       };
 
       gtk2.extraConfig = ''
@@ -7007,6 +7400,7 @@ and returns the icon."
       gtk-xft-hinting=1
       gtk-xft-hintstyle="hintslight"
       gtk-xft-rgba="rgb"
+      gtk-key-theme-name="Emacs"
       '';
 
     };
@@ -7031,17 +7425,17 @@ and returns the icon."
 - After long usage, I felt every theme did not suit me, so I just wrote a theme ([[https://github.com/idlip/haki][haki]])
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package haki-theme
-  :demand t
-  :load-path "~/.config/emacs/var/theme"
-  :custom
-  (haki-heading-font "Code D Ace")
-  (haki-sans-font "Code D Haki")
-  (haki-title-font "Code D Ace")
-  (haki-link-font "Maple Mono")
-  (haki-code-font "Code D Lip")
-  :config
-  (load-theme 'haki t))
+  (use-package haki-theme
+    :demand t
+    :load-path "~/.config/emacs/var/theme"
+    :custom
+    (haki-heading-font "Code D Ace")
+    (haki-sans-font "Code D Haki")
+    (haki-title-font "Code D Ace")
+    ;; (haki-link-font "")
+    (haki-code-font "Code D Lip")
+    :config
+    (load-theme 'haki t))
   #+end_src
 - Set colors properly for foot terminal.
   #+name: orgmacs
@@ -7097,324 +7491,337 @@ and returns the icon."
 *** Waybar
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  programs.waybar = {
-    enable = true;
+  {
+    programs.waybar = {
+      enable = true;
 
-    settings = {
-      mainBar = {
-        layer = "top";
-        position = "top";
-        # height = 15;
-        # spacing = 7;
-        fixed-center = true;
-        exclusive = true;
+      settings = {
+        mainBar = {
+          layer = "top";
+          position = "top";
+          # height = 15;
+          # spacing = 7;
+          fixed-center = true;
+          exclusive = true;
 
-        modules-left = [
-	        "custom/launcher"
-	        "hyprland/workspaces"
-          "wlr/taskbar"
-	        "hyprland/window"
-	        "hyprland/submap"
-        ];
+          modules-left = [
+            "custom/launcher"
+            "hyprland/workspaces"
+            "wlr/taskbar"
+            "hyprland/window"
+            "hyprland/submap"
+          ];
 
-        modules-center = [
-	        "custom/recorder" "clock" "mpd" "mpris"
-        ];
+          modules-center = [
+            "custom/recorder" "clock" "mpd" "mpris"
+          ];
 
-        modules-right = [ "tray" "network" "battery" "memory" "pulseaudio" "custom/power" ];
+          modules-right = [ "tray" "network" "battery" "memory" "pulseaudio" "custom/power" ];
 
-        "hyprland/workspaces" = {
-	        format = "{icon}";
-          disable-scroll = true;
-          all-outputs = true;
-	        active-only = false;
-          show-special = true;
-	        on-click = "activate";
-	        format-icons = {
-		        active = "";
-		        default = "";
-		        "1" = "1";
-		        "2" = "2";
-		        "3" = "3";
-		        "4" = "4";
-		        "5" = "5";
-		        "6" = "6";
-	        };
+          "hyprland/workspaces" = {
+            format = "{icon}";
+            disable-scroll = true;
+            all-outputs = true;
+            active-only = false;
+            show-special = true;
+            on-click = "activate";
+            format-icons = {
+              active = "";
+              default = "";
+              "1" = "1";
+              "2" = "2";
+              "3" = "3";
+              "4" = "4";
+              "5" = "5";
+              "6" = "6";
+            };
+          };
+
+          "hyprland/window" = {
+            "format" = "{}";
+            "separate-outputs" = true;
+            "max-length" = 35;
+            "rewrite" = {
+              "(.*) - Mozilla Firefox" = "🦊 $1";
+              "(.*) - LibreWolf" = "🐺 $1";
+              "(.*) - Brave" = "🦁 $1";
+              "(.*) - GNU Emacs (.*)" = " $1";
+              "(.*).epub(.*)" = "󰂽 $1";
+              "(.*)foot" = " Terminal $1";
+            };
+          };
+
+          "hyprland/submap" = {
+            "format" = " {}";
+            "max-length" = 14;
+            "tooltip" = false;
+          };
+
+          "wlr/taskbar"=  {
+            "format"=  "{icon}";
+            "icon-size"=  18;
+            "spacing"=  0;
+            "tooltip-format"=  "{title}";
+            "on-click"=  "activate";
+            "on-click-middle"=  "close";
+          };
+
+
+          "custom/launcher" = {
+            "format" = "";
+            "tooltip" = false;
+            "on-click" = "bemenu-run";
+            "interval" = 86400;
+          };
+
+          "battery" =  {
+            "bat" =  "BAT1";
+            "interval" =  60;
+            "states" =  {
+              "good" = 95;
+              "warning" = 40;
+              "critical" = 20;
+            };
+            "max-length" =  25;
+            "format" = "{icon} {capacity}%";
+            "format-charging" = " {capacity}%";
+            "format-plugged" = " {capacity}%";
+            "format-alt" = "{time} {icon}";
+            "format-icons" = ["󰂎" "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹"];
+
+          };
+
+          "mpd" = {
+            "format" = "{stateIcon} {title}  ";
+            "format-disconnected" = "  ";
+            "format-stopped" = "  ";
+            "title-len" = 20;
+            "interval" = 10;
+            "on-click" = "mpc toggle";
+            "state-icons" = {
+              "paused" = "";
+              "playing" = "";
+            };
+            "tooltip-format" = "Mpd Connected";
+            "tooltip-format-disconnected" = "";
+          };
+
+          "mpris" = {
+            "format" = " {player_icon} {dynamic}";
+            "format-paused" = "{status_icon} <i>{dynamic}</i>";
+            "player-icons" = {
+              "default" = "▶";
+              "mpv" = "🎵";
+            };
+            "status-icons" = {
+              "paused" = "󰏤";
+            };
+            "max-length" = 20;
+          };
+
+          "custom/power" = {
+            "format" = "⏻";
+            "on-click" = "d-power";
+            "tooltip" = false;
+            "interval" = 86400;
+          };
+
+          "clock" = {
+            "format-alt" = " {:%a %d %b  %I:%M %p}";
+            "format" = " {:%H:%M}";
+            ##"timezones" = [ "Kolkata" ];
+            ##"max-length" = 200;
+            "interval" = 1;
+            "calendar" = {
+              "mode"           = "year";
+              "mode-mon-col"   = 3;
+              "weeks-pos"      = "right";
+              "on-scroll"      = 1;
+              "format" = {
+                "months" =     "<span color='#ffead3'><b>{}</b></span>";
+                "days" =       "<span color='#ecc6d9'><b>{}</b></span>";
+                "weeks" =      "<span color='#99ffdd'><b>W{}</b></span>";
+                "weekdays" =   "<span color='#ffcc66'><b>{}</b></span>";
+                "today" =      "<span color='#ff6699'><b><u>{}</u></b></span>";
+              };
+            };
+            "tooltip-format" = "<tt><small>{calendar}</small></tt>";
+          };
+
+          "tray" = {
+            "icon-size" = 23;
+            "spacing" = 10;
+          };
+
+          "cpu" = {
+            "format" = " {usage: >3}%";
+            "on-click" = "footclient -e btop";
+          };
+
+          "memory" = {
+            "on-click" = "foot -e btop";
+            "interval" = 30;
+            "format" = " {percentage}%";
+            "format-alt" = " {used}GB";
+            "max-length" = 10;
+          };
+
+          "network" = {
+            # "interface" = "wlp2s0";
+            "format" = "⚠ Disabled";
+            "format-wifi" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
+            "format-ethernet" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
+            "format-disconnected" = "⚠ Disconnected";
+            "on-click" = "d-wifi";
+            "interval" = 2;
+          };
+
+          "pulseaudio" = {
+            "scroll-step" = 2;
+            "format" = "{icon} {volume: >3}%";
+            "format-bluetooth" = "{icon} {volume: >3}%";
+            "format-muted" =" muted";
+            "on-click" = "pamixer -t";
+            "format-icons" = {
+              "headphones" = "";
+              "handsfree" = "";
+              "headset" = "";
+              "phone" = "";
+              "portable" = "";
+              "car" = "";
+              "default" = ["" ""];
+            };
+          };
+
+          "custom/recorder" = {
+            "format" = "{}";
+            "interval" = "once";
+            "exec" = "echo ' '";
+            "tooltip" = "false";
+            "exec-if" = "pgrep wl-screenrec";
+            "on-click" = "pkill -INT wl-screenrec";
+            "signal" = 8;
+          };
+
         };
-
-        "hyprland/window" = {
-	        "format" = "{}";
-	        "separate-outputs" = true;
-          "max-length" = 35;
-	        "rewrite" = {
-		        "(.*) - Mozilla Firefox" = "🦊 $1";
-		        "(.*) - LibreWolf" = "🐺 $1";
-		        "(.*) - Brave" = "🦁 $1";
-		        "(.*) - GNU Emacs (.*)" = " $1";
-		        "(.*).epub(.*)" = "󰂽 $1";
-		        "(.*)foot" = " Terminal $1";
-	        };
-        };
-
-        "hyprland/submap" = {
-	        "format" = " {}";
-	        "max-length" = 14;
-	        "tooltip" = false;
-        };
-
-	      "wlr/taskbar"=  {
-		      "format"=  "{icon}";
-		      "icon-size"=  18;
-          "spacing"=  0;
-		      "tooltip-format"=  "{title}";
-		      "on-click"=  "activate";
-		      "on-click-middle"=  "close";
-	      };
-
-
-        "custom/launcher" = {
-	        "format" = "";
-	        "tooltip" = false;
-	        "on-click" = "bemenu-run";
-          "interval" = 86400;
-        };
-
-        "battery" =  {
-	        "bat" =  "BAT1";
-	        "interval" =  60;
-	        "states" =  {
-            "good" = 95;
-		        "warning" = 40;
-		        "critical" = 20;
-	        };
-	        "max-length" =  25;
-          "format" = "{icon} {capacity}%";
-          "format-charging" = " {capacity}%";
-          "format-plugged" = " {capacity}%";
-          "format-alt" = "{time} {icon}";
-          "format-icons" = ["󰂎" "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹"];
-
-        };
-
-        "mpd" = {
-	        "format" = "{stateIcon} {title}  ";
-	        "format-disconnected" = "  ";
-	        "format-stopped" = "  ";
-	        "title-len" = 20;
-	        "interval" = 10;
-	        "on-click" = "mpc toggle";
-	        "state-icons" = {
-		        "paused" = "";
-		        "playing" = "";
-	        };
-	        "tooltip-format" = "Mpd Connected";
-	        "tooltip-format-disconnected" = "";
-        };
-
-        "mpris" = {
-	        "format" = " {player_icon} {dynamic}";
-	        "format-paused" = "{status_icon} <i>{dynamic}</i>";
-	        "player-icons" = {
-		        "default" = "▶";
-		        "mpv" = "🎵";
-	        };
-	        "status-icons" = {
-		        "paused" = "󰏤";
-	        };
-	        "max-length" = 20;
-        };
-
-	      "custom/power" = {
-	        "format" = "⏻";
-	        "on-click" = "d-power";
-	        "tooltip" = false;
-          "interval" = 86400;
-        };
-
-        "clock" = {
-	        "tooltip-format" = "{:%A %B %d %Y | %H:%M}";
-	        "format-alt" = " {:%a %d %b  %I:%M %p}";
-	        "format" = " {:%H:%M}";
-	        ##"timezones" = [ "Kolkata" ];
-	        ##"max-length" = 200;
-	        "interval" = 1;
-        };
-
-        "tray" = {
-          "icon-size" = 23;
-          "spacing" = 10;
-        };
-
-        "cpu" = {
-	        "format" = "﬙ {usage: >3}%";
-	        "on-click" = "footclient -e btop";
-        };
-
-        "memory" = {
-	        "on-click" = "foot -e btop";
-          "interval" = 30;
-          "format" = "󰾆 {percentage}%";
-          "format-alt" = "󰾅 {used}GB";
-          "max-length" = 10;
-        };
-
-        "network" = {
-	        # "interface" = "wlp2s0";
-	        "format" = "⚠ Disabled";
-	        "format-wifi" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
-          "format-ethernet" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
-	        "format-disconnected" = "⚠ Disconnected";
-	        "on-click" = "d-wifi";
-	        "interval" = 2;
-        };
-
-        "pulseaudio" = {
-	        "scroll-step" = 2;
-	        "format" = "{icon} {volume: >3}%";
-	        "format-bluetooth" = "{icon} {volume: >3}%";
-	        "format-muted" =" muted";
-	        "on-click" = "pamixer -t";
-	        "format-icons" = {
-		        "headphones" = "";
-		        "handsfree" = "";
-		        "headset" = "";
-		        "phone" = "";
-		        "portable" = "";
-		        "car" = "";
-		        "default" = ["" ""];
-	        };
-        };
-
-        "custom/recorder" = {
-		      "format" = "{}";
-		      "interval" = "once";
-		      "exec" = "echo ' '";
-		      "tooltip" = "false";
-		      "exec-if" = "pgrep wl-screenrec";
-		      "on-click" = "pkill -INT wl-screenrec";
-		      "signal" = 8;
-	      };
-
       };
     };
-  };
 
-  home.file.".config/waybar/style.css".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/style.css";
+    home.file.".config/waybar/style.css".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/style.css";
 
-}
+  }
   #+end_src
 **** style.css
   #+begin_src css :tangle ./gdk/configs/style.css
-  /* My own theme (Haki) made for emacs */
+    /* My own theme (Haki) made for emacs */
 
-  @define-color  bg-main	     #050505;
-  @define-color  bg-dim	     #121212;
-  @define-color  fg-main	     #ffffff;
-  @define-color  fg-dim	     #D8DEE9;
-  @define-color  fg-region     #2e8b6d;
+    @define-color  bg-main	     #050505;
+    @define-color  bg-dim	     #121212;
+    @define-color  fg-main	     #ffffff;
+    @define-color  fg-dim	     #D8DEE9;
+    @define-color  fg-region     #2e8b6d;
 
-  @define-color  title        #6ae4b9;
-  @define-color  heading-1    #ab82ff;
-  @define-color  heading-2    #ffec8b;
-  @define-color  heading-3    #3cb6df;
-  @define-color  heading-4    #9aff9a;
-  @define-color  heading-5    #97ffff;
-  @define-color  heading-6    #ffa07a;
-  @define-color  heading-7    #eeb4b4;
-  @define-color  heading-8    #ee4000;
-  @define-color  heading-9    #cd96cd;
+    @define-color  title        #6ae4b9;
+    @define-color  heading-1    #ab82ff;
+    @define-color  heading-2    #ffec8b;
+    @define-color  heading-3    #3cb6df;
+    @define-color  heading-4    #9aff9a;
+    @define-color  heading-5    #97ffff;
+    @define-color  heading-6    #ffa07a;
+    @define-color  heading-7    #eeb4b4;
+    @define-color  heading-8    #ee4000;
+    @define-color  heading-9    #cd96cd;
 
-  @define-color  error      #ee6363;
-  @define-color  link       #fcde69;
-  @define-color  todo       #54ff9f;
-  @define-color  done       #b4dddd;
-  @define-color  code       #77ee77;
-  @define-color  verbatim   #ee77ee;
-  @define-color  clock      #eedc82;
-  @define-color  bg-tag     #ffe1ff;
-  @define-color  bracket    #ffeeee;
+    @define-color  error      #ee6363;
+    @define-color  link       #fcde69;
+    @define-color  todo       #54ff9f;
+    @define-color  done       #b4dddd;
+    @define-color  code       #77ee77;
+    @define-color  verbatim   #ee77ee;
+    @define-color  clock      #eedc82;
+    @define-color  bg-tag     #ffe1ff;
+    @define-color  bracket    #ffeeee;
 
-  ,* {
-      min-height: 0;
-      margin: 0;
-      padding: 0;
-      font-weight: 700;
-      padding-bottom: 0px;
-      border: none;
-      font-family: "Code D Ace";
-      font-weight: bold;
-      font-size: 20px;
-  }
+    ,* {
+        min-height: 0;
+        margin: 0;
+        padding: 0;
+        font-weight: 700;
+        padding-bottom: 0px;
+        border: none;
+        font-family: "Code Haki";
+        font-weight: bold;
+        font-size: 26px;
+    }
 
-  window#waybar {
-      background: @bg-main;
-      /* background-color: transparent; */
-      color: @fg-main;
-  }
+    window#waybar {
+        background: @bg-main;
+        /* background-color: transparent; */
+        color: @fg-main;
+    }
 
-  #mode,
-  #clock,
-  #mpd,
-  #mpris,
-  #cpu,
-  #tray,
-  #memory,
-  #network,
-  #battery,
-  #pulseaudio,
-  #pulseaudio.muted,
-  #custom-launcher,
-  #custom-power,
-  #submap,
-  #window,
-  #taskbar,
-  tooltip,
-  #workspaces {
-    margin: 5px 5px 2px 5px;
-      padding: 7px 10px 7px 11px;
-    border-radius: 10px;
-    background-color: @bg-main;
-      color: @fg-main;
-      opacity: 1;
-  }
+    #mode,
+    #clock,
+    #mpd,
+    #mpris,
+    #cpu,
+    #tray,
+    #memory,
+    #network,
+    #battery,
+    #pulseaudio,
+    #pulseaudio.muted,
+    #custom-launcher,
+    #custom-power,
+    #submap,
+    #window,
+    #taskbar,
+    tooltip,
+    #workspaces {
+      margin: 5px 5px 2px 5px;
+        padding: 7px 10px 7px 11px;
+      border-radius: 10px;
+      background-color: @bg-main;
+        color: @fg-main;
+        opacity: 1;
+    }
 
-  #battery.charging{
-      color: @heading-4;
-  }
+    #battery.charging{
+        color: @heading-4;
+    }
 
-  #battery.warning { background: orange; }
-  #battery.critical { background: red; }
+    #battery.warning { background: orange; }
+    #battery.critical { background: red; }
 
 
-  #tray{
-      color: @bg-tag;
-  }
+    #tray{
+        color: @bg-tag;
+    }
 
-  #workspaces button,
-  #taskbar button {
-      animation: gradient_f 20s ease-in infinite;
-      transition: all 0.5s cubic-bezier(.55,-0.68,.48,1.682);
-  }
+    #workspaces button,
+    #taskbar button {
+        animation: gradient_f 20s ease-in infinite;
+        transition: all 0.5s cubic-bezier(.55,-0.68,.48,1.682);
+    }
 
-  #workspaces button.active,
-  #taskbar button.active,
-  #workspaces button:hover,
-  #taskbar button:hover
-   {
-       animation: gradient_f 20s ease-in infinite;
-       background: @fg-region;
-       color: @bg-main;
-       padding-left: 5px;
-       padding-right: 5px;
-       border-radius: 10px;
-       transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
-   }
+    #workspaces button.active,
+    #taskbar button.active,
+    #workspaces button:hover,
+    #taskbar button:hover
+     {
+         animation: gradient_f 20s ease-in infinite;
+         background: @fg-region;
+         color: @bg-main;
+         padding-left: 5px;
+         padding-right: 5px;
+         border-radius: 10px;
+         transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
+     }
 
-  #workspaces button:hover,
-  #taskbar button:hover {
-      background: @heading-2;
-  }
+    #workspaces button:hover,
+    #taskbar button:hover {
+        background: @heading-2;
+    }
   #+end_src
 
 *** COMMENT Doom-modeline
@@ -7494,14 +7901,15 @@ and returns the icon."
        (prog-mode :both (("vcs" . 1)))
        (dired-mode :both (("buffer-size" . 0)))))
 
-    (mini-echo--toggled-segments '(("battery" . t)
-                                   ("flymake" . t)
-                                   ;; ("elfeed". t)
-                                   ("pdf-tools". t)
-                                   ("doc-view" . t)
-                                   ("time" . t)))
-
     :config
+    (setopt mini-echo--toggled-segments
+            '(("battery" . t)
+              ("flymake" . t)
+              ;; ("elfeed". t)
+              ;; ("pdf-tools". t)
+              ("doc-view" . t)
+              ("time" . t)))
+
     (mini-echo-mode 1))
   #+end_src
 
@@ -7531,7 +7939,7 @@ and returns the icon."
   Display format is inherited from `battery-mode-line-format'."
       :setup (display-battery-mode 1)
       :fetch
-      (concat "󰂁"
+      (concat (nerd-icons-mdicon "nf-md-battery")
               (string-trim (mini-echo-segment--extract battery-mode-line-string) "\\[" "\\]")))
 
     (mini-echo-define-segment "which-function"
@@ -7614,7 +8022,7 @@ and returns the icon."
     (dashboard-items
      '(
        ;; (recents . 4)
-       (agenda . 10)
+       (agenda . 15)
        ;; (projects . 3)
        (bookmarks . 5)
        ))
@@ -7622,6 +8030,7 @@ and returns the icon."
     (dashboard-startupify-list
      '(dashboard-insert-page-break
        dashboard-insert-banner dashboard-insert-newline dashboard-insert-banner-title
+       dashboard-insert-newline dashboard-insert-navigator
        ;; dashboard-insert-newline dashboard-insert-init-info
        dashboard-insert-items dashboard-insert-newline
        ;; dashboard-insert-footer
@@ -7631,13 +8040,13 @@ and returns the icon."
      `(;; line1
        ((,(nerd-icons-faicon "nf-fa-newspaper_o")
          " News"
-         "Opens Elfeed"
-         (lambda (&rest _) (d/elfeed-open)) nil "" " |")
+         "Opens Gnus"
+         (lambda (&rest _) (gnus)) nil "" " |")
 
         (,(nerd-icons-mdicon "nf-md-notebook")
          " Notes"
          "Denote Tree"
-         (lambda (&rest _) (find-file "~/d-sync/notes/")) warning "" " |")
+         (lambda (&rest _) (find-file "~/d-sync/notes/journal.org")) warning "" " |")
 
         (,(nerd-icons-faicon "nf-fa-gitlab")
          " Project"
@@ -8066,6 +8475,7 @@ and returns the icon."
       MANPAGER = "nvim +Man!";
       STARDICT_DATA_DIR = "$HOME/d-git/d-bin/treasure/dict/";
       LIBVA_DRIVER_NAME = "iHD";
+      LESS = "-J -i -W --status-line --incsearch --use-color -R";
     };
   }
   #+end_src
@@ -8239,7 +8649,7 @@ and returns the icon."
         frame_width = 2;
         separator_color = "frame";
         sort = "yes";
-        font = "Code D Ace 16";
+        font = "Code Haki 26";
         line_height = 0;
         markup = "full";
         stack_duplicates = "true";
@@ -8293,7 +8703,7 @@ and returns the icon."
   };
 }
   #+end_src
-**** mako
+**** COMMENT mako
 - Another minimal lightweight notification for wayland.
   #+name: hm-config
   #+begin_src nix
@@ -8381,8 +8791,10 @@ and returns the icon."
         ignorecase = true;
         no-touch = true;
         prompt = " ";
+        counter = "always";
+        prefix = " ";
 
-        fn = "Code D Ace 24";
+        fn = "Code Haki 28";
 
         nb = "#00000090";
         ab = "#00000090";
@@ -8957,6 +9369,8 @@ lines:                       20;
     (org-special-ctrl-a/e t)
     (org-insert-heading-respect-content t)
 
+    (org-image-actual-width nil)
+
     :config
     (org-clock-persistence-insinuate)
 
@@ -9268,6 +9682,9 @@ lines:                       20;
   (use-package org-src
     :ensure nil
     :after org
+    :bind
+    (:map org-mode-map
+          ("C-c ;" . d/org-babel-edit))
     :custom
     (org-src-preserve-indentation nil)
     ;; Don't ask if we already have an open Edit buffer
@@ -9281,6 +9698,33 @@ lines:                       20;
                     (`(,mode . ,ts-mode) ts-mode)
                     (_ mode)))))
   #+end_src
+
++ To use eglot in =org-edit-special=. Credits to https://github.com/joaotavora/eglot/issues/216#issuecomment-1052931508
+  #+name: orgmacs
+  #+begin_src emacs-lisp
+  (defun d/org-babel-edit ()
+    "Edit any src block with lsp support by tangling the block and
+  then setting the org-edit-special buffer-file-name to the
+  absolute path. Finally load eglot."
+    (interactive)
+
+    ;; org-babel-get-src-block-info returns lang, code_src, and header
+    ;; params; Use nth 2 to get the params and then retrieve the :tangle
+    ;; to get the filename
+    (setq d/tangled-file-name (expand-file-name (assoc-default :tangle (nth 2 (org-babel-get-src-block-info)))))
+
+    ;; tangle the src block at point
+    (org-babel-tangle '(4))
+    (org-edit-special)
+
+    ;; Now we should be in the special edit buffer with python-mode. Set
+    ;; the buffer-file-name to the tangled file so that pylsp and
+    ;; plugins can see an actual file.
+    (setq-local buffer-file-name d/tangled-file-name)
+    (eglot-ensure)
+    )
+  #+end_src
+
 *** org-id
   #+name: orgmacs
   #+begin_src emacs-lisp
@@ -9537,6 +9981,7 @@ block but are passed literally to the \"example-block\"."
   #+name: orgmacs
   #+begin_src emacs-lisp
   (use-package org-ql
+    :after org
     :bind
     (:map org-mode-map
           ("C-c q f" . org-ql-find)
@@ -9556,12 +10001,14 @@ block but are passed literally to the \"example-block\"."
   #+begin_src emacs-lisp
   (use-package org-super-links
     :unless d/on-droid
-    :bind (("C-c s s" . org-super-links-link)
-           ("C-c s l" . org-super-links-store-link)
-           ("C-c s C-l" . org-super-links-insert-link)
-           ("C-c s d" . org-super-links-quick-insert-drawer-link)
-           ("C-c s i" . org-super-links-quick-insert-inline-link)
-           ("C-c s C-d" . org-super-links-delete-link))
+    :bind
+    (:map org-mode-map
+          ("C-c s s" . org-super-links-link)
+          ("C-c s l" . org-super-links-store-link)
+          ("C-c s C-l" . org-super-links-insert-link)
+          ("C-c s d" . org-super-links-quick-insert-drawer-link)
+          ("C-c s i" . org-super-links-quick-insert-inline-link)
+          ("C-c s C-d" . org-super-links-delete-link))
     :custom
     (org-super-links-related-into-drawer "REFERENCE")
     (org-super-links-link-prefix 'org-super-links-link-prefix-timestamp)
@@ -9637,7 +10084,7 @@ block but are passed literally to the \"example-block\"."
   (advice-add 'org-alert--dispatch :around #'org-alert--dispatch--use-parent-as-title-advice)
   #+end_src
 
-*** org-present
+*** COMMENT org-present
 - Presentation in emacs with org-mode, at its purest form.
   #+name: orgmacs
   #+begin_src emacs-lisp
@@ -9826,6 +10273,7 @@ block but are passed literally to the \"example-block\"."
   #+name: orgmacs
   #+begin_src emacs-lisp
   (use-package org-noter
+    :unless d/on-droid
     :after org
     :custom
     (org-noter-auto-save-last-location t)
@@ -9867,31 +10315,33 @@ block but are passed literally to the \"example-block\"."
 ** Markdown
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package markdown-mode
-  :defer t
-  :defines (markdown-mode-map)
-  :functions (markdown-view-mode)
-  :mode "\\.md\\'"
-  :hook (markdown-mode . variable-pitch-mode)
-  :bind (:map markdown-mode-map
-              ("<f8>" . d/markdown-toggle))
-  :config
-  (defun d/set-markdown-header-font-sizes ()
-    (dolist (face '((markdown-header-face-1 . 1.3)
-                    (markdown-header-face-2 . 1.2)
-                    (markdown-header-face-3 . 1.15)
-                    (markdown-header-face-4 . 1.1)
-                    (markdown-header-face-5 . 1.0)))
-      (set-face-attribute (car face) nil :weight 'normal :font haki-heading-font :height (cdr face))))
+  (use-package markdown-mode
+    :defer t
+    :defines (markdown-mode-map)
+    :functions (markdown-view-mode)
+    :mode
+    "\\.md\\'"
+    "\\.Rmd\\'"
+    :hook (markdown-mode . variable-pitch-mode)
+    :bind (:map markdown-mode-map
+                ("<f8>" . d/markdown-toggle))
+    :config
+    (defun d/set-markdown-header-font-sizes ()
+      (dolist (face '((markdown-header-face-1 . 1.3)
+                      (markdown-header-face-2 . 1.2)
+                      (markdown-header-face-3 . 1.15)
+                      (markdown-header-face-4 . 1.1)
+                      (markdown-header-face-5 . 1.0)))
+        (set-face-attribute (car face) nil :weight 'normal :font haki-heading-font :height (cdr face))))
 
-  (defun d/markdown-mode-hook ()
-    (d/set-markdown-header-font-sizes))
+    (defun d/markdown-mode-hook ()
+      (d/set-markdown-header-font-sizes))
 
-  (defun d/markdown-toggle ()
-    "Toggle view mode and editing mode"
-    (interactive)
-    (if (derived-mode-p 'markdown-view-mode) (markdown-mode) (markdown-view-mode))
-    (variable-pitch-mode 1)))
+    (defun d/markdown-toggle ()
+      "Toggle view mode and editing mode"
+      (interactive)
+      (if (derived-mode-p 'markdown-view-mode) (markdown-mode) (markdown-view-mode))
+      (variable-pitch-mode 1)))
   #+end_src
 ** Spell
 - to check for simple spell corrections
@@ -9916,13 +10366,13 @@ block but are passed literally to the \"example-block\"."
 - And some spell correction tools.
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  home.packages = with pkgs; [
-    languagetool
-    (aspellWithDicts (dicts: with dicts; [ en en-computers en-science ]))
-    hunspell hunspellDicts.en_US
-  ];
-}
+  {
+    home.packages = with pkgs; [
+      languagetool
+      (aspellWithDicts (dicts: with dicts; [ en en-computers ]))
+      hunspell hunspellDicts.en_US
+    ];
+  }
   #+end_src
 - language tool as linter
   #+name: orgmacs
@@ -9947,7 +10397,7 @@ block but are passed literally to the \"example-block\"."
   :hook
   (speed-type-mode . olivetti-mode))
   #+end_src
-** Denote
+** COMMENT Denote
 - A good design for note-taking in emacs, by master Prot.
 - It is tool agnostic, yes written in elisp, but not very much dependent on emacs.
 - It can used with standard Unix tool very well.

@@ -39,41 +39,42 @@
         editor = "emacs";
       };
     in
-    {
-      devShells.x86_64-linux.default = pkgs.mkShell {
-        packages = with pkgs; [
-          alejandra
-          deadnix
-          git
-          statix
-        ];
-        name = "dots";
-        DIRENV_LOG_FORMAT = "";
-      };
-
-      nixosConfigurations = {
-        gdk = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          modules = [
-            ./gdk/core.nix
-            inputs.hosts.nixosModule
-            inputs.home-manager.nixosModules.home-manager
-            {
-              home-manager = {
-                useUserPackages = true;
-                useGlobalPkgs = true;
-                extraSpecialArgs = {
-                  inherit inputs vars;
-                };
-                users.${vars.username} = import ./gdk/home.nix;
-              };
-            }
+      {
+        devShells.x86_64-linux.default = pkgs.mkShell {
+          packages = with pkgs; [
+            alejandra
+            deadnix
+            git
+            statix
+            nixd
           ];
-          specialArgs = {
-            inherit inputs;
-            inherit vars system;
+          name = "dots";
+          DIRENV_LOG_FORMAT = "";
+        };
+
+        nixosConfigurations = {
+          gdk = nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            modules = [
+              ./gdk/core.nix
+              inputs.hosts.nixosModule
+              inputs.home-manager.nixosModules.home-manager
+              {
+                home-manager = {
+                  useUserPackages = true;
+                  useGlobalPkgs = true;
+                  extraSpecialArgs = {
+                    inherit inputs vars;
+                  };
+                  users.${vars.username} = import ./gdk/home.nix;
+                };
+              }
+            ];
+            specialArgs = {
+              inherit inputs;
+              inherit vars system;
+            };
           };
         };
       };
-    };
 }

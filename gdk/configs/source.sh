@@ -2,8 +2,8 @@
 autoload -U colors && colors  # Load colors
 # PS1="%B%{$fg[yellow]%}[%{$fg[cyan]%}%~%{$fg[yellow]%}]
  # %{$fg[blue]%} %b%{$reset_color%}%b"
-PS1=" %B%{$fg[blue]%} %{$fg[yellow]%}[%{$fg[cyan]%}%~%f%}%{$fg[yellow]%}]
- %F{green}%f "
+# PS1=" %B%{$fg[blue]%} %{$fg[yellow]%}[%{$fg[cyan]%}%~%f%}%{$fg[yellow]%}]
+#  %F{green}%f "
 # setopt autocd		# Auto cd
 stty stop undef		# Disable ctrl-s to freeze terminal.
 # setopt interactive_comments
@@ -66,7 +66,7 @@ alias ".1"="cd .."
 alias ".2"="cd ../.."
 alias ".3"="cd ../../.."
 alias c="clear"
-alias v="nvim"
+alias v="emacsclient -c -nw || emacs -nw -Q"
 alias emd="emacs --daemon"
 alias cp="cp -iv"
 alias mv="mv -iv"
@@ -78,6 +78,10 @@ alias gc="git clone --depth=1"
 alias sudo="doas"
 alias sioyek="sioyek --new-window"
 alias hyprunlock="pkill -SIGUSR1 hyprlock"
+
+# nixos rebuild
+alias rebuild="doas nixos-rebuild switch --flake ~/d-git/d-nix#gdk"
+alias testrebuild="doas nixos-rebuild test --flake ~/d-git/d-nix#gdk"
 
 # export BEMENU_OPTS="-i -l 10 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
 
@@ -107,19 +111,25 @@ function {e,find-file,'emacsclient -t','emacsclient -nw'} () {
     fi
 }
 
+# function man() { emacsclient -te "(man \"$1\")"; }
+
 function manp () { # use emacs
-    if [[ $(man -f ${1}) ]]; then
-        if [ -n "$INSIDE_EMACS" ]; then
-          emacsclient -e "(man \"$1\")"
-        elif [[ -n "$(pgrep emacs)" ]]; then
-          emacsclient -nw -e "(let ((Man-notify-method 'bully)) (man \"$1\"))"
-        else
-            man $1
-        fi
+    apropos="$(man -k '' | fzf --height "30%" | cut -d ' ' -f 1)"
+    # if [[ $(man -f ${1}) ]]; then
+    if [ -n "$INSIDE_EMACS" ]; then
+        emacsclient -e "(man \"$apropos\")"
+    elif [[ -n "$(pgrep emacs)" ]]; then
+        emacsclient -nw -e "(let ((Man-notify-method 'bully)) (man \"$apropos\"))"
+        # else
+        # man $1
+        # fi
     else
         ${1} --help
     fi
 }
+zle -N manp
+bindkey '^[m' manp
+
 
 whichpath () {
     realpath $(which $1)

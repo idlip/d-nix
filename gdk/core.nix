@@ -10,7 +10,8 @@
   boot = {
     # Uses bleeding edge latest kernel.
     kernelPackages = pkgs.linuxPackages_latest;
-    # kernelModules = [ "tcp_bbr" "acpi_call" ];
+    kernelModules = [ "acpi_call" ];
+    extraModulePackages = with config.boot.kernelPackages; [ acpi_call ];
 
     kernel.sysctl = {
       # The Magic SysRq key is a key combo that allows users connected to the
@@ -74,7 +75,7 @@
     ];
 
   boot.initrd.availableKernelModules = [ "xhci_pci" "thunderbolt" "vmd" "nvme" "usb_storage" "sd_mod" ];
-  boot.initrd.kernelModules = [ ];
+  boot.initrd.kernelModules = [ "xe" ];
   boot.kernelModules = [ "kvm-intel" ];
   boot.kernelParams = [ "i915.force_probe=a7a0"  ];
 # "intel_pstate=disable"
@@ -120,7 +121,7 @@
   # You can remove font and packages line to have default font kernel chooses.
   console = {
     earlySetup = true;
-    font = "${pkgs.terminus_font}/share/consolefonts/ter-132n.psf.gz";
+    font = "${pkgs.terminus_font}/share/consolefonts/ter-v32n.psf.gz";
     packages = with pkgs; [ terminus_font ];
     keyMap = "us";
   };
@@ -339,15 +340,6 @@
 }
 
 {
-  # for fingerprint
-  services.fprintd = {
-    enable = true;
-    package = pkgs.fprintd;
-  };
-
-}
-
-{
   # for intel cpu to control temp
   services.thermald.enable = true;
 }
@@ -379,6 +371,10 @@
       };
     };
   };
+}
+
+{
+  services.hardware.bolt.enable = true;
 }
 
 {
@@ -446,6 +442,7 @@
   environment = {
     pathsToLink = ["/share/zsh"];
     variables = {
+      VDPAU_DRIVER = lib.mkDefault "va_gl";
       EDITOR = "emacsclient -nw -a nvim";
       BROWSER = "d-stuff";
       NIXOS_OZONE_WL = "1";
@@ -558,14 +555,19 @@
 
 {
   hardware = {
+    uinput.enable = true;
     pulseaudio.enable = lib.mkForce false;
     graphics = {
       enable = true;
+      enable32Bit = true;
       extraPackages = with pkgs; [
         libva intel-media-driver
         intel-vaapi-driver
-        vaapiVdpau vaapiIntel
-        libvdpau-va-gl
+        vaapiVdpau
+        libvdpau-va-gl vpl-gpu-rt
+      ];
+      extraPackages32 = with pkgs.driversi686Linux; [
+        intel-vaapi-driver intel-media-driver
       ];
     };
   };

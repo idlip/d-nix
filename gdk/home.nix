@@ -12,6 +12,7 @@
       enable = true;
       enableSshSupport = true;
       enableZshIntegration = true;
+      pinentryPackage = pkgs.pinentry-gnome3;
       # pinentryPackage = pkgs.pinentry-bemenu;
     };
   };
@@ -306,12 +307,12 @@
       olivetti nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
       embark-consult consult-eglot markdown-mode nix-mode nix-ts-mode
       reddigg hnreader howdoyou magit webpaste
-      shrface shr-tag-pre-highlight nov devdocs-browser reformatter
+      shrface org-mime shr-tag-pre-highlight nov devdocs-browser reformatter
       tempel tempel-collection eglot-tempel
       sdcv jinx envrc dashboard mini-echo
-      speed-type vc-backup aria2 pubmed
+      speed-type vc-backup aria2 transmission pubmed
       ess auctex julia-mode webfeeder engrave-faces
-      toc-org org-ql org-alert org-noter
+      toc-org org-ql org-alert org-noter activities
       saveplace-pdf-view flycheck consult-flycheck
       ef-themes doom-themes
       org-re-reveal
@@ -352,6 +353,17 @@
         };
       })
 
+      (trivialBuild {
+        pname = "ready-mode";
+        version = "pre-0.1";
+
+        src = pkgs.fetchFromGitHub {
+          owner = "xenodium";
+          repo = "ready-player";
+          rev = "61cc4c6287903f4d1fd864d905939fdd44bddc8a";
+          hash = "sha256-RuCZaeHC1IWsQh/33Ff8+VVMg4gbt6yWGZikXSKHRXI=";
+        };
+      })
 
 
       ## packages kept out to make more vanilla usage!
@@ -752,7 +764,6 @@
       };
 
       config = {
-        force-window = true;
         osc = true;
         hwdec = "auto-safe";
         vo = "gpu";
@@ -977,7 +988,7 @@
 
     libnotify libsixel
     brightnessctl
-    wtype
+    wtype dotool
     swaybg
     # swayidle gtklock
 
@@ -993,6 +1004,7 @@
     enable = true;
     settings ={
       general = {
+        # ignore_dbus_inhibit = false;          # whether to ignore dbus-sent idle-inhibit requests (used by e.g. firefox or steam)
         lock_cmd = "pidof hyprlock || hyprlock";       # avoid starting multiple hyprlock instances.
         before_sleep_cmd = "loginctl lock-session";    # lock before suspend.
         after_sleep_cmd = "hyprctl dispatch dpms on";  # to avoid having to press a key twice to turn on the display.
@@ -1010,7 +1022,7 @@
           on-timeout = "loginctl lock-session";
         }
         {
-          timeout = 250;
+          timeout = 230;
           on-timeout = "hyprctl dispatch dpms off";
           on-resume = "hyprctl dispatch dpms on";
         }
@@ -1029,7 +1041,8 @@
     settings = {
       background = [
         {
-          path = "/home/idlip/.local/share/bg.jpg";
+          monitor = "";
+          path = "/home/idlip/d-git/d-wallpapers/walls/Anime-City-Night.png";
           blur_size = 8;
           blur_passes = 3;
         }
@@ -1046,7 +1059,7 @@
           dots_spacing = 0.1;
           fade_on_empty = true;
           placeholder_text = "<i>Pass</i>";
-          position = "0, 200";
+          position = "0, 120";
           halign = "center";
           valign = "bottom";
         }
@@ -1054,31 +1067,33 @@
 
       label = [
         {
+          monitor = "";
           color = "rgba(255, 255, 255, 1.0)";
           font_size = 35;
           text = ''
           cmd[update:1000] echo "<b> "$(date +'%A, %-d %B %Y @ %T')" </b>"
           '';
-          position = "0, 0";
+          position = "0, 40";
           halign = "center";
-          valign = "bottom";
+          valign = "center";
         }
 
         {
+          monitor = "";
           color = "rgba(255, 255, 255, 1.0)";
           font_size = 35;
           text = ''
-            $USER, Welcome back!
+          Lets Get back to Working!
           '';
-          position = "0, 100";
+          position = "0, 120";
           halign = "center";
-          valign = "bottom";
+          valign = "center";
         }
       ];
 
       image =[
         {
-          path = "/home/idlip/d-git/d-wallpapers/oled/one-piece.jpg";
+          path = "/home/idlip/d-git/d-wallpapers/oled/wallhaven-m3zjx1_1920x1080.png";
           size = 200;
           rounding = -1;
           border_size = 2;
@@ -1383,6 +1398,7 @@
         "--max-columns-preview"
         "--colors=line:style:bold"
         "--ignore-case"
+        "--follow"
       ];
     };
 
@@ -1481,7 +1497,6 @@
     PATH = "$PATH:$HOME/d-git/d-bin/bin:$HOME/.local/bin";
     VISUAL = "$EDITOR";
     GRIM_DEFAULT_DIR = "$HOME/pics/sshots/";
-    MANPAGER = "nvim +Man!";
     STARDICT_DATA_DIR = "$HOME/d-git/d-bin/treasure/dict/";
     LIBVA_DRIVER_NAME = "iHD";
     LESS = "-J -i -W --status-line --incsearch --use-color -R";
@@ -1503,6 +1518,31 @@
     fd
     wget
   ];
+}
+
+{
+  programs.starship = {
+    enable = true;
+    enableZshIntegration = true;
+
+    settings = {
+      add_newline = true;
+      scan_timeout = 5;
+
+      line_break.disabled = false;
+
+      character = {
+        success_symbol = " ";
+        error_symbol = "󰘧";
+      };
+
+      hostname = {
+	      ssh_only = true;
+	      format = "[$hostname](bold blue) ";
+	      disabled = false;
+      };
+    };
+  };
 }
 
 {
@@ -1687,11 +1727,22 @@
 }
 
 {
-  home.packages = with pkgs; [
-    languagetool
-    (aspellWithDicts (dicts: with dicts; [ en en-computers ]))
-    hunspell hunspellDicts.en_US
-  ];
+
+  home = with pkgs;
+    let
+      mySpells = aspellWithDicts (dicts: with dicts; [ en en-computers ]);
+    in
+      {
+        file.".aspell.conf".text = ''
+          dict-dir ${mySpells}/lib/aspell/
+          add-extra-dicts en-computers.rws
+        '';
+        packages = [
+          languagetool
+          mySpells
+          # hunspell hunspellDicts.en_US
+        ];
+      };
 }
 
 ];

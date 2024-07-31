@@ -24,7 +24,7 @@
 
   (tramp-verbose 0)
   (tramp-chunksize 2000)
-  (tramp-use-ssh-controlmaster-options nil))
+  (tramp-use-ssh-controlmaster-options nil)
 
 (unless d/on-droid
   (defcustom tramp-nspawn-machinectl-program "machinectl" ;; like nixos-container
@@ -71,7 +71,7 @@ see its function help for a description of the format."
 
   (add-hook 'after-init-hook 'tramp-nspawn-setup)
 
-  )
+  ))
 
 (use-package battery
   :ensure nil
@@ -132,7 +132,7 @@ see its function help for a description of the format."
   :custom
   (use-package-verbose nil)
   (use-package-always-ensure nil)
-  (use-package-always-defer nil)
+  (use-package-always-defer t)
   (use-package-expand-minimally t)
   (use-package-enable-imenu-support t))
 
@@ -248,7 +248,8 @@ it narrows to region, or Org subtree."
 
   :config
   ;; (global-hl-line-mode 1)
-  (global-visual-line-mode 1))
+  (global-visual-line-mode 1)
+  (auto-fill-mode 1))
 
 (defun d/join-lines (specify-separator)
   "Join lines in the active region by a separator, by default a comma.
@@ -532,7 +533,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
    '(("\\`execute-extended-command" unobtrusive
       (vertico-flat-annotate . t)
       (marginalia-annotator-registry (command marginalia-annotate-command marginalia-annotate-binding builtin none)))
-     (jinx-correct reverse)
+     ;; (jinx-correct reverse)
      (tab-bookmark-open reverse)
      (dired-goto-file unobtrusive)
      (load-theme grid reverse)
@@ -557,7 +558,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (vertico-multiform-categories
    '((file grid reverse)
      (consult-grep buffer)
-     (jinx grid (vertico-grid-annotate . 20))
+     (jinx grid)
      (embark-bindings grid reverse)
      (embark-keybinding grid)
      (kill-ring reverse)
@@ -669,8 +670,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
    :preview-key '(:debounce 0.4 any))
 
   :config
-  (advice-add #'register-preview :override #'consult-register-window)
-  (add-to-list 'consult-buffer-sources 'consult--source-eww 'append))
+  (advice-add #'register-preview :override #'consult-register-window))
 
 (defun consult-colors--web-list nil
   "Return list of CSS colors for `d/colors-web'."
@@ -736,10 +736,11 @@ Return nil if NAME does not designate a valid color."
 
 (setq add-unicodes (unless d/on-droid (directory-files "~/d-git/d-bin/treasure/unicodes/" t "i")))
 
-(with-eval-after-load 'eww
+(use-package consult
+  :config
   (defvar consult--source-eww
     (list
-     :name     "Eww"
+     :name     "Eww Buffer"
      :narrow   ?e
      :action   (lambda (bm)
                  (eww-browse-url (get-text-property 0 'url bm)))
@@ -751,7 +752,49 @@ Return nil if NAME does not designate a valid color."
                                     (plist-get bm :url)
                                     (plist-get bm :title))
                             'url (plist-get bm :url)))
-                         eww-bookmarks)))))
+                         eww-bookmarks))))
+  (add-to-list 'consult-buffer-sources 'consult--source-eww 'append))
+
+(use-package consult
+  :config
+  (defvar  consult--source-org
+    (list :name     "Organize"
+          :category 'buffer
+          :narrow   ?o
+          :face     'org-list-dt
+          :history  'buffer-name-history
+          :state    #'consult--buffer-state
+          :items   '(lambda () (consult--buffer-query :mode '(org-mode org-agenda-mode) :as #'buffer-name))))
+  (add-to-list 'consult-buffer-sources 'consult--source-org 'append))
+
+(use-package consult
+  :config
+  (defvar consult--source-gnus
+    (list :name     "Gnus"
+          :hidden   t
+          :narrow   ?g
+          :category 'buffer
+          :state    #'consult--buffer-state
+          :items    '(lambda () (consult--buffer-query :mode '(gnus-article-mode gnus-summary-mode gnus-group-mode) :as #'buffer-name))))
+  (add-to-list 'consult-buffer-sources 'consult--source-gnus 'append))
+
+(use-package consult
+  :config
+  (defvar consult--source-eshell
+    (list :name     "Eshells"
+          :category 'buffer
+          :narrow   ?s
+          :face     'consult-buffer
+          :history  'buffer-name-history
+          :state    #'consult--buffer-state
+          :new
+          (lambda (name)
+            (with-current-buffer (get-buffer-create name)
+              ;;(insert "#+title: " name "\n\n")
+              (eshell-mode)
+              (consult--buffer-action (current-buffer))))
+          :items '(lambda () (consult--buffer-query :mode 'eshell-mode :as #'buffer-name))))
+    (add-to-list 'consult-buffer-sources 'consult--source-eshell 'append))
 
 (use-package orderless
   :demand t
@@ -791,13 +834,18 @@ Return nil if NAME does not designate a valid color."
   (eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
   (embark-prompter 'embark-completing-read-prompter)
   (embark-keymap-prompter-key "`")
+  (embark-indicators
+   '(embark-minimal-indicator  ; default is embark-mixed-indicator
+     embark-highlight-indicator
+     embark-isearch-highlight-indicator))
 
   :config
   (add-to-list 'display-buffer-alist
                '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
                  nil
                  (window-parameters (mode-line-format . none))))
-  (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target))
+  ;; (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+  )
 
 ;; credits to karthinks
 (with-eval-after-load 'embark
@@ -971,7 +1019,7 @@ Return nil if NAME does not designate a valid color."
 (use-package tempel-collection
   :after tempel)
 
-(use-package tempel-eglot
+(use-package eglot-tempel
   :after eglot)
 
 (use-package tab-bar
@@ -1109,6 +1157,25 @@ You can do this by trackpad too (laptop)"
   (zone)
   (zone-when-idle 80))
 
+(use-package activities
+  :unless d/on-droid
+  :init
+  (activities-mode)
+  (activities-tabs-mode)
+  ;; Prevent `edebug' default bindings from interfering.
+  (setq edebug-inhibit-emacs-lisp-mode-bindings t)
+
+  :bind
+  (("C-x C-a C-n" . activities-new)
+   ("C-x C-a C-d" . activities-define)
+   ("C-x C-a C-a" . activities-resume)
+   ("C-x C-a C-s" . activities-suspend)
+   ("C-x C-a C-k" . activities-kill)
+   ("C-x C-a RET" . activities-switch)
+   ("C-x C-a b" . activities-switch-buffer)
+   ("C-x C-a g" . activities-revert)
+   ("C-x C-a l" . activities-list)))
+
 (use-package man
   :ensure nil
   :demand t
@@ -1208,15 +1275,16 @@ You can do this by trackpad too (laptop)"
    (lambda nil
      (concat
       "\n"
-      (propertize "  " 'face '(:inherit region))
+      ;; (propertize "  " 'face '(:inherit region))
+      "  "
       " "
       (propertize (replace-regexp-in-string "~" " " (eshell/pwd)) 'face '(:foreground "lightblue1"))
       (when (package-installed-p 'magit) (propertize (if (magit-get-current-branch) (concat "   " (magit-get-current-branch)) "") 'face '(:foreground "orangered1")))
       (when (package-installed-p 'envrc) (propertize (if (string= envrc--status 'none) "" "   ") 'face '(:foreground "mediumspringgreen")))
-      (propertize (concat "   " (format-time-string "%H:%M" (current-time))) 'face '(:foreground "lightcyan1"))
-      (propertize "\n  " 'face '(:foreground "palegreen"))
+      ;; (propertize (concat "   " (format-time-string "%H:%M" (current-time))) 'face '(:foreground "lightcyan1"))
+      (propertize "\n 󰘧 " 'face '(:foreground "palegreen"))
       )))
-  (eshell-prompt-regexp "^  "))
+  (eshell-prompt-regexp "^ 󰘧 "))
 
 (defun d/clear-eshell ()
   (interactive)
@@ -1499,7 +1567,15 @@ with `venvPath' and `venv' set to the absolute path of
 out <- styler::style_text(readLines(con))
 close(con)
 out")
-    :lighter " styler"))
+    :lighter " styler")
+
+  (reformatter-define shell-format
+    :program "shfmt"
+    )
+
+  (reformatter-define nixfmt-rfc
+    :program "nixfmt")
+  )
 
 (use-package eglot
   :defer t
@@ -1754,7 +1830,7 @@ out")
 
 (use-package saveplace-pdf-view
   :unless d/on-droid
-  :after saveplace)
+  :demand t)
 
 (use-package nov
   :functions
@@ -1766,7 +1842,7 @@ out")
 
   :mode ("\\.epub\\'" . nov-mode)
   :custom
-  (nov-text-width nil)
+  (nov-text-width 80)
   (nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title)))
   (nov-shr-rendering-functions (append nov-shr-rendering-functions shr-external-rendering-functions))
   (nov-variable-pitch t))
@@ -1876,8 +1952,13 @@ out")
 (use-package gnus
   :hook
   (gnus-group-mode . gnus-topic-mode)
+  (gnus-summary-mode . turn-on-gnus-mailing-list-mode)
   :bind
-  ("C-c d e" . gnus)
+  (("C-c d g" . gnus)
+   (:map gnus-summary-mode-map
+         ("-" . gnus-summary-hide-thread)
+         ("+" . gnus-summary-show-thread)
+         ))
 
   :custom
   (gnus-directory (expand-file-name "feeds/gnews" user-emacs-directory))
@@ -1886,7 +1967,7 @@ out")
   (gnus-widen-article-window t)
 
   (gnus-select-method
-   '(nnnil))
+   '(nnnil ""))
 
   (gnus-secondary-select-methods
    '((nntp "feedbase"
@@ -1899,8 +1980,7 @@ out")
 
   ;; refer: https://github.com/redguardtoo/mastering-emacs-in-one-year-guide/blob/master/gnus-guide-en.org
   (gnus-thread-sort-functions
-   '(gnus-thread-sort-by-most-recent-date
-     (not gnus-thread-sort-by-number)))
+   '(gnus-thread-sort-by-most-recent-date))
   (gnus-use-cache t)
   (gnus-thread-hide-subtree t)
 
@@ -1942,6 +2022,22 @@ out")
   (gnus-sum-thread-tree-leaf-with-other "├─► ")
   (gnus-sum-thread-tree-single-leaf     "╰─► ")
 
+  ;; Yay (seen here: `https://github.com/cofi/dotfiles/blob/master/gnus.el')
+  (gnus-cached-mark ?󰃨)
+  (gnus-canceled-mark ?󱞐)
+  (gnus-del-mark ?󰆴)
+  ;; gnus-dormant-mark ?⚐
+  (gnus-expirable-mark ?♻)
+  (gnus-forwarded-mark ?)
+  ;; gnus-killed-mark ?☠
+  ;; gnus-process-mark ?⚙
+  (gnus-read-mark ?󰑇)
+  (gnus-recent-mark ?✩)
+  (gnus-replied-mark ?↺)
+  (gnus-unread-mark ?)
+  ;; gnus-unseen-mark ?★
+  ;; gnus-ticked-mark ?⚑
+
   (gnus-summary-line-format
    (concat
     "%0{%U%R%z%}"
@@ -1974,6 +2070,37 @@ out")
      ))
 
   )
+
+(setopt user-mail-address "idlip@protonmail.com"
+        user-full-name "Dilip")
+
+(use-package gnus
+  :unless d/on-droid
+  :config
+  (add-to-list 'gnus-secondary-select-methods
+               '(nnimap "protonmail"
+                        (nnimap-stream plain)
+                        (nnimap-address "127.0.0.1")
+                        (nnimap-server-port 1143))))
+
+(use-package smtpmail
+  :unless d/on-droid
+  :after gnus
+  :custom
+  (smtpmail-default-smtp-server "127.0.0.1")
+  (mail-sources '((imap :server "127.0.0.1"
+                        :user "idlip")))
+  (smtpmail-smtp-server "127.0.0.1")
+  (smtpmail-smtp-service 1025)
+  (starttls-use-gnutls t)
+  (send-mail-function 'smtpmail-send-it)
+  (message-send-mail-function 'smtpmail-send-it)
+  (mail-from-style 'angles)
+  (smtpmail-debug-info t)
+  (smtpmail-debug-verb t))
+
+(unless d/on-droid
+  (load-file "~/d-sync/feeds/gnews/privmail.el"))
 
 (use-package sdcv
   :defer t
@@ -2094,9 +2221,9 @@ out")
   (shr-indentation 4)
   (shr-bullet "⁍ ")
   (shr-folding-mode t)
-  (shr-max-width 110)
+  (shr-max-width 80)
   (shr-max-image-proportion 0.9)
-  (shr-width nil))
+  (shr-width 80))
 
 (use-package shr-color
   :ensure nil
@@ -2278,6 +2405,12 @@ for the search engine used."
     )
  )
 
+(use-package ready-player
+  :unless d/on-droid
+  :demand t
+  :config
+  (ready-player-mode))
+
 (use-package image-mode
   :ensure nil
   :defines (d/on-droid olivetti-body-width)
@@ -2351,7 +2484,8 @@ for the search engine used."
   (custom-set-variables
    '(touch-screen-precision-scroll t)
    '(touch-screen-display-keyboard t)
-   '(browse-url-android-share t))
+   '(browse-url-android-share t)
+   '(touch-screen-enable-hscroll nil "Avoid horizontal scroll that stutters"))
 
   ;; credits to https://github.com/danijelcamdzic/dotemacs/
   (setq display-buffer-alist
@@ -2413,9 +2547,9 @@ Android port."
   (setq alert-default-icon "ic_popup_reminder")
   )
 
-(defvar d/font-size (if d/on-droid 150 240)
+(defvar d/font-size (if d/on-droid 170 240)
   "Default font size based on the system.")
-(defvar d/variable-font-size (if d/on-droid 160 240)
+(defvar d/variable-font-size (if d/on-droid 180 280)
   "Default variable pitch size")
 
 ;; Dont worry about the font name, I use fork of Recursive font
@@ -2444,7 +2578,7 @@ Android port."
      ("Serif" "Alegreya" "Noto Sans" "Georgia" "Cambria" "Times New Roman" "DejaVu Serif" "serif")))
 
   :custom-face
-  (variable-pitch ((t (:family ,d/variable-pitch-font :height ,d/font-size))))
+  (variable-pitch ((t (:family ,d/variable-pitch-font :height ,d/variable-font-size))))
   (fixed-pitch ((t (:family ,d/fixed-pitch-font :height ,d/font-size))))
   (default ((t (:family ,d/fixed-pitch-font :height ,d/font-size)))))
 
@@ -2494,7 +2628,7 @@ Android port."
   (haki-sans-font "Code D Haki")
   (haki-title-font "Code D Ace")
   ;; (haki-link-font "")
-  (haki-code-font "Code D Lip")
+  ;; (haki-code-font "Code D Lip")
   :config
   (load-theme 'haki t))
 
@@ -2548,7 +2682,7 @@ Android port."
   (mini-echo-separator " ")
   (mini-echo-buffer-status-style 'both)
   (mini-echo-default-segments
-   '(:long ("time" "battery" "buffer-name-short"
+   '(:long ("time" "battery" "buffer-name"
             "envrc" "project" "eglot"
             "buffer-position"
             ;; "buffer-size"
@@ -2813,7 +2947,6 @@ Display format is inherited from `battery-mode-line-format'."
   (org-mode . org-indent-mode)
 
   :bind
-  ("C-c c d" . calendar)
   ("C-c t R" . d/bionic-region)
   ("C-c t i" . d/set-timer)
   ("C-c t r" . d/bionic-read)
@@ -3038,10 +3171,8 @@ Display format is inherited from `battery-mode-line-format'."
   :after org
   :defines
   (my-org-agenda-headlines)
-
   :bind
-  ("C-c c c" . org-capture)
-
+  ("C-c c" . org-capture)
   :custom
   ;; dont create a bookmark when calling org-capture
   (org-capture-bookmark nil)
@@ -3050,45 +3181,43 @@ Display format is inherited from `battery-mode-line-format'."
   (org-default-notes-file (concat org-directory "brain.org"))
   (org-capture-templates
    `(
-     ("a" "Agenda" entry (file+function "~/d-sync/notes/agenda.org" (lambda () (completing-read "Heading: " my-org-agenda-headlines)))
-      "** TODO %?%^g\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1 :clock-in t :clock-resume t)
+     ;; ("a" "Agenda" entry (file+function "~/d-sync/notes/agenda.org" (lambda () (completing-read "Heading: " my-org-agenda-headlines)))
+     ;;  "** TODO %?%^g\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1 :clock-in t :clock-resume t)
 
-     ("n" "Notes")
-     ("nn" "Note to Brain" entry
-      (file+headline org-default-notes-file "Notes")
-      "** %?\n %U\n %i\n %a")
-     ("nt" "Note to Thought" entry
-      (file+headline org-default-notes-file "Thoughts")
-      "** %?\n %U\n %i\n %a")
+     ;; ("n" "Notes")
+     ;; ("nn" "Note to Brain" entry
+     ;;  (file+headline org-default-notes-file "Notes")
+     ;;  "** %?\n %U\n %i\n %a")
+     ;; ("nt" "Note to Thought" entry
+     ;;  (file+headline org-default-notes-file "Thoughts")
+     ;;  "** %?\n %U\n %i\n %a")
 
-     ("nr" "Reading note" entry
-      (file "~/d-sync/notes/reading.org")
-      "** %?\n %U\n %i\n %a\n -")
+     ;; ("nr" "Reading note" entry
+     ;;  (file "~/d-sync/notes/reading.org")
+     ;;  "** %?\n %U\n %i\n %a\n -")
 
-     ("nd" "Development note" entry
-      (file "~/d-sync/notes/development.org")
-      "** %?\n %U\n %i\n %a\n")
+     ;; ("nd" "Development note" entry
+     ;;  (file "~/d-sync/notes/development.org")
+     ;;  "** %?\n %U\n %i\n %a\n")
 
      ("c" "Contacts" entry (file "~/d-sync/notes/contacts.org")
       "* %(tempel-insert 'contact)")
 
      ("l" "Link" entry
-      (file+headline "~/d-sync/notes/bookmarks.org" "elfeed") "* %a\n")
+      (file+headline "~/d-sync/notes/bookmarks.org" "gnus") "* %a\n")
 
-     ("j" "Journal Entries")
-
-     ("jj" "Journal" entry
+     ("j" "Journal Entry" entry
       (file+datetree "~/d-sync/notes/journal.org")
       "\n* %<%H:%M> - %? %^G\n %a \n\n"
       :clock-in t :clock-resume t
       :empty-lines 1)
 
-     ("jt" "Tasks for the Day" checkitem
+     ("t" "Tasks for the Day" checkitem
       (file+datetree "~/d-sync/notes/journal.org")
       "[ ] %?\n"
       )
 
-     ("jc" "Rough Note" entry
+     ("i" "Inbox Rough Notes" entry
       (file "~/d-sync/notes/inbox.org")
       "** %?\n %U\n %i %a\n - ")
 
@@ -3157,7 +3286,7 @@ absolute path. Finally load eglot."
    org-clock-report)
   :custom
   ;; Save clock history accross emacs sessions (read var for required info)
-  (org-clock-persist t)
+  (org-clock-persist nil)
   ;; If idle for more than 15 mins, resolve by asking what to do with clock
   (org-clock-idle-time 15)
   ;; Set clock in frame title, instead of mode line
@@ -3264,6 +3393,8 @@ absolute path. Finally load eglot."
   ("C-c r n"))
 
 (use-package calendar
+  :bind
+  ("C-c d d" . calendar)
   :custom
   (diary-file "~/d-sync/notes/diary"))
 

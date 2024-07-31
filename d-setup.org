@@ -366,26 +366,26 @@ It is as simple if I just record what it does, with proper link to rich resource
 *** console and locale
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-{
-  i18n = {
-    defaultLocale = "en_US.UTF-8";
-    # saves space
-    supportedLocales = [
-      "en_US.UTF-8/UTF-8"
-      "ja_JP.UTF-8/UTF-8"
-      "ro_RO.UTF-8/UTF-8"
-    ];
-  };
+  {
+    i18n = {
+      defaultLocale = "en_US.UTF-8";
+      # saves space
+      supportedLocales = [
+        "en_US.UTF-8/UTF-8"
+        "ja_JP.UTF-8/UTF-8"
+        "ro_RO.UTF-8/UTF-8"
+      ];
+    };
 
-  # Sets big font for bootloader, as I have small laptop.
-  # You can remove font and packages line to have default font kernel chooses.
-  console = {
-    earlySetup = true;
-    font = "${pkgs.terminus_font}/share/consolefonts/ter-132n.psf.gz";
-    packages = with pkgs; [ terminus_font ];
-    keyMap = "us";
-  };
-}
+    # Sets big font for bootloader, as I have small laptop.
+    # You can remove font and packages line to have default font kernel chooses.
+    console = {
+      earlySetup = true;
+      font = "${pkgs.terminus_font}/share/consolefonts/ter-v32n.psf.gz";
+      packages = with pkgs; [ terminus_font ];
+      keyMap = "us";
+    };
+  }
   #+end_src
 *** time zone
   #+name: nixos-core
@@ -743,7 +743,7 @@ see its function help for a description of the format."
 }
   #+end_src
 
-*** Fingerprint
+*** COMMENT Fingerprint
 - Support for fingerprint work legit on my machine. Just these 2 lines, and yes I login by TTY with my FP.
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
@@ -832,7 +832,14 @@ see its function help for a description of the format."
   (battery-load-low '40)
   (battery-load-critical '29))
   #+end_src
-
+*** thunderbolt
+- Support for thunderbolt 3
+  #+name: nixos-core
+  #+begin_src nix :tangle gdk/core.nix
+  {
+    services.hardware.bolt.enable = true;
+  }
+  #+end_src
 *** drive access
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix

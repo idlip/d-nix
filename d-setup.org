@@ -5778,9 +5778,9 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
     (shr-indentation 4)
     (shr-bullet "⁍ ")
     (shr-folding-mode t)
-    (shr-max-width 110)
+    (shr-max-width 80)
     (shr-max-image-proportion 0.9)
-    (shr-width nil))
+    (shr-width 80))
 
   (use-package shr-color
     :ensure nil
@@ -5996,20 +5996,25 @@ for the search engine used."
                  (function org-hugo-new-subtree-post-capture-template))))
   #+end_src
 ** Music/Video
-*** OpenGL
+*** Graphics
 - gpu acceleration
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
   {
     hardware = {
+      uinput.enable = true;
       pulseaudio.enable = lib.mkForce false;
       graphics = {
         enable = true;
+        enable32Bit = true;
         extraPackages = with pkgs; [
           libva intel-media-driver
           intel-vaapi-driver
-          vaapiVdpau vaapiIntel
-          libvdpau-va-gl
+          vaapiVdpau
+          libvdpau-va-gl vpl-gpu-rt
+        ];
+        extraPackages32 = with pkgs.driversi686Linux; [
+          intel-vaapi-driver intel-media-driver
         ];
       };
     };
@@ -6019,8 +6024,6 @@ for the search engine used."
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
 {
-  sound.enable = true;
-
   # Pipewire setup, just these lines enough to make sane default for it
   services.pipewire = {
     enable = true;
@@ -6217,7 +6220,6 @@ for the search engine used."
         };
 
         config = {
-          force-window = true;
           osc = true;
           hwdec = "auto-safe";
           vo = "gpu";
@@ -6252,6 +6254,16 @@ for the search engine used."
       };
     };
   }
+  #+end_src
+*** ready-player
+- Simple interface for media files in emacs to play with mpv.
+  #+name: orgmacs
+  #+begin_src emacs-lisp
+  (use-package ready-player
+    :unless d/on-droid
+    :demand t
+    :config
+    (ready-player-mode))
   #+end_src
 *** yt-dlp
   #+name: hm-config
@@ -6470,48 +6482,49 @@ scrape=youtube
 - Legit Emacs works very well on Android.
   #+name: orgmacs
   #+begin_src emacs-lisp
-;; access phone storage as default
-;; Better is to symlink file to ~/ itself
+  ;; access phone storage as default
+  ;; Better is to symlink file to ~/ itself
 
-;;(setq default-directory "/storage/emulated/0/")
+  ;;(setq default-directory "/storage/emulated/0/")
 
-(when d/on-droid
-  (custom-set-variables
-   '(touch-screen-precision-scroll t)
-   '(touch-screen-display-keyboard t)
-   '(browse-url-android-share t))
+  (when d/on-droid
+    (custom-set-variables
+     '(touch-screen-precision-scroll t)
+     '(touch-screen-display-keyboard t)
+     '(browse-url-android-share t)
+     '(touch-screen-enable-hscroll nil "Avoid horizontal scroll that stutters"))
 
-  ;; credits to https://github.com/danijelcamdzic/dotemacs/
-  (setq display-buffer-alist
-        '((".*" (display-buffer-same-window) (inhibit-same-window . nil))))
+    ;; credits to https://github.com/danijelcamdzic/dotemacs/
+    (setq display-buffer-alist
+          '((".*" (display-buffer-same-window) (inhibit-same-window . nil))))
 
-  ;; Add tool-bar options for zooming in
-  (tool-bar-add-item "zoom-in" 'text-scale-increase
-                     'text-scale-increase
-                     :help "Zoom In")
+    ;; Add tool-bar options for zooming in
+    (tool-bar-add-item "zoom-in" 'text-scale-increase
+                       'text-scale-increase
+                       :help "Zoom In")
 
-  ;; Add tool-bar options for zooming out
-  (tool-bar-add-item "zoom-out" 'text-scale-decrease
-                     'text-scale-decrease
-                     :help "Zoom Out")
+    ;; Add tool-bar options for zooming out
+    (tool-bar-add-item "zoom-out" 'text-scale-decrease
+                       'text-scale-decrease
+                       :help "Zoom Out")
 
-  ;; Add tool-bar option for Org Cycle
-  (tool-bar-add-item "right-arrow" 'org-cycle
-                     'org-cycle
-                     :help "Org Cycle")
+    ;; Add tool-bar option for Org Cycle
+    (tool-bar-add-item "right-arrow" 'org-cycle
+                       'org-cycle
+                       :help "Org Cycle")
 
-  ;; Add tool-bar option for Org Ctrl-C Ctrl-C
-  (tool-bar-add-item "prev-node" 'org-ctrl-c-ctrl-c
-                     'org-ctrl-c-ctrl-c
-                     :help "Execute Org Ctrl-C Ctrl-C")
+    ;; Add tool-bar option for Org Ctrl-C Ctrl-C
+    (tool-bar-add-item "prev-node" 'org-ctrl-c-ctrl-c
+                       'org-ctrl-c-ctrl-c
+                       :help "Execute Org Ctrl-C Ctrl-C")
 
-  (defun d/key-droid()
-    "To enable touch screen keyboard"
-    (interactive)
-    (frame-toggle-on-screen-keyboard (selected-frame) nil)
+    (defun d/key-droid()
+      "To enable touch screen keyboard"
+      (interactive)
+      (frame-toggle-on-screen-keyboard (selected-frame) nil)
+      )
     )
-  )
-;; (setq use-dialog-box nil)
+  ;; (setq use-dialog-box nil)
   #+end_src
 **** notify-droid
 - Thanks to [[https://github.com/danijelcamdzic/dotemacs/blob/main/elisp/org-config.el][danijelcamdzic]], now emacs android can have notification from org agenda.
@@ -6720,6 +6733,7 @@ Android port."
   # exec-once = swayidle -w timeout 300 'gtklock -i -b black -d' timeout 210 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on' timeout 302 'if pgrep gtklock; then hyprctl dispatch dpms off; fi' resume 'hyprctl dispatch dpms on' timeout 1000 'systemctl suspend'
   # exec-once = gammastep -l 19:72 -t 6500:4100
   exec-once = d-walls
+  exec-once = dotoold
   exec-once = foot --server
   exec-once = emacs --bg-daemon
 
@@ -6743,17 +6757,17 @@ Android port."
     }
   }
 
-  # animations {
-  # enabled = false
-  # }
-  # decoration {
-  # blur {
-  # enabled = false
-  # }
-  # rounding = 0;
-  # active_opacity=1.0
-  # inactive_opacity=1.0
-  # }
+  animations {
+  enabled = false
+  }
+  decoration {
+  blur {
+  enabled = false
+  }
+  # rounding = false;
+  active_opacity=1.0
+  inactive_opacity=1.0
+  }
 
 
   # █░█░█ █ █▄░█ █▀▄ █▀█ █░█░█   █▀█ █░█ █░░ █▀▀ █▀
@@ -6802,14 +6816,13 @@ Android port."
   windowrulev2 = nofocus,class:^(xwaylandvideobridge)$
   windowrulev2 = noinitialfocus,class:^(xwaylandvideobridge)$
 
-  windowrule = opaque,chromium
-  windowrule = opaque,firefox
-  windowrule = opaque,emacs
+  # windowrule = opaque,firefox
   windowrule = opaque,foot
+  windowrule = opaque,emacs
   windowrule = opaque,sioyek
 
   windowrule = float,ncmpcpp
-  windowrule = float,viewnior
+  windowrule = float,imv
 
   windowrule = float,mpv
   windowrule = opaque,mpv
@@ -6883,11 +6896,11 @@ Android port."
   # █▀▄▀█ █ █▀ █▀▀
   # █░▀░█ █ ▄█ █▄▄
   bind = SUPER, RETURN, exec, pgrep emacs && emacsclient -c -e "(eshell)" || footclient
-  bind = SUPERSHIFT, RETURN, exec, footclient
+  bind = SUPERSHIFT, RETURN, exec, pgrep emacs && emacsclient -c -e "(eshell)" || footclient
   bind = SUPERSHIFT, Q, killactive,
   bind = SUPERSHIFT, R, exec, hyprctl reload
   bind = SUPERCONTROL, Q, exec, hyprkill
-  bind = SUPER, F12, exec, emacsclient -c -e "(multi-vterm)"
+  bind = SUPER, F12, exec, d-mpdplay
   bind = SUPER, SPACE, togglefloating,
 
   bind = SUPER, d, exec, bemenu-run
@@ -7021,7 +7034,7 @@ Android port."
   bind=,a,exec,d-vocab
   bind=,a,submap,reset
 
-  bind=,v,exec,wtype "$(cat ~/.local/share/dict/myglossary | bemenu | awk '{print $1}')"
+  bind=,v,exec, echo type "$(cat ~/.local/share/dict/myglossary | bemenu | awk '{print $1}')" | dotoolcxsxb
   bind=,v,submap,reset
 
   bind=,escape,submap,reset
@@ -7107,6 +7120,7 @@ Android port."
       displayManager.gdm.enable = true;
       desktopManager.gnome.enable = true;
     };
+    services.power-profiles-daemon.enable = lib.mkForce false;
   }
   #+end_src
 *** wayland-packages
@@ -7120,7 +7134,7 @@ Android port."
 
       libnotify libsixel
       brightnessctl
-      wtype
+      wtype dotool
       swaybg
       # swayidle gtklock
 
@@ -7135,40 +7149,41 @@ Android port."
 - Idle manager made for/with hyprland
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-    {
-      services.hypridle = {
-        enable = true;
-        settings ={
-          general = {
-            lock_cmd = "pidof hyprlock || hyprlock";       # avoid starting multiple hyprlock instances.
-            before_sleep_cmd = "loginctl lock-session";    # lock before suspend.
-            after_sleep_cmd = "hyprctl dispatch dpms on";  # to avoid having to press a key twice to turn on the display.
-            unlock_cmd = "notify-send 'Welcome back!'";
-          };
-
-          listener = [
-            {
-              timeout = 150;
-              on-timeout = "brightnessctl -s set 10";         # set monitor backlight to minimum, avoid 0 on OLED monitor.
-              on-resume = "brightnessctl -r";                 # monitor backlight restore.
-            }
-            {
-              timeout = 210;
-              on-timeout = "loginctl lock-session";
-            }
-            {
-              timeout = 250;
-              on-timeout = "hyprctl dispatch dpms off";
-              on-resume = "hyprctl dispatch dpms on";
-            }
-            {
-              timeout = 900;
-              on-timeout = "systemctl suspend";
-            }
-          ];
+  {
+    services.hypridle = {
+      enable = true;
+      settings ={
+        general = {
+          # ignore_dbus_inhibit = false;          # whether to ignore dbus-sent idle-inhibit requests (used by e.g. firefox or steam)
+          lock_cmd = "pidof hyprlock || hyprlock";       # avoid starting multiple hyprlock instances.
+          before_sleep_cmd = "loginctl lock-session";    # lock before suspend.
+          after_sleep_cmd = "hyprctl dispatch dpms on";  # to avoid having to press a key twice to turn on the display.
+          unlock_cmd = "notify-send 'Welcome back!'";
         };
+
+        listener = [
+          {
+            timeout = 150;
+            on-timeout = "brightnessctl -s set 10";         # set monitor backlight to minimum, avoid 0 on OLED monitor.
+            on-resume = "brightnessctl -r";                 # monitor backlight restore.
+          }
+          {
+            timeout = 210;
+            on-timeout = "loginctl lock-session";
+          }
+          {
+            timeout = 230;
+            on-timeout = "hyprctl dispatch dpms off";
+            on-resume = "hyprctl dispatch dpms on";
+          }
+          {
+            timeout = 900;
+            on-timeout = "systemctl suspend";
+          }
+        ];
       };
-    }
+    };
+  }
   #+end_src
 
 **** hyprlock
@@ -7180,7 +7195,8 @@ Android port."
       settings = {
         background = [
           {
-            path = "/home/idlip/.local/share/bg.jpg";
+            monitor = "";
+            path = "/home/idlip/d-git/d-wallpapers/walls/Anime-City-Night.png";
             blur_size = 8;
             blur_passes = 3;
           }
@@ -7197,7 +7213,7 @@ Android port."
             dots_spacing = 0.1;
             fade_on_empty = true;
             placeholder_text = "<i>Pass</i>";
-            position = "0, 200";
+            position = "0, 120";
             halign = "center";
             valign = "bottom";
           }
@@ -7205,31 +7221,33 @@ Android port."
 
         label = [
           {
+            monitor = "";
             color = "rgba(255, 255, 255, 1.0)";
             font_size = 35;
             text = ''
             cmd[update:1000] echo "<b> "$(date +'%A, %-d %B %Y @ %T')" </b>"
             '';
-            position = "0, 0";
+            position = "0, 40";
             halign = "center";
-            valign = "bottom";
+            valign = "center";
           }
 
           {
+            monitor = "";
             color = "rgba(255, 255, 255, 1.0)";
             font_size = 35;
             text = ''
-              $USER, Welcome back!
+            Lets Get back to Working!
             '';
-            position = "0, 100";
+            position = "0, 120";
             halign = "center";
-            valign = "bottom";
+            valign = "center";
           }
         ];
 
         image =[
           {
-            path = "/home/idlip/d-git/d-wallpapers/oled/one-piece.jpg";
+            path = "/home/idlip/d-git/d-wallpapers/oled/wallhaven-m3zjx1_1920x1080.png";
             size = 200;
             rounding = -1;
             border_size = 2;
@@ -7449,9 +7467,9 @@ css = "normal"
 - Defining some variables for adjusting size and font name.
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (defvar d/font-size (if d/on-droid 150 240)
+  (defvar d/font-size (if d/on-droid 170 240)
     "Default font size based on the system.")
-  (defvar d/variable-font-size (if d/on-droid 160 240)
+  (defvar d/variable-font-size (if d/on-droid 180 280)
     "Default variable pitch size")
 
   ;; Dont worry about the font name, I use fork of Recursive font
@@ -7483,7 +7501,7 @@ css = "normal"
        ("Serif" "Alegreya" "Noto Sans" "Georgia" "Cambria" "Times New Roman" "DejaVu Serif" "serif")))
 
     :custom-face
-    (variable-pitch ((t (:family ,d/variable-pitch-font :height ,d/font-size))))
+    (variable-pitch ((t (:family ,d/variable-pitch-font :height ,d/variable-font-size))))
     (fixed-pitch ((t (:family ,d/fixed-pitch-font :height ,d/font-size))))
     (default ((t (:family ,d/fixed-pitch-font :height ,d/font-size)))))
   #+end_src
@@ -7624,7 +7642,7 @@ css = "normal"
     (haki-sans-font "Code D Haki")
     (haki-title-font "Code D Ace")
     ;; (haki-link-font "")
-    (haki-code-font "Code D Lip")
+    ;; (haki-code-font "Code D Lip")
     :config
     (load-theme 'haki t))
   #+end_src
@@ -8077,7 +8095,7 @@ css = "normal"
     (mini-echo-separator " ")
     (mini-echo-buffer-status-style 'both)
     (mini-echo-default-segments
-     '(:long ("time" "battery" "buffer-name-short"
+     '(:long ("time" "battery" "buffer-name"
               "envrc" "project" "eglot"
               "buffer-position"
               ;; "buffer-size"
@@ -8351,6 +8369,7 @@ css = "normal"
           "--max-columns-preview"
           "--colors=line:style:bold"
           "--ignore-case"
+          "--follow"
         ];
       };
 
@@ -8468,8 +8487,8 @@ css = "normal"
   autoload -U colors && colors  # Load colors
   # PS1="%B%{$fg[yellow]%}[%{$fg[cyan]%}%~%{$fg[yellow]%}]
    # %{$fg[blue]%} %b%{$reset_color%}%b"
-  PS1=" %B%{$fg[blue]%} %{$fg[yellow]%}[%{$fg[cyan]%}%~%f%}%{$fg[yellow]%}]
-   %F{green}%f "
+  # PS1=" %B%{$fg[blue]%} %{$fg[yellow]%}[%{$fg[cyan]%}%~%f%}%{$fg[yellow]%}]
+  #  %F{green}%f "
   # setopt autocd		# Auto cd
   stty stop undef		# Disable ctrl-s to freeze terminal.
   # setopt interactive_comments
@@ -8532,7 +8551,7 @@ css = "normal"
   alias ".2"="cd ../.."
   alias ".3"="cd ../../.."
   alias c="clear"
-  alias v="nvim"
+  alias v="emacsclient -c -nw || emacs -nw -Q"
   alias emd="emacs --daemon"
   alias cp="cp -iv"
   alias mv="mv -iv"
@@ -8544,6 +8563,10 @@ css = "normal"
   alias sudo="doas"
   alias sioyek="sioyek --new-window"
   alias hyprunlock="pkill -SIGUSR1 hyprlock"
+
+  # nixos rebuild
+  alias rebuild="doas nixos-rebuild switch --flake ~/d-git/d-nix#gdk"
+  alias testrebuild="doas nixos-rebuild test --flake ~/d-git/d-nix#gdk"
 
   # export BEMENU_OPTS="-i -l 10 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
 
@@ -8573,19 +8596,25 @@ css = "normal"
       fi
   }
 
+  # function man() { emacsclient -te "(man \"$1\")"; }
+
   function manp () { # use emacs
-      if [[ $(man -f ${1}) ]]; then
-          if [ -n "$INSIDE_EMACS" ]; then
-            emacsclient -e "(man \"$1\")"
-          elif [[ -n "$(pgrep emacs)" ]]; then
-            emacsclient -nw -e "(let ((Man-notify-method 'bully)) (man \"$1\"))"
-          else
-              man $1
-          fi
+      apropos="$(man -k '' | fzf --height "30%" | cut -d ' ' -f 1)"
+      # if [[ $(man -f ${1}) ]]; then
+      if [ -n "$INSIDE_EMACS" ]; then
+          emacsclient -e "(man \"$apropos\")"
+      elif [[ -n "$(pgrep emacs)" ]]; then
+          emacsclient -nw -e "(let ((Man-notify-method 'bully)) (man \"$apropos\"))"
+          # else
+          # man $1
+          # fi
       else
           ${1} --help
       fi
   }
+  zle -N manp
+  bindkey '^[m' manp
+
 
   whichpath () {
       realpath $(which $1)
@@ -8663,7 +8692,6 @@ css = "normal"
       PATH = "$PATH:$HOME/d-git/d-bin/bin:$HOME/.local/bin";
       VISUAL = "$EDITOR";
       GRIM_DEFAULT_DIR = "$HOME/pics/sshots/";
-      MANPAGER = "nvim +Man!";
       STARDICT_DATA_DIR = "$HOME/d-git/d-bin/treasure/dict/";
       LIBVA_DRIVER_NAME = "iHD";
       LESS = "-J -i -W --status-line --incsearch --use-color -R";
@@ -8690,30 +8718,35 @@ css = "normal"
   ];
 }
   #+end_src
-*** COMMENT starship
+*** starship
 - for beautiful prompt
 - i have stopped using it, it makes shell little slow.
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  programs.starship = {
-    enable = true;
-    enablezshintegration = true;
+  {
+    programs.starship = {
+      enable = true;
+      enableZshIntegration = true;
 
-    settings = {
-      add_newline = true;
-      scan_timeout = 5;
+      settings = {
+        add_newline = true;
+        scan_timeout = 5;
 
-      line_break.disabled = false;
+        line_break.disabled = false;
 
-      hostname = {
-	      ssh_only = true;
-	      format = "[$hostname](bold blue) ";
-	      disabled = false;
+        character = {
+          success_symbol = " ";
+          error_symbol = "󰘧";
+        };
+
+        hostname = {
+  	      ssh_only = true;
+  	      format = "[$hostname](bold blue) ";
+  	      disabled = false;
+        };
       };
     };
-  };
-}
+  }
   #+end_src
 * Programs
 - some programs to manage in core
@@ -9496,7 +9529,6 @@ lines:                       20;
     (org-mode . org-indent-mode)
 
     :bind
-    ("C-c c d" . calendar)
     ("C-c t R" . d/bionic-region)
     ("C-c t i" . d/set-timer)
     ("C-c t r" . d/bionic-read)
@@ -9792,10 +9824,8 @@ lines:                       20;
     :after org
     :defines
     (my-org-agenda-headlines)
-
     :bind
-    ("C-c c c" . org-capture)
-
+    ("C-c c" . org-capture)
     :custom
     ;; dont create a bookmark when calling org-capture
     (org-capture-bookmark nil)
@@ -9804,45 +9834,43 @@ lines:                       20;
     (org-default-notes-file (concat org-directory "brain.org"))
     (org-capture-templates
      `(
-       ("a" "Agenda" entry (file+function "~/d-sync/notes/agenda.org" (lambda () (completing-read "Heading: " my-org-agenda-headlines)))
-        "** TODO %?%^g\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1 :clock-in t :clock-resume t)
+       ;; ("a" "Agenda" entry (file+function "~/d-sync/notes/agenda.org" (lambda () (completing-read "Heading: " my-org-agenda-headlines)))
+       ;;  "** TODO %?%^g\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1 :clock-in t :clock-resume t)
 
-       ("n" "Notes")
-       ("nn" "Note to Brain" entry
-        (file+headline org-default-notes-file "Notes")
-        "** %?\n %U\n %i\n %a")
-       ("nt" "Note to Thought" entry
-        (file+headline org-default-notes-file "Thoughts")
-        "** %?\n %U\n %i\n %a")
+       ;; ("n" "Notes")
+       ;; ("nn" "Note to Brain" entry
+       ;;  (file+headline org-default-notes-file "Notes")
+       ;;  "** %?\n %U\n %i\n %a")
+       ;; ("nt" "Note to Thought" entry
+       ;;  (file+headline org-default-notes-file "Thoughts")
+       ;;  "** %?\n %U\n %i\n %a")
 
-       ("nr" "Reading note" entry
-        (file "~/d-sync/notes/reading.org")
-        "** %?\n %U\n %i\n %a\n -")
+       ;; ("nr" "Reading note" entry
+       ;;  (file "~/d-sync/notes/reading.org")
+       ;;  "** %?\n %U\n %i\n %a\n -")
 
-       ("nd" "Development note" entry
-        (file "~/d-sync/notes/development.org")
-        "** %?\n %U\n %i\n %a\n")
+       ;; ("nd" "Development note" entry
+       ;;  (file "~/d-sync/notes/development.org")
+       ;;  "** %?\n %U\n %i\n %a\n")
 
        ("c" "Contacts" entry (file "~/d-sync/notes/contacts.org")
         "* %(tempel-insert 'contact)")
 
        ("l" "Link" entry
-        (file+headline "~/d-sync/notes/bookmarks.org" "elfeed") "* %a\n")
+        (file+headline "~/d-sync/notes/bookmarks.org" "gnus") "* %a\n")
 
-       ("j" "Journal Entries")
-
-       ("jj" "Journal" entry
+       ("j" "Journal Entry" entry
         (file+datetree "~/d-sync/notes/journal.org")
         "\n* %<%H:%M> - %? %^G\n %a \n\n"
         :clock-in t :clock-resume t
         :empty-lines 1)
 
-       ("jt" "Tasks for the Day" checkitem
+       ("t" "Tasks for the Day" checkitem
         (file+datetree "~/d-sync/notes/journal.org")
         "[ ] %?\n"
         )
 
-       ("jc" "Rough Note" entry
+       ("i" "Inbox Rough Notes" entry
         (file "~/d-sync/notes/inbox.org")
         "** %?\n %U\n %i %a\n - ")
 
@@ -9939,7 +9967,7 @@ lines:                       20;
    org-clock-report)
   :custom
   ;; Save clock history accross emacs sessions (read var for required info)
-  (org-clock-persist t)
+  (org-clock-persist nil)
   ;; If idle for more than 15 mins, resolve by asking what to do with clock
   (org-clock-idle-time 15)
   ;; Set clock in frame title, instead of mode line
@@ -10499,9 +10527,11 @@ block but are passed literally to the \"example-block\"."
 *** calendar
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package calendar
-  :custom
-  (diary-file "~/d-sync/notes/diary"))
+  (use-package calendar
+    :bind
+    ("C-c d d" . calendar)
+    :custom
+    (diary-file "~/d-sync/notes/diary"))
   #+end_src
 ** Markdown
   #+name: orgmacs
@@ -10558,11 +10588,22 @@ block but are passed literally to the \"example-block\"."
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
   {
-    home.packages = with pkgs; [
-      languagetool
-      (aspellWithDicts (dicts: with dicts; [ en en-computers ]))
-      hunspell hunspellDicts.en_US
-    ];
+
+    home = with pkgs;
+      let
+        mySpells = aspellWithDicts (dicts: with dicts; [ en en-computers ]);
+      in
+        {
+          file.".aspell.conf".text = ''
+            dict-dir ${mySpells}/lib/aspell/
+            add-extra-dicts en-computers.rws
+          '';
+          packages = [
+            languagetool
+            mySpells
+            # hunspell hunspellDicts.en_US
+          ];
+        };
   }
   #+end_src
 - language tool as linter

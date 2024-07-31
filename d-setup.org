@@ -1302,7 +1302,7 @@ Exec=d-stuff %u
     :custom
     (use-package-verbose nil)
     (use-package-always-ensure nil)
-    (use-package-always-defer nil)
+    (use-package-always-defer t)
     (use-package-expand-minimally t)
     (use-package-enable-imenu-support t))
   #+end_src
@@ -1436,7 +1436,8 @@ it narrows to region, or Org subtree."
 
     :config
     ;; (global-hl-line-mode 1)
-    (global-visual-line-mode 1))
+    (global-visual-line-mode 1)
+    (auto-fill-mode 1))
   #+end_src
 - DWIM way of joining lines with prefix argument.
   #+name: orgmacs
@@ -1829,43 +1830,43 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 - the flagship of minad.
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package vertico
-  :defines
-  (vertico-map)
-  :functions
-  (vertico-mode )
+  (use-package vertico
+    :defines
+    (vertico-map)
+    :functions
+    (vertico-mode )
 
-  :bind
-  (:map vertico-map
-	    ("<return>" . vertico-directory-enter)
-	    ("DEL" . vertico-directory-delete-char)
-	    ("M-DEL" . vertico-directory-delete-word)
-	    ("M-j" . vertico-quick-exit)
-	    ("C-v" . vertico-scroll-up)
-	    ("M-v" . vertico-scroll-down)
-	    ("M-q" . d/vertico-toggle)
-	    ("M-TAB" . minibuffer-complete)
-        ("C->"     . embark-become)
-        ("C-<tab>"   . embark-act-with-completing-read)
-        ("C-o"     . embark-minimal-act)
-        ("C-*"     . embark-act-all)
-        ("M-*"      . embark-act-all)
-        ("C-c C-o" . embark-export))
+    :bind
+    (:map vertico-map
+  	    ("<return>" . vertico-directory-enter)
+  	    ("DEL" . vertico-directory-delete-char)
+  	    ("M-DEL" . vertico-directory-delete-word)
+  	    ("M-j" . vertico-quick-exit)
+  	    ("C-v" . vertico-scroll-up)
+  	    ("M-v" . vertico-scroll-down)
+  	    ("M-q" . d/vertico-toggle)
+  	    ("M-TAB" . minibuffer-complete)
+          ("C->"     . embark-become)
+          ("C-<tab>"   . embark-act-with-completing-read)
+          ("C-o"     . embark-minimal-act)
+          ("C-*"     . embark-act-all)
+          ("M-*"      . embark-act-all)
+          ("C-c C-o" . embark-export))
 
-  :init
-  (vertico-mode)
+    :init
+    (vertico-mode)
 
-  :custom
-  (vertico-scroll-margin 5)
-  (vertico-count 5)
-  (vertico-resize nil)
-  (vertico-cycle t)
-  (completion-in-region-function
-   (lambda (&rest args)
-     (apply (if vertico-mode
-		        #'consult-completion-in-region
-	          #'completion--in-region)
-	        args))))
+    :custom
+    (vertico-scroll-margin 5)
+    (vertico-count 5)
+    (vertico-resize nil)
+    (vertico-cycle t)
+    (completion-in-region-function
+     (lambda (&rest args)
+       (apply (if vertico-mode
+  		        #'consult-completion-in-region
+  	          #'completion--in-region)
+  	        args))))
   #+end_src
 - vertico-multiform: To have some forms of vertico UI. Grid, one-liner, indexed...
   #+name: orgmacs
@@ -1881,7 +1882,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
      '(("\\`execute-extended-command" unobtrusive
         (vertico-flat-annotate . t)
         (marginalia-annotator-registry (command marginalia-annotate-command marginalia-annotate-binding builtin none)))
-       (jinx-correct reverse)
+       ;; (jinx-correct reverse)
        (tab-bookmark-open reverse)
        (dired-goto-file unobtrusive)
        (load-theme grid reverse)
@@ -1906,7 +1907,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
     (vertico-multiform-categories
      '((file grid reverse)
        (consult-grep buffer)
-       (jinx grid (vertico-grid-annotate . 20))
+       (jinx grid)
        (embark-bindings grid reverse)
        (embark-keybinding grid)
        (kill-ring reverse)
@@ -2026,8 +2027,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
      :preview-key '(:debounce 0.4 any))
 
     :config
-    (advice-add #'register-preview :override #'consult-register-window)
-    (add-to-list 'consult-buffer-sources 'consult--source-eww 'append))
+    (advice-add #'register-preview :override #'consult-register-window))
   #+end_src
 - Function to insert and get colors list. Although built-in way of ~M-x read-color~ satisfies replacing this function.
   #+name: orgmacs
@@ -2108,23 +2108,77 @@ Return nil if NAME does not designate a valid color."
 - Integrate =eww-bookmarks= into consult buffer sources.
   #+name: orgmacs
   #+begin_src emacs-lisp
-(with-eval-after-load 'eww
-  (defvar consult--source-eww
-    (list
-     :name     "Eww"
-     :narrow   ?e
-     :action   (lambda (bm)
-                 (eww-browse-url (get-text-property 0 'url bm)))
-     :items    (lambda ()
-                 (eww-read-bookmarks)
-                 (mapcar (lambda (bm)
-                           (propertize
-                            (format "%s (%s)"
-                                    (plist-get bm :url)
-                                    (plist-get bm :title))
-                            'url (plist-get bm :url)))
-                         eww-bookmarks)))))
+  (use-package consult
+    :config
+    (defvar consult--source-eww
+      (list
+       :name     "Eww Buffer"
+       :narrow   ?e
+       :action   (lambda (bm)
+                   (eww-browse-url (get-text-property 0 'url bm)))
+       :items    (lambda ()
+                   (eww-read-bookmarks)
+                   (mapcar (lambda (bm)
+                             (propertize
+                              (format "%s (%s)"
+                                      (plist-get bm :url)
+                                      (plist-get bm :title))
+                              'url (plist-get bm :url)))
+                           eww-bookmarks))))
+    (add-to-list 'consult-buffer-sources 'consult--source-eww 'append))
   #+end_src
+
+- Source all org files.
+#+name: orgmacs
+#+begin_src emacs-lisp
+  (use-package consult
+    :config
+    (defvar  consult--source-org
+      (list :name     "Organize"
+            :category 'buffer
+            :narrow   ?o
+            :face     'org-list-dt
+            :history  'buffer-name-history
+            :state    #'consult--buffer-state
+            :items   '(lambda () (consult--buffer-query :mode '(org-mode org-agenda-mode) :as #'buffer-name))))
+    (add-to-list 'consult-buffer-sources 'consult--source-org 'append))
+#+end_src
+
+- Grab gnus buffers
+#+begin_src emacs-lisp
+  (use-package consult
+    :config
+    (defvar consult--source-gnus
+      (list :name     "Gnus"
+            :hidden   t
+            :narrow   ?g
+            :category 'buffer
+            :state    #'consult--buffer-state
+            :items    '(lambda () (consult--buffer-query :mode '(gnus-article-mode gnus-summary-mode gnus-group-mode) :as #'buffer-name))))
+    (add-to-list 'consult-buffer-sources 'consult--source-gnus 'append))
+#+end_src
+
+- Enhance multiplexing with eshell, buffer source to narrow only eshell terminals.
+#+begin_src emacs-lisp
+(use-package consult
+  :config
+  (defvar consult--source-eshell
+    (list :name     "Eshells"
+          :category 'buffer
+          :narrow   ?s
+          :face     'consult-buffer
+          :history  'buffer-name-history
+          :state    #'consult--buffer-state
+          :new
+          (lambda (name)
+            (with-current-buffer (get-buffer-create name)
+              ;;(insert "#+title: " name "\n\n")
+              (eshell-mode)
+              (consult--buffer-action (current-buffer))))
+          :items '(lambda () (consult--buffer-query :mode 'eshell-mode :as #'buffer-name))))
+    (add-to-list 'consult-buffer-sources 'consult--source-eshell 'append))
+#+end_src
+
 **** Orderless
 + nice way of filtering results and candidates.
   #+name: orgmacs
@@ -2172,13 +2226,18 @@ Return nil if NAME does not designate a valid color."
     (eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
     (embark-prompter 'embark-completing-read-prompter)
     (embark-keymap-prompter-key "`")
+    (embark-indicators
+     '(embark-minimal-indicator  ; default is embark-mixed-indicator
+       embark-highlight-indicator
+       embark-isearch-highlight-indicator))
 
     :config
     (add-to-list 'display-buffer-alist
                  '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
                    nil
                    (window-parameters (mode-line-format . none))))
-    (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target))
+    ;; (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+    )
   #+end_src
 - Function to open a file as =sudo= from embark action. Credits to @karthinks for code
   #+name: orgmacs
@@ -2400,7 +2459,7 @@ Return nil if NAME does not designate a valid color."
 + Tempel support for eglot
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package tempel-eglot
+  (use-package eglot-tempel
     :after eglot)
   #+end_src
 ***** fundamental-templates
@@ -2519,7 +2578,7 @@ Return nil if NAME does not designate a valid color."
            "#+date: [" (format-time-string "%Y-%m-%d %a") "]")
 
   (contact
-   (p "Person Name") n
+   (r "Person Name") n
    ":PROPERTIES: " n
    ":EMAIL: " p n
    ":URL: " p n
@@ -2537,6 +2596,18 @@ Return nil if NAME does not designate a valid color."
    ":CREATED: " (format-time-string "[%Y-%m-%d %a %H:%M]") n
    ":END:" n
    )
+
+  (readlist
+   (r "Book/Content") n
+   ":PROPERTIES: " n
+   ":AUTHOR: " n
+   ":YEAR: " n
+   ":PROS: " n
+   ":LINK: " p n
+   ":CREATED: " (format-time-string "[%Y-%m-%d %a %H:%M]") n
+   ":END:" n
+
+    )
 
   (pdforg
    "#+title: " p n
@@ -2850,9 +2921,12 @@ emacs-lisp-mode
   #+end_src
 ***** css-templates
   #+begin_src emacs-lisp :tangle ~/.config/emacs/templates/css.eld
-css-mode css-ts-mode
+  css-mode css-ts-mode
 
-(var "var(--" p ")")
+  (var "var(--" p ")")
+
+  bash-ts-mode
+  (func "function " (p "fname") "() {" n> p n> n "}")
   #+end_src
 *** Enhancements
 **** Tab bar

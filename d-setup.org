@@ -579,76 +579,77 @@ It is as simple if I just record what it does, with proper link to rich resource
 - some of the configs are suggestions from =drivish= readme.
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package tramp
-  :ensure nil
-  :defer t
-  :config
-  (put 'temporary-file-directory 'standard-value `(,temporary-file-directory))
-  :custom
-  (tramp-backup-directory-alist backup-directory-alist)
-  (tramp-default-method "ssh")
-  (tramp-default-proxies-alist nil)
+  (use-package tramp
+    :ensure nil
+    :defer t
+    :config
+    (put 'temporary-file-directory 'standard-value `(,temporary-file-directory))
+    :custom
+    (tramp-backup-directory-alist backup-directory-alist)
+    (tramp-default-method "ssh")
+    (tramp-default-proxies-alist nil)
 
-  ;; Enable full-featured Dirvish over TRAMP on certain connections
-  ;; https://www.gnu.org/software/tramp/#Improving-performance-of-asynchronous-remote-processes-1.
-  (add-to-list 'tramp-connection-properties
-	           (list (regexp-quote "/ssh:YOUR_HOSTNAME:")
-		             "direct-async-process" t))
+    ;; Enable full-featured Dirvish over TRAMP on certain connections
+    ;; https://www.gnu.org/software/tramp/#Improving-performance-of-asynchronous-remote-processes-1.
+    (add-to-list 'tramp-connection-properties
+  	           (list (regexp-quote "/ssh:YOUR_HOSTNAME:")
+  		             "direct-async-process" t))
 
-  (tramp-verbose 0)
-  (tramp-chunksize 2000)
-  (tramp-use-ssh-controlmaster-options nil))
+    (tramp-verbose 0)
+    (tramp-chunksize 2000)
+    (tramp-use-ssh-controlmaster-options nil))
   #+end_src
 **** systemd-nspawn (container) support for tramp
 - Credits to https://github.com/bjc/tramp-nspawn
 - Since it is few LOC; decided to paste code minimally.
 #+begin_src emacs-lisp
-(unless d/on-droid
-  (defcustom tramp-nspawn-machinectl-program "machinectl" ;; like nixos-container
-    "Name of the machinectl program."
-    :type 'string)
+(with-eval-after-load 'tramp
+  (unless d/on-droid
+    (defcustom tramp-nspawn-machinectl-program "machinectl" ;; like nixos-container
+      "Name of the machinectl program."
+      :type 'string)
 
-  (defconst tramp-nspawn-method "nspawn"
-    "Tramp method name to use to connect to systemd-nspawn containers.")
+    (defconst tramp-nspawn-method "nspawn"
+      "Tramp method name to use to connect to systemd-nspawn containers.")
 
-  (defun tramp-nspawn--completion-function (&rest _args)
-    "List systemd-nspawn containers available for connection.
+    (defun tramp-nspawn--completion-function (&rest _args)
+      "List systemd-nspawn containers available for connection.
 
 This function is used by ‘tramp-set-completion-function’, please
 see its function help for a description of the format."
-    (let* ((raw-list (shell-command-to-string
-                      (concat tramp-nspawn-machinectl-program
-                              " list -q")))
-           (lines (cdr (split-string raw-list "\n")))
-           (first-words (mapcar (lambda (line) (car (split-string line)))
-                                lines))
-           (machines (seq-take-while (lambda (name) name) first-words)))
-      (mapcar (lambda (m) (list nil m)) machines)))
+      (let* ((raw-list (shell-command-to-string
+                        (concat tramp-nspawn-machinectl-program
+                                " list -q")))
+             (lines (cdr (split-string raw-list "\n")))
+             (first-words (mapcar (lambda (line) (car (split-string line)))
+                                  lines))
+             (machines (seq-take-while (lambda (name) name) first-words)))
+        (mapcar (lambda (m) (list nil m)) machines)))
 
 
-  ;; todo: check tramp-async-args and tramp-direct-async
-  (defun tramp-nspawn--add-method ()
-    "Add Tramp method handler for nspawn containers."
-    (push `(,tramp-nspawn-method
-            (tramp-login-program ,tramp-nspawn-machinectl-program)
-            (tramp-login-args (("shell")
-                               ("-q")
-                               ("--uid" "%u")
-                               ("%h")))
-            (tramp-remote-shell "/bin/sh")
-            (tramp-remote-shell-login ("-l"))
-            (tramp-remote-shell-args ("-i" "-c")))
-          tramp-methods))
+    ;; todo: check tramp-async-args and tramp-direct-async
+    (defun tramp-nspawn--add-method ()
+      "Add Tramp method handler for nspawn containers."
+      (push `(,tramp-nspawn-method
+              (tramp-login-program ,tramp-nspawn-machinectl-program)
+              (tramp-login-args (("shell")
+                                 ("-q")
+                                 ("--uid" "%u")
+                                 ("%h")))
+              (tramp-remote-shell "/bin/sh")
+              (tramp-remote-shell-login ("-l"))
+              (tramp-remote-shell-args ("-i" "-c")))
+            tramp-methods))
 
-  (defun tramp-nspawn-setup ()
-    "Initialize systemd-nspawn support for Tramp."
-    (tramp-nspawn--add-method)
-    (tramp-set-completion-function tramp-nspawn-method
-                                   '((tramp-nspawn--completion-function ""))))
+    (defun tramp-nspawn-setup ()
+      "Initialize systemd-nspawn support for Tramp."
+      (tramp-nspawn--add-method)
+      (tramp-set-completion-function tramp-nspawn-method
+                                     '((tramp-nspawn--completion-function ""))))
 
-  (add-hook 'after-init-hook 'tramp-nspawn-setup)
+    (add-hook 'after-init-hook 'tramp-nspawn-setup)
 
-  )
+    ))
 #+end_src
 * Security
 - some security copied from others config.
@@ -4654,7 +4655,7 @@ See URL `https://beta.ruff.rs/docs/'."
 
   :mode ("\\.epub\\'" . nov-mode)
   :custom
-  (nov-text-width nil)
+  (nov-text-width 80)
   (nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title)))
   (nov-shr-rendering-functions (append nov-shr-rendering-functions shr-external-rendering-functions))
   (nov-variable-pitch t))

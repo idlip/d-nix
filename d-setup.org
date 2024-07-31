@@ -961,21 +961,22 @@ see its function help for a description of the format."
 ** Env-Vars
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-{
-  # enable zsh autocompletion for system packages (systemd, etc)
-  environment = {
-    pathsToLink = ["/share/zsh"];
-    variables = {
-      EDITOR = "emacsclient -nw -a nvim";
-      BROWSER = "d-stuff";
-      NIXOS_OZONE_WL = "1";
+  {
+    # enable zsh autocompletion for system packages (systemd, etc)
+    environment = {
+      pathsToLink = ["/share/zsh"];
+      variables = {
+        VDPAU_DRIVER = lib.mkDefault "va_gl";
+        EDITOR = "emacsclient -nw -a nvim";
+        BROWSER = "d-stuff";
+        NIXOS_OZONE_WL = "1";
+      };
+      systemPackages = with pkgs; [
+        gitFull
+        (writeScriptBin "sudo" ''exec doas "$@"'')
+      ];
     };
-    systemPackages = with pkgs; [
-      gitFull
-      (writeScriptBin "sudo" ''exec doas "$@"'')
-    ];
-  };
-}
+  }
   #+end_src
 
 ** xdg

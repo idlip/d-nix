@@ -257,108 +257,109 @@ It is as simple if I just record what it does, with proper link to rich resource
 * Bootloader :boot:
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-{
-  boot = {
-    # Uses bleeding edge latest kernel.
-    kernelPackages = pkgs.linuxPackages_latest;
-    # kernelModules = [ "tcp_bbr" "acpi_call" ];
+  {
+    boot = {
+      # Uses bleeding edge latest kernel.
+      kernelPackages = pkgs.linuxPackages_latest;
+      kernelModules = [ "acpi_call" ];
+      extraModulePackages = with config.boot.kernelPackages; [ acpi_call ];
 
-    kernel.sysctl = {
-      # The Magic SysRq key is a key combo that allows users connected to the
-      # system console of a Linux kernel to perform some low-level commands.
-      # Disable it, since we don't need it, and is a potential security concern.
-      "kernel.sysrq" = 0;
+      kernel.sysctl = {
+        # The Magic SysRq key is a key combo that allows users connected to the
+        # system console of a Linux kernel to perform some low-level commands.
+        # Disable it, since we don't need it, and is a potential security concern.
+        "kernel.sysrq" = 0;
 
-      ## TCP hardening
-      # Prevent bogus ICMP errors from filling up logs.
-      "net.ipv4.icmp_ignore_bogus_error_responses" = 1;
-      # Reverse path filtering causes the kernel to do source validation of
-      # packets received from all interfaces. This can mitigate IP spoofing.
-      "net.ipv4.conf.default.rp_filter" = 1;
-      "net.ipv4.conf.all.rp_filter" = 1;
-      # Do not accept IP source route packets (we're not a router)
-      "net.ipv4.conf.all.accept_source_route" = 0;
-      "net.ipv6.conf.all.accept_source_route" = 0;
-      # Don't send ICMP redirects (again, we're on a router)
-      "net.ipv4.conf.all.send_redirects" = 0;
-      "net.ipv4.conf.default.send_redirects" = 0;
-      # Refuse ICMP redirects (MITM mitigations)
-      "net.ipv4.conf.all.accept_redirects" = 0;
-      "net.ipv4.conf.default.accept_redirects" = 0;
-      "net.ipv4.conf.all.secure_redirects" = 0;
-      "net.ipv4.conf.default.secure_redirects" = 0;
-      "net.ipv6.conf.all.accept_redirects" = 0;
-      "net.ipv6.conf.default.accept_redirects" = 0;
-      # Protects against SYN flood attacks
-      "net.ipv4.tcp_syncookies" = 1;
-      # Incomplete protection again TIME-WAIT assassination
-      "net.ipv4.tcp_rfc1337" = 1;
+        ## TCP hardening
+        # Prevent bogus ICMP errors from filling up logs.
+        "net.ipv4.icmp_ignore_bogus_error_responses" = 1;
+        # Reverse path filtering causes the kernel to do source validation of
+        # packets received from all interfaces. This can mitigate IP spoofing.
+        "net.ipv4.conf.default.rp_filter" = 1;
+        "net.ipv4.conf.all.rp_filter" = 1;
+        # Do not accept IP source route packets (we're not a router)
+        "net.ipv4.conf.all.accept_source_route" = 0;
+        "net.ipv6.conf.all.accept_source_route" = 0;
+        # Don't send ICMP redirects (again, we're on a router)
+        "net.ipv4.conf.all.send_redirects" = 0;
+        "net.ipv4.conf.default.send_redirects" = 0;
+        # Refuse ICMP redirects (MITM mitigations)
+        "net.ipv4.conf.all.accept_redirects" = 0;
+        "net.ipv4.conf.default.accept_redirects" = 0;
+        "net.ipv4.conf.all.secure_redirects" = 0;
+        "net.ipv4.conf.default.secure_redirects" = 0;
+        "net.ipv6.conf.all.accept_redirects" = 0;
+        "net.ipv6.conf.default.accept_redirects" = 0;
+        # Protects against SYN flood attacks
+        "net.ipv4.tcp_syncookies" = 1;
+        # Incomplete protection again TIME-WAIT assassination
+        "net.ipv4.tcp_rfc1337" = 1;
 
-      ## TCP optimization
-      # TCP Fast Open is a TCP extension that reduces network latency by packing
-      # data in the sender’s initial TCP SYN. Setting 3 = enable TCP Fast Open for
-      # both incoming and outgoing connections:
-      "net.ipv4.tcp_fastopen" = 3;
-      # Bufferbloat mitigations + slight improvement in throughput & latency
-      "net.ipv4.tcp_congestion_control" = "bbr";
-      "net.core.default_qdisc" = "cake";
+        ## TCP optimization
+        # TCP Fast Open is a TCP extension that reduces network latency by packing
+        # data in the sender’s initial TCP SYN. Setting 3 = enable TCP Fast Open for
+        # both incoming and outgoing connections:
+        "net.ipv4.tcp_fastopen" = 3;
+        # Bufferbloat mitigations + slight improvement in throughput & latency
+        "net.ipv4.tcp_congestion_control" = "bbr";
+        "net.core.default_qdisc" = "cake";
+      };
+
+      loader = {
+        systemd-boot.enable = true;
+        efi.canTouchEfiVariables = true;
+        timeout = 1;
+      };
+
+      supportedFilesystems = [ "ntfs" ];
+      tmp.cleanOnBoot = true;
+      binfmt.emulatedSystems = ["aarch64-linux"];
     };
-
-    loader = {
-      systemd-boot.enable = true;
-      efi.canTouchEfiVariables = true;
-      timeout = 1;
-    };
-
-    supportedFilesystems = [ "ntfs" ];
-    tmp.cleanOnBoot = true;
-    binfmt.emulatedSystems = ["aarch64-linux"];
-  };
-}
+  }
   #+end_src
 ** harware config :hardware:
 - certain hardware config, mostly autogenerated via ~nixos-generate-config~
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-# Do not modify this file!  It was generated by ‘nixos-generate-config’
-# and may be overwritten by future invocations.  Please make changes
-# to /etc/nixos/configuration.nix instead.
-{
-  imports =
-    [ (modulesPath + "/installer/scan/not-detected.nix")
-    ];
+  # Do not modify this file!  It was generated by ‘nixos-generate-config’
+  # and may be overwritten by future invocations.  Please make changes
+  # to /etc/nixos/configuration.nix instead.
+  {
+    imports =
+      [ (modulesPath + "/installer/scan/not-detected.nix")
+      ];
 
-  boot.initrd.availableKernelModules = [ "xhci_pci" "thunderbolt" "vmd" "nvme" "usb_storage" "sd_mod" ];
-  boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-intel" ];
-  boot.kernelParams = [ "i915.force_probe=a7a0"  ];
-# "intel_pstate=disable"
+    boot.initrd.availableKernelModules = [ "xhci_pci" "thunderbolt" "vmd" "nvme" "usb_storage" "sd_mod" ];
+    boot.initrd.kernelModules = [ "xe" ];
+    boot.kernelModules = [ "kvm-intel" ];
+    boot.kernelParams = [ "i915.force_probe=a7a0"  ];
+  # "intel_pstate=disable"
 
-  boot.extraModulePackages = [ ];
+    boot.extraModulePackages = [ ];
 
-  fileSystems."/" =
-    { device = "/dev/disk/by-uuid/af0bbf7a-ca6f-4823-b548-cc25c63c3d5e";
-      fsType = "ext4";
-    };
+    fileSystems."/" =
+      { device = "/dev/disk/by-uuid/af0bbf7a-ca6f-4823-b548-cc25c63c3d5e";
+        fsType = "ext4";
+      };
 
-  fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/68E2-CF64";
-      fsType = "vfat";
-    };
+    fileSystems."/boot" =
+      { device = "/dev/disk/by-uuid/68E2-CF64";
+        fsType = "vfat";
+      };
 
-  swapDevices = [ ];
+    swapDevices = [ ];
 
-  # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
-  # (the default) this is the recommended approach. When using systemd-networkd it's
-  # still possible to use this option, but it's recommended to use it in conjunction
-  # with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
-  networking.useDHCP = lib.mkDefault true;
-  # networking.interfaces.wlp0s20f3.useDHCP = lib.mkDefault true;
+    # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
+    # (the default) this is the recommended approach. When using systemd-networkd it's
+    # still possible to use this option, but it's recommended to use it in conjunction
+    # with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
+    networking.useDHCP = lib.mkDefault true;
+    # networking.interfaces.wlp0s20f3.useDHCP = lib.mkDefault true;
 
-  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
-  hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
-}
+    nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+    powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
+    hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+  }
 
   #+end_src
 
@@ -876,16 +877,17 @@ see its function help for a description of the format."
 - gpg agent for polkit, and pinentry?
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-  {
-    services = {
-      gpg-agent = {
-        enable = true;
-        enableSshSupport = true;
-        enableZshIntegration = true;
-        # pinentryPackage = pkgs.pinentry-bemenu;
+    {
+      services = {
+        gpg-agent = {
+          enable = true;
+          enableSshSupport = true;
+          enableZshIntegration = true;
+          pinentryPackage = pkgs.pinentry-gnome3;
+          # pinentryPackage = pkgs.pinentry-bemenu;
+        };
       };
-    };
-  }
+    }
   #+end_src
 
 *** wlsunset

@@ -3343,75 +3343,75 @@ You can do this by trackpad too (laptop)"
 - foot is decent, but emacs tho has got it covered too!
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-    {
-      programs.foot = {
-        enable = true;
+  {
+    programs.foot = {
+      enable = true;
 
-        # doesnt work properly; Enable it in hyprland or sway config
-        server.enable = false;
+      # doesnt work properly; Enable it in hyprland or sway config
+      server.enable = false;
 
-        settings = {
-          main = {
-            term = "xterm-256color";
-            font = "Code OnePiece:size=26, Noto Color Emoji:size=25";
-            font-bold = "Code OnePiece:size=26, Noto Color Emoji:size=25";
-            letter-spacing = "1";
-            box-drawings-uses-font-glyphs = "no";
-            pad = "0x0center";
-            notify = "notify-send -a \${app-id} -i \${app-id} \${title} \${body}";
-            selection-target = "clipboard";
-            # dpi-aware = "true";
-          };
+      settings = {
+        main = {
+          term = "xterm-256color";
+          font = "Code OnePiece:size=26, Noto Color Emoji:size=25";
+          font-bold = "Code OnePiece:size=26, Noto Color Emoji:size=25";
+          letter-spacing = "1";
+          box-drawings-uses-font-glyphs = "no";
+          pad = "0x0center";
+          notify = "notify-send -a \${app-id} -i \${app-id} \${title} \${body}";
+          selection-target = "clipboard";
+          # dpi-aware = "true";
+        };
 
-          scrollback = {
-            lines = 10000;
-            multiplier = 3;
-          };
+        scrollback = {
+          lines = 10000;
+          multiplier = 3;
+        };
 
-          url = {
-            launch = "d-stuff \${url}";
-            label-letters = "sadfjklewcmpgh";
-            osc8-underline = "url-mode";
-            protocols = "http, https, ftp, ftps, file";
-            uri-characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.,~:;/?#@!$&%*+=\"'()[]";
-          };
+        url = {
+          launch = "d-stuff \${url}";
+          label-letters = "sadfjklewcmpgh";
+          osc8-underline = "url-mode";
+          protocols = "http, https, ftp, ftps, file";
+          uri-characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.,~:;/?#@!$&%*+=\"'()[]";
+        };
 
-          key-bindings = {
-            clipboard-copy = "Control+Shift+c";
-            clipboard-paste = "Control+Shift+v Control+y";
-            primary-paste = "Shift+Insert";
-
-          };
-
-          colors = {
-            background = "050505";
-            foreground = "ffffff";
-            regular0 = "030303";
-            regular1 = "ff8059";
-            regular2 = "44bc44";
-            regular3 = "d0bc00";
-            regular4 = "2fafff";
-            regular5 = "feacd0";
-            regular6 = "00d3d0";
-            regular7 = "bfbfbf";
-            bright0 = "595959";
-            bright1 = "ef8b50";
-            bright2 = "70b900";
-            bright3 = "c0c530";
-            bright4 = "79a8ff";
-            bright5 = "b6a0ff";
-            bright6 = "6ae4b9";
-            bright7 = "ffffff";
-            alpha = "0.9";
-          };
-
-          mouse = {
-            hide-when-typing = "yes";
-          };
+        key-bindings = {
+          clipboard-copy = "Control+Shift+c";
+          clipboard-paste = "Control+Shift+v Control+y";
+          primary-paste = "Shift+Insert";
 
         };
+
+        colors = {
+          background = "050505";
+          foreground = "ffffff";
+          regular0 = "030303";
+          regular1 = "ff8059";
+          regular2 = "44bc44";
+          regular3 = "d0bc00";
+          regular4 = "2fafff";
+          regular5 = "feacd0";
+          regular6 = "00d3d0";
+          regular7 = "bfbfbf";
+          bright0 = "595959";
+          bright1 = "ef8b50";
+          bright2 = "70b900";
+          bright3 = "c0c530";
+          bright4 = "79a8ff";
+          bright5 = "b6a0ff";
+          bright6 = "6ae4b9";
+          bright7 = "ffffff";
+          alpha = "0.9";
+        };
+
+        mouse = {
+          hide-when-typing = "yes";
+        };
+
       };
-    }
+    };
+  }
   #+end_src
 **** Zellij
 - Its a decent multiplexer
@@ -3429,57 +3429,58 @@ You can do this by trackpad too (laptop)"
 **** eshell
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package esh-mode
-  :ensure nil
-  :defines
-  (eshell-prompt-regexp)
-  :commands
-  (eshell-send-input eshell/clear)
-  :hook
-  (eshell-mode . toggle-mode-line)
-  (eshell-mode . electric-pair-local-mode)
-  (eshell-mode . (lambda () (setq outline-regexp eshell-prompt-regexp)
-                   (setq-local corfu-auto nil)
-                   (setq-local scroll-margin 0)
-                   (corfu-mode)))
-  :bind
-  ("<f12>" . d/eshell-toggle)
-  ("C-c d s" . eshell)
-  (:map eshell-mode-map
-        ("C-S-l" . d/clear-eshell))
+  (use-package esh-mode
+    :ensure nil
+    :defines
+    (eshell-prompt-regexp)
+    :commands
+    (eshell-send-input eshell/clear)
+    :hook
+    (eshell-mode . toggle-mode-line)
+    (eshell-mode . electric-pair-local-mode)
+    (eshell-mode . (lambda () (setq outline-regexp eshell-prompt-regexp)
+                     (setq-local corfu-auto nil)
+                     (setq-local scroll-margin 0)
+                     (corfu-mode)))
+    :bind
+    ("<f12>" . d/eshell-toggle)
+    ("C-c d s" . eshell)
+    (:map eshell-mode-map
+          ("C-S-l" . d/clear-eshell))
 
-  :custom
-  (process-adaptive-read-buffering nil)
-  (eshell-scroll-to-bottom-on-input t)
-  (eshell-directory-name (expand-file-name "eshell" user-emacs-directory))
-  (eshell-aliases-file (expand-file-name "alias" eshell-directory-name))
-  (eshell-highlight-prompt t)
-  (eshell-hist-ignoredups t)
-  (eshell-cd-on-directory t)
-  (eshell-visual-command nil)
-  (eshell-buffer-name "eshell-terminal")
-  (eshell-pushd-dunique t)
-  (eshell-last-dir-unique t)
-  (eshell-last-dir-ring-size 32)
-  (eshell-list-files-after-cd nil)
-  (eshell-cd-shows-directory t)
-  (eshell-prefer-lisp-functions nil)
+    :custom
+    (process-adaptive-read-buffering nil)
+    (eshell-scroll-to-bottom-on-input t)
+    (eshell-directory-name (expand-file-name "eshell" user-emacs-directory))
+    (eshell-aliases-file (expand-file-name "alias" eshell-directory-name))
+    (eshell-highlight-prompt t)
+    (eshell-hist-ignoredups t)
+    (eshell-cd-on-directory t)
+    (eshell-visual-command nil)
+    (eshell-buffer-name "eshell-terminal")
+    (eshell-pushd-dunique t)
+    (eshell-last-dir-unique t)
+    (eshell-last-dir-ring-size 32)
+    (eshell-list-files-after-cd nil)
+    (eshell-cd-shows-directory t)
+    (eshell-prefer-lisp-functions nil)
 
-  (eshell-kill-processes-on-exit 'ask)
+    (eshell-kill-processes-on-exit 'ask)
 
-  (eshell-prompt-function
-   (lambda nil
-     (concat
-      "\n"
-      (propertize "  " 'face '(:inherit region))
-      " "
-      (propertize (replace-regexp-in-string "~" " " (eshell/pwd)) 'face '(:foreground "lightblue1"))
-      (when (package-installed-p 'magit) (propertize (if (magit-get-current-branch) (concat "   " (magit-get-current-branch)) "") 'face '(:foreground "orangered1")))
-      (when (package-installed-p 'envrc) (propertize (if (string= envrc--status 'none) "" "   ") 'face '(:foreground "mediumspringgreen")))
-      (propertize (concat "   " (format-time-string "%H:%M" (current-time))) 'face '(:foreground "lightcyan1"))
-      (propertize "\n  " 'face '(:foreground "palegreen"))
-      )))
-  (eshell-prompt-regexp "^  "))
+    (eshell-prompt-function
+     (lambda nil
+       (concat
+        "\n"
+        ;; (propertize "  " 'face '(:inherit region))
+        "  "
+        " "
+        (propertize (replace-regexp-in-string "~" " " (eshell/pwd)) 'face '(:foreground "lightblue1"))
+        (when (package-installed-p 'magit) (propertize (if (magit-get-current-branch) (concat "   " (magit-get-current-branch)) "") 'face '(:foreground "orangered1")))
+        (when (package-installed-p 'envrc) (propertize (if (string= envrc--status 'none) "" "   ") 'face '(:foreground "mediumspringgreen")))
+        ;; (propertize (concat "   " (format-time-string "%H:%M" (current-time))) 'face '(:foreground "lightcyan1"))
+        (propertize "\n 󰘧 " 'face '(:foreground "palegreen"))
+        )))
+    (eshell-prompt-regexp "^ 󰘧 "))
   #+end_src
 - eshell function to toggle and clear buffer
   #+name: orgmacs
@@ -3640,12 +3641,12 @@ You can do this by trackpad too (laptop)"
         olivetti nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
         embark-consult consult-eglot markdown-mode nix-mode nix-ts-mode
         reddigg hnreader howdoyou magit webpaste
-        shrface shr-tag-pre-highlight nov devdocs-browser reformatter
+        shrface org-mime shr-tag-pre-highlight nov devdocs-browser reformatter
         tempel tempel-collection eglot-tempel
         sdcv jinx envrc dashboard mini-echo
-        speed-type vc-backup aria2 pubmed
+        speed-type vc-backup aria2 transmission pubmed
         ess auctex julia-mode webfeeder engrave-faces
-        toc-org org-ql org-alert org-noter
+        toc-org org-ql org-alert org-noter activities
         saveplace-pdf-view flycheck consult-flycheck
         ef-themes doom-themes
         org-re-reveal
@@ -3686,6 +3687,17 @@ You can do this by trackpad too (laptop)"
           };
         })
 
+        (trivialBuild {
+          pname = "ready-mode";
+          version = "pre-0.1";
+
+          src = pkgs.fetchFromGitHub {
+            owner = "xenodium";
+            repo = "ready-player";
+            rev = "61cc4c6287903f4d1fd864d905939fdd44bddc8a";
+            hash = "sha256-RuCZaeHC1IWsQh/33Ff8+VVMg4gbt6yWGZikXSKHRXI=";
+          };
+        })
 
 
         ## packages kept out to make more vanilla usage!
@@ -4092,32 +4104,40 @@ See URL `https://beta.ruff.rs/docs/'."
 - Legit, best made design for formatter package.
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package reformatter
-  :hook
-  (python-ts-mode . ruff-format-on-save-mode)
-  (nix-mode . alejandra-format-on-save-mode)
-  (ess-r-mode . styler-format-on-save-mode)
-  :config
-  (reformatter-define ruff-format
-    :program "ruff"
-    :args (list "format" "--stdin-filename" input-file "-"))
+  (use-package reformatter
+    :hook
+    (python-ts-mode . ruff-format-on-save-mode)
+    (nix-mode . alejandra-format-on-save-mode)
+    (ess-r-mode . styler-format-on-save-mode)
+    :config
+    (reformatter-define ruff-format
+      :program "ruff"
+      :args (list "format" "--stdin-filename" input-file "-"))
 
-  (reformatter-define pyblack-format
-    :program "python"
-    :args (list "-m" "black" "-"))
+    (reformatter-define pyblack-format
+      :program "python"
+      :args (list "-m" "black" "-"))
 
-  (reformatter-define alejandra-format
-    :program "alejandra"
-    :group 'nix-mode
-    :lighter " AL")
+    (reformatter-define alejandra-format
+      :program "alejandra"
+      :group 'nix-mode
+      :lighter " AL")
 
-  (reformatter-define styler-format
-    :program "Rscript"
-    :args (list "--vanilla" "-e" "con <- file(\"stdin\")
-out <- styler::style_text(readLines(con))
-close(con)
-out")
-    :lighter " styler"))
+    (reformatter-define styler-format
+      :program "Rscript"
+      :args (list "--vanilla" "-e" "con <- file(\"stdin\")
+  out <- styler::style_text(readLines(con))
+  close(con)
+  out")
+      :lighter " styler")
+
+    (reformatter-define shell-format
+      :program "shfmt"
+      )
+
+    (reformatter-define nixfmt-rfc
+      :program "nixfmt")
+    )
   #+end_src
 **** eglot
 - the lsp gifted in emacs
@@ -4160,10 +4180,10 @@ out")
 - Eglot booster to speed up workflow.
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package eglot-booster
-  :after eglot
-  :config
-  (eglot-booster-mode))
+  (use-package eglot-booster
+    :after eglot
+    :config
+    (eglot-booster-mode))
   #+end_src
 
 **** xref
@@ -4534,7 +4554,7 @@ out")
   #+begin_src emacs-lisp
   (use-package saveplace-pdf-view
     :unless d/on-droid
-    :after saveplace)
+    :demand t)
   #+end_src
 
 *** COMMENT pdf-tools
@@ -4554,6 +4574,7 @@ out")
     (pdf-view-mode . pdf-view-midnight-minor-mode)
 
     :bind
+    ("C-x <delete>" . malloc-trim) ;; since pdf-tools consume high memory
     (:map pdf-view-mode-map
           ("h" . pdf-annot-add-highlight-markup-annotation)
           ("t" . pdf-annot-add-text-annotation)

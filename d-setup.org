@@ -5154,8 +5154,13 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
   (use-package gnus
     :hook
     (gnus-group-mode . gnus-topic-mode)
+    (gnus-summary-mode . turn-on-gnus-mailing-list-mode)
     :bind
-    ("C-c d e" . gnus)
+    (("C-c d g" . gnus)
+     (:map gnus-summary-mode-map
+           ("-" . gnus-summary-hide-thread)
+           ("+" . gnus-summary-show-thread)
+           ))
 
     :custom
     (gnus-directory (expand-file-name "feeds/gnews" user-emacs-directory))
@@ -5164,7 +5169,7 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
     (gnus-widen-article-window t)
 
     (gnus-select-method
-     '(nnnil))
+     '(nnnil ""))
 
     (gnus-secondary-select-methods
      '((nntp "feedbase"
@@ -5177,8 +5182,7 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
 
     ;; refer: https://github.com/redguardtoo/mastering-emacs-in-one-year-guide/blob/master/gnus-guide-en.org
     (gnus-thread-sort-functions
-     '(gnus-thread-sort-by-most-recent-date
-       (not gnus-thread-sort-by-number)))
+     '(gnus-thread-sort-by-most-recent-date))
     (gnus-use-cache t)
     (gnus-thread-hide-subtree t)
 
@@ -5220,6 +5224,22 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
     (gnus-sum-thread-tree-leaf-with-other "├─► ")
     (gnus-sum-thread-tree-single-leaf     "╰─► ")
 
+    ;; Yay (seen here: `https://github.com/cofi/dotfiles/blob/master/gnus.el')
+    (gnus-cached-mark ?󰃨)
+    (gnus-canceled-mark ?󱞐)
+    (gnus-del-mark ?󰆴)
+    ;; gnus-dormant-mark ?⚐
+    (gnus-expirable-mark ?♻)
+    (gnus-forwarded-mark ?)
+    ;; gnus-killed-mark ?☠
+    ;; gnus-process-mark ?⚙
+    (gnus-read-mark ?󰑇)
+    (gnus-recent-mark ?✩)
+    (gnus-replied-mark ?↺)
+    (gnus-unread-mark ?)
+    ;; gnus-unseen-mark ?★
+    ;; gnus-ticked-mark ?⚑
+
     (gnus-summary-line-format
      (concat
       "%0{%U%R%z%}"
@@ -5253,7 +5273,49 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
 
     )
   #+end_src
+**** user-mail
+- Use gnus with protonmail.
+- Credits to: https://www.vidal-rosset.net/gnus_emacs_as_email_client_in_imap_with_protonmail.html
+#+name: orgmacs
+#+begin_src emacs-lisp
+(setopt user-mail-address "idlip@protonmail.com"
+        user-full-name "Dilip")
 
+(use-package gnus
+  :unless d/on-droid
+  :config
+  (add-to-list 'gnus-secondary-select-methods
+               '(nnimap "protonmail"
+                        (nnimap-stream plain)
+                        (nnimap-address "127.0.0.1")
+                        (nnimap-server-port 1143))))
+#+end_src
+
+- Send mail config
+#+begin_src emacs-lisp
+(use-package smtpmail
+  :unless d/on-droid
+  :after gnus
+  :custom
+  (smtpmail-default-smtp-server "127.0.0.1")
+  (mail-sources '((imap :server "127.0.0.1"
+                        :user "idlip")))
+  (smtpmail-smtp-server "127.0.0.1")
+  (smtpmail-smtp-service 1025)
+  (starttls-use-gnutls t)
+  (send-mail-function 'smtpmail-send-it)
+  (message-send-mail-function 'smtpmail-send-it)
+  (mail-from-style 'angles)
+  (smtpmail-debug-info t)
+  (smtpmail-debug-verb t))
+#+end_src
+
+- More mails
+  #+name: orgmacs
+  #+begin_src emacs-lisp
+  (unless d/on-droid
+    (load-file "~/d-sync/feeds/gnews/privmail.el"))
+  #+end_src
 ** Dictionary
 *** sdcv
   #+name: orgmacs

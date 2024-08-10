@@ -518,10 +518,12 @@
       # use binary cache, its not gentoo
       substituters = [
         "https://nix-community.cachix.org"
+        "https://cosmic.cachix.org/"
       ];
 
       trusted-public-keys = [
         "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+        "cosmic.cachix.org-1:Dya9IyXD4xdBehWjrkPv6rtxpmMdRel02smYzA85dPE="
       ];
     };
   };
@@ -574,8 +576,6 @@
 }
 
 {
-  sound.enable = true;
-
   # Pipewire setup, just these lines enough to make sane default for it
   services.pipewire = {
     enable = true;
@@ -644,6 +644,70 @@
         serif = [ "Code Haki" "Iosevka Comfy Motion Duo" "Code D Haki" "Noto Serif"];
         emoji = [ "Noto Color Emoji" "Code OnePiece" "Symbola" "Noto Sans" ];
       };
+    };
+  };
+
+}
+
+{
+  stylix = {
+    enable = true;
+    image = /home/idlip/d-git/d-wallpapers/oled/chinese-dragon.jpg;
+    polarity = "dark";
+
+    base16Scheme = {
+      base00 = "000000"; # bg
+      base01 = "121212"; # light bg
+      base02 = "303030"; # selection bg
+      base03 = "2e8b57"; # comment/hl
+      base04 = "D8DEE9"; # dim fg
+      base05 = "ffffff"; # fg
+      base06 = "6c7b8b"; # light fg
+      base07 = "222222"; # light bg
+      base08 = "ffb5c5"; # red
+      base09 = "ee9572"; # orange
+      base0A = "fbfba2"; # yellow
+      base0B = "54ff9f"; # green
+      base0C = "22fefe"; # aqua/cyan
+      base0D = "89b4fa"; # blue
+      base0E = "9370db"; # purple
+      base0F = "76eec6"; # brown
+    };
+
+    cursor = {
+      package = pkgs.bibata-cursors;
+      name = "Bibata-Modern-Classic";
+      size = 24;
+    };
+
+    fonts = {
+      serif = {
+        package = pkgs.callPackage ./pkgs/code-nika.nix {};
+        name = "Code Haki";
+      };
+
+      sansSerif = {
+        package = pkgs.callPackage ./pkgs/code-nika.nix {};
+        name = "Code Haki";
+      };
+
+      monospace = {
+        package = pkgs.callPackage ./pkgs/code-nika.nix {};
+        name = "Code OnePiece";
+      };
+
+      emoji = {
+        package = pkgs.noto-fonts-emoji;
+        name = "Noto Color Emoji";
+      };
+
+      sizes = {
+        applications = 24;
+        desktop = 20;
+        popups = 20;
+        terminal = 24;
+      };
+
     };
   };
 

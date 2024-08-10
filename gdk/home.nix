@@ -214,8 +214,8 @@
     settings = {
       main = {
         term = "xterm-256color";
-        font = "Code OnePiece:size=26, Noto Color Emoji:size=25";
-        font-bold = "Code OnePiece:size=26, Noto Color Emoji:size=25";
+        # font = "Code OnePiece:size=26, Noto Color Emoji:size=25";
+        # font-bold = "Code OnePiece:size=26, Noto Color Emoji:size=25";
         letter-spacing = "1";
         box-drawings-uses-font-glyphs = "no";
         pad = "0x0center";
@@ -263,7 +263,7 @@
         bright5 = "b6a0ff";
         bright6 = "6ae4b9";
         bright7 = "ffffff";
-        alpha = "0.9";
+        # alpha = "0.9";
       };
 
       mouse = {
@@ -309,7 +309,7 @@
       reddigg hnreader howdoyou magit webpaste
       shrface org-mime shr-tag-pre-highlight nov devdocs-browser reformatter
       tempel tempel-collection eglot-tempel
-      sdcv jinx envrc dashboard mini-echo
+      sdcv jinx envrc dashboard mini-echo ready-player
       speed-type vc-backup aria2 transmission pubmed
       ess auctex julia-mode webfeeder engrave-faces
       toc-org org-ql org-alert org-noter activities
@@ -350,18 +350,6 @@
           repo = "org-super-links";
           rev = "0dd9ed22b4785f50c61051170db7c78b522a37ee";
           hash = "sha256-OWHUQBKp74sVIFbk8f7Xw7K11jPcR3HIVjpp5xiNwzs=";
-        };
-      })
-
-      (trivialBuild {
-        pname = "ready-mode";
-        version = "pre-0.1";
-
-        src = pkgs.fetchFromGitHub {
-          owner = "xenodium";
-          repo = "ready-player";
-          rev = "61cc4c6287903f4d1fd864d905939fdd44bddc8a";
-          hash = "sha256-RuCZaeHC1IWsQh/33Ff8+VVMg4gbt6yWGZikXSKHRXI=";
         };
       })
 
@@ -515,101 +503,16 @@
 
         settings = {
           "browser.startup.homepage" = "about:blank";
-          "browser.urlbar.placeholderName" = "Time to get Productive...";
+          "browser.urlbar.placeholderName" = "Freedom & Find the OnePiece...";
           "gfx.webrender.all" = true;
           "gfx.webrender.enabled" = true;
-          "media.peerconnection.enabled" = true;
-          "media.av1.enabled" = false;
-          "media.ffmpeg.vaapi.enabled" = true;
-          "media.hardware-video-decoding.force-enabled" = true;
-          "media.navigator.mediadatadecoder_vpx_enabled" = true;
-          "signon.rememberSignons" = false;
-          "app.normandy.api_url" = "";
-          "app.normandy.enabled" = false;
-          "app.shield.optoutstudies.enabled" = false;
-          "beacon.enabled" = false;
-          "breakpad.reportURL" = "";
-          "browser.aboutConfig.showWarning" = false;
-          "browser.cache.offline.enable" = false;
-          "browser.crashReports.unsubmittedCheck.autoSubmit" = false;
-          "browser.crashReports.unsubmittedCheck.autoSubmit2" = false;
-          "browser.crashReports.unsubmittedCheck.enabled" = false;
-          "browser.disableResetPrompt" = true;
-          "browser.newtab.preload" = false;
-          "browser.newtabpage.activity-stream.section.highlights.includePocket" = false;
           "extensions.pocket.enabled" = false;
           "browser.newtabpage.enhanced" = false;
-          "browser.newtabpage.introShown" = true;
-          "browser.safebrowsing.appRepURL" = "";
-          "browser.safebrowsing.blockedURIs.enabled" = false;
-          "browser.safebrowsing.downloads.enabled" = false;
-          "browser.safebrowsing.downloads.remote.enabled" = false;
-          "browser.safebrowsing.downloads.remote.url" = "";
-          "browser.safebrowsing.enabled" = false;
-          "browser.safebrowsing.malware.enabled" = false;
-          "browser.safebrowsing.phishing.enabled" = false;
-          "browser.selfsupport.url" = "";
-          "browser.send_pings" = false;
-          "browser.sessionstore.privacy_level" = 2;
-          "browser.startup.homepage_override.mstone" = "ignore";
-          "browser.tabs.crashReporting.sendReport" = false;
-          "browser.urlbar.groupLabels.enabled" = false;
-          "browser.urlbar.quicksuggest.enabled" = false;
-          "browser.urlbar.speculativeConnect.enabled" = false;
-          "datareporting.healthreport.service.enabled" = false;
-          "datareporting.healthreport.uploadEnabled" = false;
-          "datareporting.policy.dataSubmissionEnabled" = false;
-          "device.sensors.ambientLight.enabled" = false;
-          "device.sensors.enabled" = false;
-          "device.sensors.motion.enabled" = false;
-          "device.sensors.orientation.enabled" = false;
-          "device.sensors.proximity.enabled" = false;
-          "dom.battery.enabled" = false;
-          "dom.event.clipboardevents.enabled" = true;
-          "dom.webaudio.enabled" = false;
-          "experiments.activeExperiment" = false;
-          "experiments.enabled" = false;
-          "experiments.manifest.uri" = "";
-          "experiments.supported" = false;
-          "extensions.getAddons.cache.enabled" = false;
-          "extensions.getAddons.showPane" = false;
-          "extensions.greasemonkey.stats.optedin" = false;
-          "extensions.greasemonkey.stats.url" = "";
-          "extensions.shield-recipe-client.api_url" = "";
-          "extensions.shield-recipe-client.enabled" = false;
-          "extensions.webservice.discoverURL" = "";
-          "fission.autostart" = true;
-          "media.autoplay.default" = 1;
-          "media.autoplay.enabled" = false;
-          "media.eme.enabled" = false;
-          "media.gmp-widevinecdm.enabled" = false;
-          "media.navigator.enabled" = false;
-          "media.video_stats.enabled" = false;
-          "network.IDN_show_punycode" = true;
-          "network.allow-experiments" = false;
-          "network.captive-portal-service.enabled" = false;
-          "network.cookie.cookieBehavior" = 1;
-          "network.dns.disablePrefetch" = true;
-          "network.dns.disablePrefetchFromHTTPS" = true;
-          "network.http.referer.spoofSource" = true;
-          "network.http.speculative-parallel-limit" = 0;
-          "dom.security.https_only_mode" = true;
-          "network.predictor.enable-prefetch" = false;
-          "network.predictor.enabled" = false;
-          "network.prefetch-next" = false;
-          "network.trr.mode" = 5;
-          "privacy.donottrackheader.enabled" = true;
-          "privacy.donottrackheader.value" = 1;
-          "privacy.firstparty.isolate" = true;
           "privacy.trackingprotection.cryptomining.enabled" = true;
           "privacy.trackingprotection.enabled" = true;
           "privacy.trackingprotection.fingerprinting.enabled" = true;
           "privacy.trackingprotection.pbmode.enabled" = true;
           "privacy.usercontext.about_newtab_segregation.enabled" = true;
-          "security.ssl.disable_session_identifiers" = true;
-          "services.sync.prefs.sync.browser.newtabpage.activity-stream.showSponsoredTopSite" = false;
-          "browser.newtabpage.activity-stream.showSponsored" = false;
-          "signon.autofillForms" = false;
           "toolkit.telemetry.archive.enabled" = false;
           "toolkit.telemetry.bhrPing.enabled" = false;
           "toolkit.telemetry.cachedClientID" = "";
@@ -625,25 +528,17 @@
           "toolkit.telemetry.unified" = false;
           "toolkit.telemetry.unifiedIsOptIn" = false;
           "toolkit.telemetry.updatePing.enabled" = false;
-          "webgl.disabled" = true;
+          "webgl.disabled" = false;
           "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
-          "webgl.renderer-string-override" = " ";
-          "webgl.vendor-string-override" = " ";
-          "browser.urlbar.update2.engineAliasRefresh" = true;
-          "signon.passwordEditCapture.enabled" = false;
-          "browser.search.hiddenOneOffs" = "Google,Yahoo,Bing,Amazon.com,Twitter";
-          "browser.newtabpage.activity-stream.improvesearch.topSiteSearchShortcuts" = false;
           "browser.urlbar.trimURLs" = false;
-          "findbar.modalHighlight" = true;
           "browser.fullscreen.autohide" = true;
-          "browser.newtabpage.activity-stream.topSitesRows" = 0;
-          "browser.urlbar.quickactions.enabled" = true;
-          "pdfjs.annotationEditorMode" = 0;
-          "pdfjs.annotationmode" = 2;
           "layers.acceleration.force-enabled" = true;
           "layout.css.backdrop-filter.enabled" = true;
           "svg.context-properties.content.enabled" = true;
           "full-screen-api.ignore-widgets" = true;
+          "pdfjs.forcePageColors" = true;
+          "pdfjs.pageColorsBackground" = "#000000";
+          "pdfjs.pageColorsForeground" = "#ffffff";
         };
 
         search = {
@@ -713,9 +608,32 @@
         };
 
         userChrome = builtins.readFile ./configs/userChrome.css;
+
+        userContent = ''
+        @-moz-document regexp(".+\\.pdf$") {
+          body {
+            background-color: #000000 !important;
+          }
+        }
+
+        '';
+
       };
     };
 
+  };
+}
+
+{
+  programs.librewolf = {
+    enable = true;
+    settings = {
+      "webgl.disabled" = false;
+      # "privacy.resistFingerprinting" = false;
+      "browser.urlbar.placeholderName" = "Find the OnePiece...";
+      "gfx.webrender.all" = true;
+      "gfx.webrender.enabled" = true;
+    };
   };
 }
 
@@ -735,6 +653,7 @@
         name            "pipewire sound server"
       }
       auto_update "yes"
+      bind_to_address "@mpd"
     '';
     };
 
@@ -816,7 +735,7 @@
 {
   xdg.configFile."ytfzf/conf.sh".text = ''
   #video_pref="248+bestaudio/best"
-  video_pref="[height<=1080]"
+  # video_pref="[height<=1080]"
   sub_link_count=1
   show_thumbnails=0
   invidious_instance="https://vid.puffyan.us"
@@ -909,7 +828,7 @@
         #    repeat_delay = 250
 
         touchpad = {
-          natural_scroll = "no";
+          natural_scroll = "yes";
           disable_while_typing = 1;
           clickfinger_behavior = 0; # double tap > right click
           middle_button_emulation = 1;
@@ -921,8 +840,8 @@
         gaps_in = 5;
         gaps_out = 15;
         border_size = 2;
-        "col.active_border" = "rgba(2e8b57ff) rgba(87cefaff) rgba(ffec8bff) rgba(ffaeb9ff) 90deg";
-        "col.inactive_border" = "0xff382D2E";
+        # "col.active_border" = "rgba(2e8b57ff) rgba(87cefaff) rgba(ffec8bff) rgba(ffaeb9ff) 90deg";
+        # "col.inactive_border" = "0xff382D2E";
         no_border_on_floating  =  false; # enable border on float window
         layout  =  "dwindle";
       };
@@ -1045,21 +964,25 @@
           path = "/home/idlip/d-git/d-wallpapers/walls/Anime-City-Night.png";
           blur_size = 8;
           blur_passes = 3;
+          noise = 0.0117;
+          contrast = 1.3000;
+          brightness = 0.500;
+          vibrancy = 0.2100;
+          vibrancy_darkness = 0.50;
         }
       ];
 
       input-field = [
         {
-          size = "300, 50";
           monitor = "";
+          size = "250, 50";
           dots_center = true;
-          shadow_passes = 2;
-          outline_thickness = 3;
-          dots_size = 0.3;
-          dots_spacing = 0.1;
+          font_color = "rgb(255, 255, 255)";
           fade_on_empty = true;
-          placeholder_text = "<i>Pass</i>";
-          position = "0, 120";
+          placeholder_text = "<i>Password...</i>";
+          color = "rgba(20, 20, 20, 0.6)";
+          hide_input = false;
+          position = "0, 200";
           halign = "center";
           valign = "bottom";
         }
@@ -1068,26 +991,48 @@
       label = [
         {
           monitor = "";
-          color = "rgba(255, 255, 255, 1.0)";
+          color = "rgba(184, 212, 224, 0.6)";
           font_size = 35;
           text = ''
-          cmd[update:1000] echo "<b> "$(date +'%A, %-d %B %Y @ %T')" </b>"
+          cmd[update:18000000] echo "<b> "$(date +'%A, %-d %B %Y')" </b>"
           '';
-          position = "0, 40";
+          position = "0, -420";
           halign = "center";
-          valign = "center";
+          valign = "top";
         }
 
         {
           monitor = "";
-          color = "rgba(255, 255, 255, 1.0)";
-          font_size = 35;
+          color = "rgba(184, 212, 224, 0.6)";
+          font_size = 130;
           text = ''
-          Lets Get back to Working!
+          cmd[update:1000] echo -e "$(date +"%I:%M")"
           '';
-          position = "0, 120";
+          position = "0, -220";
           halign = "center";
-          valign = "center";
+          valign = "top";
+        }
+
+        {
+          monitor = "";
+          text = "Welcome, think less, work smart!";
+          color = "rgb(126, 247, 138)";
+          font_size = 20;
+          position = "0, 70";
+          halign = "center";
+          valign = "bottom";
+        }
+
+        {
+          monitor = "";
+          text = ''
+          cmd[update:60000] echo "<b> $(uptime) </b>"
+          '';
+          color = "rgba(184, 212, 224, 0.4)";
+          font_size = 16;
+          position = "5, 5";
+          halign = "right";
+          valign = "bottom";
         }
       ];
 
@@ -1109,31 +1054,41 @@
 }
 
 {
-  # cursor theme
-  home.pointerCursor = {
-    name = "Bibata-Modern-Classic";
-    package = pkgs.bibata-cursors;
-    size = 24;
-    gtk.enable = true;
+  stylix = {
+    enable = true;
+
+    targets = {
+      emacs.enable = false;
+    };
   };
+}
+
+{
+  # cursor theme
+  # home.pointerCursor = {
+  #   name = "Bibata-Modern-Classic";
+  #   # package = pkgs.bibata-cursors;
+  #   # size = 24;
+  #   gtk.enable = true;
+  # };
 
   gtk = {
     enable = true;
 
-    theme = {
-      name = "adw-gtk3-dark";
-      package = pkgs.adw-gtk3;
-    };
+    # theme = {
+    #   name = "adw-gtk3-dark";
+    #   package = pkgs.adw-gtk3;
+    # };
 
     iconTheme = {
       name = "Papirus-Dark";
       package = pkgs.papirus-icon-theme;
     };
 
-    font = {
-      name = "Code Haki";
-      size = 26;
-    };
+    # font = {
+    #   name = "Code Haki";
+    #   size = 26;
+    # };
 
     gtk2.configLocation = "${config.xdg.configHome}/gtk-2.0/gtkrc";
 
@@ -1165,222 +1120,238 @@
 }
 
 {
-  programs.waybar = {
-    enable = true;
+  programs.waybar = let
+    iconSize = 28;
+  in
+    {
+      enable = true;
 
-    settings = {
-      mainBar = {
-        layer = "top";
-        position = "top";
-        # height = 15;
-        # spacing = 7;
-        fixed-center = true;
-        exclusive = true;
+      settings = {
+        mainBar = {
+          layer = "top";
+          position = "top";
+          # height = 15;
+          # spacing = 7;
+          fixed-center = true;
+          exclusive = true;
 
-        modules-left = [
-          "custom/launcher"
-          "hyprland/workspaces"
-          "wlr/taskbar"
-          "hyprland/window"
-          "hyprland/submap"
-        ];
+          modules-left = [
+            "custom/launcher"
+            "hyprland/workspaces"
+            "wlr/taskbar"
+            "hyprland/window"
+            "hyprland/submap"
+          ];
 
-        modules-center = [
-          "custom/recorder" "clock" "mpd" "mpris"
-        ];
+          modules-center = [
+            "privacy" "custom/recorder" "clock" "mpd" "mpris"
+          ];
 
-        modules-right = [ "tray" "network" "battery" "memory" "pulseaudio" "custom/power" ];
+          modules-right = [ "tray" "network" "backlight" "battery" "memory" "wireplumber" "custom/power" ];
 
-        "hyprland/workspaces" = {
-          format = "{icon}";
-          disable-scroll = true;
-          all-outputs = true;
-          active-only = false;
-          show-special = true;
-          on-click = "activate";
-          format-icons = {
-            active = "";
-            default = "";
-            "1" = "1";
-            "2" = "2";
-            "3" = "3";
-            "4" = "4";
-            "5" = "5";
-            "6" = "6";
-          };
-        };
-
-        "hyprland/window" = {
-          "format" = "{}";
-          "separate-outputs" = true;
-          "max-length" = 35;
-          "rewrite" = {
-            "(.*) - Mozilla Firefox" = "🦊 $1";
-            "(.*) - LibreWolf" = "🐺 $1";
-            "(.*) - Brave" = "🦁 $1";
-            "(.*) - GNU Emacs (.*)" = " $1";
-            "(.*).epub(.*)" = "󰂽 $1";
-            "(.*)foot" = " Terminal $1";
-          };
-        };
-
-        "hyprland/submap" = {
-          "format" = " {}";
-          "max-length" = 14;
-          "tooltip" = false;
-        };
-
-        "wlr/taskbar"=  {
-          "format"=  "{icon}";
-          "icon-size"=  18;
-          "spacing"=  0;
-          "tooltip-format"=  "{title}";
-          "on-click"=  "activate";
-          "on-click-middle"=  "close";
-        };
-
-
-        "custom/launcher" = {
-          "format" = "";
-          "tooltip" = false;
-          "on-click" = "bemenu-run";
-          "interval" = 86400;
-        };
-
-        "battery" =  {
-          "bat" =  "BAT1";
-          "interval" =  60;
-          "states" =  {
-            "good" = 95;
-            "warning" = 40;
-            "critical" = 20;
-          };
-          "max-length" =  25;
-          "format" = "{icon} {capacity}%";
-          "format-charging" = " {capacity}%";
-          "format-plugged" = " {capacity}%";
-          "format-alt" = "{time} {icon}";
-          "format-icons" = ["󰂎" "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹"];
-
-        };
-
-        "mpd" = {
-          "format" = "{stateIcon} {title}  ";
-          "format-disconnected" = "  ";
-          "format-stopped" = "  ";
-          "title-len" = 20;
-          "interval" = 10;
-          "on-click" = "mpc toggle";
-          "state-icons" = {
-            "paused" = "";
-            "playing" = "";
-          };
-          "tooltip-format" = "Mpd Connected";
-          "tooltip-format-disconnected" = "";
-        };
-
-        "mpris" = {
-          "format" = " {player_icon} {dynamic}";
-          "format-paused" = "{status_icon} <i>{dynamic}</i>";
-          "player-icons" = {
-            "default" = "▶";
-            "mpv" = "🎵";
-          };
-          "status-icons" = {
-            "paused" = "󰏤";
-          };
-          "max-length" = 20;
-        };
-
-        "custom/power" = {
-          "format" = "⏻";
-          "on-click" = "d-power";
-          "tooltip" = false;
-          "interval" = 86400;
-        };
-
-        "clock" = {
-          "format-alt" = " {:%a %d %b  %I:%M %p}";
-          "format" = " {:%H:%M}";
-          ##"timezones" = [ "Kolkata" ];
-          ##"max-length" = 200;
-          "interval" = 1;
-          "calendar" = {
-            "mode"           = "year";
-            "mode-mon-col"   = 3;
-            "weeks-pos"      = "right";
-            "on-scroll"      = 1;
-            "format" = {
-              "months" =     "<span color='#ffead3'><b>{}</b></span>";
-              "days" =       "<span color='#ecc6d9'><b>{}</b></span>";
-              "weeks" =      "<span color='#99ffdd'><b>W{}</b></span>";
-              "weekdays" =   "<span color='#ffcc66'><b>{}</b></span>";
-              "today" =      "<span color='#ff6699'><b><u>{}</u></b></span>";
+          "hyprland/workspaces" = {
+            format = "{icon}";
+            disable-scroll = true;
+            all-outputs = true;
+            active-only = false;
+            show-special = true;
+            on-click = "activate";
+            format-icons = {
+              active = "";
+              default = "";
+              "1" = "1";
+              "2" = "2";
+              "3" = "3";
+              "4" = "4";
+              "5" = "5";
+              "6" = "6";
             };
           };
-          "tooltip-format" = "<tt><small>{calendar}</small></tt>";
-        };
 
-        "tray" = {
-          "icon-size" = 23;
-          "spacing" = 10;
-        };
-
-        "cpu" = {
-          "format" = " {usage: >3}%";
-          "on-click" = "footclient -e btop";
-        };
-
-        "memory" = {
-          "on-click" = "foot -e btop";
-          "interval" = 30;
-          "format" = " {percentage}%";
-          "format-alt" = " {used}GB";
-          "max-length" = 10;
-        };
-
-        "network" = {
-          # "interface" = "wlp2s0";
-          "format" = "⚠ Disabled";
-          "format-wifi" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
-          "format-ethernet" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
-          "format-disconnected" = "⚠ Disconnected";
-          "on-click" = "d-wifi";
-          "interval" = 2;
-        };
-
-        "pulseaudio" = {
-          "scroll-step" = 2;
-          "format" = "{icon} {volume: >3}%";
-          "format-bluetooth" = "{icon} {volume: >3}%";
-          "format-muted" =" muted";
-          "on-click" = "pamixer -t";
-          "format-icons" = {
-            "headphones" = "";
-            "handsfree" = "";
-            "headset" = "";
-            "phone" = "";
-            "portable" = "";
-            "car" = "";
-            "default" = ["" ""];
+          "hyprland/window" = {
+            "format" = "{}";
+            "separate-outputs" = true;
+            "max-length" = 35;
+            "rewrite" = {
+              "(.*) - Mozilla Firefox" = "🦊 $1";
+              "(.*) - LibreWolf" = "🐺 $1";
+              "(.*) - Brave" = "🦁 $1";
+              "(.*) - GNU Emacs (.*)" = " $1";
+              "(.*).epub(.*)" = "󰂽 $1";
+              "(.*)foot" = " Terminal $1";
+            };
           };
-        };
 
-        "custom/recorder" = {
-          "format" = "{}";
-          "interval" = "once";
-          "exec" = "echo ' '";
-          "tooltip" = "false";
-          "exec-if" = "pgrep wl-screenrec";
-          "on-click" = "pkill -INT wl-screenrec";
-          "signal" = 8;
-        };
+          "hyprland/submap" = {
+            "format" = " {}";
+            "max-length" = 14;
+            "tooltip" = false;
+          };
 
+          "wlr/taskbar"=  {
+            "format"=  "{icon}";
+            "icon-size"=  iconSize;
+            "spacing"=  0;
+            "tooltip-format"=  "{title}";
+            "on-click"=  "activate";
+            "on-click-middle"=  "close";
+          };
+
+
+          "custom/launcher" = {
+            "format" = "";
+            "tooltip" = false;
+            "on-click" = "bemenu-run";
+            "interval" = 86400;
+          };
+
+          "battery" =  {
+            "bat" =  "BAT1";
+            "interval" =  60;
+            "states" =  {
+              "good" = 95;
+              "warning" = 40;
+              "critical" = 20;
+            };
+            "max-length" =  25;
+            "format" = "{icon} {capacity}%";
+            "format-charging" = " {capacity}%";
+            "format-plugged" = " {capacity}%";
+            "format-alt" = "{time} {icon}";
+            "format-icons" = ["󰂎" "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹"];
+
+          };
+
+          "mpd" = {
+            "format" = "{stateIcon} {title}  ";
+            "format-disconnected" = "  ";
+            "format-stopped" = "  ";
+            "title-len" = 20;
+            "interval" = 10;
+            "on-click" = "mpc toggle";
+            "state-icons" = {
+              "paused" = "";
+              "playing" = "";
+            };
+            "tooltip-format" = "Mpd Connected";
+            "tooltip-format-disconnected" = "";
+          };
+
+          "mpris" = {
+            "format" = " {player_icon} {dynamic}";
+            "format-paused" = "{status_icon} <i>{dynamic}</i>";
+            "player-icons" = {
+              "default" = "▶";
+              "mpv" = "🎵";
+            };
+            "status-icons" = {
+              "paused" = "󰏤";
+            };
+            "max-length" = 20;
+          };
+
+          "custom/power" = {
+            "format" = "⏻";
+            "on-click" = "d-power";
+            "tooltip" = false;
+            "interval" = 86400;
+          };
+
+          "clock" = {
+            "format-alt" = " {:%a %d %b  %I:%M %p}";
+            "format" = " {:%H:%M}";
+            ##"timezones" = [ "Kolkata" ];
+            ##"max-length" = 200;
+            "interval" = 1;
+            "calendar" = {
+              "format" = {
+                "months" = "<span color='#ffead3'><b>{}</b></span>";
+                "today" = "<span color='#ff6699'><b>{}</b></span>";
+              };
+            };
+            "tooltip-format" = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
+          };
+
+          "tray" = {
+            "icon-size" = iconSize;
+            "spacing" = 10;
+          };
+
+          "cpu" = {
+            "format" = " {usage: >3}%";
+            "on-click" = "footclient -e btop";
+          };
+
+          "memory" = {
+            "on-click" = "foot -e btop";
+            "interval" = 30;
+            "format" = " {percentage}%";
+            "format-alt" = " {used}GB";
+            "max-length" = 10;
+          };
+
+          "network" = {
+            # "interface" = "wlp2s0";
+            "format" = "⚠ Disabled";
+            "format-wifi" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
+            "format-ethernet" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
+            "format-disconnected" = "⚠ Disconnected";
+            "on-click" = "d-wifi";
+            "interval" = 2;
+          };
+
+          "wireplumber" = {
+            "scroll-step" = 2;
+            "format" = "{icon} {volume: >3}%";
+            "format-bluetooth" = "{icon} {volume: >3}%";
+            "format-muted" =" muted";
+            "on-click" = "d-volume toggle";
+            "on-click-middle"=  "pavucontrol";
+            "format-icons" = {
+              "headphones" = "";
+              "handsfree" = "";
+              "headset" = "";
+              "phone" = "";
+              "portable" = "";
+              "car" = "";
+              "default" = ["" ""];
+            };
+          };
+
+	        "backlight" = {
+		        "tooltip" = false;
+		        "format" = " {}%";
+		        "interval" = 1;
+            "on-scroll-up" = "brigthnessctl set +5%";
+		        "on-scroll-down" = "brigthnessctl set 5%-";
+	        };
+
+          "custom/recorder" = {
+            "format" = "{}";
+            "interval" = "once";
+            "exec" = "echo ' '";
+            "tooltip" = "false";
+            "exec-if" = "pgrep wl-screenrec";
+            "on-click" = "pkill -INT wl-screenrec";
+            "signal" = 8;
+          };
+
+          "privacy" = {
+	          "icon-spacing" = 4;
+	          "icon-size" = iconSize;
+	          "transition-duration" = 250;
+          };
+
+          "custom/wallpaper" = {
+            "format" = " ";
+            "on-click" = "d-walls";
+          };
+
+        };
       };
     };
-  };
 
-  home.file.".config/waybar/style.css".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/style.css";
+  # home.file.".config/waybar/style.css".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/style.css";
 
 }
 
@@ -1405,7 +1376,7 @@
     btop = {
       enable = true;
       settings = {
-        color_theme = "default";
+        # color_theme = "default";
         theme_background = false;
         vim_keys = true;
         shown_boxes = "proc cpu";
@@ -1422,7 +1393,7 @@
       extraPackages = with pkgs.bat-extras; [ batdiff batman batgrep batwatch ];
       config = {
         pager = "less -fr";
-        theme = "TwoDark";
+        # theme = "TwoDark";
       };
     };
 
@@ -1430,12 +1401,12 @@
 
     fzf = {
       enable = true;
-      colors = {
-        bg = "#121212";
-        "bg+" = "#2e8b57";
-        fg = "#fdfdfd";
-        "fg+" = "#FFFFFF";
-      };
+      # colors = {
+      #   bg = "#121212";
+      #   "bg+" = "#2e8b57";
+      #   fg = "#fdfdfd";
+      #   "fg+" = "#FFFFFF";
+      # };
       defaultCommand = "fd --type f";
     };
 
@@ -1611,9 +1582,9 @@
         indicate_hidden = "yes";
         padding = 2;
         frame_width = 2;
-        separator_color = "frame";
+        # separator_color = "frame";
         sort = "yes";
-        font = "Code Haki 26";
+        # font = "Code Haki 26";
         line_height = 0;
         markup = "full";
         stack_duplicates = "true";
@@ -1647,22 +1618,22 @@
         script="d-notif";
       };
 
-      urgency_low = {
-        background = "#050505";
-        foreground = "#ffffff";
-        timeout = 5;
-      };
-      urgency_normal = {
-        background = "#050505";
-        foreground = "#ffffff";
-        timeout = 6;
-      };
-      urgency_critical = {
-        background = "#050505";
-        foreground = "#ffffff";
-        frame_color = "#f38ba8";
-        timeout = 0;
-      };
+      # urgency_low = {
+      #   background = "#050505";
+      #   foreground = "#ffffff";
+      #   timeout = 5;
+      # };
+      # urgency_normal = {
+      #   background = "#050505";
+      #   foreground = "#ffffff";
+      #   timeout = 6;
+      # };
+      # urgency_critical = {
+      #   background = "#050505";
+      #   foreground = "#ffffff";
+      #   frame_color = "#f38ba8";
+      #   timeout = 0;
+      # };
     };
   };
 }
@@ -1693,19 +1664,19 @@
       counter = "always";
       prefix = " ";
 
-      fn = "Code Haki 28";
+      # fn = "Code Haki 28";
 
-      nb = "#00000090";
-      ab = "#00000090";
-      bdr = "#c6daff";
-      nf = "#ffffff";
-      af = "#ffffff";
-      hb = "#2e8b57";
-      hf = "#000000";
-      fb = "#111111";
-      ff = "#fafad2";
-      tb = "#121212";
-      tf = "#6ae4b9";
+      # nb = "#00000090";
+      # ab = "#00000090";
+      # bdr = "#c6daff";
+      # nf = "#ffffff";
+      # af = "#ffffff";
+      # hb = "#2e8b57";
+      # hf = "#000000";
+      # fb = "#111111";
+      # ff = "#fafad2";
+      # tb = "#121212";
+      # tf = "#6ae4b9";
 
     };
   };

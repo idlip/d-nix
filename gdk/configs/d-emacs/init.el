@@ -1,82 +1,66 @@
 (use-package time
   :ensure nil
-  :hook
-  (after-init . display-time)
+  :hook (after-init . display-time)
   :custom
   (display-time-default-load-average nil)
   (display-time-24hr-format t))
 
 (use-package tramp
   :ensure nil
-  :defer t
-  :config
-  (put 'temporary-file-directory 'standard-value `(,temporary-file-directory))
   :custom
-  (tramp-backup-directory-alist backup-directory-alist)
-  (tramp-default-method "ssh")
-  (tramp-default-proxies-alist nil)
+  (tramp-backup-directory-alist backup-directory-alist))
 
-  ;; Enable full-featured Dirvish over TRAMP on certain connections
-  ;; https://www.gnu.org/software/tramp/#Improving-performance-of-asynchronous-remote-processes-1.
-  (add-to-list 'tramp-connection-properties
-	           (list (regexp-quote "/ssh:YOUR_HOSTNAME:")
-		             "direct-async-process" t))
+(with-eval-after-load 'tramp
+  (unless d/on-droid
+    (defcustom tramp-nspawn-machinectl-program "machinectl" ;; like nixos-container
+      "Name of the machinectl program."
+      :type 'string)
 
-  (tramp-verbose 0)
-  (tramp-chunksize 2000)
-  (tramp-use-ssh-controlmaster-options nil)
+    (defconst tramp-nspawn-method "nspawn"
+      "Tramp method name to use to connect to systemd-nspawn containers.")
 
-(unless d/on-droid
-  (defcustom tramp-nspawn-machinectl-program "machinectl" ;; like nixos-container
-    "Name of the machinectl program."
-    :type 'string)
-
-  (defconst tramp-nspawn-method "nspawn"
-    "Tramp method name to use to connect to systemd-nspawn containers.")
-
-  (defun tramp-nspawn--completion-function (&rest _args)
-    "List systemd-nspawn containers available for connection.
+    (defun tramp-nspawn--completion-function (&rest _args)
+      "List systemd-nspawn containers available for connection.
 
 This function is used by ‘tramp-set-completion-function’, please
 see its function help for a description of the format."
-    (let* ((raw-list (shell-command-to-string
-                      (concat tramp-nspawn-machinectl-program
-                              " list -q")))
-           (lines (cdr (split-string raw-list "\n")))
-           (first-words (mapcar (lambda (line) (car (split-string line)))
-                                lines))
-           (machines (seq-take-while (lambda (name) name) first-words)))
-      (mapcar (lambda (m) (list nil m)) machines)))
+      (let* ((raw-list (shell-command-to-string
+                        (concat tramp-nspawn-machinectl-program
+                                " list -q")))
+             (lines (cdr (split-string raw-list "\n")))
+             (first-words (mapcar (lambda (line) (car (split-string line)))
+                                  lines))
+             (machines (seq-take-while (lambda (name) name) first-words)))
+        (mapcar (lambda (m) (list nil m)) machines)))
 
 
-  ;; todo: check tramp-async-args and tramp-direct-async
-  (defun tramp-nspawn--add-method ()
-    "Add Tramp method handler for nspawn containers."
-    (push `(,tramp-nspawn-method
-            (tramp-login-program ,tramp-nspawn-machinectl-program)
-            (tramp-login-args (("shell")
-                               ("-q")
-                               ("--uid" "%u")
-                               ("%h")))
-            (tramp-remote-shell "/bin/sh")
-            (tramp-remote-shell-login ("-l"))
-            (tramp-remote-shell-args ("-i" "-c")))
-          tramp-methods))
+    ;; todo: check tramp-async-args and tramp-direct-async
+    (defun tramp-nspawn--add-method ()
+      "Add Tramp method handler for nspawn containers."
+      (push `(,tramp-nspawn-method
+              (tramp-login-program ,tramp-nspawn-machinectl-program)
+              (tramp-login-args (("shell")
+                                 ("-q")
+                                 ("--uid" "%u")
+                                 ("%h")))
+              (tramp-remote-shell "/bin/sh")
+              (tramp-remote-shell-login ("-l"))
+              (tramp-remote-shell-args ("-i" "-c")))
+            tramp-methods))
 
-  (defun tramp-nspawn-setup ()
-    "Initialize systemd-nspawn support for Tramp."
-    (tramp-nspawn--add-method)
-    (tramp-set-completion-function tramp-nspawn-method
-                                   '((tramp-nspawn--completion-function ""))))
+    (defun tramp-nspawn-setup ()
+      "Initialize systemd-nspawn support for Tramp."
+      (tramp-nspawn--add-method)
+      (tramp-set-completion-function tramp-nspawn-method
+                                     '((tramp-nspawn--completion-function ""))))
 
-  (add-hook 'after-init-hook 'tramp-nspawn-setup)
+    (add-hook 'after-init-hook 'tramp-nspawn-setup)
 
-  ))
+    ))
 
 (use-package battery
   :ensure nil
-  :hook
-  (after-init . display-battery-mode)
+  :hook (after-init . display-battery-mode)
   :custom
   ;; better to keep charge between 40-80
   (battery-load-low '40)
@@ -158,6 +142,7 @@ see its function help for a description of the format."
 
   (use-short-answers t)
   (enable-recursive-minibuffers t "Allow minibuffer commands in the minibuffer")
+  (auto-save-include-big-deletions t "save after large chunk deletion")
   (indent-tabs-mode nil "Spaces!")
   (tab-always-indent 'complete)
   (tab-width 2)
@@ -180,7 +165,7 @@ see its function help for a description of the format."
   (delete-selection-mode)
 
   (with-current-buffer "*scratch*"
-  (emacs-lock-mode 'kill))
+    (emacs-lock-mode 'kill))
   (prefer-coding-system 'utf-8)
   ;; Uppercase is same as lowercase
   (define-coding-system-alias 'UTF-8 'utf-8)
@@ -222,24 +207,23 @@ it narrows to region, or Org subtree."
 
 (use-package saveplace
   :ensure nil
-  :hook
-  (after-init . save-place-mode))
+  :hook (after-init . save-place-mode))
 
 (use-package simple
   :ensure nil
   :bind
-  ("<f7>" . scratch-buffer)
-  ("<escape>" . keyboard-quit)
-  ("M-^" . d/join-lines)
-  ("M-z" . zap-up-to-char)
+  (("<f7>" . scratch-buffer)
+   ("<escape>" . keyboard-quit)
+   ("M-^" . d/join-lines)
+   ("M-z" . zap-up-to-char)
 
-  ("M-%" . query-replace-regexp)
+   ("M-%" . query-replace-regexp)
 
-  ("M-c" . d/flex)
-  ("M-l" . downcase-dwim)
+   ("M-c" . d/flex)
+   ("M-l" . downcase-dwim)
 
-  ("M-@" . d/mark-word)
-  ("M-h" . d/mark-paragraph)
+   ("M-@" . d/mark-word)
+   ("M-h" . d/mark-paragraph))
 
   :custom
   (kill-ring-max 30000)
@@ -355,31 +339,25 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (revert-buffer :ignore-auto :noconfirm))
 
 (use-package undo-fu-session
-  :ensure nil
   :functions (undo-fu-session-global-mode)
   :defines (undo-fu-session-incompatible-files)
-
   :init (undo-fu-session-global-mode)
-  :config
-  (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'")))
+  :custom
+  (undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'")))
 
 (use-package vundo
-  :ensure nil
-  :defer t
   :bind
-  ("C-x u" . vundo)
+  (("C-x u" . vundo)
   ("C-z" . undo-only)
   ("C-S-z" . undo-redo)
-  ("C-M-r" . undo-redo)
-
+  ("C-M-r" . undo-redo))
   :custom
   (vundo-compact-display t)
   (vundo-glyph-alist vundo-unicode-symbols)
-  (vundo-window-max-height 5))
+  (vundo-window-max-height 8))
 
 (use-package vc-backup
-  ;; to have auto VC track of files without in git
-  ;; C-x v =
+  ;; to have auto VC track of files without in git -> C-x v =
   :demand t
   :custom
   (vc-make-backup-files t)
@@ -391,30 +369,23 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 
 (use-package savehist
   :ensure nil
-  :defer 2
-  :init
-  (savehist-mode)
+  :init (savehist-mode)
   :custom
   (history-length t)
   (savehist-additional-variables '(kill-ring search-ring regexp-search-ring)))
 
 (use-package recentf
   :ensure nil
-  :demand t
   :custom
   (recentf-max-menu-items 100)
   (recentf-max-saved-items 100)
-  :config
-  (recentf-mode))
+  :init (recentf-mode))
 
 (use-package no-littering
   :demand t
   :ensure t
   :functions (recentf-expand-file-name)
-
-  :defines
-  (no-littering-var-directory
-   no-littering-etc-directory)
+  :defines (no-littering-var-directory no-littering-etc-directory)
   :custom
   (no-littering-etc-directory (expand-file-name "config/" user-emacs-directory))
   (no-littering-var-directory (expand-file-name "data/" user-emacs-directory))
@@ -432,19 +403,20 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (dired-mode . dired-hide-details-mode)
   (dired-mode . dired-omit-mode)
   :commands (dired dired-jump)
-  :bind (("C-x C-j" . dired-jump)
-         ("C-c f f" . window-focus-mode)
-         ("C-c f e" . (lambda () (interactive) (find-file "~/.config/emacs/lisp/")))
-         ("C-c f s" . (lambda () (interactive) (find-file "~/d-git/d-nix/")))
-         ("C-c f m" . (lambda () (interactive) (find-file "~/d-git/d-nix/README.org"))))
-  (:map dired-mode-map
-        ("q" . kill-buffer-and-window)
-        ("j" . dired-next-line)
-        ("k" . dired-previous-line)
-        ("l" . dired-find-file)
-        ("h" . dired-up-directory)
-        ("b" . embark-act)
-        ("e" . dired-do-eww))
+  :bind
+  (("C-x C-j" . dired-jump)
+   ("C-c f f" . window-focus-mode)
+   ("C-c f e" . (lambda () (interactive) (find-file "~/d-sync/notes/d-brain.org")))
+   ("C-c f s" . (lambda () (interactive) (find-file "~/d-git/d-nix/d-setup.org")))
+   ("C-c f m" . (lambda () (interactive) (find-file "~/d-git/d-nix/README.org")))
+   (:map dired-mode-map
+         ("q" . kill-buffer-and-window)
+         ("j" . dired-next-line)
+         ("k" . dired-previous-line)
+         ("l" . dired-find-file)
+         ("h" . dired-up-directory)
+         ("b" . embark-act)
+         ("e" . dired-do-eww)))
 
   :custom
   (dired-listing-switches "-agho --group-directories-first")
@@ -465,41 +437,26 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   :custom
   (dabbrev-abbrev-char-regexp "\\sw\\|\\s_")
   (dabbrev-abbrev-skip-leading-regexp "\\$\\|\\*\\|/\\|=")
-  (dabbrev-backward-only nil)
-  (dabbrev-case-distinction nil)
-  (dabbrev-case-fold-search t)
-  (dabbrev-case-replace nil)
-  (dabbrev-check-other-buffers t)
-  (dabbrev-eliminate-newlines nil)
-  (dabbrev-upcase-means-case-search t)
-  ;; Swap M-/ and C-M-/
-  :bind (("M-/" . dabbrev-completion)
-	     ("C-M-/" . dabbrev-expand))
-  ;; Other useful Dabbrev configurations.
   :custom
   (dabbrev-ignored-buffer-regexps '("\\.\\(?:pdf\\|jpe?g\\|png\\)\\'")))
 
 (use-package hippie-exp
   :ensure nil
-  :bind
-  ("M-/" . hippie-expand))
+  :bind ("M-/" . hippie-expand))
 
 (use-package vertico
-  :defines
-  (vertico-map)
-  :functions
-  (vertico-mode )
-
+  :defines (vertico-map)
+  :functions (vertico-mode )
   :bind
   (:map vertico-map
-	    ("<return>" . vertico-directory-enter)
-	    ("DEL" . vertico-directory-delete-char)
-	    ("M-DEL" . vertico-directory-delete-word)
-	    ("M-j" . vertico-quick-exit)
-	    ("C-v" . vertico-scroll-up)
-	    ("M-v" . vertico-scroll-down)
-	    ("M-q" . d/vertico-toggle)
-	    ("M-TAB" . minibuffer-complete)
+	      ("<return>" . vertico-directory-enter)
+	      ("DEL" . vertico-directory-delete-char)
+	      ("M-DEL" . vertico-directory-delete-word)
+	      ("M-j" . vertico-quick-exit)
+	      ("C-v" . vertico-scroll-up)
+	      ("M-v" . vertico-scroll-down)
+	      ("M-q" . d/vertico-toggle)
+	      ("M-TAB" . minibuffer-complete)
         ("C->"     . embark-become)
         ("C-<tab>"   . embark-act-with-completing-read)
         ("C-o"     . embark-minimal-act)
@@ -507,9 +464,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
         ("M-*"      . embark-act-all)
         ("C-c C-o" . embark-export))
 
-  :init
-  (vertico-mode)
-
+  :init (vertico-mode)
   :custom
   (vertico-scroll-margin 5)
   (vertico-count 5)
@@ -524,10 +479,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 
 (use-package vertico-multiform
   :commands (vertico-multiform-mode)
-
-  :init
-  (vertico-multiform-mode)
-
+  :init (vertico-multiform-mode)
   :custom
   (vertico-multiform-commands
    '(("\\`execute-extended-command" unobtrusive
@@ -565,26 +517,11 @@ E.g. capitalize or decapitalize the next word, increment number at point."
      (buffer flat (vertico-cycle . t)))))
 
 (use-package vertico-mouse
-  :unless d/on-droid
-  :init
-  (vertico-mouse-mode))
+  :init (vertico-mouse-mode))
 
 (use-package consult
-  :functions
-  (consult-register-window
-   eww-read-bookmarks
-   consult--read
-   consult-colors--web-list
-   color-rgb-to-hex
-   list-colors-duplicates)
-
-  :defines
-  (consult-buffer-sources
-   eww-bookmarks
-   add-unicodes
-   shr-color-html-colors-alist
-   d/on-droid)
-
+  :functions (consult-register-window eww-read-bookmarks consult--read consult-colors--web-list color-rgb-to-hex list-colors-duplicates)
+  :defines (consult-buffer-sources eww-bookmarks add-unicodes shr-color-html-colors-alist d/on-droid)
   :bind
   (
    ("C-c d i" . d/insert-unicodes)
@@ -660,6 +597,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (consult-narrow-key "<")
   (consult-ripgrep-args "rg --follow --null --line-buffered --no-ignore --color=never --max-columns=1000 --path-separator /   --smart-case --no-heading --with-filename --line-number --search-zip")
 
+  :config
   (consult-customize
    consult-theme :preview-key '(:debounce 2.5 any)
    consult-ripgrep consult-git-grep consult-grep
@@ -669,7 +607,6 @@ E.g. capitalize or decapitalize the next word, increment number at point."
    ;; :preview-key (kbd "M-.")
    :preview-key '(:debounce 0.4 any))
 
-  :config
   (advice-add #'register-preview :override #'consult-register-window))
 
 (defun consult-colors--web-list nil
@@ -869,24 +806,13 @@ Return nil if NAME does not designate a valid color."
   (embark-collect-mode . consult-preview-at-point-mode))
 
 (use-package marginalia
-  :functions
-  (marginalia-mode)
-
-  :bind (:map minibuffer-local-map
-              ("M-A" . marginalia-cycle))
-  :init
-  (marginalia-mode))
+  :functions (marginalia-mode)
+  :bind (:map minibuffer-local-map ("M-A" . marginalia-cycle))
+  :init (marginalia-mode))
 
 (use-package corfu
-  :defer 1
-
-  :defines
-  (corfu-map)
-
-  :functions
-  (global-corfu-mode
-   corfu-mode)
-
+  :defines (corfu-map)
+  :functions (global-corfu-mode corfu-mode)
   :custom
   (corfu-auto t)                 ;; Enable auto completion
   (corfu-separator ?\s)          ;; Orderless field separator
@@ -920,9 +846,7 @@ Return nil if NAME does not designate a valid color."
   (global-corfu-mode))
 
 (use-package corfu-history
-  :disabled
-  :init
-  (corfu-history-mode))
+  :init (corfu-history-mode))
 
 (use-package corfu-popupinfo
   :unless d/on-droid
@@ -952,18 +876,11 @@ Return nil if NAME does not designate a valid color."
     (corfu-mode 1)))
 ;; (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
 
-;; Add extensions
 (use-package cape
   :after corfu
-
-  :functions
-  (cape-wrap-silent
-   cape-wrap-purify)
-  :defines
-  (cape-dict-file)
-
+  :functions (cape-wrap-silent cape-wrap-purify) :defines (cape-dict-file)
   :bind
-  ("C-c p p" . completion-at-point)
+  (("C-c p p" . completion-at-point)
   ("C-c p t" . complete-tag)
   ("C-c p d" . cape-dabbrev)
   ("C-c p h" . cape-history)
@@ -978,30 +895,22 @@ Return nil if NAME does not designate a valid color."
   ("C-c p _" . cape-tex)
   ("C-c p ^" . cape-tex)
   ("C-c p &" . cape-sgml)
-  ("C-c p r" . cape-rfc1345)
+  ("C-c p r" . cape-rfc1345))
 
   :init
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-history)
-  (add-to-list 'completion-at-point-functions #'cape-keyword)
-  (add-to-list 'completion-at-point-functions #'cape-elisp-block)
-  ;; (add-to-list 'completion-at-point-functions #'cape-tex)
-  ;; (add-to-list 'completion-at-point-functions #'cape-sgml)
-  ;; (add-to-list 'completion-at-point-functions #'cape-rfc1345)
-  (add-to-list 'completion-at-point-functions #'cape-abbrev)
-  ;;(add-to-list 'completion-at-point-functions #'cape-dict)
-  ;; (add-to-list 'completion-at-point-functions #'cape-symbol)
-  ;; (add-to-list 'completion-at-point-functions #'cape-line)
-  :config
-
-  ;; Silence the pcomplete capf, no errors or messages!
-  ;; Important for corfu
-  (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
-
-  ;; Ensure that pcomplete does not write to the buffer
-  ;; and behaves as a pure `completion-at-point-function'.
-  (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify))
+  (add-hook 'completion-at-point-functions #'cape-dabbrev)
+  (add-hook 'completion-at-point-functions #'cape-file)
+  (add-hook 'completion-at-point-functions #'cape-history)
+  (add-hook 'completion-at-point-functions #'cape-keyword)
+  (add-hook 'completion-at-point-functions #'cape-elisp-block)
+  ;; (add-hook 'completion-at-point-functions #'cape-tex)
+  ;; (add-hook 'completion-at-point-functions #'cape-sgml)
+  ;; (add-hook 'completion-at-point-functions #'cape-rfc1345)
+  (add-hook 'completion-at-point-functions #'cape-abbrev)
+  ;;(add-hook 'completion-at-point-functions #'cape-dict)
+  ;; (add-hook 'completion-at-point-functions #'cape-symbol)
+  ;; (add-hook 'completion-at-point-functions #'cape-line)
+  )
 
 (use-package tempel
   :after corfu
@@ -1833,19 +1742,19 @@ out")
   :demand t)
 
 (use-package nov
-  :functions
-  (toggle-mode-line)
-
+  :functions (toggle-mode-line)
   :hook
   (nov-mode . (lambda () (toggle-mode-line) (variable-pitch-mode)))
   (nov-mode . shrface-mode)
+  (nov-mode . nov-imenu-setup)
 
   :mode ("\\.epub\\'" . nov-mode)
   :custom
   (nov-text-width 80)
   (nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title)))
   (nov-shr-rendering-functions (append nov-shr-rendering-functions shr-external-rendering-functions))
-  (nov-variable-pitch t))
+  (nov-variable-pitch t)
+  )
 
 ;; Read normal text files as emacs info manuals
 ;; thanks to:
@@ -2395,7 +2304,7 @@ for the search engine used."
         )
 
   :custom
-  (mpc-browser-tags '(Title|Album|Playlist))
+  (mpc-browser-tags '(Title))
 
   :config
   (defun mpc-select-dwim ()
@@ -2582,15 +2491,6 @@ Android port."
   (fixed-pitch ((t (:family ,d/fixed-pitch-font :height ,d/font-size))))
   (default ((t (:family ,d/fixed-pitch-font :height ,d/font-size)))))
 
-(defun d/change-font ()
-  "Function to prompt for font change in simple way."
-  (interactive)
-  (let ((fpitch (completing-read "Fixed Pitch Font: " '("Iosevka Comfy" "JetBrainsMono Nerd Font" "Julia Mono" "Code OnePiece")))
-        (vpitch (completing-read "Variable Font: " '("Merriweather" "Code Haki" "Iosevka Comfy Duo"))))
-    (set-face-attribute 'fixed-pitch nil :font fpitch)
-    (set-face-attribute 'variable-pitch nil :family vpitch))
-  )
-
 (use-package font-lock
   :ensure nil
   :defer t
@@ -2617,7 +2517,7 @@ Android port."
 
 (use-package nerd-icons-corfu
   :after corfu
-  :config
+  :init
   (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
 
 (use-package haki-theme
@@ -2829,7 +2729,7 @@ Display format is inherited from `battery-mode-line-format'."
       (,(nerd-icons-mdicon "nf-md-notebook")
        " Notes"
        "Denote Tree"
-       (lambda (&rest _) (find-file "~/d-sync/notes/journal.org")) warning "" " |")
+       (lambda (&rest _) (find-file "~/d-sync/notes/d-brain.org")) warning "" " |")
 
       (,(nerd-icons-faicon "nf-fa-gitlab")
        " Project"
@@ -2958,7 +2858,7 @@ Display format is inherited from `battery-mode-line-format'."
         )
 
   :custom
-  (org-ellipsis " ⮟")
+  (org-ellipsis "󱞤")
   (org-log-done 'note)
   (org-log-into-drawer t)
   (org-export-exclude-tags '("noexport" "ignore") "excludes these tagged heading from export")
@@ -2971,7 +2871,7 @@ Display format is inherited from `battery-mode-line-format'."
 
   (org-refile-targets
    '(
-     (org-default-notes-file :maxlevel . 6)
+     (org-default-notes-file :maxlevel . 5)
      (nil :maxlevel . 6)
      ))
 
@@ -2986,7 +2886,7 @@ Display format is inherited from `battery-mode-line-format'."
 
   (fill-column 80)
   (org-directory "~/d-sync/notes/")
-  (org-default-notes-file (concat org-directory "journal.org"))
+  (org-default-notes-file (concat org-directory "d-brain.org"))
   (org-src-fontify-natively t)
   (org-pretty-entities t)
   (org-log-reschedule 'note)
@@ -3093,8 +2993,9 @@ Display format is inherited from `battery-mode-line-format'."
   ;; (org-modern-star '("◉" "✪" "◈" "✿" "❂"))
   ;; (org-modern-star '("" "󰓏" "󰚀" "󰴈" "" "󰄄"))
   (org-modern-replace-stars (string-replace " " "" "󰓏 󰚀 󰫤 󰴈  󰄄"))
+  (org-modern-fold-stars '(("󰓏" . "▼") ("󰚀" . "▽") ("󰫤" . "⯆") ("󰴈" . "▿") ("󰄄" . "▾")))
   (org-modern-hide-stars 'leading)
-  (org-modern-star 'replace)
+  (org-modern-star 'fold)
   (org-modern-table nil) ;; issue with variable-pitch font
 
   (org-modern-list
@@ -3162,7 +3063,7 @@ Display format is inherited from `battery-mode-line-format'."
 
 
   (org-agenda-files
-   '("~/d-sync/notes/journal.org"
+   '("~/d-sync/notes/d-brain.org"
      "~/d-git/d-site/README.org"
      )))
 
@@ -3178,7 +3079,7 @@ Display format is inherited from `battery-mode-line-format'."
   (org-capture-bookmark nil)
   ;; also don't create bookmark in other things
   (org-bookmark-names-plist nil)
-  (org-default-notes-file (concat org-directory "brain.org"))
+  (org-default-notes-file (concat org-directory "d-brain.org"))
   (org-capture-templates
    `(
      ;; ("a" "Agenda" entry (file+function "~/d-sync/notes/agenda.org" (lambda () (completing-read "Heading: " my-org-agenda-headlines)))
@@ -3207,19 +3108,19 @@ Display format is inherited from `battery-mode-line-format'."
       (file+headline "~/d-sync/notes/bookmarks.org" "gnus") "* %a\n")
 
      ("j" "Journal Entry" entry
-      (file+datetree "~/d-sync/notes/journal.org")
-      "\n* %<%H:%M> - %? %^G\n %a \n\n"
-      :clock-in t :clock-resume t
+      (file+datetree "~/d-sync/notes/d-brain.org")
+      "\n* %<%H:%M> - %? %^G\n %a \n\n %i"
+      ;; :clock-in t :clock-resume t
       :empty-lines 1)
 
      ("t" "Tasks for the Day" checkitem
-      (file+datetree "~/d-sync/notes/journal.org")
+      (file+datetree "~/d-sync/notes/d-brain.org")
       "[ ] %?\n"
       )
 
      ("i" "Inbox Rough Notes" entry
       (file "~/d-sync/notes/inbox.org")
-      "** %?\n %U\n %i %a\n - ")
+      "** %?  :fleeting:\n %U\n %i %a\n - ")
 
      ))
   :config
@@ -3338,6 +3239,7 @@ absolute path. Finally load eglot."
 
 (use-package org-super-links
   :unless d/on-droid
+  :after org
   :bind
   (:map org-mode-map
         ("C-c s s" . org-super-links-link)
@@ -3373,7 +3275,7 @@ absolute path. Finally load eglot."
   :after org
   :custom
   (org-noter-auto-save-last-location t)
-  (org-noter-default-notes-file-names '("journal.org"))
+  (org-noter-default-notes-file-names '("d-brain.org"))
   (org-noter-notes-search-path '("~/d-sync/notes"))
   (org-noter-notes-window-location 'horizontal-split)
   )

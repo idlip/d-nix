@@ -26,10 +26,13 @@
     };
 
     emacs-overlay.url = "github:nix-community/emacs-overlay";
+
+    stylix.url = "github:danth/stylix";
+
   };
 
   outputs =
-    { nixpkgs, ... }@inputs:
+    { nixpkgs, home-manager, stylix, ... }@inputs:
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.x86_64-linux;
@@ -69,6 +72,7 @@
                   users.${vars.username} = import ./gdk/home.nix;
                 };
               }
+              stylix.nixosModules.stylix
             ];
             specialArgs = {
               inherit inputs;

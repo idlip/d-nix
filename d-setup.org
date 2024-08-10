@@ -237,16 +237,16 @@ It is as simple if I just record what it does, with proper link to rich resource
 - HM as nixos module, so ~nixos-rebuild~ incorporates HM config as well.
   #+name: nixos-hm
   #+begin_src nix
-{
-  home-manager = {
-    useUserPackages = true;
-    useGlobalPkgs = true;
-    extraSpecialArgs = {
-      inherit inputs vars;
+  {
+    home-manager = {
+      useUserPackages = true;
+      useGlobalPkgs = true;
+      extraSpecialArgs = {
+        inherit inputs vars;
+      };
+      users.${vars.username} = import ./gdk/home.nix;
     };
-    users.${vars.username} = import ./gdk/home.nix;
-  };
-}
+  }
   #+end_src
 
 - HomeManager configuration gets written over here with help of org-babel =noweb=
@@ -2805,7 +2805,7 @@ emacs-lisp-mode
             "def test_with_fixture(example_fixture):" n>
             "assert example_fixture == 1")
   #+end_src
-***** css-templates
+***** bash-templates
   #+begin_src emacs-lisp :tangle ~/.config/emacs/templates/css.eld
   css-mode css-ts-mode
 
@@ -2813,6 +2813,10 @@ emacs-lisp-mode
 
   bash-ts-mode
   (func "function " (p "fname") "() {" n> p n> n "}")
+
+  (comm "######" (make-string (length str) ?#) "######" n
+       "##### " (s str)                       " #####" n
+       "######" (make-string (length str) ?#) "######")
   #+end_src
 *** Enhancements
 **** Tab bar
@@ -3239,8 +3243,8 @@ You can do this by trackpad too (laptop)"
       settings = {
         main = {
           term = "xterm-256color";
-          font = "Code OnePiece:size=26, Noto Color Emoji:size=25";
-          font-bold = "Code OnePiece:size=26, Noto Color Emoji:size=25";
+          # font = "Code OnePiece:size=26, Noto Color Emoji:size=25";
+          # font-bold = "Code OnePiece:size=26, Noto Color Emoji:size=25";
           letter-spacing = "1";
           box-drawings-uses-font-glyphs = "no";
           pad = "0x0center";
@@ -3288,7 +3292,7 @@ You can do this by trackpad too (laptop)"
           bright5 = "b6a0ff";
           bright6 = "6ae4b9";
           bright7 = "ffffff";
-          alpha = "0.9";
+          # alpha = "0.9";
         };
 
         mouse = {
@@ -3529,7 +3533,7 @@ You can do this by trackpad too (laptop)"
         reddigg hnreader howdoyou magit webpaste
         shrface org-mime shr-tag-pre-highlight nov devdocs-browser reformatter
         tempel tempel-collection eglot-tempel
-        sdcv jinx envrc dashboard mini-echo
+        sdcv jinx envrc dashboard mini-echo ready-player
         speed-type vc-backup aria2 transmission pubmed
         ess auctex julia-mode webfeeder engrave-faces
         toc-org org-ql org-alert org-noter activities
@@ -3570,18 +3574,6 @@ You can do this by trackpad too (laptop)"
             repo = "org-super-links";
             rev = "0dd9ed22b4785f50c61051170db7c78b522a37ee";
             hash = "sha256-OWHUQBKp74sVIFbk8f7Xw7K11jPcR3HIVjpp5xiNwzs=";
-          };
-        })
-
-        (trivialBuild {
-          pname = "ready-mode";
-          version = "pre-0.1";
-
-          src = pkgs.fetchFromGitHub {
-            owner = "xenodium";
-            repo = "ready-player";
-            rev = "61cc4c6287903f4d1fd864d905939fdd44bddc8a";
-            hash = "sha256-RuCZaeHC1IWsQh/33Ff8+VVMg4gbt6yWGZikXSKHRXI=";
           };
         })
 
@@ -4478,7 +4470,7 @@ See URL `https://beta.ruff.rs/docs/'."
     (pdf-cache-image-limit 5)
     (pdf-cache-prefetch-delay 0.5)
     (pdf-annot-activate-created-annotations t)
-    (pdf-view-use-scaling t)
+    (pdf-view-use-scaling nil)
     (pdf-view-use-dedicated-register t)
     (pdf-view-max-image-width 2880)
     (pdf-outline-imenu-use-flat-menus nil)
@@ -4530,20 +4522,20 @@ See URL `https://beta.ruff.rs/docs/'."
 - to read in comfort couch of emacs!
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package nov
-  :functions
-  (toggle-mode-line)
+  (use-package nov
+    :functions (toggle-mode-line)
+    :hook
+    (nov-mode . (lambda () (toggle-mode-line) (variable-pitch-mode)))
+    (nov-mode . shrface-mode)
+    (nov-mode . nov-imenu-setup)
 
-  :hook
-  (nov-mode . (lambda () (toggle-mode-line) (variable-pitch-mode)))
-  (nov-mode . shrface-mode)
-
-  :mode ("\\.epub\\'" . nov-mode)
-  :custom
-  (nov-text-width 80)
-  (nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title)))
-  (nov-shr-rendering-functions (append nov-shr-rendering-functions shr-external-rendering-functions))
-  (nov-variable-pitch t))
+    :mode ("\\.epub\\'" . nov-mode)
+    :custom
+    (nov-text-width 80)
+    (nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title)))
+    (nov-shr-rendering-functions (append nov-shr-rendering-functions shr-external-rendering-functions))
+    (nov-variable-pitch t)
+    )
   #+end_src
 ** Texinfo
 - Built to read =info= manuals in emacs, and this function lets to read normal text files as info manuals.
@@ -5373,101 +5365,16 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
 
           settings = {
             "browser.startup.homepage" = "about:blank";
-            "browser.urlbar.placeholderName" = "Time to get Productive...";
+            "browser.urlbar.placeholderName" = "Freedom & Find the OnePiece...";
             "gfx.webrender.all" = true;
             "gfx.webrender.enabled" = true;
-            "media.peerconnection.enabled" = true;
-            "media.av1.enabled" = false;
-            "media.ffmpeg.vaapi.enabled" = true;
-            "media.hardware-video-decoding.force-enabled" = true;
-            "media.navigator.mediadatadecoder_vpx_enabled" = true;
-            "signon.rememberSignons" = false;
-            "app.normandy.api_url" = "";
-            "app.normandy.enabled" = false;
-            "app.shield.optoutstudies.enabled" = false;
-            "beacon.enabled" = false;
-            "breakpad.reportURL" = "";
-            "browser.aboutConfig.showWarning" = false;
-            "browser.cache.offline.enable" = false;
-            "browser.crashReports.unsubmittedCheck.autoSubmit" = false;
-            "browser.crashReports.unsubmittedCheck.autoSubmit2" = false;
-            "browser.crashReports.unsubmittedCheck.enabled" = false;
-            "browser.disableResetPrompt" = true;
-            "browser.newtab.preload" = false;
-            "browser.newtabpage.activity-stream.section.highlights.includePocket" = false;
             "extensions.pocket.enabled" = false;
             "browser.newtabpage.enhanced" = false;
-            "browser.newtabpage.introShown" = true;
-            "browser.safebrowsing.appRepURL" = "";
-            "browser.safebrowsing.blockedURIs.enabled" = false;
-            "browser.safebrowsing.downloads.enabled" = false;
-            "browser.safebrowsing.downloads.remote.enabled" = false;
-            "browser.safebrowsing.downloads.remote.url" = "";
-            "browser.safebrowsing.enabled" = false;
-            "browser.safebrowsing.malware.enabled" = false;
-            "browser.safebrowsing.phishing.enabled" = false;
-            "browser.selfsupport.url" = "";
-            "browser.send_pings" = false;
-            "browser.sessionstore.privacy_level" = 2;
-            "browser.startup.homepage_override.mstone" = "ignore";
-            "browser.tabs.crashReporting.sendReport" = false;
-            "browser.urlbar.groupLabels.enabled" = false;
-            "browser.urlbar.quicksuggest.enabled" = false;
-            "browser.urlbar.speculativeConnect.enabled" = false;
-            "datareporting.healthreport.service.enabled" = false;
-            "datareporting.healthreport.uploadEnabled" = false;
-            "datareporting.policy.dataSubmissionEnabled" = false;
-            "device.sensors.ambientLight.enabled" = false;
-            "device.sensors.enabled" = false;
-            "device.sensors.motion.enabled" = false;
-            "device.sensors.orientation.enabled" = false;
-            "device.sensors.proximity.enabled" = false;
-            "dom.battery.enabled" = false;
-            "dom.event.clipboardevents.enabled" = true;
-            "dom.webaudio.enabled" = false;
-            "experiments.activeExperiment" = false;
-            "experiments.enabled" = false;
-            "experiments.manifest.uri" = "";
-            "experiments.supported" = false;
-            "extensions.getAddons.cache.enabled" = false;
-            "extensions.getAddons.showPane" = false;
-            "extensions.greasemonkey.stats.optedin" = false;
-            "extensions.greasemonkey.stats.url" = "";
-            "extensions.shield-recipe-client.api_url" = "";
-            "extensions.shield-recipe-client.enabled" = false;
-            "extensions.webservice.discoverURL" = "";
-            "fission.autostart" = true;
-            "media.autoplay.default" = 1;
-            "media.autoplay.enabled" = false;
-            "media.eme.enabled" = false;
-            "media.gmp-widevinecdm.enabled" = false;
-            "media.navigator.enabled" = false;
-            "media.video_stats.enabled" = false;
-            "network.IDN_show_punycode" = true;
-            "network.allow-experiments" = false;
-            "network.captive-portal-service.enabled" = false;
-            "network.cookie.cookieBehavior" = 1;
-            "network.dns.disablePrefetch" = true;
-            "network.dns.disablePrefetchFromHTTPS" = true;
-            "network.http.referer.spoofSource" = true;
-            "network.http.speculative-parallel-limit" = 0;
-            "dom.security.https_only_mode" = true;
-            "network.predictor.enable-prefetch" = false;
-            "network.predictor.enabled" = false;
-            "network.prefetch-next" = false;
-            "network.trr.mode" = 5;
-            "privacy.donottrackheader.enabled" = true;
-            "privacy.donottrackheader.value" = 1;
-            "privacy.firstparty.isolate" = true;
             "privacy.trackingprotection.cryptomining.enabled" = true;
             "privacy.trackingprotection.enabled" = true;
             "privacy.trackingprotection.fingerprinting.enabled" = true;
             "privacy.trackingprotection.pbmode.enabled" = true;
             "privacy.usercontext.about_newtab_segregation.enabled" = true;
-            "security.ssl.disable_session_identifiers" = true;
-            "services.sync.prefs.sync.browser.newtabpage.activity-stream.showSponsoredTopSite" = false;
-            "browser.newtabpage.activity-stream.showSponsored" = false;
-            "signon.autofillForms" = false;
             "toolkit.telemetry.archive.enabled" = false;
             "toolkit.telemetry.bhrPing.enabled" = false;
             "toolkit.telemetry.cachedClientID" = "";
@@ -5483,25 +5390,17 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
             "toolkit.telemetry.unified" = false;
             "toolkit.telemetry.unifiedIsOptIn" = false;
             "toolkit.telemetry.updatePing.enabled" = false;
-            "webgl.disabled" = true;
+            "webgl.disabled" = false;
             "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
-            "webgl.renderer-string-override" = " ";
-            "webgl.vendor-string-override" = " ";
-            "browser.urlbar.update2.engineAliasRefresh" = true;
-            "signon.passwordEditCapture.enabled" = false;
-            "browser.search.hiddenOneOffs" = "Google,Yahoo,Bing,Amazon.com,Twitter";
-            "browser.newtabpage.activity-stream.improvesearch.topSiteSearchShortcuts" = false;
             "browser.urlbar.trimURLs" = false;
-            "findbar.modalHighlight" = true;
             "browser.fullscreen.autohide" = true;
-            "browser.newtabpage.activity-stream.topSitesRows" = 0;
-            "browser.urlbar.quickactions.enabled" = true;
-            "pdfjs.annotationEditorMode" = 0;
-            "pdfjs.annotationmode" = 2;
             "layers.acceleration.force-enabled" = true;
             "layout.css.backdrop-filter.enabled" = true;
             "svg.context-properties.content.enabled" = true;
             "full-screen-api.ignore-widgets" = true;
+            "pdfjs.forcePageColors" = true;
+            "pdfjs.pageColorsBackground" = "#000000";
+            "pdfjs.pageColorsForeground" = "#ffffff";
           };
 
           search = {
@@ -5571,6 +5470,16 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
           };
 
           userChrome = builtins.readFile ./configs/userChrome.css;
+
+          userContent = ''
+          @-moz-document regexp(".+\\.pdf$") {
+            body {
+              background-color: #000000 !important;
+            }
+          }
+
+          '';
+
         };
       };
 
@@ -5583,58 +5492,166 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
   /* Hide the tab bar! */
   #TabsToolbar { visibility: collapse; }
 
-  /* Sidebery */
-  #sidebar-box[sidebarcommand="_3c078156-979c-498b-8990-85f7987dd929_-sidebar-action"] #sidebar-header {
-    visibility: collapse;
+  :root {
+    --sidebar-min-width: 3em;
+    --sidebar-visible-width: 12em;
   }
 
-  /* Source file https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome/autohide_sidebar.css made available under Mozilla Public License v. 2.0
-  See the above repository for updates as well as full license text. */
-
-  /* Show sidebar only when the cursor is over it  */
-  /* The border controlling sidebar width will be removed so you'll need to modify these values to change width */
-
-  #sidebar-box[sidebarcommand="_3c078156-979c-498b-8990-85f7987dd929_-sidebar-action"] {
-    --uc-sidebar-width: 85px;
-    --uc-sidebar-hover-width: 232px;
-    --uc-autohide-sidebar-delay: 0ms;
-    /* Wait 0.6s before hiding sidebar */
-    position: relative;
-    min-width: var(--uc-sidebar-width) !important;
-    width: var(--uc-sidebar-width) !important;
-    max-width: var(--uc-sidebar-width) !important;
+  #sidebar-box, #sidebar{
+    position: relative !important;
+    min-width: var(--sidebar-min-width) !important;
+    max-width: var(--sidebar-min-width) !important;
+    transition: .1s ease .3s;
     z-index: 1;
-    margin-top: -1px;
   }
 
-  #sidebar-box[sidebarcommand="_3c078156-979c-498b-8990-85f7987dd929_-sidebar-action"]>#sidebar {
-    transition: min-width 115ms linear !important;
-    min-width: var(--uc-sidebar-width) !important;
-    will-change: min-width;
+  #sidebar-box:hover #sidebar {
+    min-width: var(--sidebar-visible-width) !important;
+    max-width: var(--sidebar-visible-width) !important;
+    transition: .1s ease .2s;
   }
 
-  #sidebar-box[sidebarcommand="_3c078156-979c-498b-8990-85f7987dd929_-sidebar-action"]:hover>#sidebar {
-    min-width: var(--uc-sidebar-hover-width) !important;
-    transition: min-width 100ms linear var(--uc-autohide-sidebar-delay), box-shadow 500ms linear !important;
-    box-shadow: 0 0 4px rgba(10, 10, 10, .5);
-    clip-path: inset(0px -15px 0px -15px);
-  }
-
-  /* For vimium */
-  div > .vimiumHintMarker {
-  /* linkhint boxes */
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FFF785),
-    color-stop(100%,#FFC542));
-  border: 1px solid #E3BE23;
-  }
-
-  div > .vimiumHintMarker span {
-  /* linkhint text */
-  color: black;
-  font-weight: bold;
-  font-size: 2em;
+  #sidebar-header { display: none; }
+  #sidebar-splitter { display: none; }
+  #webextpanels-window { background: transparent !important }
+  #+end_src
+*** Librewolf
+- As of [2024-08-09], making some shift towards better firefox.
+  #+name: hm-config
+  #+begin_src nix :tangle gdk/home.nix
+  {
+    programs.librewolf = {
+      enable = true;
+      settings = {
+        "webgl.disabled" = false;
+        # "privacy.resistFingerprinting" = false;
+        "browser.urlbar.placeholderName" = "Find the OnePiece...";
+        "gfx.webrender.all" = true;
+        "gfx.webrender.enabled" = true;
+      };
+    };
   }
   #+end_src
+
+- User.js for librewolf
+  I use [[https://github.com/Naezr/ShyFox][ShyFox]], its aesthetic and productive.
+#+begin_src js :tangle ~/.librewolf/ihome/user.js
+// userchrome.css usercontent.css activate
+user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
+
+// Fill SVG Color
+user_pref("svg.context-properties.content.enabled", true);
+
+// CSS's `:has()` selector
+user_pref("layout.css.has-selector.enabled", true);
+
+// Integrated calculator at urlbar
+user_pref("browser.urlbar.suggest.calculator", true);
+
+// Integrated unit convertor at urlbar
+user_pref("browser.urlbar.unitConversion.enabled", true);
+
+// Trim  URL
+user_pref("browser.urlbar.trimHttps", true);
+user_pref("browser.urlbar.trimURLs", true);
+
+// GTK rounded corners
+user_pref("widget.gtk.rounded-bottom-corners.enabled", true);
+
+// Who is bogus? (fixes Sidebery tab dragging on Linux)
+user_pref("widget.gtk.ignore-bogus-leave-notify", 1);
+
+// for librewolf
+user_pref("privacy.clearOnShutdown.history", false);
+user_pref("privacy.clearOnShutdown.sessions", false);
+user_pref("privacy.clearOnShutdown_v2.cookiesAndStorage", false);
+user_pref("privacy.clearOnShutdown_v2.cache", false);
+user_pref("privacy.clearOnShutdown.downloads", false);
+
+user_pref("pdfjs.forcePageColors", true);
+user_pref("pdfjs.pageColorsBackground", "#000000");
+user_pref("pdfjs.pageColorsForeground", "#ffffff");
+
+user_pref("layout.css.grid-template-masonry-value.enabled", true);
+user_pref("dom.enable_web_task_scheduling", true);
+
+// Better fox
+user_pref("urlclassifier.trackingSkipURLs", "*.reddit.com, *.twitter.com, *.twimg.com");
+user_pref("urlclassifier.features.socialtracking.skipURLs", "*.instagram.com, *.twitter.com, *.twimg.com");
+
+/** OCSP & CERTS / HPKP ***/
+// Use CRLite instead of OCSP
+user_pref("security.OCSP.enabled", 0);
+user_pref("security.OCSP.require", false);
+user_pref("security.pki.crlite_mode", 2);
+
+/** RFP ***/
+// Limits refresh rate to 60mHz, breaks timezone, and forced light theme
+// [1] https://librewolf.net/docs/faq/#what-are-the-most-common-downsides-of-rfp-resist-fingerprinting
+user_pref("privacy.resistFingerprinting", false);
+
+// WebGL
+// Breaks Map sites, NYT articles, Nat Geo, and more
+// [1] https://manu.ninja/25-real-world-applications-using-webgl/
+user_pref("webgl.disabled", false);
+
+// DRM
+// Netflix, Udemy, Spotify, etc.
+user_pref("media.eme.enabled", true);
+
+/** HTTPS-ONLY MODE ***/
+user_pref("dom.security.https_only_mode_error_page_user_suggestions", true);
+
+/** PASSWORDS AND AUTOFILL ***/
+user_pref("signon.generation.enabled", false);
+
+/** WEBRTC ***/
+// Breaks video conferencing
+user_pref("media.peerconnection.ice.no_host", false);
+
+/** PERMISSIONS ***/
+user_pref("permissions.default.geo", 2);
+user_pref("permissions.default.desktop-notification", 2);
+user_pref("dom.push.enabled", false);
+
+/****************************************************************************
+ ,* SECTION: PESKYFOX                                                        *
+,****************************************************************************/
+/** MOZILLA UI ***/
+user_pref("layout.css.prefers-color-scheme.content-override", 2);
+user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
+user_pref("browser.compactmode.show", true);
+
+/** FULLSCREEN ***/
+user_pref("full-screen-api.transition-duration.enter", "0 0");
+user_pref("full-screen-api.transition-duration.leave", "0 0");
+user_pref("full-screen-api.warning.delay", 0);
+user_pref("full-screen-api.warning.timeout", 0);
+
+/** URL BAR ***/
+user_pref("browser.urlbar.suggest.engines", false);
+user_pref("browser.urlbar.suggest.topsites", false);
+user_pref("browser.urlbar.suggest.calculator", true);
+user_pref("browser.urlbar.unitConversion.enabled", true);
+
+/** AUTOPLAY ***/
+// Default breaks some video players
+user_pref("media.autoplay.blocking_policy", 0);
+
+/** PASSWORDS ***/
+user_pref("editor.truncate_user_pastes", false);
+
+/** DOWNLOADS ***/
+user_pref("browser.download.autohideButton", true);
+
+/** PDF ***/
+user_pref("browser.download.open_pdf_attachments_inline", true);
+
+/** TAB BEHAVIOR ***/
+user_pref("browser.tabs.loadBookmarksInTabs", true);
+user_pref("browser.bookmarks.openInTabClosesMenu", false);
+user_pref("findbar.highlightAll", true);
+#+end_src
 
 *** Web
 - Browsing Web in emacs.
@@ -5945,6 +5962,7 @@ for the search engine used."
           name            "pipewire sound server"
         }
         auto_update "yes"
+        bind_to_address "@mpd"
       '';
       };
 
@@ -5974,7 +5992,7 @@ for the search engine used."
           )
 
     :custom
-    (mpc-browser-tags '(Title|Album|Playlist))
+    (mpc-browser-tags '(Title))
 
     :config
     (defun mpc-select-dwim ()
@@ -6180,20 +6198,20 @@ for the search engine used."
 - Config
   #+name: conf-ytfzf
   #+begin_src conf
-#video_pref="248+bestaudio/best"
-video_pref="[height<=1080]"
-sub_link_count=1
-show_thumbnails=0
-invidious_instance="https://vid.puffyan.us"
-external_menu () {
-bemenu -w 0.98 -l 24 -p '  play '
-# rofi -dmenu -i -config ~/.config/rofi/list.rasi -p '󰑈  play'
-}
+  #video_pref="248+bestaudio/best"
+  # video_pref="[height<=1080]"
+  sub_link_count=1
+  show_thumbnails=0
+  invidious_instance="https://vid.puffyan.us"
+  external_menu () {
+  bemenu -w 0.98 -l 24 -p '  play '
+  # rofi -dmenu -i -config ~/.config/rofi/list.rasi -p '󰑈  play'
+  }
 
-thumbnail_quality=high
-scrape=youtube
-#is_sort=1
-#search_sort_by=upload_date
+  thumbnail_quality=high
+  scrape=youtube
+  #is_sort=1
+  #search_sort_by=upload_date
   #+end_src
 ** Image viewer
 *** imv
@@ -6527,7 +6545,7 @@ Android port."
           #    repeat_delay = 250
 
           touchpad = {
-            natural_scroll = "no";
+            natural_scroll = "yes";
             disable_while_typing = 1;
             clickfinger_behavior = 0; # double tap > right click
             middle_button_emulation = 1;
@@ -6539,8 +6557,8 @@ Android port."
           gaps_in = 5;
           gaps_out = 15;
           border_size = 2;
-          "col.active_border" = "rgba(2e8b57ff) rgba(87cefaff) rgba(ffec8bff) rgba(ffaeb9ff) 90deg";
-          "col.inactive_border" = "0xff382D2E";
+          # "col.active_border" = "rgba(2e8b57ff) rgba(87cefaff) rgba(ffec8bff) rgba(ffaeb9ff) 90deg";
+          # "col.inactive_border" = "0xff382D2E";
           no_border_on_floating  =  false; # enable border on float window
           layout  =  "dwindle";
         };
@@ -6755,7 +6773,7 @@ Android port."
   bind = SUPERSHIFT,b,exec,d-bookmark
   bind = SUPER,m,exec,d-urls
   bind = SUPER,Insert,exec,d-urls
-  bind = SUPER, w, exec, cliphist list | bemenu -l 10 | cliphist decode | wl-copy
+  bind = SUPER, y, exec, cliphist list | bemenu -l 10 | cliphist decode | wl-copy
 
   bind = SUPER,grave,exec,d-unicodes
   bind = SUPER,Delete,exec,pkill -INT wl-screenrec && pkill -RTMIN+8 waybar
@@ -7008,6 +7026,18 @@ Android port."
     services.power-profiles-daemon.enable = lib.mkForce false;
   }
   #+end_src
+*** COMMENT cosmic
+- Trying out cosmic desktop
+  #+name: nixos-core
+  #+begin_src nix :tangle gdk/core.nix
+  {
+    services = {
+      desktopManager.cosmic.enable = true;
+      displayManager.cosmic-greeter.enable = true;
+      power-profiles-daemon.enable = lib.mkForce false;
+    };
+  }
+  #+end_src
 *** wayland-packages
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix :noweb yes
@@ -7084,21 +7114,25 @@ Android port."
             path = "/home/idlip/d-git/d-wallpapers/walls/Anime-City-Night.png";
             blur_size = 8;
             blur_passes = 3;
+            noise = 0.0117;
+            contrast = 1.3000;
+            brightness = 0.500;
+            vibrancy = 0.2100;
+            vibrancy_darkness = 0.50;
           }
         ];
 
         input-field = [
           {
-            size = "300, 50";
             monitor = "";
+            size = "250, 50";
             dots_center = true;
-            shadow_passes = 2;
-            outline_thickness = 3;
-            dots_size = 0.3;
-            dots_spacing = 0.1;
+            font_color = "rgb(255, 255, 255)";
             fade_on_empty = true;
-            placeholder_text = "<i>Pass</i>";
-            position = "0, 120";
+            placeholder_text = "<i>Password...</i>";
+            color = "rgba(20, 20, 20, 0.6)";
+            hide_input = false;
+            position = "0, 200";
             halign = "center";
             valign = "bottom";
           }
@@ -7107,26 +7141,48 @@ Android port."
         label = [
           {
             monitor = "";
-            color = "rgba(255, 255, 255, 1.0)";
+            color = "rgba(184, 212, 224, 0.6)";
             font_size = 35;
             text = ''
-            cmd[update:1000] echo "<b> "$(date +'%A, %-d %B %Y @ %T')" </b>"
+            cmd[update:18000000] echo "<b> "$(date +'%A, %-d %B %Y')" </b>"
             '';
-            position = "0, 40";
+            position = "0, -420";
             halign = "center";
-            valign = "center";
+            valign = "top";
           }
 
           {
             monitor = "";
-            color = "rgba(255, 255, 255, 1.0)";
-            font_size = 35;
+            color = "rgba(184, 212, 224, 0.6)";
+            font_size = 130;
             text = ''
-            Lets Get back to Working!
+            cmd[update:1000] echo -e "$(date +"%I:%M")"
             '';
-            position = "0, 120";
+            position = "0, -220";
             halign = "center";
-            valign = "center";
+            valign = "top";
+          }
+
+          {
+            monitor = "";
+            text = "Welcome, think less, work smart!";
+            color = "rgb(126, 247, 138)";
+            font_size = 20;
+            position = "0, 70";
+            halign = "center";
+            valign = "bottom";
+          }
+
+          {
+            monitor = "";
+            text = ''
+            cmd[update:60000] echo "<b> $(uptime) </b>"
+            '';
+            color = "rgba(184, 212, 224, 0.4)";
+            font_size = 16;
+            position = "5, 5";
+            halign = "right";
+            valign = "bottom";
           }
         ];
 
@@ -7147,7 +7203,6 @@ Android port."
     };
   }
   #+end_src
-
 ** Fonts
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
@@ -7390,17 +7445,7 @@ css = "normal"
     (fixed-pitch ((t (:family ,d/fixed-pitch-font :height ,d/font-size))))
     (default ((t (:family ,d/fixed-pitch-font :height ,d/font-size)))))
   #+end_src
-- Function to change font easily.
-  #+begin_src emacs-lisp
-  (defun d/change-font ()
-    "Function to prompt for font change in simple way."
-    (interactive)
-    (let ((fpitch (completing-read "Fixed Pitch Font: " '("Iosevka Comfy" "JetBrainsMono Nerd Font" "Julia Mono" "Code OnePiece")))
-          (vpitch (completing-read "Variable Font: " '("Merriweather" "Code Haki" "Iosevka Comfy Duo"))))
-      (set-face-attribute 'fixed-pitch nil :font fpitch)
-      (set-face-attribute 'variable-pitch nil :family vpitch))
-    )
-#+end_src
+
 - font-lock
   #+name: orgmacs
   #+begin_src emacs-lisp
@@ -7582,7 +7627,6 @@ css = "normal"
     };
   }
   #+end_src
-
 *** qt
 - to set qt theme appropriately, even with this config, kdeConnect looks bare bone.
   #+name: hm-config
@@ -7668,226 +7712,242 @@ css = "normal"
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
   {
-    programs.waybar = {
-      enable = true;
+    programs.waybar = let
+      iconSize = 28;
+    in
+      {
+        enable = true;
 
-      settings = {
-        mainBar = {
-          layer = "top";
-          position = "top";
-          # height = 15;
-          # spacing = 7;
-          fixed-center = true;
-          exclusive = true;
+        settings = {
+          mainBar = {
+            layer = "top";
+            position = "top";
+            # height = 15;
+            # spacing = 7;
+            fixed-center = true;
+            exclusive = true;
 
-          modules-left = [
-            "custom/launcher"
-            "hyprland/workspaces"
-            "wlr/taskbar"
-            "hyprland/window"
-            "hyprland/submap"
-          ];
+            modules-left = [
+              "custom/launcher"
+              "hyprland/workspaces"
+              "wlr/taskbar"
+              "hyprland/window"
+              "hyprland/submap"
+            ];
 
-          modules-center = [
-            "custom/recorder" "clock" "mpd" "mpris"
-          ];
+            modules-center = [
+              "privacy" "custom/recorder" "clock" "mpd" "mpris"
+            ];
 
-          modules-right = [ "tray" "network" "battery" "memory" "pulseaudio" "custom/power" ];
+            modules-right = [ "tray" "network" "backlight" "battery" "memory" "wireplumber" "custom/power" ];
 
-          "hyprland/workspaces" = {
-            format = "{icon}";
-            disable-scroll = true;
-            all-outputs = true;
-            active-only = false;
-            show-special = true;
-            on-click = "activate";
-            format-icons = {
-              active = "";
-              default = "";
-              "1" = "1";
-              "2" = "2";
-              "3" = "3";
-              "4" = "4";
-              "5" = "5";
-              "6" = "6";
-            };
-          };
-
-          "hyprland/window" = {
-            "format" = "{}";
-            "separate-outputs" = true;
-            "max-length" = 35;
-            "rewrite" = {
-              "(.*) - Mozilla Firefox" = "🦊 $1";
-              "(.*) - LibreWolf" = "🐺 $1";
-              "(.*) - Brave" = "🦁 $1";
-              "(.*) - GNU Emacs (.*)" = " $1";
-              "(.*).epub(.*)" = "󰂽 $1";
-              "(.*)foot" = " Terminal $1";
-            };
-          };
-
-          "hyprland/submap" = {
-            "format" = " {}";
-            "max-length" = 14;
-            "tooltip" = false;
-          };
-
-          "wlr/taskbar"=  {
-            "format"=  "{icon}";
-            "icon-size"=  18;
-            "spacing"=  0;
-            "tooltip-format"=  "{title}";
-            "on-click"=  "activate";
-            "on-click-middle"=  "close";
-          };
-
-
-          "custom/launcher" = {
-            "format" = "";
-            "tooltip" = false;
-            "on-click" = "bemenu-run";
-            "interval" = 86400;
-          };
-
-          "battery" =  {
-            "bat" =  "BAT1";
-            "interval" =  60;
-            "states" =  {
-              "good" = 95;
-              "warning" = 40;
-              "critical" = 20;
-            };
-            "max-length" =  25;
-            "format" = "{icon} {capacity}%";
-            "format-charging" = " {capacity}%";
-            "format-plugged" = " {capacity}%";
-            "format-alt" = "{time} {icon}";
-            "format-icons" = ["󰂎" "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹"];
-
-          };
-
-          "mpd" = {
-            "format" = "{stateIcon} {title}  ";
-            "format-disconnected" = "  ";
-            "format-stopped" = "  ";
-            "title-len" = 20;
-            "interval" = 10;
-            "on-click" = "mpc toggle";
-            "state-icons" = {
-              "paused" = "";
-              "playing" = "";
-            };
-            "tooltip-format" = "Mpd Connected";
-            "tooltip-format-disconnected" = "";
-          };
-
-          "mpris" = {
-            "format" = " {player_icon} {dynamic}";
-            "format-paused" = "{status_icon} <i>{dynamic}</i>";
-            "player-icons" = {
-              "default" = "▶";
-              "mpv" = "🎵";
-            };
-            "status-icons" = {
-              "paused" = "󰏤";
-            };
-            "max-length" = 20;
-          };
-
-          "custom/power" = {
-            "format" = "⏻";
-            "on-click" = "d-power";
-            "tooltip" = false;
-            "interval" = 86400;
-          };
-
-          "clock" = {
-            "format-alt" = " {:%a %d %b  %I:%M %p}";
-            "format" = " {:%H:%M}";
-            ##"timezones" = [ "Kolkata" ];
-            ##"max-length" = 200;
-            "interval" = 1;
-            "calendar" = {
-              "mode"           = "year";
-              "mode-mon-col"   = 3;
-              "weeks-pos"      = "right";
-              "on-scroll"      = 1;
-              "format" = {
-                "months" =     "<span color='#ffead3'><b>{}</b></span>";
-                "days" =       "<span color='#ecc6d9'><b>{}</b></span>";
-                "weeks" =      "<span color='#99ffdd'><b>W{}</b></span>";
-                "weekdays" =   "<span color='#ffcc66'><b>{}</b></span>";
-                "today" =      "<span color='#ff6699'><b><u>{}</u></b></span>";
+            "hyprland/workspaces" = {
+              format = "{icon}";
+              disable-scroll = true;
+              all-outputs = true;
+              active-only = false;
+              show-special = true;
+              on-click = "activate";
+              format-icons = {
+                active = "";
+                default = "";
+                "1" = "1";
+                "2" = "2";
+                "3" = "3";
+                "4" = "4";
+                "5" = "5";
+                "6" = "6";
               };
             };
-            "tooltip-format" = "<tt><small>{calendar}</small></tt>";
-          };
 
-          "tray" = {
-            "icon-size" = 23;
-            "spacing" = 10;
-          };
-
-          "cpu" = {
-            "format" = " {usage: >3}%";
-            "on-click" = "footclient -e btop";
-          };
-
-          "memory" = {
-            "on-click" = "foot -e btop";
-            "interval" = 30;
-            "format" = " {percentage}%";
-            "format-alt" = " {used}GB";
-            "max-length" = 10;
-          };
-
-          "network" = {
-            # "interface" = "wlp2s0";
-            "format" = "⚠ Disabled";
-            "format-wifi" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
-            "format-ethernet" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
-            "format-disconnected" = "⚠ Disconnected";
-            "on-click" = "d-wifi";
-            "interval" = 2;
-          };
-
-          "pulseaudio" = {
-            "scroll-step" = 2;
-            "format" = "{icon} {volume: >3}%";
-            "format-bluetooth" = "{icon} {volume: >3}%";
-            "format-muted" =" muted";
-            "on-click" = "pamixer -t";
-            "format-icons" = {
-              "headphones" = "";
-              "handsfree" = "";
-              "headset" = "";
-              "phone" = "";
-              "portable" = "";
-              "car" = "";
-              "default" = ["" ""];
+            "hyprland/window" = {
+              "format" = "{}";
+              "separate-outputs" = true;
+              "max-length" = 35;
+              "rewrite" = {
+                "(.*) - Mozilla Firefox" = "🦊 $1";
+                "(.*) - LibreWolf" = "🐺 $1";
+                "(.*) - Brave" = "🦁 $1";
+                "(.*) - GNU Emacs (.*)" = " $1";
+                "(.*).epub(.*)" = "󰂽 $1";
+                "(.*)foot" = " Terminal $1";
+              };
             };
-          };
 
-          "custom/recorder" = {
-            "format" = "{}";
-            "interval" = "once";
-            "exec" = "echo ' '";
-            "tooltip" = "false";
-            "exec-if" = "pgrep wl-screenrec";
-            "on-click" = "pkill -INT wl-screenrec";
-            "signal" = 8;
-          };
+            "hyprland/submap" = {
+              "format" = " {}";
+              "max-length" = 14;
+              "tooltip" = false;
+            };
 
+            "wlr/taskbar"=  {
+              "format"=  "{icon}";
+              "icon-size"=  iconSize;
+              "spacing"=  0;
+              "tooltip-format"=  "{title}";
+              "on-click"=  "activate";
+              "on-click-middle"=  "close";
+            };
+
+
+            "custom/launcher" = {
+              "format" = "";
+              "tooltip" = false;
+              "on-click" = "bemenu-run";
+              "interval" = 86400;
+            };
+
+            "battery" =  {
+              "bat" =  "BAT1";
+              "interval" =  60;
+              "states" =  {
+                "good" = 95;
+                "warning" = 40;
+                "critical" = 20;
+              };
+              "max-length" =  25;
+              "format" = "{icon} {capacity}%";
+              "format-charging" = " {capacity}%";
+              "format-plugged" = " {capacity}%";
+              "format-alt" = "{time} {icon}";
+              "format-icons" = ["󰂎" "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹"];
+
+            };
+
+            "mpd" = {
+              "format" = "{stateIcon} {title}  ";
+              "format-disconnected" = "  ";
+              "format-stopped" = "  ";
+              "title-len" = 20;
+              "interval" = 10;
+              "on-click" = "mpc toggle";
+              "state-icons" = {
+                "paused" = "";
+                "playing" = "";
+              };
+              "tooltip-format" = "Mpd Connected";
+              "tooltip-format-disconnected" = "";
+            };
+
+            "mpris" = {
+              "format" = " {player_icon} {dynamic}";
+              "format-paused" = "{status_icon} <i>{dynamic}</i>";
+              "player-icons" = {
+                "default" = "▶";
+                "mpv" = "🎵";
+              };
+              "status-icons" = {
+                "paused" = "󰏤";
+              };
+              "max-length" = 20;
+            };
+
+            "custom/power" = {
+              "format" = "⏻";
+              "on-click" = "d-power";
+              "tooltip" = false;
+              "interval" = 86400;
+            };
+
+            "clock" = {
+              "format-alt" = " {:%a %d %b  %I:%M %p}";
+              "format" = " {:%H:%M}";
+              ##"timezones" = [ "Kolkata" ];
+              ##"max-length" = 200;
+              "interval" = 1;
+              "calendar" = {
+                "format" = {
+                  "months" = "<span color='#ffead3'><b>{}</b></span>";
+                  "today" = "<span color='#ff6699'><b>{}</b></span>";
+                };
+              };
+              "tooltip-format" = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
+            };
+
+            "tray" = {
+              "icon-size" = iconSize;
+              "spacing" = 10;
+            };
+
+            "cpu" = {
+              "format" = " {usage: >3}%";
+              "on-click" = "footclient -e btop";
+            };
+
+            "memory" = {
+              "on-click" = "foot -e btop";
+              "interval" = 30;
+              "format" = " {percentage}%";
+              "format-alt" = " {used}GB";
+              "max-length" = 10;
+            };
+
+            "network" = {
+              # "interface" = "wlp2s0";
+              "format" = "⚠ Disabled";
+              "format-wifi" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
+              "format-ethernet" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
+              "format-disconnected" = "⚠ Disconnected";
+              "on-click" = "d-wifi";
+              "interval" = 2;
+            };
+
+            "wireplumber" = {
+              "scroll-step" = 2;
+              "format" = "{icon} {volume: >3}%";
+              "format-bluetooth" = "{icon} {volume: >3}%";
+              "format-muted" =" muted";
+              "on-click" = "d-volume toggle";
+              "on-click-middle"=  "pavucontrol";
+              "format-icons" = {
+                "headphones" = "";
+                "handsfree" = "";
+                "headset" = "";
+                "phone" = "";
+                "portable" = "";
+                "car" = "";
+                "default" = ["" ""];
+              };
+            };
+
+  	        "backlight" = {
+  		        "tooltip" = false;
+  		        "format" = " {}%";
+  		        "interval" = 1;
+              "on-scroll-up" = "brigthnessctl set +5%";
+  		        "on-scroll-down" = "brigthnessctl set 5%-";
+  	        };
+
+            "custom/recorder" = {
+              "format" = "{}";
+              "interval" = "once";
+              "exec" = "echo ' '";
+              "tooltip" = "false";
+              "exec-if" = "pgrep wl-screenrec";
+              "on-click" = "pkill -INT wl-screenrec";
+              "signal" = 8;
+            };
+
+            "privacy" = {
+  	          "icon-spacing" = 4;
+  	          "icon-size" = iconSize;
+  	          "transition-duration" = 250;
+            };
+
+            "custom/wallpaper" = {
+              "format" = " ";
+              "on-click" = "d-walls";
+            };
+
+          };
         };
       };
-    };
 
-    home.file.".config/waybar/style.css".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/style.css";
+    # home.file.".config/waybar/style.css".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/style.css";
 
   }
   #+end_src
-**** style.css
+**** COMMENT style.css
   #+begin_src css :tangle ./gdk/configs/style.css
     /* My own theme (Haki) made for emacs */
 
@@ -8222,7 +8282,7 @@ css = "normal"
         (,(nerd-icons-mdicon "nf-md-notebook")
          " Notes"
          "Denote Tree"
-         (lambda (&rest _) (find-file "~/d-sync/notes/journal.org")) warning "" " |")
+         (lambda (&rest _) (find-file "~/d-sync/notes/d-brain.org")) warning "" " |")
 
         (,(nerd-icons-faicon "nf-fa-gitlab")
          " Project"
@@ -8343,7 +8403,7 @@ css = "normal"
       btop = {
         enable = true;
         settings = {
-          color_theme = "default";
+          # color_theme = "default";
           theme_background = false;
           vim_keys = true;
           shown_boxes = "proc cpu";
@@ -8360,7 +8420,7 @@ css = "normal"
         extraPackages = with pkgs.bat-extras; [ batdiff batman batgrep batwatch ];
         config = {
           pager = "less -fr";
-          theme = "TwoDark";
+          # theme = "TwoDark";
         };
       };
 
@@ -8368,12 +8428,12 @@ css = "normal"
 
       fzf = {
         enable = true;
-        colors = {
-          bg = "#121212";
-          "bg+" = "#2e8b57";
-          fg = "#fdfdfd";
-          "fg+" = "#FFFFFF";
-        };
+        # colors = {
+        #   bg = "#121212";
+        #   "bg+" = "#2e8b57";
+        #   fg = "#fdfdfd";
+        #   "fg+" = "#FFFFFF";
+        # };
         defaultCommand = "fd --type f";
       };
 
@@ -8808,91 +8868,91 @@ css = "normal"
 - Dunst to notify and send.
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  services.dunst = {
-    enable = true;
-    iconTheme = {
-      package = pkgs.papirus-icon-theme;
-      name = "Papirus";
-    };
-    settings = {
-      global = {
-        monitor = 0;
-        background = "#050505";
-        frame_color = "#2e8b57";
-        transparency = 0;
-        follow = "none";
-        width = 400;
-        height = 900;
-        idle_threshold = 120;
-        origin = "top-right";
-        offset = "10x20";
-        scale = 0;
-        notification_limit = 0;
-        progress_bar = "true";
-        alignment = "center";
-        progress_bar_height = 10;
-        progress_bar_frame_width = 1;
-        progress_bar_min_width = 150;
-        progress_bar_max_width = 500;
-        indicate_hidden = "yes";
-        padding = 2;
-        frame_width = 2;
-        separator_color = "frame";
-        sort = "yes";
-        font = "Code Haki 26";
-        line_height = 0;
-        markup = "full";
-        stack_duplicates = "true";
-        vertical_alignment = "center";
-        show_age_threshold = 60;
-        ellipsize = "middle";
-        ignore_newline = "no";
-        show_indicators = "yes";
-        icon_position = "left";
-        max_icon_size = 32;
-        sticky_history = "yes";
-        history_length = 20;
-        browser = "d-stuff";
-        always_run_script = "true";
-        title = "Dunst";
-        class = "Dunst";
-        corner_radius = 20;
-        ignore_dbusclose = false;
-        force_xwayland = "false";
-        layer = "overlay";
-        mouse_left_click = "do_action";
-        mouse_middle_click = "do_action";
-        mouse_right_click = "close_all";
+  {
+    services.dunst = {
+      enable = true;
+      iconTheme = {
+        package = pkgs.papirus-icon-theme;
+        name = "Papirus";
       };
+      settings = {
+        global = {
+          monitor = 0;
+          background = "#050505";
+          frame_color = "#2e8b57";
+          transparency = 0;
+          follow = "none";
+          width = 400;
+          height = 900;
+          idle_threshold = 120;
+          origin = "top-right";
+          offset = "10x20";
+          scale = 0;
+          notification_limit = 0;
+          progress_bar = "true";
+          alignment = "center";
+          progress_bar_height = 10;
+          progress_bar_frame_width = 1;
+          progress_bar_min_width = 150;
+          progress_bar_max_width = 500;
+          indicate_hidden = "yes";
+          padding = 2;
+          frame_width = 2;
+          # separator_color = "frame";
+          sort = "yes";
+          # font = "Code Haki 26";
+          line_height = 0;
+          markup = "full";
+          stack_duplicates = "true";
+          vertical_alignment = "center";
+          show_age_threshold = 60;
+          ellipsize = "middle";
+          ignore_newline = "no";
+          show_indicators = "yes";
+          icon_position = "left";
+          max_icon_size = 32;
+          sticky_history = "yes";
+          history_length = 20;
+          browser = "d-stuff";
+          always_run_script = "true";
+          title = "Dunst";
+          class = "Dunst";
+          corner_radius = 20;
+          ignore_dbusclose = false;
+          force_xwayland = "false";
+          layer = "overlay";
+          mouse_left_click = "do_action";
+          mouse_middle_click = "do_action";
+          mouse_right_click = "close_all";
+        };
 
-      reminder = {
-        category = "reminder";
-        background = "#33333390";
-        foreground = "#ffffff";
-        timeout = 0;
-        script="d-notif";
-      };
+        reminder = {
+          category = "reminder";
+          background = "#33333390";
+          foreground = "#ffffff";
+          timeout = 0;
+          script="d-notif";
+        };
 
-      urgency_low = {
-        background = "#050505";
-        foreground = "#ffffff";
-        timeout = 5;
-      };
-      urgency_normal = {
-        background = "#050505";
-        foreground = "#ffffff";
-        timeout = 6;
-      };
-      urgency_critical = {
-        background = "#050505";
-        foreground = "#ffffff";
-        frame_color = "#f38ba8";
-        timeout = 0;
+        # urgency_low = {
+        #   background = "#050505";
+        #   foreground = "#ffffff";
+        #   timeout = 5;
+        # };
+        # urgency_normal = {
+        #   background = "#050505";
+        #   foreground = "#ffffff";
+        #   timeout = 6;
+        # };
+        # urgency_critical = {
+        #   background = "#050505";
+        #   foreground = "#ffffff";
+        #   frame_color = "#f38ba8";
+        #   timeout = 0;
+        # };
       };
     };
-  };
-}
+  }
   #+end_src
 **** COMMENT mako
 - Another minimal lightweight notification for wayland.
@@ -8985,19 +9045,19 @@ css = "normal"
         counter = "always";
         prefix = " ";
 
-        fn = "Code Haki 28";
+        # fn = "Code Haki 28";
 
-        nb = "#00000090";
-        ab = "#00000090";
-        bdr = "#c6daff";
-        nf = "#ffffff";
-        af = "#ffffff";
-        hb = "#2e8b57";
-        hf = "#000000";
-        fb = "#111111";
-        ff = "#fafad2";
-        tb = "#121212";
-        tf = "#6ae4b9";
+        # nb = "#00000090";
+        # ab = "#00000090";
+        # bdr = "#c6daff";
+        # nf = "#ffffff";
+        # af = "#ffffff";
+        # hb = "#2e8b57";
+        # hf = "#000000";
+        # fb = "#111111";
+        # ff = "#fafad2";
+        # tb = "#121212";
+        # tf = "#6ae4b9";
 
       };
     };
@@ -9507,7 +9567,7 @@ lines:                       20;
           )
 
     :custom
-    (org-ellipsis " ⮟")
+    (org-ellipsis "󱞤")
     (org-log-done 'note)
     (org-log-into-drawer t)
     (org-export-exclude-tags '("noexport" "ignore") "excludes these tagged heading from export")
@@ -9520,7 +9580,7 @@ lines:                       20;
 
     (org-refile-targets
      '(
-       (org-default-notes-file :maxlevel . 6)
+       (org-default-notes-file :maxlevel . 5)
        (nil :maxlevel . 6)
        ))
 
@@ -9535,7 +9595,7 @@ lines:                       20;
 
     (fill-column 80)
     (org-directory "~/d-sync/notes/")
-    (org-default-notes-file (concat org-directory "journal.org"))
+    (org-default-notes-file (concat org-directory "d-brain.org"))
     (org-src-fontify-natively t)
     (org-pretty-entities t)
     (org-log-reschedule 'note)
@@ -9655,8 +9715,9 @@ lines:                       20;
     ;; (org-modern-star '("◉" "✪" "◈" "✿" "❂"))
     ;; (org-modern-star '("" "󰓏" "󰚀" "󰴈" "" "󰄄"))
     (org-modern-replace-stars (string-replace " " "" "󰓏 󰚀 󰫤 󰴈  󰄄"))
+    (org-modern-fold-stars '(("󰓏" . "▼") ("󰚀" . "▽") ("󰫤" . "⯆") ("󰴈" . "▿") ("󰄄" . "▾")))
     (org-modern-hide-stars 'leading)
-    (org-modern-star 'replace)
+    (org-modern-star 'fold)
     (org-modern-table nil) ;; issue with variable-pitch font
 
     (org-modern-list
@@ -9779,7 +9840,7 @@ lines:                       20;
 
 
     (org-agenda-files
-     '("~/d-sync/notes/journal.org"
+     '("~/d-sync/notes/d-brain.org"
        "~/d-git/d-site/README.org"
        )))
   #+end_src
@@ -9798,7 +9859,7 @@ lines:                       20;
     (org-capture-bookmark nil)
     ;; also don't create bookmark in other things
     (org-bookmark-names-plist nil)
-    (org-default-notes-file (concat org-directory "brain.org"))
+    (org-default-notes-file (concat org-directory "d-brain.org"))
     (org-capture-templates
      `(
        ;; ("a" "Agenda" entry (file+function "~/d-sync/notes/agenda.org" (lambda () (completing-read "Heading: " my-org-agenda-headlines)))
@@ -9827,19 +9888,19 @@ lines:                       20;
         (file+headline "~/d-sync/notes/bookmarks.org" "gnus") "* %a\n")
 
        ("j" "Journal Entry" entry
-        (file+datetree "~/d-sync/notes/journal.org")
-        "\n* %<%H:%M> - %? %^G\n %a \n\n"
-        :clock-in t :clock-resume t
+        (file+datetree "~/d-sync/notes/d-brain.org")
+        "\n* %<%H:%M> - %? %^G\n %a \n\n %i"
+        ;; :clock-in t :clock-resume t
         :empty-lines 1)
 
        ("t" "Tasks for the Day" checkitem
-        (file+datetree "~/d-sync/notes/journal.org")
+        (file+datetree "~/d-sync/notes/d-brain.org")
         "[ ] %?\n"
         )
 
        ("i" "Inbox Rough Notes" entry
         (file "~/d-sync/notes/inbox.org")
-        "** %?\n %U\n %i %a\n - ")
+        "** %?  :fleeting:\n %U\n %i %a\n - ")
 
        ))
     :config
@@ -10183,10 +10244,12 @@ block but are passed literally to the \"example-block\"."
 *** org-super-links
 - Package to create bi-directional backlinks.
 - Inspired by karl voit post: https://karl-voit.at/2020/07/22/org-super-links/
+- Acts as the minimal zettelkasten links, and having citation-reference relation.
   #+name: orgmacs
   #+begin_src emacs-lisp
   (use-package org-super-links
     :unless d/on-droid
+    :after org
     :bind
     (:map org-mode-map
           ("C-c s s" . org-super-links-link)
@@ -10463,7 +10526,7 @@ block but are passed literally to the \"example-block\"."
     :after org
     :custom
     (org-noter-auto-save-last-location t)
-    (org-noter-default-notes-file-names '("journal.org"))
+    (org-noter-default-notes-file-names '("d-brain.org"))
     (org-noter-notes-search-path '("~/d-sync/notes"))
     (org-noter-notes-window-location 'horizontal-split)
     )

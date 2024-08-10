@@ -136,11 +136,13 @@ It is as simple if I just record what it does, with proper link to rich resource
 * Flake
 + Nobody can give correct explanation on flakes, in simple way its a nix way to pin the version/revision of channel or VC and working with it.
 + Could be future, but things are not sorted out that well.
-+ I use four inputs:
++ Inputs:
   1. Nixpkgs - Ocean of packages and modules.
   2. Hosts - To block various domains.
   3. Nix-index - To extract nixpkgs db, and locate package/path.
   4. Home-Manager - to manager user/home modules.
+  5. Emacs-overlay - For latest rolling emacs developments
+  6. Stylix - To style it everywhere
 + A good resource to refer: https://nixos-and-flakes.thiscute.world/nixos-with-flakes/nixos-with-flakes-enabled
   #+begin_src nix :tangle flake.nix
   #
@@ -171,10 +173,13 @@ It is as simple if I just record what it does, with proper link to rich resource
       };
 
       emacs-overlay.url = "github:nix-community/emacs-overlay";
+
+      stylix.url = "github:danth/stylix";
+
     };
 
     outputs =
-      { nixpkgs, ... }@inputs:
+      { nixpkgs, home-manager, stylix, ... }@inputs:
       let
         system = "x86_64-linux";
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
@@ -205,6 +210,7 @@ It is as simple if I just record what it does, with proper link to rich resource
                 inputs.hosts.nixosModule
                 inputs.home-manager.nixosModules.home-manager
                 <<nixos-hm>>
+                stylix.nixosModules.stylix
               ];
               specialArgs = {
                 inherit inputs;
@@ -7559,40 +7565,122 @@ css = "normal"
   #+begin_src emacs-lisp
   (use-package nerd-icons-corfu
     :after corfu
-    :config
+    :init
     (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
   #+end_src
 ** Theme
+*** Stylix
+- An bundle of color-scheme for tools.
+  #+name: nixos-core
+  #+begin_src nix :tangle gdk/core.nix
+  {
+    stylix = {
+      enable = true;
+      image = /home/idlip/d-git/d-wallpapers/oled/chinese-dragon.jpg;
+      polarity = "dark";
+
+      base16Scheme = {
+        base00 = "#000000"; # bg
+        base01 = "#121212"; # light bg
+        base02 = "#303030"; # selection bg
+        base03 = "#2e8b57"; # comment/hl
+        base04 = "#D8DEE9"; # dim fg
+        base05 = "#ffffff"; # fg
+        base06 = "#6c7b8b"; # light fg
+        base07 = "#222222"; # light bg
+        base08 = "#ffb5c5"; # red
+        base09 = "#ee9572"; # orange
+        base0A = "#fbfba2"; # yellow
+        base0B = "#54ff9f"; # green
+        base0C = "#22fefe"; # aqua/cyan
+        base0D = "#89b4fa"; # blue
+        base0E = "#9370db"; # purple
+        base0F = "#76eec6"; # brown
+      };
+
+      cursor = {
+        package = pkgs.bibata-cursors;
+        name = "Bibata-Modern-Classic";
+        size = 24;
+      };
+
+      fonts = {
+        serif = {
+          package = pkgs.callPackage ./pkgs/code-nika.nix {};
+          name = "Code Haki";
+        };
+
+        sansSerif = {
+          package = pkgs.callPackage ./pkgs/code-nika.nix {};
+          name = "Code Haki";
+        };
+
+        monospace = {
+          package = pkgs.callPackage ./pkgs/code-nika.nix {};
+          name = "Code OnePiece";
+        };
+
+        emoji = {
+          package = pkgs.noto-fonts-emoji;
+          name = "Noto Color Emoji";
+        };
+
+        sizes = {
+          applications = 24;
+          desktop = 20;
+          popups = 20;
+          terminal = 24;
+        };
+
+      };
+    };
+
+  }
+  #+end_src
+
+- Home manager options for stylix
+  #+name: hm-config
+  #+begin_src nix :tangle gdk/home.nix
+  {
+    stylix = {
+      enable = true;
+
+      targets = {
+        emacs.enable = false;
+      };
+    };
+  }
+  #+end_src
 *** GTK
 - Glorious, aesthetic and pleasant desktop colourscheme.
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
   {
     # cursor theme
-    home.pointerCursor = {
-      name = "Bibata-Modern-Classic";
-      package = pkgs.bibata-cursors;
-      size = 24;
-      gtk.enable = true;
-    };
+    # home.pointerCursor = {
+    #   name = "Bibata-Modern-Classic";
+    #   # package = pkgs.bibata-cursors;
+    #   # size = 24;
+    #   gtk.enable = true;
+    # };
 
     gtk = {
       enable = true;
 
-      theme = {
-        name = "adw-gtk3-dark";
-        package = pkgs.adw-gtk3;
-      };
+      # theme = {
+      #   name = "adw-gtk3-dark";
+      #   package = pkgs.adw-gtk3;
+      # };
 
       iconTheme = {
         name = "Papirus-Dark";
         package = pkgs.papirus-icon-theme;
       };
 
-      font = {
-        name = "Code Haki";
-        size = 26;
-      };
+      # font = {
+      #   name = "Code Haki";
+      #   size = 26;
+      # };
 
       gtk2.configLocation = "${config.xdg.configHome}/gtk-2.0/gtkrc";
 

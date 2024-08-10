@@ -1292,6 +1292,7 @@ Exec=d-stuff %u
 
     (use-short-answers t)
     (enable-recursive-minibuffers t "Allow minibuffer commands in the minibuffer")
+    (auto-save-include-big-deletions t "save after large chunk deletion")
     (indent-tabs-mode nil "Spaces!")
     (tab-always-indent 'complete)
     (tab-width 2)
@@ -1314,7 +1315,7 @@ Exec=d-stuff %u
     (delete-selection-mode)
 
     (with-current-buffer "*scratch*"
-    (emacs-lock-mode 'kill))
+      (emacs-lock-mode 'kill))
     (prefer-coding-system 'utf-8)
     ;; Uppercase is same as lowercase
     (define-coding-system-alias 'UTF-8 'utf-8)
@@ -1369,24 +1370,23 @@ it narrows to region, or Org subtree."
   #+begin_src emacs-lisp
   (use-package saveplace
     :ensure nil
-    :hook
-    (after-init . save-place-mode))
+    :hook (after-init . save-place-mode))
 
   (use-package simple
     :ensure nil
     :bind
-    ("<f7>" . scratch-buffer)
-    ("<escape>" . keyboard-quit)
-    ("M-^" . d/join-lines)
-    ("M-z" . zap-up-to-char)
+    (("<f7>" . scratch-buffer)
+     ("<escape>" . keyboard-quit)
+     ("M-^" . d/join-lines)
+     ("M-z" . zap-up-to-char)
 
-    ("M-%" . query-replace-regexp)
+     ("M-%" . query-replace-regexp)
 
-    ("M-c" . d/flex)
-    ("M-l" . downcase-dwim)
+     ("M-c" . d/flex)
+     ("M-l" . downcase-dwim)
 
-    ("M-@" . d/mark-word)
-    ("M-h" . d/mark-paragraph)
+     ("M-@" . d/mark-word)
+     ("M-h" . d/mark-paragraph))
 
     :custom
     (kill-ring-max 30000)
@@ -1494,27 +1494,27 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 **** Tidy files
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package files
-  :ensure nil
-  :hook
-  (before-save . delete-trailing-whitespace)
-  :bind ("<f5>" . d/refresh-buffer)
-  :custom
-  (require-final-newline t)
-  (save-silently t)
-  (confirm-kill-emacs 'yes-or-no-p)
-  ;; backup settings
-  (backup-by-copying t)
-  (custom-file (expand-file-name "custom.el" user-emacs-directory))
-  (backup-directory-alist
-   `((".*" . ,(no-littering-expand-var-file-name "backup/"))))
-  (auto-save-file-name-transforms
-   `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
-  (delete-old-versions t)
-  (kept-new-versions 6)
-  (kept-old-versions 2)
-  (version-control t)
-  (create-lockfiles nil))
+  (use-package files
+    :ensure nil
+    :hook
+    (before-save . delete-trailing-whitespace)
+    :bind ("<f5>" . d/refresh-buffer)
+    :custom
+    (require-final-newline t)
+    (save-silently t)
+    (confirm-kill-emacs 'yes-or-no-p)
+    ;; backup settings
+    (backup-by-copying t)
+    (custom-file (expand-file-name "custom.el" user-emacs-directory))
+    (backup-directory-alist
+     `((".*" . ,(no-littering-expand-var-file-name "backup/"))))
+    (auto-save-file-name-transforms
+     `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
+    (delete-old-versions t)
+    (kept-new-versions 6)
+    (kept-old-versions 2)
+    (version-control t)
+    (create-lockfiles nil))
   #+end_src
 - Refresh or revert the buffer without asking for confirmation.
   #+name: orgmacs
@@ -1530,41 +1530,35 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 - vundo is to visualize undo nodes in a horizontal tree.
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package undo-fu-session
-  :ensure nil
-  :functions (undo-fu-session-global-mode)
-  :defines (undo-fu-session-incompatible-files)
+  (use-package undo-fu-session
+    :functions (undo-fu-session-global-mode)
+    :defines (undo-fu-session-incompatible-files)
+    :init (undo-fu-session-global-mode)
+    :custom
+    (undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'")))
 
-  :init (undo-fu-session-global-mode)
-  :config
-  (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'")))
-
-(use-package vundo
-  :ensure nil
-  :defer t
-  :bind
-  ("C-x u" . vundo)
-  ("C-z" . undo-only)
-  ("C-S-z" . undo-redo)
-  ("C-M-r" . undo-redo)
-
-  :custom
-  (vundo-compact-display t)
-  (vundo-glyph-alist vundo-unicode-symbols)
-  (vundo-window-max-height 5))
+  (use-package vundo
+    :bind
+    (("C-x u" . vundo)
+    ("C-z" . undo-only)
+    ("C-S-z" . undo-redo)
+    ("C-M-r" . undo-redo))
+    :custom
+    (vundo-compact-display t)
+    (vundo-glyph-alist vundo-unicode-symbols)
+    (vundo-window-max-height 8))
   #+end_src
 **** backup
 - =vc-backup= is such a necessary tool, that diff the states of previous save to current save.
 - It acts on both VC files and as well as file under no VC.
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package vc-backup
-  ;; to have auto VC track of files without in git
-  ;; C-x v =
-  :demand t
-  :custom
-  (vc-make-backup-files t)
-  (vc-follow-symlinks t))
+  (use-package vc-backup
+    ;; to have auto VC track of files without in git -> C-x v =
+    :demand t
+    :custom
+    (vc-make-backup-files t)
+    (vc-follow-symlinks t))
   #+end_src
 **** Auto revert
 - Revert files with changes, so I can work with sync.
@@ -1578,30 +1572,27 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 - savehist of minibuffer candidates
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package savehist
-  :ensure nil
-  :defer 2
-  :init
-  (savehist-mode)
-  :custom
-  (history-length t)
-  (savehist-additional-variables '(kill-ring search-ring regexp-search-ring)))
+  (use-package savehist
+    :ensure nil
+    :init (savehist-mode)
+    :custom
+    (history-length t)
+    (savehist-additional-variables '(kill-ring search-ring regexp-search-ring)))
   #+end_src
 - to record recently opened files. Useful to jump in quick
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package recentf
-  :ensure nil
-  :demand t
-  :custom
-  (recentf-max-menu-items 100)
-  (recentf-max-saved-items 100)
-  :config
-  (recentf-mode))
+  (use-package recentf
+    :ensure nil
+    :custom
+    (recentf-max-menu-items 100)
+    (recentf-max-saved-items 100)
+    :init (recentf-mode))
   #+end_src
 **** COMMENT desktop save
 - To save and stage the emacs session, since this is a laptop, it feels like I need this setting.
 - I cannot leave system without shutdown everyday.
+- As on [2024-08-04], [[https://github.com/alphapapa/activities.el][activities.el]] is better.
   #+name: orgmacs
   #+begin_src emacs-lisp
   (use-package desktop
@@ -1614,22 +1605,19 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 - To keep the emacs user directory clean and with less noise.
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package no-littering
-  :demand t
-  :ensure t
-  :functions (recentf-expand-file-name)
-
-  :defines
-  (no-littering-var-directory
-   no-littering-etc-directory)
-  :custom
-  (no-littering-etc-directory (expand-file-name "config/" user-emacs-directory))
-  (no-littering-var-directory (expand-file-name "data/" user-emacs-directory))
-  :config
-  (add-to-list 'recentf-exclude
-               (recentf-expand-file-name no-littering-var-directory))
-  (add-to-list 'recentf-exclude
-               (recentf-expand-file-name no-littering-etc-directory)))
+  (use-package no-littering
+    :demand t
+    :ensure t
+    :functions (recentf-expand-file-name)
+    :defines (no-littering-var-directory no-littering-etc-directory)
+    :custom
+    (no-littering-etc-directory (expand-file-name "config/" user-emacs-directory))
+    (no-littering-var-directory (expand-file-name "data/" user-emacs-directory))
+    :config
+    (add-to-list 'recentf-exclude
+                 (recentf-expand-file-name no-littering-var-directory))
+    (add-to-list 'recentf-exclude
+                 (recentf-expand-file-name no-littering-etc-directory)))
   #+end_src
 **** Dired
 - The directory editor
@@ -1643,19 +1631,20 @@ E.g. capitalize or decapitalize the next word, increment number at point."
     (dired-mode . dired-hide-details-mode)
     (dired-mode . dired-omit-mode)
     :commands (dired dired-jump)
-    :bind (("C-x C-j" . dired-jump)
-           ("C-c f f" . window-focus-mode)
-           ("C-c f e" . (lambda () (interactive) (find-file "~/.config/emacs/lisp/")))
-           ("C-c f s" . (lambda () (interactive) (find-file "~/d-git/d-nix/")))
-           ("C-c f m" . (lambda () (interactive) (find-file "~/d-git/d-nix/README.org"))))
-    (:map dired-mode-map
-          ("q" . kill-buffer-and-window)
-          ("j" . dired-next-line)
-          ("k" . dired-previous-line)
-          ("l" . dired-find-file)
-          ("h" . dired-up-directory)
-          ("b" . embark-act)
-          ("e" . dired-do-eww))
+    :bind
+    (("C-x C-j" . dired-jump)
+     ("C-c f f" . window-focus-mode)
+     ("C-c f e" . (lambda () (interactive) (find-file "~/d-sync/notes/d-brain.org")))
+     ("C-c f s" . (lambda () (interactive) (find-file "~/d-git/d-nix/d-setup.org")))
+     ("C-c f m" . (lambda () (interactive) (find-file "~/d-git/d-nix/README.org")))
+     (:map dired-mode-map
+           ("q" . kill-buffer-and-window)
+           ("j" . dired-next-line)
+           ("k" . dired-previous-line)
+           ("l" . dired-find-file)
+           ("h" . dired-up-directory)
+           ("b" . embark-act)
+           ("e" . dired-do-eww)))
 
     :custom
     (dired-listing-switches "-agho --group-directories-first")
@@ -1758,53 +1747,40 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 + completions everywhere, that make you use emacs for everything.
 **** Dabbrev
 - dynamic abbrev expansion.
-  #+name: orgmacs
-  #+begin_src emacs-lisp
+#+name: orgmacs
+#+begin_src emacs-lisp
 (use-package dabbrev
   :ensure nil
   :commands (dabbrev-expand dabbrev-completion)
   :custom
   (dabbrev-abbrev-char-regexp "\\sw\\|\\s_")
   (dabbrev-abbrev-skip-leading-regexp "\\$\\|\\*\\|/\\|=")
-  (dabbrev-backward-only nil)
-  (dabbrev-case-distinction nil)
-  (dabbrev-case-fold-search t)
-  (dabbrev-case-replace nil)
-  (dabbrev-check-other-buffers t)
-  (dabbrev-eliminate-newlines nil)
-  (dabbrev-upcase-means-case-search t)
-  ;; Swap M-/ and C-M-/
-  :bind (("M-/" . dabbrev-completion)
-	     ("C-M-/" . dabbrev-expand))
-  ;; Other useful Dabbrev configurations.
   :custom
   (dabbrev-ignored-buffer-regexps '("\\.\\(?:pdf\\|jpe?g\\|png\\)\\'")))
-
+#+end_src
+- Hippie expand
+#+begin_src emacs-lisp
 (use-package hippie-exp
   :ensure nil
-  :bind
-  ("M-/" . hippie-expand))
-  #+end_src
+  :bind ("M-/" . hippie-expand))
+#+end_src
 **** Vertico
 - the flagship of minad.
   #+name: orgmacs
   #+begin_src emacs-lisp
   (use-package vertico
-    :defines
-    (vertico-map)
-    :functions
-    (vertico-mode )
-
+    :defines (vertico-map)
+    :functions (vertico-mode )
     :bind
     (:map vertico-map
-  	    ("<return>" . vertico-directory-enter)
-  	    ("DEL" . vertico-directory-delete-char)
-  	    ("M-DEL" . vertico-directory-delete-word)
-  	    ("M-j" . vertico-quick-exit)
-  	    ("C-v" . vertico-scroll-up)
-  	    ("M-v" . vertico-scroll-down)
-  	    ("M-q" . d/vertico-toggle)
-  	    ("M-TAB" . minibuffer-complete)
+  	      ("<return>" . vertico-directory-enter)
+  	      ("DEL" . vertico-directory-delete-char)
+  	      ("M-DEL" . vertico-directory-delete-word)
+  	      ("M-j" . vertico-quick-exit)
+  	      ("C-v" . vertico-scroll-up)
+  	      ("M-v" . vertico-scroll-down)
+  	      ("M-q" . d/vertico-toggle)
+  	      ("M-TAB" . minibuffer-complete)
           ("C->"     . embark-become)
           ("C-<tab>"   . embark-act-with-completing-read)
           ("C-o"     . embark-minimal-act)
@@ -1812,9 +1788,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
           ("M-*"      . embark-act-all)
           ("C-c C-o" . embark-export))
 
-    :init
-    (vertico-mode)
-
+    :init (vertico-mode)
     :custom
     (vertico-scroll-margin 5)
     (vertico-count 5)
@@ -1832,10 +1806,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   #+begin_src emacs-lisp
   (use-package vertico-multiform
     :commands (vertico-multiform-mode)
-
-    :init
-    (vertico-multiform-mode)
-
+    :init (vertico-multiform-mode)
     :custom
     (vertico-multiform-commands
      '(("\\`execute-extended-command" unobtrusive
@@ -1875,10 +1846,8 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 - mouse support in vertico
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package vertico-mouse
-  :unless d/on-droid
-  :init
-  (vertico-mouse-mode))
+  (use-package vertico-mouse
+    :init (vertico-mouse-mode))
   #+end_src
 **** Consult
 - wonderful preview UI for completion popup.
@@ -1886,21 +1855,8 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   #+name: orgmacs
   #+begin_src emacs-lisp
   (use-package consult
-    :functions
-    (consult-register-window
-     eww-read-bookmarks
-     consult--read
-     consult-colors--web-list
-     color-rgb-to-hex
-     list-colors-duplicates)
-
-    :defines
-    (consult-buffer-sources
-     eww-bookmarks
-     add-unicodes
-     shr-color-html-colors-alist
-     d/on-droid)
-
+    :functions (consult-register-window eww-read-bookmarks consult--read consult-colors--web-list color-rgb-to-hex list-colors-duplicates)
+    :defines (consult-buffer-sources eww-bookmarks add-unicodes shr-color-html-colors-alist d/on-droid)
     :bind
     (
      ("C-c d i" . d/insert-unicodes)
@@ -1976,6 +1932,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
     (consult-narrow-key "<")
     (consult-ripgrep-args "rg --follow --null --line-buffered --no-ignore --color=never --max-columns=1000 --path-separator /   --smart-case --no-heading --with-filename --line-number --search-zip")
 
+    :config
     (consult-customize
      consult-theme :preview-key '(:debounce 2.5 any)
      consult-ripgrep consult-git-grep consult-grep
@@ -1985,7 +1942,6 @@ E.g. capitalize or decapitalize the next word, increment number at point."
      ;; :preview-key (kbd "M-.")
      :preview-key '(:debounce 0.4 any))
 
-    :config
     (advice-add #'register-preview :override #'consult-register-window))
   #+end_src
 - Function to insert and get colors list. Although built-in way of ~M-x read-color~ satisfies replacing this function.
@@ -2230,68 +2186,55 @@ Return nil if NAME does not designate a valid color."
 + rich annotation of information for candidates.
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package marginalia
-  :functions
-  (marginalia-mode)
-
-  :bind (:map minibuffer-local-map
-              ("M-A" . marginalia-cycle))
-  :init
-  (marginalia-mode))
+  (use-package marginalia
+    :functions (marginalia-mode)
+    :bind (:map minibuffer-local-map ("M-A" . marginalia-cycle))
+    :init (marginalia-mode))
   #+end_src
 **** corfu
 + overlay popup
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package corfu
-  :defer 1
+  (use-package corfu
+    :defines (corfu-map)
+    :functions (global-corfu-mode corfu-mode)
+    :custom
+    (corfu-auto t)                 ;; Enable auto completion
+    (corfu-separator ?\s)          ;; Orderless field separator
+    (corfu-cycle t)
+    ;; (corfu-preview-current t)    ;; Disable current candidate preview
+    ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+    ;; (corfu-quit-no-match t)
+    (corfu-auto-prefix 3)
+    (corfu-auto-delay 0.4)
+    (corfu-quit-at-boundary 'separator)
+    (corfu-popupinfo-resize t)
+    (corfu-popupinfo-hide nil)
+    (corfu-preview-current 'insert)
+    (corfu-popupinfo-delay 1.0)
+    (corfu-history 1)
+    (corfu-scroll-margin 0)
 
-  :defines
-  (corfu-map)
+    :bind (:map corfu-map
+  	          ("M-SPC" . corfu-insert-separator)
+  	          ("TAB" . corfu-insert)
+  	          ("<escape>" . corfu-quit)
+  	          ("C-j" . corfu-next)
+  	          ("C-k" . corfu-previous)
+  	          ("M-j" . corfu-quick-insert))
+    ;; Enable Corfu only for certain modes.
+    ;; :hook ((prog-mode . corfu-mode)
+    ;;        (shell-mode . corfu-mode)
+    ;;        (eshell-mode . corfu-mode))
 
-  :functions
-  (global-corfu-mode
-   corfu-mode)
-
-  :custom
-  (corfu-auto t)                 ;; Enable auto completion
-  (corfu-separator ?\s)          ;; Orderless field separator
-  (corfu-cycle t)
-  ;; (corfu-preview-current t)    ;; Disable current candidate preview
-  ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-  ;; (corfu-quit-no-match t)
-  (corfu-auto-prefix 3)
-  (corfu-auto-delay 0.4)
-  (corfu-quit-at-boundary 'separator)
-  (corfu-popupinfo-resize t)
-  (corfu-popupinfo-hide nil)
-  (corfu-preview-current 'insert)
-  (corfu-popupinfo-delay 1.0)
-  (corfu-history 1)
-  (corfu-scroll-margin 0)
-
-  :bind (:map corfu-map
-	          ("M-SPC" . corfu-insert-separator)
-	          ("TAB" . corfu-insert)
-	          ("<escape>" . corfu-quit)
-	          ("C-j" . corfu-next)
-	          ("C-k" . corfu-previous)
-	          ("M-j" . corfu-quick-insert))
-  ;; Enable Corfu only for certain modes.
-  ;; :hook ((prog-mode . corfu-mode)
-  ;;        (shell-mode . corfu-mode)
-  ;;        (eshell-mode . corfu-mode))
-
-  :init
-  (global-corfu-mode))
+    :init
+    (global-corfu-mode))
   #+end_src
 + corfu history: for corfu to remember history of selection
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package corfu-history
-  :disabled
-  :init
-  (corfu-history-mode))
+  (use-package corfu-history
+    :init (corfu-history-mode))
   #+end_src
 + corfu popupinfo: show help or info of variable and symbols of candidate.
   #+name: orgmacs
@@ -2305,12 +2248,12 @@ Return nil if NAME does not designate a valid color."
 + corfu echo: echo mini help in echo area
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package corfu-echo
-  :unless d/on-droid
-  :after corfu
-  :init
-  (corfu-echo-mode))
-(eldoc-add-command #'corfu-insert)
+  (use-package corfu-echo
+    :unless d/on-droid
+    :after corfu
+    :init
+    (corfu-echo-mode))
+  (eldoc-add-command #'corfu-insert)
 
   #+end_src
 + corfu in terminal
@@ -2339,57 +2282,41 @@ Return nil if NAME does not designate a valid color."
 + an extension for corfu
   #+name: orgmacs
   #+begin_src emacs-lisp
-;; Add extensions
-(use-package cape
-  :after corfu
+  (use-package cape
+    :after corfu
+    :functions (cape-wrap-silent cape-wrap-purify) :defines (cape-dict-file)
+    :bind
+    (("C-c p p" . completion-at-point)
+    ("C-c p t" . complete-tag)
+    ("C-c p d" . cape-dabbrev)
+    ("C-c p h" . cape-history)
+    ("C-c p f" . cape-file)
+    ("C-c p k" . cape-keyword)
+    ("C-c p s" . cape-elisp-symbol)
+    ("C-c p e" . cape-elisp-block)
+    ("C-c p a" . cape-abbrev)
+    ("C-c p l" . cape-line)
+    ("C-c p w" . cape-dict)
+    ("C-c p \\" . cape-tex)
+    ("C-c p _" . cape-tex)
+    ("C-c p ^" . cape-tex)
+    ("C-c p &" . cape-sgml)
+    ("C-c p r" . cape-rfc1345))
 
-  :functions
-  (cape-wrap-silent
-   cape-wrap-purify)
-  :defines
-  (cape-dict-file)
-
-  :bind
-  ("C-c p p" . completion-at-point)
-  ("C-c p t" . complete-tag)
-  ("C-c p d" . cape-dabbrev)
-  ("C-c p h" . cape-history)
-  ("C-c p f" . cape-file)
-  ("C-c p k" . cape-keyword)
-  ("C-c p s" . cape-elisp-symbol)
-  ("C-c p e" . cape-elisp-block)
-  ("C-c p a" . cape-abbrev)
-  ("C-c p l" . cape-line)
-  ("C-c p w" . cape-dict)
-  ("C-c p \\" . cape-tex)
-  ("C-c p _" . cape-tex)
-  ("C-c p ^" . cape-tex)
-  ("C-c p &" . cape-sgml)
-  ("C-c p r" . cape-rfc1345)
-
-  :init
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-history)
-  (add-to-list 'completion-at-point-functions #'cape-keyword)
-  (add-to-list 'completion-at-point-functions #'cape-elisp-block)
-  ;; (add-to-list 'completion-at-point-functions #'cape-tex)
-  ;; (add-to-list 'completion-at-point-functions #'cape-sgml)
-  ;; (add-to-list 'completion-at-point-functions #'cape-rfc1345)
-  (add-to-list 'completion-at-point-functions #'cape-abbrev)
-  ;;(add-to-list 'completion-at-point-functions #'cape-dict)
-  ;; (add-to-list 'completion-at-point-functions #'cape-symbol)
-  ;; (add-to-list 'completion-at-point-functions #'cape-line)
-  :config
-
-  ;; Silence the pcomplete capf, no errors or messages!
-  ;; Important for corfu
-  (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
-
-  ;; Ensure that pcomplete does not write to the buffer
-  ;; and behaves as a pure `completion-at-point-function'.
-  (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify))
-
+    :init
+    (add-hook 'completion-at-point-functions #'cape-dabbrev)
+    (add-hook 'completion-at-point-functions #'cape-file)
+    (add-hook 'completion-at-point-functions #'cape-history)
+    (add-hook 'completion-at-point-functions #'cape-keyword)
+    (add-hook 'completion-at-point-functions #'cape-elisp-block)
+    ;; (add-hook 'completion-at-point-functions #'cape-tex)
+    ;; (add-hook 'completion-at-point-functions #'cape-sgml)
+    ;; (add-hook 'completion-at-point-functions #'cape-rfc1345)
+    (add-hook 'completion-at-point-functions #'cape-abbrev)
+    ;;(add-hook 'completion-at-point-functions #'cape-dict)
+    ;; (add-hook 'completion-at-point-functions #'cape-symbol)
+    ;; (add-hook 'completion-at-point-functions #'cape-line)
+    )
   #+end_src
 **** tempel
 + snippet template in elisp way

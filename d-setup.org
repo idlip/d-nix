@@ -409,13 +409,12 @@ It is as simple if I just record what it does, with proper link to rich resource
 - display time in mode-line
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package time
-  :ensure nil
-  :hook
-  (after-init . display-time)
-  :custom
-  (display-time-default-load-average nil)
-  (display-time-24hr-format t))
+  (use-package time
+    :ensure nil
+    :hook (after-init . display-time)
+    :custom
+    (display-time-default-load-average nil)
+    (display-time-24hr-format t))
   #+end_src
 *** useradd
   #+name: nixos-core
@@ -582,28 +581,12 @@ It is as simple if I just record what it does, with proper link to rich resource
   #+end_src
 *** tramp
 - Transparent remote (file) access, multiple protocol
-- some of the configs are suggestions from =drivish= readme.
   #+name: orgmacs
   #+begin_src emacs-lisp
   (use-package tramp
     :ensure nil
-    :defer t
-    :config
-    (put 'temporary-file-directory 'standard-value `(,temporary-file-directory))
     :custom
-    (tramp-backup-directory-alist backup-directory-alist)
-    (tramp-default-method "ssh")
-    (tramp-default-proxies-alist nil)
-
-    ;; Enable full-featured Dirvish over TRAMP on certain connections
-    ;; https://www.gnu.org/software/tramp/#Improving-performance-of-asynchronous-remote-processes-1.
-    (add-to-list 'tramp-connection-properties
-  	           (list (regexp-quote "/ssh:YOUR_HOSTNAME:")
-  		             "direct-async-process" t))
-
-    (tramp-verbose 0)
-    (tramp-chunksize 2000)
-    (tramp-use-ssh-controlmaster-options nil))
+    (tramp-backup-directory-alist backup-directory-alist))
   #+end_src
 **** systemd-nspawn (container) support for tramp
 - Credits to https://github.com/bjc/tramp-nspawn
@@ -831,14 +814,13 @@ see its function help for a description of the format."
 - Display battery in emacs
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package battery
-  :ensure nil
-  :hook
-  (after-init . display-battery-mode)
-  :custom
-  ;; better to keep charge between 40-80
-  (battery-load-low '40)
-  (battery-load-critical '29))
+  (use-package battery
+    :ensure nil
+    :hook (after-init . display-battery-mode)
+    :custom
+    ;; better to keep charge between 40-80
+    (battery-load-low '40)
+    (battery-load-critical '29))
   #+end_src
 *** thunderbolt
 - Support for thunderbolt 3
@@ -1215,13 +1197,7 @@ Exec=d-stuff %u
 ;;; Code:
 
   #+end_src
-+ Minimize warning from native-comp
-  #+name: early-init
-  #+begin_src emacs-lisp :tangle no
-(custom-set-variables
- '(native-comp-async-report-warnings-errors nil)
- '(native-comp-jit-compilation nil))
-  #+end_src
+
 + remove tool-bar, menu-bar, scroll-bar. Although menu-bar is very helpful.
   #+name: early-init
   #+begin_src emacs-lisp
@@ -1261,30 +1237,6 @@ Exec=d-stuff %u
   #+end_src
 ** Init
 - To initialize the environment.
-  #+begin_src emacs-lisp :tangle no
-;;; init.el --- Load the full configuration -*- lexical-binding: t -*-
-;;; Commentary:
-
-;; This file loads the Tangled org file.
-;; Dont mind the order, or no newlines.
-;; You can read the d-setup.org literate config file.
-
-;;; Code:
-
-;; (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
-
-;; Bootstrap config
-
-<<orgmacs>>
-
-;; Local Variables:
-;; coding: utf-8
-;; no-byte-compile: t
-;; End:
-
-(provide 'init)
-;;; init.el ends here
-  #+end_src
 *** use-package
 - setup =package.el=
   #+name: orgmacs

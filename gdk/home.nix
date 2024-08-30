@@ -207,9 +207,7 @@
 {
   programs.foot = {
     enable = true;
-
-    # doesnt work properly; Enable it in hyprland or sway config
-    server.enable = false;
+    server.enable = true;
 
     settings = {
       main = {
@@ -219,7 +217,6 @@
         letter-spacing = "1";
         box-drawings-uses-font-glyphs = "no";
         pad = "0x0center";
-        notify = "notify-send -a \${app-id} -i \${app-id} \${title} \${body}";
         selection-target = "clipboard";
         # dpi-aware = "true";
       };
@@ -389,14 +386,6 @@
 
 {
   home.packages = with pkgs; [
-    ##### science ####
-    # blast ncbi sra_toolkit
-    julia-bin
-  ];
-}
-
-{
-  home.packages = with pkgs; [
     texlive.combined.scheme-full
   ];
 }
@@ -465,163 +454,11 @@
 {
   home.packages = with pkgs; [
     mullvad-browser
+    # zen browser?
     # ungoogled-chromium
     # nyxt
-    # brave
+    brave
   ];
-
-  programs = {
-    firefox = {
-      enable = true;
-      # package = pkgs.firefox-wayland; # is there difference?
-
-      profiles.ihome = {
-        isDefault = true;
-        # extensions = with pkgs.nur.repos.rycee.firefox-addons; [
-        #   ff2mpv
-        #   vimium
-        #   languagetool
-        #   ublock-origin
-        #   darkreader
-        #   libredirect
-        #   multi-account-containers
-        # sideberry
-        # ];
-
-        # container = {
-        #   dangerous = {
-        #     color = "red";
-        #     icon = "fruit";
-        #     id = 2;
-        #   };
-        #   shopping = {
-        #     color = "blue";
-        #     icon = "cart";
-        #     id = 1;
-        #   };
-        # };
-
-        settings = {
-          "browser.startup.homepage" = "about:blank";
-          "browser.urlbar.placeholderName" = "Freedom & Find the OnePiece...";
-          "gfx.webrender.all" = true;
-          "gfx.webrender.enabled" = true;
-          "extensions.pocket.enabled" = false;
-          "browser.newtabpage.enhanced" = false;
-          "privacy.trackingprotection.cryptomining.enabled" = true;
-          "privacy.trackingprotection.enabled" = true;
-          "privacy.trackingprotection.fingerprinting.enabled" = true;
-          "privacy.trackingprotection.pbmode.enabled" = true;
-          "privacy.usercontext.about_newtab_segregation.enabled" = true;
-          "toolkit.telemetry.archive.enabled" = false;
-          "toolkit.telemetry.bhrPing.enabled" = false;
-          "toolkit.telemetry.cachedClientID" = "";
-          "toolkit.telemetry.enabled" = false;
-          "toolkit.telemetry.firstShutdownPing.enabled" = false;
-          "toolkit.telemetry.hybridContent.enabled" = false;
-          "toolkit.telemetry.newProfilePing.enabled" = false;
-          "toolkit.telemetry.prompted" = 2;
-          "toolkit.telemetry.rejected" = true;
-          "toolkit.telemetry.reportingpolicy.firstRun" = false;
-          "toolkit.telemetry.server" = "";
-          "toolkit.telemetry.shutdownPingSender.enabled" = false;
-          "toolkit.telemetry.unified" = false;
-          "toolkit.telemetry.unifiedIsOptIn" = false;
-          "toolkit.telemetry.updatePing.enabled" = false;
-          "webgl.disabled" = false;
-          "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
-          "browser.urlbar.trimURLs" = false;
-          "browser.fullscreen.autohide" = true;
-          "layers.acceleration.force-enabled" = true;
-          "layout.css.backdrop-filter.enabled" = true;
-          "svg.context-properties.content.enabled" = true;
-          "full-screen-api.ignore-widgets" = true;
-          "pdfjs.forcePageColors" = true;
-          "pdfjs.pageColorsBackground" = "#000000";
-          "pdfjs.pageColorsForeground" = "#ffffff";
-        };
-
-        search = {
-          default = "SearXNG";
-          force = true;
-          engines = {
-            "SearXNG" = {
-              urls = [{template = "https://searx.be/search?q={searchTerms}";}];
-              updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = ["@sr"];
-            };
-
-            "Nixpkgs-Package Search" = {
-              urls = [{template = "https://search.nixos.org/packages?channel=unstable&size=250&sort=relevance&type=packages&query={searchTerms}";}];
-              iconUpdateURL = "https://nixos.org/favicon.png";
-              updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = ["@nps"];
-            };
-
-            "Nixpkgs-Modules Search" = {
-              urls = [{template = "https://search.nixos.org/options?channel=unstable&size=200&sort=relevance&query={searchTerms}";}];
-              iconUpdateURL = "https://nixos.org/favicon.png";
-              updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = ["@nms"];
-            };
-
-            "NixOS-Wiki Search" = {
-              urls = [{template = "https://nixos.wiki/index.php?search={searchTerms}&go=Go";}];
-              iconUpdateURL = "https://nixos.org/favicon.png";
-              updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = ["@nws"];
-            };
-
-            "Home-Manager Search" = {
-              urls = [{template = "https://mipmip.github.io/home-manager-option-search/?query={searchTerms}";}];
-              iconUpdateURL = "https://nixos.org/favicon.png";
-              updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = ["@hms"];
-            };
-
-            "GitHub-Code Search" = {
-              urls = [{template = "https://github.com/search?q={searchTerms}&type=code";}];
-              iconUpdateURL = "https://github.githubassets.com/favicons/favicon-dark.svg";
-              updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = ["@gcs"];
-            };
-
-            "Noogle.dev Search" = {
-              urls = [{template = "https://noogle.dev/?term=%22{searchTerms}%22";}];
-              iconUpdateURL = "https://noogle.dev/favicon.png";
-              updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = ["@ngd" "@nog"];
-            };
-
-            "Nixpkgs PRs" = {
-              urls = [{template = "https://nixpk.gs/pr-tracker.html?pr={searchTerms}";}];
-              iconUpdateURL = "https://nixos.org/favicon.png";
-              updateInterval = 24 * 60 * 60 * 1000; # every day
-              definedAliases = ["@npr"];
-            };
-          };
-
-          order = [
-            "SearXNG"
-            "DuckDuckGo"
-          ];
-        };
-
-        userChrome = builtins.readFile ./configs/userChrome.css;
-
-        userContent = ''
-        @-moz-document regexp(".+\\.pdf$") {
-          body {
-            background-color: #000000 !important;
-          }
-        }
-
-        '';
-
-      };
-    };
-
-  };
 }
 
 {
@@ -738,10 +575,10 @@
   # video_pref="[height<=1080]"
   sub_link_count=1
   show_thumbnails=0
-  invidious_instance="https://vid.puffyan.us"
+  # invidious_instance="https://yewtu.be"
   external_menu () {
-  bemenu -w 0.98 -l 24 -p '  play '
-  # rofi -dmenu -i -config ~/.config/rofi/list.rasi -p '󰑈  play'
+  # bemenu -w 0.98 -l 24 -p '  play '
+  rofi -dmenu -i -l 10 -p '󰑈  play'
   }
   
   thumbnail_quality=high
@@ -855,6 +692,10 @@
         vrr = false;
       };
 
+      cursor = {
+        zoom_factor = 0.2;
+      };
+
       animations = {
         enabled = true;
         bezier = "linear, 0.0, 0.0, 1.0, 1.0";
@@ -907,7 +748,7 @@
 
     libnotify libsixel
     brightnessctl
-    wtype dotool
+    dotool
     swaybg
     # swayidle gtklock
 
@@ -977,10 +818,9 @@
           monitor = "";
           size = "250, 50";
           dots_center = true;
-          font_color = "rgb(255, 255, 255)";
+          font_color = "rgb(0, 0, 0)";
           fade_on_empty = true;
           placeholder_text = "<i>Password...</i>";
-          color = "rgba(20, 20, 20, 0.6)";
           hide_input = false;
           position = "0, 200";
           halign = "center";
@@ -1015,9 +855,11 @@
 
         {
           monitor = "";
-          text = "Welcome, think less, work smart!";
+          text = ''
+          echo "Greetings D !\n Think Less, Work Smart!"
+            '';
           color = "rgb(126, 247, 138)";
-          font_size = 20;
+          font_size = 26;
           position = "0, 70";
           halign = "center";
           valign = "bottom";
@@ -1059,6 +901,13 @@
 
     targets = {
       emacs.enable = false;
+      # hyprpaper.enable = false;
+      waybar = {
+        enable = true;
+        # enableLeftBackColors = true;
+        # enableCenterBackColors = true;
+        # enableRightBackColors = true;
+      };
     };
   };
 }
@@ -1349,8 +1198,37 @@
 
         };
       };
-    };
 
+      style = ''
+      * {
+          margin: 0px 10px 0px 0px;
+          border-radius: 15px;
+      }
+      
+      #battery.charging { color: #00ff7f; }
+      #battery.warning { background: orange; }
+      #battery.critical { background: red; }
+      
+      #workspaces button,
+      #taskbar button {
+          animation: gradient_f 20s ease-in infinite;
+          transition: all 0.5s cubic-bezier(.55,-0.68,.48,1.682);
+      }
+      
+      #workspaces button.active,
+      #taskbar button.active,
+      #workspaces button:hover,
+      #taskbar button:hover
+       {
+           animation: gradient_f 20s ease-in infinite;
+           padding-left: 5px;
+           padding-right: 5px;
+           border-radius: 10px;
+           transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
+       }
+      '';
+
+    };
   # home.file.".config/waybar/style.css".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/style.css";
 
 }
@@ -1471,6 +1349,15 @@
     STARDICT_DATA_DIR = "$HOME/d-git/d-bin/treasure/dict/";
     LIBVA_DRIVER_NAME = "iHD";
     LESS = "-J -i -W --status-line --incsearch --use-color -R";
+  };
+  xresources.properties = {
+    "Xft.dpi" = 192;
+    "Xft.autohint" = 0;
+    "Xft.lcdfilter" = "lcddefault";
+    "Xft.hintstyle" = "hintfull";
+    "Xft.hinting" = 1;
+    "Xft.antialias" = 1;
+    "Xft.rgba" = "rgb";
   };
 }
 
@@ -1680,6 +1567,73 @@
 
     };
   };
+}
+
+{
+  # xdg.configFile."rofi" = {
+  #   recursive = true;
+  #   source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/rofi";
+  # };
+
+  programs.rofi = {
+    enable = true;
+    package = pkgs.rofi-wayland;
+    cycle = true;
+    extraConfig = {
+      modi = "drun,run,window";
+      case-insensitive = true;
+      show-icons = true;
+      drun-show-actions = true;
+
+      display-drun = "󱓞 Apps";
+      display-run = " Run";
+      display-filebrowser = " Files";
+      display-window = "  Windows";
+
+      kb-primary-paste = "Control+V,Control+y";
+      kb-move-front = "Control+a";
+      kb-move-end = "Control+e";
+      kb-move-word-back = "Alt+b,Control+Left";
+      kb-move-word-forward = "Alt+f,Control+Right";
+      kb-move-char-back = "Left,Control+b";
+      kb-move-char-forward = "Right,Control+f";
+      kb-accept-alt = "Shift+Return";
+      kb-cancel = "Escape,Control+g,Control+bracketleft";
+    };
+
+    theme = {
+      window = {
+        transparency = "real";
+        location = "center";
+        width = "50%";
+        height = "60%";
+      };
+
+      mainbox = {
+        "background-color" = "transparent";
+        children = [ "inputbar" "message" "listview" "mode-switcher" ];
+      };
+
+      inputbar = {
+        "background-color" = "transparent";
+        children = [ "prompt" "textbox-prompt-colon" "entry" ];
+      };
+
+      textbox-prompt-colon = {
+        str = "  ";
+      };
+
+      listview = {
+        columns = 2;
+        lines = 10;
+        cycle = true;
+        dynamic = true;
+        "background-color" = "transparent";
+      };
+
+    };
+  };
+
 }
 
 {

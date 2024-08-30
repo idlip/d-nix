@@ -80,8 +80,8 @@ alias sioyek="sioyek --new-window"
 alias hyprunlock="pkill -SIGUSR1 hyprlock"
 
 # nixos rebuild
-alias rebuild="doas nixos-rebuild switch --flake ~/d-git/d-nix#gdk"
-alias testrebuild="doas nixos-rebuild test --flake ~/d-git/d-nix#gdk"
+alias rebuild="nixos-rebuild switch --flake ~/d-git/d-nix#gdk --use-remote-sudo"
+alias testrebuild="nixos-rebuild test --flake ~/d-git/d-nix#gdk --use-remote-sudo"
 
 # export BEMENU_OPTS="-i -l 10 -p ' ' -c -B 2 -W 0.5 --hp 15 --fn 'ComicCodeLigatures Nerd Font 20' --nb '#121212' --ab '#121212' --bdr '#c6daff' --nf '#ffffff' --af '#ffffff' --hb '#9aff9a' --hf '#121212' --fb '#121212' --ff '#a6e3a1' --tb '#121212' --tf '#f9e2af' ";
 

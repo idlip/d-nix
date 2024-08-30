@@ -168,7 +168,7 @@
 
     # dns
     # mullvad dns
-    nameservers = [ "194.242.2.5" "194.242.2.9" ];
+    nameservers = [ "194.242.2.9" "194.242.2.5" ];
     dhcpcd = {
       wait = "background";
       extraConfig = "noarp";
@@ -386,23 +386,6 @@
 }
 
 {
-  systemd.services = {
-    seatd = {
-      enable = true;
-      description = "Seat management daemon";
-      script = "${pkgs.seatd}/bin/seatd -g wheel";
-      serviceConfig = {
-        Type = "simple";
-        Restart = "always";
-        RestartSec = "1";
-      };
-      wantedBy = ["multi-user.target"];
-    };
-  };
-
-}
-
-{
   services.syncthing = {
     enable = true;
     user = "${vars.username}";
@@ -536,9 +519,6 @@
 }
 
 {
-  # TODOTHIS: Got some error on docbook,
-  # see-> https://github.com/NixOS/nixpkgs/blob/nixos-unstable/nixos/modules/misc/documentation.nix
-
   # faster rebuilding
   documentation = {
     enable = true;
@@ -653,6 +633,7 @@
     image = /home/idlip/d-git/d-wallpapers/oled/chinese-dragon.jpg;
     polarity = "dark";
 
+    # base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
     base16Scheme = {
       base00 = "#000000"; # bg
       base01 = "#121212"; # light bg
@@ -701,8 +682,8 @@
 
       sizes = {
         applications = 24;
-        desktop = 20;
-        popups = 20;
+        desktop = 22;
+        popups = 24;
         terminal = 24;
       };
 

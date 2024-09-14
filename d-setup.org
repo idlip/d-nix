@@ -2055,15 +2055,15 @@ E.g. capitalize or decapitalize the next word, increment number at point."
            "#+attr_html: :width 70%" n
            :post (org-insert-link))
 
-  (nixorg "  #+name: nixos-core" n> "#+begin_src nix :tangle gdk/core.nix" n>
-          n> "#+end_src" :post (org-edit-src-code))
+  (nixorg "  #+name: nixos-core" n "#+begin_src nix :tangle gdk/core.nix" n
+          n "#+end_src" :post (org-edit-src-code))
 
-  (hmorg "  #+name: hm-config" n> "#+begin_src nix :tangle gdk/home.nix" n>
-         n> "#+end_src" :post (org-edit-src-code))
+  (hmorg "  #+name: hm-config" n "#+begin_src nix :tangle gdk/home.nix" n
+         n "#+end_src" :post (org-edit-src-code))
 
 
   (elisp "  #+name: " (p "name") n "#+begin_src emacs-lisp" n n "#+end_src" :post (org-edit-src-code))
-  (orgmacs "  #+name: orgmacs" n> "#+begin_src emacs-lisp " n> n> "#+end_src" :post (org-edit-src-code))
+  (orgmacs "  #+name: orgmacs" n "#+begin_src emacs-lisp " n n "#+end_src" :post (org-edit-src-code))
 
   (blogorg "#+title: " (p "title") n
            "#+date: [" (format-time-string "%Y-%m-%d %a") "]")
@@ -2814,11 +2814,7 @@ emacs-lisp-mode
     (eshell-aliases-file (expand-file-name "alias" eshell-directory-name))
     (eshell-hist-ignoredups t)
     (eshell-buffer-name "eshell-terminal")
-    (eshell-last-dir-unique t)
     (eshell-last-dir-ring-size 32)
-    (eshell-list-files-after-cd t)
-    (eshell-cd-shows-directory t)
-    (eshell-prefer-lisp-functions nil)
     (eshell-kill-processes-on-exit 'ask)
 
     (eshell-prompt-function
@@ -2829,12 +2825,12 @@ emacs-lisp-mode
         "  "
         " "
         (propertize (replace-regexp-in-string "~" " " (eshell/pwd)) 'face '(:foreground "lightblue1"))
-        (when (package-installed-p 'magit) (propertize (if (magit-get-current-branch) (concat "   " (magit-get-current-branch)) "") 'face '(:foreground "orangered1")))
-        (when (package-installed-p 'envrc) (propertize (if (string= envrc--status 'none) "" "   ") 'face '(:foreground "mediumspringgreen")))
+        (when (with-eval-after-load 'magit (propertize (if (magit-get-current-branch) (concat "   " (magit-get-current-branch)) "") 'face '(:foreground "orangered1"))))
+        (when (with-eval-after-load 'envrc (propertize (if (string= envrc--status 'none) "" "   ") 'face '(:foreground "mediumspringgreen"))))
         ;; (propertize (concat "   " (format-time-string "%H:%M" (current-time))) 'face '(:foreground "lightcyan1"))
         (propertize "\n 󰘧 " 'face '(:foreground "palegreen"))
         )))
-    (eshell-prompt-regexp "^ 󰘧 "))
+    (eshell-prompt-regexp " 󰘧 "))
   #+end_src
 - eshell function to toggle and clear buffer
   #+name: orgmacs
@@ -3309,7 +3305,7 @@ emacs-lisp-mode
     (nix-mode . alejandra-format-on-save-mode)
     (ess-r-mode . styler-format-on-save-mode)
     (bash-ts-mode . shell-format-on-save-mode)
-    (nix-ts-mode . nixfmt-rfc-format-on-save-mode)
+    ;; (nix-ts-mode . nixfmt-rfc-format-on-save-mode)
 
     :config
     (reformatter-define ruff-format :program "ruff"
@@ -4193,7 +4189,7 @@ And save it in a file and imports the opml feeds in newsticker. So it updates wi
     :hook
     (gnus-group-mode . gnus-topic-mode)
     (gnus-summary-mode . turn-on-gnus-mailing-list-mode)
-    (gnus-article-mode . d/reading-mode)
+    ;; (gnus-article-mode . d/reading-mode)
     :bind (("C-c d g" . gnus)
            (:map gnus-summary-mode-map
                  ("-" . gnus-summary-hide-thread)
@@ -5589,6 +5585,7 @@ for the search engine used."
     # the thing is you won't get xdg-portal-hyprland
     # refer: https://github.com/nix-community/home-manager/issues/1167
     # # enable hyprland
+    services.hyprpaper.enable = lib.mkForce false;
     wayland.windowManager.hyprland = {
       enable = true;
       systemd.enable = true;

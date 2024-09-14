@@ -2530,6 +2530,15 @@ emacs-lisp-mode
    ("C-x C-a g" . activities-revert)
    ("C-x C-a l" . activities-list)))
 #+end_src
+
+**** zone
+- Misc fun when idle
+     #+name: orgmacs
+#+begin_src emacs-lisp
+(use-package zone :ensure nil :demand t
+  :custom (zone-timer (* 60 5)))
+#+end_src
+
 * Development
 *** Documentation
 - Documentation matters!
@@ -5901,18 +5910,18 @@ binds {
   #exec-once = swayidle timeout 150 'gtklock -b black & sleep 1 && systemctl suspend' before-sleep 'loginctl lock-session' lock 'gtklock -b black'
   # exec-once = swayidle -w timeout 300 'gtklock -i -b black -d' timeout 210 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on' timeout 302 'if pgrep gtklock; then hyprctl dispatch dpms off; fi' resume 'hyprctl dispatch dpms on' timeout 1000 'systemctl suspend'
   # exec-once = gammastep -l 19:72 -t 6500:4100
-  exec-once = d-walls
+  # exec-once = d-walls
   exec-once = dotoold
   # exec-once = foot --server
-  exec-once = emacs --bg-daemon
+  # exec-once = emacs --bg-daemon
 
   env = QT_SCALE_FACTOR, 1.5
   env = GDK_SCALE, 1.5
 
   # --- Local var ---
-  misc {
-  swallow_regex=^(footclient)$
-  }
+  # misc {
+  # swallow_regex=^(footclient)$
+  # }
   cursor {
   zoom_factor=0.2
   }
@@ -5926,17 +5935,18 @@ binds {
   # }
 
   input {
-    touchpad {
-      disable_while_typing=0
-    }
+  repeat_rate=50
+  touchpad {
+  disable_while_typing=0
+  }
   }
 
-  animations {
-  enabled = false
-  }
+  # animations {
+  # enabled = false
+  # }
   decoration {
   blur {
-  enabled = false
+  enabled = true
   }
   # rounding = false;
   active_opacity=1.0
@@ -6043,7 +6053,7 @@ binds {
   bind = SUPERSHIFT,b,exec,d-bookmark
   bind = SUPER,m,exec,d-urls
   bind = SUPER,Insert,exec,d-urls
-  bind = SUPER, y, exec, cliphist list | rofi -dmenu -l 10 | cliphist decode | wl-copy
+  bind = SUPER, y, exec, cliphist list | fuzzel -d | cliphist decode | wl-copy
 
   bind = SUPER,grave,exec,d-unicodes
   bind = SUPER,Delete,exec,pkill -INT wl-screenrec && pkill -RTMIN+8 waybar
@@ -6079,8 +6089,9 @@ binds {
 
   # █▀▄▀█ █ █▀ █▀▀
   # █░▀░█ █ ▄█ █▄▄
-  bind = SUPER, RETURN, exec, pgrep emacs && emacsclient -c -e "(eshell)" || footclient
-  bind = SUPERSHIFT, RETURN, exec, pgrep emacs && emacsclient -c -e "(eshell)" || footclient
+  bind = SUPER, return, exec, footclient
+  # bind = SUPER, RETURN, exec, pgrep emacs && emacsclient -c -e "(eshell)" || footclient
+  # bind = SUPERSHIFT, RETURN, exec, pgrep emacs && emacsclient -c -e "(eshell)" || footclient
   bind = SUPERSHIFT, Q, killactive,
   bind = SUPERSHIFT, R, exec, hyprctl reload
   bind = SUPERCONTROL, Q, exec, hyprkill
@@ -6090,8 +6101,8 @@ binds {
   bind = SUPER, 0, exec, hyprctl keyword monitor ,2880x1800@90,auto,1.5
   bind = SUPERSHIFT, 0, exec, hyprctl keyword monitor ,2880x1800@90,auto,1
 
-  # bind = SUPER, d, exec, bemenu-run
-  bind = SUPER, d, exec, rofi -show drun
+  bind = SUPER, d, exec, fuzzel
+  # bind = SUPER, d, exec, rofi -show drun
 
   bind = SUPER, b, exec, pkill -SIGUSR1 waybar || pidof -x waybar || waybar
 
@@ -6243,6 +6254,9 @@ binds {
   bind=,x,exec,d-power
   bind=,x,submap,reset
 
+  bind=,r,exec,d-remind
+  bind=,r,submap,reset
+
   bind=,escape,submap,reset
   bind=CONTROL,g,submap,reset
   submap=reset
@@ -6316,6 +6330,7 @@ binds {
   #+end_src
 *** COMMENT cosmic
 - Trying out cosmic desktop
+- Maybe just cosmic-comp and cosmic-session works?
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
   {
@@ -6323,6 +6338,10 @@ binds {
       desktopManager.cosmic.enable = true;
       displayManager.cosmic-greeter.enable = true;
       power-profiles-daemon.enable = lib.mkForce false;
+    };
+    nix.settings = {
+      substituters = [ "https://cosmic.cachix.org/" ];
+      trusted-public-keys = [ "cosmic.cachix.org-1:Dya9IyXD4xdBehWjrkPv6rtxpmMdRel02smYzA85dPE=" ];
     };
   }
   #+end_src
@@ -6339,6 +6358,7 @@ binds {
       brightnessctl
       dotool
       swaybg
+      sway niri
       # swayidle gtklock
 
       # utils
@@ -6453,7 +6473,7 @@ binds {
           {
             monitor = "";
             text = ''
-            echo "Greetings D !\n Think Less, Work Smart!"
+            Think Less, Work Smart!
               '';
             color = "rgb(126, 247, 138)";
             font_size = 26;
@@ -7001,14 +7021,12 @@ css = "normal"
 
             "hyprland/workspaces" = {
               format = "{icon}";
-              disable-scroll = true;
+              disable-scroll = false;
               all-outputs = true;
               active-only = false;
               show-special = true;
               on-click = "activate";
               format-icons = {
-                active = "";
-                default = "";
                 "1" = "1";
                 "2" = "2";
                 "3" = "3";
@@ -7049,9 +7067,9 @@ css = "normal"
 
 
             "custom/launcher" = {
-              "format" = "";
+              "format" = " ";
               "tooltip" = false;
-              "on-click" = "bemenu-run";
+              "on-click" = "fuzzel";
               "interval" = 86400;
             };
 
@@ -7154,7 +7172,7 @@ css = "normal"
               "scroll-step" = 2;
               "format" = "{icon} {volume: >3}%";
               "format-bluetooth" = "{icon} {volume: >3}%";
-              "format-muted" =" muted";
+              "format-muted" =" ";
               "on-click" = "d-volume toggle";
               "on-click-middle"=  "pavucontrol";
               "format-icons" = {
@@ -7224,8 +7242,8 @@ css = "normal"
 
 #workspaces button,
 #taskbar button {
-    animation: gradient_f 20s ease-in infinite;
-    transition: all 0.5s cubic-bezier(.55,-0.68,.48,1.682);
+    padding: 0 0 0 0px;
+    margin: 0 0 0 0px;
 }
 
 #workspaces button.active,
@@ -7233,10 +7251,7 @@ css = "normal"
 #workspaces button:hover,
 #taskbar button:hover
  {
-     animation: gradient_f 20s ease-in infinite;
-     padding-left: 5px;
-     padding-right: 5px;
-     border-radius: 10px;
+     background: #2e8b57;
      transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
  }
 #+end_src
@@ -7675,10 +7690,6 @@ css = "normal"
       bat = {
         enable = true;
         extraPackages = with pkgs.bat-extras; [ batdiff batman batgrep batwatch ];
-        config = {
-          pager = "less -fr";
-          # theme = "TwoDark";
-        };
       };
 
       ssh.enable = true;
@@ -8816,6 +8827,19 @@ css = "normal"
   (use-package ox :after org
     :custom (org-export-backends '(org odt md man latex icalendar html ascii)))
   #+end_src
+
+*** org-crypt
+- To encrypt contents of heading.
+- Works like charm, and makes plain text more safe to store.
+#+name: orgmacs
+  #+begin_src emacs-lisp
+(use-package org-crypt :after org :ensure nil
+  :config
+  (org-crypt-use-before-save-magic)
+  (setq org-tags-exclude-from-inheritance '("crypt"))
+  (setq org-crypt-key nil))
+  #+end_src
+
 *** remember
 - Tiny little mode and remember some running thoughts to seek out the insights.
 - Note: =no-littering= package alters =remember-data-file=.

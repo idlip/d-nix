@@ -747,6 +747,9 @@ E.g. capitalize or decapitalize the next word, increment number at point."
    ("C-x C-a g" . activities-revert)
    ("C-x C-a l" . activities-list)))
 
+(use-package zone :ensure nil :demand t
+  :custom (zone-timer (* 60 5)))
+
 (use-package man :ensure nil :demand t
   :custom (Man-notify-method 'pushy "show manpage HERE")
   :custom-face
@@ -795,11 +798,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (eshell-aliases-file (expand-file-name "alias" eshell-directory-name))
   (eshell-hist-ignoredups t)
   (eshell-buffer-name "eshell-terminal")
-  (eshell-last-dir-unique t)
   (eshell-last-dir-ring-size 32)
-  (eshell-list-files-after-cd t)
-  (eshell-cd-shows-directory t)
-  (eshell-prefer-lisp-functions nil)
   (eshell-kill-processes-on-exit 'ask)
 
   (eshell-prompt-function
@@ -810,12 +809,12 @@ E.g. capitalize or decapitalize the next word, increment number at point."
       "  "
       " "
       (propertize (replace-regexp-in-string "~" " " (eshell/pwd)) 'face '(:foreground "lightblue1"))
-      (when (package-installed-p 'magit) (propertize (if (magit-get-current-branch) (concat "   " (magit-get-current-branch)) "") 'face '(:foreground "orangered1")))
-      (when (package-installed-p 'envrc) (propertize (if (string= envrc--status 'none) "" "   ") 'face '(:foreground "mediumspringgreen")))
+      (when (with-eval-after-load 'magit (propertize (if (magit-get-current-branch) (concat "   " (magit-get-current-branch)) "") 'face '(:foreground "orangered1"))))
+      (when (with-eval-after-load 'envrc (propertize (if (string= envrc--status 'none) "" "   ") 'face '(:foreground "mediumspringgreen"))))
       ;; (propertize (concat "   " (format-time-string "%H:%M" (current-time))) 'face '(:foreground "lightcyan1"))
       (propertize "\n 󰘧 " 'face '(:foreground "palegreen"))
       )))
-  (eshell-prompt-regexp "^ 󰘧 "))
+  (eshell-prompt-regexp " 󰘧 "))
 
 (defun d/clear-eshell ()
   (interactive)
@@ -985,7 +984,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (nix-mode . alejandra-format-on-save-mode)
   (ess-r-mode . styler-format-on-save-mode)
   (bash-ts-mode . shell-format-on-save-mode)
-  (nix-ts-mode . nixfmt-rfc-format-on-save-mode)
+  ;; (nix-ts-mode . nixfmt-rfc-format-on-save-mode)
 
   :config
   (reformatter-define ruff-format :program "ruff"
@@ -1249,7 +1248,7 @@ out"))
   :hook
   (gnus-group-mode . gnus-topic-mode)
   (gnus-summary-mode . turn-on-gnus-mailing-list-mode)
-  (gnus-article-mode . d/reading-mode)
+  ;; (gnus-article-mode . d/reading-mode)
   :bind (("C-c d g" . gnus)
          (:map gnus-summary-mode-map
                ("-" . gnus-summary-hide-thread)
@@ -2391,6 +2390,12 @@ absolute path. Finally load eglot."
 
 (use-package ox :after org
   :custom (org-export-backends '(org odt md man latex icalendar html ascii)))
+
+(use-package org-crypt :after org :ensure nil
+  :config
+  (org-crypt-use-before-save-magic)
+  (setq org-tags-exclude-from-inheritance '("crypt"))
+  (setq org-crypt-key nil))
 
 (use-package remember :ensure nil
   :bind ("C-c r r" . remember) ("C-c r n" . remember-notes))

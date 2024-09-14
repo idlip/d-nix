@@ -627,6 +627,7 @@
   # the thing is you won't get xdg-portal-hyprland
   # refer: https://github.com/nix-community/home-manager/issues/1167
   # # enable hyprland
+  services.hyprpaper.enable = lib.mkForce false;
   wayland.windowManager.hyprland = {
     enable = true;
     systemd.enable = true;
@@ -750,6 +751,7 @@
     brightnessctl
     dotool
     swaybg
+    sway niri
     # swayidle gtklock
 
     # utils
@@ -856,7 +858,7 @@
         {
           monitor = "";
           text = ''
-          echo "Greetings D !\n Think Less, Work Smart!"
+          Think Less, Work Smart!
             '';
           color = "rgb(126, 247, 138)";
           font_size = 26;
@@ -1000,14 +1002,12 @@
 
           "hyprland/workspaces" = {
             format = "{icon}";
-            disable-scroll = true;
+            disable-scroll = false;
             all-outputs = true;
             active-only = false;
             show-special = true;
             on-click = "activate";
             format-icons = {
-              active = "";
-              default = "";
               "1" = "1";
               "2" = "2";
               "3" = "3";
@@ -1048,9 +1048,9 @@
 
 
           "custom/launcher" = {
-            "format" = "";
+            "format" = " ";
             "tooltip" = false;
-            "on-click" = "bemenu-run";
+            "on-click" = "fuzzel";
             "interval" = 86400;
           };
 
@@ -1153,7 +1153,7 @@
             "scroll-step" = 2;
             "format" = "{icon} {volume: >3}%";
             "format-bluetooth" = "{icon} {volume: >3}%";
-            "format-muted" =" muted";
+            "format-muted" =" ";
             "on-click" = "d-volume toggle";
             "on-click-middle"=  "pavucontrol";
             "format-icons" = {
@@ -1211,8 +1211,8 @@
       
       #workspaces button,
       #taskbar button {
-          animation: gradient_f 20s ease-in infinite;
-          transition: all 0.5s cubic-bezier(.55,-0.68,.48,1.682);
+          padding: 0 0 0 0px;
+          margin: 0 0 0 0px;
       }
       
       #workspaces button.active,
@@ -1220,10 +1220,7 @@
       #workspaces button:hover,
       #taskbar button:hover
        {
-           animation: gradient_f 20s ease-in infinite;
-           padding-left: 5px;
-           padding-right: 5px;
-           border-radius: 10px;
+           background: #2e8b57;
            transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
        }
       '';
@@ -1269,10 +1266,6 @@
     bat = {
       enable = true;
       extraPackages = with pkgs.bat-extras; [ batdiff batman batgrep batwatch ];
-      config = {
-        pager = "less -fr";
-        # theme = "TwoDark";
-      };
     };
 
     ssh.enable = true;
@@ -1440,87 +1433,18 @@
 }
 
 {
-  services.dunst = {
+  services.fnott = {
     enable = true;
-    iconTheme = {
-      package = pkgs.papirus-icon-theme;
-      name = "Papirus";
-    };
     settings = {
-      global = {
-        monitor = 0;
-        background = "#050505";
-        frame_color = "#2e8b57";
-        transparency = 0;
-        follow = "none";
-        width = 400;
-        height = 900;
-        idle_threshold = 120;
-        origin = "top-right";
-        offset = "10x20";
-        scale = 0;
-        notification_limit = 0;
-        progress_bar = "true";
-        alignment = "center";
-        progress_bar_height = 10;
-        progress_bar_frame_width = 1;
-        progress_bar_min_width = 150;
-        progress_bar_max_width = 500;
-        indicate_hidden = "yes";
-        padding = 2;
-        frame_width = 2;
-        # separator_color = "frame";
-        sort = "yes";
-        # font = "Code Haki 26";
-        line_height = 0;
-        markup = "full";
-        stack_duplicates = "true";
-        vertical_alignment = "center";
-        show_age_threshold = 60;
-        ellipsize = "middle";
-        ignore_newline = "no";
-        show_indicators = "yes";
-        icon_position = "left";
-        max_icon_size = 32;
-        sticky_history = "yes";
-        history_length = 20;
-        browser = "d-stuff";
-        always_run_script = "true";
-        title = "Dunst";
-        class = "Dunst";
-        corner_radius = 20;
-        ignore_dbusclose = false;
-        force_xwayland = "false";
-        layer = "overlay";
-        mouse_left_click = "do_action";
-        mouse_middle_click = "do_action";
-        mouse_right_click = "close_all";
+      main = {
+        notification-margin = 5;
+        min-width = 400;
+        max-width = 900;
+        selection-helper = "fuzzel";
+        play-sound = "/home/idlip/.bin/d-notify \${filename}";
+        dpi-aware = true;
+        sound-file= "/home/idlip/music/yt/misc/linux-notify.ogg";
       };
-
-      reminder = {
-        category = "reminder";
-        background = "#33333390";
-        foreground = "#ffffff";
-        timeout = 0;
-        script="d-notif";
-      };
-
-      # urgency_low = {
-      #   background = "#050505";
-      #   foreground = "#ffffff";
-      #   timeout = 5;
-      # };
-      # urgency_normal = {
-      #   background = "#050505";
-      #   foreground = "#ffffff";
-      #   timeout = 6;
-      # };
-      # urgency_critical = {
-      #   background = "#050505";
-      #   foreground = "#ffffff";
-      #   frame_color = "#f38ba8";
-      #   timeout = 0;
-      # };
     };
   };
 }
@@ -1539,101 +1463,24 @@
 }
 
 {
-  # funny it just converts the set to commandLineArgs and puts it as home sessionVariables
-  programs.bemenu = {
+  programs.fuzzel = {
     enable = true;
     settings = {
-      no-cursor = true;
-      no-spacing = true;
-      ignorecase = true;
-      no-touch = true;
-      prompt = " ";
-      counter = "always";
-      prefix = " ";
-
-      # fn = "Code Haki 28";
-
-      # nb = "#00000090";
-      # ab = "#00000090";
-      # bdr = "#c6daff";
-      # nf = "#ffffff";
-      # af = "#ffffff";
-      # hb = "#2e8b57";
-      # hf = "#000000";
-      # fb = "#111111";
-      # ff = "#fafad2";
-      # tb = "#121212";
-      # tf = "#6ae4b9";
-
+      main = {
+        prompt = "'  '";
+        fuzzy = true;
+        show-actions = true;
+        list-executables-in-path = true;
+        layer = "overlay";
+        exit-on-keyboard-focus-loss = false;
+        line-height = 20;
+      };
+      border = {
+        width = 4;
+        radius = 16;
+      };
     };
   };
-}
-
-{
-  # xdg.configFile."rofi" = {
-  #   recursive = true;
-  #   source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/rofi";
-  # };
-
-  programs.rofi = {
-    enable = true;
-    package = pkgs.rofi-wayland;
-    cycle = true;
-    extraConfig = {
-      modi = "drun,run,window";
-      case-insensitive = true;
-      show-icons = true;
-      drun-show-actions = true;
-
-      display-drun = "󱓞 Apps";
-      display-run = " Run";
-      display-filebrowser = " Files";
-      display-window = "  Windows";
-
-      kb-primary-paste = "Control+V,Control+y";
-      kb-move-front = "Control+a";
-      kb-move-end = "Control+e";
-      kb-move-word-back = "Alt+b,Control+Left";
-      kb-move-word-forward = "Alt+f,Control+Right";
-      kb-move-char-back = "Left,Control+b";
-      kb-move-char-forward = "Right,Control+f";
-      kb-accept-alt = "Shift+Return";
-      kb-cancel = "Escape,Control+g,Control+bracketleft";
-    };
-
-    theme = {
-      window = {
-        transparency = "real";
-        location = "center";
-        width = "50%";
-        height = "60%";
-      };
-
-      mainbox = {
-        "background-color" = "transparent";
-        children = [ "inputbar" "message" "listview" "mode-switcher" ];
-      };
-
-      inputbar = {
-        "background-color" = "transparent";
-        children = [ "prompt" "textbox-prompt-colon" "entry" ];
-      };
-
-      textbox-prompt-colon = {
-        str = "  ";
-      };
-
-      listview = {
-        columns = 2;
-        lines = 10;
-        cycle = true;
-        dynamic = true;
-        "background-color" = "transparent";
-      };
-
-    };
-  };
-
 }
 
 {

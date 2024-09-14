@@ -5699,13 +5699,196 @@ for the search engine used."
     xdg.configFile."hypr/hyprsea.conf".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/hyprsea.conf";
   }
   #+end_src
+*** niri
+- A scrolling window manager with new workflow.
+- Note: This is written in =kdl= format
+#+begin_src conf :tangle ~/.config/niri/config.kdl
+// Find the full list of options on the wiki:
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Input
+input {
+    keyboard {
+        xkb { options "ctrl:nocaps"; }
+            repeat-delay 600; repeat-rate 50;
+    }
+    touchpad {
+        dwt; natural-scroll;
+    }
+    focus-follows-mouse
+}
+
+environment {
+    DISPLAY ":0"
+    QT_SCALE_FACTOR "1.5"
+    GDK_SCALE "2"
+}
+
+// startups
+spawn-at-startup "dotoold"
+spawn-at-startup "d-walls"
+spawn-at-startup "foot server"
+spawn-at-startup "waybar"
+
+output "eDP-1" {
+    scale 1.0
+}
+
+layout {
+    gaps 10
+    center-focused-column "never"
+    preset-column-widths { proportion 0.33333; proportion 0.5; proportion 0.66667; }
+
+    default-column-width { proportion 0.5; }
+
+    focus-ring {
+        off
+        width 2
+        inactive-color "#020202"
+        active-gradient from="#2e8b57" to="#bbddff" angle=45
+    }
+
+    border {
+        width 2
+        inactive-color "#020202"
+        active-gradient from="#2e8b57" to="#bbddff" angle=45 relative-to="workspace-view"
+    }
+
+}
+
+prefer-no-csd
+screenshot-path "~/pics/sshots/screenshot_from_%Y-%m-%d=%H-%M-%S.png"
+
+animations {
+// off
+}
+
+window-rule {
+    match app-id=r#"^org\.keepassxc\.KeePassXC$"#
+    match app-id=r#"^org\.gnome\.World\.Secrets$"#
+    block-out-from "screen-capture"
+}
+
+// keybindings
+binds {
+    // `niri msg action do-something`.
+    Mod+Shift+Slash { show-hotkey-overlay; } // S-?
+
+    Mod+Return { spawn "footclient"; }
+    Mod+D { spawn "fuzzel"; }
+    Mod+Alt+L { spawn "hyprlock"; }
+    Mod+X {spawn "d-power"; }
+    Mod+Y {spawn "d-clip"; }
+    Mod+M {spawn "d-urls"; }
+    Mod+Shift+B {spawn "d-bookmark"; }
+    Mod+F5 {spawn "d-walls"; }
+    Mod+o {spawn "d-stuff"; }
+
+    Mod+Ctrl+Equal { spawn "niri" "msg" "output" "eDP-1" "scale" "2"; }
+    Mod+Ctrl+Minus { spawn "niri" "msg" "output" "eDP-1" "scale" "1"; }
+
+    // The allow-when-locked=true property makes them work even when the session is locked.
+    XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05+"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.05-"; }
+    XF86AudioMute        allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+    XF86AudioMicMute     allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
+
+    Mod+Shift+Q { close-window; }
+
+    Mod+H     { focus-column-left; }
+    Mod+J     { focus-window-down; }
+    Mod+K     { focus-window-up; }
+    Mod+L     { focus-column-right; }
+
+    Mod+Shift+H     { move-column-left; }
+    Mod+Shift+J     { move-window-down; }
+    Mod+Shift+K     { move-window-up; }
+    Mod+Shift+L     { move-column-right; }
+
+    Mod+Tab     { focus-window-or-workspace-down; }
+    Mod+Shift+Tab     { focus-window-or-workspace-up; }
+
+    Mod+Home { focus-column-first; }
+    Mod+End  { focus-column-last; }
+    Mod+Ctrl+Home { move-column-to-first; }
+    Mod+Ctrl+End  { move-column-to-last; }
+
+    Mod+Shift+Ctrl+Left  { move-column-to-monitor-left; }
+    Mod+Shift+Ctrl+Down  { move-column-to-monitor-down; }
+    Mod+Shift+Ctrl+Up    { move-column-to-monitor-up; }
+    Mod+Shift+Ctrl+Right { move-column-to-monitor-right; }
+    Mod+Shift+Ctrl+H     { move-column-to-monitor-left; }
+    Mod+Shift+Ctrl+J     { move-column-to-monitor-down; }
+    Mod+Shift+Ctrl+K     { move-column-to-monitor-up; }
+    Mod+Shift+Ctrl+L     { move-column-to-monitor-right; }
+
+    Mod+V              { focus-workspace-down; }
+    Mod+Shift+V              { focus-workspace-up; }
+    Mod+Ctrl+V         { move-column-to-workspace-down; }
+    Mod+Ctrl+Shift+V         { move-column-to-workspace-up; }
+
+    Mod+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
+    Mod+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
+
+    Mod+Shift+WheelScrollDown      { focus-column-right; }
+    Mod+Shift+WheelScrollUp        { focus-column-left; }
+    Mod+Ctrl+Shift+WheelScrollDown { move-column-right; }
+    Mod+Ctrl+Shift+WheelScrollUp   { move-column-left; }
+
+    Mod+1 { focus-workspace 1; }
+    Mod+2 { focus-workspace 2; }
+    Mod+3 { focus-workspace 3; }
+    Mod+4 { focus-workspace 4; }
+    Mod+5 { focus-workspace 5; }
+    Mod+6 { focus-workspace 6; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
+    Mod+Shift+1 { move-column-to-workspace 1; }
+    Mod+Shift+2 { move-column-to-workspace 2; }
+    Mod+Shift+3 { move-column-to-workspace 3; }
+    Mod+Shift+4 { move-column-to-workspace 4; }
+    Mod+Shift+5 { move-column-to-workspace 5; }
+    Mod+Shift+6 { move-column-to-workspace 6; }
+    Mod+Shift+7 { move-column-to-workspace 7; }
+    Mod+Shift+8 { move-column-to-workspace 8; }
+    Mod+Shift+9 { move-column-to-workspace 9; }
+
+    Mod+Comma  { consume-window-into-column; }
+    Mod+Period { expel-window-from-column; }
+    Mod+BracketLeft  { consume-or-expel-window-left; }
+    Mod+BracketRight { consume-or-expel-window-right; }
+
+    Mod+R { switch-preset-column-width; }
+    Mod+Shift+R { reset-window-height; }
+    Mod+F { maximize-column; }
+    Mod+Shift+F { fullscreen-window; }
+    Mod+C { center-column; }
+
+    Mod+Minus { set-column-width "-10%"; }
+    Mod+Equal { set-column-width "+10%"; }
+
+    Mod+Shift+Minus { set-window-height "-10%"; }
+    Mod+Shift+Equal { set-window-height "+10%"; }
+
+    Print { screenshot; }
+    Ctrl+Print { screenshot-screen; }
+    Alt+Print { screenshot-window; }
+
+    // The quit action will show a confirmation dialog to avoid accidental exits.
+    Mod+Shift+E { quit; }
+
+    // Powers off the monitors. To turn them back on, do any input like
+    // moving the mouse or pressing any other key.
+    Mod+Alt+P { power-off-monitors; }
+}
+
+#+end_src
 *** hyprsea
 - more additional hyprland conf for quick reloads
   #+begin_src conf :tangle ./gdk/configs/hyprsea.conf
   monitor = ,2880x1800@90,auto,1
   # monitor = ,1920x1200@90,auto,1
   #monitor = HDMI-A-1,1920x1080,0x0,1
-  # monitor = HDMI-A-1,1920x1080,0x0,1,mirror,eDP-1
+  monitor = HDMI-A-1,1920x1080,0x0,1,mirror,eDP-1
 
   # ---- Autostart Apps ----
 

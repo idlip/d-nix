@@ -2437,9 +2437,9 @@ emacs-lisp-mode
   #+begin_src emacs-lisp
   (use-package tab-bar :unless d/on-droid
     :bind  (
-            ("s-[" . tab-bar-switch-to-prev-tab)
-            ("s-]" . tab-bar-switch-to-next-tab)
-            ("C-<tab>" . tab-next))
+            ("C-]" . tab-next)
+            ("C-<tab>" . tab-line-switch-to-next-tab)
+            )
     :custom
     (tab-bar-format '(
                       tab-bar-format-history
@@ -2447,7 +2447,7 @@ emacs-lisp-mode
                       tab-bar-format-menu-bar
                       tab-bar-format-tabs
                       tab-bar-format-align-right
-                      ;; tab-bar-format-global
+                      ;; tab-bar-format-global ;; An issue when used in terminal (cursor wont move properly)
                       ))
     (global-mode-string '("" "󰁹"battery-mode-line-string " "display-time-string) "For tab-bar-format-global values")
     (tab-bar-close-button-show nil)

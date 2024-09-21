@@ -7051,24 +7051,36 @@ css = "normal"
           mainBar = {
             layer = "top";
             position = "top";
-            # height = 15;
-            # spacing = 7;
-            fixed-center = true;
-            exclusive = true;
+            margin-top = 10;
 
             modules-left = [
-              "custom/launcher"
-              "hyprland/workspaces"
-              "wlr/taskbar"
-              "hyprland/window"
+              "custom/launcher" "wlr/taskbar" "niri/window" "hyprland/window"
               "hyprland/submap"
             ];
 
             modules-center = [
+              "niri/workspaces" "hyprland/workspaces"
               "privacy" "custom/recorder" "clock" "mpd" "mpris"
             ];
 
             modules-right = [ "tray" "network" "backlight" "battery" "memory" "wireplumber" "custom/power" ];
+
+            "niri/workspaces" = {
+  	          format = "{icon}";
+  	          format-icons = {
+  		          "active" = "";
+  		          "default" = "";
+  	          };
+            };
+
+            "niri/window" = {
+  	          format = "{}";
+  	          "rewrite" = {
+                "(.*) - GNU Emacs (.*)" = " $1";
+                "(.*).epub(.*)" = "󰂽 $1";
+                "(.*)foot" = " Terminal $1";
+  	          };
+            };
 
             "hyprland/workspaces" = {
               format = "{icon}";
@@ -7116,9 +7128,8 @@ css = "normal"
               "on-click-middle"=  "close";
             };
 
-
             "custom/launcher" = {
-              "format" = " ";
+              "format" = "  ";
               "tooltip" = false;
               "on-click" = "fuzzel";
               "interval" = 86400;
@@ -7282,7 +7293,7 @@ css = "normal"
 - Waybar Style with stylix pairing
 #+name: waybar-stylix
 #+begin_src css
-,* {
+.modules-right * {
     margin: 0px 10px 0px 0px;
     border-radius: 15px;
 }
@@ -7290,12 +7301,6 @@ css = "normal"
 #battery.charging { color: #00ff7f; }
 #battery.warning { background: orange; }
 #battery.critical { background: red; }
-
-#workspaces button,
-#taskbar button {
-    padding: 0 0 0 0px;
-    margin: 0 0 0 0px;
-}
 
 #workspaces button.active,
 #taskbar button.active,
@@ -7306,119 +7311,6 @@ css = "normal"
      transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
  }
 #+end_src
-
-**** COMMENT style.css
-  #+begin_src css :tangle ./gdk/configs/style.css
-  /* My own theme (Haki) made for emacs */
-
-  @define-color  bg-main	     #050505;
-  @define-color  bg-dim	     #121212;
-  @define-color  fg-main	     #ffffff;
-  @define-color  fg-dim	     #D8DEE9;
-  @define-color  fg-region     #2e8b6d;
-
-  @define-color  title        #6ae4b9;
-  @define-color  heading-1    #ab82ff;
-  @define-color  heading-2    #ffec8b;
-  @define-color  heading-3    #3cb6df;
-  @define-color  heading-4    #9aff9a;
-  @define-color  heading-5    #97ffff;
-  @define-color  heading-6    #ffa07a;
-  @define-color  heading-7    #eeb4b4;
-  @define-color  heading-8    #ee4000;
-  @define-color  heading-9    #cd96cd;
-
-  @define-color  error      #ee6363;
-  @define-color  link       #fcde69;
-  @define-color  todo       #54ff9f;
-  @define-color  done       #b4dddd;
-  @define-color  code       #77ee77;
-  @define-color  verbatim   #ee77ee;
-  @define-color  clock      #eedc82;
-  @define-color  bg-tag     #ffe1ff;
-  @define-color  bracket    #ffeeee;
-
-  ,* {
-      min-height: 0;
-      margin: 0;
-      padding: 0;
-      font-weight: 700;
-      padding-bottom: 0px;
-      border: none;
-      font-family: "Code Haki";
-      font-weight: bold;
-      font-size: 26px;
-  }
-
-  window#waybar {
-      background: @bg-main;
-      /* background-color: transparent; */
-      color: @fg-main;
-  }
-
-  #mode,
-  #clock,
-  #mpd,
-  #mpris,
-  #cpu,
-  #tray,
-  #memory,
-  #network,
-  #battery,
-  #pulseaudio,
-  #pulseaudio.muted,
-  #custom-launcher,
-  #custom-power,
-  #submap,
-  #window,
-  #taskbar,
-  tooltip,
-  #workspaces {
-    margin: 5px 5px 2px 5px;
-      padding: 7px 10px 7px 11px;
-    border-radius: 10px;
-    background-color: @bg-main;
-      color: @fg-main;
-      opacity: 1;
-  }
-
-  #battery.charging{
-      color: @heading-4;
-  }
-
-  #battery.warning { background: orange; }
-  #battery.critical { background: red; }
-
-
-  #tray{
-      color: @bg-tag;
-  }
-
-  #workspaces button,
-  #taskbar button {
-      animation: gradient_f 20s ease-in infinite;
-      transition: all 0.5s cubic-bezier(.55,-0.68,.48,1.682);
-  }
-
-  #workspaces button.active,
-  #taskbar button.active,
-  #workspaces button:hover,
-  #taskbar button:hover
-   {
-       animation: gradient_f 20s ease-in infinite;
-       background: @fg-region;
-       color: @bg-main;
-       padding-left: 5px;
-       padding-right: 5px;
-       border-radius: 10px;
-       transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
-   }
-
-  #workspaces button:hover,
-  #taskbar button:hover {
-      background: @heading-2;
-  }
-  #+end_src
 
 *** COMMENT Doom-modeline
 - comprehensive mode-line information.

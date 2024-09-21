@@ -213,8 +213,7 @@ it narrows to region, or Org subtree."
 
   :config
   ;; (global-hl-line-mode 1)
-  (global-visual-line-mode 1)
-  (auto-fill-mode 1))
+  (global-visual-line-mode 1))
 
 (defun d/join-lines (specify-separator)
   "Join lines in the active region by a separator, by default a comma.
@@ -447,9 +446,6 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 (use-package consult :defer t
   :bind
   (
-   ("C-c d i" . d/insert-unicodes)
-   ("C-c d c" . d/insert-colors)
-
    ;; C-c bindings (mode-specific-map)
    ("C-c h" . consult-history)
    ("C-c M-x" . consult-mode-command)
@@ -677,9 +673,9 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 
 (use-package tab-bar :unless d/on-droid
   :bind  (
-          ("s-[" . tab-bar-switch-to-prev-tab)
-          ("s-]" . tab-bar-switch-to-next-tab)
-          ("C-<tab>" . tab-next))
+          ("C-]" . tab-next)
+          ("C-<tab>" . tab-line-switch-to-next-tab)
+          )
   :custom
   (tab-bar-format '(
                     tab-bar-format-history
@@ -687,7 +683,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
                     tab-bar-format-menu-bar
                     tab-bar-format-tabs
                     tab-bar-format-align-right
-                    ;; tab-bar-format-global
+                    ;; tab-bar-format-global ;; An issue when used in terminal (cursor wont move properly)
                     ))
   (global-mode-string '("" "󰁹"battery-mode-line-string " "display-time-string) "For tab-bar-format-global values")
   (tab-bar-close-button-show nil)
@@ -754,8 +750,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   :custom (Man-notify-method 'pushy "show manpage HERE")
   :custom-face
   (Man-overstrike ((t (:inherit font-lock-type-face :bold t))))
-  (Man-underline ((t (:inherit font-lock-keyword-face :underline t))))
-  :bind (("C-c m" . consult-man)))
+  (Man-underline ((t (:inherit font-lock-keyword-face :underline t)))))
 
 (use-package helpful :hook (helpful-mode . toggle-mode-line)
   :bind (
@@ -773,6 +768,9 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (magit-diff-refine-hunk t)
   (magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1)
   (magit-bury-buffer-function #'magit-restore-window-configuration))
+
+(use-package ediff :ensure nil
+  :custom (ediff-window-setup-function 'ediff-setup-windows-plain "Do actions from single frame"))
 
 (use-package envrc :defer 2
   :config
@@ -1148,7 +1146,7 @@ out"))
 
 (use-package nov :mode ("\\.epub\\'" . nov-mode)
   :hook
-  (nov-mode . d/reading)
+  (nov-mode . d/reading-mode)
   (nov-mode . shrface-mode)
   (nov-mode . nov-imenu-setup)
   :custom
@@ -1161,16 +1159,23 @@ out"))
   :init-value nil
   (if d/reading-mode
       (progn
-        (hide-mode-line-mode 1) (variable-pitch-mode 1)
-        (setq-local line-spacing 0.9)
-        (olivetti-mode 1) (setq-local olivetti-body-width 0.6)
-        (menu-bar-mode -1)
+        (read-only-mode 1)
+        ;; (hide-mode-line-mode 1)
+        (variable-pitch-mode 1)
+        (setq-local line-spacing 0.5)
+        (text-scale-increase 1)
+        (setq-local olivetti-body-width 90) (olivetti-mode 1)
+        ;; (tab-bar-mode -1) (tab-line-mode -1)
         ;; (call-interactively (key-binding (kbd "g")))
         )
 
     (progn
-      (setq-local line-spacing nil) (hide-mode-line-mode 1)
-      (menu-bar-mode 1) (setq-local olivetti-body-width 0.9) )
+      (setq-local line-spacing nil)
+      ;; (hide-mode-line-mode 1)
+      (text-scale-decrease 1)
+      (setq-local olivetti-body-width 0.9)
+      ;; (tab-bar-mode 1) (tab-line-mode 1)
+      )
     ))
 
 ;; Read normal text files as emacs info manuals
@@ -1480,7 +1485,7 @@ out"))
 
 (use-package url :ensure nil
   :custom
-  (url-privacy-level 'paranoid)
+  (url-privacy-level 'high)
   ;; (url-mime-accept-string "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8 ")
   :config
   (url-setup-privacy-info))
@@ -1651,6 +1656,7 @@ for the search engine used."
     ))
 
 (use-package ready-player :unless d/on-droid :demand t
+  :custom (ready-player-open-playback-commands '(("mpv" "--audio-display=no" "--input-ipc-server=" "--speed=1.0")))
   :config (ready-player-mode))
 
 (use-package transmission :unless d/on-droid
@@ -1784,9 +1790,9 @@ Android port."
 
 (use-package faces :ensure nil
   :custom-face
-  (variable-pitch ((t (:family ,d/variable-pitch-font :height ,d/variable-font-size))))
-  (fixed-pitch ((t (:family ,d/fixed-pitch-font :height ,d/font-size))))
-  (default ((t (:family ,d/fixed-pitch-font :height ,d/font-size)))))
+  (variable-pitch ((t (:family ,d/variable-pitch-font :height ,d/variable-font-size :weight medium))))
+  (fixed-pitch ((t (:family ,d/fixed-pitch-font :height ,d/font-size :weight medium))))
+  (default ((t (:family ,d/fixed-pitch-font :height ,d/font-size :weight medium)))))
 
 (use-package font-lock :ensure nil :defer t
   :custom ((font-lock-maximum-decoration t)
@@ -2396,6 +2402,10 @@ absolute path. Finally load eglot."
   (org-crypt-use-before-save-magic)
   (setq org-tags-exclude-from-inheritance '("crypt"))
   (setq org-crypt-key nil))
+
+(use-package org-mime :unless d/on-droid :after gnus
+  :custom
+  (org-mime-library 'mml))
 
 (use-package remember :ensure nil
   :bind ("C-c r r" . remember) ("C-c r n" . remember-notes))

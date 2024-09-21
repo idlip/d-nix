@@ -438,6 +438,14 @@
 }
 
 {
+  xdg.portal = {
+    enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-gnome pkgs.xdg-desktop-portal-gtk ];
+    configPackages = [ pkgs.niri ];
+  };
+}
+
+{
   environment = {
     # set channels (backwards compatibility)
     etc = {
@@ -461,13 +469,13 @@
   # Collect garbage and delete generation every 7 day. Will help to get some storage space.
   # Better to atleast keep it for few days, as you do major update (unstable), if something breaks you can roll back.
   nix = {
-    # package = pkgs.nixUnstable; # 2.19 has issues with mkOutOfStoreSymlink
-    # optimise.automatic = true;
-    # gc = {
-    #   automatic = true;
-    #   dates = "weekly";
-    #   options = "--delete-older-than 7d";
-    # };
+    package = pkgs.nixVersions.latest; # 2.19 has issues with mkOutOfStoreSymlink
+    optimise.automatic = true;
+    gc = {
+      automatic = true;
+      dates = "weekly";
+      options = "--delete-older-than 7d";
+    };
 
     # Make builds run with low priority so my system stays responsive
     daemonCPUSchedPolicy = "idle";
@@ -597,15 +605,12 @@
 {
   fonts = {
     packages = with pkgs; [
-      noto-fonts unifont
+      noto-fonts noto-fonts-emoji unifont
       # symbola # this font is unfree
-      noto-fonts-emoji
-
       (callPackage ./pkgs/code-d-font.nix {})
       (callPackage ./pkgs/code-nika.nix {})
       merriweather
-      iosevka-comfy.comfy iosevka-comfy.comfy-duo
-      (nerdfonts.override {fonts = [ "JetBrainsMono" ];})
+      # (nerdfonts.override {fonts = [ "JetBrainsMono" ];})
     ];
 
     enableDefaultPackages = true;
@@ -618,9 +623,9 @@
           "Iosevka Comfy"
 	        "Noto Color Emoji"
         ];
-        sansSerif = [ "Code Haki" "Iosevka Comfy Duo" "Code D Haki" "Noto Sans" ];
-        serif = [ "Code Haki" "Iosevka Comfy Motion Duo" "Code D Haki" "Noto Serif"];
-        emoji = [ "Noto Color Emoji" "Code OnePiece" "Symbola" "Noto Sans" ];
+        sansSerif = [ "Code Haki" "Code D Haki" "Noto Sans" ];
+        serif = [ "Code Haki" "Code D Haki" "Noto Serif"];
+        emoji = [ "Noto Color Emoji" "Code OnePiece" "Unifont" ];
       };
     };
   };
@@ -630,7 +635,7 @@
 {
   stylix = {
     enable = true;
-    image = /home/idlip/d-git/d-wallpapers/oled/chinese-dragon.jpg;
+    image = ./configs/chinese-dragon.jpg;
     polarity = "dark";
 
     # base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
@@ -703,9 +708,7 @@
     # help manage android devices via command line
     adb.enable = true;
 
-    # ssh.startAgent = true;
     dconf.enable = true;
-    noisetorch.enable = true; # virtual noise suppressor
 
     zsh = {
       enable = true;

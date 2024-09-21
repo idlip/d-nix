@@ -62,7 +62,6 @@
 
         "audio/*" = ["mpv.desktop"];
         "video/*" = ["mpv.dekstop"];
-        "image/*" = ["imv.desktop"];
         "application/json" = browser;
         "application/pdf" = ["sioyek.desktop"];
         "x-scheme-handler/magnet" = ["d-stuff.desktop"];
@@ -207,11 +206,9 @@
 {
   programs.foot = {
     enable = true;
-    server.enable = true;
 
     settings = {
       main = {
-        term = "xterm-256color";
         # font = "Code OnePiece:size=26, Noto Color Emoji:size=25";
         # font-bold = "Code OnePiece:size=26, Noto Color Emoji:size=25";
         letter-spacing = "1";
@@ -316,25 +313,26 @@
 
       (trivialBuild {
         pname = "combobulate";
-        version = "pre-2024-03-11";
+        version = "pre-2024-09-20";
 
         src = pkgs.fetchFromGitHub {
           owner = "mickeynp";
           repo = "combobulate";
-          rev = "ee82c568ad639605518f62f82fae4bcc0dfdbb81";
-          hash = "sha256-rww0/6304xZWTFRo1BVcfSDdXOXtlgmfZOxAoOIjYsk=";
+          rev = "f3a089964004585df6f30ea99282aa143fe64f2c";
+          hash = "sha256-b8PAV58rFbJOxUUzl5JDu8wVKmwWg++6peSevJ8y2eA=";
         };
+        packageRequires = [ transient ];
       })
 
       (trivialBuild {
-        pname = "eglot-booster";
-        version = "pre-2024-04-11";
+        pname = "combobulate";
+        version = "pre-2024-09-20";
 
         src = pkgs.fetchFromGitHub {
-          owner = "jdtsmith";
-          repo = "eglot-booster";
-          rev = "e19dd7ea81bada84c66e8bdd121408d9c0761fe6";
-          hash = "sha256-vF34ZoUUj8RENyH9OeKGSPk34G6KXZhEZozQKEcRNhs=";
+          owner = "mickeynp";
+          repo = "combobulate";
+          rev = "f3a089964004585df6f30ea99282aa143fe64f2c";
+          hash = "sha256-b8PAV58rFbJOxUUzl5JDu8wVKmwWg++6peSevJ8y2eA=";
         };
       })
 
@@ -589,25 +587,6 @@
 }
 
 {
-  programs = {
-    imv = {
-      enable = true;
-      settings = {
-        # check man imv(5)
-        options.background = "050505";
-        aliases.x = "close";
-        binds = {
-          p = "prev";
-          n = "next";
-          "<Shift+D>" = "exec rm \"$imv_current_file\"; close";
-          r = "exec mogrify -rotate 90 \"$imv_current_file\"";
-        };
-      };
-    };
-  };
-}
-
-{
   home.packages = with pkgs; [
     # audio control
     pavucontrol
@@ -631,6 +610,7 @@
   wayland.windowManager.hyprland = {
     enable = true;
     systemd.enable = true;
+    plugins = with pkgs.hyprlandPlugins; [ hyprscroller ];
 
     extraConfig = ''
     source					= ~/.config/hypr/hyprsea.conf
@@ -750,7 +730,7 @@
     libnotify libsixel
     brightnessctl
     dotool
-    swaybg
+    swaybg swayimg
     sway niri
     # swayidle gtklock
 
@@ -777,7 +757,7 @@
         {
           timeout = 150;
           on-timeout = "brightnessctl -s set 10";         # set monitor backlight to minimum, avoid 0 on OLED monitor.
-          on-resume = "brightnessctl -r";                 # monitor backlight restore.
+          on-resume = "brightnessctl -r && d-walls";                 # monitor backlight restore.
         }
         {
           timeout = 210;
@@ -785,7 +765,7 @@
         }
         {
           timeout = 230;
-          on-timeout = "hyprctl dispatch dpms off";
+          on-timeout = "hyprctl dispatch dpms off || niri msg action power-off-monitors";
           on-resume = "hyprctl dispatch dpms on";
         }
         {
@@ -804,7 +784,7 @@
       background = [
         {
           monitor = "";
-          path = "/home/idlip/d-git/d-wallpapers/walls/Anime-City-Night.png";
+          path = "/home/idlip/.local/share/bg2";
           blur_size = 8;
           blur_passes = 3;
           noise = 0.0117;
@@ -882,7 +862,7 @@
 
       image =[
         {
-          path = "/home/idlip/d-git/d-wallpapers/oled/wallhaven-m3zjx1_1920x1080.png";
+          path = "/home/idlip/.local/share/bg1";
           size = 200;
           rounding = -1;
           border_size = 2;
@@ -981,24 +961,36 @@
         mainBar = {
           layer = "top";
           position = "top";
-          # height = 15;
-          # spacing = 7;
-          fixed-center = true;
-          exclusive = true;
+          margin-top = 10;
 
           modules-left = [
-            "custom/launcher"
-            "hyprland/workspaces"
-            "wlr/taskbar"
-            "hyprland/window"
+            "custom/launcher" "wlr/taskbar" "niri/window" "hyprland/window"
             "hyprland/submap"
           ];
 
           modules-center = [
+            "niri/workspaces" "hyprland/workspaces"
             "privacy" "custom/recorder" "clock" "mpd" "mpris"
           ];
 
           modules-right = [ "tray" "network" "backlight" "battery" "memory" "wireplumber" "custom/power" ];
+
+          "niri/workspaces" = {
+	          format = "{icon}";
+	          format-icons = {
+		          "active" = "";
+		          "default" = "";
+	          };
+          };
+
+          "niri/window" = {
+	          format = "{}";
+	          "rewrite" = {
+              "(.*) - GNU Emacs (.*)" = " $1";
+              "(.*).epub(.*)" = "󰂽 $1";
+              "(.*)foot" = " Terminal $1";
+	          };
+          };
 
           "hyprland/workspaces" = {
             format = "{icon}";
@@ -1046,9 +1038,8 @@
             "on-click-middle"=  "close";
           };
 
-
           "custom/launcher" = {
-            "format" = " ";
+            "format" = "  ";
             "tooltip" = false;
             "on-click" = "fuzzel";
             "interval" = 86400;
@@ -1200,7 +1191,7 @@
       };
 
       style = ''
-      * {
+      .modules-right * {
           margin: 0px 10px 0px 0px;
           border-radius: 15px;
       }
@@ -1208,12 +1199,6 @@
       #battery.charging { color: #00ff7f; }
       #battery.warning { background: orange; }
       #battery.critical { background: red; }
-      
-      #workspaces button,
-      #taskbar button {
-          padding: 0 0 0 0px;
-          margin: 0 0 0 0px;
-      }
       
       #workspaces button.active,
       #taskbar button.active,
@@ -1438,6 +1423,8 @@
     settings = {
       main = {
         notification-margin = 5;
+        layer = "overlay";
+        border-radius = 16;
         min-width = 400;
         max-width = 900;
         selection-helper = "fuzzel";
@@ -1455,10 +1442,7 @@
 
 {
   home.packages = with pkgs; [
-    openttd
-    # zeroad
-    superTux
-    # supertuxkart
+    openttd superTux # zeroad # supertuxkart
   ];
 }
 
@@ -1473,7 +1457,7 @@
         list-executables-in-path = true;
         layer = "overlay";
         exit-on-keyboard-focus-loss = false;
-        line-height = 20;
+        line-height = 40;
       };
       border = {
         width = 4;
@@ -1483,20 +1467,7 @@
   };
 }
 
-{
-  home.packages = with pkgs; [
-    # misc
-    libnotify
-    # xdg-utils
-
-    xfce.thunar
-    libreoffice
-    # pandoc
-    groff mupdf
-    keepassxc
-
-  ];
-}
+{ home.packages = with pkgs; [ libnotify xfce.thunar libreoffice pandoc groff mupdf keepassxc easyeffects ]; }
 
 {
 

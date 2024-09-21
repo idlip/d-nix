@@ -2696,7 +2696,13 @@ emacs-lisp-mode
     (magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1)
     (magit-bury-buffer-function #'magit-restore-window-configuration))
   #+end_src
-
+**** Ediff
+- Emacs way to diff thing
+     #+name: orgmacs
+#+begin_src emacs-lisp
+(use-package ediff :ensure nil
+  :custom (ediff-window-setup-function 'ediff-setup-windows-plain "Do actions from single frame"))
+#+end_src
 *** Direnv
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix

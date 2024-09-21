@@ -934,17 +934,17 @@ see its function help for a description of the format."
   #+end_src
 
 ** xdg
-*** COMMENT xdg portal
+*** xdg portal
 - To use hyprland xdg portal for screen sharing and other fixes on wayland.
-  #+name: nixos-core
+  #+name: nixos-portals
   #+begin_src nix :tangle gdk/core.nix
-{
-  xdg.portal = {
-    enable = true;
-    extraPortals = [ pkgs.xdg-desktop-portal-gtk pkgs.xdg-desktop-portal-hyprland ];
-    configPackages = [ pkgs.xdg-desktop-portal-hyprland ]; # needed from 23.11
-  };
-}
+  {
+    xdg.portal = {
+      enable = true;
+      extraPortals = [ pkgs.xdg-desktop-portal-gnome pkgs.xdg-desktop-portal-gtk ];
+      configPackages = [ pkgs.niri ];
+    };
+  }
   #+end_src
 
 *** xdg user config

@@ -2993,25 +2993,26 @@ emacs-lisp-mode
 
         (trivialBuild {
           pname = "combobulate";
-          version = "pre-2024-03-11";
+          version = "pre-2024-09-20";
 
           src = pkgs.fetchFromGitHub {
             owner = "mickeynp";
             repo = "combobulate";
-            rev = "ee82c568ad639605518f62f82fae4bcc0dfdbb81";
-            hash = "sha256-rww0/6304xZWTFRo1BVcfSDdXOXtlgmfZOxAoOIjYsk=";
+            rev = "f3a089964004585df6f30ea99282aa143fe64f2c";
+            hash = "sha256-b8PAV58rFbJOxUUzl5JDu8wVKmwWg++6peSevJ8y2eA=";
           };
+          packageRequires = [ transient ];
         })
 
         (trivialBuild {
-          pname = "eglot-booster";
-          version = "pre-2024-04-11";
+          pname = "combobulate";
+          version = "pre-2024-09-20";
 
           src = pkgs.fetchFromGitHub {
-            owner = "jdtsmith";
-            repo = "eglot-booster";
-            rev = "e19dd7ea81bada84c66e8bdd121408d9c0761fe6";
-            hash = "sha256-vF34ZoUUj8RENyH9OeKGSPk34G6KXZhEZozQKEcRNhs=";
+            owner = "mickeynp";
+            repo = "combobulate";
+            rev = "f3a089964004585df6f30ea99282aa143fe64f2c";
+            hash = "sha256-b8PAV58rFbJOxUUzl5JDu8wVKmwWg++6peSevJ8y2eA=";
           };
         })
 

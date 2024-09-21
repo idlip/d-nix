@@ -979,7 +979,6 @@ see its function help for a description of the format."
 
           "audio/*" = ["mpv.desktop"];
           "video/*" = ["mpv.dekstop"];
-          "image/*" = ["imv.desktop"];
           "application/json" = browser;
           "application/pdf" = ["sioyek.desktop"];
           "x-scheme-handler/magnet" = ["d-stuff.desktop"];
@@ -1355,8 +1354,7 @@ it narrows to region, or Org subtree."
 
     :config
     ;; (global-hl-line-mode 1)
-    (global-visual-line-mode 1)
-    (auto-fill-mode 1))
+    (global-visual-line-mode 1))
   #+end_src
 - DWIM way of joining lines with prefix argument.
   #+name: orgmacs
@@ -1675,9 +1673,6 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (use-package consult :defer t
     :bind
     (
-     ("C-c d i" . d/insert-unicodes)
-     ("C-c d c" . d/insert-colors)
-
      ;; C-c bindings (mode-specific-map)
      ("C-c h" . consult-history)
      ("C-c M-x" . consult-mode-command)
@@ -2578,8 +2573,7 @@ emacs-lisp-mode
     :custom (Man-notify-method 'pushy "show manpage HERE")
     :custom-face
     (Man-overstrike ((t (:inherit font-lock-type-face :bold t))))
-    (Man-underline ((t (:inherit font-lock-keyword-face :underline t))))
-    :bind (("C-c m" . consult-man)))
+    (Man-underline ((t (:inherit font-lock-keyword-face :underline t)))))
   #+end_src
 
 **** Helpful
@@ -2730,11 +2724,9 @@ emacs-lisp-mode
   {
     programs.foot = {
       enable = true;
-      server.enable = true;
 
       settings = {
         main = {
-          term = "xterm-256color";
           # font = "Code OnePiece:size=26, Noto Color Emoji:size=25";
           # font-bold = "Code OnePiece:size=26, Noto Color Emoji:size=25";
           letter-spacing = "1";
@@ -4836,7 +4828,7 @@ user_pref("findbar.highlightAll", true);
   #+begin_src emacs-lisp
   (use-package url :ensure nil
     :custom
-    (url-privacy-level 'paranoid)
+    (url-privacy-level 'high)
     ;; (url-mime-accept-string "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8 ")
     :config
     (url-setup-privacy-info))
@@ -5299,6 +5291,7 @@ for the search engine used."
   #+name: orgmacs
   #+begin_src emacs-lisp
   (use-package ready-player :unless d/on-droid :demand t
+    :custom (ready-player-open-playback-commands '(("mpv" "--audio-display=no" "--input-ipc-server=<<socket>>" "--speed=1.0")))
     :config (ready-player-mode))
   #+end_src
 *** yt-dlp
@@ -5416,7 +5409,7 @@ q = exit
   (use-package transmission :unless d/on-droid
     :bind ("C-c d t" . transmission))
   #+end_src
-*** reddit
+*** reddigg
 - experience the reddit posts in the comfort of org-mode.
   #+name: orgmacs
   #+begin_src emacs-lisp
@@ -5630,6 +5623,7 @@ q = exit
     wayland.windowManager.hyprland = {
       enable = true;
       systemd.enable = true;
+      plugins = with pkgs.hyprlandPlugins; [ hyprscroller ];
 
       extraConfig = ''
       source					= ~/.config/hypr/hyprsea.conf
@@ -6408,7 +6402,7 @@ binds {
       libnotify libsixel
       brightnessctl
       dotool
-      swaybg
+      swaybg swayimg
       sway niri
       # swayidle gtklock
 
@@ -6439,7 +6433,7 @@ binds {
           {
             timeout = 150;
             on-timeout = "brightnessctl -s set 10";         # set monitor backlight to minimum, avoid 0 on OLED monitor.
-            on-resume = "brightnessctl -r";                 # monitor backlight restore.
+            on-resume = "brightnessctl -r && d-walls";                 # monitor backlight restore.
           }
           {
             timeout = 210;
@@ -6447,7 +6441,7 @@ binds {
           }
           {
             timeout = 230;
-            on-timeout = "hyprctl dispatch dpms off";
+            on-timeout = "hyprctl dispatch dpms off || niri msg action power-off-monitors";
             on-resume = "hyprctl dispatch dpms on";
           }
           {
@@ -6470,7 +6464,7 @@ binds {
         background = [
           {
             monitor = "";
-            path = "/home/idlip/d-git/d-wallpapers/walls/Anime-City-Night.png";
+            path = "/home/idlip/.local/share/bg2";
             blur_size = 8;
             blur_passes = 3;
             noise = 0.0117;
@@ -6548,7 +6542,7 @@ binds {
 
         image =[
           {
-            path = "/home/idlip/d-git/d-wallpapers/oled/wallhaven-m3zjx1_1920x1080.png";
+            path = "/home/idlip/.local/share/bg1";
             size = 200;
             rounding = -1;
             border_size = 2;
@@ -6569,15 +6563,12 @@ binds {
   {
     fonts = {
       packages = with pkgs; [
-        noto-fonts unifont
+        noto-fonts noto-fonts-emoji unifont
         # symbola # this font is unfree
-        noto-fonts-emoji
-
         (callPackage ./pkgs/code-d-font.nix {})
         (callPackage ./pkgs/code-nika.nix {})
         merriweather
-        iosevka-comfy.comfy iosevka-comfy.comfy-duo
-        (nerdfonts.override {fonts = [ "JetBrainsMono" ];})
+        # (nerdfonts.override {fonts = [ "JetBrainsMono" ];})
       ];
 
       enableDefaultPackages = true;
@@ -6590,9 +6581,9 @@ binds {
             "Iosevka Comfy"
   	        "Noto Color Emoji"
           ];
-          sansSerif = [ "Code Haki" "Iosevka Comfy Duo" "Code D Haki" "Noto Sans" ];
-          serif = [ "Code Haki" "Iosevka Comfy Motion Duo" "Code D Haki" "Noto Serif"];
-          emoji = [ "Noto Color Emoji" "Code OnePiece" "Symbola" "Noto Sans" ];
+          sansSerif = [ "Code Haki" "Code D Haki" "Noto Sans" ];
+          serif = [ "Code Haki" "Code D Haki" "Noto Serif"];
+          emoji = [ "Noto Color Emoji" "Code OnePiece" "Unifont" ];
         };
       };
     };
@@ -6786,9 +6777,9 @@ css = "normal"
   #+begin_src emacs-lisp
   (use-package faces :ensure nil
     :custom-face
-    (variable-pitch ((t (:family ,d/variable-pitch-font :height ,d/variable-font-size))))
-    (fixed-pitch ((t (:family ,d/fixed-pitch-font :height ,d/font-size))))
-    (default ((t (:family ,d/fixed-pitch-font :height ,d/font-size)))))
+    (variable-pitch ((t (:family ,d/variable-pitch-font :height ,d/variable-font-size :weight medium))))
+    (fixed-pitch ((t (:family ,d/fixed-pitch-font :height ,d/font-size :weight medium))))
+    (default ((t (:family ,d/fixed-pitch-font :height ,d/font-size :weight medium)))))
   #+end_src
 
 - font-lock
@@ -6834,7 +6825,7 @@ css = "normal"
   {
     stylix = {
       enable = true;
-      image = /home/idlip/d-git/d-wallpapers/oled/chinese-dragon.jpg;
+      image = ./configs/chinese-dragon.jpg;
       polarity = "dark";
 
       # base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
@@ -8088,6 +8079,8 @@ css = "normal"
     settings = {
       main = {
         notification-margin = 5;
+        layer = "overlay";
+        border-radius = 16;
         min-width = 400;
         max-width = 900;
         selection-helper = "fuzzel";
@@ -8155,10 +8148,7 @@ css = "normal"
   #+begin_src nix :tangle gdk/home.nix
   {
     home.packages = with pkgs; [
-      openttd
-      # zeroad
-      superTux
-      # supertuxkart
+      openttd superTux # zeroad # supertuxkart
     ];
   }
   #+end_src
@@ -8178,7 +8168,7 @@ css = "normal"
         list-executables-in-path = true;
         layer = "overlay";
         exit-on-keyboard-focus-loss = false;
-        line-height = 20;
+        line-height = 40;
       };
       border = {
         width = 4;
@@ -8189,22 +8179,10 @@ css = "normal"
 }
 #+end_src
 *** home-pkgs
+- Some programs and packages to be used often. Miscellaneous
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  home.packages = with pkgs; [
-    # misc
-    libnotify
-    # xdg-utils
-
-    xfce.thunar
-    libreoffice
-    # pandoc
-    groff mupdf
-    keepassxc
-
-  ];
-}
+  { home.packages = with pkgs; [ libnotify xfce.thunar libreoffice pandoc groff mupdf keepassxc easyeffects ]; }
   #+end_src
 
 * Note taking
@@ -8778,6 +8756,15 @@ css = "normal"
   (setq org-tags-exclude-from-inheritance '("crypt"))
   (setq org-crypt-key nil))
   #+end_src
+
+*** org-mime
+- To send html emails in org mode
+     #+name: orgmacs
+#+begin_src emacs-lisp
+(use-package org-mime :unless d/on-droid :after gnus
+  :custom
+  (org-mime-library 'mml))
+#+end_src
 
 *** remember
 - Tiny little mode and remember some running thoughts to seek out the insights.

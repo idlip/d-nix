@@ -3724,7 +3724,7 @@ emacs-lisp-mode
   #+begin_src emacs-lisp
   (use-package nov :mode ("\\.epub\\'" . nov-mode)
     :hook
-    (nov-mode . d/reading)
+    (nov-mode . d/reading-mode)
     (nov-mode . shrface-mode)
     (nov-mode . nov-imenu-setup)
     :custom
@@ -3741,16 +3741,23 @@ emacs-lisp-mode
     :init-value nil
     (if d/reading-mode
         (progn
-          (hide-mode-line-mode 1) (variable-pitch-mode 1)
-          (setq-local line-spacing 0.9)
-          (olivetti-mode 1) (setq-local olivetti-body-width 0.6)
-          (menu-bar-mode -1)
+          (read-only-mode 1)
+          ;; (hide-mode-line-mode 1)
+          (variable-pitch-mode 1)
+          (setq-local line-spacing 0.5)
+          (text-scale-increase 1)
+          (setq-local olivetti-body-width 90) (olivetti-mode 1)
+          ;; (tab-bar-mode -1) (tab-line-mode -1)
           ;; (call-interactively (key-binding (kbd "g")))
           )
 
       (progn
-        (setq-local line-spacing nil) (hide-mode-line-mode 1)
-        (menu-bar-mode 1) (setq-local olivetti-body-width 0.9) )
+        (setq-local line-spacing nil)
+        ;; (hide-mode-line-mode 1)
+        (text-scale-decrease 1)
+        (setq-local olivetti-body-width 0.9)
+        ;; (tab-bar-mode 1) (tab-line-mode 1)
+        )
       ))
   #+end_src
 ** Texinfo

@@ -5347,30 +5347,48 @@ for the search engine used."
   #search_sort_by=upload_date
   #+end_src
 ** Image viewer
-*** imv
-- check ~(man "imv(5)")~
-  #+name: hm-config
-  #+begin_src nix :tangle gdk/home.nix
-{
-  programs = {
-    imv = {
-      enable = true;
-      settings = {
-        # check man imv(5)
-        options.background = "050505";
-        aliases.x = "close";
-        binds = {
-          p = "prev";
-          n = "next";
-          "<Shift+D>" = "exec rm \"$imv_current_file\"; close";
-          r = "exec mogrify -rotate 90 \"$imv_current_file\"";
-        };
-      };
-    };
-  };
-}
-  #+end_src
+- Replaced imv with swayimg
+#+begin_src conf :tangle ~/.config/swayimg/config
+[viewer]
+window = #000000
+transparency = grid
+history = 10
+preload = 1
 
+[font]
+size = 24
+
+[info]
+show = yes
+info_timeout = 5
+
+[keys.viewer]
+F1 = help
+Ctrl+h = help
+Ctrl+a = first_file
+Ctrl+e = last_file
+p = prev_file
+n = next_file
+Space = next_file
+Shift+d = prev_dir
+d = next_dir
+Shift+o = prev_frame
+o = next_frame
+c = skip_file
+F5 = slideshow
+s = animation
+f = fullscreen
+Return = mode
+h = step_left 10
+l = step_right 10
+k = step_up 10
+j = step_down 10
+Equal = zoom +10
+Plus = zoom +10
+Minus = zoom -10
+Shift+Delete = exec rm "%"; skip_file
+q = exit
+#+end_src
 ** Application
 *** media-pkgs
   #+name: hm-config

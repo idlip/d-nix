@@ -7996,49 +7996,45 @@ css = "normal"
 * Programs
 - some programs to manage in core
 - dconf for gnome desktop suitable stuff
-- =noisetorch= - microphone noise suppressor, actually useful and reduces lot of noise.
-  - Even built-in mic works like charm.
-  | name       | desc                      | link      | exec       |
-  |------------+---------------------------+-----------+------------|
-  | less       | less pager                | [[https://www.greenwoodsoftware.com/less/][greenwood]] | =less=       |
-  | thefuck    | corrects previous command | [[https://github.com/nvbn/thefuck][git]]       | =fuck=       |
-  | abd        | android debugger          | [[https://github.com/nmeum/android-tools][git]]       | =adb=        |
-  | ssh        | secure shell              | [[https://www.openssh.com/][web]]       | =ssh=        |
-  | zsh        | z shell                   | [[https://www.zsh.org/][web]]       | =zsh=        |
-  | dconf      | gnome config system       | [[https://wiki.gnome.org/Projects/dconf][wiki]]      | =dconf=      |
-  | noisetorch | mic noise suppressor      | [[https://github.com/noisetorch/NoiseTorch][git]]       | =noisetorch= |
-  |------------+---------------------------+-----------+------------|
+
+  | name    | desc                      | link      | exec    |
+  |---------+---------------------------+-----------+---------|
+  | less    | less pager                | [[https://www.greenwoodsoftware.com/less/][greenwood]] | =less=  |
+  | thefuck | corrects previous command | [[https://github.com/nvbn/thefuck][git]]       | =fuck=  |
+  | abd     | android debugger          | [[https://github.com/nmeum/android-tools][git]]       | =adb=   |
+  | ssh     | secure shell              | [[https://www.openssh.com/][web]]       | =ssh=   |
+  | zsh     | z shell                   | [[https://www.zsh.org/][web]]       | =zsh=   |
+  | dconf   | gnome config system       | [[https://wiki.gnome.org/Projects/dconf][wiki]]      | =dconf= |
+  |---------+---------------------------+-----------+---------|
 
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-{
-  # enable programs
-  programs = {
+  {
+    # enable programs
+    programs = {
 
-    less.enable = true;
-    # type "fuck" to fix the last command that made you go "fuck"
-    thefuck.enable = true;
+      less.enable = true;
+      # type "fuck" to fix the last command that made you go "fuck"
+      thefuck.enable = true;
 
-    # help manage android devices via command line
-    adb.enable = true;
+      # help manage android devices via command line
+      adb.enable = true;
 
-    # ssh.startAgent = true;
-    dconf.enable = true;
-    noisetorch.enable = true; # virtual noise suppressor
+      dconf.enable = true;
 
-    zsh = {
-      enable = true;
-      autosuggestions.enable = true;
-      syntaxHighlighting = {
+      zsh = {
         enable = true;
-        patterns = {"rm -rf *" = "fg=black,bg=red";};
-        styles = {"alias" = "fg=magenta";};
-        highlighters = ["main" "brackets" "pattern"];
+        autosuggestions.enable = true;
+        syntaxHighlighting = {
+          enable = true;
+          patterns = {"rm -rf *" = "fg=black,bg=red";};
+          styles = {"alias" = "fg=magenta";};
+          highlighters = ["main" "brackets" "pattern"];
+        };
       };
     };
-  };
 
-}
+  }
   #+end_src
 
 *** DownloadManager

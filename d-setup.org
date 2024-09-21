@@ -1058,13 +1058,13 @@ Exec=d-stuff %u
     # Collect garbage and delete generation every 7 day. Will help to get some storage space.
     # Better to atleast keep it for few days, as you do major update (unstable), if something breaks you can roll back.
     nix = {
-      # package = pkgs.nixUnstable; # 2.19 has issues with mkOutOfStoreSymlink
-      # optimise.automatic = true;
-      # gc = {
-      #   automatic = true;
-      #   dates = "weekly";
-      #   options = "--delete-older-than 7d";
-      # };
+      package = pkgs.nixVersions.latest; # 2.19 has issues with mkOutOfStoreSymlink
+      optimise.automatic = true;
+      gc = {
+        automatic = true;
+        dates = "weekly";
+        options = "--delete-older-than 7d";
+      };
 
       # Make builds run with low priority so my system stays responsive
       daemonCPUSchedPolicy = "idle";

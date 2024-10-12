@@ -154,6 +154,14 @@
 }
 
 {
+  systemd.sleep.extraConfig = ''
+   AllowSuspendThenHibernate=yes
+   HibernateDelaySec=3600
+   AllowHibernation=yes
+   '';
+}
+
+{
   networking = {
 
     # Killer feature, Its a must these days.
@@ -348,27 +356,27 @@
   services = {
     tlp = {
       enable = true;
-      settings = {
-        CPU_SCALING_GOVERNOR_ON_AC = "balance_performance";
-        CPU_SCALING_GOVERNOR_ON_BAT = "power";
+      # settings = {
+      #   CPU_SCALING_GOVERNOR_ON_AC = "balance_performance";
+      #   CPU_SCALING_GOVERNOR_ON_BAT = "power";
 
-        CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
-        CPU_ENERGY_PERF_POLICY_ON_BAT = "balance_power";
+      #   CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
+      #   CPU_ENERGY_PERF_POLICY_ON_BAT = "balance_power";
 
-        USB_AUTOSUSPEND = 1;
-        DEVICES_TO_DISABLE_ON_STARTUP = "bluetooth";
-        DEVICES_TO_DISABLE_ON_BAT_NOT_IN_USE = "bluetooth";
+      #   USB_AUTOSUSPEND = 1;
+      #   DEVICES_TO_DISABLE_ON_STARTUP = "bluetooth";
+      #   DEVICES_TO_DISABLE_ON_BAT_NOT_IN_USE = "bluetooth";
 
-        CPU_BOOST_ON_AC = 1;
-        CPU_BOOST_ON_BAT = 0;
-        CPU_HWP_DYN_BOOST_ON_AC = 1;
-        CPU_HWP_DYN_BOOST_ON_BAT = 0;
+      #   CPU_BOOST_ON_AC = 1;
+      #   CPU_BOOST_ON_BAT = 0;
+      #   CPU_HWP_DYN_BOOST_ON_AC = 1;
+      #   CPU_HWP_DYN_BOOST_ON_BAT = 0;
 
-        CPU_MIN_PERF_ON_AC = 0;
-        CPU_MAX_PERF_ON_AC = 100;
-        CPU_MIN_PERF_ON_BAT = 0;
-        CPU_MAX_PERF_ON_BAT = 30;
-      };
+      #   CPU_MIN_PERF_ON_AC = 0;
+      #   CPU_MAX_PERF_ON_AC = 100;
+      #   CPU_MIN_PERF_ON_BAT = 0;
+      #   CPU_MAX_PERF_ON_BAT = 30;
+      # };
     };
   };
 }
@@ -440,7 +448,7 @@
 {
   xdg.portal = {
     enable = true;
-    extraPortals = [ pkgs.xdg-desktop-portal-gnome pkgs.xdg-desktop-portal-gtk ];
+    # extraPortals = lib.mkIf (!config.services.xserver.desktopManager.gnome.enable) [ pkgs.xdg-desktop-portal-gnome pkgs.xdg-desktop-portal-gtk ];
     configPackages = [ pkgs.niri ];
   };
 }
@@ -603,13 +611,23 @@
 }
 
 {
+  services.xserver = {
+    enable = true;
+    # displayManager.gdm.enable = false;
+    desktopManager.gnome.enable = true;
+  };
+  services.displayManager.sddm.enable = true;
+  services.power-profiles-daemon.enable = lib.mkForce false;
+}
+
+{
   fonts = {
     packages = with pkgs; [
       noto-fonts noto-fonts-emoji unifont
       # symbola # this font is unfree
       (callPackage ./pkgs/code-d-font.nix {})
       (callPackage ./pkgs/code-nika.nix {})
-      merriweather
+      merriweather atkinson-hyperlegible
       # (nerdfonts.override {fonts = [ "JetBrainsMono" ];})
     ];
 
@@ -641,13 +659,13 @@
     # base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
     base16Scheme = {
       base00 = "#000000"; # bg
-      base01 = "#121212"; # light bg
+      base01 = "#333333"; # light bg
       base02 = "#303030"; # selection bg
       base03 = "#2e8b57"; # comment/hl
       base04 = "#D8DEE9"; # dim fg
       base05 = "#ffffff"; # fg
       base06 = "#6c7b8b"; # light fg
-      base07 = "#222222"; # light bg
+      base07 = "#444444"; # light bg
       base08 = "#ffb5c5"; # red
       base09 = "#ee9572"; # orange
       base0A = "#fbfba2"; # yellow

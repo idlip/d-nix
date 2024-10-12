@@ -1,8 +1,6 @@
 (use-package time :ensure nil
   :hook (after-init . display-time)
-  :custom
-  (display-time-default-load-average nil)
-  (display-time-24hr-format t))
+  :custom (display-time-24hr-format t))
 
 (use-package tramp :ensure nil
   :custom (tramp-backup-directory-alist backup-directory-alist))
@@ -46,11 +44,7 @@ see its function help for a description of the format."
 
     ))
 
-(use-package battery :ensure nil
-  :hook (after-init . display-battery-mode)
-  :custom ;; better to keep charge between 40-80
-  (battery-load-low '40)
-  (battery-load-critical '29))
+(use-package battery :ensure nil :hook (after-init . display-battery-mode) :custom (battery-load-low '40) (battery-load-critical '29))
 
 ;;; early-init.el --- Emacs 27+ pre-initialisation config -*- lexical-binding: t; -*-
 
@@ -96,15 +90,6 @@ see its function help for a description of the format."
 
 (unless package-archive-contents
   (package-refresh-contents))
-
-(use-package use-package :ensure nil
-  :disabled t
-  :custom
-  (use-package-verbose nil)
-  (use-package-always-ensure nil)
-  (use-package-always-defer t)
-  (use-package-expand-minimally t)
-  (use-package-enable-imenu-support t))
 
 (use-package window :ensure nil
   :bind
@@ -557,6 +542,31 @@ E.g. capitalize or decapitalize the next word, increment number at point."
           :items '(lambda () (consult--buffer-query :mode '(eshell-mode eat-mode) :as #'buffer-name))))
     (add-to-list 'consult-buffer-sources 'consult--source-eshell 'append))
 
+(use-package consult-omni
+  :load-path "~/.config/emacs/elpa/consult-omni" "~/.config/emacs/elpa/consult-omni/sources"
+  :after consult
+  :custom
+  (consult-omni-show-preview t) ;;; show previews
+  (consult-omni-preview-key "C-o") ;;; set the preview key to C-o
+  (consult-omni-dynamic-input-debounce 2)
+  (consult-omni-dynamic-input-throttle 4)
+  (consult-omni-default-interactive-command #'consult-omni-multi)
+  (consult-omni-sources-modules-to-load
+        '(consult-omni-brave consult-omni-invidious
+                             consult-omni-google consult-omni-youtube
+                             consult-omni-stackoverflow
+                             consult-omni-wikipedia consult-omni-man
+                             consult-omni-calc
+                             consult-omni-projects
+                             consult-omni-notes
+                             consult-omni-apps))
+  (consult-omni-invidious-servers '("https://invidious.privacyredirect.com" "https://yewtu.be" "https://vid.puffyan.us"))
+  (consult-omni-notes-files (list org-directory "~/d-git/d-site/"))
+  (consult-omni-http-retrieve-backend 'request)
+  :config (require 'consult-omni-sources)
+  (consult-omni-sources-load-modules)
+)
+
 (use-package orderless :demand t :custom (completion-styles '(orderless basic)))
 
 (use-package embark :defer t
@@ -583,18 +593,14 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (prefix-help-command #'embark-prefix-help-command)
   (eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
   (embark-prompter 'embark-completing-read-prompter)
-  (embark-keymap-prompter-key "`")
-  (embark-indicators
-   '(embark-minimal-indicator  ; default is embark-mixed-indicator
-     embark-highlight-indicator
-     embark-isearch-highlight-indicator))
+  (embark-indicators '(embark-minimal-indicator embark-highlight-indicator embark-isearch-highlight-indicator))
 
   :config
   (add-to-list 'display-buffer-alist
                '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
                  nil
                  (window-parameters (mode-line-format . none))))
-  (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+  ;; (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
   )
 
 (use-package embark-consult :defer t :hook (embark-collect-mode . consult-preview-at-point-mode))
@@ -678,7 +684,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
           )
   :custom
   (tab-bar-format '(
-                    tab-bar-format-history
+                    ;; tab-bar-format-history
                     tab-bar-separator
                     tab-bar-format-menu-bar
                     tab-bar-format-tabs
@@ -963,6 +969,8 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 
 (use-package nix-repl :ensure nix-mode :commands (nix-repl))
 
+(use-package js :ensure nil :mode ("\\.jsx\\'" . js-jsx-mode))
+
 (use-package ess-julia :unless d/on-droid
   :hook (ess-julia-mode . (lambda () (setq-local devdocs-browser-active-docs '("Julia"))))
   :bind (:map ess-julia-mode-map ("C-c C-d" . devdocs-browser-open))
@@ -1037,9 +1045,21 @@ out"))
 
 (use-package treesit :ensure nil
   :mode
-  ("\\.yaml\\'" . yaml-ts-mode)
-  ("\\.toml\\'" . toml-ts-mode)
-  ("\\.jsonrc\\'" . json-ts-mode)
+  (("\\.tsx\\'" . tsx-ts-mode)
+   ("\\.yaml\\'" . yaml-ts-mode)
+   ("\\.toml\\'" . toml-ts-mode)
+   ;; ("\\.[sx]?html?\\(\\.[a-zA-Z_]+\\)?\\'" . html-ts-mode)
+   ("\\.jsonrc\\'" . json-ts-mode)
+   ("\\.js\\'"  . typescript-ts-mode)
+   ("\\.mjs\\'" . typescript-ts-mode)
+   ("\\.mts\\'" . typescript-ts-mode)
+   ("\\.cjs\\'" . typescript-ts-mode)
+   ("\\.ts\\'"  . typescript-ts-mode)
+   ("\\.jsx\\'" . tsx-ts-mode)
+   ("\\.json\\'" .  json-ts-mode)
+   ("\\.Dockerfile\\'" . dockerfile-ts-mode)
+   ("\\.sh\\'" . bash-ts-mode)
+   ("\\.prisma\\'" . prisma-ts-mode))
 
   :custom
   (treesit-font-lock-level 4)
@@ -1048,10 +1068,10 @@ out"))
   (major-mode-remap-alist
    '((c-mode . c-ts-mode) (c++-mode . c++-ts-mode)
      (csharp-mode . csharp-ts-mode) (css-mode . css-ts-mode)
-     (java-mode . java-ts-mode) (js-mode . js-ts-mode)
+     (java-mode . java-ts-mode) (js-mode . js-ts-mode) (html-mode . html-ts-mode)
      (js-json-mode . json-ts-mode) ;; (org-mode . org-ts-mode) ;; not mature yet
      (python-mode . python-ts-mode) (julia-mode . ess-julia-mode)
-     (typescript-mode . typescript-ts-mode) (sh-mode . bash-ts-mode)
+     (typescript-mode . typescript-ts-mode) (sh-mode . bash-ts-mode) (shell-script-mode . bash-ts-mode)
      (ruby-mode . ruby-ts-mode) (rust-mode . rust-ts-mode)
      (toml-mode . toml-ts-mode) (yaml-mode . yaml-ts-mode))))
 
@@ -1079,7 +1099,7 @@ out"))
   (devdocs-browser-data-directory (expand-file-name "var/devdocs" user-emacs-directory)))
 
 (use-package elec-pair :ensure nil
-  :hook (prog-mode . electric-pair-local-mode))
+  :init (electric-pair-mode))
 
 (use-package paren :ensure nil
   :hook (after-init . show-paren-mode)
@@ -1162,8 +1182,9 @@ out"))
         (read-only-mode 1)
         ;; (hide-mode-line-mode 1)
         (variable-pitch-mode 1)
-        (setq-local line-spacing 0.5)
+        ;; (setq-local line-spacing 0.5)
         (text-scale-increase 1)
+        ;; (setq-local cursor-type nil)
         (setq-local olivetti-body-width 90) (olivetti-mode 1)
         ;; (tab-bar-mode -1) (tab-line-mode -1)
         ;; (call-interactively (key-binding (kbd "g")))
@@ -1173,7 +1194,8 @@ out"))
       (setq-local line-spacing nil)
       ;; (hide-mode-line-mode 1)
       (text-scale-decrease 1)
-      (setq-local olivetti-body-width 0.9)
+      (kill-local-variable 'cursor-type)
+      (kill-local-variable 'olivetti-body-width)
       ;; (tab-bar-mode 1) (tab-line-mode 1)
       )
     ))
@@ -1980,7 +2002,7 @@ Display format is inherited from `battery-mode-line-format'."
   (dashboard-items
    '(
      ;; (recents . 4)
-     (agenda . 15)
+     (agenda . 20)
      ;; (projects . 3)
      (bookmarks . 5)
      ))
@@ -2006,10 +2028,10 @@ Display format is inherited from `battery-mode-line-format'."
        "Denote Tree"
        (lambda (&rest _) (find-file "~/d-sync/notes/d-brain.org")) warning "" " |")
 
-      (,(nerd-icons-faicon "nf-fa-gitlab")
-       " Project"
+      (,(nerd-icons-faicon "nf-fa-refresh")
+       " Recent"
        "Open Project finder"
-       (lambda (&rest _) (project-find-file)) error "" " |")
+       (lambda (&rest _) (consult-recent-file)) error "" " |")
 
       (,(nerd-icons-octicon "nf-oct-terminal")
        " Terminal"
@@ -2047,7 +2069,7 @@ Display format is inherited from `battery-mode-line-format'."
       (,(nerd-icons-mdicon "nf-md-bookmark")
        " Bookmark"
        "Open Bookmark File"
-       (lambda (&rest _) (d/open-bookmark)) error "" "")
+       (lambda (&rest _) (call-interactively #'consult-bookmark)) error "" "")
 
       )
      ;; Empty line
@@ -2105,9 +2127,9 @@ Display format is inherited from `battery-mode-line-format'."
   (org-mode . variable-pitch-mode)
   (org-mode . org-indent-mode)
 
-  :bind (("C-c t R" . d/bionic-region)
+  :bind (
          ("C-c t i" . d/set-timer)
-         ("C-c t r" . d/bionic-read)
+
          (:map org-mode-map
                ("C-x n n" . d/narrow-or-widen-dwim)
                ("C-c l" . org-store-link)
@@ -2187,17 +2209,19 @@ Display format is inherited from `battery-mode-line-format'."
   (org-modern-table nil) ;; issue with variable-pitch font
 
   (org-modern-list
-   '((?* . " ") (?- . " ") (?+ . " ")))
+   '((?* . "") (?- . "") (?+ . "")))
 
   (org-modern-checkbox
    '((?X . "✅") (?- . "❌") (?  . " ")))
 
   (org-modern-keyword
-   '(("options" . "") ("title" . "")
-     ("author" . "󱆀") ("email" . "")
-     ("startup" . "") ("property" . "")
-     ("date" . "") ("tags" . "")
-     ("todo" . "") (t . t)))
+   '(("options" . " ") ("title" . " ")
+     ("author" . "󱆀 ") ("email" . " ")
+     ("startup" . " ") ("property" . " ")
+     ("date" . " ") ("tags" . " ")
+     ("reveal" . "󰐩 ") ("latex" . " ") ("latex_header" . " ")
+     ("logbook" . "log")
+     ("todo" . " ") (t . t)))
 
   (org-modern-block-name
    '(("src" . "") ("example" . "")
@@ -2205,6 +2229,13 @@ Display format is inherited from `battery-mode-line-format'."
      (t . t)))
 
   (org-modern-internal-target '("  " t " ")))
+
+(use-package prog-mode
+  :hook (prog-mode . hs-minor-mode)
+  :custom (prettify-symbols-alist
+           '(("LOGBOOK:" . ?) ("END:" . ?󱟀) ("PROPERTIES:" . ?)
+             ("REFERENCE:" . ?) ("CITATION" . ?))
+           ))
 
 (use-package org-agenda :ensure nil :after org
   :bind (("C-c d a" . org-agenda)
@@ -2217,6 +2248,7 @@ Display format is inherited from `battery-mode-line-format'."
   (org-agenda-restore-windows-after-quit t)
   (org-agenda-log-mode-items '(closed clock state))
   (org-agenda-inhibit-startup t)
+  (org-agenda-tags-column fill-column)
   (org-agenda-block-separator ?─)
   (org-agenda-time-grid
    '((daily today require-timed)
@@ -2227,6 +2259,7 @@ Display format is inherited from `battery-mode-line-format'."
 
   (org-agenda-files
    '("~/d-sync/notes/d-brain.org"
+     "~/d-sync/notes/inbox.org"
      "~/d-git/d-site/README.org"
      )))
 
@@ -2257,8 +2290,8 @@ Display format is inherited from `battery-mode-line-format'."
      ("c" "Contacts" entry (file "contacts.org")
       "* %(tempel-insert 'contact)")
 
-     ("l" "Link" entry
-      (file+headline "bookmarks.org" "gnus") "* %a\n")
+     ("l" "Link" item
+      (file+headline "bookmarks.org" "gnus") "%a\n")
 
      ("j" "Journal Entry" entry
       (file+olp+datetree "d-brain.org")
@@ -2323,7 +2356,6 @@ absolute path. Finally load eglot."
 
 (use-package org-id
   :hook (org-insert-heading . org-id-get-create)
-  :bind (:map org-mode-map ("C-x C-i" . org-id-get-create))
   :custom
   (org-id-method 'ts)
   (org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
@@ -2403,9 +2435,15 @@ absolute path. Finally load eglot."
   (setq org-tags-exclude-from-inheritance '("crypt"))
   (setq org-crypt-key nil))
 
-(use-package org-mime :unless d/on-droid :after gnus
+(use-package org-mime :unless d/on-droid :after message
+  :hook (message-send . org-mime-confirm-when-no-multipart)
+  :bind (:map message-mode-map ("C-c M-o" . org-mime-htmlize))
   :custom
-  (org-mime-library 'mml))
+  (org-mime-export-options
+   '( :section-numbers nil
+      :with-author nil
+      :with-toc nil))
+  )
 
 (use-package remember :ensure nil
   :bind ("C-c r r" . remember) ("C-c r n" . remember-notes))

@@ -313,20 +313,7 @@
 
       (trivialBuild {
         pname = "combobulate";
-        version = "pre-2024-09-20";
-
-        src = pkgs.fetchFromGitHub {
-          owner = "mickeynp";
-          repo = "combobulate";
-          rev = "f3a089964004585df6f30ea99282aa143fe64f2c";
-          hash = "sha256-b8PAV58rFbJOxUUzl5JDu8wVKmwWg++6peSevJ8y2eA=";
-        };
-        packageRequires = [ transient ];
-      })
-
-      (trivialBuild {
-        pname = "combobulate";
-        version = "pre-2024-09-20";
+        version = "unstable-2024-09-20";
 
         src = pkgs.fetchFromGitHub {
           owner = "mickeynp";
@@ -335,10 +322,24 @@
           hash = "sha256-b8PAV58rFbJOxUUzl5JDu8wVKmwWg++6peSevJ8y2eA=";
         };
       })
+
+      # could not build, as simply sources directory was not installing
+      # (trivialBuild {
+      #   pname = "consult-omni";
+      #   version = "unstable-2024-09-27";
+
+      #   src = pkgs.fetchFromGitHub {
+      #     owner = "armindarvish";
+      #     repo = "consult-omni";
+      #     rev = "87b5bcf0e55c01e6a4a24ae74ce691f55d1455a2";
+      #     hash = "sha256-x5rNTNEDLoHzIlA1y+VsQ+Y0Pa1QXbybt2rIUBJ+VtM=";
+      #   };
+      #   buildInputs = with pkgs.emacsPackages;[ embark consult ];
+      # })
 
       (trivialBuild {
         pname = "org-super-links";
-        version = "pre-0.4";
+        version = "unstable-0.4";
 
         src = pkgs.fetchFromGitHub {
           owner = "toshism";
@@ -363,6 +364,102 @@
 
   xdg.configFile."emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/d-emacs/early-init.el";
 
+}
+
+{
+  programs.helix = {
+    enable = true;
+
+    settings = {
+      # theme = "gruvbox_dark_hard";
+
+      keys.normal = {
+        "{" = "goto_prev_paragraph";
+        "}" = "goto_next_paragraph";
+        "X" = "extend_line_above";
+        "esc" = ["collapse_selection" "keep_primary_selection"];
+        space.space = "file_picker";
+        space.w = ":w";
+        space.q = ":bc";
+        "C-q" = ":xa";
+        space.u = {
+          f = ":format"; # format using LSP formatter
+          w = ":set whitespace.render all";
+          W = ":set whitespace.render none";
+        };
+      };
+
+      keys.insert = {
+        A-x = "normal_mode";
+        j = { k = "normal_mode"; };
+      };
+
+      keys.select = {
+        "%" = "match_brackets";
+      };
+
+      editor = {
+        line-number = "relative";
+        cursorline = true;
+        auto-completion = true;
+        auto-format = true;
+        mouse = true;
+        color-modes = true;
+        idle-timeout = 1;
+        scrolloff = 5;
+        bufferline = "always";
+        true-color = true;
+        rulers = [80];
+        indent-guides = {
+          render = true;
+        };
+        gutters = ["diagnostics" "line-numbers" "spacer" "diff"];
+
+        statusline = {
+          separator = "";
+          left = ["mode" "selections" "spinner" "file-name" "total-line-numbers"];
+          center = [];
+          right = ["diagnostics" "file-encoding" "file-line-ending" "file-type" "position-percentage" "position"];
+          mode = {
+            normal = "NORMAL";
+            insert = "INSERT";
+            select = "SELECT";
+          };
+        };
+
+        whitespace.characters = {
+          space = "·";
+          nbsp = "⍽";
+          tab = "→";
+          newline = "⤶";
+        };
+
+        cursor-shape = {
+          insert = "bar";
+          normal = "block";
+          select = "block";
+        };
+
+        auto-pairs = {
+          "(" = ")";
+          "{" = "}";
+          "[" = "]";
+          "\"" = "\"";
+          "`" = "`";
+          "<" = ">";
+        };
+
+        lsp = {
+          enable = true;
+          display-messages = true;
+          display-inlay-hints = true;
+          snippets = true;
+        };
+
+      };
+    };
+
+  };
 }
 
 {
@@ -576,7 +673,8 @@
   # invidious_instance="https://yewtu.be"
   external_menu () {
   # bemenu -w 0.98 -l 24 -p '  play '
-  rofi -dmenu -i -l 10 -p '󰑈  play'
+  # rofi -dmenu -i -l 10 -p '󰑈  play'
+  fuzzel -d
   }
   
   thumbnail_quality=high
@@ -737,7 +835,7 @@
     # utils
     # ocrscript
     wl-screenrec
-    wl-clipboard
+    wl-clipboard xwayland-satellite
   ];
 }
 
@@ -757,7 +855,7 @@
         {
           timeout = 150;
           on-timeout = "brightnessctl -s set 10";         # set monitor backlight to minimum, avoid 0 on OLED monitor.
-          on-resume = "brightnessctl -r && d-walls";                 # monitor backlight restore.
+          on-resume = "brightnessctl -r";                 # monitor backlight restore.
         }
         {
           timeout = 210;
@@ -883,7 +981,6 @@
 
     targets = {
       emacs.enable = false;
-      # hyprpaper.enable = false;
       waybar = {
         enable = true;
         # enableLeftBackColors = true;
@@ -964,12 +1061,14 @@
           margin-top = 10;
 
           modules-left = [
-            "custom/launcher" "wlr/taskbar" "niri/window" "hyprland/window"
-            "hyprland/submap"
+            "custom/launcher"
+            "niri/workspaces" "hyprland/workspaces"
+            "wlr/taskbar"
+            # "niri/window" "hyprland/window"
+            # "hyprland/submap"
           ];
 
           modules-center = [
-            "niri/workspaces" "hyprland/workspaces"
             "privacy" "custom/recorder" "clock" "mpd" "mpris"
           ];
 
@@ -977,19 +1076,10 @@
 
           "niri/workspaces" = {
 	          format = "{icon}";
-	          format-icons = {
-		          "active" = "";
-		          "default" = "";
-	          };
-          };
-
-          "niri/window" = {
-	          format = "{}";
-	          "rewrite" = {
-              "(.*) - GNU Emacs (.*)" = " $1";
-              "(.*).epub(.*)" = "󰂽 $1";
-              "(.*)foot" = " Terminal $1";
-	          };
+	          # format-icons = {
+		          # "active" = "";
+		          # "default" = "";
+	          # };
           };
 
           "hyprland/workspaces" = {
@@ -1006,20 +1096,6 @@
               "4" = "4";
               "5" = "5";
               "6" = "6";
-            };
-          };
-
-          "hyprland/window" = {
-            "format" = "{}";
-            "separate-outputs" = true;
-            "max-length" = 35;
-            "rewrite" = {
-              "(.*) - Mozilla Firefox" = "🦊 $1";
-              "(.*) - LibreWolf" = "🐺 $1";
-              "(.*) - Brave" = "🦁 $1";
-              "(.*) - GNU Emacs (.*)" = " $1";
-              "(.*).epub(.*)" = "󰂽 $1";
-              "(.*)foot" = " Terminal $1";
             };
           };
 
@@ -1452,12 +1528,12 @@
     settings = {
       main = {
         prompt = "'  '";
-        fuzzy = true;
         show-actions = true;
         list-executables-in-path = true;
         layer = "overlay";
         exit-on-keyboard-focus-loss = false;
         line-height = 40;
+        match-mode = "fuzzy";
       };
       border = {
         width = 4;

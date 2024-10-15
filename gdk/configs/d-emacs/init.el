@@ -1,6 +1,6 @@
 (use-package time :ensure nil
   :hook (after-init . display-time)
-  :custom (display-time-24hr-format t))
+  :custom (display-time-24hr-format t) (display-time-default-load-average nil))
 
 (use-package tramp :ensure nil
   :custom (tramp-backup-directory-alist backup-directory-alist))
@@ -110,7 +110,7 @@ see its function help for a description of the format."
 
   (initial-major-mode 'org-mode)
   (initial-scratch-message
-   "#+title: Scratch Buffer\n\nFor random thoughts.\n\n")
+   (format ""))
 
   (use-short-answers t)
   (enable-recursive-minibuffers t "Allow minibuffer commands in the minibuffer")
@@ -135,7 +135,10 @@ see its function help for a description of the format."
 
   :config
   (delete-selection-mode)
-
+  (setopt
+   read-process-output-max (* 1024 1024)
+   inhibit-compacting-font-caches t
+   )
   (with-current-buffer "*scratch*"
     (emacs-lock-mode 'kill))
   (prefer-coding-system 'utf-8)
@@ -180,7 +183,7 @@ it narrows to region, or Org subtree."
   :bind
   (("<f7>" . scratch-buffer)
    ("<escape>" . keyboard-quit)
-   ("M-^" . d/join-lines)
+   ("M-^" . d/join-every-n-lines)
    ("M-z" . zap-up-to-char)
 
    ("M-%" . query-replace-regexp)
@@ -195,29 +198,49 @@ it narrows to region, or Org subtree."
   (kill-ring-max 30000)
   (column-number-mode 1)
   (kill-do-not-save-duplicates t)
-
+  (read-mail-command 'gnus)
   :config
   ;; (global-hl-line-mode 1)
   (global-visual-line-mode 1))
 
-(defun d/join-lines (specify-separator)
-  "Join lines in the active region by a separator, by default a comma.
-Specify the separator by typing C-u before executing this command."
+(defvar d/join-lines--last-separator ","
+  "Keep the last used separator for `d/join-lines' and
+`d/join-every-n-lines', a comma by default.")
+
+(defun d/join-every-n-lines (&optional specify-separator)
+  "Join every N lines in the active region by a separator,
+by default the last used.
+
+Specify the separator by typing C-u before executing this
+command.
+
+Note: it depends on s.el."
   (interactive "P")
   (require 's)
   (unless (region-active-p)
-    (delete-indentation)
-    (message "select a region of lines first."))
-  (let*
-      ((separator (if (not specify-separator) ","
-                    (read-string "Separator: ")))
-       (text (buffer-substring-no-properties
-              (region-beginning)
-              (region-end)))
-       (lines (split-string text "\n"))
-       (result (s-join separator lines)))
+    (error "select a region of all-lines first."))
+  (let* ((n (string-to-number (read-string "N =: ")))
+         (separator (if (not specify-separator)
+                        d/join-lines--last-separator
+                      (read-string "Separator: ")))
+         (text (buffer-substring-no-properties
+                (region-beginning)
+                (region-end)))
+         (all-lines (split-string text "\n"))
+         n-lines
+         result)
+    (while all-lines
+      (let (lines line)
+        (dotimes (_ n)
+          (when (setq line (pop all-lines))
+            (push line lines)))
+        (push (reverse lines) n-lines)))
+    (setq result (mapconcat (lambda (lines)
+                              (s-join separator lines))
+                            (reverse n-lines) "\n"))
     (delete-region (region-beginning) (region-end))
-    (insert result)))
+    (insert result)
+    (setq q/join-lines--last-separator separator)))
 
 ;; taken from an planet emacs rss feed post
 ;; Stolen from the wiki somewhere
@@ -288,6 +311,8 @@ E.g. capitalize or decapitalize the next word, increment number at point."
    `((".*" . ,(no-littering-expand-var-file-name "backup/"))))
   (auto-save-file-name-transforms
    `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
+  (safe-local-variable-directories
+   '("/home/idlip/d-sync/notes/" "/home/idlip/d-sync/projects/lnrna-tool/"))
   (delete-old-versions t)
   (kept-new-versions 6)
   (kept-old-versions 2)
@@ -366,7 +391,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (dired-listing-switches "-agho --group-directories-first")
   (delete-by-moving-to-trash t)
   (dired-dwim-target t)
-  ;; (dired-kill-when-opening-new-dired-buffer t) ;; in case sinlge buffer is preferred
+  (dired-kill-when-opening-new-dired-buffer t) ;; in case sinlge buffer is preferred
   )
 
 (use-package dired-x :ensure nil
@@ -552,20 +577,20 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (consult-omni-dynamic-input-throttle 4)
   (consult-omni-default-interactive-command #'consult-omni-multi)
   (consult-omni-sources-modules-to-load
-        '(consult-omni-brave consult-omni-invidious
-                             consult-omni-google consult-omni-youtube
-                             consult-omni-stackoverflow
-                             consult-omni-wikipedia consult-omni-man
-                             consult-omni-calc
-                             consult-omni-projects
-                             consult-omni-notes
-                             consult-omni-apps))
+   '(consult-omni-brave consult-omni-invidious
+                        consult-omni-google consult-omni-youtube consult-omni-gptel
+                        consult-omni-stackoverflow
+                        consult-omni-wikipedia consult-omni-man
+                        consult-omni-calc
+                        consult-omni-projects
+                        consult-omni-notes
+                        consult-omni-apps))
   (consult-omni-invidious-servers '("https://invidious.privacyredirect.com" "https://yewtu.be" "https://vid.puffyan.us"))
   (consult-omni-notes-files (list org-directory "~/d-git/d-site/"))
   (consult-omni-http-retrieve-backend 'request)
   :config (require 'consult-omni-sources)
   (consult-omni-sources-load-modules)
-)
+  )
 
 (use-package orderless :demand t :custom (completion-styles '(orderless basic)))
 
@@ -680,7 +705,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 (use-package tab-bar :unless d/on-droid
   :bind  (
           ("C-]" . tab-next)
-          ("C-<tab>" . tab-line-switch-to-next-tab)
+          ("C-<tab>" . tab-next)
           )
   :custom
   (tab-bar-format '(
@@ -693,9 +718,10 @@ E.g. capitalize or decapitalize the next word, increment number at point."
                     ))
   (global-mode-string '("" "󰁹"battery-mode-line-string " "display-time-string) "For tab-bar-format-global values")
   (tab-bar-close-button-show nil)
+  ;; (tab-bar-show nil)
   (tab-bar-mode 1)
   (tab-bar-history-mode 1)
-  (global-tab-line-mode 1)
+  ;; (global-tab-line-mode 1)
   )
 
 (use-package mwheel :ensure nil
@@ -749,8 +775,25 @@ E.g. capitalize or decapitalize the next word, increment number at point."
    ("C-x C-a g" . activities-revert)
    ("C-x C-a l" . activities-list)))
 
-(use-package zone :ensure nil :demand t
-  :custom (zone-timer (* 60 5)))
+(use-package gptel :unless d/on-droid :defer t
+  :custom (gptel-model 'llama3.2:latest)
+  :config
+  (setq gptel-backend
+        (gptel-make-ollama "Ollama"
+          :host "localhost:11434"
+          :stream t
+          :models '(llama3.2:latest)))
+  (gptel-make-ollama "Ollama"
+    :host "localhost:11434"
+    :stream t
+    :models '(mistral:latest))
+  ;; some json error until next update
+  ;; (gptel-make-gemini "Gemini"
+  ;;   :key (gptel-api-key-from-auth-source "api.gemini.com" "apikey")
+  ;;   :stream t)
+  )
+
+(use-package zone :ensure nil :demand t :config (zone-when-idle (* 60 5)))
 
 (use-package man :ensure nil :demand t
   :custom (Man-notify-method 'pushy "show manpage HERE")
@@ -758,7 +801,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (Man-overstrike ((t (:inherit font-lock-type-face :bold t))))
   (Man-underline ((t (:inherit font-lock-keyword-face :underline t)))))
 
-(use-package helpful :hook (helpful-mode . toggle-mode-line)
+(use-package helpful :hook (helpful-mode . d/toggle-bar)
   :bind (
          ("C-h f" . helpful-callable)
          ("C-h v" . helpful-variable)
@@ -785,8 +828,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 
 (use-package esh-mode :ensure nil
   :hook
-  (eshell-mode . toggle-mode-line)
-  (eshell-mode . electric-pair-local-mode)
+  (eshell-mode . d/toggle-bar)
   (eshell-mode . (lambda () (setq outline-regexp eshell-prompt-regexp)
                    (setq-local corfu-auto nil)
                    (setq-local scroll-margin 0)
@@ -798,11 +840,8 @@ E.g. capitalize or decapitalize the next word, increment number at point."
                ("C-S-l" . d/clear-eshell)))
 
   :custom
-  (eshell-directory-name (expand-file-name "eshell" user-emacs-directory))
-  (eshell-aliases-file (expand-file-name "alias" eshell-directory-name))
   (eshell-hist-ignoredups t)
   (eshell-buffer-name "eshell-terminal")
-  (eshell-last-dir-ring-size 32)
   (eshell-kill-processes-on-exit 'ask)
 
   (eshell-prompt-function
@@ -812,7 +851,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
       ;; (propertize "  " 'face '(:inherit region))
       "  "
       " "
-      (propertize (replace-regexp-in-string "~" " " (eshell/pwd)) 'face '(:foreground "lightblue1"))
+      (propertize (eshell/pwd) 'face '(:foreground "lightblue1"))
       (when (with-eval-after-load 'magit (propertize (if (magit-get-current-branch) (concat "   " (magit-get-current-branch)) "") 'face '(:foreground "orangered1"))))
       (when (with-eval-after-load 'envrc (propertize (if (string= envrc--status 'none) "" "   ") 'face '(:foreground "mediumspringgreen"))))
       ;; (propertize (concat "   " (format-time-string "%H:%M" (current-time))) 'face '(:foreground "lightcyan1"))
@@ -846,14 +885,14 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 (use-package eat :unless d/on-droid
   :hook
   (eshell-load . eat-eshell-mode)
-  (eat-mode . toggle-mode-line)
+  (eat-mode . d/toggle-bar)
   :bind
   (("C-c d e" . d/eat-toggle)
    ("S-<f12>" . d/eat-toggle)
    (:map eat-mode-map
          ("C-x C-q" . d/eat-read-write)
          ("<f12>" . d/eat-toggle)
-         ("<f9>" . toggle-mode-line))
+         ("<f9>" . d/toggle-bar))
    (:map eat-semi-char-mode-map
          ("M-o" . nil)
          ("M-s" . nil))))
@@ -950,7 +989,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 
 (use-package nix-mode :bind (:map nix-mode-map ("C-c C-e" . nix-eval-line)))
 
-(use-package nix-ts-mode :mode ("\\.nix\\'" "\\.nix.in\\'"))
+(use-package nix-ts-mode)
 
 (defun nix-eval-dwim ()
   (interactive)
@@ -983,6 +1022,15 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 (use-package flymake :ensure nil
   :hook (prog-mode . flymake-mode)
   :custom (python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-")))
+
+(use-package flycheck :defer ;; t
+  ;; :hook (prog-mode . flycheck-mode)
+  :custom
+  (flycheck-check-syntax-automatically '(save idle-change mode-enabled))
+  (flycheck-idle-change-delay 3)
+  (flycheck-emacs-lisp-load-path 'inherit)
+  (flycheck-buffer-switch-check-intermediate-buffers t)
+  (flycheck-display-errors-delay 0.25))
 
 (use-package reformatter
   :hook
@@ -1033,15 +1081,7 @@ out"))
   ;;   (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
   )
 
-(use-package eglot-booster :after eglot :config (eglot-booster-mode))
-
 (use-package xref :ensure nil :custom (xref-search-program 'ripgrep))
-
-(use-package elisp-mode :ensure nil :bind
-  (:map emacs-lisp-mode-map
-        ("C-c C-d C-d" . describe-function)
-        ("C-c C-d d" . describe-function)
-        ("C-c C-k" . eval-buffer)))
 
 (use-package treesit :ensure nil
   :mode
@@ -1066,7 +1106,7 @@ out"))
   (treesit-font-lock-feature-list t)
   (standard-indent 2)
   (major-mode-remap-alist
-   '((c-mode . c-ts-mode) (c++-mode . c++-ts-mode)
+   '((c-mode . c-ts-mode) (c++-mode . c++-ts-mode) (nix-mode . nix-ts-mode)
      (csharp-mode . csharp-ts-mode) (css-mode . css-ts-mode)
      (java-mode . java-ts-mode) (js-mode . js-ts-mode) (html-mode . html-ts-mode)
      (js-json-mode . json-ts-mode) ;; (org-mode . org-ts-mode) ;; not mature yet
@@ -1098,8 +1138,9 @@ out"))
 
   (devdocs-browser-data-directory (expand-file-name "var/devdocs" user-emacs-directory)))
 
-(use-package elec-pair :ensure nil
-  :init (electric-pair-mode))
+(use-package prog-mode :ensure nil :hook (prog-mode . hs-minor-mode) (prog-mode . outline-minor-mode))
+
+(use-package elec-pair :ensure nil :init (electric-pair-mode))
 
 (use-package paren :ensure nil
   :hook (after-init . show-paren-mode)
@@ -1139,11 +1180,8 @@ out"))
   :custom-face (doc-view-svg-face ((t (:background "#000000" :foreground "#ffffff"))))
   :custom
   (doc-view-continuous t)
-  (doc-view-mupdf-use-svg t)
-  (doc-view-scale-internally t)
-  (doc-view-image-width 900)
   (large-file-warning-threshold 700000000)
-  (image-cache-eviction-delay 5))
+  (image-cache-eviction-delay 10))
 
 (defun d/doc-view-theme ()
   "Toggle between dark and reading mode in Doc-view buffer."
@@ -1160,9 +1198,7 @@ out"))
       (set-face-attribute 'doc-view-svg-face nil :background "#fefefe" :foreground "#000000"))))
   (doc-view-next-page) (doc-view-previous-page))
 
-(use-package saveplace-pdf-view
-  :unless d/on-droid
-  :demand t)
+(use-package saveplace-pdf-view :unless d/on-droid :demand t)
 
 (use-package nov :mode ("\\.epub\\'" . nov-mode)
   :hook
@@ -1171,8 +1207,7 @@ out"))
   (nov-mode . nov-imenu-setup)
   :custom
   (nov-text-width fill-column)
-  (nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title)))
-  (nov-variable-pitch t))
+  (nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title))))
 
 (define-minor-mode d/reading-mode
   "The Zen Mind"
@@ -1180,23 +1215,19 @@ out"))
   (if d/reading-mode
       (progn
         (read-only-mode 1)
-        ;; (hide-mode-line-mode 1)
+        (d/toggle-bar)
         (variable-pitch-mode 1)
         ;; (setq-local line-spacing 0.5)
         (text-scale-increase 1)
-        ;; (setq-local cursor-type nil)
+        (setq-local cursor-type nil)
         (setq-local olivetti-body-width 90) (olivetti-mode 1)
-        ;; (tab-bar-mode -1) (tab-line-mode -1)
-        ;; (call-interactively (key-binding (kbd "g")))
         )
 
     (progn
-      (setq-local line-spacing nil)
-      ;; (hide-mode-line-mode 1)
+      (d/toggle-bar)
       (text-scale-decrease 1)
       (kill-local-variable 'cursor-type)
       (kill-local-variable 'olivetti-body-width)
-      ;; (tab-bar-mode 1) (tab-line-mode 1)
       )
     ))
 
@@ -1280,11 +1311,14 @@ out"))
          (:map gnus-summary-mode-map
                ("-" . gnus-summary-hide-thread)
                ("+" . gnus-summary-show-thread)
-               ))
+               ) )
   :custom
-  (gnus-directory (expand-file-name "feeds/gnews" user-emacs-directory))
-  (gnus-startup-file (expand-file-name "newsrc" gnus-directory))
-
+  (gnus-home-directory (expand-file-name "feeds/gnews" user-emacs-directory))
+  (gnus-directory message-directory)
+  (message-directory (expand-file-name "mail" gnus-home-directory))
+  (gnus-startup-file (expand-file-name "newsrc" gnus-home-directory))
+  (gnus-message-archive-group '((format-time-string "sent.%Y")))
+  (gnus-article-save-directory (expand-file-name "saved" gnus-home-directory))
   (gnus-widen-article-window t)
 
   (gnus-select-method
@@ -1387,11 +1421,18 @@ out"))
    nnrss-group-alist
    '(
      ("manga" "https://nyaa.si/?page=rss&c=3_1&f=0")
-     ))
-
+     )
+   )
+  (gnus-demon-add-handler 'gnus-group-save-newsrc 5 t) ;; minutes
+  (gnus-demon-init)
   )
 
-(setopt user-mail-address "idlip@protonmail.com"
+(use-package gnus-srvr
+  :bind
+  (:map gnus-server-mode-map
+        ("q" . quit-window)))
+
+(setopt user-mail-address "idlip@protonmail.com" ;; you can mail to discuss anything on emacs ;)
         user-full-name "Dilip")
 
 (use-package gnus
@@ -1400,7 +1441,7 @@ out"))
   (add-to-list 'gnus-secondary-select-methods
                '(nnimap "protonmail"
                         (nnimap-stream plain)
-                        (nnimap-address "127.0.0.1")
+                        (nnimap-address "127.0.0.1") ;; hydroxide
                         (nnimap-server-port 1143))))
 
 (use-package smtpmail
@@ -1420,10 +1461,10 @@ out"))
   (smtpmail-debug-verb t))
 
 (unless d/on-droid
-  (load-file "~/d-sync/feeds/gnews/privmail.el"))
+  (setopt gnus-init-file "~/d-sync/feeds/gnews/privmail.el"))
 
 (use-package sdcv :defer t :unless d/on-droid
-  :hook (sdcv-mode . toggle-mode-line)
+  :hook (sdcv-mode . d/toggle-bar)
   :config
   (setq sdcv-say-word-p t
         sdcv-dictionary-data-dir "~/d-git/d-bin/treasure/dict/"
@@ -1506,25 +1547,11 @@ out"))
       (kill-new (format "https://pubmed.ncbi.nlm.nih.gov/%s" uids)))))
 
 (use-package url :ensure nil
-  :custom
-  (url-privacy-level 'high)
-  ;; (url-mime-accept-string "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8 ")
-  :config
-  (url-setup-privacy-info))
+  :custom (url-privacy-level 'high) ;; reddit/SO does not like it 'paranoid
+  :config (url-setup-privacy-info))
 
 (use-package shr :ensure nil :demand t
-  :custom
-  (shr-use-fonts  t)
-  (shr-use-colors nil)
-  (shr-indentation 4)
-  (shr-bullet "⁍ ")
-  (shr-folding-mode t)
-  (shr-max-width 80)
-  (shr-max-image-proportion 0.9)
-  (shr-width 80))
-
-(use-package shr-color :ensure nil :defer t
-  :custom (shr-color-visible-luminance-min 40 "Improve the contrast"))
+  :custom (shr-bullet "⁍ "))
 
 (use-package shrface
   :hook
@@ -1625,14 +1652,15 @@ out"))
 
   :bind (("M-s M-w" . eww-search-words)
          (:map eww-mode-map
+               ([mouse-8] . eww-back-url)
+               ([mouse-9] . eww-forward-url)
                ("e" . readable-article)
                ("Q" . d/kill-buffer)
                ("RET" . eww-follow-link)
-               ("m" . elfeed-toggle-star)
                ("b" . nil)))
   :custom
   (eww-auto-rename-buffer 'title)
-  (eww-search-prefix "https://searx.be/?q="))
+  (eww-search-prefix "https://baresearch.org/?q="))
 
 (defun eww-search-words ()
   "Search the web for the text in the region.
@@ -1650,12 +1678,11 @@ for the search engine used."
         (eww (shr-url-at-point nil))
       (eww-browse-url (completing-read "Browse Url: " eww-prompt-history)))))
 
-(use-package browse-url :ensure nil
+(use-package browse-url :ensure nil :unless d/on-droid
   :config ;; browser script
-  (unless d/on-droid
-    (setopt browse-url-browser-function 'browse-url-generic
-            browse-url-generic-program "d-stuff"
-            browse-url-secondary-browser-function 'browse-url-default-browser)))
+  (setopt browse-url-browser-function 'browse-url-generic
+          browse-url-generic-program "d-stuff"
+          browse-url-secondary-browser-function 'browse-url-default-browser))
 
 (use-package mpc
   :bind (("C-c d m" . mpc)
@@ -1668,8 +1695,7 @@ for the search engine used."
                ("f" . mpc-ffwd)
                ("b" . mpc-rewind)
                ))
-  :custom
-  (mpc-browser-tags '(Title))
+  :custom (mpc-browser-tags '(Title))
   :config
   (defun mpc-select-dwim ()
     (interactive)
@@ -1681,8 +1707,7 @@ for the search engine used."
   :custom (ready-player-open-playback-commands '(("mpv" "--audio-display=no" "--input-ipc-server=" "--speed=1.0")))
   :config (ready-player-mode))
 
-(use-package transmission :unless d/on-droid
-  :bind ("C-c d t" . transmission))
+(use-package transmission :unless d/on-droid :bind ("C-c d t" . transmission))
 
 (use-package reddigg :defer t
   :bind (("C-c d f" . reddigg-view-frontpage)
@@ -1723,6 +1748,15 @@ for the search engine used."
   (setq webpaste-provider-priority '("dpaste.org" "dpaste.com" "paste.mozilla.org"))
   ;; Require confirmation before doing paste
   (setq webpaste-paste-confirmation t))
+
+(use-package erc :ensure nil
+  :init
+  (defun erc-run-libera ()
+    "Run ERC and connect to Libera"
+    (interactive)
+    (erc-tls :server "irc.libera.chat" :nick "zororg") ;; yes, thats me
+    )
+  :custom (erc-hide-list '("JOIN" "PART" "QUIT")))
 
 ;; access phone storage as default
 ;; Better is to symlink file to ~/ itself
@@ -1768,34 +1802,6 @@ for the search engine used."
   )
 ;; (setq use-dialog-box nil)
 
-(require 'alert)
-(when d/on-droid
-  ;; Org-alert functions
-
-  (defun alert-android-notifications-notify (info)
-    "Send notifications using `android-notifications-notify'.
-`android-notifications-notify' is a built-in function in the native Emacs
-Android port."
-    (let ((title (or (plist-get info :title) "Android Notifications Alert"))
-          (body (or (plist-get info :message) ""))
-          (urgency (cdr (assq (plist-get info :severity)
-                              alert-notifications-priorities)))
-          (icon (or (plist-get info :icon) alert-default-icon))
-          (replaces-id (gethash (plist-get info :id) alert-notifications-ids)))
-      (android-notifications-notify
-       :title title
-       :body body
-       :urgency urgency
-       :icon icon
-       :replaces-id replaces-id)))
-
-
-  (alert-define-style 'android-notifications :title "Android Notifications"
-                      :notifier #'alert-android-notifications-notify
-                      )
-  (setq alert-default-icon "ic_popup_reminder")
-  )
-
 (defcustom d/font-size (if d/on-droid 170 240)
   "Default font size based on the system.")
 (defcustom d/variable-font-size (if d/on-droid 180 280)
@@ -1812,9 +1818,15 @@ Android port."
 
 (use-package faces :ensure nil
   :custom-face
-  (variable-pitch ((t (:family ,d/variable-pitch-font :height ,d/variable-font-size :weight medium))))
-  (fixed-pitch ((t (:family ,d/fixed-pitch-font :height ,d/font-size :weight medium))))
-  (default ((t (:family ,d/fixed-pitch-font :height ,d/font-size :weight medium)))))
+  (variable-pitch ((t (:family ,d/variable-pitch-font
+                               ;; :height 1.2
+                               :weight medium))))
+  (fixed-pitch ((t (:family ,d/fixed-pitch-font
+                            ;; :height ,d/font-size
+                            :weight medium))))
+  (default ((t (:family ,d/fixed-pitch-font
+                        ;; :height ,d/font-size
+                        :weight medium)))))
 
 (use-package font-lock :ensure nil :defer t
   :custom ((font-lock-maximum-decoration t)
@@ -1836,10 +1848,15 @@ Android port."
 
 (use-package haki-theme :demand t
   :load-path "~/.config/emacs/var/theme"
+  :custom-face
+  (haki-region ((t (:background "#262626" :foreground "#ffffff"))))
   :custom
   (haki-heading-font "Code D Ace")
   (haki-sans-font "Code D Haki")
   (haki-title-font "Code D Ace")
+  (haki-bg-oled t)
+  (haki-theme-mode-line nil)
+  (haki-region)
   ;; (haki-link-font "")
   ;; (haki-code-font "Code D Lip")
   :config (load-theme 'haki t))
@@ -1867,222 +1884,31 @@ Android port."
      (agenda-structure . (variable-pitch light 1.8))
      (t . (1.1)))))
 
-(use-package olivetti :defer t
-  :hook (org-mode text-mode Info-mode helpful-mode ement-room-mode
-                  shrface-mode gnus-article-mode sdcv-mode nov-mode elfeed-show-mode markdown-mode)
-  :custom
-  (olivetti-body-width 0.92)
-  (olivetti-minimum-body-width 40)
-  (olivetti-recall-visual-line-mode-entry-state t) )
+(use-package olivetti :defer t :custom (olivetti-body-width 100)
+  :hook (org-mode text-mode Info-mode helpful-mode ement-room-mode gnus-group-mode
+                  shrface-mode gnus-article-mode sdcv-mode nov-mode elfeed-show-mode markdown-mode))
 
-;; new way of using mode-line with `mini-echo-mode`
-(use-package mini-echo :unless d/on-droid :defer 1
-  :custom
-  (mini-echo-window-divider-args '(t 0 0) "no indicator border")
-  (mini-echo-separator " ")
-  (mini-echo-buffer-status-style 'both)
-  (mini-echo-default-segments
-   '(:long ("time" "battery" "buffer-name"
-            "envrc" "project" "eglot"
-            "buffer-position"
-            ;; "buffer-size"
-            "flymake" "selection-info"
-            "narrow"
-            )
-           :short ("buffer-name-short"
-                   "selection-info" "narrow" "macro" "repeat")))
+(use-package emacs :ensure nil :custom
+  (mode-line-format
+   '("%e" "  "
+     (:propertize
+      ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote))
+     mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position
+     mode-line-format-right-align
+     "  "
+		 (project-mode-line project-mode-line-format) " " (vc-mode vc-mode) "  " mode-line-modes mode-line-misc-info "  "))
+	(project-mode-line t))
 
-  (mini-echo-rules
-   '((special-mode :both (("buffer-size" . 0)))
-     (prog-mode :both (("vcs" . 1)))
-     (dired-mode :both (("buffer-size" . 0)))))
+(global-set-key [f9] #'d/toggle-bar)
 
-  :config
-  (setopt mini-echo--toggled-segments
-          '(("battery" . t)
-            ("flymake" . t)
-            ;; ("elfeed". t)
-            ;; ("pdf-tools". t)
-            ("doc-view" . t)
-            ("time" . t)))
-
-  (mini-echo-mode 1))
-
-(unless d/on-droid
-  (defface mini-echo-elfeed
-    '((t (:inherit elfeed-search-unread-count-face)))
-    "Face for mini-echo segment of word count."
-    :group 'mini-echo)
-
-  ;; add elfeed unread counts
-  (mini-echo-define-segment "elfeed"
-    "Return unread feeds counts from elfeed."
-    :fetch
-    (propertize
-     (let ((bufn "*elfeed-search*"))
-       (if (get-buffer bufn)
-           (concat "󰎕 "
-                   (string-trim-right
-                    (with-current-buffer bufn (elfeed-search--count-unread))
-                    "/.*")) "")) 'face 'mini-echo-elfeed))
-
-  (mini-echo-define-segment "battery"
-    "Return the battery status.
-Display format is inherited from `battery-mode-line-format'."
-    :setup (display-battery-mode 1)
-    :fetch
-    (concat (nerd-icons-mdicon "nf-md-battery")
-            (string-trim (mini-echo-segment--extract battery-mode-line-string) "\\[" "\\]")))
-
-  (mini-echo-define-segment "which-function"
-    "Return the function at point using `which-function-mode'"
-    :fetch
-    (propertize
-     (concat "󰡱 :"
-             (string-trim
-              (which-function)))
-     'face 'which-func))
-
-  (mini-echo-define-segment "doc-view"
-    "Return the page number of the current document in Doc-view."
-    :fetch
-    (when (derived-mode-p 'doc-view-mode)
-      (propertize
-       (concat "  "
-               (number-to-string (doc-view-current-page)) "/" (number-to-string (doc-view-last-page-number)))
-       'face 'doc-view-svg-face)))
-
-
-
-  (mini-echo-define-segment "pdf-tools"
-    "Return the page number of current pdf in pdf-view."
-    :fetch
-    (when (derived-mode-p 'pdf-view-mode)
-      (propertize
-       (concat "  "
-               (number-to-string (pdf-view-current-page)) "/" (number-to-string (pdf-cache-number-of-pages)))
-       'face 'pdf-occur-page-face)))
-  )
-
-(global-set-key [f9] #'toggle-mode-line)
-
-(defun toggle-mode-line ()
-  "toggle the modeline on and off."
+(defun d/toggle-bar ()
+  "The void space."
   (interactive)
   (setq mode-line-format
         (if (equal mode-line-format nil)
             (default-value 'mode-line-format)))
+  (toggle-frame-tab-bar)
   (redraw-display))
-
-(use-package dashboard
-  :bind ((:map dashboard-mode-map
-               ("n" . 'dashboard-next-line)
-               ("p" . 'dashboard-previous-line)))
-
-  :custom
-  (initial-buffer-choice 'dashboard-open)
-  (dashboard-set-heading-icons t)
-  (dashboard-set-file-icons t)
-  (dashboard-banner-logo-title "let's get to more 🔱 tasks today!")
-  ;; (dashboard-startup-banner "~/.config/emacs/var/butterfly.png")
-  (dashboard-startup-banner 'logo)
-  (dashboard-image-banner-max-width 100) ;; 100 for logo
-  (dashboard-center-content t)
-  (dashboard-set-navigator t) ;; a custom made navigator
-  (dashboard-projects-backend 'project-el)
-  (dashboard-display-icons-p t)
-  (dashboard-show-shortcuts nil)
-  (dashboard-set-init-info nil)
-  (dashboard-icon-type 'nerd-icons)
-
-  (dashboard-agenda-prefix-format " %?-12t% s")
-  (dashboard-agenda-time-string-format "%Y-%m-%d %H:%M")
-  (dashboard-agenda-sort-strategy '(time-up))
-
-  (dashboard-items
-   '(
-     ;; (recents . 4)
-     (agenda . 20)
-     ;; (projects . 3)
-     (bookmarks . 5)
-     ))
-
-  (dashboard-startupify-list
-   '(dashboard-insert-page-break
-     dashboard-insert-banner dashboard-insert-newline dashboard-insert-banner-title
-     dashboard-insert-newline dashboard-insert-navigator
-     ;; dashboard-insert-newline dashboard-insert-init-info
-     dashboard-insert-items dashboard-insert-newline
-     ;; dashboard-insert-footer
-     ))
-
-  (dashboard-navigator-buttons
-   `(;; line1
-     ((,(nerd-icons-faicon "nf-fa-newspaper_o")
-       " News"
-       "Opens Gnus"
-       (lambda (&rest _) (gnus)) nil "" " |")
-
-      (,(nerd-icons-mdicon "nf-md-notebook")
-       " Notes"
-       "Denote Tree"
-       (lambda (&rest _) (find-file "~/d-sync/notes/d-brain.org")) warning "" " |")
-
-      (,(nerd-icons-faicon "nf-fa-refresh")
-       " Recent"
-       "Open Project finder"
-       (lambda (&rest _) (consult-recent-file)) error "" " |")
-
-      (,(nerd-icons-octicon "nf-oct-terminal")
-       " Terminal"
-       "Open Eshell/Eat"
-       (lambda (&rest _) (if (string= (completing-read "Hello : " '("eat" "eshell")) "eat")
-                             (eat) (eshell))) warning "" " |")
-
-      (,(nerd-icons-mdicon "nf-md-library")
-       " Library"
-       "Books and Docs"
-       (lambda (&rest _) (find-file "~/d-sync/reads")) nil "" "")
-      )
-     ;; line 2
-     (
-      (,(nerd-icons-faicon "nf-fa-music")
-       " Music"
-       "Play Jazz/Rhythm"
-       (lambda (&rest _) (if d/on-droid (d/key-droid) (mingus))) error "" " |")
-
-      (,(nerd-icons-faicon "nf-fa-reddit_alien")
-       " Geek"
-       "Browse Info"
-       (lambda (&rest _) (reddigg-view-sub)) warning "" " |")
-
-      (,(nerd-icons-mdicon "nf-md-apple_keyboard_command")
-       " M-x"
-       "Execute Command"
-       (lambda (&rest _) (call-interactively #'execute-extended-command)) nil "" " |")
-
-      (,(nerd-icons-sucicon "nf-seti-todo")
-       " Agenda"
-       "TODO Agenda"
-       (lambda (&rest _) (when d/on-droid (d/key-droid)) (org-agenda)) warning "" " |")
-
-      (,(nerd-icons-mdicon "nf-md-bookmark")
-       " Bookmark"
-       "Open Bookmark File"
-       (lambda (&rest _) (call-interactively #'consult-bookmark)) error "" "")
-
-      )
-     ;; Empty line
-     ;; (("" "\n" "" nil nil "" ""))
-
-     ;; Keybindings
-     ))
-
-  ;; (dashboard-footer-messages '("Power Maketh Man Beneath" "Manners Maketh Man" "Tasks, Break, Action Works all the time" "Stop thinking, Just do it"))
-  ;; (dashboard-set-footer nil) ;; deprecated
-
-  :config
-  (dashboard-setup-startup-hook))
 
 (use-package proced
   :bind ("C-x x p" . 'proced)
@@ -2092,15 +1918,6 @@ Display format is inherited from `battery-mode-line-format'."
           proced-format 'medium
           proced-sort 'rss)
   :hook (proced-mode . (lambda () (interactive) (proced-toggle-auto-update 1))))
-
-(use-package alert
-  :custom
-    ;; Use different backends depending on the platform
-  (alert-default-style (if d/on-droid
-                           'android-notifications
-                         'libnotify))
-  (alert-libnotify-additional-args '("-u" "critical" "-t" "100"))
-  (alert-fade-time 100))
 
 ;; credit: yorickvP on Github
 (setq wl-copy-process nil)
@@ -2116,7 +1933,7 @@ Display format is inherited from `battery-mode-line-format'."
 (defun wl-paste ()
   (if (and wl-copy-process (process-live-p wl-copy-process))
       nil ; should return nil if we're the current paste owner
-    (shell-command-to-string "wl-paste -n | tr -d \r")))
+    (shell-command-to-string "wl-paste -n")))
 
 (unless d/on-droid
   (setq interprogram-cut-function 'wl-copy)
@@ -2138,15 +1955,17 @@ Display format is inherited from `battery-mode-line-format'."
                ))
 
   :custom
-  (org-ellipsis "󱞤")
+  (org-ellipsis " ")
   (org-log-done 'note)
   (org-log-into-drawer t)
   (org-export-exclude-tags '("noexport" "ignore") "excludes these tagged heading from export")
   (org-latex-compiler "lualatex" "Lualatex is fast and gets custom font too")
   (org-link-file-path-type 'relative)
   (org-todo-keywords
-   '((sequence "TODO(t)" "|" "DONE(d!)")
-     (sequence "REVIEW(v)" "|" "CANC(k@)")))
+   '((sequence "TODO(t)" "NEXT(n)" "STARTED(s!)" "WAITING(w@/!)" "|" "DONE(d!)")
+     (sequence "SOMEDAY(o)" "|")
+     (sequence "|" "DELEGATED(g@/!)" "CANCELLED(c!)")))
+  (org-clock-in-switch-to-state "STARTED")
 
   (org-refile-targets
    '( (org-default-notes-file :maxlevel . 5)
@@ -2199,29 +2018,24 @@ Display format is inherited from `battery-mode-line-format'."
   (push '("conf-unix" . conf-unix) org-src-lang-modes)
   (defalias 'd/set-timer (symbol-function 'org-timer-set-timer)) )
 
-(use-package org-modern :config (global-org-modern-mode)
-  :hook (org-mode org-agenda-finalize)
+(use-package org-modern :config (global-org-modern-mode) :hook (org-mode org-agenda-finalize)
   :custom
-  (org-modern-replace-stars (string-replace " " "" "󰓏 󰚀 󰫤 󰴈  󰄄"))
-  (org-modern-fold-stars '(("󰓏" . "▼") ("󰚀" . "▽") ("󰫤" . "⯆") ("󰴈" . "▿") ("󰄄" . "▾")))
-  (org-modern-hide-stars 'leading)
-  (org-modern-star 'fold)
-  (org-modern-table nil) ;; issue with variable-pitch font
+  ;; (org-modern-fold-stars '(("󰓏" . "▼") ("󰚀" . "▽") ("󰫤" . "⯆") ("󰴈" . "▿") ("󰄄" . "▾")))
 
   (org-modern-list
    '((?* . "") (?- . "") (?+ . "")))
 
   (org-modern-checkbox
-   '((?X . "✅") (?- . "❌") (?  . " ")))
+   '((?X . "✅") (?- . "❌") (?  . "")))
 
   (org-modern-keyword
-   '(("options" . " ") ("title" . " ")
-     ("author" . "󱆀 ") ("email" . " ")
-     ("startup" . " ") ("property" . " ")
-     ("date" . " ") ("tags" . " ")
-     ("reveal" . "󰐩 ") ("latex" . " ") ("latex_header" . " ")
+   '(("options" . "") ("title" . "")
+     ("author" . "󱆀") ("email" . "")
+     ("startup" . "") ("property" . "")
+     ("date" . "") ("tags" . "")
+     ("reveal" . "󰐩") ("latex" . "") ("latex_header" . "")
      ("logbook" . "log")
-     ("todo" . " ") (t . t)))
+     ("todo" . "") (t . t)))
 
   (org-modern-block-name
    '(("src" . "") ("example" . "")
@@ -2231,7 +2045,6 @@ Display format is inherited from `battery-mode-line-format'."
   (org-modern-internal-target '("  " t " ")))
 
 (use-package prog-mode
-  :hook (prog-mode . hs-minor-mode)
   :custom (prettify-symbols-alist
            '(("LOGBOOK:" . ?) ("END:" . ?󱟀) ("PROPERTIES:" . ?)
              ("REFERENCE:" . ?) ("CITATION" . ?))
@@ -2256,6 +2069,10 @@ Display format is inherited from `battery-mode-line-format'."
      " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄"))
   (org-agenda-current-time-string
    "◀── now ─────────────────────────────────────────────────")
+
+  (org-agenda-custom-commands
+   '(("n" "Next tasks" ((todo "STARTED") (todo "NEXT")))
+     ("a" "Agenda and all TODOs" ((agenda "") (alltodo "")))))
 
   (org-agenda-files
    '("~/d-sync/notes/d-brain.org"
@@ -2293,11 +2110,11 @@ Display format is inherited from `battery-mode-line-format'."
      ("l" "Link" item
       (file+headline "bookmarks.org" "gnus") "%a\n")
 
-     ("j" "Journal Entry" entry
+     ("d" "D Second Brain" entry
       (file+olp+datetree "d-brain.org")
       "* %<%H:%M> - %? %^G
 :PROPERTIES:
-:ID:       %<%Y%m%dT%H%M%S>
+:ID:       %(org-id-new)
 :END:
 %a %i"
       ;; :clock-in t :clock-resume t
@@ -2318,41 +2135,33 @@ Display format is inherited from `battery-mode-line-format'."
   :custom (org-list-demote-modify-bullet '(("+" . "-") ("-" . "+"))))
 
 (use-package org-src :ensure nil :after org
-  :bind ((:map org-mode-map
-               ("C-c ;" . d/org-babel-edit)))
-  :custom
-  (org-src-preserve-indentation nil)
-  (org-src-window-setup 'current-window)
-  (org-src-ask-before-returning-to-edit-buffer nil)
-  (org-edit-src-content-indentation 0)
-  :config
-  (advice-add 'org-src-get-lang-mode :filter-return
-              (lambda (mode)
-                (pcase (assoc mode major-mode-remap-alist)
-                  (`(,mode . ,ts-mode) ts-mode)
-                  (_ mode)))))
+    :bind ((:map org-mode-map ("C-c ;" . d/org-babel-edit)))
+    :custom (org-src-window-setup 'current-window)
+    :config ;; advice to get treesit modes in org src buffer/blocks
+    (advice-add 'org-src-get-lang-mode :filter-return
+                (lambda (mode)
+                  (pcase (assoc mode major-mode-remap-alist)
+                    (`(,mode . ,ts-mode) ts-mode)
+                    (_ mode)))))
 
 (defun d/org-babel-edit ()
   "Edit any src block with lsp support by tangling the block and
 then setting the org-edit-special buffer-file-name to the
 absolute path. Finally load eglot."
   (interactive)
-
   ;; org-babel-get-src-block-info returns lang, code_src, and header
   ;; params; Use nth 2 to get the params and then retrieve the :tangle
   ;; to get the filename
   (setq d/tangled-file-name (expand-file-name (assoc-default :tangle (nth 2 (org-babel-get-src-block-info)))))
 
   ;; tangle the src block at point
-  (org-babel-tangle '(4))
-  (org-edit-special)
+  (org-babel-tangle '(4)) (org-edit-special)
 
   ;; Now we should be in the special edit buffer with python-mode. Set
   ;; the buffer-file-name to the tangled file so that pylsp and
   ;; plugins can see an actual file.
   (setq-local buffer-file-name d/tangled-file-name)
-  (eglot-ensure)
-  )
+  (eglot-ensure) )
 
 (use-package org-id
   :hook (org-insert-heading . org-id-get-create)
@@ -2410,13 +2219,40 @@ absolute path. Finally load eglot."
   ;; (org-fold-core-style 'overlays)
   )
 
-(use-package org-alert
+(use-package appt :ensure nil :demand t
   :config
-  (setopt org-alert-interval 300
-          org-alert-notification-title "Org Alert Reminder"
-          org-alert-time-match-string
-          "\\(?:SCHEDULED\\|DEADLINE\\):.*?<.*?\\([0-9]\\{2\\}:[0-9]\\{2\\}\\).*>")
-  (org-alert-enable))
+  (setq appt-disp-window-function #'appt-org-notify
+        appt-display-interval 3
+        appt-display-mode-line nil
+        appt-message-warning-time 60)
+
+  (define-advice appt-activate (:after (&optional _arg) hold-your-horses)
+    "`appt-activate' is too eager, rein it in."
+    (remove-hook 'write-file-functions #'appt-update-list)
+    (when (timerp appt-timer)
+      (timer-set-time appt-timer (current-time) 600)))
+
+  (define-advice appt-check (:before (&optional _force) from-org-agenda)
+    "Read events from Org agenda if possible."
+    (and (featurep 'org-agenda)
+         (ignore-errors
+           (let ((inhibit-message t))
+             (org-agenda-to-appt t))))))
+
+(use-package notifications :ensure nil :config
+  (defun appt-org-notify (remaining new-time msg)
+    (notifications-notify
+     :title (format "In %s minutes" remaining)
+     :body msg
+     :urgency 'critical))  )
+
+(use-package dslide :after org
+  :bind ((:map org-mode-map
+               ([f5] . dslide-deck-start))
+         (:map dslide-mode-map
+               ("n" . dslide-deck-forward)
+               ("p" . dslide-deck-backward)
+               )))
 
 (use-package org-noter :unless d/on-droid :after org
   :custom

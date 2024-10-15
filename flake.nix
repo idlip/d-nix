@@ -45,11 +45,8 @@
       {
         devShells.x86_64-linux.default = pkgs.mkShell {
           packages = with pkgs; [
-            alejandra
-            deadnix
-            git
             statix
-            nixd
+            # nixd
           ];
           name = "dots";
           DIRENV_LOG_FORMAT = "";

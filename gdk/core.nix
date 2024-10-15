@@ -10,50 +10,6 @@
   boot = {
     # Uses bleeding edge latest kernel.
     kernelPackages = pkgs.linuxPackages_latest;
-    kernelModules = [ "acpi_call" ];
-    extraModulePackages = with config.boot.kernelPackages; [ acpi_call ];
-
-    kernel.sysctl = {
-      # The Magic SysRq key is a key combo that allows users connected to the
-      # system console of a Linux kernel to perform some low-level commands.
-      # Disable it, since we don't need it, and is a potential security concern.
-      "kernel.sysrq" = 0;
-
-      ## TCP hardening
-      # Prevent bogus ICMP errors from filling up logs.
-      "net.ipv4.icmp_ignore_bogus_error_responses" = 1;
-      # Reverse path filtering causes the kernel to do source validation of
-      # packets received from all interfaces. This can mitigate IP spoofing.
-      "net.ipv4.conf.default.rp_filter" = 1;
-      "net.ipv4.conf.all.rp_filter" = 1;
-      # Do not accept IP source route packets (we're not a router)
-      "net.ipv4.conf.all.accept_source_route" = 0;
-      "net.ipv6.conf.all.accept_source_route" = 0;
-      # Don't send ICMP redirects (again, we're on a router)
-      "net.ipv4.conf.all.send_redirects" = 0;
-      "net.ipv4.conf.default.send_redirects" = 0;
-      # Refuse ICMP redirects (MITM mitigations)
-      "net.ipv4.conf.all.accept_redirects" = 0;
-      "net.ipv4.conf.default.accept_redirects" = 0;
-      "net.ipv4.conf.all.secure_redirects" = 0;
-      "net.ipv4.conf.default.secure_redirects" = 0;
-      "net.ipv6.conf.all.accept_redirects" = 0;
-      "net.ipv6.conf.default.accept_redirects" = 0;
-      # Protects against SYN flood attacks
-      "net.ipv4.tcp_syncookies" = 1;
-      # Incomplete protection again TIME-WAIT assassination
-      "net.ipv4.tcp_rfc1337" = 1;
-
-      ## TCP optimization
-      # TCP Fast Open is a TCP extension that reduces network latency by packing
-      # data in the sender’s initial TCP SYN. Setting 3 = enable TCP Fast Open for
-      # both incoming and outgoing connections:
-      "net.ipv4.tcp_fastopen" = 3;
-      # Bufferbloat mitigations + slight improvement in throughput & latency
-      "net.ipv4.tcp_congestion_control" = "bbr";
-      "net.core.default_qdisc" = "cake";
-    };
-
     loader = {
       systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
@@ -62,7 +18,11 @@
 
     supportedFilesystems = [ "ntfs" ];
     tmp.cleanOnBoot = true;
-    binfmt.emulatedSystems = ["aarch64-linux"];
+
+    kernelParams = [
+      "systemd.mask=dev-tpmrm0.device" #this is to mask that stupid 1.5 mins systemd bug
+      "nowatchdog" "modprobe.blacklist=iTCO_wdt" #watchdog for Intel
+ 	  ];
   };
 }
 
@@ -110,15 +70,10 @@
   i18n = {
     defaultLocale = "en_US.UTF-8";
     # saves space
-    supportedLocales = [
-      "en_US.UTF-8/UTF-8"
-      "ja_JP.UTF-8/UTF-8"
-      "ro_RO.UTF-8/UTF-8"
-    ];
+    supportedLocales = [ "en_US.UTF-8/UTF-8" "ja_JP.UTF-8/UTF-8" "ro_RO.UTF-8/UTF-8" ];
   };
 
   # Sets big font for bootloader, as I have small laptop.
-  # You can remove font and packages line to have default font kernel chooses.
   console = {
     earlySetup = true;
     font = "${pkgs.terminus_font}/share/consolefonts/ter-v32n.psf.gz";
@@ -139,13 +94,12 @@
 {
   users.users.${vars.username} = {
     isNormalUser = true;
-    shell = pkgs.zsh;
+    shell = pkgs.fish;
     extraGroups = ["adbusers" "input" "uinput" "libvirtd" "networkmanager" "plugdev" "transmission" "video" "wheel"];
   };
 }
 
-{
-  # compresses half the ram for use as swap
+{ # compresses half the ram for use as swap
   zramSwap = {
     enable = true;
     memoryPercent = 50;
@@ -163,6 +117,7 @@
 
 {
   networking = {
+    hostName = "gdk";
 
     # Killer feature, Its a must these days.
     # Adblocker!! It uses steven black hosts.
@@ -171,43 +126,30 @@
       blockFakenews = true;
       blockGambling = true;
       blockPorn = true;
-      blockSocial = false;
+      blockSocial = false; # stay connected
     };
 
-    # dns
     # mullvad dns
     nameservers = [ "194.242.2.9" "194.242.2.5" ];
-    dhcpcd = {
-      wait = "background";
-      extraConfig = "noarp";
-    };
-
-    # NetworkManager replaces wpa_supplicant
-    wireless.enable = false;
 
     networkmanager = {
       enable = true;
       unmanaged = ["docker0" "rndis0" "interface-name:ve-*" ];
-      wifi.macAddress = "random";
-      dns = "systemd-resolved";
-      wifi.powersave = false;
+      # wifi.macAddress = "random"; # randomness? whitelist?
     };
 
     # Firewall uses iptables underthehood
-    # Rules are for syncthing
+    # Rules are for syncthing & kdeconnect
     firewall = rec {
       enable = true;
-      # For syncthing & kdeconnect
       allowedTCPPortRanges = [ { from = 1714; to = 1764; } ];
       allowedUDPPortRanges = allowedTCPPortRanges;
       allowedTCPPorts = [8384 22000];
       allowedUDPPorts = [22000 21027];
-      allowPing = false;
-      logReversePathDrops = true;
     };
 
     nat = { # for container or vm
-      enable = false;
+      enable = true;
       internalInterfaces = ["ve-+"];
       externalInterface = "wlp0s20f3";
       # Lazy IPv6 connectivity for the container
@@ -219,57 +161,12 @@
 
 {
   services = {
-    # network discovery, mDNS
-    avahi = {
-      enable = true;
-      nssmdns4 = true;
-      publish = {
-        enable = true;
-        domain = true;
-        userServices = true;
-      };
-    };
-
-    openssh = {
+    openssh = { # ssh
       enable = true;
       settings.UseDns = true;
     };
-
     # DNS resolver
-    resolved = {
-      enable = true;
-      dnssec = "false";
-      fallbackDns = [ "194.242.2.5" "194.242.2.9" ];
-    };
-
-    dnscrypt-proxy2 = {
-      enable = true;
-      settings = {
-        ipv6_servers = true;
-        require_dnssec = true;
-
-        sources.public-resolvers = {
-          urls = [
-            "https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/public-resolvers.md"
-            "https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md"
-          ];
-          cache_file = "/var/lib/dnscrypt-proxy2/public-resolvers.md";
-          minisign_key = "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3";
-        };
-      };
-    };
-
-  };
-
-}
-
-{
-  # Don't wait for network startup
-  systemd = {
-    services = {
-      # speed up boot
-      NetworkManager-wait-online.enable = false;
-    };
+    resolved.enable = true;
   };
 }
 
@@ -279,17 +176,8 @@
 
   security = {
     protectKernelImage = true;
-    lockKernelModules = false;
     rtkit.enable = true;
     polkit.enable = true;
-
-    # required for lockscreens
-    # also for finger print
-    pam = {
-      services.gtklock = {
-        text = "auth include login";
-      };
-    };
 
     doas = {
       enable = true;
@@ -306,34 +194,16 @@
 
 {
   services = {
-
-    dbus = {
-      packages = with pkgs; [dconf gcr udisks2];
-      enable = true;
-    };
-
-    # for minimal journal logs
-    journald.extraConfig = ''
-      SystemMaxUse=50M
-      RuntimeMaxUse=10M
-    '';
-
-    # This makes the user to autologin in all tty
-    # Depends on you if you want login manager or prefer entering password manually
-    # getty.autologinUser = "${vars.username}";
     getty = {
       greetingLine = "Greetings and Welcome back!";
       helpLine = "Let's learn more and get productive!";
     };
-
     atd.enable = true; # reminder tool, like @ 2:30 exec this
     fstrim.enable = true; # file system trim
-    upower.enable = true; # power utility
   };
 }
 
-{
-  # For android file transfer via usb, or better could use KDE connect
+{ # For android file transfer via usb, or better could use KDE connect
   services.gvfs.enable = true;
 }
 
@@ -348,46 +218,11 @@
 }
 
 {
-  # for intel cpu to control temp
-  services.thermald.enable = true;
+  services.power-profiles-daemon.enable = true;
 }
 
 {
-  services = {
-    tlp = {
-      enable = true;
-      # settings = {
-      #   CPU_SCALING_GOVERNOR_ON_AC = "balance_performance";
-      #   CPU_SCALING_GOVERNOR_ON_BAT = "power";
-
-      #   CPU_ENERGY_PERF_POLICY_ON_AC = "performance";
-      #   CPU_ENERGY_PERF_POLICY_ON_BAT = "balance_power";
-
-      #   USB_AUTOSUSPEND = 1;
-      #   DEVICES_TO_DISABLE_ON_STARTUP = "bluetooth";
-      #   DEVICES_TO_DISABLE_ON_BAT_NOT_IN_USE = "bluetooth";
-
-      #   CPU_BOOST_ON_AC = 1;
-      #   CPU_BOOST_ON_BAT = 0;
-      #   CPU_HWP_DYN_BOOST_ON_AC = 1;
-      #   CPU_HWP_DYN_BOOST_ON_BAT = 0;
-
-      #   CPU_MIN_PERF_ON_AC = 0;
-      #   CPU_MAX_PERF_ON_AC = 100;
-      #   CPU_MIN_PERF_ON_BAT = 0;
-      #   CPU_MAX_PERF_ON_BAT = 30;
-      # };
-    };
-  };
-}
-
-{
-  services.hardware.bolt.enable = true;
-}
-
-{
-  services = {
-    # To mount drives with `udiskctl` command
+  services = { # To mount drives with `udiskctl` command
     udisks2.enable = true;
     printing.enable = true;
   };
@@ -429,12 +264,9 @@
 }
 
 {
-  # enable zsh autocompletion for system packages (systemd, etc)
   environment = {
-    pathsToLink = ["/share/zsh"];
     variables = {
       VDPAU_DRIVER = lib.mkDefault "va_gl";
-      EDITOR = "emacsclient -nw -a nvim";
       BROWSER = "d-stuff";
       NIXOS_OZONE_WL = "1";
     };
@@ -442,14 +274,6 @@
       gitFull
       (writeScriptBin "sudo" ''exec doas "$@"'')
     ];
-  };
-}
-
-{
-  xdg.portal = {
-    enable = true;
-    # extraPortals = lib.mkIf (!config.services.xserver.desktopManager.gnome.enable) [ pkgs.xdg-desktop-portal-gnome pkgs.xdg-desktop-portal-gtk ];
-    configPackages = [ pkgs.niri ];
   };
 }
 
@@ -477,7 +301,6 @@
   # Collect garbage and delete generation every 7 day. Will help to get some storage space.
   # Better to atleast keep it for few days, as you do major update (unstable), if something breaks you can roll back.
   nix = {
-    package = pkgs.nixVersions.latest; # 2.19 has issues with mkOutOfStoreSymlink
     optimise.automatic = true;
     gc = {
       automatic = true;
@@ -498,27 +321,12 @@
 
     settings = {
       flake-registry = "/etc/nix/registry.json";
-      auto-optimise-store = true;
-      builders-use-substitutes = true;
-      # allow sudo users to mark the following values as trusted
-      allowed-users = ["@wheel"];
-      # only allow sudo users to manage the nix store
-      trusted-users = ["@wheel" "root"];
-      keep-outputs = true;
-      warn-dirty = false;
-      keep-derivations = true;
-      sandbox = true;
-      max-jobs = "auto";
-      # continue building derivations if one fails
-      keep-going = true;
-      log-lines = 20;
       extra-experimental-features = ["flakes" "nix-command" ];
 
       # use binary cache, its not gentoo
       substituters = [
         "https://nix-community.cachix.org"
       ];
-
       trusted-public-keys = [
         "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
       ];
@@ -534,11 +342,9 @@
   programs.nix-ld.enable = true;
 }
 
-{
-  # faster rebuilding
+{ # disable for faster rebuilding
   documentation = {
     enable = true;
-    nixos.enable = true;
     doc.enable = true;
     info.enable = true;
     man = {
@@ -598,11 +404,7 @@
     #   };
     # };
   };
-
   services.blueman.enable = true;
-
-  # https://github.com/NixOS/nixpkgs/issues/114222
-  # systemd.user.services.telephony_client.enable = false;
 }
 
 {
@@ -611,13 +413,21 @@
 }
 
 {
-  services.xserver = {
-    enable = true;
-    # displayManager.gdm.enable = false;
-    desktopManager.gnome.enable = true;
+  programs = {
+    niri.enable = true;
+    xwayland.enable = true;
+    };
+}
+
+{
+  # programs.ssh.askPassword = lib.mkForce "${pkgs.kdePackages.ksshaskpass.out}/bin/ksshaskpass";
+  services = {
+    desktopManager.plasma6.enable = true;
+    # displayManager.sddm.enable = true;
+    xserver.enable = true;
+    xserver.displayManager.sx.enable = true;
+    # displayManager.sddm.wayland.enable = true;
   };
-  services.displayManager.sddm.enable = true;
-  services.power-profiles-daemon.enable = lib.mkForce false;
 }
 
 {
@@ -632,22 +442,7 @@
     ];
 
     enableDefaultPackages = true;
-
-    # this fixes emoji stuff
-    fontconfig = {
-      defaultFonts = {
-        monospace = [
-          "Code OnePiece"
-          "Iosevka Comfy"
-	        "Noto Color Emoji"
-        ];
-        sansSerif = [ "Code Haki" "Code D Haki" "Noto Sans" ];
-        serif = [ "Code Haki" "Code D Haki" "Noto Serif"];
-        emoji = [ "Noto Color Emoji" "Code OnePiece" "Unifont" ];
-      };
-    };
   };
-
 }
 
 {
@@ -679,7 +474,7 @@
     cursor = {
       package = pkgs.bibata-cursors;
       name = "Bibata-Modern-Classic";
-      size = 24;
+      size = 12;
     };
 
     fonts = {
@@ -704,10 +499,10 @@
       };
 
       sizes = {
-        applications = 24;
-        desktop = 22;
-        popups = 24;
-        terminal = 24;
+        applications = 12;
+        desktop = 12;
+        popups = 12;
+        terminal = 12;
       };
 
     };
@@ -716,30 +511,10 @@
 }
 
 {
-  # enable programs
   programs = {
-
-    less.enable = true;
-    # type "fuck" to fix the last command that made you go "fuck"
-    thefuck.enable = true;
-
-    # help manage android devices via command line
-    adb.enable = true;
-
-    dconf.enable = true;
-
-    zsh = {
-      enable = true;
-      autosuggestions.enable = true;
-      syntaxHighlighting = {
-        enable = true;
-        patterns = {"rm -rf *" = "fg=black,bg=red";};
-        styles = {"alias" = "fg=magenta";};
-        highlighters = ["main" "brackets" "pattern"];
-      };
-    };
+    adb.enable = true; # help manage android devices via command line
+    fish.enable = true;
   };
-
 }
 
 ];

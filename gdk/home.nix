@@ -11,9 +11,7 @@
     gpg-agent = {
       enable = true;
       enableSshSupport = true;
-      enableZshIntegration = true;
       pinentryPackage = pkgs.pinentry-gnome3;
-      # pinentryPackage = pkgs.pinentry-bemenu;
     };
   };
 }
@@ -39,42 +37,6 @@
   xdg = {
     enable = true;
     cacheHome = config.home.homeDirectory + "/.local/cache";
-
-    mimeApps = let
-      browser = ["d-stuff.desktop"];
-    in {
-      enable = true;
-
-      defaultApplications = {
-        "application/x-extension-htm" = browser;
-        "application/x-extension-html" = browser;
-        "application/x-extension-shtml" = browser;
-        "application/x-extension-xht" = browser;
-        "application/x-extension-xhtml" = browser;
-        "application/xhtml+xml" = browser;
-        "text/html" = browser;
-        "x-scheme-handler/about" = browser;
-        "x-scheme-handler/chrome" = ["chromium-browser.desktop"];
-        "x-scheme-handler/ftp" = browser;
-        "x-scheme-handler/http" = browser;
-        "x-scheme-handler/https" = browser;
-        "x-scheme-handler/unknown" = browser;
-
-        "audio/*" = ["mpv.desktop"];
-        "video/*" = ["mpv.dekstop"];
-        "application/json" = browser;
-        "application/pdf" = ["sioyek.desktop"];
-        "x-scheme-handler/magnet" = ["d-stuff.desktop"];
-        "application/epub+zip" = ["sioyek.desktop"];
-        "application/zip" = ["sioyek.desktop"];
-        "application/x.bittorrent" = ["d-stuff.desktop"];
-      };
-
-      associations.added = {
-        "x-scheme-handler/magnet" = ["d-stuff.desktop"];
-      };
-    };
-
     userDirs = {
       enable = true;
       createDirectories = false;
@@ -114,32 +76,11 @@
 
 {
   programs = {
-
     gpg = {
       enable = true;
       homedir = "${config.xdg.dataHome}/gnupg";
-      # to solve issue with emacs
-      # package = pkgs.gnupg.overrideAttrs (orig: {
-      #   version = "2.4.0";
-      #   src = pkgs.fetchurl {
-      #     url = "mirror://gnupg/gnupg/gnupg-2.4.0.tar.bz2";
-      #     hash = "sha256-HXkVjdAdmSQx3S4/rLif2slxJ/iXhOosthDGAPsMFIM=";
-      #   };
-      # });
     };
-
-    tealdeer = {
-      enable = true;
-      settings = {
-        display = {
-	        compact = false;
-	        use_pager = true;
-        };
-        updates = {
-	        auto_update = true;
-        };
-      };
-    };
+    tealdeer.enable = true;
   };
 }
 
@@ -147,17 +88,6 @@
   programs.git = {
     enable = true;
     package = pkgs.gitFull;
-
-    delta = {
-      enable = true;
-      # TODOTHIS
-      # options.map-styles = "bold purple => syntax ${default.xcolors.mauve}, bold cyan => syntax ${default.xcolors.blue}";
-    };
-
-    extraConfig = {
-      diff.colorMoved = "default";
-      merge.conflictstyle = "diff3";
-    };
 
     aliases = {
       a = "add";
@@ -190,7 +120,6 @@
 
     userEmail = "igoldlip@gmail.com";
     userName = "Dilip";
-    # editor = "";
   };
 
 }
@@ -199,71 +128,33 @@
   programs.direnv = {
     enable = true;
     nix-direnv.enable = true;
-    enableZshIntegration = true;
   };
 }
 
 {
   programs.foot = {
     enable = true;
-
+    server.enable = true;
     settings = {
       main = {
-        # font = "Code OnePiece:size=26, Noto Color Emoji:size=25";
-        # font-bold = "Code OnePiece:size=26, Noto Color Emoji:size=25";
-        letter-spacing = "1";
-        box-drawings-uses-font-glyphs = "no";
-        pad = "0x0center";
         selection-target = "clipboard";
-        # dpi-aware = "true";
       };
-
       scrollback = {
         lines = 10000;
         multiplier = 3;
       };
-
       url = {
         launch = "d-stuff \${url}";
-        label-letters = "sadfjklewcmpgh";
-        osc8-underline = "url-mode";
         protocols = "http, https, ftp, ftps, file";
-        uri-characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.,~:;/?#@!$&%*+=\"'()[]";
       };
-
       key-bindings = {
         clipboard-copy = "Control+Shift+c";
         clipboard-paste = "Control+Shift+v Control+y";
         primary-paste = "Shift+Insert";
-
       };
-
-      colors = {
-        background = "050505";
-        foreground = "ffffff";
-        regular0 = "030303";
-        regular1 = "ff8059";
-        regular2 = "44bc44";
-        regular3 = "d0bc00";
-        regular4 = "2fafff";
-        regular5 = "feacd0";
-        regular6 = "00d3d0";
-        regular7 = "bfbfbf";
-        bright0 = "595959";
-        bright1 = "ef8b50";
-        bright2 = "70b900";
-        bright3 = "c0c530";
-        bright4 = "79a8ff";
-        bright5 = "b6a0ff";
-        bright6 = "6ae4b9";
-        bright7 = "ffffff";
-        # alpha = "0.9";
-      };
-
       mouse = {
         hide-when-typing = "yes";
       };
-
     };
   };
 }
@@ -272,7 +163,6 @@
   programs.zellij = {
     enable = true;
     settings = {
-
     };
   };
 }
@@ -280,10 +170,12 @@
 {
   # does not read local path properly. so ~/.local/bin does not work
   # may need exec from path then. Why? Just emacs --bg-daemon in WM
-  # services.emacs = {
-  #   enable = true;
-  #   socketactivation.enable = true;
-  # };
+  services.emacs = {
+    enable = true;
+    defaultEditor = true;
+    socketActivation.enable = true;
+    startWithUserSession = "graphical";
+  };
 
   home.packages = with pkgs; [
     emacs-lsp-booster
@@ -303,44 +195,28 @@
       reddigg hnreader howdoyou magit webpaste
       shrface org-mime shr-tag-pre-highlight nov devdocs-browser reformatter
       tempel tempel-collection eglot-tempel
-      sdcv jinx envrc dashboard mini-echo ready-player
+      sdcv jinx envrc ready-player
       speed-type vc-backup aria2 transmission pubmed
       ess auctex julia-mode webfeeder engrave-faces
-      toc-org org-ql org-alert org-noter activities
+      toc-org org-ql org-noter activities
       saveplace-pdf-view flycheck consult-flycheck
       ef-themes doom-themes
-      org-re-reveal
+      org-re-reveal dslide gptel
 
-      (trivialBuild {
+      (melpaBuild {
         pname = "combobulate";
-        version = "unstable-2024-09-20";
-
+        version = "20241018";
         src = pkgs.fetchFromGitHub {
           owner = "mickeynp";
           repo = "combobulate";
-          rev = "f3a089964004585df6f30ea99282aa143fe64f2c";
-          hash = "sha256-b8PAV58rFbJOxUUzl5JDu8wVKmwWg++6peSevJ8y2eA=";
+          rev = "e9c5be84062e8183f556d7133d5a477a57e37e51";
+          hash = "sha256-r6jObsYx7RRTJUmrCN5h3+0WcHqJA67emhr4/W3rBrM=";
         };
       })
 
-      # could not build, as simply sources directory was not installing
-      # (trivialBuild {
-      #   pname = "consult-omni";
-      #   version = "unstable-2024-09-27";
-
-      #   src = pkgs.fetchFromGitHub {
-      #     owner = "armindarvish";
-      #     repo = "consult-omni";
-      #     rev = "87b5bcf0e55c01e6a4a24ae74ce691f55d1455a2";
-      #     hash = "sha256-x5rNTNEDLoHzIlA1y+VsQ+Y0Pa1QXbybt2rIUBJ+VtM=";
-      #   };
-      #   buildInputs = with pkgs.emacsPackages;[ embark consult ];
-      # })
-
-      (trivialBuild {
+      (melpaBuild {
         pname = "org-super-links";
-        version = "unstable-0.4";
-
+        version = "20221412";
         src = pkgs.fetchFromGitHub {
           owner = "toshism";
           repo = "org-super-links";
@@ -519,23 +395,14 @@
       "search_url_g" = "https://www.google.com/search?q";
       "middle_click_search_engine" = "s";
       "shift_middle_click_search_engine" = "l";
-      "zoom_inc_factor" = "1.2";
       "flat_toc" = "0";
-      "should_launch_new_instance" = "1";
-      "should_launch_new_window" = "1";
       "default_dark_mode" = "1";
       "sort_bookmarks_by_location" = "1";
-      "ui_font" = "'Code D Haki'";
-      "font_size" = "24";
-      "wheel_zoom_on_cursor" = "1";
-      "status_bar_font_size" = "22";
       "collapsed_toc" = "1";
       "ruler_mode" = "1";
       "single_click_selects_words" = "1";
-      "item_list_prefix" = ">";
       "#ignore_whitespace_in_presentation_mode" = "0";
       "prerender_next_page_presentation" = "1";
-      "display_resolution_scale" = "1.0";
     };
   };
 }
@@ -549,7 +416,7 @@
 {
   home.packages = with pkgs; [
     mullvad-browser
-    # zen browser?
+    # zen browser when?
     # ungoogled-chromium
     # nyxt
     brave
@@ -593,8 +460,6 @@
 
   };
 
-  # if mpd not working, check here
-  # home.sessionvariables.mpd_host = config.services.mpd.network.listenaddress;
 }
 
 {
@@ -612,14 +477,11 @@
         K = "cycle sub down";
         B = "no-osd add contrast -4; no-osd add brightness 4; show-text 'Black Level: \${brightness}'";
         N = "no-osd add contrast 4; no-osd add brightness -4; show-text 'Black Level: \${brightness}'";
+        r = ''cycle-values video-rotate "90" "180" "270" "0"'';
+        a = "vf toggle hflip";
       };
 
       config = {
-        osc = true;
-        hwdec = "auto-safe";
-        vo = "gpu";
-        profile = "gpu-hq";
-        gpu-context = "wayland";
         sub-border-size = 4.0;
         sub-shadow-color = "0.0/0.0/0.0";
         sub-shadow-offset = 1;
@@ -630,22 +492,10 @@
         save-position-on-quit = true;
         slang = "eng,en,eng,english";
         alang = "jp,jpn,en,eng";
-        sub-font = "impress bt";
-        autofit = "50%";
+        sub-font = "Impress Bt";
         sub-font-size = "48";
         speed = "1.5";
       };
-
-      profiles = {
-        manga = {
-          profile-desc = "Read Manga";
-          profile-cond = "filename and filename:match('%.cbz$') or filename:match('%.cbr$') or filename:match('%.zip$') or filename:match('%.rar$') ~= nil";
-          profile = "high-quality";
-          dscale = "mitchell";
-          deband = "no";
-        };
-      };
-
     };
   };
 }
@@ -827,47 +677,51 @@
 
     libnotify libsixel
     brightnessctl
-    dotool
+    dotool gtk3
     swaybg swayimg
-    sway niri
+    sway
     # swayidle gtklock
 
     # utils
     # ocrscript
-    wl-screenrec
+    wl-screenrec wl-mirror
     wl-clipboard xwayland-satellite
   ];
 }
 
 {
-  services.hypridle = {
+  services.hypridle = let
+    hyprlock = lib.getExe config.programs.hyprlock.package;
+    brightness = lib.getExe pkgs.brightnessctl;
+    niri = lib.getExe pkgs.niri;
+    timeout = 200; # base timer to act upon
+    in {
     enable = true;
     settings ={
       general = {
         # ignore_dbus_inhibit = false;          # whether to ignore dbus-sent idle-inhibit requests (used by e.g. firefox or steam)
-        lock_cmd = "pidof hyprlock || hyprlock";       # avoid starting multiple hyprlock instances.
-        before_sleep_cmd = "loginctl lock-session";    # lock before suspend.
-        after_sleep_cmd = "hyprctl dispatch dpms on";  # to avoid having to press a key twice to turn on the display.
+        lock_cmd = "pidof hyprlock || ${hyprlock}";       # avoid starting multiple hyprlock instances.
+        before_sleep_cmd = "${pkgs.systemd}/bin/loginctl lock-session";    # lock before suspend.
         unlock_cmd = "notify-send 'Welcome back!'";
       };
 
       listener = [
         {
-          timeout = 150;
-          on-timeout = "brightnessctl -s set 10";         # set monitor backlight to minimum, avoid 0 on OLED monitor.
-          on-resume = "brightnessctl -r";                 # monitor backlight restore.
+          timeout = timeout - 50;
+          on-timeout = "${brightness} -s set 10";         # set monitor backlight to minimum, avoid 0 on OLED monitor.
+          on-resume = "${brightness} -r";                 # monitor backlight restore.
         }
         {
-          timeout = 210;
+          timeout = timeout;
           on-timeout = "loginctl lock-session";
         }
         {
-          timeout = 230;
-          on-timeout = "hyprctl dispatch dpms off || niri msg action power-off-monitors";
-          on-resume = "hyprctl dispatch dpms on";
+          timeout = timeout + 10;
+          on-timeout = "${niri} msg action power-off-monitors || ${pkgs.hyprland}/bin/hyprctl dispatch dpms off";
+          on-resume = "${pkgs.hyprland}/bin/hyprctl dispatch dpms on";
         }
         {
-          timeout = 900;
+          timeout = timeout * 5;
           on-timeout = "systemctl suspend";
         }
       ];
@@ -981,6 +835,7 @@
 
     targets = {
       emacs.enable = false;
+      kde.enable = false;
       waybar = {
         enable = true;
         # enableLeftBackColors = true;
@@ -992,33 +847,13 @@
 }
 
 {
-  # cursor theme
-  # home.pointerCursor = {
-  #   name = "Bibata-Modern-Classic";
-  #   # package = pkgs.bibata-cursors;
-  #   # size = 24;
-  #   gtk.enable = true;
-  # };
-
   gtk = {
     enable = true;
 
-    # theme = {
-    #   name = "adw-gtk3-dark";
-    #   package = pkgs.adw-gtk3;
-    # };
-
-    iconTheme = {
+    iconTheme = { # watch out soon stylix might implement this
       name = "Papirus-Dark";
       package = pkgs.papirus-icon-theme;
     };
-
-    # font = {
-    #   name = "Code Haki";
-    #   size = 26;
-    # };
-
-    gtk2.configLocation = "${config.xdg.configHome}/gtk-2.0/gtkrc";
 
     gtk3.extraConfig = {
       gtk-xft-antialias = 1;
@@ -1035,30 +870,24 @@
     gtk-xft-rgba="rgb"
     gtk-key-theme-name="Emacs"
     '';
-
   };
 }
 
 {
   qt = {
     enable = true;
-    # platformTheme = "gtk3";
     style.name = "adwaita-dark";
   };
 }
 
 {
-  programs.waybar = let
-    iconSize = 28;
-  in
-    {
+  programs.waybar = {
       enable = true;
 
       settings = {
         mainBar = {
           layer = "top";
           position = "top";
-          margin-top = 10;
 
           modules-left = [
             "custom/launcher"
@@ -1072,7 +901,7 @@
             "privacy" "custom/recorder" "clock" "mpd" "mpris"
           ];
 
-          modules-right = [ "tray" "network" "backlight" "battery" "memory" "wireplumber" "custom/power" ];
+          modules-right = [ "tray" "network" "battery" "memory" "wireplumber" "custom/power" ];
 
           "niri/workspaces" = {
 	          format = "{icon}";
@@ -1107,7 +936,6 @@
 
           "wlr/taskbar"=  {
             "format"=  "{icon}";
-            "icon-size"=  iconSize;
             "spacing"=  0;
             "tooltip-format"=  "{title}";
             "on-click"=  "activate";
@@ -1189,7 +1017,6 @@
           };
 
           "tray" = {
-            "icon-size" = iconSize;
             "spacing" = 10;
           };
 
@@ -1234,14 +1061,6 @@
             };
           };
 
-	        "backlight" = {
-		        "tooltip" = false;
-		        "format" = " {}%";
-		        "interval" = 1;
-            "on-scroll-up" = "brigthnessctl set +5%";
-		        "on-scroll-down" = "brigthnessctl set 5%-";
-	        };
-
           "custom/recorder" = {
             "format" = "{}";
             "interval" = "once";
@@ -1254,7 +1073,6 @@
 
           "privacy" = {
 	          "icon-spacing" = 4;
-	          "icon-size" = iconSize;
 	          "transition-duration" = 250;
           };
 
@@ -1271,6 +1089,8 @@
           margin: 0px 10px 0px 0px;
           border-radius: 15px;
       }
+      
+      window#waybar { background: transparent; }
       
       #battery.charging { color: #00ff7f; }
       #battery.warning { background: orange; }
@@ -1296,7 +1116,6 @@
     eza = {
       enable = true;
       extraOptions = ["--group-directories-first" "--header"];
-      icons = true;
     };
 
     ripgrep = {
@@ -1333,12 +1152,6 @@
 
     fzf = {
       enable = true;
-      # colors = {
-      #   bg = "#121212";
-      #   "bg+" = "#2e8b57";
-      #   fg = "#fdfdfd";
-      #   "fg+" = "#FFFFFF";
-      # };
       defaultCommand = "fd --type f";
     };
 
@@ -1346,66 +1159,68 @@
 }
 
 {
-  # symlink normal shell file to source for zsh
-  home.file.".config/shell/source.sh".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/source.sh";
-
-  programs.zsh = {
+  programs = {
+    fish = {
     enable = true;
-    dotDir = ".config/shell";
-    autocd = true;
-    enableCompletion = true;
-    autosuggestion.enable = true;
-    history.extended = true;
-
-    dirHashes = {
-      dl = "$HOME/dloads";
-      docs = "$HOME/docs";
-      code = "$HOME/d-git/codes";
-      dots = "$HOME/d-git/d-nix";
-      pics = "$HOME/pics";
-      vids = "$HOME/vids";
-      nixpkgs = "$HOME/d-git/forks/nixpkgs";
     };
-
-    envExtra = ''
-        #if [ -z $DISPLAY ] && [ "$(tty)" = "/dev/tty1" ]; then
-        #  exec Hyprland
-        #fi
-    '';
-
-    initExtra = ''
-      source ~/.config/shell/source.sh
-
-      source "${pkgs.zsh-syntax-highlighting}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-      source "${pkgs.zsh-history-substring-search}/share/zsh-history-substring-search/zsh-history-substring-search.zsh"
-      source "${pkgs.zsh-autosuggestions}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-      source "${pkgs.nix-zsh-completions}/share/zsh/plugins/nix/nix-zsh-completions.plugin.zsh"
-      source "${pkgs.zsh-nix-shell}/share/zsh-nix-shell/nix-shell.plugin.zsh"
-      source "${pkgs.zsh-autopair}/share/zsh/zsh-autopair/autopair.zsh"
-
-    '';
-
-    history = {
-      save = 10000;
-      size = 10000;
-      expireDuplicatesFirst = true;
-      ignoreDups = true;
-      path = "${config.xdg.configHome}/shell/zsh_history";
+    bash = {
+      enable = true;
     };
   };
 }
 
 {
-  home.sessionVariables = {
-    PATH = "$PATH:$HOME/d-git/d-bin/bin:$HOME/.local/bin";
-    VISUAL = "$EDITOR";
-    GRIM_DEFAULT_DIR = "$HOME/pics/sshots/";
-    STARDICT_DATA_DIR = "$HOME/d-git/d-bin/treasure/dict/";
-    LIBVA_DRIVER_NAME = "iHD";
-    LESS = "-J -i -W --status-line --incsearch --use-color -R";
+  home = {
+    sessionVariables = {
+      VISUAL = "$EDITOR";
+      GRIM_DEFAULT_DIR = "$HOME/pics/sshots/";
+      STARDICT_DATA_DIR = "$HOME/d-git/d-bin/treasure/dict/";
+      LESS = "-J -i -W --status-line --incsearch --use-color -R";
+      COLORTERM="truecolor";
+    };
+    sessionPath = [ "$HOME/.local/bin" "$HOME/.bin" ];
+    keyboard.options = [ "ctrl:nocaps" ];
+    preferXdgDirectories = true;
+
+    shellAliases = {
+      cleanup = "doas nix-collect-garbage --delete-older-than 7d";
+      bloat = "nix path-info -Sh /run/current-system";
+      ytmp3 = "yt-dlp -x --continue --add-metadata --embed-thumbnail --audio-format mp3 --audio-quality 0 --metadata-from-title = '%(artist)s - %(title)s' --prefer-ffmpeg -o '%(title)s.%(ext)s' ";
+      cat = "bat --style = plain";
+      grep = "rg";
+      du = "dust";
+      ls = "eza -h --git --icons --color=auto --group-directories-first -s extension";
+      l = "ls -lF --time-style=long-iso --icons";
+      la = "eza -lah --tree";
+      tree = "eza --tree --icons";
+      http = "python3 -m http.server";
+      burn = "pkill -9";
+      diff = "diff --color=auto";
+      ".1" = "cd ..";
+      ".2" = "cd ../..";
+      ".3" = "cd ../../..";
+      c = "clear";
+      v = "emacsclient -nw";
+      e = "emacsclient -nw";
+      emd = "emacs --daemon";
+      cp = "cp -iv";
+      mv = "mv -iv";
+      rm = "rm -vI";
+      bc = "bc -ql";
+      mkd = "mkdir -pv";
+      ytfzf = "ytfzf -D";
+      gc = "git clone --depth=1";
+      sioyek = "sioyek --new-window";
+      hyprunlock = "pkill -SIGUSR1 hyprlock";
+      rebuild = "nixos-rebuild switch --flake ~/d-git/d-nix#gdk --use-remote-sudo";
+      testrebuild = "nixos-rebuild test --flake ~/d-git/d-nix#gdk --use-remote-sudo";
+      ytdl = "yt-dlp --embed-metadata --embed-subs";
+    };
+
   };
+
   xresources.properties = {
-    "Xft.dpi" = 192;
+    # "Xft.dpi" = 192;
     "Xft.autohint" = 0;
     "Xft.lcdfilter" = "lcddefault";
     "Xft.hintstyle" = "hintfull";
@@ -1417,27 +1232,17 @@
 
 {
   home.packages = with pkgs; [
-    # archives
-    zip
-    unzip
-
-    # wonderful spells
-
+    zip unzip # archives
     ffmpeg-full sdcv nq
     # utils
-    file
-    du-dust
-    fd
-    wget
+    du-dust fd wget
   ];
 }
 
 {
   programs.starship = {
     enable = true;
-    enableZshIntegration = true;
-
-    settings = {
+     settings = {
       add_newline = true;
       scan_timeout = 5;
 
@@ -1504,9 +1309,8 @@
         min-width = 400;
         max-width = 900;
         selection-helper = "fuzzel";
-        play-sound = "/home/idlip/.bin/d-notify \${filename}";
-        dpi-aware = true;
-        sound-file= "/home/idlip/music/yt/misc/linux-notify.ogg";
+        play-sound = "/home/idlip/.bin/d-notify";
+        # sound-file= "/home/idlip/music/yt/misc/linux-notify.ogg";
       };
     };
   };
@@ -1532,7 +1336,6 @@
         list-executables-in-path = true;
         layer = "overlay";
         exit-on-keyboard-focus-loss = false;
-        line-height = 40;
         match-mode = "fuzzy";
       };
       border = {

@@ -239,9 +239,6 @@ Also its crucial to only add configuration that is explicitly required, rather t
       boot = {
         # Uses bleeding edge latest kernel.
         kernelPackages = pkgs.linuxPackages_latest;
-        kernelModules = [ "acpi_call" ];
-        extraModulePackages = with config.boot.kernelPackages; [ acpi_call ];
-
         loader = {
           systemd-boot.enable = true;
           efi.canTouchEfiVariables = true;
@@ -250,6 +247,11 @@ Also its crucial to only add configuration that is explicitly required, rather t
 
         supportedFilesystems = [ "ntfs" ];
         tmp.cleanOnBoot = true;
+
+        kernelParams = [
+          "systemd.mask=dev-tpmrm0.device" #this is to mask that stupid 1.5 mins systemd bug
+          "nowatchdog" "modprobe.blacklist=iTCO_wdt" #watchdog for Intel
+     	  ];
       };
     }
   #+end_src

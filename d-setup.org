@@ -400,6 +400,7 @@ Also its crucial to only add configuration that is explicitly required, rather t
 
         networkmanager = {
           enable = true;
+          unmanaged = ["docker0" "rndis0" "interface-name:ve-*" ];
           # wifi.macAddress = "random"; # randomness? whitelist?
         };
 

@@ -430,66 +430,18 @@ Also its crucial to only add configuration that is explicitly required, rather t
 - enable openssh for ssh access
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-{
-  services = {
-    # network discovery, mDNS
-    avahi = {
-      enable = true;
-      nssmdns4 = true;
-      publish = {
-        enable = true;
-        domain = true;
-        userServices = true;
-      };
-    };
-
-    openssh = {
-      enable = true;
-      settings.UseDns = true;
-    };
-
-    # DNS resolver
-    resolved = {
-      enable = true;
-      dnssec = "false";
-      fallbackDns = [ "194.242.2.5" "194.242.2.9" ];
-    };
-
-    dnscrypt-proxy2 = {
-      enable = true;
-      settings = {
-        ipv6_servers = true;
-        require_dnssec = true;
-
-        sources.public-resolvers = {
-          urls = [
-            "https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/public-resolvers.md"
-            "https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md"
-          ];
-          cache_file = "/var/lib/dnscrypt-proxy2/public-resolvers.md";
-          minisign_key = "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3";
+    {
+      services = {
+        openssh = { # ssh
+          enable = true;
+          settings.UseDns = true;
         };
+        # DNS resolver
+        resolved.enable = true;
       };
-    };
-
-  };
-
-}
+    }
   #+end_src
-*** systemd-nm
-- systemd need not wait for network to check online.
-  #+name: nixos-core
-  #+begin_src nix :tangle gdk/core.nix
-{
-  # Don't wait for network startup
-  systemd = {
-    services = {
-      # speed up boot
-      NetworkManager-wait-online.enable = false;
-    };
-  };
-}
-  #+end_src
+
 *** tramp
 - Transparent remote (file) access, multiple protocol
   #+name: orgmacs

@@ -498,77 +498,50 @@ see its function help for a description of the format."
 - TODO notes on this.
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-  {
-    # this makes our system more secure
-    # note that it might break some stuff, eg webcam
+    {
+      # this makes our system more secure
+      # note that it might break some stuff, eg webcam
 
-    security = {
-      protectKernelImage = true;
-      lockKernelModules = false;
-      rtkit.enable = true;
-      polkit.enable = true;
+      security = {
+        protectKernelImage = true;
+        rtkit.enable = true;
+        polkit.enable = true;
 
-      # required for lockscreens
-      # also for finger print
-      pam = {
-        services.gtklock = {
-          text = "auth include login";
+        doas = {
+          enable = true;
+          extraRules = [{
+            users = [ "${vars.username}" ];
+            keepEnv = true;
+            persist = true;
+          }];
         };
-      };
 
-      doas = {
-        enable = true;
-        extraRules = [{
-          users = [ "${vars.username}" ];
-          keepEnv = true;
-          persist = true;
-        }];
+        sudo.enable = false;
       };
-
-      sudo.enable = false;
-    };
-  }
+    }
   #+end_src
 * Services
 - Utilities that run as service.
 - Might include systemd service as well.
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-  {
-    services = {
-
-      dbus = {
-        packages = with pkgs; [ dconf gcr ];
-        enable = true;
+    {
+      services = {
+        getty = {
+          greetingLine = "Greetings and Welcome back!";
+          helpLine = "Let's learn more and get productive!";
+        };
+        atd.enable = true; # reminder tool, like @ 2:30 exec this
+        fstrim.enable = true; # file system trim
       };
-
-      # for minimal journal logs
-      journald.extraConfig = ''
-        SystemMaxUse=50M
-        RuntimeMaxUse=10M
-      '';
-
-      # This makes the user to autologin in all tty
-      # Depends on you if you want login manager or prefer entering password manually
-      # getty.autologinUser = "${vars.username}";
-      getty = {
-        greetingLine = "Greetings and Welcome back!";
-        helpLine = "Let's learn more and get productive!";
-      };
-
-      atd.enable = true; # reminder tool, like @ 2:30 exec this
-      fstrim.enable = true; # file system trim
-      # upower.enable = true; # power utility
-    };
-  }
+    }
   #+end_src
 *** android file transfer
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-{
-  # For android file transfer via usb, or better could use KDE connect
-  services.gvfs.enable = true;
-}
+    { # For android file transfer via usb, or better could use KDE connect
+      services.gvfs.enable = true;
+    }
   #+end_src
 *** logind
 - Suspends with press on power button. (default was to poweroff; why??)

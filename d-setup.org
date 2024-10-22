@@ -563,14 +563,14 @@ see its function help for a description of the format."
 - Support for fingerprint work legit on my machine. Just these 2 lines, and yes I login by TTY with my FP.
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-{
-  # for fingerprint
-  services.fprintd = {
-    enable = true;
-    package = pkgs.fprintd;
-  };
+    {
+      # for fingerprint
+      services.fprintd = {
+        enable = true;
+        package = pkgs.fprintd;
+      };
 
-}
+    }
   #+end_src
 *** powerManagement
 - laptop efficient power management
@@ -580,9 +580,9 @@ see its function help for a description of the format."
 - As on 2024-10-21, In matrix they suggested to go for PPD
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-{
-  services.power-profiles-daemon.enable = true;
-}
+    {
+      services.power-profiles-daemon.enable = true;
+    }
   #+end_src
 **** display-battery
 - Display battery in emacs
@@ -594,13 +594,12 @@ see its function help for a description of the format."
 *** drive access
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-{
-  services = {
-    # To mount drives with `udiskctl` command
-    udisks2.enable = true;
-    printing.enable = true;
-  };
-}
+    {
+      services = { # To mount drives with `udiskctl` command
+        udisks2.enable = true;
+        printing.enable = true;
+      };
+    }
   #+end_src
 *** gpg-agent
 - gpg agent for polkit, and pinentry?
@@ -612,7 +611,6 @@ see its function help for a description of the format."
           enable = true;
           enableSshSupport = true;
           pinentryPackage = pkgs.pinentry-gnome3;
-          # pinentryPackage = pkgs.pinentry-bemenu;
         };
       };
     }
@@ -693,7 +691,6 @@ see its function help for a description of the format."
     environment = {
       variables = {
         VDPAU_DRIVER = lib.mkDefault "va_gl";
-        EDITOR = "emacsclient -nw";
         BROWSER = "d-stuff";
         NIXOS_OZONE_WL = "1";
       };
@@ -711,142 +708,126 @@ see its function help for a description of the format."
 - The directories, and support.
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix :noweb yes
-  {
-    xdg = {
-      enable = true;
-      cacheHome = config.home.homeDirectory + "/.local/cache";
-      userDirs = {
+    {
+      xdg = {
         enable = true;
-        createDirectories = false;
-        documents =  "${config.home.homeDirectory}/docs";
-        download = "${config.home.homeDirectory}/dloads";
-        videos = "${config.home.homeDirectory}/vids";
-        music = "${config.home.homeDirectory}/music";
-        pictures = "${config.home.homeDirectory}/pics";
-        extraConfig = {
-          xdg_screenshots_dir = "${config.xdg.userDirs.pictures}/sshots";
+        cacheHome = config.home.homeDirectory + "/.local/cache";
+        userDirs = {
+          enable = true;
+          createDirectories = false;
+          documents =  "${config.home.homeDirectory}/docs";
+          download = "${config.home.homeDirectory}/dloads";
+          videos = "${config.home.homeDirectory}/vids";
+          music = "${config.home.homeDirectory}/music";
+          pictures = "${config.home.homeDirectory}/pics";
+          extraConfig = {
+            xdg_screenshots_dir = "${config.xdg.userDirs.pictures}/sshots";
+          };
         };
+
       };
+      xdg.dataFile."applications/d-stuff.desktop".text = ''
+      <<conf-dstuff>>
+      '';
 
-    };
-    xdg.dataFile."applications/d-stuff.desktop".text = ''
-    <<conf-dstuff>>
-    '';
-
-  }
+    }
   #+end_src
 
 **** d-stuff desktop
   #+name: conf-dstuff
   #+begin_src conf
-[Desktop Entry]
-Type=Application
-Name=Stuff Handler
-Exec=d-stuff %u
+    [Desktop Entry]
+    Type=Application
+    Name=Stuff Handler
+    Exec=d-stuff %u
   #+end_src
 ** Nix
 *** flake-channel
 - to inherit the flake-channels from out built config only.
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-{
-  environment = {
-    # set channels (backwards compatibility)
-    etc = {
-      "nix/flake-channels/nixpkgs".source = inputs.nixpkgs;
-      "nix/flake-channels/home-manager".source = inputs.home-manager;
-    };
-  };
-}
+    {
+      environment = {
+        # set channels (backwards compatibility)
+        etc = {
+          "nix/flake-channels/nixpkgs".source = inputs.nixpkgs;
+          "nix/flake-channels/home-manager".source = inputs.home-manager;
+        };
+      };
+    }
   #+end_src
 *** nixpkgs tweaks
 - if needed for Unfree pkgs like fonts.
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-{
-  nixpkgs = {
-    overlays = with inputs; [emacs-overlay.overlay];
-    config = {
-      allowUnfree = false;
-      allowBroken = false;
-    };
-  };
-}
+    {
+      nixpkgs = {
+        overlays = with inputs; [emacs-overlay.overlay];
+        config = {
+          allowUnfree = false;
+          allowBroken = false;
+        };
+      };
+    }
   #+end_src
 *** nix conf
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-  {
-    # Collect garbage and delete generation every 7 day. Will help to get some storage space.
-    # Better to atleast keep it for few days, as you do major update (unstable), if something breaks you can roll back.
-    nix = {
-      package = pkgs.nixVersions.latest; # 2.19 has issues with mkOutOfStoreSymlink
-      optimise.automatic = true;
-      gc = {
-        automatic = true;
-        dates = "weekly";
-        options = "--delete-older-than 7d";
+    {
+      # Collect garbage and delete generation every 7 day. Will help to get some storage space.
+      # Better to atleast keep it for few days, as you do major update (unstable), if something breaks you can roll back.
+      nix = {
+        optimise.automatic = true;
+        gc = {
+          automatic = true;
+          dates = "weekly";
+          options = "--delete-older-than 7d";
+        };
+
+        # Make builds run with low priority so my system stays responsive
+        daemonCPUSchedPolicy = "idle";
+        daemonIOSchedClass = "idle";
+
+        # pin the registry to avoid downloading and evaling a new nixpkgs version every time
+        registry = lib.mapAttrs (_: value: { flake = value; }) inputs;
+
+        # This will additionally add your inputs to the system's legacy channels
+        # Making legacy nix commands consistent as well, awesome!
+        nixPath = lib.mapAttrsToList (key: value: "${key}=${value.to.path}") config.nix.registry;
+
+        settings = {
+          flake-registry = "/etc/nix/registry.json";
+          extra-experimental-features = ["flakes" "nix-command" ];
+
+          # use binary cache, its not gentoo
+          substituters = [
+            "https://nix-community.cachix.org"
+          ];
+          trusted-public-keys = [
+            "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+          ];
+        };
       };
-
-      # Make builds run with low priority so my system stays responsive
-      daemonCPUSchedPolicy = "idle";
-      daemonIOSchedClass = "idle";
-
-      # pin the registry to avoid downloading and evaling a new nixpkgs version every time
-      registry = lib.mapAttrs (_: value: { flake = value; }) inputs;
-
-      # This will additionally add your inputs to the system's legacy channels
-      # Making legacy nix commands consistent as well, awesome!
-      nixPath = lib.mapAttrsToList (key: value: "${key}=${value.to.path}") config.nix.registry;
-
-      settings = {
-        flake-registry = "/etc/nix/registry.json";
-        auto-optimise-store = true;
-        builders-use-substitutes = true;
-        # allow sudo users to mark the following values as trusted
-        allowed-users = ["@wheel"];
-        # only allow sudo users to manage the nix store
-        trusted-users = ["@wheel" "root"];
-        keep-outputs = true;
-        warn-dirty = false;
-        keep-derivations = true;
-        sandbox = true;
-        max-jobs = "auto";
-        # continue building derivations if one fails
-        keep-going = true;
-        log-lines = 20;
-        extra-experimental-features = ["flakes" "nix-command" ];
-
-        # use binary cache, its not gentoo
-        substituters = [
-          "https://nix-community.cachix.org"
-        ];
-
-        trusted-public-keys = [
-          "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-        ];
-      };
-    };
-  }
+    }
   #+end_src
 - system upgrade: to disable autoupgrading system
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-{
-  system.autoUpgrade.enable = false;
-}
+    {
+      system.autoUpgrade.enable = false;
+    }
   #+end_src
 
 *** nix-index
 - to locate packages and path from massive nixpkgs index.
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  imports = [
-    inputs.nix-index-db.hmModules.nix-index
-  ];
-  programs.nix-index.enable = true;
-}
+    {
+      imports = [
+        inputs.nix-index-db.hmModules.nix-index
+      ];
+      programs.nix-index.enable = true;
+    }
   #+end_src
 
 *** nix-ld
@@ -856,9 +837,9 @@ Exec=d-stuff %u
 #+end_quote
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-{
-  programs.nix-ld.enable = true;
-}
+    {
+      programs.nix-ld.enable = true;
+    }
   #+end_src
 * EmacsOS
 - The ever growing environment, ecosystem that is tailored to the user's needs.
@@ -1533,30 +1514,30 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 ***** consult-omni
 - For extensive support and omni search everywhere.
 #+begin_src emacs-lisp
-(use-package consult-omni
-  :load-path "~/.config/emacs/elpa/consult-omni" "~/.config/emacs/elpa/consult-omni/sources"
-  :after consult
-  :custom
-  (consult-omni-show-preview t) ;;; show previews
-  (consult-omni-preview-key "C-o") ;;; set the preview key to C-o
-  (consult-omni-dynamic-input-debounce 2)
-  (consult-omni-dynamic-input-throttle 4)
-  (consult-omni-default-interactive-command #'consult-omni-multi)
-  (consult-omni-sources-modules-to-load
-        '(consult-omni-brave consult-omni-invidious
-                             consult-omni-google consult-omni-youtube
-                             consult-omni-stackoverflow
-                             consult-omni-wikipedia consult-omni-man
-                             consult-omni-calc
-                             consult-omni-projects
-                             consult-omni-notes
-                             consult-omni-apps))
-  (consult-omni-invidious-servers '("https://invidious.privacyredirect.com" "https://yewtu.be" "https://vid.puffyan.us"))
-  (consult-omni-notes-files (list org-directory "~/d-git/d-site/"))
-  (consult-omni-http-retrieve-backend 'request)
-  :config (require 'consult-omni-sources)
-  (consult-omni-sources-load-modules)
-)
+  (use-package consult-omni
+    :load-path "~/.config/emacs/elpa/consult-omni" "~/.config/emacs/elpa/consult-omni/sources"
+    :after consult
+    :custom
+    (consult-omni-show-preview t) ;;; show previews
+    (consult-omni-preview-key "C-o") ;;; set the preview key to C-o
+    (consult-omni-dynamic-input-debounce 2)
+    (consult-omni-dynamic-input-throttle 4)
+    (consult-omni-default-interactive-command #'consult-omni-multi)
+    (consult-omni-sources-modules-to-load
+     '(consult-omni-brave consult-omni-invidious
+                          consult-omni-google consult-omni-youtube consult-omni-gptel
+                          consult-omni-stackoverflow
+                          consult-omni-wikipedia consult-omni-man
+                          consult-omni-calc
+                          consult-omni-projects
+                          consult-omni-notes
+                          consult-omni-apps))
+    (consult-omni-invidious-servers '("https://invidious.privacyredirect.com" "https://yewtu.be" "https://vid.puffyan.us"))
+    (consult-omni-notes-files (list org-directory "~/d-git/d-site/"))
+    (consult-omni-http-retrieve-backend 'request)
+    :config (require 'consult-omni-sources)
+    (consult-omni-sources-load-modules)
+    )
 #+end_src
 **** Orderless
 + nice way of filtering results and candidates.
@@ -2305,219 +2286,178 @@ css-mode css-ts-mode html-mode html-ts-mode
 - Enables man pages with cache (apropos), info pages, dev pages and also nixos configuration.nix
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-  {
-    # faster rebuilding
-    documentation = {
-      enable = true;
-      nixos.enable = true;
-      doc.enable = true;
-      info.enable = true;
-      man = {
+    { # disable for faster rebuilding
+      documentation = {
         enable = true;
-        generateCaches = true; # will take little time
+        doc.enable = true;
+        info.enable = true;
+        man = {
+          enable = true;
+          generateCaches = true; # will take little time
+        };
+        dev.enable = true;
       };
-      dev.enable = true;
-    };
-  }
+    }
   #+end_src
 - To generate man pages apropos for user profile. Might take little time to generate caches, but worth it for offline quick reading.
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  programs.man = {
-    enable = true;
-    generateCaches = true; # will take little time
-  };
-}
+    {
+      programs.man = {
+        enable = true;
+        generateCaches = true; # will take little time
+      };
+    }
   #+end_src
 **** Manual pages
 - view man pages in emacs! ~M-x man~
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package man :ensure nil :demand t
-    :custom (Man-notify-method 'pushy "show manpage HERE")
-    :custom-face
-    (Man-overstrike ((t (:inherit font-lock-type-face :bold t))))
-    (Man-underline ((t (:inherit font-lock-keyword-face :underline t)))))
+    (use-package man :ensure nil :demand t
+      :custom (Man-notify-method 'pushy "show manpage HERE")
+      :custom-face
+      (Man-overstrike ((t (:inherit font-lock-type-face :bold t))))
+      (Man-underline ((t (:inherit font-lock-keyword-face :underline t)))))
   #+end_src
 
 **** Helpful
 - enhanced help page =describe-=  for emacs.
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package helpful :hook (helpful-mode . d/toggle-bar)
-    :bind (
-           ("C-h f" . helpful-callable)
-           ("C-h v" . helpful-variable)
-           ("C-h k" . helpful-key)
-           ("C-h x" . helpful-command)
-           ("C-c C-d" . helpful-at-point)
-           ("C-h o" . helpful-symbol)
-           ("C-h F" . helpful-function)))
+    (use-package helpful :hook (helpful-mode . d/toggle-bar)
+      :bind (
+             ("C-h f" . helpful-callable)
+             ("C-h v" . helpful-variable)
+             ("C-h k" . helpful-key)
+             ("C-h x" . helpful-command)
+             ("C-c C-d" . helpful-at-point)
+             ("C-h o" . helpful-symbol)
+             ("C-h F" . helpful-function)))
   #+end_src
 **** TLDR
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  programs = {
-
-    gpg = {
-      enable = true;
-      homedir = "${config.xdg.dataHome}/gnupg";
-      # to solve issue with emacs
-      # package = pkgs.gnupg.overrideAttrs (orig: {
-      #   version = "2.4.0";
-      #   src = pkgs.fetchurl {
-      #     url = "mirror://gnupg/gnupg/gnupg-2.4.0.tar.bz2";
-      #     hash = "sha256-HXkVjdAdmSQx3S4/rLif2slxJ/iXhOosthDGAPsMFIM=";
-      #   };
-      # });
-    };
-
-    tealdeer = {
-      enable = true;
-      settings = {
-        display = {
-	        compact = false;
-	        use_pager = true;
+    {
+      programs = {
+        gpg = {
+          enable = true;
+          homedir = "${config.xdg.dataHome}/gnupg";
         };
-        updates = {
-	        auto_update = true;
-        };
+        tealdeer.enable = true;
       };
-    };
-  };
-}
+    }
   #+end_src
 
 *** Git
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  programs.git = {
-    enable = true;
-    package = pkgs.gitFull;
+    {
+      programs.git = {
+        enable = true;
+        package = pkgs.gitFull;
 
-    delta = {
-      enable = true;
-      # TODOTHIS
-      # options.map-styles = "bold purple => syntax ${default.xcolors.mauve}, bold cyan => syntax ${default.xcolors.blue}";
-    };
+        aliases = {
+          a = "add";
+          b = "branch";
+          c = "commit";
+          ca = "commit --amend";
+          cm = "commit -m";
+          cho = "checkout";
+          d = "diff";
+          ds = "diff --staged";
+          p = "push";
+          pf = "push --force-with-lease";
+          pl = "pull";
+          l = "log";
+          r = "rebase";
+          s = "status --short";
+          ss = "status";
+          forgor = "commit --amend --no-edit";
+          graph = "log --all --decorate --graph --oneline";
+          logrep = "log --decorate --oneline --grep=";
+          oops = "checkout --";
+        };
 
-    extraConfig = {
-      diff.colorMoved = "default";
-      merge.conflictstyle = "diff3";
-    };
+        ignores = ["*~" "*.swp" "*result*" ".direnv" "node_modules"];
 
-    aliases = {
-      a = "add";
-      b = "branch";
-      c = "commit";
-      ca = "commit --amend";
-      cm = "commit -m";
-      cho = "checkout";
-      d = "diff";
-      ds = "diff --staged";
-      p = "push";
-      pf = "push --force-with-lease";
-      pl = "pull";
-      l = "log";
-      r = "rebase";
-      s = "status --short";
-      ss = "status";
-      forgor = "commit --amend --no-edit";
-      graph = "log --all --decorate --graph --oneline";
-      logrep = "log --decorate --oneline --grep=";
-      oops = "checkout --";
-    };
+        # signing = {
+        #   key = "";
+        #   signByDefault = true;
+        # };
 
-    ignores = ["*~" "*.swp" "*result*" ".direnv" "node_modules"];
+        userEmail = "igoldlip@gmail.com";
+        userName = "Dilip";
+      };
 
-    # signing = {
-    #   key = "";
-    #   signByDefault = true;
-    # };
-
-    userEmail = "igoldlip@gmail.com";
-    userName = "Dilip";
-    # editor = "";
-  };
-
-}
+    }
   #+end_src
 **** magit
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package magit :defer t
-    :custom
-    (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
-    (magit-diff-refine-hunk t)
-    (magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1)
-    (magit-bury-buffer-function #'magit-restore-window-configuration))
+    (use-package magit :defer t
+      :custom
+      (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
+      (magit-diff-refine-hunk t)
+      (magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1)
+      (magit-bury-buffer-function #'magit-restore-window-configuration))
   #+end_src
 **** Ediff
 - Emacs way to diff thing
      #+name: orgmacs
 #+begin_src emacs-lisp
-(use-package ediff :ensure nil
-  :custom (ediff-window-setup-function 'ediff-setup-windows-plain "Do actions from single frame"))
+  (use-package ediff :ensure nil
+    :custom (ediff-window-setup-function 'ediff-setup-windows-plain "Do actions from single frame"))
 #+end_src
 *** Direnv
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  programs.direnv = {
-    enable = true;
-    nix-direnv.enable = true;
-  };
-}
+    {
+      programs.direnv = {
+        enable = true;
+        nix-direnv.enable = true;
+      };
+    }
   #+end_src
 - envrc for emacs to ensure direcory environment is set for those specific buffers
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package envrc :defer 2
-    :config
-    (envrc-global-mode 1)
-    (advice-add 'org-babel-eval :around #'envrc-propagate-environment))
+    (use-package envrc :defer 2
+      :config
+      (envrc-global-mode 1)
+      (advice-add 'org-babel-eval :around #'envrc-propagate-environment))
   #+end_src
 *** Terminal
 **** foot
 - foot is decent, but emacs tho has got it covered too!
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-  {
-    programs.foot = {
-      enable = true;
-      server.enable = true;
-      settings = {
-        main = {
-          letter-spacing = "1";
-          box-drawings-uses-font-glyphs = "no";
-          pad = "0x0center";
-          selection-target = "clipboard";
-        };
-        scrollback = {
-          lines = 10000;
-          multiplier = 3;
-        };
-        url = {
-          launch = "d-stuff \${url}";
-          label-letters = "sadfjklewcmpgh";
-          osc8-underline = "url-mode";
-          protocols = "http, https, ftp, ftps, file";
-          uri-characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.,~:;/?#@!$&%*+=\"'()[]";
-        };
-        key-bindings = {
-          clipboard-copy = "Control+Shift+c";
-          clipboard-paste = "Control+Shift+v Control+y";
-          primary-paste = "Shift+Insert";
-        };
-        mouse = {
-          hide-when-typing = "yes";
+    {
+      programs.foot = {
+        enable = true;
+        server.enable = true;
+        settings = {
+          main = {
+            selection-target = "clipboard";
+          };
+          scrollback = {
+            lines = 10000;
+            multiplier = 3;
+          };
+          url = {
+            launch = "d-stuff \${url}";
+            protocols = "http, https, ftp, ftps, file";
+          };
+          key-bindings = {
+            clipboard-copy = "Control+Shift+c";
+            clipboard-paste = "Control+Shift+v Control+y";
+            primary-paste = "Shift+Insert";
+          };
+          mouse = {
+            hide-when-typing = "yes";
+          };
         };
       };
-    };
-  }
+    }
   #+end_src
 **** Zellij
 - Its a decent multiplexer
@@ -2527,7 +2467,6 @@ css-mode css-ts-mode html-mode html-ts-mode
   programs.zellij = {
     enable = true;
     settings = {
-
     };
   };
 }
@@ -2867,14 +2806,14 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 **** shell
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-{
-  home.packages = with pkgs; [
-    # better to manage it via development shell
+    {
+      home.packages = with pkgs; [
+        # better to manage it via development shell
 
-    ##### core comp ####
-    parallel
-  ];
-}
+        ##### core comp ####
+        parallel
+      ];
+    }
   #+end_src
 **** python
 - python in emacs, or emacs in python?
@@ -3003,18 +2942,18 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
     :hook (prog-mode . flymake-mode)
     :custom (python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-")))
   #+end_src
-***** COMMENT Flycheck
+***** Flycheck
 - To lint and check for good practices in code.
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package flycheck :defer t
-    :hook (prog-mode . flycheck-mode)
-    :custom
-    (flycheck-check-syntax-automatically '(save idle-change mode-enabled))
-    (flycheck-idle-change-delay 3)
-    (flycheck-emacs-lisp-load-path 'inherit)
-    (flycheck-buffer-switch-check-intermediate-buffers t)
-    (flycheck-display-errors-delay 0.25))
+    (use-package flycheck :defer ;; t
+      ;; :hook (prog-mode . flycheck-mode)
+      :custom
+      (flycheck-check-syntax-automatically '(save idle-change mode-enabled))
+      (flycheck-idle-change-delay 3)
+      (flycheck-emacs-lisp-load-path 'inherit)
+      (flycheck-buffer-switch-check-intermediate-buffers t)
+      (flycheck-display-errors-delay 0.25))
   #+end_src
 
 **** reformatter
@@ -3087,52 +3026,43 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
   #+begin_src emacs-lisp
   (use-package xref :ensure nil :custom (xref-search-program 'ripgrep))
   #+end_src
-**** emacs-lisp
-- no words, without elisp, this whole file would not exist.
-  #+name: orgmacs
-  #+begin_src emacs-lisp
-  (use-package elisp-mode :ensure nil :bind
-    (:map emacs-lisp-mode-map
-          ("C-c C-d C-d" . describe-function)
-          ("C-c C-d d" . describe-function)
-          ("C-c C-k" . eval-buffer)))
-  #+end_src
+
 **** treesit
 - not full fledge =tree-sitter= experience in emacs, but does the job for now.
 - could try =combobulate= package.
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package treesit :ensure nil
-    :mode
-    (("\\.tsx\\'" . tsx-ts-mode)
-     ("\\.yaml\\'" . yaml-ts-mode)
-     ("\\.toml\\'" . toml-ts-mode)
-     ;; ("\\.[sx]?html?\\(\\.[a-zA-Z_]+\\)?\\'" . html-ts-mode)
-     ("\\.jsonrc\\'" . json-ts-mode)
-     ("\\.js\\'"  . typescript-ts-mode)
-     ("\\.mjs\\'" . typescript-ts-mode)
-     ("\\.mts\\'" . typescript-ts-mode)
-     ("\\.cjs\\'" . typescript-ts-mode)
-     ("\\.ts\\'"  . typescript-ts-mode)
-     ("\\.jsx\\'" . tsx-ts-mode)
-     ("\\.json\\'" .  json-ts-mode)
-     ("\\.Dockerfile\\'" . dockerfile-ts-mode)
-     ("\\.sh\\'" . bash-ts-mode)
-     ("\\.prisma\\'" . prisma-ts-mode))
+    (use-package treesit :ensure nil
+      :mode
+      (("\\.tsx\\'" . tsx-ts-mode)
+       ("\\.yaml\\'" . yaml-ts-mode)
+       ("\\.toml\\'" . toml-ts-mode)
+       ;; ("\\.[sx]?html?\\(\\.[a-zA-Z_]+\\)?\\'" . html-ts-mode)
+       ("\\.jsonrc\\'" . json-ts-mode)
+       ("\\.js\\'"  . typescript-ts-mode)
+       ("\\.mjs\\'" . typescript-ts-mode)
+       ("\\.mts\\'" . typescript-ts-mode)
+       ("\\.cjs\\'" . typescript-ts-mode)
+       ("\\.ts\\'"  . typescript-ts-mode)
+       ("\\.jsx\\'" . tsx-ts-mode)
+       ("\\.json\\'" .  json-ts-mode)
+       ("\\.Dockerfile\\'" . dockerfile-ts-mode)
+       ("\\.sh\\'" . bash-ts-mode)
+       ("\\.prisma\\'" . prisma-ts-mode))
 
-    :custom
-    (treesit-font-lock-level 4)
-    (treesit-font-lock-feature-list t)
-    (standard-indent 2)
-    (major-mode-remap-alist
-     '((c-mode . c-ts-mode) (c++-mode . c++-ts-mode) (nix-mode . nix-ts-mode)
-       (csharp-mode . csharp-ts-mode) (css-mode . css-ts-mode)
-       (java-mode . java-ts-mode) (js-mode . js-ts-mode) (html-mode . html-ts-mode)
-       (js-json-mode . json-ts-mode) ;; (org-mode . org-ts-mode) ;; not mature yet
-       (python-mode . python-ts-mode) (julia-mode . ess-julia-mode)
-       (typescript-mode . typescript-ts-mode) (sh-mode . bash-ts-mode) (shell-script-mode . bash-ts-mode)
-       (ruby-mode . ruby-ts-mode) (rust-mode . rust-ts-mode)
-       (toml-mode . toml-ts-mode) (yaml-mode . yaml-ts-mode))))
+      :custom
+      (treesit-font-lock-level 4)
+      (treesit-font-lock-feature-list t)
+      (standard-indent 2)
+      (major-mode-remap-alist
+       '((c-mode . c-ts-mode) (c++-mode . c++-ts-mode) (nix-mode . nix-ts-mode)
+         (csharp-mode . csharp-ts-mode) (css-mode . css-ts-mode)
+         (java-mode . java-ts-mode) (js-mode . js-ts-mode) (html-mode . html-ts-mode)
+         (js-json-mode . json-ts-mode) ;; (org-mode . org-ts-mode) ;; not mature yet
+         (python-mode . python-ts-mode) (julia-mode . ess-julia-mode)
+         (typescript-mode . typescript-ts-mode) (sh-mode . bash-ts-mode) (shell-script-mode . bash-ts-mode)
+         (ruby-mode . ruby-ts-mode) (rust-mode . rust-ts-mode)
+         (toml-mode . toml-ts-mode) (yaml-mode . yaml-ts-mode))))
   #+end_src
 **** devdocs
 - devdocs in offline mode, for most decent documentation on language.
@@ -3166,15 +3096,13 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 - For all programming modes
   #+name: orgmacs
 #+begin_src emacs-lisp
-(use-package prog-mode :ensure nil
-  :hook (prog-mode . hs-minor-mode) (prog-mode . outline-minor-mode))
+(use-package prog-mode :ensure nil :hook (prog-mode . hs-minor-mode) (prog-mode . outline-minor-mode))
 #+end_src
 **** electric-pair
 - to enclose pairs or delimiters
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package elec-pair :ensure nil
-    :init (electric-pair-mode))
+  (use-package elec-pair :ensure nil :init (electric-pair-mode))
   #+end_src
 **** paren
 - try to escape the parenthesis
@@ -3186,14 +3114,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
     (show-paren-highlight-openparen t)
     (show-paren-context-when-offscreen t))
   #+end_src
-**** COMMENT rainbow
-- add color to delimiters.
-  #+name: orgmacs
-  #+begin_src emacs-lisp
-  (use-package rainbow-mode :defer t
-    :hook (prog-mode help-mode)
-    :bind ("C-c t c" . rainbow-mode))
-  #+end_src
+
 **** colorful-mode
 - Alternate to rainbow-mode, with simplicity and more features.
   #+name: orgmacs
@@ -3207,7 +3128,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 
 **** COMMENT ligatures
 - Extracted from [[https://github.com/Artawower/.emacs.d][Artawower]]
-- Gives ligature somehow everywhere, should try can be made toggle
+- Gives ligature somehow everywhere, should try to make it as toggle
   #+name: orgmacs
   #+begin_src emacs-lisp
   (defconst jetbrains-ligature-mode--ligatures
@@ -3325,11 +3246,8 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
     :custom-face (doc-view-svg-face ((t (:background "#000000" :foreground "#ffffff"))))
     :custom
     (doc-view-continuous t)
-    (doc-view-mupdf-use-svg t)
-    (doc-view-scale-internally t)
-    (doc-view-image-width 900)
     (large-file-warning-threshold 700000000)
-    (image-cache-eviction-delay 5))
+    (image-cache-eviction-delay 10))
   #+end_src
 - Function to toggle between dark and reading mode
   #+name: orgmacs
@@ -4585,66 +4503,53 @@ user_pref("findbar.highlightAll", true);
 - Shr, the basic html rendering done in emacs web browser (eww).
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package url :ensure nil
-    :custom
-    (url-privacy-level 'high)
-    ;; (url-mime-accept-string "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8 ")
-    :config
-    (url-setup-privacy-info))
+    (use-package url :ensure nil
+      :custom (url-privacy-level 'high) ;; reddit/SO does not like it 'paranoid
+      :config (url-setup-privacy-info))
 
-  (use-package shr :ensure nil :demand t
-    :custom
-    (shr-use-fonts  t)
-    (shr-use-colors nil)
-    (shr-indentation 4)
-    (shr-bullet "⁍ ")
-    (shr-folding-mode t)
-    (shr-max-width 80)
-    (shr-max-image-proportion 0.9)
-    (shr-width 80))
-
-  (use-package shr-color :ensure nil :defer t
-    :custom (shr-color-visible-luminance-min 40 "Improve the contrast"))
+    (use-package shr :ensure nil :demand t
+      :custom (shr-bullet "⁍ "))
   #+end_src
+
 - Shrface for extending faces of shr/url like org-mode.
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package shrface
-    :hook
-    (eww-after-render . shrface-mode)
-    (devdocs-browser-eww-mode . shrface-mode)
-    (gnus-article-mode . shrface-mode)
+    (use-package shrface
+      :hook
+      (eww-after-render . shrface-mode)
+      (devdocs-browser-eww-mode . shrface-mode)
+      (gnus-article-mode . shrface-mode)
 
-    :bind (
-           (:map shrface-mode-map
-                 ("<tab>" . shrface-outline-cycle)
-                 ("<backtab>" . shrface-outline-cycle-buffer)
-                 ("M-n" . shr-next-link)
-                 ("M-p" . shr-previous-link)
-                 ("M-l" . (lambda () (interactive) (shrface-links-consult) (embark-act)))
-                 ("M-h" . mark-paragraph)
-                 ("C-j" . shrface-next-headline)
-                 ("C-k" . shrface-previous-headline)))
-    :custom
-    (shrface-bullets-bullet-list '("󰓏" "󰚀" "󰫤"  "󰴈" "" "󰄄"))
-    (shrface-href-versatile t)
+      :bind (
+             (:map shrface-mode-map
+                   ("<tab>" . shrface-outline-cycle)
+                   ("<backtab>" . shrface-outline-cycle-buffer)
+                   ("M-n" . shr-next-link)
+                   ("M-p" . shr-previous-link)
+                   ("M-l" . (lambda () (interactive) (shrface-links-consult) (embark-act)))
+                   ("M-h" . mark-paragraph)
+                   ("C-j" . shrface-next-headline)
+                   ("C-k" . shrface-previous-headline)))
+      :custom
+      (shrface-bullets-bullet-list '("󰓏" "󰚀" "󰫤"  "󰴈" "" "󰄄"))
+      (shrface-href-versatile t)
 
-    :init
-    (setopt shrface-supported-faces-alist
-            '((em . shrface-tag-em) (u . shrface-tag-u) (strong . shrface-tag-strong)
-              (svg . shrface-tag-svg) (h1 . shrface-tag-h1) (h2 . shrface-tag-h2)
-              (h3 . shrface-tag-h3) (h4 . shrface-tag-h4) (h5 . shrface-tag-h5)
-              (h6 . shrface-tag-h6) (p . shrface-tag-p)
-              (li . shrface-tag-li) (dt . shrface-tag-dt) (figure . shrface-tag-figure)))
+      :init
+      (setopt shrface-supported-faces-alist
+              '((em . shrface-tag-em) (u . shrface-tag-u) (strong . shrface-tag-strong)
+                (svg . shrface-tag-svg) (h1 . shrface-tag-h1) (h2 . shrface-tag-h2)
+                (h3 . shrface-tag-h3) (h4 . shrface-tag-h4) (h5 . shrface-tag-h5)
+                (h6 . shrface-tag-h6) (p . shrface-tag-p)
+                (li . shrface-tag-li) (dt . shrface-tag-dt) (figure . shrface-tag-figure)))
 
-    :config
-    (defun shrface-shr-item-bullet ()
-      "Build a `shr-bullet' based on `shrface-item-bullet'."
-      (setq shr-bullet "⁍ "))
+      :config
+      (defun shrface-shr-item-bullet ()
+        "Build a `shr-bullet' based on `shrface-item-bullet'."
+        (setq shr-bullet "⁍ "))
 
-    (shrface-basic)
-    (shrface-trial)
-    (shrface-default-keybindings))
+      (shrface-basic)
+      (shrface-trial)
+      (shrface-default-keybindings))
   #+end_src
 - shr-pre-highlight, to highlight code blocks in eww. Does not guess the language correctly, but syntax highlight legit works.
   #+name: orgmacs
@@ -4720,11 +4625,10 @@ user_pref("findbar.highlightAll", true);
                  ("e" . readable-article)
                  ("Q" . d/kill-buffer)
                  ("RET" . eww-follow-link)
-                 ("m" . elfeed-toggle-star)
                  ("b" . nil)))
     :custom
     (eww-auto-rename-buffer 'title)
-    (eww-search-prefix "https://searx.be/?q="))
+    (eww-search-prefix "https://baresearch.org/?q="))
   #+end_src
 - Function to search words or link at point, and also give us list from =eww-prompt-history= to choose.
   #+name: orgmacs
@@ -4749,12 +4653,11 @@ for the search engine used."
 - Browse-url with custom bash script, a link handler.
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package browse-url :ensure nil
-    :config ;; browser script
-    (unless d/on-droid
+    (use-package browse-url :ensure nil :unless d/on-droid
+      :config ;; browser script
       (setopt browse-url-browser-function 'browse-url-generic
               browse-url-generic-program "d-stuff"
-              browse-url-secondary-browser-function 'browse-url-default-browser)))
+              browse-url-secondary-browser-function 'browse-url-default-browser))
   #+end_src
 
 **** COMMENT ox-hugo
@@ -4762,9 +4665,7 @@ for the search engine used."
 - For anyone who has come this far, [[https://idlip.github.io][blog site]].
   #+name: orgmacs
   #+begin_src emacs-lisp
-(use-package ox-hugo
-  :unless d/on-droid
-  :after ox)
+(use-package ox-hugo :unless d/on-droid :after ox)
   #+end_src
 - Org-capture for writing blog post.
   #+name: orgmacs
@@ -4796,7 +4697,7 @@ for the search engine used."
                    (function org-hugo-new-subtree-post-capture-template))))
   #+end_src
 ** Music/Video
-*** Graphics
+*** Hardware-Graphics
 - gpu acceleration
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
@@ -4868,8 +4769,6 @@ for the search engine used."
 
     };
 
-    # if mpd not working, check here
-    # home.sessionvariables.mpd_host = config.services.mpd.network.listenaddress;
   }
   #+end_src
 **** mpc
@@ -4887,8 +4786,7 @@ for the search engine used."
                  ("f" . mpc-ffwd)
                  ("b" . mpc-rewind)
                  ))
-    :custom
-    (mpc-browser-tags '(Title))
+    :custom (mpc-browser-tags '(Title))
     :config
     (defun mpc-select-dwim ()
       (interactive)
@@ -5034,9 +4932,9 @@ for the search engine used."
 - Simple interface for media files in emacs to play with mpv.
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package ready-player :unless d/on-droid :demand t
-    :custom (ready-player-open-playback-commands '(("mpv" "--audio-display=no" "--input-ipc-server=<<socket>>" "--speed=1.0")))
-    :config (ready-player-mode))
+    (use-package ready-player :unless d/on-droid :demand t
+      :custom (ready-player-open-playback-commands '(("mpv" "--audio-display=no" "--input-ipc-server=<<socket>>" "--speed=1.0")))
+      :config (ready-player-mode))
   #+end_src
 *** yt-dlp
   #+name: hm-config
@@ -5059,11 +4957,11 @@ for the search engine used."
 - Just to write config file for bash tool =ytfzf=.
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix :noweb yes
-{
-  xdg.configFile."ytfzf/conf.sh".text = ''
-  <<conf-ytfzf>>
-  '';
-}
+    {
+      xdg.configFile."ytfzf/conf.sh".text = ''
+      <<conf-ytfzf>>
+      '';
+    }
   #+end_src
 - Config
   #+name: conf-ytfzf
@@ -5087,45 +4985,45 @@ for the search engine used."
 ** Image viewer
 - Replaced imv with swayimg
 #+begin_src conf :tangle ~/.config/swayimg/config
-[viewer]
-window = #000000
-transparency = grid
-history = 10
-preload = 1
+  [viewer]
+  window = #000000
+  transparency = grid
+  history = 10
+  preload = 1
 
-[font]
-size = 24
+  [font]
+  size = 24
 
-[info]
-show = yes
-info_timeout = 5
+  [info]
+  show = yes
+  info_timeout = 5
 
-[keys.viewer]
-F1 = help
-Ctrl+h = help
-Ctrl+a = first_file
-Ctrl+e = last_file
-p = prev_file
-n = next_file
-Space = next_file
-Shift+d = prev_dir
-d = next_dir
-Shift+o = prev_frame
-o = next_frame
-c = skip_file
-F5 = slideshow
-s = animation
-f = fullscreen
-Return = mode
-h = step_left 10
-l = step_right 10
-k = step_up 10
-j = step_down 10
-Equal = zoom +10
-Plus = zoom +10
-Minus = zoom -10
-Shift+Delete = exec rm "%"; skip_file
-q = exit
+  [keys.viewer]
+  F1 = help
+  Ctrl+h = help
+  Ctrl+a = first_file
+  Ctrl+e = last_file
+  p = prev_file
+  n = next_file
+  Space = next_file
+  Shift+d = prev_dir
+  d = next_dir
+  Shift+o = prev_frame
+  o = next_frame
+  c = skip_file
+  F5 = slideshow
+  s = animation
+  f = fullscreen
+  Return = mode
+  h = step_left 10
+  l = step_right 10
+  k = step_up 10
+  j = step_down 10
+  Equal = zoom +10
+  Plus = zoom +10
+  Minus = zoom -10
+  Shift+Delete = exec rm "%"; skip_file
+  q = exit
 #+end_src
 ** Application
 *** media-pkgs
@@ -5151,39 +5049,38 @@ q = exit
 - Stream of files peer-to-peer from internet.
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package transmission :unless d/on-droid
-    :bind ("C-c d t" . transmission))
+  (use-package transmission :unless d/on-droid :bind ("C-c d t" . transmission))
   #+end_src
 *** reddigg
 - experience the reddit posts in the comfort of org-mode.
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package reddigg :defer t
-    :bind (("C-c d f" . reddigg-view-frontpage)
-           ("C-c d r" . reddigg-view-sub))
-    :custom
-    (org-link-elisp-confirm-function 'y-or-n-p)
-    (reddigg-subs '(emacs linux nixos orgmode hyprland bioinformatics onepiece fossdroid piracy bangalore india indiaspeaks developersindia manga aww))
-    :config
-    (setq other-subs '(crazyfuckingvideos nextfuckinglevel manga anime animepiracy fossdroid commandline memes jokes funnymemes rss holup unexpected todayilearned lifeprotips askreddit julia))
+    (use-package reddigg :defer t
+      :bind (("C-c d f" . reddigg-view-frontpage)
+             ("C-c d r" . reddigg-view-sub))
+      :custom
+      (org-link-elisp-confirm-function 'y-or-n-p)
+      (reddigg-subs '(emacs linux nixos orgmode hyprland bioinformatics onepiece fossdroid piracy bangalore india indiaspeaks developersindia manga aww))
+      :config
+      (setq other-subs '(crazyfuckingvideos nextfuckinglevel manga anime animepiracy fossdroid commandline memes jokes funnymemes rss holup unexpected todayilearned lifeprotips askreddit julia))
 
-    (defun reddigg-view-sub ()
-      "Prompt SUB and print its post list."
-      (interactive)
-      (let ((sub (completing-read "subreddit: " (-concat reddigg-subs other-subs '("frontpage" "comments")))))
-        (cond ((string= sub "frontpage") (reddigg-view-frontpage))
-              ((string= sub "comments") (reddigg-view-comments))
-              (t (reddigg--view-sub sub)))))
+      (defun reddigg-view-sub ()
+        "Prompt SUB and print its post list."
+        (interactive)
+        (let ((sub (completing-read "subreddit: " (-concat reddigg-subs other-subs '("frontpage" "comments")))))
+          (cond ((string= sub "frontpage") (reddigg-view-frontpage))
+                ((string= sub "comments") (reddigg-view-comments))
+                (t (reddigg--view-sub sub)))))
 
-    (defun reddigg--ensure-modes ()
-      "Get a bunch of modes up and running."
-      (if (equal major-mode 'org-mode)
-          (org-set-startup-visibility)
-        (org-mode)
-        (font-lock-flush))
-      (visual-line-mode)
-      (jinx-mode -1)
-      (view-mode 1)))
+      (defun reddigg--ensure-modes ()
+        "Get a bunch of modes up and running."
+        (if (equal major-mode 'org-mode)
+            (org-set-startup-visibility)
+          (org-mode)
+          (font-lock-flush))
+        (visual-line-mode)
+        (jinx-mode -1)
+        (view-mode 1)))
   #+end_src
 *** hacker news
   #+name: orgmacs
@@ -5212,92 +5109,92 @@ q = exit
 - wait, matrix in emacs? Yes, call it =ement.el=
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package ement
-    :bind (
-           (:map ement-room-minibuffer-map
-                 ("<f6>" . ement-room-compose-from-minibuffer))
-           (:map ement-room-mode-map
-                 ("M-<" . ement-room-scroll-down-command)))
-    :custom
-    (ement-room-send-message-filter 'ement-room-send-org-filter)
-    (ement-room-message-format-spec "%S> %L%B%r%R%t")
-    (ement-room-list-avatars nil)
-    (ement-save-sessions t)
-    :config
-    ;; copied from viru (ement github)
-    (defun d/ement-connect ()
-      (interactive)
-      (if (ement--read-sessions)
-          (call-interactively #'ement-connect)
-        (let* ((found (auth-source-search :max 1
-                                          :host "matrix.org"
-                                          :port "8448"
-                                          :require '(:user :secret)))
-               (entry (nth 0 found))
-               (password (funcall (plist-get entry :secret)))
-               (user (plist-get entry :user)))
-          (ement-connect :user-id user :password password)))))
+    (use-package ement
+      :bind (
+             (:map ement-room-minibuffer-map
+                   ("<f6>" . ement-room-compose-from-minibuffer))
+             (:map ement-room-mode-map
+                   ("M-<" . ement-room-scroll-down-command)))
+      :custom
+      (ement-room-send-message-filter 'ement-room-send-org-filter)
+      (ement-room-message-format-spec "%S> %L%B%r%R%t")
+      (ement-room-list-avatars nil)
+      (ement-save-sessions t)
+      :config
+      ;; copied from viru (ement github)
+      (defun d/ement-connect ()
+        (interactive)
+        (if (ement--read-sessions)
+            (call-interactively #'ement-connect)
+          (let* ((found (auth-source-search :max 1
+                                            :host "matrix.org"
+                                            :port "8448"
+                                            :require '(:user :secret)))
+                 (entry (nth 0 found))
+                 (password (funcall (plist-get entry :secret)))
+                 (user (plist-get entry :user)))
+            (ement-connect :user-id user :password password)))))
   #+end_src
 *** erc-the irc
 - Wander in Irc channels.
   #+name: orgmacs
 #+begin_src emacs-lisp
-(use-package erc :ensure nil
-  :init
-  (defun erc-run-libera ()
-    "Run ERC and connect to Libera"
-    (interactive)
-    (erc-tls :server "irc.libera.chat" :nick "zororg")
-    )
-  :custom (erc-hide-list '("JOIN" "PART" "QUIT")))
+  (use-package erc :ensure nil
+    :init
+    (defun erc-run-libera ()
+      "Run ERC and connect to Libera"
+      (interactive)
+      (erc-tls :server "irc.libera.chat" :nick "zororg") ;; yes, thats me
+      )
+    :custom (erc-hide-list '("JOIN" "PART" "QUIT")))
 #+end_src
 *** droidMacs
 - Legit Emacs works very well on Android.
   #+name: orgmacs
   #+begin_src emacs-lisp
-  ;; access phone storage as default
-  ;; Better is to symlink file to ~/ itself
+    ;; access phone storage as default
+    ;; Better is to symlink file to ~/ itself
 
-  ;;(setq default-directory "/storage/emulated/0/")
+    ;;(setq default-directory "/storage/emulated/0/")
 
-  (when d/on-droid
-    (custom-set-variables
-     '(touch-screen-precision-scroll t)
-     '(touch-screen-display-keyboard t)
-     '(browse-url-android-share t)
-     '(touch-screen-enable-hscroll nil "Avoid horizontal scroll that stutters"))
+    (when d/on-droid
+      (custom-set-variables
+       '(touch-screen-precision-scroll t)
+       '(touch-screen-display-keyboard t)
+       '(browse-url-android-share t)
+       '(touch-screen-enable-hscroll nil "Avoid horizontal scroll that stutters"))
 
-    ;; credits to https://github.com/danijelcamdzic/dotemacs/
-    (setq display-buffer-alist
-          '((".*" (display-buffer-same-window) (inhibit-same-window . nil))))
+      ;; credits to https://github.com/danijelcamdzic/dotemacs/
+      (setq display-buffer-alist
+            '((".*" (display-buffer-same-window) (inhibit-same-window . nil))))
 
-    ;; Add tool-bar options for zooming in
-    (tool-bar-add-item "zoom-in" 'text-scale-increase
-                       'text-scale-increase
-                       :help "Zoom In")
+      ;; Add tool-bar options for zooming in
+      (tool-bar-add-item "zoom-in" 'text-scale-increase
+                         'text-scale-increase
+                         :help "Zoom In")
 
-    ;; Add tool-bar options for zooming out
-    (tool-bar-add-item "zoom-out" 'text-scale-decrease
-                       'text-scale-decrease
-                       :help "Zoom Out")
+      ;; Add tool-bar options for zooming out
+      (tool-bar-add-item "zoom-out" 'text-scale-decrease
+                         'text-scale-decrease
+                         :help "Zoom Out")
 
-    ;; Add tool-bar option for Org Cycle
-    (tool-bar-add-item "right-arrow" 'org-cycle
-                       'org-cycle
-                       :help "Org Cycle")
+      ;; Add tool-bar option for Org Cycle
+      (tool-bar-add-item "right-arrow" 'org-cycle
+                         'org-cycle
+                         :help "Org Cycle")
 
-    ;; Add tool-bar option for Org Ctrl-C Ctrl-C
-    (tool-bar-add-item "prev-node" 'org-ctrl-c-ctrl-c
-                       'org-ctrl-c-ctrl-c
-                       :help "Execute Org Ctrl-C Ctrl-C")
+      ;; Add tool-bar option for Org Ctrl-C Ctrl-C
+      (tool-bar-add-item "prev-node" 'org-ctrl-c-ctrl-c
+                         'org-ctrl-c-ctrl-c
+                         :help "Execute Org Ctrl-C Ctrl-C")
 
-    (defun d/key-droid()
-      "To enable touch screen keyboard"
-      (interactive)
-      (frame-toggle-on-screen-keyboard (selected-frame) nil)
+      (defun d/key-droid()
+        "To enable touch screen keyboard"
+        (interactive)
+        (frame-toggle-on-screen-keyboard (selected-frame) nil)
+        )
       )
-    )
-  ;; (setq use-dialog-box nil)
+    ;; (setq use-dialog-box nil)
   #+end_src
 **** COMMENT notify-droid
 - Thanks to [[https://github.com/danijelcamdzic/dotemacs/blob/main/elisp/org-config.el][danijelcamdzic]], now emacs android can have notification from org agenda.
@@ -5349,11 +5246,7 @@ q = exit
       #   };
       # };
     };
-
     services.blueman.enable = true;
-
-    # https://github.com/NixOS/nixpkgs/issues/114222
-    # systemd.user.services.telephony_client.enable = false;
   }
   #+end_src
 
@@ -5370,6 +5263,7 @@ q = exit
     programs.hyprlock.enable = true; # for pam auth config
   }
   #+end_src
+
 - Home manager config
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
@@ -5495,664 +5389,653 @@ q = exit
 **** hyprsea
 - more additional hyprland conf for quick reloads
   #+begin_src conf :tangle ./gdk/configs/hyprsea.conf
-  monitor = ,2880x1800@90,auto,2
-  # monitor = ,1920x1200@90,auto,1
-  #monitor = HDMI-A-1,1920x1080,0x0,1
-  monitor = HDMI-A-1,1920x1080,0x0,1,mirror,eDP-1
-
-  # ---- Autostart Apps ----
-
-  # exec-once=waybar
-  # exec-once = dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
-  # exec-once = wl-paste --type text --watch cliphist store
-  # exec-once = wl-paste --type image --watch cliphist store
-  # exec-once = systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
-  # exec-once = hyprctl setcursor Bibata-Modern-Classic
-  #exec-once = swayidle timeout 150 'gtklock -b black & sleep 1 && systemctl suspend' before-sleep 'loginctl lock-session' lock 'gtklock -b black'
-  # exec-once = swayidle -w timeout 300 'gtklock -i -b black -d' timeout 210 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on' timeout 302 'if pgrep gtklock; then hyprctl dispatch dpms off; fi' resume 'hyprctl dispatch dpms on' timeout 1000 'systemctl suspend'
-  # exec-once = gammastep -l 19:72 -t 6500:4100
-  exec-once = d-walls
-  exec-once = dotoold
-  # exec-once = foot --server
-  # exec-once = emacs --bg-daemon
-
-  # env = QT_SCALE_FACTOR, 1.5
-  # env = GDK_SCALE, 1.5
-
-  # --- Local var ---
-  # misc {
-  # swallow_regex=^(footclient)$
-  # }
-  cursor {
-  zoom_factor=0.2
-  }
-
-
-  # general {
-  # col.active_border=rgba(2e8b57ff) rgba(87cefaff) 45deg
-  # col.inactive_border=0xff382D2E
-  # gaps_in = 0;
-  # gaps_out = 0;
-  # }
-
-  input {
-  repeat_rate=50
-  touchpad {
-  disable_while_typing=0
-  }
-  }
-
-  # animations {
-  # enabled = false
-  # }
-  decoration {
-  blur {
-  enabled = true
-  }
-  # rounding = false;
-  active_opacity=1.0
-  inactive_opacity=1.0
-  }
-
-
-  # █░█░█ █ █▄░█ █▀▄ █▀█ █░█░█   █▀█ █░█ █░░ █▀▀ █▀
-  # ▀▄▀▄▀ █ █░▀█ █▄▀ █▄█ ▀▄▀▄▀   █▀▄ █▄█ █▄▄ ██▄ ▄█
-
-  # Opacity
-  # windowrulev2 = opacity 0.90 0.90,class:^(Brave-browser)$
-  # windowrulev2 = opacity 0.80 0.80,class:^(pcmanfm)$
-
-  # Position
-  windowrulev2 = float,title:^(Media viewer)$
-  windowrulev2 = float,title:^(Volume Control)$
-  windowrulev2 = float,title:^(Picture-in-Picture)$
-  windowrulev2 = float,class:^(Viewnior)$
-  windowrulev2 = float,title:^(DevTools)$
-  windowrulev2 = float,class:^(file_progress)$
-  windowrulev2 = float,class:^(confirm)$
-  windowrulev2 = float,class:^(dialog)$
-  windowrulev2 = float,class:^(download)$
-  windowrulev2 = float,class:^(notification)$
-  windowrulev2 = float,class:^(error)$
-  windowrulev2 = float,class:^(confirmreset)$
-  windowrulev2 = float,title:^(Open File)$
-  windowrulev2 = float,title:^(branchdialog)$
-  windowrulev2 = float,title:^(Confirm to replace files)
-  windowrulev2 = float,title:^(File Operation Progress)
-
-  windowrulev2 = move 75 44%,title:^(Volume Control)$
-
-  # Size
-  windowrulev2 = size 800 600,class:^(download)$
-  windowrulev2 = size 800 600,title:^(Open File)$
-  windowrulev2 = size 800 600,title:^(Save File)$
-  windowrulev2 = size 800 600,title:^(Volume Control)$
-
-  windowrulev2 = idleinhibit fullscreen,class:^(Brave-browser)$
-  # idle inhibit while watching videos
-  windowrulev2 = idleinhibit focus, class:^(mpv)$
-  windowrulev2 = idleinhibit focus, class:^(Freetube)$
-  windowrulev2 = idleinhibit focus, class:^(firefox)$, title:^(.*YouTube.*)$
-  # windowrulev2 = idleinhibit fullscreen, class:^(firefox)$
-
-  # xwaylandvideobridge
-  windowrulev2 = opacity 0.0 override 0.0 override,class:^(xwaylandvideobridge)$
-  windowrulev2 = noanim,class:^(xwaylandvideobridge)$
-  windowrulev2 = nofocus,class:^(xwaylandvideobridge)$
-  windowrulev2 = noinitialfocus,class:^(xwaylandvideobridge)$
-
-  # windowrule = opaque,firefox
-  windowrule = opaque,foot
-  windowrule = opaque,emacs
-  windowrule = opaque,sioyek
-
-  windowrule = float,ncmpcpp
-  windowrule = float,imv
-
-  windowrule = float,mpv
-  windowrule = opaque,mpv
-  windowrule = noanim,mpv
-  windowrule = noblur,mpv
-  windowrulev2 = move 80% 65%, class:^(mpv)$, title:^(podcast)$
-  windowrulev2 = workspace special, class:^(mpv)$, title:^(podcast)$
-
-  #### webcam setting #####
-  windowrulev2 = rounding 120,title:^(webcam)$
-  # windowrulev2 = bordercolor rgba(2e8b57ff) rgba(2e8b57ff), title:webcam
-  windowrule = size 17% 27%, title:webcam
-  windowrulev2 = move 82% 71%, title:webcam
-  bind = SUPER, F7, exec, d-webcam
-
-  windowrulev2 = fullscreen,class:(chromium)
-  windowrulev2 = fullscreen,class:(emacs)
-  windowrulev2 = float, class:^(firefox)$, title:^(Firefox — Sharing Indicator)$
-  windowrule = opaque,imv
-
-  windowrulev2 = size 60% 70%,title:^(BrowserInput.*)$
-  windowrulev2 = center,title:^(BrowserInput.*)
-  windowrulev2 = float,title:^(BrowserInput.*)
-  #windowrulev2 = workspace special, title:^(BrowserInput.*)
-  windowrulev2 = size 800 600,class:^(download)$
-  windowrulev2 = size 800 600,title:^(Open File)$
-  windowrulev2 = size 800 600,title:^(Save File)$
-  windowrulev2 = size 800 600,title:^(Volume Control)$
-
-  windowrulev2 = idleinhibit fullscreen,class:^(Brave-browser)$
-
-
-  blurls = rofi
-  blurls = waybar
-  blurls = menu
-  blurls = gtk-layer-shell
-  blurls = notifications
-
-  # █▄▀ █▀▀ █▄█ █▄▄ █ █▄░█ █▀▄
-  # █░█ ██▄ ░█░ █▄█ █ █░▀█ █▄▀
-  bind = SUPER,e,exec,d-note
-  bind = SUPER,x,exec,d-power
-  # bind = SUPER,period,exec,d-dict
-  bind = SUPERSHIFT,b,exec,d-bookmark
-  bind = SUPER,m,exec,d-urls
-  bind = SUPER,Insert,exec,d-urls
-  bind = SUPER, y, exec, cliphist list | fuzzel -d | cliphist decode | wl-copy
-
-  bind = SUPER,grave,exec,d-unicodes
-  bind = SUPER,Delete,exec,pkill -INT wl-screenrec && pkill -RTMIN+8 waybar
-
-  bind = CONTROL,F1,exec,hyprctl dispatch dpms on
-  bind = SUPER,F1,exec,d-keys
-  bind = SUPER,F2,exec,brightnessctl set 2%-
-  bind = SUPER,F3,exec,brightnessctl set +2%
-  bind = SUPER,F5,exec,d-walls
-  bind = SUPER,F8,exec,mpv --untimed --geometry = 35%-30-30 --no-cache --no-osc --no-input-default-bindings --profile = low-latency --input-conf = /dev/null --title = webcam $(ls /dev/video[0,2,4,6,8] | tail -n 1)
-  bind = SUPER,F11,exec,d-mpdplay
-  bind = SUPER,F10,exec,mpc prev
-  bind = SUPER,F12,exec,mpc next
-
-  # to zoom/magnify the screen
-  bind = SUPERSHIFT, equal, exec, hyprctl keyword cursor:zoom_factor "$(hyprctl getoption cursor:zoom_factor | grep float | awk '{print $2 + 1}')"
-  bind = SUPERSHIFT, minus, exec, hyprctl keyword cursor:zoom_factor "$(hyprctl getoption cursor:zoom_factor | grep float | awk '{print $2 - 1}')"
-  bind = SUPERSHIFT, mouse_up, exec, hyprctl keyword cursor:zoom_factor "$(hyprctl getoption cursor:zoom_factor | grep float | awk '{print $2 + 1}')"
-  bind = SUPERSHIFT, mouse_down, exec, hyprctl keyword cursor:zoom_factor "$(hyprctl getoption cursor:zoom_factor | grep float | awk '{print $2 - 1}')"
-
-  # to scale the screen
-  bind = SUPER, 0, exec, hyprctl keyword monitor ,2880x1800@90,auto,1.5
-  bind = SUPERSHIFT, 0, exec, hyprctl keyword monitor ,2880x1800@90,auto,1
-
-
-
-  # █▀ █▀▀ █▀█ █▀▀ █▀▀ █▄░█ █▀ █░█ █▀█ ▀█▀
-  # ▄█ █▄▄ █▀▄ ██▄ ██▄ █░▀█ ▄█ █▀█ █▄█ ░█░
-  bind=,Print,exec,d-sshot
-  bind=CONTROL,Insert,exec,d-sshot
-  bind=SUPER,F4,exec,d-record
-
-
-  # █▀▄▀█ █ █▀ █▀▀
-  # █░▀░█ █ ▄█ █▄▄
-  bind = SUPER, return, exec, footclient
-  # bind = SUPER, RETURN, exec, pgrep emacs && emacsclient -c -e "(eshell)" || footclient
-  # bind = SUPERSHIFT, RETURN, exec, pgrep emacs && emacsclient -c -e "(eshell)" || footclient
-  bind = SUPERSHIFT, Q, killactive,
-  bind = SUPERSHIFT, R, exec, hyprctl reload
-  bind = SUPERCONTROL, Q, exec, hyprkill
-  bind = SUPER, F12, exec, d-mpdplay
-  bind = SUPER, SPACE, togglefloating,
-
-  bind = SUPER, 0, exec, hyprctl keyword monitor ,2880x1800@90,auto,1.5
-  bind = SUPERSHIFT, 0, exec, hyprctl keyword monitor ,2880x1800@90,auto,1
-
-  bind = SUPER, d, exec, fuzzel
-  # bind = SUPER, d, exec, rofi -show drun
-
-  bind = SUPER, b, exec, pkill -SIGUSR1 waybar || pidof -x waybar || waybar
-
-  bind=,XF86AudioRaiseVolume,exec,d-volume up
-  bind=,XF86AudioLowerVolume,exec,d-volume down
-  bind=,XF86AudioMute,exec,d-volume toggle
-  bind=,XF86MonBrightnessUp, exec, brightnessctl set +2%
-  bind=,XF86MonBrightnessDown, exec, brightnessctl set 2%-
-
-
-  # █░█░█ █ █▄░█ █▀▄ █▀█ █░█░█   █▀▄▀█ ▄▀█ █▄░█ ▄▀█ █▀▀ █▀▄▀█ █▀▀ █▄░█ ▀█▀
-  # ▀▄▀▄▀ █ █░▀█ █▄▀ █▄█ ▀▄▀▄▀   █░▀░█ █▀█ █░▀█ █▀█ █▄█ █░▀░█ ██▄ █░▀█ ░█░
-  bind = SUPER,T,pseudo,
-  bind = SUPER,F,fullscreen,
-  bind = SUPER, S, togglesplit, # dwindle
-  bind = SUPER, v, pin # pin a window to all workspace
-  # Change Workspace Mode
-  bind = SUPER SHIFT, Space, workspaceopt, allfloat
-  bind = SUPER SHIFT, Space, exec, $notifycmd 'Toggled All Float Mode'
-  bind = SUPER SHIFT, T, workspaceopt, allpseudo
-  bind = SUPER SHIFT, T, exec, $notifycmd 'Toggled All Pseudo Mode'
-
-  bind = SUPER ALT, j, cyclenext,
-  bind = SUPER ALT, j, bringactivetotop,
-
-
-  # █▀▀ █▀█ █▀▀ █░█ █▀
-  # █▀░ █▄█ █▄▄ █▄█ ▄█
-  bind = SUPER, k, cyclenext
-  bind = SUPER, j, cyclenext
-
-  # █▀▄▀█ █▀█ █░█ █▀▀
-  # █░▀░█ █▄█ ▀▄▀ ██▄
-  bind = SUPER SHIFT, left, movewindoworgroup, l
-  bind = SUPER SHIFT, right, movewindoworgroup, r
-  bind = SUPER SHIFT, up, movewindoworgroup, u
-  bind = SUPER SHIFT, down, movewindoworgroup, d
-
-  bind = SUPER SHIFT, h, movewindoworgroup, l
-  bind = SUPER SHIFT, l, movewindoworgroup, r
-  bind = SUPER SHIFT, k, movewindoworgroup, u
-  bind = SUPER SHIFT, j, movewindoworgroup, d
-
-  # █▀█ █▀▀ █▀ █ ▀█ █▀▀
-  # █▀▄ ██▄ ▄█ █ █▄ ██▄
-  bind = SUPER CTRL, left, resizeactive, -20 0
-  bind = SUPER CTRL, right, resizeactive, 20 0
-  bind = SUPER CTRL, up, resizeactive, 0 -20
-  bind = SUPER CTRL, down, resizeactive, 0 20
-
-  bind = SUPER CTRL, h, resizeactive, -20 0
-  bind = SUPER CTRL, l, resizeactive, 20 0
-  bind = SUPER CTRL, k, resizeactive, 0 -20
-  bind = SUPER CTRL, j, resizeactive, 0 20
-
-  # ▀█▀ ▄▀█ █▄▄ █▄▄ █▀▀ █▀▄
-  # ░█░ █▀█ █▄█ █▄█ ██▄ █▄▀
-  bind = SUPER, g, togglegroup
-  bind = SUPER, t, changegroupactive, b
-  bind = SUPER SHIFT, t, changegroupactive, f
-
-  # █▀ █▀█ █▀▀ █▀▀ █ ▄▀█ █░░
-  # ▄█ █▀▀ ██▄ █▄▄ █ █▀█ █▄▄
-  bind = SUPER, a, togglespecialworkspace
-  bind = SUPERSHIFT, a, movetoworkspace, special
-  # bind = SUPER, a, exec, $notifycmd 'Toggled Special Workspace'
-  bind = SUPER, c, exec, hyprctl dispatch centerwindow
-
-  # █▀ █░█░█ █ ▀█▀ █▀▀ █░█
-  # ▄█ ▀▄▀▄▀ █ ░█░ █▄▄ █▀█
-  bind = SUPER, 1, workspace, 1
-  bind = SUPER, 2, workspace, 2
-  bind = SUPER, 3, workspace, 3
-  bind = SUPER, 4, workspace, 4
-  bind = SUPER, 5, workspace, 5
-  bind = SUPER, 6, workspace, 6
-  bind = SUPER, 7, workspace, 7
-  bind = SUPER, 8, workspace, 8
-  bind = SUPER, 9, workspace, 9
-  # bind = SUPER, 0, workspace, 10
-  bind = SUPER, TAB, workspace, e+1
-  bind = SUPERSHIFT, TAB, workspace, e-1
-
-  # █▀▄▀█ █▀█ █░█ █▀▀
-  # █░▀░█ █▄█ ▀▄▀ ██▄
-  bind = SUPER ALT, 1, movetoworkspace, 1
-  bind = SUPER ALT, 2, movetoworkspace, 2
-  bind = SUPER ALT, 3, movetoworkspace, 3
-  bind = SUPER ALT, 4, movetoworkspace, 4
-  bind = SUPER ALT, 5, movetoworkspace, 5
-  bind = SUPER ALT, 6, movetoworkspace, 6
-  bind = SUPER ALT, 7, movetoworkspace, 7
-  bind = SUPER ALT, 8, movetoworkspace, 8
-  bind = SUPER ALT, 9, movetoworkspace, 9
-  bind = SUPER ALT, 0, movetoworkspace, 10
-  # Layout Change
-  bind = SUPER, w, exec, hyprctl keyword general:layout "dwindle"
-  bind = SUPERSHIFT, w, exec, hyprctl keyword general:layout "master"
-
-
-  # █▀▄▀█ █▀█ █░█ █▀ █▀▀   █▄▄ █ █▄░█ █▀▄ █ █▄░█ █▀▀
-  # █░▀░█ █▄█ █▄█ ▄█ ██▄   █▄█ █ █░▀█ █▄▀ █ █░▀█ █▄█
-  bindm = SUPER, mouse:272, movewindow
-  bindm = SUPER, mouse:273, resizewindow
-  bind = SUPER, mouse_down, workspace, e+1
-  bind = SUPER, mouse_up, workspace, e-1
-
-  # Move window silently to workspace Super + Alt + [0-9]
-  bind = SUPER SHIFT, 1, movetoworkspacesilent, 1
-  bind = SUPER SHIFT, 2, movetoworkspacesilent, 2
-  bind = SUPER SHIFT, 3, movetoworkspacesilent, 3
-  bind = SUPER SHIFT, 4, movetoworkspacesilent, 4
-  bind = SUPER SHIFT, 5, movetoworkspacesilent, 5
-  bind = SUPER SHIFT, 6, movetoworkspacesilent, 6
-  bind = SUPER SHIFT, 7, movetoworkspacesilent, 7
-  bind = SUPER SHIFT, 8, movetoworkspacesilent, 8
-  bind = SUPER SHIFT, 9, movetoworkspacesilent, 9
-  # bind = SUPER SHIFT, 0, movetoworkspacesilent, 10
-
-
-  # Key Chords
-  bind=SUPER,period,submap,Wordz
-  submap=Wordz
-  bind=,d,exec,d-dict
-  bind=,d,submap,reset
-
-  bind=,a,exec,d-vocab
-  bind=,a,submap,reset
-
-  bind=,v,exec, echo type "$(cat ~/.local/share/dict/myglossary | bemenu | awk '{print $1}')" | dotoolcxsxb
-  bind=,v,submap,reset
-
-  bind=,escape,submap,reset
-  bind=CONTROL,g,submap,reset
-  submap=reset
-
-
-  bind=SUPER,O,submap,Scripts
-  submap=Scripts
-  bind=,o,exec,d-menu
-  bind=,o,submap,reset
-
-  bind=,i,exec,d-stuff
-  bind=,i,submap,reset
-
-  bind=,p,exec,d-pirt
-  bind=,p,submap,reset
-
-  bind=,x,exec,d-power
-  bind=,x,submap,reset
-
-  bind=,r,exec,d-remind
-  bind=,r,submap,reset
-
-  bind=,escape,submap,reset
-  bind=CONTROL,g,submap,reset
-  submap=reset
-
-  bind=SUPER,P,submap,Apps
-  submap=Apps
-
-  bind=,p,exec,sioyek
-  bind=,p,submap,reset
-
-  bind=,f,exec,firefox
-  bind=,f,submap,reset
-
-  bind=,b,exec,brave
-  bind=,b,submap,reset
-
-  bind=,w,exec,mullvad-browser
-  bind=,w,submap,reset
-
-  bind=,c,exec,chromium
-  bind=,c,submap,reset
-
-  bind=,y,exec,freetube
-  bind=,y,submap,reset
-
-  bind=,e,exec,emacsclient -c
-  bind=,e,submap,reset
-
-  bind=,escape,submap,reset
-  bind=CONTROL,g,submap,reset
-  submap=reset
-
-  bind=SUPER,C,submap,Controls
-  submap=Controls
-
-  bind=SHIFT,equal,exec, d-volume up
-  bind=,minus,exec, d-volume down
-  bind=,m,exec, d-volume toggle
-  bind=,m,submap,reset
-  bind=,p,exec, mpc toggle
-  bind=,p,submap,reset
-
-  bind=,escape,submap,reset
-  bind=CONTROL,g,submap,reset
-  submap=reset
+    monitor = ,2880x1800@90,auto,2
+    # monitor = ,1920x1200@90,auto,1
+    #monitor = HDMI-A-1,1920x1080,0x0,1
+    monitor = HDMI-A-1,1920x1080,0x0,1,mirror,eDP-1
+
+    # ---- Autostart Apps ----
+
+    exec-once = d-walls
+    exec-once = dotoold
+
+    # env = QT_SCALE_FACTOR, 1.5
+    # env = GDK_SCALE, 1.5
+
+    # --- Local var ---
+    # misc {
+    # swallow_regex=^(footclient)$
+    # }
+    cursor {
+    zoom_factor=0.2
+    }
+
+
+    # general {
+    # col.active_border=rgba(2e8b57ff) rgba(87cefaff) 45deg
+    # col.inactive_border=0xff382D2E
+    # gaps_in = 0;
+    # gaps_out = 0;
+    # }
+
+    input {
+    repeat_rate=50
+    touchpad {
+    disable_while_typing=0
+    }
+    }
+
+    # animations {
+    # enabled = false
+    # }
+    decoration {
+    blur {
+    enabled = true
+    }
+    # rounding = false;
+    active_opacity=1.0
+    inactive_opacity=1.0
+    }
+
+
+    # █░█░█ █ █▄░█ █▀▄ █▀█ █░█░█   █▀█ █░█ █░░ █▀▀ █▀
+    # ▀▄▀▄▀ █ █░▀█ █▄▀ █▄█ ▀▄▀▄▀   █▀▄ █▄█ █▄▄ ██▄ ▄█
+
+    # Opacity
+    # windowrulev2 = opacity 0.90 0.90,class:^(Brave-browser)$
+    # windowrulev2 = opacity 0.80 0.80,class:^(pcmanfm)$
+
+    # Position
+    windowrulev2 = float,title:^(Media viewer)$
+    windowrulev2 = float,title:^(Volume Control)$
+    windowrulev2 = float,title:^(Picture-in-Picture)$
+    windowrulev2 = float,class:^(Viewnior)$
+    windowrulev2 = float,title:^(DevTools)$
+    windowrulev2 = float,class:^(file_progress)$
+    windowrulev2 = float,class:^(confirm)$
+    windowrulev2 = float,class:^(dialog)$
+    windowrulev2 = float,class:^(download)$
+    windowrulev2 = float,class:^(notification)$
+    windowrulev2 = float,class:^(error)$
+    windowrulev2 = float,class:^(confirmreset)$
+    windowrulev2 = float,title:^(Open File)$
+    windowrulev2 = float,title:^(branchdialog)$
+    windowrulev2 = float,title:^(Confirm to replace files)
+    windowrulev2 = float,title:^(File Operation Progress)
+
+    windowrulev2 = move 75 44%,title:^(Volume Control)$
+
+    # Size
+    windowrulev2 = size 800 600,class:^(download)$
+    windowrulev2 = size 800 600,title:^(Open File)$
+    windowrulev2 = size 800 600,title:^(Save File)$
+    windowrulev2 = size 800 600,title:^(Volume Control)$
+
+    windowrulev2 = idleinhibit fullscreen,class:^(Brave-browser)$
+    # idle inhibit while watching videos
+    windowrulev2 = idleinhibit focus, class:^(mpv)$
+    windowrulev2 = idleinhibit focus, class:^(Freetube)$
+    windowrulev2 = idleinhibit focus, class:^(firefox)$, title:^(.*YouTube.*)$
+    # windowrulev2 = idleinhibit fullscreen, class:^(firefox)$
+
+    # xwaylandvideobridge
+    windowrulev2 = opacity 0.0 override 0.0 override,class:^(xwaylandvideobridge)$
+    windowrulev2 = noanim,class:^(xwaylandvideobridge)$
+    windowrulev2 = nofocus,class:^(xwaylandvideobridge)$
+    windowrulev2 = noinitialfocus,class:^(xwaylandvideobridge)$
+
+    # windowrule = opaque,firefox
+    windowrule = opaque,foot
+    windowrule = opaque,emacs
+    windowrule = opaque,sioyek
+
+    windowrule = float,ncmpcpp
+    windowrule = float,imv
+
+    windowrule = float,mpv
+    windowrule = opaque,mpv
+    windowrule = noanim,mpv
+    windowrule = noblur,mpv
+    windowrulev2 = move 80% 65%, class:^(mpv)$, title:^(podcast)$
+    windowrulev2 = workspace special, class:^(mpv)$, title:^(podcast)$
+
+    #### webcam setting #####
+    windowrulev2 = rounding 120,title:^(webcam)$
+    # windowrulev2 = bordercolor rgba(2e8b57ff) rgba(2e8b57ff), title:webcam
+    windowrule = size 17% 27%, title:webcam
+    windowrulev2 = move 82% 71%, title:webcam
+    bind = SUPER, F7, exec, d-webcam
+
+    windowrulev2 = fullscreen,class:(chromium)
+    windowrulev2 = fullscreen,class:(emacs)
+    windowrulev2 = float, class:^(firefox)$, title:^(Firefox — Sharing Indicator)$
+    windowrule = opaque,imv
+
+    windowrulev2 = size 60% 70%,title:^(BrowserInput.*)$
+    windowrulev2 = center,title:^(BrowserInput.*)
+    windowrulev2 = float,title:^(BrowserInput.*)
+    #windowrulev2 = workspace special, title:^(BrowserInput.*)
+    windowrulev2 = size 800 600,class:^(download)$
+    windowrulev2 = size 800 600,title:^(Open File)$
+    windowrulev2 = size 800 600,title:^(Save File)$
+    windowrulev2 = size 800 600,title:^(Volume Control)$
+
+    windowrulev2 = idleinhibit fullscreen,class:^(Brave-browser)$
+
+
+    blurls = rofi
+    blurls = waybar
+    blurls = menu
+    blurls = gtk-layer-shell
+    blurls = notifications
+
+    # █▄▀ █▀▀ █▄█ █▄▄ █ █▄░█ █▀▄
+    # █░█ ██▄ ░█░ █▄█ █ █░▀█ █▄▀
+    bind = SUPER,e,exec,d-note
+    bind = SUPER,x,exec,d-power
+    # bind = SUPER,period,exec,d-dict
+    bind = SUPERSHIFT,b,exec,d-bookmark
+    bind = SUPER,m,exec,d-urls
+    bind = SUPER,Insert,exec,d-urls
+    bind = SUPER, y, exec, cliphist list | fuzzel -d | cliphist decode | wl-copy
+
+    bind = SUPER,grave,exec,d-unicodes
+    bind = SUPER,Delete,exec,pkill -INT wl-screenrec && pkill -RTMIN+8 waybar
+
+    bind = CONTROL,F1,exec,hyprctl dispatch dpms on
+    bind = SUPER,F1,exec,d-keys
+    bind = SUPER,F2,exec,brightnessctl set 2%-
+    bind = SUPER,F3,exec,brightnessctl set +2%
+    bind = SUPER,F5,exec,d-walls
+    bind = SUPER,F8,exec,mpv --untimed --geometry = 35%-30-30 --no-cache --no-osc --no-input-default-bindings --profile = low-latency --input-conf = /dev/null --title = webcam $(ls /dev/video[0,2,4,6,8] | tail -n 1)
+    bind = SUPER,F11,exec,d-mpdplay
+    bind = SUPER,F10,exec,mpc prev
+    bind = SUPER,F12,exec,mpc next
+
+    # to zoom/magnify the screen
+    bind = SUPERSHIFT, equal, exec, hyprctl keyword cursor:zoom_factor "$(hyprctl getoption cursor:zoom_factor | grep float | awk '{print $2 + 1}')"
+    bind = SUPERSHIFT, minus, exec, hyprctl keyword cursor:zoom_factor "$(hyprctl getoption cursor:zoom_factor | grep float | awk '{print $2 - 1}')"
+    bind = SUPERSHIFT, mouse_up, exec, hyprctl keyword cursor:zoom_factor "$(hyprctl getoption cursor:zoom_factor | grep float | awk '{print $2 + 1}')"
+    bind = SUPERSHIFT, mouse_down, exec, hyprctl keyword cursor:zoom_factor "$(hyprctl getoption cursor:zoom_factor | grep float | awk '{print $2 - 1}')"
+
+    # to scale the screen
+    bind = SUPER, 0, exec, hyprctl keyword monitor ,2880x1800@90,auto,1.5
+    bind = SUPERSHIFT, 0, exec, hyprctl keyword monitor ,2880x1800@90,auto,1
+
+
+
+    # █▀ █▀▀ █▀█ █▀▀ █▀▀ █▄░█ █▀ █░█ █▀█ ▀█▀
+    # ▄█ █▄▄ █▀▄ ██▄ ██▄ █░▀█ ▄█ █▀█ █▄█ ░█░
+    bind=,Print,exec,d-sshot
+    bind=CONTROL,Insert,exec,d-sshot
+    bind=SUPER,F4,exec,d-record
+
+
+    # █▀▄▀█ █ █▀ █▀▀
+    # █░▀░█ █ ▄█ █▄▄
+    bind = SUPER, return, exec, footclient
+    # bind = SUPER, RETURN, exec, pgrep emacs && emacsclient -c -e "(eshell)" || footclient
+    # bind = SUPERSHIFT, RETURN, exec, pgrep emacs && emacsclient -c -e "(eshell)" || footclient
+    bind = SUPERSHIFT, Q, killactive,
+    bind = SUPERSHIFT, R, exec, hyprctl reload
+    bind = SUPERCONTROL, Q, exec, hyprkill
+    bind = SUPER, F12, exec, d-mpdplay
+    bind = SUPER, SPACE, togglefloating,
+
+    bind = SUPER, 0, exec, hyprctl keyword monitor ,2880x1800@90,auto,1.5
+    bind = SUPERSHIFT, 0, exec, hyprctl keyword monitor ,2880x1800@90,auto,1
+
+    bind = SUPER, d, exec, fuzzel
+    # bind = SUPER, d, exec, rofi -show drun
+
+    bind = SUPER, b, exec, pkill -SIGUSR1 waybar || pidof -x waybar || waybar
+
+    bind=,XF86AudioRaiseVolume,exec,d-volume up
+    bind=,XF86AudioLowerVolume,exec,d-volume down
+    bind=,XF86AudioMute,exec,d-volume toggle
+    bind=,XF86MonBrightnessUp, exec, brightnessctl set +2%
+    bind=,XF86MonBrightnessDown, exec, brightnessctl set 2%-
+
+
+    # █░█░█ █ █▄░█ █▀▄ █▀█ █░█░█   █▀▄▀█ ▄▀█ █▄░█ ▄▀█ █▀▀ █▀▄▀█ █▀▀ █▄░█ ▀█▀
+    # ▀▄▀▄▀ █ █░▀█ █▄▀ █▄█ ▀▄▀▄▀   █░▀░█ █▀█ █░▀█ █▀█ █▄█ █░▀░█ ██▄ █░▀█ ░█░
+    bind = SUPER,T,pseudo,
+    bind = SUPER,F,fullscreen,
+    bind = SUPER, S, togglesplit, # dwindle
+    bind = SUPER, v, pin # pin a window to all workspace
+    # Change Workspace Mode
+    bind = SUPER SHIFT, Space, workspaceopt, allfloat
+    bind = SUPER SHIFT, Space, exec, $notifycmd 'Toggled All Float Mode'
+    bind = SUPER SHIFT, T, workspaceopt, allpseudo
+    bind = SUPER SHIFT, T, exec, $notifycmd 'Toggled All Pseudo Mode'
+
+    bind = SUPER ALT, j, cyclenext,
+    bind = SUPER ALT, j, bringactivetotop,
+
+
+    # █▀▀ █▀█ █▀▀ █░█ █▀
+    # █▀░ █▄█ █▄▄ █▄█ ▄█
+    bind = SUPER, k, cyclenext
+    bind = SUPER, j, cyclenext
+
+    # █▀▄▀█ █▀█ █░█ █▀▀
+    # █░▀░█ █▄█ ▀▄▀ ██▄
+    bind = SUPER SHIFT, left, movewindoworgroup, l
+    bind = SUPER SHIFT, right, movewindoworgroup, r
+    bind = SUPER SHIFT, up, movewindoworgroup, u
+    bind = SUPER SHIFT, down, movewindoworgroup, d
+
+    bind = SUPER SHIFT, h, movewindoworgroup, l
+    bind = SUPER SHIFT, l, movewindoworgroup, r
+    bind = SUPER SHIFT, k, movewindoworgroup, u
+    bind = SUPER SHIFT, j, movewindoworgroup, d
+
+    # █▀█ █▀▀ █▀ █ ▀█ █▀▀
+    # █▀▄ ██▄ ▄█ █ █▄ ██▄
+    bind = SUPER CTRL, left, resizeactive, -20 0
+    bind = SUPER CTRL, right, resizeactive, 20 0
+    bind = SUPER CTRL, up, resizeactive, 0 -20
+    bind = SUPER CTRL, down, resizeactive, 0 20
+
+    bind = SUPER CTRL, h, resizeactive, -20 0
+    bind = SUPER CTRL, l, resizeactive, 20 0
+    bind = SUPER CTRL, k, resizeactive, 0 -20
+    bind = SUPER CTRL, j, resizeactive, 0 20
+
+    # ▀█▀ ▄▀█ █▄▄ █▄▄ █▀▀ █▀▄
+    # ░█░ █▀█ █▄█ █▄█ ██▄ █▄▀
+    bind = SUPER, g, togglegroup
+    bind = SUPER, t, changegroupactive, b
+    bind = SUPER SHIFT, t, changegroupactive, f
+
+    # █▀ █▀█ █▀▀ █▀▀ █ ▄▀█ █░░
+    # ▄█ █▀▀ ██▄ █▄▄ █ █▀█ █▄▄
+    bind = SUPER, a, togglespecialworkspace
+    bind = SUPERSHIFT, a, movetoworkspace, special
+    # bind = SUPER, a, exec, $notifycmd 'Toggled Special Workspace'
+    bind = SUPER, c, exec, hyprctl dispatch centerwindow
+
+    # █▀ █░█░█ █ ▀█▀ █▀▀ █░█
+    # ▄█ ▀▄▀▄▀ █ ░█░ █▄▄ █▀█
+    bind = SUPER, 1, workspace, 1
+    bind = SUPER, 2, workspace, 2
+    bind = SUPER, 3, workspace, 3
+    bind = SUPER, 4, workspace, 4
+    bind = SUPER, 5, workspace, 5
+    bind = SUPER, 6, workspace, 6
+    bind = SUPER, 7, workspace, 7
+    bind = SUPER, 8, workspace, 8
+    bind = SUPER, 9, workspace, 9
+    # bind = SUPER, 0, workspace, 10
+    bind = SUPER, TAB, workspace, e+1
+    bind = SUPERSHIFT, TAB, workspace, e-1
+
+    # █▀▄▀█ █▀█ █░█ █▀▀
+    # █░▀░█ █▄█ ▀▄▀ ██▄
+    bind = SUPER ALT, 1, movetoworkspace, 1
+    bind = SUPER ALT, 2, movetoworkspace, 2
+    bind = SUPER ALT, 3, movetoworkspace, 3
+    bind = SUPER ALT, 4, movetoworkspace, 4
+    bind = SUPER ALT, 5, movetoworkspace, 5
+    bind = SUPER ALT, 6, movetoworkspace, 6
+    bind = SUPER ALT, 7, movetoworkspace, 7
+    bind = SUPER ALT, 8, movetoworkspace, 8
+    bind = SUPER ALT, 9, movetoworkspace, 9
+    bind = SUPER ALT, 0, movetoworkspace, 10
+    # Layout Change
+    bind = SUPER, w, exec, hyprctl keyword general:layout "dwindle"
+    bind = SUPERSHIFT, w, exec, hyprctl keyword general:layout "master"
+
+
+    # █▀▄▀█ █▀█ █░█ █▀ █▀▀   █▄▄ █ █▄░█ █▀▄ █ █▄░█ █▀▀
+    # █░▀░█ █▄█ █▄█ ▄█ ██▄   █▄█ █ █░▀█ █▄▀ █ █░▀█ █▄█
+    bindm = SUPER, mouse:272, movewindow
+    bindm = SUPER, mouse:273, resizewindow
+    bind = SUPER, mouse_down, workspace, e+1
+    bind = SUPER, mouse_up, workspace, e-1
+
+    # Move window silently to workspace Super + Alt + [0-9]
+    bind = SUPER SHIFT, 1, movetoworkspacesilent, 1
+    bind = SUPER SHIFT, 2, movetoworkspacesilent, 2
+    bind = SUPER SHIFT, 3, movetoworkspacesilent, 3
+    bind = SUPER SHIFT, 4, movetoworkspacesilent, 4
+    bind = SUPER SHIFT, 5, movetoworkspacesilent, 5
+    bind = SUPER SHIFT, 6, movetoworkspacesilent, 6
+    bind = SUPER SHIFT, 7, movetoworkspacesilent, 7
+    bind = SUPER SHIFT, 8, movetoworkspacesilent, 8
+    bind = SUPER SHIFT, 9, movetoworkspacesilent, 9
+    # bind = SUPER SHIFT, 0, movetoworkspacesilent, 10
+
+
+    # Key Chords
+    bind=SUPER,period,submap,Wordz
+    submap=Wordz
+    bind=,d,exec,d-dict
+    bind=,d,submap,reset
+
+    bind=,a,exec,d-vocab
+    bind=,a,submap,reset
+
+    bind=,v,exec, echo type "$(cat ~/.local/share/dict/myglossary | bemenu | awk '{print $1}')" | dotoolcxsxb
+    bind=,v,submap,reset
+
+    bind=,escape,submap,reset
+    bind=CONTROL,g,submap,reset
+    submap=reset
+
+
+    bind=SUPER,O,submap,Scripts
+    submap=Scripts
+    bind=,o,exec,d-menu
+    bind=,o,submap,reset
+
+    bind=,i,exec,d-stuff
+    bind=,i,submap,reset
+
+    bind=,p,exec,d-pirt
+    bind=,p,submap,reset
+
+    bind=,x,exec,d-power
+    bind=,x,submap,reset
+
+    bind=,r,exec,d-remind
+    bind=,r,submap,reset
+
+    bind=,escape,submap,reset
+    bind=CONTROL,g,submap,reset
+    submap=reset
+
+    bind=SUPER,P,submap,Apps
+    submap=Apps
+
+    bind=,p,exec,sioyek
+    bind=,p,submap,reset
+
+    bind=,f,exec,firefox
+    bind=,f,submap,reset
+
+    bind=,b,exec,brave
+    bind=,b,submap,reset
+
+    bind=,w,exec,mullvad-browser
+    bind=,w,submap,reset
+
+    bind=,c,exec,chromium
+    bind=,c,submap,reset
+
+    bind=,y,exec,freetube
+    bind=,y,submap,reset
+
+    bind=,e,exec,emacsclient -c
+    bind=,e,submap,reset
+
+    bind=,escape,submap,reset
+    bind=CONTROL,g,submap,reset
+    submap=reset
+
+    bind=SUPER,C,submap,Controls
+    submap=Controls
+
+    bind=SHIFT,equal,exec, d-volume up
+    bind=,minus,exec, d-volume down
+    bind=,m,exec, d-volume toggle
+    bind=,m,submap,reset
+    bind=,p,exec, mpc toggle
+    bind=,p,submap,reset
+
+    bind=,escape,submap,reset
+    bind=CONTROL,g,submap,reset
+    submap=reset
   #+end_src
 *** niri
 - A scrolling window manager with new workflow.
-- Note: This is written in =kdl= format
   #+name: nixos-core
 #+begin_src nix :tangle gdk/core.nix
-{
-  programs = {
-    niri.enable = true;
-    xwayland.enable = true;
-    };
-}
+  {
+    programs = {
+      niri.enable = true;
+      xwayland.enable = true;
+      };
+  }
 #+end_src
 **** niri-config
+- Note: This is written in =kdl= format
 #+begin_src conf :tangle ~/.config/niri/config.kdl
-spawn-at-startup "sh" "-c" "dbus-update-activation-environment --systemd --all && systemctl --user reset-failed && systemctl --user stop niri-session.target && systemctl --user start niri-session.target"
-// Find the full list of options on the wiki:
-// https://github.com/YaLTeR/niri/wiki/Configuration:-Input
-input {
-	keyboard {
-		xkb { options "ctrl:nocaps"; }
-		repeat-delay 600; repeat-rate 50;
-	}
-	touchpad {
-		tap; dwt; natural-scroll;
-	}
-	focus-follows-mouse max-scroll-amount="30%"
-  workspace-auto-back-and-forth
-}
+  spawn-at-startup "sh" "-c" "dbus-update-activation-environment --systemd --all && systemctl --user reset-failed && systemctl --user stop niri-session.target && systemctl --user start niri-session.target"
+  // Find the full list of options on the wiki:
+  // https://github.com/YaLTeR/niri/wiki/Configuration:-Input
+  input {
+  	keyboard {
+  		xkb { options "ctrl:nocaps"; }
+  		repeat-delay 600; repeat-rate 50;
+  	}
+  	touchpad {
+  		tap; dwt; natural-scroll;
+  	}
+  	focus-follows-mouse max-scroll-amount="30%"
+    workspace-auto-back-and-forth
+  }
 
-cursor {
- xcursor-size 12
-}
+  cursor {
+   xcursor-size 12
+  }
 
-environment {
-	DISPLAY ":0"
-	//QT_SCALE_FACTOR "1.5"
-	//GDK_SCALE "2"
-}
+  environment {
+  	DISPLAY ":0"
+  	//QT_SCALE_FACTOR "1.5"
+  	//GDK_SCALE "2"
+  }
 
-// names
-workspace ""
-workspace "󰈹"
-workspace ""
-workspace "󰌱"
-workspace "󰂧"
+  // names
+  workspace ""
+  workspace "󰈹"
+  workspace ""
+  workspace "󰌱"
+  workspace "󰂧"
 
-//workspace "present" {
-//  open-on-output "HDMI-A-1"
-//}
+  //workspace "present" {
+  //  open-on-output "HDMI-A-1"
+  //}
 
-// startups
-spawn-at-startup "dotoold"
-spawn-at-startup "d-walls"
-spawn-at-startup "xwayland-satellite"
-//spawn-at-startup "hypridle"
+  // startups
+  spawn-at-startup "dotoold"
+  spawn-at-startup "d-walls"
+  spawn-at-startup "xwayland-satellite"
+  //spawn-at-startup "hypridle"
 
-output "eDP-1" {
-	scale 2
-}
+  output "eDP-1" {
+  	scale 2
+  }
 
-output "HDMI-A-1" {
-  mode "1920x1080"
-	//scale 1
-}
+  output "HDMI-A-1" {
+    mode "1920x1080"
+  	//scale 1
+  }
 
-layout {
-	gaps 10
-  always-center-single-column
-	//center-focused-column "never"
-	preset-column-widths { proportion 0.33333; proportion 0.5; proportion 0.66667; }
+  layout {
+  	gaps 10
+    always-center-single-column
+  	//center-focused-column "never"
+  	preset-column-widths { proportion 0.33333; proportion 0.5; proportion 0.66667; }
 
-	default-column-width { proportion 0.5; }
+  	default-column-width { proportion 0.5; }
 
-	focus-ring {
-		width 2
-		inactive-color "#020202"
-		active-gradient from="#2e8b57" to="#bbddff" angle=45 relative-to="workspace-view"
-	}
+  	focus-ring {
+  		width 2
+  		inactive-color "#020202"
+  		active-gradient from="#2e8b57" to="#bbddff" angle=45 relative-to="workspace-view"
+  	}
 
-	border { off; }
-	//struts {
-	//	 left 10; right 10;
-	//	 top 10; bottom 10;
-	//}
+  	border { off; }
+  	//struts {
+  	//	 left 10; right 10;
+  	//	 top 10; bottom 10;
+  	//}
 
-}
+  }
 
-prefer-no-csd
-screenshot-path "~/pics/sshots/%Y%m%dT%H%M%S_capture.png"
+  prefer-no-csd
+  screenshot-path "~/pics/sshots/%Y%m%dT%H%M%S_capture.png"
 
-animations {
-	//off
-}
+  animations {
+  	//off
+  }
 
-window-rule {
-	geometry-corner-radius 16
-	clip-to-geometry true
-}
+  window-rule {
+  	geometry-corner-radius 16
+  	clip-to-geometry true
+  }
 
-window-rule {
-    match app-id="emacs"
-    open-on-workspace ""
-}
-window-rule {
-    match app-id=r#"Mullvad|Firefox"#
-    open-on-workspace "󰈹"
-}
-window-rule {
-    match app-id=r#"sioyek"#
-    open-on-workspace "󰌱"
-}
-window-rule {
-    match app-id=r#"foot"#
-    open-on-workspace ""
-}
+  window-rule {
+      match app-id="emacs"
+      open-on-workspace ""
+  }
+  window-rule {
+      match app-id=r#"Mullvad|Firefox"#
+      open-on-workspace "󰈹"
+  }
+  window-rule {
+      match app-id=r#"sioyek"#
+      open-on-workspace "󰌱"
+  }
+  window-rule {
+      match app-id=r#"foot"#
+      open-on-workspace ""
+  }
 
 
-window-rule {
-	match app-id=r#"^org\.keepassxc\.KeePassXC$"#
-	match app-id=r#"^org\.gnome\.World\.Secrets$"#
-	block-out-from "screen-capture"
-  open-on-workspace "󰂧"
-}
+  window-rule {
+  	match app-id=r#"^org\.keepassxc\.KeePassXC$"#
+  	match app-id=r#"^org\.gnome\.World\.Secrets$"#
+  	block-out-from "screen-capture"
+    open-on-workspace "󰂧"
+  }
 
-// keybindings
-binds {
-	// `niri msg action do-something`.
-  // Plan is to set: Ctrl -> controls/operation | Shift -> moving/navigation | Alt -> To alternate or move (monitor)
-  // Bindings should be sensible as in Emacs, and vim (just hjkl)
-	Mod+Shift+Slash { show-hotkey-overlay; } // S-?
+  // keybindings
+  binds {
+  	// `niri msg action do-something`.
+    // Plan is to set: Ctrl -> controls/operation | Shift -> moving/navigation | Alt -> To alternate or move (monitor)
+    // Bindings should be sensible as in Emacs, and vim (just hjkl)
+  	Mod+Shift+Slash { show-hotkey-overlay; } // S-?
 
-	Mod+Return { spawn "footclient"; }
-	Mod+D { spawn "fuzzel"; }
-	Mod+X {spawn "d-power"; }
-	Mod+Y {spawn "d-clip"; }
-	Mod+W {spawn "d-urls"; }
-	Mod+Shift+B {spawn "d-bookmark"; }
-	Mod+F5 {spawn "d-walls"; }
-	Mod+o {spawn "d-stuff"; }
-  Mod+b {spawn "sh" "-c" "pkill -SIGUSR1 waybar || pidof -x waybar || waybar"; }
+  	Mod+Return { spawn "footclient"; }
+  	Mod+D { spawn "fuzzel"; }
+  	Mod+X {spawn "d-power"; }
+  	Mod+Y {spawn "d-clip"; }
+  	Mod+W {spawn "d-urls"; }
+  	Mod+Shift+B {spawn "d-bookmark"; }
+  	Mod+F5 {spawn "d-walls"; }
+  	Mod+o {spawn "d-stuff"; }
+    Mod+b {spawn "sh" "-c" "pkill -SIGUSR1 waybar || pidof -x waybar || waybar"; }
 
-	Mod+Ctrl+Equal { spawn "niri" "msg" "output" "eDP-1" "scale" "2"; }
-	Mod+Ctrl+Minus { spawn "niri" "msg" "output" "eDP-1" "scale" "1"; }
+  	Mod+Ctrl+Equal { spawn "niri" "msg" "output" "eDP-1" "scale" "2"; }
+  	Mod+Ctrl+Minus { spawn "niri" "msg" "output" "eDP-1" "scale" "1"; }
 
-	// The allow-when-locked=true property makes them work even when the session is locked.
-	XF86AudioRaiseVolume allow-when-locked=true { spawn "d-volume" "up"; }
-	XF86AudioLowerVolume allow-when-locked=true { spawn "d-volume" "down"; }
-	XF86AudioMute        allow-when-locked=true { spawn "d-volume" "toggle"; }
-	XF86AudioMicMute     allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
-	XF86MonBrightnessUp allow-when-locked=true { spawn "brightnessctl" "set" "+2%"; }
-	XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "set" "2%-"; }
+  	// The allow-when-locked=true property makes them work even when the session is locked.
+  	XF86AudioRaiseVolume allow-when-locked=true { spawn "d-volume" "up"; }
+  	XF86AudioLowerVolume allow-when-locked=true { spawn "d-volume" "down"; }
+  	XF86AudioMute        allow-when-locked=true { spawn "d-volume" "toggle"; }
+  	XF86AudioMicMute     allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
+  	XF86MonBrightnessUp allow-when-locked=true { spawn "brightnessctl" "set" "+2%"; }
+  	XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "set" "2%-"; }
 
-	Mod+Shift+Q { close-window; }
+  	Mod+Shift+Q { close-window; }
 
-	Mod+H     { focus-column-left; }
-	Mod+L     { focus-column-right; }
-	Mod+j     { focus-window-or-workspace-down; }
-	Mod+k     { focus-window-or-workspace-up; }
-	Mod+Tab           { focus-window-or-workspace-down; }
-	Mod+Shift+Tab     { focus-window-or-workspace-up; }
-	Mod+n     { focus-window-or-workspace-down; }
-	Mod+p     { focus-window-or-workspace-up; }
+  	Mod+H     { focus-column-left; }
+  	Mod+L     { focus-column-right; }
+  	Mod+j     { focus-window-or-workspace-down; }
+  	Mod+k     { focus-window-or-workspace-up; }
+  	Mod+Tab           { focus-window-or-workspace-down; }
+  	Mod+Shift+Tab     { focus-window-or-workspace-up; }
+  	Mod+n     { focus-window-or-workspace-down; }
+  	Mod+p     { focus-window-or-workspace-up; }
 
-	Mod+Shift+H     { move-column-left; }
-	Mod+Shift+L     { move-column-right; }
-  Mod+Shift+J     { move-window-down-or-to-workspace-down; }
-  Mod+Shift+K     { move-window-up-or-to-workspace-up; }
-  Mod+Shift+n     { move-window-down-or-to-workspace-down; }
-  Mod+Shift+p     { move-window-up-or-to-workspace-up; }
+  	Mod+Shift+H     { move-column-left; }
+  	Mod+Shift+L     { move-column-right; }
+    Mod+Shift+J     { move-window-down-or-to-workspace-down; }
+    Mod+Shift+K     { move-window-up-or-to-workspace-up; }
+    Mod+Shift+n     { move-window-down-or-to-workspace-down; }
+    Mod+Shift+p     { move-window-up-or-to-workspace-up; }
 
-	Mod+a { focus-column-first; }
-	Mod+e  { focus-column-last; }
-	Mod+Shift+a { move-column-to-first; }
-	Mod+Shift+e  { move-column-to-last; }
+  	Mod+a { focus-column-first; }
+  	Mod+e  { focus-column-last; }
+  	Mod+Shift+a { move-column-to-first; }
+  	Mod+Shift+e  { move-column-to-last; }
 
-	// Monitors should be R&L, not up and down
-	Mod+Alt+p     { focus-monitor-left; }
-	Mod+Alt+n     { focus-monitor-right; }
-	Mod+Shift+BracketLeft      { focus-monitor-left; }
-	Mod+Shift+BracketRight     { focus-monitor-right; }
+  	// Monitors should be R&L, not up and down
+  	Mod+Alt+p     { focus-monitor-left; }
+  	Mod+Alt+n     { focus-monitor-right; }
+  	Mod+Shift+BracketLeft      { focus-monitor-left; }
+  	Mod+Shift+BracketRight     { focus-monitor-right; }
 
-	Mod+Shift+Alt+Left  { move-column-to-monitor-left; }
-	Mod+Shift+Alt+Right { move-column-to-monitor-right; }
-	Mod+Shift+Alt+H     { move-column-to-monitor-left; }
-	Mod+Shift+Alt+L     { move-column-to-monitor-right; }
-	Mod+Shift+Alt+p     { move-column-to-monitor-left; }
-	Mod+Shift+Alt+n     { move-column-to-monitor-right; }
+  	Mod+Shift+Alt+Left  { move-column-to-monitor-left; }
+  	Mod+Shift+Alt+Right { move-column-to-monitor-right; }
+  	Mod+Shift+Alt+H     { move-column-to-monitor-left; }
+  	Mod+Shift+Alt+L     { move-column-to-monitor-right; }
+  	Mod+Shift+Alt+p     { move-column-to-monitor-left; }
+  	Mod+Shift+Alt+n     { move-column-to-monitor-right; }
 
-	Mod+V              { focus-workspace-down; }
-	Mod+Shift+V              { focus-workspace-up; }
-	Mod+Ctrl+V         { move-column-to-workspace-down; }
-	Mod+Ctrl+Shift+V         { move-column-to-workspace-up; }
+  	Mod+V              { focus-workspace-down; }
+  	Mod+Shift+V              { focus-workspace-up; }
+  	Mod+Ctrl+V         { move-column-to-workspace-down; }
+  	Mod+Ctrl+Shift+V         { move-column-to-workspace-up; }
 
-	Mod+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
-	Mod+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
+  	Mod+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
+  	Mod+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
 
-	Mod+Shift+WheelScrollDown      { focus-column-right; }
-	Mod+Shift+WheelScrollUp        { focus-column-left; }
-	Mod+Ctrl+Shift+WheelScrollDown { move-column-right; }
-	Mod+Ctrl+Shift+WheelScrollUp   { move-column-left; }
+  	Mod+Shift+WheelScrollDown      { focus-column-right; }
+  	Mod+Shift+WheelScrollUp        { focus-column-left; }
+  	Mod+Ctrl+Shift+WheelScrollDown { move-column-right; }
+  	Mod+Ctrl+Shift+WheelScrollUp   { move-column-left; }
 
-	Mod+1 { focus-workspace 1; }
-	Mod+2 { focus-workspace 2; }
-	Mod+3 { focus-workspace 3; }
-	Mod+4 { focus-workspace 4; }
-	Mod+5 { focus-workspace 5; }
-	Mod+6 { focus-workspace 6; }
-	Mod+7 { focus-workspace 7; }
-	Mod+8 { focus-workspace 8; }
-	Mod+9 { focus-workspace 9; }
-	Mod+Shift+1 { move-column-to-workspace 1; }
-	Mod+Shift+2 { move-column-to-workspace 2; }
-	Mod+Shift+3 { move-column-to-workspace 3; }
-	Mod+Shift+4 { move-column-to-workspace 4; }
-	Mod+Shift+5 { move-column-to-workspace 5; }
-	Mod+Shift+6 { move-column-to-workspace 6; }
-	Mod+Shift+7 { move-column-to-workspace 7; }
-	Mod+Shift+8 { move-column-to-workspace 8; }
-	Mod+Shift+9 { move-column-to-workspace 9; }
+  	Mod+1 { focus-workspace 1; }
+  	Mod+2 { focus-workspace 2; }
+  	Mod+3 { focus-workspace 3; }
+  	Mod+4 { focus-workspace 4; }
+  	Mod+5 { focus-workspace 5; }
+  	Mod+6 { focus-workspace 6; }
+  	Mod+7 { focus-workspace 7; }
+  	Mod+8 { focus-workspace 8; }
+  	Mod+9 { focus-workspace 9; }
+  	Mod+Shift+1 { move-column-to-workspace 1; }
+  	Mod+Shift+2 { move-column-to-workspace 2; }
+  	Mod+Shift+3 { move-column-to-workspace 3; }
+  	Mod+Shift+4 { move-column-to-workspace 4; }
+  	Mod+Shift+5 { move-column-to-workspace 5; }
+  	Mod+Shift+6 { move-column-to-workspace 6; }
+  	Mod+Shift+7 { move-column-to-workspace 7; }
+  	Mod+Shift+8 { move-column-to-workspace 8; }
+  	Mod+Shift+9 { move-column-to-workspace 9; }
 
-	Mod+Comma  { consume-window-into-column; }
-	Mod+Period { expel-window-from-column; }
-	Mod+BracketLeft  { consume-or-expel-window-left; }
-	Mod+BracketRight { consume-or-expel-window-right; }
+  	Mod+Comma  { consume-window-into-column; }
+  	Mod+Period { expel-window-from-column; }
+  	Mod+BracketLeft  { consume-or-expel-window-left; }
+  	Mod+BracketRight { consume-or-expel-window-right; }
 
-	Mod+R { switch-preset-column-width; }
-	Mod+Shift+R { reset-window-height; }
-	Mod+F { maximize-column; }
-	Mod+Shift+F { fullscreen-window; }
-	Mod+C { center-column; }
+  	Mod+R { switch-preset-column-width; }
+  	Mod+Shift+R { reset-window-height; }
+  	Mod+F { maximize-column; }
+  	Mod+Shift+F { fullscreen-window; }
+  	Mod+C { center-column; }
 
-	Mod+Minus { set-column-width "-10%"; }
-	Mod+Equal { set-column-width "+10%"; }
+  	Mod+Minus { set-column-width "-10%"; }
+  	Mod+Equal { set-column-width "+10%"; }
 
-	Mod+Shift+Minus { set-window-height "-10%"; }
-	Mod+Shift+Equal { set-window-height "+10%"; }
+  	Mod+Shift+Minus { set-window-height "-10%"; }
+  	Mod+Shift+Equal { set-window-height "+10%"; }
 
-	Print { screenshot; }
-	Ctrl+Print { screenshot-screen; }
-	Alt+Print { screenshot-window; }
+  	Print { screenshot; }
+  	Ctrl+Print { screenshot-screen; }
+  	Alt+Print { screenshot-window; }
 
-	// The quit action will show a confirmation dialog to avoid accidental exits.
-	Mod+Ctrl+E { quit; }
+  	// The quit action will show a confirmation dialog to avoid accidental exits.
+  	Mod+Ctrl+E { quit; }
 
-	// Powers off the monitors. To turn them back on, do any input like
-	// moving the mouse or pressing any other key.
-	Mod+Ctrl+P { power-off-monitors; }
-	Mod+Ctrl+L { spawn "hyprlock"; }
-}
+  	// Powers off the monitors. To turn them back on, do any input like
+  	// moving the mouse or pressing any other key.
+  	Mod+Ctrl+P { power-off-monitors; }
+  	Mod+Ctrl+L { spawn "hyprlock"; }
+  }
 
 #+end_src
 *** kde plasma
@@ -6430,86 +6313,86 @@ binds {
 - Customized Iosevka font, with my preffered styling.
 - https://typeof.net/Iosevka/customizer
 #+begin_src toml
-[buildPlans.CodeOnePiece]
-family = "Code OnePiece"
-spacing = "fixed"
-serifs = "sans"
-EXPORTGLYPHNAMES = false
+  [buildPlans.CodeOnePiece]
+  family = "Code OnePiece"
+  spacing = "fixed"
+  serifs = "sans"
+  EXPORTGLYPHNAMES = false
 
-[buildPlans.CodeOnePiece.variants]
-inherits = "ss14"
+  [buildPlans.CodeOnePiece.variants]
+  inherits = "ss14"
 
-[buildPlans.CodeOnePiece.variants.design]
-capital-a = "curly-serifless"
-capital-b = "standard-interrupted-serifless"
-capital-c = "unilateral-inward-serifed"
-capital-d = "more-rounded-unilateral-serifed"
-capital-e = "top-left-serifed"
-capital-f = "top-left-serifed"
-capital-g = "toothed-serifless-hooked"
-capital-h = "top-left-serifed"
-capital-i = "serifed"
-capital-j = "serifed-symmetric"
-capital-k = "curly-serifless"
-capital-l = "serifless"
-capital-m = "hanging-motion-serifed"
-capital-n = "standard-motion-serifed"
-capital-p = "open-motion-serifed"
-capital-q = "crossing"
-capital-r = "straight-bottom-right-serifed"
-capital-s = "serifless"
-capital-t = "serifless"
-capital-u = "toothless-rounded-unilateral-motion-serifed"
-capital-v = "straight-motion-serifed"
-capital-w = "straight-vertical-sides-serifless"
-capital-x = "curly-serifless"
-capital-y = "curly-serifless"
-capital-z = "curly-serifless"
-a = "double-storey-hook-inward-serifed-serifless"
-b = "toothless-rounded-serifless"
-c = "unilateral-inward-serifed"
-d = "tailed-serifless"
-e = "rounded"
-f = "flat-hook-serifed"
-g = "single-storey-earless-corner"
-h = "tailed-serifless"
-i = "serifed-asymmetric"
-k = "curly-serifless"
-l = "serifed-flat-tailed"
-m = "serifless"
-n = "straight-serifless"
-p = "eared-serifless"
-q = "straight-serifless"
-r = "hookless-top-serifed"
-s = "unilateral-inward-serifed"
-t = "flat-hook"
-u = "toothless-rounded-serifless"
-v = "straight-motion-serifed"
-w = "cursive-serifless"
-x = "curly-serifless"
-y = "cursive-serifless"
-z = "curly-serifless"
-zero = "tall-slashed"
+  [buildPlans.CodeOnePiece.variants.design]
+  capital-a = "curly-serifless"
+  capital-b = "standard-interrupted-serifless"
+  capital-c = "unilateral-inward-serifed"
+  capital-d = "more-rounded-unilateral-serifed"
+  capital-e = "top-left-serifed"
+  capital-f = "top-left-serifed"
+  capital-g = "toothed-serifless-hooked"
+  capital-h = "top-left-serifed"
+  capital-i = "serifed"
+  capital-j = "serifed-symmetric"
+  capital-k = "curly-serifless"
+  capital-l = "serifless"
+  capital-m = "hanging-motion-serifed"
+  capital-n = "standard-motion-serifed"
+  capital-p = "open-motion-serifed"
+  capital-q = "crossing"
+  capital-r = "straight-bottom-right-serifed"
+  capital-s = "serifless"
+  capital-t = "serifless"
+  capital-u = "toothless-rounded-unilateral-motion-serifed"
+  capital-v = "straight-motion-serifed"
+  capital-w = "straight-vertical-sides-serifless"
+  capital-x = "curly-serifless"
+  capital-y = "curly-serifless"
+  capital-z = "curly-serifless"
+  a = "double-storey-hook-inward-serifed-serifless"
+  b = "toothless-rounded-serifless"
+  c = "unilateral-inward-serifed"
+  d = "tailed-serifless"
+  e = "rounded"
+  f = "flat-hook-serifed"
+  g = "single-storey-earless-corner"
+  h = "tailed-serifless"
+  i = "serifed-asymmetric"
+  k = "curly-serifless"
+  l = "serifed-flat-tailed"
+  m = "serifless"
+  n = "straight-serifless"
+  p = "eared-serifless"
+  q = "straight-serifless"
+  r = "hookless-top-serifed"
+  s = "unilateral-inward-serifed"
+  t = "flat-hook"
+  u = "toothless-rounded-serifless"
+  v = "straight-motion-serifed"
+  w = "cursive-serifless"
+  x = "curly-serifless"
+  y = "cursive-serifless"
+  z = "curly-serifless"
+  zero = "tall-slashed"
 
-[buildPlans.CodeOnePiece.weights.Regular]
-shape = 400
-menu = 400
-css = 400
+  [buildPlans.CodeOnePiece.weights.Regular]
+  shape = 400
+  menu = 400
+  css = 400
 
-[buildPlans.CodeOnePiece.weights.Medium]
-shape = 500
-menu = 500
-css = 500
+  [buildPlans.CodeOnePiece.weights.Medium]
+  shape = 500
+  menu = 500
+  css = 500
 
-[buildPlans.CodeOnePiece.weights.Bold]
-shape = 800
-menu = 800
-css = 800
+  [buildPlans.CodeOnePiece.weights.Bold]
+  shape = 800
+  menu = 800
+  css = 800
 
-[buildPlans.CodeOnePiece.widths.normal]
-shape = 525
-menu  = 5
-css   = "normal"
+  [buildPlans.CodeOnePiece.widths.normal]
+  shape = 525
+  menu  = 5
+  css   = "normal"
 #+end_src
 
 - Iosevka custom font
@@ -6598,7 +6481,7 @@ stdenvNoCC.mkDerivation rec {
 - Nerd-icons
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package nerd-icons :custom (nerd-icons-font-family d/fixed-pitch-font))
+    (use-package nerd-icons :custom (nerd-icons-font-family d/fixed-pitch-font))
   #+end_src
 - Nerd icons in dired
   #+name: orgmacs
@@ -6679,7 +6562,7 @@ stdenvNoCC.mkDerivation rec {
           applications = 12;
           desktop = 12;
           popups = 12;
-          terminal = 11;
+          terminal = 12;
         };
 
       };
@@ -6832,250 +6715,242 @@ stdenvNoCC.mkDerivation rec {
 *** Waybar
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix :noweb yes
-  {
-    programs.waybar = {
-        enable = true;
+    {
+      programs.waybar = {
+          enable = true;
 
-        settings = {
-          mainBar = {
-            layer = "top";
-            position = "top";
+          settings = {
+            mainBar = {
+              layer = "top";
+              position = "top";
 
-            modules-left = [
-              "custom/launcher"
-              "niri/workspaces" "hyprland/workspaces"
-              "wlr/taskbar"
-              # "niri/window" "hyprland/window"
-              # "hyprland/submap"
-            ];
+              modules-left = [
+                "custom/launcher"
+                "niri/workspaces" "hyprland/workspaces"
+                "wlr/taskbar"
+                # "niri/window" "hyprland/window"
+                # "hyprland/submap"
+              ];
 
-            modules-center = [
-              "privacy" "custom/recorder" "clock" "mpd" "mpris"
-            ];
+              modules-center = [
+                "privacy" "custom/recorder" "clock" "mpd" "mpris"
+              ];
 
-            modules-right = [ "tray" "network" "battery" "memory" "wireplumber" "custom/power" ];
+              modules-right = [ "tray" "network" "battery" "memory" "wireplumber" "custom/power" ];
 
-            "niri/workspaces" = {
-  	          format = "{icon}";
-  	          # format-icons = {
-  		          # "active" = "";
-  		          # "default" = "";
-  	          # };
-            };
-
-            "hyprland/workspaces" = {
-              format = "{icon}";
-              disable-scroll = false;
-              all-outputs = true;
-              active-only = false;
-              show-special = true;
-              on-click = "activate";
-              format-icons = {
-                "1" = "1";
-                "2" = "2";
-                "3" = "3";
-                "4" = "4";
-                "5" = "5";
-                "6" = "6";
+              "niri/workspaces" = {
+    	          format = "{icon}";
+    	          # format-icons = {
+    		          # "active" = "";
+    		          # "default" = "";
+    	          # };
               };
-            };
 
-            "hyprland/submap" = {
-              "format" = " {}";
-              "max-length" = 14;
-              "tooltip" = false;
-            };
-
-            "wlr/taskbar"=  {
-              "format"=  "{icon}";
-              "spacing"=  0;
-              "tooltip-format"=  "{title}";
-              "on-click"=  "activate";
-              "on-click-middle"=  "close";
-            };
-
-            "custom/launcher" = {
-              "format" = "  ";
-              "tooltip" = false;
-              "on-click" = "fuzzel";
-              "interval" = 86400;
-            };
-
-            "battery" =  {
-              "bat" =  "BAT1";
-              "interval" =  60;
-              "states" =  {
-                "good" = 95;
-                "warning" = 40;
-                "critical" = 20;
-              };
-              "max-length" =  25;
-              "format" = "{icon} {capacity}%";
-              "format-charging" = " {capacity}%";
-              "format-plugged" = " {capacity}%";
-              "format-alt" = "{time} {icon}";
-              "format-icons" = ["󰂎" "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹"];
-
-            };
-
-            "mpd" = {
-              "format" = "{stateIcon} {title}  ";
-              "format-disconnected" = "  ";
-              "format-stopped" = "  ";
-              "title-len" = 20;
-              "interval" = 10;
-              "on-click" = "mpc toggle";
-              "state-icons" = {
-                "paused" = "";
-                "playing" = "";
-              };
-              "tooltip-format" = "Mpd Connected";
-              "tooltip-format-disconnected" = "";
-            };
-
-            "mpris" = {
-              "format" = " {player_icon} {dynamic}";
-              "format-paused" = "{status_icon} <i>{dynamic}</i>";
-              "player-icons" = {
-                "default" = "▶";
-                "mpv" = "🎵";
-              };
-              "status-icons" = {
-                "paused" = "󰏤";
-              };
-              "max-length" = 20;
-            };
-
-            "custom/power" = {
-              "format" = "⏻";
-              "on-click" = "d-power";
-              "tooltip" = false;
-              "interval" = 86400;
-            };
-
-            "clock" = {
-              "format-alt" = " {:%a %d %b  %I:%M %p}";
-              "format" = " {:%H:%M}";
-              ##"timezones" = [ "Kolkata" ];
-              ##"max-length" = 200;
-              "interval" = 1;
-              "calendar" = {
-                "format" = {
-                  "months" = "<span color='#ffead3'><b>{}</b></span>";
-                  "today" = "<span color='#ff6699'><b>{}</b></span>";
+              "hyprland/workspaces" = {
+                format = "{icon}";
+                disable-scroll = false;
+                all-outputs = true;
+                active-only = false;
+                show-special = true;
+                on-click = "activate";
+                format-icons = {
+                  "1" = "1";
+                  "2" = "2";
+                  "3" = "3";
+                  "4" = "4";
+                  "5" = "5";
+                  "6" = "6";
                 };
               };
-              "tooltip-format" = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
-            };
 
-            "tray" = {
-              "spacing" = 10;
-            };
-
-            "cpu" = {
-              "format" = " {usage: >3}%";
-              "on-click" = "footclient -e btop";
-            };
-
-            "memory" = {
-              "on-click" = "foot -e btop";
-              "interval" = 30;
-              "format" = " {percentage}%";
-              "format-alt" = " {used}GB";
-              "max-length" = 10;
-            };
-
-            "network" = {
-              # "interface" = "wlp2s0";
-              "format" = "⚠ Disabled";
-              "format-wifi" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
-              "format-ethernet" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
-              "format-disconnected" = "⚠ Disconnected";
-              "on-click" = "d-wifi";
-              "interval" = 2;
-            };
-
-            "wireplumber" = {
-              "scroll-step" = 2;
-              "format" = "{icon} {volume: >3}%";
-              "format-bluetooth" = "{icon} {volume: >3}%";
-              "format-muted" =" ";
-              "on-click" = "d-volume toggle";
-              "on-click-middle"=  "pavucontrol";
-              "format-icons" = {
-                "headphones" = "";
-                "handsfree" = "";
-                "headset" = "";
-                "phone" = "";
-                "portable" = "";
-                "car" = "";
-                "default" = ["" ""];
+              "hyprland/submap" = {
+                "format" = " {}";
+                "max-length" = 14;
+                "tooltip" = false;
               };
+
+              "wlr/taskbar"=  {
+                "format"=  "{icon}";
+                "spacing"=  0;
+                "tooltip-format"=  "{title}";
+                "on-click"=  "activate";
+                "on-click-middle"=  "close";
+              };
+
+              "custom/launcher" = {
+                "format" = "  ";
+                "tooltip" = false;
+                "on-click" = "fuzzel";
+                "interval" = 86400;
+              };
+
+              "battery" =  {
+                "bat" =  "BAT1";
+                "interval" =  60;
+                "states" =  {
+                  "good" = 95;
+                  "warning" = 40;
+                  "critical" = 20;
+                };
+                "max-length" =  25;
+                "format" = "{icon} {capacity}%";
+                "format-charging" = " {capacity}%";
+                "format-plugged" = " {capacity}%";
+                "format-alt" = "{time} {icon}";
+                "format-icons" = ["󰂎" "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹"];
+
+              };
+
+              "mpd" = {
+                "format" = "{stateIcon} {title}  ";
+                "format-disconnected" = "  ";
+                "format-stopped" = "  ";
+                "title-len" = 20;
+                "interval" = 10;
+                "on-click" = "mpc toggle";
+                "state-icons" = {
+                  "paused" = "";
+                  "playing" = "";
+                };
+                "tooltip-format" = "Mpd Connected";
+                "tooltip-format-disconnected" = "";
+              };
+
+              "mpris" = {
+                "format" = " {player_icon} {dynamic}";
+                "format-paused" = "{status_icon} <i>{dynamic}</i>";
+                "player-icons" = {
+                  "default" = "▶";
+                  "mpv" = "🎵";
+                };
+                "status-icons" = {
+                  "paused" = "󰏤";
+                };
+                "max-length" = 20;
+              };
+
+              "custom/power" = {
+                "format" = "⏻";
+                "on-click" = "d-power";
+                "tooltip" = false;
+                "interval" = 86400;
+              };
+
+              "clock" = {
+                "format-alt" = " {:%a %d %b  %I:%M %p}";
+                "format" = " {:%H:%M}";
+                ##"timezones" = [ "Kolkata" ];
+                ##"max-length" = 200;
+                "interval" = 1;
+                "calendar" = {
+                  "format" = {
+                    "months" = "<span color='#ffead3'><b>{}</b></span>";
+                    "today" = "<span color='#ff6699'><b>{}</b></span>";
+                  };
+                };
+                "tooltip-format" = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
+              };
+
+              "tray" = {
+                "spacing" = 10;
+              };
+
+              "cpu" = {
+                "format" = " {usage: >3}%";
+                "on-click" = "footclient -e btop";
+              };
+
+              "memory" = {
+                "on-click" = "foot -e btop";
+                "interval" = 30;
+                "format" = " {percentage}%";
+                "format-alt" = " {used}GB";
+                "max-length" = 10;
+              };
+
+              "network" = {
+                # "interface" = "wlp2s0";
+                "format" = "⚠ Disabled";
+                "format-wifi" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
+                "format-ethernet" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
+                "format-disconnected" = "⚠ Disconnected";
+                "on-click" = "d-wifi";
+                "interval" = 2;
+              };
+
+              "wireplumber" = {
+                "scroll-step" = 2;
+                "format" = "{icon} {volume: >3}%";
+                "format-bluetooth" = "{icon} {volume: >3}%";
+                "format-muted" =" ";
+                "on-click" = "d-volume toggle";
+                "on-click-middle"=  "pavucontrol";
+                "format-icons" = {
+                  "headphones" = "";
+                  "handsfree" = "";
+                  "headset" = "";
+                  "phone" = "";
+                  "portable" = "";
+                  "car" = "";
+                  "default" = ["" ""];
+                };
+              };
+
+              "custom/recorder" = {
+                "format" = "{}";
+                "interval" = "once";
+                "exec" = "echo ' '";
+                "tooltip" = "false";
+                "exec-if" = "pgrep wl-screenrec";
+                "on-click" = "pkill -INT wl-screenrec";
+                "signal" = 8;
+              };
+
+              "privacy" = {
+    	          "icon-spacing" = 4;
+    	          "transition-duration" = 250;
+              };
+
+              "custom/wallpaper" = {
+                "format" = " ";
+                "on-click" = "d-walls";
+              };
+
             };
-
-  	        "backlight" = {
-  		        "tooltip" = false;
-  		        "format" = " {}%";
-  		        "interval" = 1;
-              "on-scroll-up" = "brigthnessctl set +5%";
-  		        "on-scroll-down" = "brigthnessctl set 5%-";
-  	        };
-
-            "custom/recorder" = {
-              "format" = "{}";
-              "interval" = "once";
-              "exec" = "echo ' '";
-              "tooltip" = "false";
-              "exec-if" = "pgrep wl-screenrec";
-              "on-click" = "pkill -INT wl-screenrec";
-              "signal" = 8;
-            };
-
-            "privacy" = {
-  	          "icon-spacing" = 4;
-  	          "transition-duration" = 250;
-            };
-
-            "custom/wallpaper" = {
-              "format" = " ";
-              "on-click" = "d-walls";
-            };
-
           };
+
+          style = ''
+          <<waybar-stylix>>
+          '';
+
         };
+      # home.file.".config/waybar/style.css".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/style.css";
 
-        style = ''
-        <<waybar-stylix>>
-        '';
-
-      };
-    # home.file.".config/waybar/style.css".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/style.css";
-
-  }
+    }
   #+end_src
 
 - Waybar Style with stylix pairing
 #+name: waybar-stylix
 #+begin_src css
-.modules-right * {
-    margin: 0px 10px 0px 0px;
-    border-radius: 15px;
-}
+  .modules-right * {
+      margin: 0px 10px 0px 0px;
+      border-radius: 15px;
+  }
 
-window#waybar { background: transparent; }
+  window#waybar { background: transparent; }
 
-#battery.charging { color: #00ff7f; }
-#battery.warning { background: orange; }
-#battery.critical { background: red; }
+  #battery.charging { color: #00ff7f; }
+  #battery.warning { background: orange; }
+  #battery.critical { background: red; }
 
-#workspaces button.active,
-#taskbar button.active,
-#workspaces button:hover,
-#taskbar button:hover
- {
-     background: #2e8b57;
-     transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
- }
+  #workspaces button.active,
+  #taskbar button.active,
+  #workspaces button:hover,
+  #taskbar button:hover
+   {
+       background: #2e8b57;
+       transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
+   }
 #+end_src
 
 *** mode-line
@@ -7233,52 +7108,52 @@ window#waybar { background: transparent; }
 | fzf     | fuzzy search   | =fzf=  | [[https://github.com/junegunn/fzf][git]]  |
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-  {
-    programs = {
-      eza = {
-        enable = true;
-        extraOptions = ["--group-directories-first" "--header"];
-      };
-
-      ripgrep = {
-        enable = true;
-        arguments = [
-          "--max-columns-preview"
-          "--colors=line:style:bold"
-          "--ignore-case"
-          "--follow"
-        ];
-      };
-
-      btop = {
-        enable = true;
-        settings = {
-          # color_theme = "default";
-          theme_background = false;
-          vim_keys = true;
-          shown_boxes = "proc cpu";
-          rounded_corners = true ;
-          graph_symbol = "block";
-          proc_sorting = "memory";
-          proc_reversed = false;
-          proc_gradient = true;
+    {
+      programs = {
+        eza = {
+          enable = true;
+          extraOptions = ["--group-directories-first" "--header"];
         };
+
+        ripgrep = {
+          enable = true;
+          arguments = [
+            "--max-columns-preview"
+            "--colors=line:style:bold"
+            "--ignore-case"
+            "--follow"
+          ];
+        };
+
+        btop = {
+          enable = true;
+          settings = {
+            # color_theme = "default";
+            theme_background = false;
+            vim_keys = true;
+            shown_boxes = "proc cpu";
+            rounded_corners = true ;
+            graph_symbol = "block";
+            proc_sorting = "memory";
+            proc_reversed = false;
+            proc_gradient = true;
+          };
+        };
+
+        bat = {
+          enable = true;
+          extraPackages = with pkgs.bat-extras; [ batdiff batman batgrep batwatch ];
+        };
+
+        ssh.enable = true;
+
+        fzf = {
+          enable = true;
+          defaultCommand = "fd --type f";
+        };
+
       };
-
-      bat = {
-        enable = true;
-        extraPackages = with pkgs.bat-extras; [ batdiff batman batgrep batwatch ];
-      };
-
-      ssh.enable = true;
-
-      fzf = {
-        enable = true;
-        defaultCommand = "fd --type f";
-      };
-
-    };
-  }
+    }
   #+end_src
 - =htop= in emacs, its =proced=
   #+name: orgmacs
@@ -7623,18 +7498,10 @@ programs.zsh = {
   #+begin_src nix :tangle gdk/home.nix
 {
   home.packages = with pkgs; [
-    # archives
-    zip
-    unzip
-
-    # wonderful spells
-
+    zip unzip # archives
     ffmpeg-full sdcv nq
     # utils
-    file
-    du-dust
-    fd
-    wget
+    du-dust fd wget
   ];
 }
   #+end_src
@@ -7724,23 +7591,23 @@ programs.zsh = {
 - Another simple enough package by dnkl (author of foot terminal)
      #+name: hm-config
 #+begin_src nix :tangle gdk/home.nix
-{
-  services.fnott = {
-    enable = true;
-    settings = {
-      main = {
-        notification-margin = 5;
-        layer = "overlay";
-        border-radius = 16;
-        min-width = 400;
-        max-width = 900;
-        selection-helper = "fuzzel";
-        play-sound = "/home/idlip/.bin/d-notify";
-        # sound-file= "/home/idlip/music/yt/misc/linux-notify.ogg";
+  {
+    services.fnott = {
+      enable = true;
+      settings = {
+        main = {
+          notification-margin = 5;
+          layer = "overlay";
+          border-radius = 16;
+          min-width = 400;
+          max-width = 900;
+          selection-helper = "fuzzel";
+          play-sound = "/home/idlip/.bin/d-notify";
+          # sound-file= "/home/idlip/music/yt/misc/linux-notify.ogg";
+        };
       };
     };
-  };
-}
+  }
 #+end_src
 **** COMMENT notify-emacs
 - To get notifications from emacs using =alert= package.

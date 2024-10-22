@@ -2273,6 +2273,28 @@ css-mode css-ts-mode html-mode html-ts-mode
    ("C-x C-a l" . activities-list)))
 #+end_src
 
+**** Gptel
+- LLM model to make things quicky
+  #+begin_src emacs-lisp
+    (use-package gptel :unless d/on-droid :defer t
+      :custom (gptel-model 'llama3.2:latest)
+      :config
+      (setq gptel-backend
+            (gptel-make-ollama "Ollama"
+              :host "localhost:11434"
+              :stream t
+              :models '(llama3.2:latest)))
+      (gptel-make-ollama "Ollama"
+        :host "localhost:11434"
+        :stream t
+        :models '(mistral:latest))
+      ;; some json error until next update
+      ;; (gptel-make-gemini "Gemini"
+      ;;   :key (gptel-api-key-from-auth-source "api.gemini.com" "apikey")
+      ;;   :stream t)
+      )
+  #+end_src
+
 **** zone screensaver
 - Misc fun when idle
      #+name: orgmacs

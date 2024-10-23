@@ -2496,42 +2496,38 @@ css-mode css-ts-mode html-mode html-ts-mode
 **** eshell
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package esh-mode :ensure nil
-    :hook
-    (eshell-mode . d/toggle-bar)
-    (eshell-mode . electric-pair-local-mode)
-    (eshell-mode . (lambda () (setq outline-regexp eshell-prompt-regexp)
-                     (setq-local corfu-auto nil)
-                     (setq-local scroll-margin 0)
-                     (corfu-mode 1)))
-    :bind (
-           ("<f12>" . d/eshell-toggle)
-           ("C-c d s" . project-eshell)
-           (:map eshell-mode-map
-                 ("C-S-l" . d/clear-eshell)))
+    (use-package esh-mode :ensure nil
+      :hook
+      (eshell-mode . d/toggle-bar)
+      (eshell-mode . (lambda () (setq outline-regexp eshell-prompt-regexp)
+                       (setq-local corfu-auto nil)
+                       (setq-local scroll-margin 0)
+                       (corfu-mode 1)))
+      :bind (
+             ("<f12>" . d/eshell-toggle)
+             ("C-c d s" . project-eshell)
+             (:map eshell-mode-map
+                   ("C-S-l" . d/clear-eshell)))
 
-    :custom
-    (eshell-directory-name (expand-file-name "eshell" user-emacs-directory))
-    (eshell-aliases-file (expand-file-name "alias" eshell-directory-name))
-    (eshell-hist-ignoredups t)
-    (eshell-buffer-name "eshell-terminal")
-    (eshell-last-dir-ring-size 32)
-    (eshell-kill-processes-on-exit 'ask)
+      :custom
+      (eshell-hist-ignoredups t)
+      (eshell-buffer-name "eshell-terminal")
+      (eshell-kill-processes-on-exit 'ask)
 
-    (eshell-prompt-function
-     (lambda nil
-       (concat
-        "\n"
-        ;; (propertize "  " 'face '(:inherit region))
-        "  "
-        " "
-        (propertize (replace-regexp-in-string "~" " " (eshell/pwd)) 'face '(:foreground "lightblue1"))
-        (when (with-eval-after-load 'magit (propertize (if (magit-get-current-branch) (concat "   " (magit-get-current-branch)) "") 'face '(:foreground "orangered1"))))
-        (when (with-eval-after-load 'envrc (propertize (if (string= envrc--status 'none) "" "   ") 'face '(:foreground "mediumspringgreen"))))
-        ;; (propertize (concat "   " (format-time-string "%H:%M" (current-time))) 'face '(:foreground "lightcyan1"))
-        (propertize "\n 󰘧 " 'face '(:foreground "palegreen"))
-        )))
-    (eshell-prompt-regexp " 󰘧 "))
+      (eshell-prompt-function
+       (lambda nil
+         (concat
+          "\n"
+          ;; (propertize "  " 'face '(:inherit region))
+          "  "
+          " "
+          (propertize (eshell/pwd) 'face '(:foreground "lightblue1"))
+          (when (with-eval-after-load 'magit (propertize (if (magit-get-current-branch) (concat "   " (magit-get-current-branch)) "") 'face '(:foreground "orangered1"))))
+          (when (with-eval-after-load 'envrc (propertize (if (string= envrc--status 'none) "" "   ") 'face '(:foreground "mediumspringgreen"))))
+          ;; (propertize (concat "   " (format-time-string "%H:%M" (current-time))) 'face '(:foreground "lightcyan1"))
+          (propertize "\n 󰘧 " 'face '(:foreground "palegreen"))
+          )))
+      (eshell-prompt-regexp " 󰘧 "))
   #+end_src
 - eshell function to toggle and clear buffer
   #+name: orgmacs
@@ -2566,20 +2562,20 @@ css-mode css-ts-mode html-mode html-ts-mode
 - emulate a terminal
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package eat :unless d/on-droid
-    :hook
-    (eshell-load . eat-eshell-mode)
-    (eat-mode . d/toggle-bar)
-    :bind
-    (("C-c d e" . d/eat-toggle)
-     ("S-<f12>" . d/eat-toggle)
-     (:map eat-mode-map
-           ("C-x C-q" . d/eat-read-write)
-           ("<f12>" . d/eat-toggle)
-           ("<f9>" . d/toggle-bar))
-     (:map eat-semi-char-mode-map
-           ("M-o" . nil)
-           ("M-s" . nil))))
+    (use-package eat :unless d/on-droid
+      :hook
+      (eshell-load . eat-eshell-mode)
+      (eat-mode . d/toggle-bar)
+      :bind
+      (("C-c d e" . d/eat-toggle)
+       ("S-<f12>" . d/eat-toggle)
+       (:map eat-mode-map
+             ("C-x C-q" . d/eat-read-write)
+             ("<f12>" . d/eat-toggle)
+             ("<f9>" . d/toggle-bar))
+       (:map eat-semi-char-mode-map
+             ("M-o" . nil)
+             ("M-s" . nil))))
   #+end_src
 - function to toggle and set binding state in eat
   #+name: orgmacs

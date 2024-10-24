@@ -2639,80 +2639,80 @@ css-mode css-ts-mode html-mode html-ts-mode
 - The GOAT-Editor.
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-  {
-    # does not read local path properly. so ~/.local/bin does not work
-    # may need exec from path then. Why? Just emacs --bg-daemon in WM
-    services.emacs = {
-      enable = true;
-      defaultEditor = true;
-      socketActivation.enable = true;
-      startWithUserSession = "graphical";
-    };
+    {
+      # does not read local path properly. so ~/.local/bin does not work
+      # may need exec from path then. Why? Just emacs --bg-daemon in WM
+      services.emacs = {
+        enable = true;
+        defaultEditor = true;
+        socketActivation.enable = true;
+        startWithUserSession = "graphical";
+      };
 
-    home.packages = with pkgs; [
-      emacs-lsp-booster
-      imagemagick # for image-dired and other converts
-    ];
+      home.packages = with pkgs; [
+        emacs-lsp-booster
+        imagemagick # for image-dired and other converts
+      ];
 
-    programs.emacs = {
-      enable = true;
-      package = pkgs.emacs-pgtk;
-      extraPackages = (epkgs: (with epkgs; [
-        treesit-grammars.with-all-grammars
-        eat vundo undo-fu-session helpful
-        no-littering rainbow-delimiters colorful-mode
-        vertico orderless consult marginalia embark org-modern corfu cape corfu-terminal
-        olivetti nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
-        embark-consult consult-eglot markdown-mode nix-mode nix-ts-mode
-        reddigg hnreader howdoyou magit webpaste
-        shrface org-mime shr-tag-pre-highlight nov devdocs-browser reformatter
-        tempel tempel-collection eglot-tempel
-        sdcv jinx envrc ready-player
-        speed-type vc-backup aria2 transmission pubmed
-        ess auctex julia-mode webfeeder engrave-faces
-        toc-org org-ql org-noter activities
-        saveplace-pdf-view flycheck consult-flycheck
-        ef-themes doom-themes
-        org-re-reveal dslide
+      programs.emacs = {
+        enable = true;
+        package = pkgs.emacs-pgtk;
+        extraPackages = (epkgs: (with epkgs; [
+          treesit-grammars.with-all-grammars
+          eat vundo undo-fu-session helpful
+          no-littering rainbow-delimiters colorful-mode
+          vertico orderless consult marginalia embark org-modern corfu cape corfu-terminal
+          olivetti nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
+          embark-consult consult-eglot markdown-mode nix-mode nix-ts-mode
+          reddigg hnreader howdoyou magit webpaste
+          shrface org-mime shr-tag-pre-highlight nov devdocs-browser reformatter
+          tempel tempel-collection eglot-tempel
+          sdcv jinx envrc ready-player
+          speed-type vc-backup aria2 transmission pubmed
+          ess auctex julia-mode webfeeder engrave-faces
+          toc-org org-ql org-noter activities
+          saveplace-pdf-view flycheck consult-flycheck
+          ef-themes doom-themes
+          org-re-reveal dslide gptel
 
-        (melpaBuild {
-          pname = "combobulate";
-          version = "20241018";
-          src = pkgs.fetchFromGitHub {
-            owner = "mickeynp";
-            repo = "combobulate";
-            rev = "e9c5be84062e8183f556d7133d5a477a57e37e51";
-            hash = "sha256-r6jObsYx7RRTJUmrCN5h3+0WcHqJA67emhr4/W3rBrM=";
-          };
-        })
+          (melpaBuild {
+            pname = "combobulate";
+            version = "20241018";
+            src = pkgs.fetchFromGitHub {
+              owner = "mickeynp";
+              repo = "combobulate";
+              rev = "e9c5be84062e8183f556d7133d5a477a57e37e51";
+              hash = "sha256-r6jObsYx7RRTJUmrCN5h3+0WcHqJA67emhr4/W3rBrM=";
+            };
+          })
 
-        (melpaBuild {
-          pname = "org-super-links";
-          version = "20221412";
-          src = pkgs.fetchFromGitHub {
-            owner = "toshism";
-            repo = "org-super-links";
-            rev = "0dd9ed22b4785f50c61051170db7c78b522a37ee";
-            hash = "sha256-OWHUQBKp74sVIFbk8f7Xw7K11jPcR3HIVjpp5xiNwzs=";
-          };
-        })
+          (melpaBuild {
+            pname = "org-super-links";
+            version = "20221412";
+            src = pkgs.fetchFromGitHub {
+              owner = "toshism";
+              repo = "org-super-links";
+              rev = "0dd9ed22b4785f50c61051170db7c78b522a37ee";
+              hash = "sha256-OWHUQBKp74sVIFbk8f7Xw7K11jPcR3HIVjpp5xiNwzs=";
+            };
+          })
 
 
-        ## packages kept out to make more vanilla usage!
-        # async dirvish beframe powerthesaurus meow
-        # doom-modeline ox-hugo ement kind-icon el-patch
-        # rainbow-mode -> replcaed by new package, colorful-mode
-        # saveplace-pdf-view pdf-tools
+          ## packages kept out to make more vanilla usage!
+          # async dirvish beframe powerthesaurus meow
+          # doom-modeline ox-hugo ement kind-icon el-patch
+          # rainbow-mode -> replcaed by new package, colorful-mode
+          # saveplace-pdf-view pdf-tools
 
-      ])
-      );
-    };
+        ])
+        );
+      };
 
-    xdg.configFile."emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/d-emacs/init.el";
+      xdg.configFile."emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/d-emacs/init.el";
 
-    xdg.configFile."emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/d-emacs/early-init.el";
+      xdg.configFile."emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/d-emacs/early-init.el";
 
-  }
+    }
   #+end_src
 - Install consult-omni manually.
 #+begin_src bash

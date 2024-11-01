@@ -3573,7 +3573,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
   (add-to-list 'gnus-secondary-select-methods
                '(nnimap "protonmail"
                         (nnimap-stream plain)
-                        (nnimap-address "127.0.0.1")
+                        (nnimap-address "127.0.0.1") ;; hydroxide
                         (nnimap-server-port 1143))))
 #+end_src
 
@@ -3715,183 +3715,23 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 * Media
 ** Browser
 - The pioneer of modern day Internet.
-*** COMMENT Firefox
+*** engines
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-  {
-    programs = {
-      firefox = {
-        enable = true;
-        # package = pkgs.firefox-wayland; # is there difference?
-
-        profiles.ihome = {
-          isDefault = true;
-          # extensions = with pkgs.nur.repos.rycee.firefox-addons; [
-          #   ff2mpv
-          #   vimium
-          #   languagetool
-          #   ublock-origin
-          #   darkreader
-          #   libredirect
-          #   multi-account-containers
-          # sideberry
-          # ];
-
-          # container = {
-          #   dangerous = {
-          #     color = "red";
-          #     icon = "fruit";
-          #     id = 2;
-          #   };
-          #   shopping = {
-          #     color = "blue";
-          #     icon = "cart";
-          #     id = 1;
-          #   };
-          # };
-
-          settings = {
-            "browser.startup.homepage" = "about:blank";
-            "browser.urlbar.placeholderName" = "Freedom & Find the OnePiece...";
-            "gfx.webrender.all" = true;
-            "gfx.webrender.enabled" = true;
-            "extensions.pocket.enabled" = false;
-            "browser.newtabpage.enhanced" = false;
-            "privacy.trackingprotection.cryptomining.enabled" = true;
-            "privacy.trackingprotection.enabled" = true;
-            "privacy.trackingprotection.fingerprinting.enabled" = true;
-            "privacy.trackingprotection.pbmode.enabled" = true;
-            "privacy.usercontext.about_newtab_segregation.enabled" = true;
-            "toolkit.telemetry.archive.enabled" = false;
-            "toolkit.telemetry.bhrPing.enabled" = false;
-            "toolkit.telemetry.cachedClientID" = "";
-            "toolkit.telemetry.enabled" = false;
-            "toolkit.telemetry.firstShutdownPing.enabled" = false;
-            "toolkit.telemetry.hybridContent.enabled" = false;
-            "toolkit.telemetry.newProfilePing.enabled" = false;
-            "toolkit.telemetry.prompted" = 2;
-            "toolkit.telemetry.rejected" = true;
-            "toolkit.telemetry.reportingpolicy.firstRun" = false;
-            "toolkit.telemetry.server" = "";
-            "toolkit.telemetry.shutdownPingSender.enabled" = false;
-            "toolkit.telemetry.unified" = false;
-            "toolkit.telemetry.unifiedIsOptIn" = false;
-            "toolkit.telemetry.updatePing.enabled" = false;
-            "webgl.disabled" = false;
-            "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
-            "browser.urlbar.trimURLs" = false;
-            "browser.fullscreen.autohide" = true;
-            "layers.acceleration.force-enabled" = true;
-            "layout.css.backdrop-filter.enabled" = true;
-            "svg.context-properties.content.enabled" = true;
-            "full-screen-api.ignore-widgets" = true;
-            "pdfjs.forcePageColors" = true;
-            "pdfjs.pageColorsBackground" = "#000000";
-            "pdfjs.pageColorsForeground" = "#ffffff";
-          };
-
-          search = {
-            default = "SearXNG";
-            force = true;
-            engines = {
-              "SearXNG" = {
-                urls = [{template = "https://searx.be/search?q={searchTerms}";}];
-                updateInterval = 24 * 60 * 60 * 1000; # every day
-                definedAliases = ["@sr"];
-              };
-
-              "Nixpkgs-Package Search" = {
-                urls = [{template = "https://search.nixos.org/packages?channel=unstable&size=250&sort=relevance&type=packages&query={searchTerms}";}];
-                iconUpdateURL = "https://nixos.org/favicon.png";
-                updateInterval = 24 * 60 * 60 * 1000; # every day
-                definedAliases = ["@nps"];
-              };
-
-              "Nixpkgs-Modules Search" = {
-                urls = [{template = "https://search.nixos.org/options?channel=unstable&size=200&sort=relevance&query={searchTerms}";}];
-                iconUpdateURL = "https://nixos.org/favicon.png";
-                updateInterval = 24 * 60 * 60 * 1000; # every day
-                definedAliases = ["@nms"];
-              };
-
-              "NixOS-Wiki Search" = {
-                urls = [{template = "https://nixos.wiki/index.php?search={searchTerms}&go=Go";}];
-                iconUpdateURL = "https://nixos.org/favicon.png";
-                updateInterval = 24 * 60 * 60 * 1000; # every day
-                definedAliases = ["@nws"];
-              };
-
-              "Home-Manager Search" = {
-                urls = [{template = "https://mipmip.github.io/home-manager-option-search/?query={searchTerms}";}];
-                iconUpdateURL = "https://nixos.org/favicon.png";
-                updateInterval = 24 * 60 * 60 * 1000; # every day
-                definedAliases = ["@hms"];
-              };
-
-              "GitHub-Code Search" = {
-                urls = [{template = "https://github.com/search?q={searchTerms}&type=code";}];
-                iconUpdateURL = "https://github.githubassets.com/favicons/favicon-dark.svg";
-                updateInterval = 24 * 60 * 60 * 1000; # every day
-                definedAliases = ["@gcs"];
-              };
-
-              "Noogle.dev Search" = {
-                urls = [{template = "https://noogle.dev/?term=%22{searchTerms}%22";}];
-                iconUpdateURL = "https://noogle.dev/favicon.png";
-                updateInterval = 24 * 60 * 60 * 1000; # every day
-                definedAliases = ["@ngd" "@nog"];
-              };
-
-              "Nixpkgs PRs" = {
-                urls = [{template = "https://nixpk.gs/pr-tracker.html?pr={searchTerms}";}];
-                iconUpdateURL = "https://nixos.org/favicon.png";
-                updateInterval = 24 * 60 * 60 * 1000; # every day
-                definedAliases = ["@npr"];
-              };
-            };
-
-            order = [
-              "SearXNG"
-              "DuckDuckGo"
-            ];
-          };
-
-          userChrome = builtins.readFile ./configs/userChrome.css;
-
-          userContent = ''
-          @-moz-document regexp(".+\\.pdf$") {
-            body {
-              background-color: #000000 !important;
-            }
-          }
-
-          '';
-
-        };
-      };
-
-    };
-  }
-  #+end_src
-*** Browsers
-:PROPERTIES:
-:ID:       20240829T194655
-:END:
-  #+name: hm-config
-  #+begin_src nix :tangle gdk/home.nix
-  {
-    home.packages = with pkgs; [
-      mullvad-browser
-      # zen browser?
-      # ungoogled-chromium
-      # nyxt
-      brave
-    ];
-  }
+    {
+      home.packages = with pkgs; [
+        mullvad-browser
+        # zen browser when?
+        # ungoogled-chromium
+        # nyxt
+        brave
+      ];
+    }
   #+end_src
 
 **** userChrome
 - Css customization for Firefox UI.
+- Minimal UI with disabled tab-bar (use sideberry)
   #+begin_src css :tangle ./gdk/configs/userChrome.css
   /* Hide the tab bar! */
   #TabsToolbar { visibility: collapse; }
@@ -3919,51 +3759,28 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
   #sidebar-splitter { display: none; }
   #webextpanels-window { background: transparent !important }
   #+end_src
-**** Sideberry css
-- Only for text scaling if display scale is 1x
-#+begin_src css
-#root.root {--tabs-height: 50px;}
-#root.root {--nav-btn-len-margin: 1em;}
-#root.root {--ctx-menu-font: 1em sans-serif;}
-#root.root {--tabs-count-font: 0.8em sans-serif;}
-#root.root {--search-icon-width: 2em;}
-#root.root {--ctx-menu-icon-opt-height: 2em;}
-#root.root {--nav-btn-width: 1.5em;}
-#root.root {--tabs-border-radius: 10px;}
-#root.root {--tabs-pinned-height: 3em;}
-#root.root {--tabs-pinned-width: 3em;}
-#root.root {--ctx-menu-bg: #000000;}
-#root.root {--tabs-activated-bg: #2e8b57;}
-#root.root {--tabs-activated-fg: #000000;}
-#root.root {--nav-btn-height: 1.5em;}
-#root.root {--frame-bg: rgb(00, 00, 00);}
-#root.root {--toolbar-bg: rgb(00, 00, 00);}
-#root.root {--general-margin: 2px;}
-#root.root {--general-border-radius: 20px;}
-#root.root {--tabs-font: 0.9em sans-serif;}
-#root.root {--toolbar-font: 1em sans-serif;}
-#+end_src
 
 *** Librewolf
 - As of [2024-08-09], making some shift towards better firefox.
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-  {
-    programs.librewolf = {
-      enable = true;
-      settings = {
-        "webgl.disabled" = false;
-        # "privacy.resistFingerprinting" = false;
-        "browser.urlbar.placeholderName" = "Find the OnePiece...";
-        "gfx.webrender.all" = true;
-        "gfx.webrender.enabled" = true;
+    {
+      programs.librewolf = {
+        enable = true;
+        settings = {
+          "webgl.disabled" = false;
+          # "privacy.resistFingerprinting" = false;
+          "browser.urlbar.placeholderName" = "Find the OnePiece...";
+          "gfx.webrender.all" = true;
+          "gfx.webrender.enabled" = true;
+        };
       };
-    };
-  }
+    }
   #+end_src
 
 - User.js for librewolf
-  I use [[https://github.com/Naezr/ShyFox][ShyFox]], its aesthetic and productive.
+  Makes liberwolf not purge cache data, it persists for sessions. Use mullvad for purging data
+  Enables and make liberwolf more socially usable :)
 #+begin_src js :tangle ~/.librewolf/ihome/user.js
 // userchrome.css usercontent.css activate
 user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);

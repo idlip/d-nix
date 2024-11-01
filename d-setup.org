@@ -3315,8 +3315,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
     (nov-mode . nov-imenu-setup)
     :custom
     (nov-text-width fill-column)
-    (nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title)))
-    (nov-variable-pitch t))
+    (nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title))))
   #+end_src
 
 **** d/reading-mode
@@ -3424,511 +3423,148 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
   #+end_src
 
 ** Rss
-*** COMMENT Elfeed
-- Elfeed the pioneer of Emacs beauty.
-- I primarily use Emacs on android for reading rss feeds in sync with PC. This is easily achieved by syncthing over the DataBase folder, and symlinking them to =var/elfeed= .
-- Certain functions to write DB when quitting buffer helps to make syncing quicker.
-  #+name: orgmacs
-  #+begin_src emacs-lisp
-  (use-package elfeed
-    :bind ("C-c d e" . d/elfeed-open) ("C-c d b" . embark-act)
-    :custom (elfeed-db-directory (expand-file-name "feeds/elfeed" user-emacs-directory))
-    :config
-    (defface elfeed-search-star-title-face
-      '((t :foreground "#f77"))
-      "Marks a starred Elfeed entry.")
-    (push '(star elfeed-search-star-title-face) elfeed-search-face-alist)
-    (defun d/elfeed-open ()
-      "Wrapper to load the elfeed db from disk before opening"
-      (interactive)
-      (unless (get-buffer "*elfeed-search*") (elfeed-db-load))
-      (elfeed)
-      (elfeed-search-update--force)))
-     ;; (elfeed-update)))
-  #+end_src
-**** elfeed functions
-- to toggle star tag on feeds marked or current in =elfeed-show-mode=.
-  #+name: orgmacs
-  #+begin_src emacs-lisp
-(defun elfeed-toggle-show-star ()
-  (interactive)
-  (if (elfeed-tagged-p 'star elfeed-show-entry)
-      (elfeed-show-untag 'star)
-    (elfeed-show-tag 'star)))
-;; (org-capture nil "l"))
-  #+end_src
-- toggle star tag in =elfeed-search-mode=
-  #+name: orgmacs
-  #+begin_src emacs-lisp
-(defun elfeed-toggle-star ()
-  (interactive)
-  (elfeed-search-toggle-all 'star))
-;; (org-capture nil "l"))
-  #+end_src
-- enhance elfeed reading integrating with hook
-  #+name: orgmacs
-  #+begin_src emacs-lisp
-(defun d/elfeed-ui ()
-  (interactive)
-  ;; (setq-local header-line-format " ")
-  (variable-pitch-mode)
-  (shrface-mode))
-  #+end_src
-- write to disk when quit, so helps to sync the DB on android as well.
-  #+name: orgmacs
-  #+begin_src emacs-lisp
-;;write to disk when quiting
-(defun d/elfeed-quit ()
-  "Wrapper to save the elfeed db to disk before burying buffer"
-  (interactive)
-  (elfeed-db-save)
-  (quit-window))
-  #+end_src
-- add podcast or mp3 enclosure to =mpd=.
-- I have replaced this with bash script link handler (=d-stuff=), simpe and easy.
-- https://github.com/idlip/d-bin
-  #+name: orgmacs
-  #+begin_src emacs-lisp
-(defun d/elfeed-add-podcast ()
-  "Play the enclosure URL in Mpd using 'mingus'."
-  (interactive)
-  (with-no-warnings
-    (let* ((count (length (elfeed-entry-enclosures elfeed-show-entry)))
-           (entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single)))
-           (dlink (shell-command-to-string (format "yt-dlp -f bestaudio -g '%s'" (shr-url-at-point nil)))))
-      (require 'mingus)
-      ;; (message (concat "Added: " (car (elt (elfeed-entry-enclosures elfeed-show-entry)
-      ;;                                      (- enclosure-index 1)))))
-      (message dlink)
-      (mingus-add dlink))))
-;; (cond ((shr-url-at-point nil) (shell-command-to-string (format "yt-dlp -f bestaudio -g '%s'" (shr-url-at-point current-prefix-arg))))
-;;       ((derived-mode-p 'elfeed-show-mode)
-;;        (if (zerop count)
-;;            (shell-command-to-string (format "yt-dlp -f bestaudio -g '%s'" (elfeed-entry-link entry)))
-;;          (car (elt (elfeed-entry-enclosures elfeed-show-entry)
-;;                    (- enclosure-index 1)))))
-;;       ((derived-mode-p 'elfeed-search-mode) (elfeed-search-selected :single))))))
-
-  #+end_src
-- play enclosure mp3 in mpd
-  #+name: orgmacs
-  #+begin_src emacs-lisp
-(defun d/elfeed-play ()
-  (interactive)
-  (let* ((count (length (elfeed-entry-enclosures elfeed-show-entry)))
-         (entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
-    (message (concat "Added: " (elfeed-entry-link entry)))
-    (if (zerop count)
-        (async-shell-command (format "mpc add $(yt-dlp -g \"%s\")" (elfeed-entry-link entry)) nil nil)
-      (with-no-warnings
-        (mingus-add (car (elt (elfeed-entry-enclosures elfeed-show-entry)
-                              (- enclosure-index 1))))))))
-  #+end_src
-- to store a feed in org file as bookmark
-  #+name: orgmacs
-  #+begin_src emacs-lisp
-(defun d/elfeed-org-mark ()
-  "use org file as bookmark for elfeed entries.
-Usable as favorites or bookmark."
-  (when elfeed-show-entry
-    (let* ((link (elfeed-entry-link elfeed-show-entry))
-           (title (elfeed-entry-title elfeed-show-entry)))
-      (org-store-link-props
-       :link link
-       :description title))))
-  #+end_src
-- opens the feed in =reddigg= for reddit and =eww= for html url.
-  #+name: orgmacs
-  #+begin_src emacs-lisp
-(defun elfeed-open-in-eww ()
-  "open elfeed entry in eww."
-  (interactive)
-  (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
-    (eww-browse-url (elfeed-entry-link entry) t)))
-
-(defun elfeed-open-in-reddit ()
-  "open elfeed entry in reddit"
-  (interactive)
-  (let ((entry (if (eq major-mode 'elfeed-show-mode) elfeed-show-entry (elfeed-search-selected :single))))
-    (reddigg-view-comments (elfeed-entry-link entry)))
-  (display-buffer-pop-up-window (reddigg--get-cmt-buffer) nil))
-  #+end_src
-- use volume button for next and prev feed on android
-  #+name: orgmacs
-  #+begin_src emacs-lisp
-(when d/on-droid
-  (with-eval-after-load 'elfeed
-    (define-key elfeed-show-mode-map (kbd "<volume-up>") #'elfeed-show-prev)
-    (define-key elfeed-show-mode-map (kbd "<volume-down>") #'elfeed-show-next)))
-  #+end_src
-- remove feeds from DB. Credits to a user on elfeed github repo
-  #+name: orgmacs
-  #+begin_src emacs-lisp
-;; credits to a user on github elfeed repo
-(defun d/elfeed-db-remove-entry (id)
-  "Removes the entry for ID"
-  (avl-tree-delete elfeed-db-index id)
-  (remhash id elfeed-db-entries))
-
-(defun d/elfeed-search-remove-selected ()
-  "Remove selected entries from database"
-  (interactive)
-  (let* ((entries (elfeed-search-selected))
-         (count (length entries)))
-    (when (y-or-n-p (format "Delete %d entires?" count))
-      (cl-loop for entry in entries
-               do (d/elfeed-db-remove-entry (elfeed-entry-id entry)))))
-  (elfeed-search-update--force))
-  #+end_src
-**** elfeed-show
-  #+name: orgmacs
-  #+begin_src emacs-lisp
-(use-package elfeed-show
-  :hook
-  (elfeed-show-mode . d/elfeed-ui)
-
-  :bind
-  (:map elfeed-show-mode-map
-        ("e" . elfeed-open-in-eww)
-        ("i" . d/bionic-read)
-        ("r" . elfeed-open-in-reddit)
-        ("m" . elfeed-toggle-show-star)
-        ("q" . d/elfeed-quit)
-        ("C-x C-k" . d/elfeed-quit)
-        ("P" . d/elfeed-add-podcast)
-        ("A" . d/elfeed-play)
-        ("b" . nil)))
-  #+end_src
-**** elfeed-search
-- filtering works as expected with simple notations ~+,-,!,=~.
-  - =+= and =-= is treated on tag
-  - =@= - indicates age or date.
-    - ~@2-days-ago~
-    - ~@2023-12-20--2023-12-24~ (range)
-    - ~@5-days-ago--1-day-ago~
-  - =!= indicates negation or inverse of search.
-  - =#= for number of feeds entries.
-  - === - for matching entry's feed (url or title)
-  - =~= - for not matching (inverse) entry's feed
-  - rest all regular expression work.
-  #+name: orgmacs
-  #+begin_src emacs-lisp
-(use-package elfeed-search
-  :bind
-  (:map elfeed-search-mode-map
-        ("m" . elfeed-toggle-star)
-        ("q" . d/elfeed-quit)
-        ("G" . elfeed-search-fetch-visible)
-        ("C-x C-k" . d/elfeed-quit)
-        ("U" . elfeed-update)
-        ("u" . elfeed-update-feed))
-
-  :custom
-  ;; (setq-default elfeed-search-filter "@1-week-ago--1-day-ago +unread -news +")
-  (elfeed-search-filter "+unread +")
-  (elfeed-search-date-format (if d/on-droid `("" 0 :left)  `("%d-%m 📰" 7 :left)))
-  (elfeed-search-title-max-width 60)
-  (elfeed-search-title-min-width 60)
-  (elfeed-search-trailing-width 0))
-  #+end_src
-**** elfeed-log
-  #+name: orgmacs
-  #+begin_src emacs-lisp
-(use-package elfeed-log
-  :after elfeed
-  :custom
-  (elfeed-log-level 'debug "debug, info, warn or error."))
-  #+end_src
-**** elfeed-org
-- to parse org file as elfeed feed links.
-- super handy and convenient way.
-  #+name: orgmacs
-  #+begin_src emacs-lisp
-(use-package elfeed-org
-  :after elfeed
-  :custom
-  (rmh-elfeed-org-files (list "~/d-sync/notes/bookmarks.org"))
-  :init
-  (elfeed-org))
-  #+end_src
-*** COMMENT Newsticker
-- Sane and built-in package to read rss feeds in emacs.
-- As on 2024-03-04, I'm liking it and thinking of switching to it.
-- As on 2024-03-15, I'm not moving with newsticker. synchronous way of fetching feeds everytime opening the tree-view takes away lot of time to wait.
-- Instead, I became a happy gnus user.
-  #+name: orgmacs
-  #+begin_src emacs-lisp
-  (use-package newsticker
-    :custom
-    (newsticker-retrieval-interval 0)
-    (newsticker-url-list-defaults nil)
-    (newsticker-retrieval-method 'extern)
-    (newsticker-ticker-interval 0)
-    (newsticker-automatically-mark-items-as-old nil)
-  ;; (setq newsticker-wget-name "curl")
-  ;; (setq newsticker-wget-arguments '("--disable" "--silent" "--location"))
-    (newsticker-hide-old-items-in-newsticker-buffer t))
-  #+end_src
-**** org to opml function
-- An adapted function to convert org to opml file for newsticker to recognize. As it takes =text= for label and not =title=.
-- Credits to =elfeed-org= package.
-
-- Function to convert org-buffer to opml. It parses from tag containing =drssfeeds=
-  #+name: orgmacs
-  #+begin_src emacs-lisp
-(defun rss-org-convert-org-to-opml (org-buffer)
-  "Convert Org buffer content to OPML format.
-Argument ORG-BUFFER the buffer to write the OPML content to."
-  (let (need-ends
-        opml-body)
-    (with-current-buffer org-buffer
-      (let ((org-inhibit-startup t)
-            (org-mode-hook nil))
-        (org-mode))
-      (org-element-map (rss-org-import-trees
-                        "drssfeeds") 'headline
-        (lambda (h)
-          (let* ((current-level (org-element-property :level h))
-                 (tags (org-element-property :tags h))
-                 (heading (org-element-property :raw-value h))
-                 (link-and-title (and (string-match "^\\[\\[\\(http.+?\\)\\]\\[\\(.+?\\)\\]\\]" heading)
-                                      (list (match-string-no-properties 0 heading)
-                                            (match-string-no-properties 1 heading)
-                                            (match-string-no-properties 2 heading))))
-                 (hyperlink (and (string-match "^\\[\\[\\(http.+?\\)\\]\\(?:\\[.+?\\]\\)?\\]" heading)
-                                 (list (match-string-no-properties 0 heading)
-                                       (match-string-no-properties 1 heading))))
-                 url
-                 title
-                 opml-outline)
-            ;; fill missing end outlines
-            (while (and (car need-ends) (>= (car need-ends) current-level))
-              (let* ((level (pop need-ends)))
-                (setq opml-body (concat opml-body (format "  %s</outline>\n"
-                                                          (make-string (* 2 level) ? ))))))
-
-            (cond ((string-prefix-p "http" heading)
-                   (setq url heading)
-                   (setq title (or (elfeed-feed-title (elfeed-db-get-feed heading)) "Unknown")))
-                  (link-and-title (setq url (nth 1 link-and-title))
-                                  (setq title (nth 2 link-and-title)))
-                  (hyperlink (setq url (nth 1 hyperlink))
-                             (setq title (or (elfeed-feed-title (elfeed-db-get-feed (nth 1 hyperlink))) "Unknown")))
-                  (t (setq title heading)))
-            (if url
-                (setq opml-outline (format "  %s<outline title=\"%s\" xmlUrl=\"%s\"/>\n"
-                                           (make-string (* 2 current-level) ? )
-                                           (xml-escape-string title)
-                                           (xml-escape-string url)))
-              (unless (string-prefix-p "entry-title" heading)
-                (unless (member "drssfeeds" tags)
-                  ;; insert category title only when it is neither the top
-                  ;; level elfeed node nor the entry-title node
-                  (progn
-                    (push current-level need-ends)
-                    (setq opml-outline (format "  %s<outline title=\"%s\">\n"
-                                               (make-string (* 2 current-level) ? )
-                                               (xml-escape-string title)))))))
-            (setq opml-body (concat opml-body opml-outline))))))
-
-    ;; fill missing end outlines at end
-    (while (car need-ends)
-      (let* ((level (pop need-ends)))
-        (setq opml-body (concat opml-body (format "  %s</outline>\n"
-                                                  (make-string (* 2 level) ? ))))))
-    opml-body))
-  #+end_src
-
-- Function
-  #+name: orgmacs
-  #+begin_src emacs-lisp
-(defun rss-org-import-trees (tree-id)
-  "Get trees with \":ID:\" property or tag of value TREE-ID.
-Return trees with TREE-ID as the value of the id property or
-with a tag of the same value.  Setting an \":ID:\" property is not
-recommended but I support it for backward compatibility of
-current users."
-  (org-element-map
-      (org-element-parse-buffer)
-      'headline
-    (lambda (h)
-      (when (or (member tree-id (org-element-property :tags h))
-                (equal tree-id (org-element-property :ID h))) h))))
-  #+end_src
-- Function to convert org buffer feeds to opml and append it to ~newsticker-url-list~.
-  #+name: orgmacs
-  #+begin_src emacs-lisp
-(defun rss-org-feeds-to-newst-opml ()
-  "A modified function which imports the feeds from org file to opml.
-And save it in a file and imports the opml feeds in newsticker. So it updates with org file."
-  (interactive)
-  (let ((opml-body (cl-loop for org-file in '("~/d-sync/notes/bookmarks.org")
-                            concat
-                            (with-temp-buffer
-                              (insert-file-contents
-                               (expand-file-name org-file org-directory))
-                              (rss-org-convert-org-to-opml
-                               (current-buffer)))))
-        (file-out "/tmp/myfeeds.opml"))
-    (with-current-buffer (get-buffer-create "*Exported OPML Feeds*")
-      (erase-buffer)
-      (insert "<?xml version=\"1.0\"?>\n")
-      (insert "<opml version=\"1.0\">\n")
-      (insert "  <head>\n")
-      (insert "    <title>Elfeed-Org Export</title>\n")
-      (insert "  </head>\n")
-      (insert "  <body>\n")
-      (insert (string-replace "title" "text" opml-body))
-      (insert "  </body>\n")
-      (insert "</opml>\n")
-      (xml-mode)
-      (progn (pop-to-buffer (current-buffer))
-             (write-file file-out)
-             (delete-window))))
-  (call-interactively #'newsticker-opml-import))
-  #+end_src
 *** gnus
 - First time using a newsgroup or usenet or NNTP.
 - But seems interesting when I tried, I can see how it becomes a unified workflow for mailing lists, email and rss feeds.
 - I use gnus, and spend most of the time on emacs in gnus. It replace elfeed for me, and has taken over most of my content assumption thanks to providers like gwene and feedbase.
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package gnus
-    :hook
-    (gnus-group-mode . gnus-topic-mode)
-    (gnus-summary-mode . turn-on-gnus-mailing-list-mode)
-    ;; (gnus-article-mode . d/reading-mode)
-    :bind (("C-c d g" . gnus)
-           (:map gnus-summary-mode-map
-                 ("-" . gnus-summary-hide-thread)
-                 ("+" . gnus-summary-show-thread)
-                 ) )
-    :custom
-    (gnus-home-directory (expand-file-name "feeds/gnews" user-emacs-directory))
-    (gnus-directory message-directory)
-    (message-directory (expand-file-name "mail" gnus-home-directory))
-    (gnus-startup-file (expand-file-name "newsrc" gnus-home-directory))
-    (gnus-message-archive-group '((format-time-string "sent.%Y")))
-    (gnus-article-save-directory (expand-file-name "saved" gnus-home-directory))
-    (gnus-widen-article-window t)
+    (use-package gnus
+      :hook
+      (gnus-group-mode . gnus-topic-mode)
+      (gnus-summary-mode . turn-on-gnus-mailing-list-mode)
+      ;; (gnus-article-mode . d/reading-mode)
+      :bind (("C-c d g" . gnus)
+             (:map gnus-summary-mode-map
+                   ("-" . gnus-summary-hide-thread)
+                   ("+" . gnus-summary-show-thread)
+                   ) )
+      :custom
+      (gnus-home-directory (expand-file-name "feeds/gnews" user-emacs-directory))
+      (gnus-directory message-directory)
+      (message-directory (expand-file-name "mail" gnus-home-directory))
+      (gnus-startup-file (expand-file-name "newsrc" gnus-home-directory))
+      (gnus-message-archive-group '((format-time-string "sent.%Y")))
+      (gnus-article-save-directory (expand-file-name "saved" gnus-home-directory))
+      (gnus-widen-article-window t)
 
-    (gnus-select-method
-     '(nnnil ""))
+      (gnus-select-method
+       '(nnnil ""))
 
-    (gnus-secondary-select-methods
-     '((nntp "feedbase"
-             (nntp-open-connection-function nntp-open-tls-stream) ; feedbase does not do STARTTLS (yet?)
-             (nntp-port-number 563) ; nntps
-             (nntp-address "feedbase.org"))
-     (nntp "gwene" (nntp-address "news.gwene.org"))
-     (nnrss "")
-     ))
+      (gnus-secondary-select-methods
+       '((nntp "feedbase"
+               (nntp-open-connection-function nntp-open-tls-stream) ; feedbase does not do STARTTLS (yet?)
+               (nntp-port-number 563) ; nntps
+               (nntp-address "feedbase.org"))
+       (nntp "gwene" (nntp-address "news.gwene.org"))
+       (nnrss "")
+       ))
 
-    ;; refer: https://github.com/redguardtoo/mastering-emacs-in-one-year-guide/blob/master/gnus-guide-en.org
-    (gnus-thread-sort-functions
-     '(gnus-thread-sort-by-most-recent-date))
-    (gnus-use-cache t)
-    (gnus-thread-hide-subtree t)
+      ;; refer: https://github.com/redguardtoo/mastering-emacs-in-one-year-guide/blob/master/gnus-guide-en.org
+      (gnus-thread-sort-functions
+       '(gnus-thread-sort-by-most-recent-date))
+      (gnus-use-cache t)
+      (gnus-thread-hide-subtree t)
 
-    ;; (gnus-summary-line-format "%U%R%z%d %I%(%[ %F %] %s %)\n")
+      ;; (gnus-summary-line-format "%U%R%z%d %I%(%[ %F %] %s %)\n")
 
-    ;;; --- credits to u/unhammer
-    ;; Save time by not checking for new groups (I'm already subscribed to what I want,
-    ;; can always manually M-x gnus-find-new-newsgroups to check new groups)
-    (gnus-check-new-newsgroups nil)
-    (gnus-check-bogus-newsgroups nil)
-    ;; By default only check groups this level or lower on startup
-    ;; (use `C-u g' or `C-c M-g' to activate all groups):
-    (gnus-activate-level 2)
+      ;;; --- credits to u/unhammer
+      ;; Save time by not checking for new groups (I'm already subscribed to what I want,
+      ;; can always manually M-x gnus-find-new-newsgroups to check new groups)
+      (gnus-check-new-newsgroups nil)
+      (gnus-check-bogus-newsgroups nil)
+      ;; By default only check groups this level or lower on startup
+      ;; (use `C-u g' or `C-c M-g' to activate all groups):
+      (gnus-activate-level 2)
 
-    (gnus-auto-center-summary nil)
-    (gnus-nov-is-evil nil)
-    (gnus-show-threads t)
-    (gnus-use-cross-reference nil)
-    ;;;; Async prefetch – useful for newsgroups, maybe not so much for Maildir:
-    ;; https://www.gnu.org/software/emacs/manual/html_mono/gnus.html#Asynchronous-Fetching
-    (gnus-asynchronous t)
+      (gnus-auto-center-summary nil)
+      (gnus-nov-is-evil nil)
+      (gnus-show-threads t)
+      (gnus-use-cross-reference nil)
+      ;;;; Async prefetch – useful for newsgroups, maybe not so much for Maildir:
+      ;; https://www.gnu.org/software/emacs/manual/html_mono/gnus.html#Asynchronous-Fetching
+      (gnus-asynchronous t)
 
-    ;;; credits - https://libreddit.kavin.rocks/r/emacs/comments/1cfv84p/tipps_on_gnus_summary_formatting/ - u/ballfresno
-    ;; (gnus-summary-line-format "%1{%U%R%O %4k%} %3{%&user-date;%*%ud│%}%I%(%-16,16f%) %4{%s%}\n")
-    (gnus-user-date-format-alist
-     '(((gnus-seconds-today) . " %k:%M")
-       ((+ (gnus-seconds-today) (* 24 3600)) . " %l %p")
-       (604800 . " %a")
-       (31536000 . "%e %b")
-       (t . " %Y")))
+      ;;; credits - https://libreddit.kavin.rocks/r/emacs/comments/1cfv84p/tipps_on_gnus_summary_formatting/ - u/ballfresno
+      ;; (gnus-summary-line-format "%1{%U%R%O %4k%} %3{%&user-date;%*%ud│%}%I%(%-16,16f%) %4{%s%}\n")
+      (gnus-user-date-format-alist
+       '(((gnus-seconds-today) . " %k:%M")
+         ((+ (gnus-seconds-today) (* 24 3600)) . " %l %p")
+         (604800 . " %a")
+         (31536000 . "%e %b")
+         (t . " %Y")))
 
-    ;;; credits - https://github.com/jbranso/.emacs.d/blob/master/lisp/init-gnus.org
-    (gnus-sum-thread-tree-indent "  ")
-    (gnus-sum-thread-tree-root "● ")
-    (gnus-sum-thread-tree-false-root "◯ ")
-    (gnus-sum-thread-tree-single-indent "📰")
-    (gnus-sum-thread-tree-vertical        "│")
-    (gnus-sum-thread-tree-leaf-with-other "├─► ")
-    (gnus-sum-thread-tree-single-leaf     "╰─► ")
+      ;;; credits - https://github.com/jbranso/.emacs.d/blob/master/lisp/init-gnus.org
+      (gnus-sum-thread-tree-indent "  ")
+      (gnus-sum-thread-tree-root "● ")
+      (gnus-sum-thread-tree-false-root "◯ ")
+      (gnus-sum-thread-tree-single-indent "📰")
+      (gnus-sum-thread-tree-vertical        "│")
+      (gnus-sum-thread-tree-leaf-with-other "├─► ")
+      (gnus-sum-thread-tree-single-leaf     "╰─► ")
 
-    ;; Yay (seen here: `https://github.com/cofi/dotfiles/blob/master/gnus.el')
-    (gnus-cached-mark ?󰃨)
-    (gnus-canceled-mark ?󱞐)
-    (gnus-del-mark ?󰆴)
-    ;; gnus-dormant-mark ?⚐
-    (gnus-expirable-mark ?♻)
-    (gnus-forwarded-mark ?)
-    ;; gnus-killed-mark ?☠
-    ;; gnus-process-mark ?⚙
-    (gnus-read-mark ?󰑇)
-    (gnus-recent-mark ?✩)
-    (gnus-replied-mark ?↺)
-    (gnus-unread-mark ?)
-    ;; gnus-unseen-mark ?★
-    ;; gnus-ticked-mark ?⚑
+      ;; Yay (seen here: `https://github.com/cofi/dotfiles/blob/master/gnus.el')
+      (gnus-cached-mark ?󰃨)
+      (gnus-canceled-mark ?󱞐)
+      (gnus-del-mark ?󰆴)
+      ;; gnus-dormant-mark ?⚐
+      (gnus-expirable-mark ?♻)
+      (gnus-forwarded-mark ?)
+      ;; gnus-killed-mark ?☠
+      ;; gnus-process-mark ?⚙
+      (gnus-read-mark ?󰑇)
+      (gnus-recent-mark ?✩)
+      (gnus-replied-mark ?↺)
+      (gnus-unread-mark ?)
+      ;; gnus-unseen-mark ?★
+      ;; gnus-ticked-mark ?⚑
 
-    (gnus-summary-line-format
-     (concat
-      "%0{%U%R%z%}"
-      "%3{│%}" "%1{%d%}" "%3{│%}" ;; date
-      "  "
-      "%4{%-20,20f%}"               ;; name
-      "  "
-      "%3{│%}"
-      " "
-      "%1{%B%}"
-      "%s\n"))
+      (gnus-summary-line-format
+       (concat
+        "%0{%U%R%z%}"
+        "%3{│%}" "%1{%d%}" "%3{│%}" ;; date
+        "  "
+        "%4{%-20,20f%}"               ;; name
+        "  "
+        "%3{│%}"
+        " "
+        "%1{%B%}"
+        "%s\n"))
 
-    (gnus-group-line-format "%P│%M%S%4y %B%(%G%)\n")
+      (gnus-group-line-format "%P│%M%S%4y %B%(%G%)\n")
 
-    (gnus-topic-line-format "%i╭ %(%{✪ %n%}%) %A   %g %v\n")
-
-
-    (gnus-summary-display-arrow t)
+      (gnus-topic-line-format "%i╭ %(%{✪ %n%}%) %A   %g %v\n")
 
 
-    (gnus-face-1 'italic)
-    (gnus-face-2 'bold)
-    (gnus-face-3 'bold-italic)
+      (gnus-summary-display-arrow t)
 
-    :config
-    (setopt
-     nnrss-group-alist
-     '(
-       ("manga" "https://nyaa.si/?page=rss&c=3_1&f=0")
+
+      (gnus-face-1 'italic)
+      (gnus-face-2 'bold)
+      (gnus-face-3 'bold-italic)
+
+      :config
+      (setopt
+       nnrss-group-alist
+       '(
+         ("manga" "https://nyaa.si/?page=rss&c=3_1&f=0")
+         )
        )
-     )
-    (gnus-demon-add-handler 'gnus-group-save-newsrc 5 t) ;; minutes
-    (gnus-demon-init)
-    )
+      (gnus-demon-add-handler 'gnus-group-save-newsrc 5 t) ;; minutes
+      (gnus-demon-init)
+      )
 
-  (use-package gnus-srvr
-    :bind
-    (:map gnus-server-mode-map
-          ("q" . quit-window)))
+    (use-package gnus-srvr
+      :bind
+      (:map gnus-server-mode-map
+            ("q" . quit-window)))
   #+end_src
 **** user-mail
 - Use gnus with protonmail.
 - Credits to: https://www.vidal-rosset.net/gnus_emacs_as_email_client_in_imap_with_protonmail.html
 #+name: orgmacs
 #+begin_src emacs-lisp
-(setopt user-mail-address "idlip@protonmail.com"
+(setopt user-mail-address "idlip@protonmail.com" ;; you can mail to discuss anything on emacs ;)
         user-full-name "Dilip")
 
 (use-package gnus

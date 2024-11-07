@@ -4240,6 +4240,8 @@ for the search engine used."
             K = "cycle sub down";
             B = "no-osd add contrast -4; no-osd add brightness 4; show-text 'Black Level: \${brightness}'";
             N = "no-osd add contrast 4; no-osd add brightness -4; show-text 'Black Level: \${brightness}'";
+            r = ''cycle-values video-rotate "90" "180" "270" "0"'';
+            a = "vf toggle hflip";
           };
 
           config = {

@@ -5930,53 +5930,32 @@ stdenvNoCC.mkDerivation rec {
 - Glorious, aesthetic and pleasant desktop colourscheme.
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-  {
-    # cursor theme
-    # home.pointerCursor = {
-    #   name = "Bibata-Modern-Classic";
-    #   # package = pkgs.bibata-cursors;
-    #   # size = 24;
-    #   gtk.enable = true;
-    # };
+    {
+      gtk = {
+        enable = true;
 
-    gtk = {
-      enable = true;
+        iconTheme = { # watch out soon stylix might implement this
+          name = "Papirus-Dark";
+          package = pkgs.papirus-icon-theme;
+        };
 
-      # theme = {
-      #   name = "adw-gtk3-dark";
-      #   package = pkgs.adw-gtk3;
-      # };
+        gtk3.extraConfig = {
+          gtk-xft-antialias = 1;
+          gtk-xft-hinting = 1;
+          gtk-xft-hintstyle = "hintslight";
+          gtk-xft-rgba = "rgb";
+          gtk-key-theme-name = "Emacs";
+        };
 
-      iconTheme = {
-        name = "Papirus-Dark";
-        package = pkgs.papirus-icon-theme;
+        gtk2.extraConfig = ''
+        gtk-xft-antialias=1
+        gtk-xft-hinting=1
+        gtk-xft-hintstyle="hintslight"
+        gtk-xft-rgba="rgb"
+        gtk-key-theme-name="Emacs"
+        '';
       };
-
-      # font = {
-      #   name = "Code Haki";
-      #   size = 26;
-      # };
-
-      gtk2.configLocation = "${config.xdg.configHome}/gtk-2.0/gtkrc";
-
-      gtk3.extraConfig = {
-        gtk-xft-antialias = 1;
-        gtk-xft-hinting = 1;
-        gtk-xft-hintstyle = "hintslight";
-        gtk-xft-rgba = "rgb";
-        gtk-key-theme-name = "Emacs";
-      };
-
-      gtk2.extraConfig = ''
-      gtk-xft-antialias=1
-      gtk-xft-hinting=1
-      gtk-xft-hintstyle="hintslight"
-      gtk-xft-rgba="rgb"
-      gtk-key-theme-name="Emacs"
-      '';
-
-    };
-  }
+    }
   #+end_src
 *** qt
 - to set qt theme appropriately, even with this config, kdeConnect looks bare bone.
@@ -5985,7 +5964,6 @@ stdenvNoCC.mkDerivation rec {
   {
     qt = {
       enable = true;
-      # platformTheme = "gtk3";
       style.name = "adwaita-dark";
     };
   }

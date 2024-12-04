@@ -4969,6 +4969,13 @@ user_pref("findbar.highlightAll", true);
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
     {
+      systemd.user.startServices = "sd-switch"; # should be default soon
+      # HM issue, some service won't start in niri
+      systemd.user.services.cliphist.Unit.After = "graphical-session.target";
+      systemd.user.services.cliphist-images.Unit.After = "graphical-session.target";
+      systemd.user.services.hypridle.Unit.After = lib.mkForce "graphical-session.target";
+      systemd.user.services.wlsunset.Unit.After = lib.mkForce "graphical-session.target";
+
       services.hypridle = let
         hyprlock = lib.getExe config.programs.hyprlock.package;
         brightness = lib.getExe pkgs.brightnessctl;

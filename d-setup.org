@@ -242,6 +242,11 @@ Also its crucial to only add configuration that is explicitly required, rather t
           efi.canTouchEfiVariables = true;
           timeout = 1;
         };
+        initrd.availableKernelModules = [
+          "nvme" "xhci_pci" "usbhid" "usb_storage" "sd_mod" "sdhci_pci"
+        ];
+
+        consoleLogLevel = 3;
 
         supportedFilesystems = [ "ntfs" ];
         tmp.cleanOnBoot = true;
@@ -249,6 +254,7 @@ Also its crucial to only add configuration that is explicitly required, rather t
         kernelParams = [
           "systemd.mask=dev-tpmrm0.device" #this is to mask that stupid 1.5 mins systemd bug
           "nowatchdog" "modprobe.blacklist=iTCO_wdt" #watchdog for Intel
+          "quiet"
      	  ];
       };
     }

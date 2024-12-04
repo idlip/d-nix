@@ -561,19 +561,23 @@ see its function help for a description of the format."
 }
   #+end_src
 
-*** COMMENT Fingerprint
+*** Fingerprint
 - Support for fingerprint work legit on my machine. Just these 2 lines, and yes I login by TTY with my FP.
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-    {
-      # for fingerprint
-      services.fprintd = {
-        enable = true;
-        package = pkgs.fprintd;
-      };
-
+    { # for fingerprint
+      services.fprintd.enable = true;
     }
+
   #+end_src
+
+*** thunderbolt
+#+begin_src nix :tangle gdk/core.nix
+  {
+    services.hardware.bolt.enable = true;
+  }
+#+end_src
+
 *** powerManagement
 - laptop efficient power management
 **** power-profile

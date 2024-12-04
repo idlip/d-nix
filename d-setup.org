@@ -2028,6 +2028,11 @@ css-mode css-ts-mode html-mode html-ts-mode
     (use-package xt-mouse
       :init (xterm-mouse-mode))
   #+end_src
+**** winner-window
+To manage windows states
+#+begin_src emacs-lisp
+  (use-package winner :init (winner-mode))
+#+end_src
 **** pixel scroll
   #+name: orgmacs
   #+begin_src emacs-lisp
@@ -3673,8 +3678,7 @@ user_pref("findbar.highlightAll", true);
       (eww-mode . variable-pitch-mode)
       (eww-after-render . (lambda () (eww-readable) (setq-local line-spacing '0.4)))
       :custom
-      (eww-auto-rename-buffer 'title)
-      (eww-search-prefix "https://baresearch.org/?q="))
+      (eww-auto-rename-buffer 'title))
   #+end_src
 
 - Browse-url with custom bash script, a link handler.
@@ -6394,6 +6398,7 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
 
       :custom
       (org-ellipsis " ")
+      (org-use-sub-superscripts '{})
       (org-log-done 'note)
       (org-log-into-drawer t)
       (org-export-exclude-tags '("noexport" "ignore") "excludes these tagged heading from export")
@@ -6533,56 +6538,38 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
 *** org-capture
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package org-capture :ensure nil :after org
-    :bind ("C-c c" . org-capture)
-    :custom
-    (org-capture-templates
-     `(
-       ;; ("a" "Agenda" entry (file+function "~/d-sync/notes/agenda.org" (lambda () (completing-read "Heading: " my-org-agenda-headlines)))
-       ;;  "** TODO %?%^g\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1 :clock-in t :clock-resume t)
+    (use-package org-capture :ensure nil :after org
+      :bind ("C-c c" . org-capture)
+      :custom
+      (org-capture-templates
+       `(
+         ("c" "Contacts" entry (file "contacts.org")
+          "* %(tempel-insert 'contact)")
 
-       ;; ("n" "Notes")
-       ;; ("nn" "Note to Brain" entry
-       ;;  (file+headline org-default-notes-file "Notes")
-       ;;  "** %?\n %U\n %i\n %a")
-       ;; ("nt" "Note to Thought" entry
-       ;;  (file+headline org-default-notes-file "Thoughts")
-       ;;  "** %?\n %U\n %i\n %a")
+         ("l" "Link" item
+          (file+headline "bookmarks.org" "gnus") "%a\n")
 
-       ;; ("nr" "Reading note" entry
-       ;;  (file "~/d-sync/notes/reading.org")
-       ;;  "** %?\n %U\n %i\n %a\n -")
+         ("d" "D Second Brain" entry
+          (file+olp+datetree "d-brain.org")
+          "* %<%H:%M> - %? %^G
+    :PROPERTIES:
+    :ID:       %(org-id-new)
+    :FROM:     %a
+    :END:
+    %i"
+          ;; :clock-in t :clock-resume t
+          :empty-lines 1)
 
-       ;; ("nd" "Development note" entry
-       ;;  (file "~/d-sync/notes/development.org")
-       ;;  "** %?\n %U\n %i\n %a\n")
+         ("t" "Tasks for the Day" checkitem
+          (file+olp+datetree "d-brain.org")
+          "[ ] %?\n"
+          )
 
-       ("c" "Contacts" entry (file "contacts.org")
-        "* %(tempel-insert 'contact)")
+         ("i" "Inbox Rough Notes" entry
+          (file "inbox.org")
+          "** %?  :fleeting:\n %U\n %i %a\n - ")
 
-       ("l" "Link" item
-        (file+headline "bookmarks.org" "gnus") "%a\n")
-
-       ("d" "D Second Brain" entry
-        (file+olp+datetree "d-brain.org")
-        "* %<%H:%M> - %? %^G
-  :PROPERTIES:
-  :ID:       %(org-id-new)
-  :END:
-  %a %i"
-        ;; :clock-in t :clock-resume t
-        :empty-lines 1)
-
-       ("t" "Tasks for the Day" checkitem
-        (file+olp+datetree "d-brain.org")
-        "[ ] %?\n"
-        )
-
-       ("i" "Inbox Rough Notes" entry
-        (file "inbox.org")
-        "** %?  :fleeting:\n %U\n %i %a\n - ")
-
-       )))
+         )))
   #+end_src
 *** COMMENT org-contact
 - Is it any different than manual method?
@@ -6680,15 +6667,28 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
 - TODO expand and use bindings for it. Refer manual
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package org-ql :after org
-    :bind ((:map org-mode-map
-                 ("C-c q f" . org-ql-find)
-                 ("C-c q s" . org-ql-search)
-                 ("C-c q l" . org-ql-open-link)
-                 ("C-c q v" . org-ql-view))))
+    (use-package org-ql :after org
+      :bind ((:map org-mode-map
+                   ("C-c q f" . org-ql-find)
+                   ("C-c q s" . org-ql-search)
+                   ("C-c q l" . org-ql-open-link)
+                   ("C-c q v" . org-ql-view)))
+      :config
+      (cl-defun org-goto-random-heading (&key (buffers (list (current-buffer)))
+                                              regexp)
+        (let* ((entries (org-ql-select buffers
+                          `(regexp ,regexp)
+                          :action '(cons (current-buffer) (point))))
+               (entry (seq-random-elt entries)))
+          (pop-to-buffer (car entry))
+          (goto-char (cdr entry))))
 
-  (use-package org-super-agenda :after org
-    :hook (org-agenda-mode . org-super-agenda-mode))
+      (defun d/org-random-heading ()
+        (interactive)
+        (org-goto-random-heading :buffers org-agenda-files :regexp (read-from-minibuffer "Search regexp: "))))
+
+    (use-package org-super-agenda :after org
+      :hook (org-agenda-mode . org-super-agenda-mode))
   #+end_src
 *** org-super-links
 - Package to create bi-directional backlinks.

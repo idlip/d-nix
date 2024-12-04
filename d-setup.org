@@ -5017,125 +5017,112 @@ user_pref("findbar.highlightAll", true);
   #+end_src
 
 **** hyprlock
+  #+name: nixos-core
+#+begin_src nix :tangle gdk/core.nix
+    {
+      programs.hyprlock.enable = true; # for pam auth config
+    }
+#+end_src
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-  {
-    programs.hyprlock = {
-      enable = true;
-      settings = {
-        background = [
-          {
-            monitor = "";
-            path = "/home/idlip/.local/share/bg2";
-            blur_size = 8;
-            blur_passes = 3;
-            noise = 0.0117;
-            contrast = 1.3000;
-            brightness = 0.500;
-            vibrancy = 0.2100;
-            vibrancy_darkness = 0.50;
-          }
-        ];
+    {
+      programs.hyprlock = {
+        enable = true;
+        settings = {
+          background = lib.mkForce [
+            {
+              monitor = "";
+              path = "/home/idlip/.local/share/bg2";
+              blur_size = 8;
+              blur_passes = 3;
+            }
+          ];
 
-        input-field = [
-          {
-            monitor = "";
-            size = "250, 50";
-            dots_center = true;
-            font_color = "rgb(0, 0, 0)";
-            fade_on_empty = true;
-            placeholder_text = "<i>Password...</i>";
-            hide_input = false;
-            position = "0, 200";
-            halign = "center";
-            valign = "bottom";
-          }
-        ];
-
-        label = [
-          {
-            monitor = "";
-            color = "rgba(184, 212, 224, 0.6)";
-            font_size = 35;
-            text = ''
-            cmd[update:18000000] echo "<b> "$(date +'%A, %-d %B %Y')" </b>"
-            '';
-            position = "0, -420";
-            halign = "center";
-            valign = "top";
-          }
-
-          {
-            monitor = "";
-            color = "rgba(184, 212, 224, 0.6)";
-            font_size = 130;
-            text = ''
-            cmd[update:1000] echo -e "$(date +"%I:%M")"
-            '';
-            position = "0, -220";
-            halign = "center";
-            valign = "top";
-          }
-
-          {
-            monitor = "";
-            text = ''
-            Think Less, Work Smart!
+          label = [
+            {
+              monitor = "";
+              color = "rgba(184, 212, 224, 0.6)";
+              font_size = 35;
+              text = ''
+              cmd[update:18000000] echo "<b> "$(date +'%A, %-d %B %Y')" </b>"
               '';
-            color = "rgb(126, 247, 138)";
-            font_size = 26;
-            position = "0, 70";
-            halign = "center";
-            valign = "bottom";
-          }
+              position = "0, -420";
+              halign = "center";
+              valign = "top";
+            }
 
-          {
-            monitor = "";
-            text = ''
-            cmd[update:60000] echo "<b> $(uptime) </b>"
-            '';
-            color = "rgba(184, 212, 224, 0.4)";
-            font_size = 16;
-            position = "5, 5";
-            halign = "right";
-            valign = "bottom";
-          }
-        ];
+            {
+              monitor = "";
+              color = "rgba(184, 212, 224, 0.6)";
+              font_size = 130;
+              text = ''
+              cmd[update:1000] echo -e "$(date +"%I:%M")"
+              '';
+              position = "0, -220";
+              halign = "center";
+              valign = "top";
+            }
 
-        image =[
-          {
-            path = "/home/idlip/.local/share/bg1";
-            size = 200;
-            rounding = -1;
-            border_size = 2;
-            reload_time = -1;
-            position = "0, 350";
-            halign = "center";
-            valign = "bottom";
-          }
-        ];
+            {
+              monitor = "";
+              text = ''
+              Think Less, Work Smart!
+                '';
+              color = "rgb(126, 247, 138)";
+              font_size = 26;
+              position = "0, 70";
+              halign = "center";
+              valign = "bottom";
+            }
 
+            {
+              monitor = "";
+              text = ''
+              cmd[update:60000] echo "<b> $(uptime) </b>"
+              '';
+              color = "rgba(184, 212, 224, 0.4)";
+              font_size = 16;
+              position = "5, 5";
+              halign = "right";
+              valign = "bottom";
+            }
+          ];
+
+          image =[
+            {
+              path = "/home/idlip/.local/share/bg1";
+              size = 200;
+              rounding = -1;
+              border_size = 2;
+              reload_time = -1;
+              position = "0, 350";
+              halign = "center";
+              valign = "bottom";
+            }
+          ];
+
+        };
       };
-    };
-  }
+    }
   #+end_src
 ** Fonts
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-  {
-    fonts = {
-      packages = with pkgs; [
-        noto-fonts noto-fonts-emoji unifont
-        # symbola # this font is unfree
-        (callPackage ./pkgs/code-d-font.nix {})
-        (callPackage ./pkgs/code-nika.nix {})
-        merriweather atkinson-hyperlegible
-        # (nerdfonts.override {fonts = [ "JetBrainsMono" ];})
-      ];
+    {
+      fonts = {
+        packages = with pkgs; [
+          noto-fonts noto-fonts-emoji unifont
+          # symbola # this font is unfree
+          (callPackage ./pkgs/code-d-font.nix {})
+          (callPackage ./pkgs/code-nika.nix {})
+          merriweather atkinson-hyperlegible
+          # (iosevka-bin.override { variant = "Aile"; }) nerd-fonts.iosevka
+          # (iosevka-bin.override { variant = "Etoile"; })
+        ];
 
-      enableDefaultPackages = true;
-    };
-  }
+        enableDefaultPackages = true;
+      };
+    }
   #+end_src
 *** code-d-font
 - Recursive font built with a name change and nerd font patch!
@@ -5301,46 +5288,32 @@ stdenvNoCC.mkDerivation rec {
 - Defining some variables for adjusting size and font name.
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (defcustom d/font-size (if d/on-droid 170 240)
-    "Default font size based on the system.")
-  (defcustom d/variable-font-size (if d/on-droid 180 280)
-    "Default variable pitch size")
+    (defcustom d/font-size (if d/on-droid 170 120)
+      "Default font size based on the system.")
 
-  ;; Dont worry about the font name, I use fork of Recursive font
+    ;; Dont worry about the font name, I use fork of Iosevka font
 
-  ;; Set reusable font name variables
-  (defcustom d/fixed-pitch-font "Code OnePiece"
-    "The font to use for monospaced (fixed width) text.")
+    ;; Set reusable font name variables
+    (defcustom d/fixed-pitch-font "Code OnePiece"
+      "The font to use for monospaced (fixed width) text.")
 
-  (defcustom d/variable-pitch-font "Code Haki"
-    "The font to use for variable-pitch (documents) text.")
+    (defcustom d/variable-pitch-font "Code Haki"
+      "The font to use for variable-pitch (documents) text.")
   #+end_src
 - Invoking fonts.
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package faces :ensure nil
-    :custom-face
-    (variable-pitch ((t (:family ,d/variable-pitch-font
-                                 ;; :height 1.2
-                                 :weight medium))))
-    (fixed-pitch ((t (:family ,d/fixed-pitch-font
-                              ;; :height ,d/font-size
-                              :weight medium))))
-    (default ((t (:family ,d/fixed-pitch-font
-                          ;; :height ,d/font-size
-                          :weight medium)))))
+    (use-package faces :ensure nil
+      :custom-face
+      (variable-pitch ((t (:family ,d/variable-pitch-font :height 1.05 :weight medium))))
+      (fixed-pitch ((t (:family ,d/fixed-pitch-font :weight medium))))
+      (default ((t (:family ,d/fixed-pitch-font :height ,d/font-size :weight medium)))))
   #+end_src
 
 - font-lock
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package font-lock :ensure nil :defer t
-    :custom ((font-lock-maximum-decoration t)
-             (font-lock-global-modes '(not text-mode))
-             (font-lock-verbose nil))
-    :config
-    (set-language-environment "UTF-8")
-    (global-font-lock-mode 1))
+    (use-package font-lock :ensure nil :init (global-font-lock-mode 1))
   #+end_src
 *** Icons
 - To visualize and minimize the text.
@@ -5371,70 +5344,70 @@ stdenvNoCC.mkDerivation rec {
 - An bundle of color-scheme for tools.
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-  {
-    stylix = {
-      enable = true;
-      image = ./configs/chinese-dragon.jpg;
-      polarity = "dark";
+    {
+      stylix = {
+        enable = true;
+        image = ./configs/chinese-dragon.jpg;
+        polarity = "dark";
 
-      # base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
-      base16Scheme = {
-        base00 = "#000000"; # bg
-        base01 = "#333333"; # light bg
-        base02 = "#303030"; # selection bg
-        base03 = "#2e8b57"; # comment/hl
-        base04 = "#D8DEE9"; # dim fg
-        base05 = "#ffffff"; # fg
-        base06 = "#6c7b8b"; # light fg
-        base07 = "#444444"; # light bg
-        base08 = "#ffb5c5"; # red
-        base09 = "#ee9572"; # orange
-        base0A = "#fbfba2"; # yellow
-        base0B = "#54ff9f"; # green
-        base0C = "#22fefe"; # aqua/cyan
-        base0D = "#89b4fa"; # blue
-        base0E = "#9370db"; # purple
-        base0F = "#76eec6"; # brown
+        # base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
+        base16Scheme = {
+          base00 = "#000000"; # bg
+          base01 = "#333333"; # light bg
+          base02 = "#303030"; # selection bg
+          base03 = "#2e8b57"; # comment/hl
+          base04 = "#D8DEE9"; # dim fg
+          base05 = "#ffffff"; # fg
+          base06 = "#6c7b8b"; # light fg
+          base07 = "#444444"; # light bg
+          base08 = "#ffb5c5"; # red
+          base09 = "#ee9572"; # orange
+          base0A = "#fbfba2"; # yellow
+          base0B = "#54ff9f"; # green
+          base0C = "#22fefe"; # aqua/cyan
+          base0D = "#89b4fa"; # blue
+          base0E = "#9370db"; # purple
+          base0F = "#76eec6"; # brown
+        };
+
+        cursor = {
+          package = pkgs.bibata-cursors;
+          name = "Bibata-Modern-Classic";
+          size = 12;
+        };
+
+        fonts = {
+          serif = {
+            package = pkgs.callPackage ./pkgs/code-nika.nix {};
+            name = "Code Haki";
+          };
+
+          sansSerif = {
+            package = pkgs.callPackage ./pkgs/code-nika.nix {};
+            name = "Code Haki";
+          };
+
+          monospace = {
+            package = pkgs.callPackage ./pkgs/code-nika.nix {};
+            name = "Code OnePiece";
+          };
+
+          emoji = {
+            package = pkgs.noto-fonts-emoji;
+            name = "Noto Color Emoji";
+          };
+
+          sizes = {
+            applications = 12;
+            desktop = 12;
+            popups = 12;
+            terminal = 12;
+          };
+
+        };
       };
 
-      cursor = {
-        package = pkgs.bibata-cursors;
-        name = "Bibata-Modern-Classic";
-        size = 12;
-      };
-
-      fonts = {
-        serif = {
-          package = pkgs.callPackage ./pkgs/code-nika.nix {};
-          name = "Code Haki";
-        };
-
-        sansSerif = {
-          package = pkgs.callPackage ./pkgs/code-nika.nix {};
-          name = "Code Haki";
-        };
-
-        monospace = {
-          package = pkgs.callPackage ./pkgs/code-nika.nix {};
-          name = "Code OnePiece";
-        };
-
-        emoji = {
-          package = pkgs.noto-fonts-emoji;
-          name = "Noto Color Emoji";
-        };
-
-        sizes = {
-          applications = 12;
-          desktop = 12;
-          popups = 12;
-          terminal = 12;
-        };
-
-      };
-    };
-
-  }
+    }
   #+end_src
 
 - Home manager options for stylix
@@ -5505,55 +5478,30 @@ stdenvNoCC.mkDerivation rec {
 - After long usage, I felt every theme did not suit me, so I just wrote a theme ([[https://github.com/idlip/haki][haki]])
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package haki-theme :demand t
-    :load-path "~/.config/emacs/var/theme"
-    :custom-face
-    (haki-region ((t (:background "#262626" :foreground "#ffffff"))))
-    :custom
-    (haki-heading-font "Code D Ace")
-    (haki-sans-font "Code D Haki")
-    (haki-title-font "Code D Ace")
-    (haki-bg-oled t)
-    (haki-theme-mode-line nil)
-    (haki-region)
-    ;; (haki-link-font "")
-    ;; (haki-code-font "Code D Lip")
-    :config (load-theme 'haki t))
+    (use-package haki-theme :demand t
+      :load-path "~/.config/emacs/var/theme"
+      :custom-face
+      (haki-region ((t (:background "#262626" :foreground "#ffffff"))))
+      :custom
+      ;; (haki-heading-font "Code D Ace")
+      ;; (haki-sans-font "Code D Haki")
+      ;; (haki-title-font "Code D Ace")
+      (haki-bg-oled t)
+      (haki-theme-mode-line nil)
+      (haki-region)
+      ;; (haki-link-font "")
+      ;; (haki-code-font "Code D Lip")
+      :config (load-theme 'haki t))
   #+end_src
 
-- Modus-themes, the built-in master crafted.
-  #+name: orgmacs
-  #+begin_src emacs-lisp
-  (use-package emacs :ensure nil
-    :custom
-    (modus-themes-italic-constructs t)
-    (modus-themes-bold-constructs t)
-    (modus-themes-mixed-fonts t)
-    (modus-themes-variable-pitch-ui nil)
-    (modus-themes-custom-auto-reload t)
-    (modus-themes-disable-other-themes t)
-    (modus-themes-prompts '(italic bold))
-    (modus-themes-org-blocks 'gray-background)
-    (modus-themes-completions
-     '((matches . (extrabold))
-       (selection . (semibold italic text-also))))
-
-    (modus-themes-org-blocks 'gray-background)
-
-    (modus-themes-headings
-     '((1 . (variable-pitch 1.1))
-       (2 . (1.1))
-       (agenda-date . (1.2))
-       (agenda-structure . (variable-pitch light 1.8))
-       (t . (1.1)))))
-  #+end_src
-** Olivetti
+** COMMENT Olivetti
 - Nice, focused writing environment for emacs.
+  TODO replace with daviwil's =document-center-mode= function.
   #+name: orgmacs
   #+begin_src emacs-lisp
   (use-package olivetti :defer t :custom (olivetti-body-width 100)
     :hook (org-mode text-mode Info-mode helpful-mode ement-room-mode gnus-group-mode
-                    shrface-mode gnus-article-mode sdcv-mode nov-mode elfeed-show-mode markdown-mode))
+                     gnus-article-mode sdcv-mode nov-mode elfeed-show-mode markdown-mode))
   #+end_src
 ** Status bar/Mode-line
 *** Waybar
@@ -5715,7 +5663,7 @@ stdenvNoCC.mkDerivation rec {
               "network" = {
                 # "interface" = "wlp2s0";
                 "format" = "⚠ Disabled";
-                "format-wifi" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
+                "format-wifi" = " {bandwidthDownBytes}\n {bandwidthUpBytes}";
                 "format-ethernet" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
                 "format-disconnected" = "⚠ Disconnected";
                 "on-click" = "d-wifi";
@@ -5809,22 +5757,21 @@ stdenvNoCC.mkDerivation rec {
      mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position
      mode-line-format-right-align
      "  "
-		 (project-mode-line project-mode-line-format) " " (vc-mode vc-mode) "  " mode-line-modes mode-line-misc-info "  "))
-	(project-mode-line t))
+		 (project-mode-line project-mode-line-format) " " (vc-mode vc-mode) "  " mode-line-modes mode-line-misc-info "  ")))
 #+end_src
 - To toggle mode-line on and off.
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (global-set-key [f9] #'d/toggle-bar)
+    (global-set-key [f9] #'d/toggle-bar)
 
-  (defun d/toggle-bar ()
-    "The void space."
-    (interactive)
-    (setq mode-line-format
-          (if (equal mode-line-format nil)
-              (default-value 'mode-line-format)))
-    (toggle-frame-tab-bar)
-    (redraw-display))
+    (defun d/toggle-bar ()
+      "The void space."
+      (interactive)
+      (setq mode-line-format
+            (if (equal mode-line-format nil)
+                (default-value 'mode-line-format)))
+      ;; (toggle-frame-tab-bar)
+      (redraw-display))
 
   #+end_src
 
@@ -5889,29 +5836,35 @@ stdenvNoCC.mkDerivation rec {
 - =htop= in emacs, its =proced=
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package proced
-    :bind ("C-x x p" . 'proced)
-    :init
-    (setopt proced-auto-update-interval 1
-            proced-enable-color-flag t
-            proced-format 'medium
-            proced-sort 'rss)
-    :hook (proced-mode . (lambda () (interactive) (proced-toggle-auto-update 1))))
+    (use-package proced
+      :bind ("C-x x p" . 'proced)
+      :custom
+      (proced-enable-color-flag t)
+      (proced-format 'medium)
+      (proced-sort 'pmem)
+      (proced-auto-update-flag t))
+
   #+end_src
 *** bash
 - The Shell Environment
+  #+name: nixos-core
+#+begin_src nix :tangle gdk/core.nix
+  {
+    programs.fish.enable = true;
+  }
+#+end_src
 #+name: hm-config
 #+begin_src nix :tangle gdk/home.nix
-{
-  programs = {
-    fish = {
-    enable = true;
-    };
-    bash = {
+  {
+    programs = {
+      fish = {
       enable = true;
+      };
+      bash = {
+        enable = true;
+      };
     };
-  };
-}
+  }
 #+end_src
 
 **** source
@@ -6137,7 +6090,7 @@ stdenvNoCC.mkDerivation rec {
           cleanup = "doas nix-collect-garbage --delete-older-than 7d";
           bloat = "nix path-info -Sh /run/current-system";
           ytmp3 = "yt-dlp -x --continue --add-metadata --embed-thumbnail --audio-format mp3 --audio-quality 0 --metadata-from-title = '%(artist)s - %(title)s' --prefer-ffmpeg -o '%(title)s.%(ext)s' ";
-          cat = "bat --style = plain";
+          cat = "bat";
           grep = "rg";
           du = "dust";
           ls = "eza -h --git --icons --color=auto --group-directories-first -s extension";
@@ -6226,12 +6179,12 @@ stdenvNoCC.mkDerivation rec {
 - dconf for gnome desktop suitable stuff
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-  {
-    programs = {
-      adb.enable = true; # help manage android devices via command line
-      fish.enable = true;
-    };
-  }
+    {
+      programs = {
+        adb.enable = true; # help manage android devices via command#  line
+        # fish.enable = true;
+      };
+    }
   #+end_src
 
 *** DownloadManager
@@ -6325,25 +6278,25 @@ stdenvNoCC.mkDerivation rec {
 - Credits to @yorichvP for github gist.
   #+name: orgmacs
   #+begin_src emacs-lisp
-  ;; credit: yorickvP on Github
-  (setq wl-copy-process nil)
+    ;; credit: yorickvP on Github
+    ;; (setq wl-copy-process nil)
 
-  (defun wl-copy (text)
-    (setq wl-copy-process (make-process :name "wl-copy"
-                                        :buffer nil
-                                        :command '("wl-copy" "-f" "-n")
-                                        :connection-type 'pipe))
-    (process-send-string wl-copy-process text)
-    (process-send-eof wl-copy-process))
+    (defun wl-copy (text)
+      (let ((p (make-process :name "wl-copy"
+                             :command '("wl-copy")
+                             :connection-type 'pipe)))
+        (process-send-string p text)
+        (process-send-eof p)))
 
-  (defun wl-paste ()
-    (if (and wl-copy-process (process-live-p wl-copy-process))
-        nil ; should return nil if we're the current paste owner
-      (shell-command-to-string "wl-paste -n")))
+    ;; (defun wl-paste ()
+    ;;   (if (and wl-copy-process (process-live-p wl-copy-process))
+    ;;       nil ; should return nil if we're the current paste owner
+    ;;     (shell-command-to-string "wl-paste -n")))
 
-  (unless d/on-droid
-    (setq interprogram-cut-function 'wl-copy)
-    (setq interprogram-paste-function 'wl-paste))
+    (unless d/on-droid
+      (setq interprogram-cut-function 'wl-copy)
+      ;; (setq interprogram-paste-function 'wl-paste)
+      )
 
   #+end_src
 
@@ -6357,6 +6310,22 @@ stdenvNoCC.mkDerivation rec {
     ];
   }
   #+end_src
+
+- Emulate window env for some apps and games
+  #+name: hm-config
+#+begin_src nix :tangle gdk/home.nix
+  {
+    home.packages = with pkgs; [
+      winePackages.waylandFull
+      winePackages.fonts
+      bottles
+      winetricks
+      # ASIO -> JACK (which pipewire can support)
+      wineasio
+    ];
+  }
+
+#+end_src
 *** Launcher
 **** fuzzel
 - Simple and focused menu launcher by dnkl (foot author)
@@ -6408,115 +6377,115 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
 - https://orgmode.org
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package org :ensure nil :defer t
-    :hook
-    (org-mode . variable-pitch-mode)
-    (org-mode . org-indent-mode)
+    (use-package org :ensure nil :defer t
+      :hook
+      ;; (org-mode . variable-pitch-mode)
+      (org-mode . org-indent-mode)
 
-    :bind (
-           ("C-c t i" . d/set-timer)
+      :bind (
+             ("C-c t i" . d/set-timer)
 
-           (:map org-mode-map
-                 ("C-x n n" . d/narrow-or-widen-dwim)
-                 ("C-c l" . org-store-link)
-                 ("M-n" . org-shiftdown)
-                 ("M-p" . org-shiftup)
-                 ))
+             (:map org-mode-map
+                   ("C-x n n" . d/narrow-or-widen-dwim)
+                   ("C-c l" . org-store-link)
+                   ("M-n" . org-shiftdown)
+                   ("M-p" . org-shiftup)
+                   ))
 
-    :custom
-    (org-ellipsis " ")
-    (org-log-done 'note)
-    (org-log-into-drawer t)
-    (org-export-exclude-tags '("noexport" "ignore") "excludes these tagged heading from export")
-    (org-latex-compiler "lualatex" "Lualatex is fast and gets custom font too")
-    (org-link-file-path-type 'relative)
-    (org-todo-keywords
-     '((sequence "TODO(t)" "NEXT(n)" "STARTED(s!)" "WAITING(w@/!)" "|" "DONE(d!)")
-       (sequence "SOMEDAY(o)" "|")
-       (sequence "|" "DELEGATED(g@/!)" "CANCELLED(c!)")))
-    (org-clock-in-switch-to-state "STARTED")
+      :custom
+      (org-ellipsis " ")
+      (org-log-done 'note)
+      (org-log-into-drawer t)
+      (org-export-exclude-tags '("noexport" "ignore") "excludes these tagged heading from export")
+      (org-latex-compiler "lualatex" "Lualatex is fast and gets custom font too")
+      (org-link-file-path-type 'relative)
+      (org-todo-keywords
+       '((sequence "TODO(t)" "NEXT(n)" "STARTED(s!)" "WAITING(w@/!)" "|" "DONE(d!)")
+         (sequence "SOMEDAY(o)" "|")
+         (sequence "|" "DELEGATED(g@/!)" "CANCELLED(c!)")))
+      (org-clock-in-switch-to-state "STARTED")
 
-    (org-refile-targets
-     '( (org-default-notes-file :maxlevel . 5)
-        (nil :maxlevel . 6)
-       ))
+      (org-refile-targets
+       '( (org-default-notes-file :maxlevel . 5)
+          (nil :maxlevel . 6)
+         ))
 
-    (fill-column 80)
-    (org-directory "~/d-sync/notes/")
-    (org-default-notes-file (concat org-directory "d-brain.org"))
-    (org-src-fontify-natively t)
-    (org-pretty-entities t)
-    (org-log-reschedule 'note)
-    (org-startup-indented t)
-    (org-list-allow-alphabetical t)
+      (fill-column 80)
+      (org-directory "~/d-sync/notes/")
+      (org-default-notes-file (concat org-directory "d-brain.org"))
+      (org-src-fontify-natively t)
+      (org-pretty-entities t)
+      (org-log-reschedule 'note)
+      (org-startup-indented t)
+      (org-list-allow-alphabetical t)
 
-    (org-fontify-whole-heading-line t)
-    (org-fontify-done-headline t)
+      (org-fontify-whole-heading-line t)
+      (org-fontify-done-headline t)
 
-    (org-fontify-quote-and-verse-blocks t)
-    (org-fold-catch-invisible-edits 'show-and-error)
-    (org-use-property-inheritance t)
-    (org-hierarchical-todo-statistics nil)
-    (org-enforce-todo-checkbox-dependencies t)
+      (org-fontify-quote-and-verse-blocks t)
+      (org-fold-catch-invisible-edits 'show-and-error)
+      (org-use-property-inheritance t)
+      (org-hierarchical-todo-statistics nil)
+      (org-enforce-todo-checkbox-dependencies t)
 
-    (org-enforce-todo-dependencies t)
-    (org-track-ordered-property-with-tag t)
+      (org-enforce-todo-dependencies t)
+      (org-track-ordered-property-with-tag t)
 
-    (org-special-ctrl-k t)
+      (org-special-ctrl-k t)
 
-    (org-special-ctrl-a/e t)
-    (org-insert-heading-respect-content t)
+      (org-special-ctrl-a/e t)
+      (org-insert-heading-respect-content t)
 
-    (org-image-actual-width nil)
+      (org-image-actual-width nil)
 
-    :config
-    (org-clock-persistence-insinuate)
+      :config
+      (org-clock-persistence-insinuate)
 
-    ;; Save Org buffers after refiling!
-    (advice-add 'org-refile :after 'org-save-all-org-buffers)
+      ;; Save Org buffers after refiling!
+      (advice-add 'org-refile :after 'org-save-all-org-buffers)
 
-    (defun org-archive-done-tasks ()
-      "From the org-heading, it throws all the Done tasks to filename_archive.org"
-      (interactive)
-      (org-map-entries
-       (lambda ()
-         (org-archive-subtree)
-         (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
-       "/DONE" 'tree))
+      (defun org-archive-done-tasks ()
+        "From the org-heading, it throws all the Done tasks to filename_archive.org"
+        (interactive)
+        (org-map-entries
+         (lambda ()
+           (org-archive-subtree)
+           (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
+         "/DONE" 'tree))
 
-    (push '("conf-unix" . conf-unix) org-src-lang-modes)
-    (defalias 'd/set-timer (symbol-function 'org-timer-set-timer)) )
+      (push '("conf-unix" . conf-unix) org-src-lang-modes)
+      (defalias 'd/set-timer (symbol-function 'org-timer-set-timer)) )
   #+end_src
 
 *** org-modern
 - for modern emacs, modern org looks
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package org-modern :config (global-org-modern-mode) :hook (org-mode org-agenda-finalize)
-    :custom
-    ;; (org-modern-fold-stars '(("󰓏" . "▼") ("󰚀" . "▽") ("󰫤" . "⯆") ("󰴈" . "▿") ("󰄄" . "▾")))
+    (use-package org-modern :config (global-org-modern-mode) :hook (org-mode org-agenda-finalize)
+      :custom
+      ;; (org-modern-fold-stars '(("󰓏" . "▼") ("󰚀" . "▽") ("󰫤" . "⯆") ("󰴈" . "▿") ("󰄄" . "▾")))
 
-    (org-modern-list
-     '((?* . "") (?- . "") (?+ . "")))
+      (org-modern-list
+       '((?* . "") (?- . "") (?+ . "")))
 
-    (org-modern-checkbox
-     '((?X . "✅") (?- . "❌") (?  . "")))
+      (org-modern-checkbox
+       '((?X . "✅") (?- . "❌") (?  . "")))
 
-    (org-modern-keyword
-     '(("options" . "") ("title" . "")
-       ("author" . "󱆀") ("email" . "")
-       ("startup" . "") ("property" . "")
-       ("date" . "") ("tags" . "")
-       ("reveal" . "󰐩") ("latex" . "") ("latex_header" . "")
-       ("logbook" . "log")
-       ("todo" . "") (t . t)))
+      (org-modern-keyword
+       '(("options" . "") ("title" . "")
+         ("author" . "󱆀") ("email" . "")
+         ("startup" . "") ("property" . "")
+         ("date" . "") ("tags" . "")
+         ("reveal" . "󰐩") ("latex" . "") ("latex_header" . "")
+         ("logbook" . "log")
+         ("todo" . "") (t . t)))
 
-    (org-modern-block-name
-     '(("src" . "") ("example" . "")
-       ("html" . "") ("quote" . ("" ""))
-       (t . t)))
+      (org-modern-block-name
+       '(("src" . "") ("example" . "")
+         ("html" . "") ("quote" . ("" ""))
+         (t . t)))
 
-    (org-modern-internal-target '("  " t " ")))
+      (org-modern-internal-target '("  " t " ")))
   #+end_src
 - Prettify symbols alist
      #+name: orgmacs
@@ -6867,9 +6836,10 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
 *** calendar
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package calendar
-    :bind ("C-c d d" . calendar)
-    :custom (diary-file "~/d-sync/notes/diary"))
+    (use-package calendar
+      :bind ("C-c d d" . calendar)
+      :custom (diary-file "~/d-sync/notes/diary")
+      (calendar-date-style 'european))
   #+end_src
 ** Markdown
   #+name: orgmacs

@@ -340,8 +340,7 @@ Also its crucial to only add configuration that is explicitly required, rather t
 - display time in mode-line
   #+name: orgmacs
   #+begin_src emacs-lisp
-    (use-package time :ensure nil
-      :hook (after-init . display-time)
+    (use-package time :ensure nil :init (display-time-mode)
       :custom (display-time-24hr-format t) (display-time-default-load-average nil))
   #+end_src
 *** useradd
@@ -450,8 +449,7 @@ Also its crucial to only add configuration that is explicitly required, rather t
 - Transparent remote (file) access, multiple protocol
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package tramp :ensure nil
-    :custom (tramp-backup-directory-alist backup-directory-alist))
+  (use-package tramp :ensure nil :custom (tramp-backup-directory-alist backup-directory-alist))
   #+end_src
 **** systemd-nspawn (container) support for tramp
 - Credits to https://github.com/bjc/tramp-nspawn
@@ -592,7 +590,8 @@ see its function help for a description of the format."
 - Display battery in emacs
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package battery :ensure nil :hook (after-init . display-battery-mode) :custom (battery-load-low '40) (battery-load-critical '29))
+    (use-package battery :ensure nil :init (display-battery-mode)
+      :custom (battery-load-low '40) (battery-load-critical '29))
   #+end_src
 
 *** drive access
@@ -1238,7 +1237,8 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 - Revert files with changes, so I can work with sync.
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package autorevert :init (global-auto-revert-mode))
+    (use-package autorevert :init (global-auto-revert-mode)
+      :custom (global-auto-revert-non-file-buffers t))
   #+end_src
 **** File History
 - savehist of minibuffer candidates

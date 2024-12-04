@@ -19,28 +19,32 @@
 - [[file:.envrc][.envrc]] - For direnv, shell environment based on flake or bash.
 
 --------------
+
+[[https://github.com/user-attachments/assets/0990bbfa-4bf0-4eee-aedb-c5663e67ff2b]]
+- Snap of Desktop using [[https://github.com/yalTeR/niri][niri]], themed by [[https://github.com/danth/stylix/][Stylix]]
+
 * 🌟 Utilities that are Best!
 --------------
 
-|----------------------------+----------------------------|
-| Class                      | Name                       |
-|----------------------------+----------------------------|
-| 🌸 Window Manager          | [[https://hyprland.org/][Hyprland]]                   |
-| 💜 Text Editor             | [[https://www.gnu.org/software/emacs/][Emacs]]                      |
-| 🎨 Gtk Theme               | [[https://github.com/lassekongo83/adw-gtk3][Adw-gtk3]]                   |
-|   Font                    | [[https://github.com/idlip/code-d-font][Recursive font]]             |
-| 📔 Pdf Reader              | [[https://github.com/ahrm/sioyek][Sioyek]] (ditch zathura)     |
-| 🎬 Media Player            | [[https://mpv.io][MPV!]] (its MVP too)         |
-| 🖼️ Image Viewer            | [[https://sr.ht/~exec64/imv/][Imv]]                        |
-| 📰 RSS Reader              | [[https://github.com/skeeto/elfeed][Elfeed]] (Again, Emacs)      |
-| 🎶 Music Player            | [[https://github.com/ncmpcpp/ncmpcpp][Ncmpcpp]] or [[https://github.com//mingus][Mingus in Emacs]] |
-|   Terminal                | [[https://codeberg.org/dnkl/foot][Foot]] via footclient        |
-| 🚀 Menu/Launcher           | [[https://github.com/lbonn/rofi][Rofi]]                       |
-| 🛎️ Notification            | [[https://github.com/dunst/dunst][Dunst]]                      |
-| 🔰 Shell                   | [[https://zsh.org][Zshell]]                     |
-| 🍥 Status Bar              | [[https://github.com/Alexays/Waybar][Waybar]]                     |
-| 🫰 Favorite Color-Schemes | [[https://github.com/idlip/haki][Haki]] + Modus-Vivendi       |
-|----------------------------+----------------------------|
+|----------------------------+-------------------------|
+| Class                      | Name                    |
+|----------------------------+-------------------------|
+| 🌸 Window Manager         | [[https://github.com/yalTeR/niri][Hyprland]]                |
+| 💜 Text Editor            | [[https://www.gnu.org/software/emacs/][Emacs]]                   |
+| 🎨 Gtk Theme              | [[https://github.com/danth/stylix/][Stylix]]                  |
+|   Font                    | [[https://github.com/idlip/Iosevka/tree/nika][Custom Iosevka]]          |
+| 📔 Pdf Reader             | [[https://github.com/ahrm/sioyek][Sioyek]] (ditch zathura)  |
+| 🎬 Media Player           | [[https://mpv.io][MPV!]] (its MVP too)      |
+| 🖼️ Image Viewer           | [[https://github.com/artemsen/swayimg][Swayimg]]                 |
+| 📰 RSS Reader             | [[https://www.gnus.org/][Gnus]]                    |
+| 🎶 Music Player           | [[https://www.musicpd.org/][mpd+mpc]] or [[https://github.com/xenodium/ready-player][ready-player]] |
+|   Terminal                | [[https://codeberg.org/dnkl/foot][Foot]] or emacs eshell    |
+| 🚀 Menu/Launcher          | [[https://codeberg.org/dnkl/fuzzel][Fuzzel]]                  |
+| 🛎️ Notification           | [[https://codeberg.org/dnkl/fnott][Fnott]]                   |
+| 🔰 Shell                  | [[https://fishshell.com/][Fish]]                    |
+| 🍥 Status Bar             | [[https://github.com/Alexays/Waybar][Waybar]]                  |
+| 🫰 Favorite Color-Schemes | [[https://github.com/idlip/haki][Haki]] via [[https://github.com/danth/stylix/][Stylix]]         |
+|----------------------------+-------------------------|
 
 #+begin_quote
 Rest all other stuffs I do in Emacs, tbh I could do everything in Emacs lol.

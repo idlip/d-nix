@@ -20,7 +20,10 @@
 
 --------------
 
-[[https://github.com/user-attachments/assets/0990bbfa-4bf0-4eee-aedb-c5663e67ff2b]]
+#+begin_html
+<img src="https://github.com/user-attachments/assets/c624a3bf-6950-4b0d-b48d-9fcfcd96cb47">
+#+end_html
+
 - Snap of Desktop using [[https://github.com/yalTeR/niri][niri]], themed by [[https://github.com/danth/stylix/][Stylix]]
 
 * 🌟 Utilities that are Best!
@@ -29,7 +32,7 @@
 |----------------------------+-------------------------|
 | Class                      | Name                    |
 |----------------------------+-------------------------|
-| 🌸 Window Manager         | [[https://github.com/yalTeR/niri][Hyprland]]                |
+| 🌸 Window Manager         | [[https://github.com/yalTeR/niri][Niri]]                    |
 | 💜 Text Editor            | [[https://www.gnu.org/software/emacs/][Emacs]]                   |
 | 🎨 Gtk Theme              | [[https://github.com/danth/stylix/][Stylix]]                  |
 |   Font                    | [[https://github.com/idlip/Iosevka/tree/nika][Custom Iosevka]]          |

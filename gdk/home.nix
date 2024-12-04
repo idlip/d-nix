@@ -181,7 +181,7 @@
     emacs-lsp-booster
     imagemagick # for image-dired and other converts
   ];
-
+  # todo purge many packages
   programs.emacs = {
     enable = true;
     package = pkgs.emacs-pgtk;
@@ -189,19 +189,19 @@
       treesit-grammars.with-all-grammars
       eat vundo undo-fu-session helpful
       no-littering rainbow-delimiters colorful-mode
-      vertico orderless consult marginalia embark org-modern corfu cape corfu-terminal
+      vertico orderless consult marginalia embark org-modern corfu cape
       olivetti nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
       embark-consult consult-eglot markdown-mode nix-mode nix-ts-mode
       reddigg hnreader howdoyou magit webpaste
-      shrface org-mime shr-tag-pre-highlight nov devdocs-browser reformatter
+      org-mime shr-tag-pre-highlight nov devdocs-browser reformatter
       tempel tempel-collection eglot-tempel
       sdcv jinx envrc ready-player
-      speed-type vc-backup aria2 transmission pubmed
+      speed-type vc-backup aria2 transmission
       ess auctex julia-mode webfeeder engrave-faces
       toc-org org-ql org-noter activities
       saveplace-pdf-view flycheck consult-flycheck
       ef-themes doom-themes
-      org-re-reveal dslide gptel
+      org-re-reveal dslide gptel pdf-tools
 
       (melpaBuild {
         pname = "combobulate";
@@ -551,125 +551,6 @@
 }
 
 {
-  # the thing is you won't get xdg-portal-hyprland
-  # refer: https://github.com/nix-community/home-manager/issues/1167
-  # # enable hyprland
-  services.hyprpaper.enable = lib.mkForce false;
-  wayland.windowManager.hyprland = {
-    enable = true;
-    systemd.enable = true;
-    plugins = with pkgs.hyprlandPlugins; [ hyprscroller ];
-
-    extraConfig = ''
-    source					= ~/.config/hypr/hyprsea.conf
-    '';
-
-    settings = {
-
-      decoration = {
-        rounding = 10;
-        inactive_opacity = 0.8;
-        active_opacity = 0.9;
-        fullscreen_opacity = 1.0;
-        dim_inactive = false;
-        shadow_offset = "0 5";
-        "col.shadow" = "rgba(00000099)";
-
-        blur = {
-          enabled = 1;
-          size = 6;
-          passes = 3;
-          new_optimizations = true;
-          ignore_opacity = true;
-        };
-      };
-
-      "$mod" = "super";
-
-      input = {
-        kb_layout = "us";
-        kb_options = "ctrl:nocaps";
-        follow_mouse = 1;
-        sensitivity = 0.1;
-        #    repeat_delay = 250
-
-        touchpad = {
-          natural_scroll = "yes";
-          disable_while_typing = 1;
-          clickfinger_behavior = 0; # double tap > right click
-          middle_button_emulation = 1;
-          tap-to-click = 1;
-        };
-      };
-
-      general  =  {
-        gaps_in = 5;
-        gaps_out = 15;
-        border_size = 2;
-        # "col.active_border" = "rgba(2e8b57ff) rgba(87cefaff) rgba(ffec8bff) rgba(ffaeb9ff) 90deg";
-        # "col.inactive_border" = "0xff382D2E";
-        no_border_on_floating  =  false; # enable border on float window
-        layout  =  "dwindle";
-      };
-
-      misc = {
-        disable_hyprland_logo = true;
-        disable_splash_rendering = true;
-        mouse_move_enables_dpms = true;
-        enable_swallow = true;
-        swallow_regex = "^(foot)$";
-        vrr = false;
-      };
-
-      cursor = {
-        zoom_factor = 0.2;
-      };
-
-      animations = {
-        enabled = true;
-        bezier = "linear, 0.0, 0.0, 1.0, 1.0";
-        animation = "borderangle, 1, 180, linear, loop"; #used by rainbow borders and rotating colors
-      };
-
-      dwindle = {
-        pseudotile = true;
-        preserve_split = true;
-        force_split = true;
-        no_gaps_when_only = false;
-        default_split_ratio = 1.0;
-        smart_split = false;
-      };
-
-      master = {
-        new_on_top = false;
-        allow_small_split = true;
-        no_gaps_when_only = false;
-      };
-
-      gestures  =  {
-        workspace_swipe = 1;
-        workspace_swipe_distance = 400;
-        workspace_swipe_invert = 1;
-        workspace_swipe_min_speed_to_force = 30;
-        workspace_swipe_cancel_ratio = 0.5;
-      };
-
-      bindm = [
-        # mouse movements
-        "$mod, mouse:272, movewindow"
-        "$mod, mouse:273, resizewindow"
-        "$mod alt, mouse:272, resizewindow"
-      ];
-
-
-    };
-  };
-
-  # naming it main.conf becuase hm writes hyprland.conf, so just as an import
-  xdg.configFile."hypr/hyprsea.conf".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/hyprsea.conf";
-}
-
-{
   home.packages = with pkgs; [
     # screenshot
     # grim slurp
@@ -690,6 +571,13 @@
 }
 
 {
+  systemd.user.startServices = "sd-switch"; # should be default soon
+  # HM issue, some service won't start in niri
+  systemd.user.services.cliphist.Unit.After = "graphical-session.target";
+  systemd.user.services.cliphist-images.Unit.After = "graphical-session.target";
+  systemd.user.services.hypridle.Unit.After = lib.mkForce "graphical-session.target";
+  systemd.user.services.wlsunset.Unit.After = lib.mkForce "graphical-session.target";
+
   services.hypridle = let
     hyprlock = lib.getExe config.programs.hyprlock.package;
     brightness = lib.getExe pkgs.brightnessctl;
@@ -733,32 +621,12 @@
   programs.hyprlock = {
     enable = true;
     settings = {
-      background = [
+      background = lib.mkForce [
         {
           monitor = "";
           path = "/home/idlip/.local/share/bg2";
           blur_size = 8;
           blur_passes = 3;
-          noise = 0.0117;
-          contrast = 1.3000;
-          brightness = 0.500;
-          vibrancy = 0.2100;
-          vibrancy_darkness = 0.50;
-        }
-      ];
-
-      input-field = [
-        {
-          monitor = "";
-          size = "250, 50";
-          dots_center = true;
-          font_color = "rgb(0, 0, 0)";
-          fade_on_empty = true;
-          placeholder_text = "<i>Password...</i>";
-          hide_input = false;
-          position = "0, 200";
-          halign = "center";
-          valign = "bottom";
         }
       ];
 
@@ -1036,7 +904,7 @@
           "network" = {
             # "interface" = "wlp2s0";
             "format" = "⚠ Disabled";
-            "format-wifi" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
+            "format-wifi" = " {bandwidthDownBytes}\n {bandwidthUpBytes}";
             "format-ethernet" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
             "format-disconnected" = "⚠ Disconnected";
             "on-click" = "d-wifi";
@@ -1186,7 +1054,7 @@
       cleanup = "doas nix-collect-garbage --delete-older-than 7d";
       bloat = "nix path-info -Sh /run/current-system";
       ytmp3 = "yt-dlp -x --continue --add-metadata --embed-thumbnail --audio-format mp3 --audio-quality 0 --metadata-from-title = '%(artist)s - %(title)s' --prefer-ffmpeg -o '%(title)s.%(ext)s' ";
-      cat = "bat --style = plain";
+      cat = "bat";
       grep = "rg";
       du = "dust";
       ls = "eza -h --git --icons --color=auto --group-directories-first -s extension";
@@ -1323,6 +1191,17 @@
 {
   home.packages = with pkgs; [
     openttd superTux # zeroad # supertuxkart
+  ];
+}
+
+{
+  home.packages = with pkgs; [
+    winePackages.waylandFull
+    winePackages.fonts
+    bottles
+    winetricks
+    # ASIO -> JACK (which pipewire can support)
+    wineasio
   ];
 }
 

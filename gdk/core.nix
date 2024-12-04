@@ -15,6 +15,11 @@
       efi.canTouchEfiVariables = true;
       timeout = 1;
     };
+    initrd.availableKernelModules = [
+      "nvme" "xhci_pci" "usbhid" "usb_storage" "sd_mod" "sdhci_pci"
+    ];
+
+    consoleLogLevel = 3;
 
     supportedFilesystems = [ "ntfs" ];
     tmp.cleanOnBoot = true;
@@ -22,6 +27,7 @@
     kernelParams = [
       "systemd.mask=dev-tpmrm0.device" #this is to mask that stupid 1.5 mins systemd bug
       "nowatchdog" "modprobe.blacklist=iTCO_wdt" #watchdog for Intel
+      "quiet"
  	  ];
   };
 }
@@ -217,6 +223,14 @@
   };
 }
 
+{ # for fingerprint
+  services.fprintd.enable = true;
+}
+
+{
+  services.hardware.bolt.enable = true;
+}
+
 {
   services.power-profiles-daemon.enable = true;
 }
@@ -358,6 +372,7 @@
 {
   hardware = {
     uinput.enable = true;
+    cpu.intel.updateMicrocode = true;
     pulseaudio.enable = lib.mkForce false;
     graphics = {
       enable = true;
@@ -408,11 +423,6 @@
 }
 
 {
-  programs.hyprland.enable = true;
-  programs.hyprlock.enable = true; # for pam auth config
-}
-
-{
   programs = {
     niri.enable = true;
     xwayland.enable = true;
@@ -420,14 +430,7 @@
 }
 
 {
-  # programs.ssh.askPassword = lib.mkForce "${pkgs.kdePackages.ksshaskpass.out}/bin/ksshaskpass";
-  services = {
-    desktopManager.plasma6.enable = true;
-    # displayManager.sddm.enable = true;
-    xserver.enable = true;
-    xserver.displayManager.sx.enable = true;
-    # displayManager.sddm.wayland.enable = true;
-  };
+  programs.hyprlock.enable = true; # for pam auth config
 }
 
 {
@@ -438,7 +441,8 @@
       (callPackage ./pkgs/code-d-font.nix {})
       (callPackage ./pkgs/code-nika.nix {})
       merriweather atkinson-hyperlegible
-      # (nerdfonts.override {fonts = [ "JetBrainsMono" ];})
+      # (iosevka-bin.override { variant = "Aile"; }) nerd-fonts.iosevka
+      # (iosevka-bin.override { variant = "Etoile"; })
     ];
 
     enableDefaultPackages = true;
@@ -511,9 +515,13 @@
 }
 
 {
+  programs.fish.enable = true;
+}
+
+{
   programs = {
-    adb.enable = true; # help manage android devices via command line
-    fish.enable = true;
+    adb.enable = true; # help manage android devices via command#  line
+    # fish.enable = true;
   };
 }
 

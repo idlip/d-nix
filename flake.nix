@@ -14,7 +14,6 @@
     # nix index to locate package/path
     nix-index-db = {
       url = "github:nix-community/nix-index-database";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     # Home to manage all user configs
@@ -22,7 +21,6 @@
     # just use an org heading and create block and tangle it directly to ~/.config/tool/file path.
     home-manager = {
       url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     emacs-overlay.url = "github:nix-community/emacs-overlay";

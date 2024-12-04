@@ -912,90 +912,57 @@ see its function help for a description of the format."
   #+end_src
 ** Init
 - To initialize the environment.
-*** use-package
-- setup =package.el=
-  #+name: orgmacs
-  #+begin_src emacs-lisp
-  ;; Initialize package sources
-  (require 'package)
-
-  (add-to-list 'package-archives '( "melpa" . "https://melpa.org/packages/"))
-
-  (unless (bound-and-true-p package--initialized)
-    (customize-set-variable 'package-enable-at-startup nil)
-    (package-initialize))
-
-  (unless package-archive-contents
-    (package-refresh-contents))
-  #+end_src
-
 *** Core-Tweaks
 + Sane default, to make vanilla experience suitable for me, for betterment.
 + Some of the tweak should be self-explanatory, or else just hop on it and do =C-h o=.
   #+name: orgmacs
   #+begin_src emacs-lisp
-  (use-package window :ensure nil
-    :bind
-    (("C-z" . nil) ;; avoid suspend-emacs
-     ("C-x C-z" . nil)
-     ;; panes
-     ("C-x 1" . d/toggle-window-focus)
-     ("M-o" . other-window)
-     ("C-x C-k" . d/kill-buffer)
-     ("C-x n n" . d/narrow-or-widen-dwim)
+    (use-package window :ensure nil
+      :bind
+      (("C-z" . nil) ("C-x C-z" . nil) ;; avoid suspend-emacs
+       ;; panes
+       ("C-x 1" . d/toggle-window-focus)
+       ("C-x C-k" . d/kill-buffer)
+       ("C-x n n" . d/narrow-or-widen-dwim))
 
-     (:map mode-specific-map
-           ("C-g" . minibuffer-keyboard-quit)))
+      :custom
+      (inhibit-startup-screen t "Don't show splash screen")
+      (cursor-type 't)
 
-    :custom
-    (inhibit-startup-screen t "Don't show splash screen")
-    (cursor-type 't)
+      (initial-major-mode 'org-mode)
+      (initial-scratch-message (format "\n\n"))
 
-    (initial-major-mode 'org-mode)
-    (initial-scratch-message
-     (format ""))
+      (indent-tabs-mode nil "Spaces!")
+      (tab-always-indent 'complete)
+      (tab-width 2)
+      (reb-re-syntax 'string)
 
-    (use-short-answers t)
-    (enable-recursive-minibuffers t "Allow minibuffer commands in the minibuffer")
-    (auto-save-include-big-deletions t "save after large chunk deletion")
-    (indent-tabs-mode nil "Spaces!")
-    (tab-always-indent 'complete)
-    (tab-width 2)
-    (reb-re-syntax 'string)
+      (history-delete-duplicates t)
+      ;; window/pane
+      (recenter-positions '(top middle bottom))
+      ;; pane
+      (frame-resize-pixelwise t)
 
-    (history-delete-duplicates t)
-    ;; window/pane
-    (recenter-positions '(top middle bottom))
-    ;; pane
-    (frame-resize-pixelwise t)
-    (frame-inhibit-implied-resize t)
+      (sentence-end-double-space nil)
+      (sentence-end "[.?!,;-]")
 
-    (sentence-end-double-space nil)
-    (sentence-end "[.?!,;-]")
+      :config
+      (delete-selection-mode)
+      (global-so-long-mode 1)
+      (setopt
+       read-process-output-max (* 1024 1024)
+       inhihbit-compacting-font-caches t
+       )
+      (with-current-buffer "*scratch*" (emacs-lock-mode 'kill))
+      (modify-all-frames-parameters
+       '((alpha-background . 100)
+         (right-divider-width . 1)
+         (internal-border-width . 1)))
 
-    ;; select
-    (selection-coding-system 'utf-8)
-
-    :config
-    (delete-selection-mode)
-    (setopt
-     read-process-output-max (* 1024 1024)
-     inhibit-compacting-font-caches t
-     )
-    (with-current-buffer "*scratch*"
-      (emacs-lock-mode 'kill))
-    (prefer-coding-system 'utf-8)
-    ;; Uppercase is same as lowercase
-    (define-coding-system-alias 'UTF-8 'utf-8)
-    (modify-all-frames-parameters
-     '((alpha-background . 100)
-       (right-divider-width . 0)
-       (internal-border-width . 0)))
-
-    ;; balance windows when split (https://zck.org/balance-emacs-windows)
-    (seq-doseq (fn (list #'split-window #'delete-window))
-      (advice-add fn :after #'(lambda (&rest args) (balance-windows))))
-    )
+      ;; balance windows when split (https://zck.org/balance-emacs-windows)
+      ;; (seq-doseq (fn (list #'split-window #'delete-window))
+      ;;   (advice-add fn :after #'(lambda (&rest args) (balance-windows))))
+      )
   #+end_src
 - Functions to enhance core default behavior
   #+name: orgmacs

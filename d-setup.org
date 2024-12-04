@@ -4223,7 +4223,7 @@ user_pref("findbar.highlightAll", true);
 - The aesthetic, eye pleasing, focused, zen setup.
 ** Wayland
 - Future of linux desktop? Idk why people call that, when legit Linux is the only desktop that does best.
-*** hyprland
+*** COMMENT hyprland
 - Core
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
@@ -4236,124 +4236,88 @@ user_pref("findbar.highlightAll", true);
 - Home manager config
   #+name: hm-config
   #+begin_src nix :tangle gdk/home.nix
-  {
-    # the thing is you won't get xdg-portal-hyprland
-    # refer: https://github.com/nix-community/home-manager/issues/1167
-    # # enable hyprland
-    services.hyprpaper.enable = lib.mkForce false;
-    wayland.windowManager.hyprland = {
-      enable = true;
-      systemd.enable = true;
-      plugins = with pkgs.hyprlandPlugins; [ hyprscroller ];
+    {
+      # the thing is you won't get xdg-portal-hyprland
+      # refer: https://github.com/nix-community/home-manager/issues/1167
+      # # enable hyprland
+      services.hyprpaper.enable = lib.mkForce false;
+      wayland.windowManager.hyprland = {
+        enable = true;
+        systemd.enable = true;
+        plugins = with pkgs.hyprlandPlugins; [ hyprscroller ];
 
-      extraConfig = ''
-      source					= ~/.config/hypr/hyprsea.conf
-      '';
+        extraConfig = ''
+        source					= ~/.config/hypr/hyprsea.conf
+        '';
 
-      settings = {
+        settings = {
 
-        decoration = {
-          rounding = 10;
-          inactive_opacity = 0.8;
-          active_opacity = 0.9;
-          fullscreen_opacity = 1.0;
-          dim_inactive = false;
-          shadow_offset = "0 5";
-          "col.shadow" = "rgba(00000099)";
+          decoration = {
+            rounding = 10;
+            inactive_opacity = 0.8;
+            active_opacity = 0.9;
+            fullscreen_opacity = 1.0;
 
-          blur = {
-            enabled = 1;
-            size = 6;
-            passes = 3;
-            new_optimizations = true;
-            ignore_opacity = true;
+            blur = {
+              enabled = 1;
+              size = 6;
+              passes = 3;
+              new_optimizations = true;
+              ignore_opacity = true;
+            };
           };
-        };
 
-        "$mod" = "super";
+          "$mod" = "super";
 
-        input = {
-          kb_layout = "us";
-          kb_options = "ctrl:nocaps";
-          follow_mouse = 1;
-          sensitivity = 0.1;
-          #    repeat_delay = 250
+          input = {
+            kb_layout = "us";
+            kb_options = "ctrl:nocaps";
+            follow_mouse = 1;
 
-          touchpad = {
-            natural_scroll = "yes";
-            disable_while_typing = 1;
-            clickfinger_behavior = 0; # double tap > right click
-            middle_button_emulation = 1;
-            tap-to-click = 1;
+            touchpad = {
+              natural_scroll = "yes";
+              disable_while_typing = 1;
+              tap-to-click = 1;
+            };
           };
+
+          general  =  {
+            gaps_in = 5;
+            gaps_out = 15;
+            border_size = 2;
+          };
+
+          cursor = {
+            zoom_factor = 0.2;
+          };
+
+          animations = {
+            enabled = true;
+            animation = "borderangle, 1, 180, linear, loop"; #used by rainbow borders and rotating colors
+          };
+
+          gestures  =  {
+            workspace_swipe = 1;
+            workspace_swipe_distance = 400;
+            workspace_swipe_invert = 1;
+            workspace_swipe_min_speed_to_force = 30;
+            workspace_swipe_cancel_ratio = 0.5;
+          };
+
+          bindm = [
+            # mouse movements
+            "$mod, mouse:272, movewindow"
+            "$mod, mouse:273, resizewindow"
+            "$mod alt, mouse:272, resizewindow"
+          ];
+
+
         };
-
-        general  =  {
-          gaps_in = 5;
-          gaps_out = 15;
-          border_size = 2;
-          # "col.active_border" = "rgba(2e8b57ff) rgba(87cefaff) rgba(ffec8bff) rgba(ffaeb9ff) 90deg";
-          # "col.inactive_border" = "0xff382D2E";
-          no_border_on_floating  =  false; # enable border on float window
-          layout  =  "dwindle";
-        };
-
-        misc = {
-          disable_hyprland_logo = true;
-          disable_splash_rendering = true;
-          mouse_move_enables_dpms = true;
-          enable_swallow = true;
-          swallow_regex = "^(foot)$";
-          vrr = false;
-        };
-
-        cursor = {
-          zoom_factor = 0.2;
-        };
-
-        animations = {
-          enabled = true;
-          bezier = "linear, 0.0, 0.0, 1.0, 1.0";
-          animation = "borderangle, 1, 180, linear, loop"; #used by rainbow borders and rotating colors
-        };
-
-        dwindle = {
-          pseudotile = true;
-          preserve_split = true;
-          force_split = true;
-          no_gaps_when_only = false;
-          default_split_ratio = 1.0;
-          smart_split = false;
-        };
-
-        master = {
-          new_on_top = false;
-          allow_small_split = true;
-          no_gaps_when_only = false;
-        };
-
-        gestures  =  {
-          workspace_swipe = 1;
-          workspace_swipe_distance = 400;
-          workspace_swipe_invert = 1;
-          workspace_swipe_min_speed_to_force = 30;
-          workspace_swipe_cancel_ratio = 0.5;
-        };
-
-        bindm = [
-          # mouse movements
-          "$mod, mouse:272, movewindow"
-          "$mod, mouse:273, resizewindow"
-          "$mod alt, mouse:272, resizewindow"
-        ];
-
-
       };
-    };
 
-    # naming it main.conf becuase hm writes hyprland.conf, so just as an import
-    xdg.configFile."hypr/hyprsea.conf".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/hyprsea.conf";
-  }
+      # naming it main.conf becuase hm writes hyprland.conf, so just as an import
+      xdg.configFile."hypr/hyprsea.conf".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/hyprsea.conf";
+    }
   #+end_src
 **** hyprsea
 - more additional hyprland conf for quick reloads
@@ -4380,12 +4344,13 @@ user_pref("findbar.highlightAll", true);
     }
 
 
-    # general {
+    general {
     # col.active_border=rgba(2e8b57ff) rgba(87cefaff) 45deg
     # col.inactive_border=0xff382D2E
     # gaps_in = 0;
     # gaps_out = 0;
-    # }
+    layout = scroller
+    }
 
     input {
     repeat_rate=50
@@ -4402,8 +4367,8 @@ user_pref("findbar.highlightAll", true);
     enabled = true
     }
     # rounding = false;
-    active_opacity=1.0
-    inactive_opacity=1.0
+    active_opacity=0.9
+    inactive_opacity=0.9
     }
 
 
@@ -4443,9 +4408,6 @@ user_pref("findbar.highlightAll", true);
     windowrulev2 = idleinhibit fullscreen,class:^(Brave-browser)$
     # idle inhibit while watching videos
     windowrulev2 = idleinhibit focus, class:^(mpv)$
-    windowrulev2 = idleinhibit focus, class:^(Freetube)$
-    windowrulev2 = idleinhibit focus, class:^(firefox)$, title:^(.*YouTube.*)$
-    # windowrulev2 = idleinhibit fullscreen, class:^(firefox)$
 
     # xwaylandvideobridge
     windowrulev2 = opacity 0.0 override 0.0 override,class:^(xwaylandvideobridge)$
@@ -4492,7 +4454,7 @@ user_pref("findbar.highlightAll", true);
     windowrulev2 = idleinhibit fullscreen,class:^(Brave-browser)$
 
 
-    blurls = rofi
+    blurls = fuzzel
     blurls = waybar
     blurls = menu
     blurls = gtk-layer-shell
@@ -4500,26 +4462,19 @@ user_pref("findbar.highlightAll", true);
 
     # █▄▀ █▀▀ █▄█ █▄▄ █ █▄░█ █▀▄
     # █░█ ██▄ ░█░ █▄█ █ █░▀█ █▄▀
-    bind = SUPER,e,exec,d-note
     bind = SUPER,x,exec,d-power
     # bind = SUPER,period,exec,d-dict
     bind = SUPERSHIFT,b,exec,d-bookmark
-    bind = SUPER,m,exec,d-urls
-    bind = SUPER,Insert,exec,d-urls
+    bind = SUPER,w,exec,d-urls
+
     bind = SUPER, y, exec, cliphist list | fuzzel -d | cliphist decode | wl-copy
 
-    bind = SUPER,grave,exec,d-unicodes
     bind = SUPER,Delete,exec,pkill -INT wl-screenrec && pkill -RTMIN+8 waybar
 
     bind = CONTROL,F1,exec,hyprctl dispatch dpms on
-    bind = SUPER,F1,exec,d-keys
-    bind = SUPER,F2,exec,brightnessctl set 2%-
-    bind = SUPER,F3,exec,brightnessctl set +2%
     bind = SUPER,F5,exec,d-walls
     bind = SUPER,F8,exec,mpv --untimed --geometry = 35%-30-30 --no-cache --no-osc --no-input-default-bindings --profile = low-latency --input-conf = /dev/null --title = webcam $(ls /dev/video[0,2,4,6,8] | tail -n 1)
     bind = SUPER,F11,exec,d-mpdplay
-    bind = SUPER,F10,exec,mpc prev
-    bind = SUPER,F12,exec,mpc next
 
     # to zoom/magnify the screen
     bind = SUPERSHIFT, equal, exec, hyprctl keyword cursor:zoom_factor "$(hyprctl getoption cursor:zoom_factor | grep float | awk '{print $2 + 1}')"
@@ -4547,21 +4502,21 @@ user_pref("findbar.highlightAll", true);
     # bind = SUPERSHIFT, RETURN, exec, pgrep emacs && emacsclient -c -e "(eshell)" || footclient
     bind = SUPERSHIFT, Q, killactive,
     bind = SUPERSHIFT, R, exec, hyprctl reload
-    bind = SUPERCONTROL, Q, exec, hyprkill
+    bind = SUPERCONTROL, E, exec, hyprkill
     bind = SUPER, F12, exec, d-mpdplay
     bind = SUPER, SPACE, togglefloating,
 
-    bind = SUPER, 0, exec, hyprctl keyword monitor ,2880x1800@90,auto,1.5
-    bind = SUPERSHIFT, 0, exec, hyprctl keyword monitor ,2880x1800@90,auto,1
+    # bind = SUPER, 0, exec, hyprctl keyword monitor ,2880x1800@90,auto,1.5
+    # bind = SUPERSHIFT, 0, exec, hyprctl keyword monitor ,2880x1800@90,auto,1
 
     bind = SUPER, d, exec, fuzzel
     # bind = SUPER, d, exec, rofi -show drun
 
     bind = SUPER, b, exec, pkill -SIGUSR1 waybar || pidof -x waybar || waybar
 
-    bind=,XF86AudioRaiseVolume,exec,d-volume up
-    bind=,XF86AudioLowerVolume,exec,d-volume down
-    bind=,XF86AudioMute,exec,d-volume toggle
+    bind=,XF86AudioRaiseVolume,exec,d-ctrl volume up
+    bind=,XF86AudioLowerVolume,exec,d-ctrl volume down
+    bind=,XF86AudioMute,exec,d-ctrl volume toggle
     bind=,XF86MonBrightnessUp, exec, brightnessctl set +2%
     bind=,XF86MonBrightnessDown, exec, brightnessctl set 2%-
 
@@ -4584,8 +4539,8 @@ user_pref("findbar.highlightAll", true);
 
     # █▀▀ █▀█ █▀▀ █░█ █▀
     # █▀░ █▄█ █▄▄ █▄█ ▄█
-    bind = SUPER, k, cyclenext
-    bind = SUPER, j, cyclenext
+    # bind = SUPER, k, cyclenext
+    # bind = SUPER, j, cyclenext
 
     # █▀▄▀█ █▀█ █░█ █▀▀
     # █░▀░█ █▄█ ▀▄▀ ██▄
@@ -4594,10 +4549,10 @@ user_pref("findbar.highlightAll", true);
     bind = SUPER SHIFT, up, movewindoworgroup, u
     bind = SUPER SHIFT, down, movewindoworgroup, d
 
-    bind = SUPER SHIFT, h, movewindoworgroup, l
-    bind = SUPER SHIFT, l, movewindoworgroup, r
-    bind = SUPER SHIFT, k, movewindoworgroup, u
-    bind = SUPER SHIFT, j, movewindoworgroup, d
+    # bind = SUPER SHIFT, h, movewindoworgroup, l
+    # bind = SUPER SHIFT, l, movewindoworgroup, r
+    # bind = SUPER SHIFT, k, movewindoworgroup, u
+    # bind = SUPER SHIFT, j, movewindoworgroup, d
 
     # █▀█ █▀▀ █▀ █ ▀█ █▀▀
     # █▀▄ ██▄ ▄█ █ █▄ ██▄
@@ -4606,16 +4561,11 @@ user_pref("findbar.highlightAll", true);
     bind = SUPER CTRL, up, resizeactive, 0 -20
     bind = SUPER CTRL, down, resizeactive, 0 20
 
-    bind = SUPER CTRL, h, resizeactive, -20 0
-    bind = SUPER CTRL, l, resizeactive, 20 0
-    bind = SUPER CTRL, k, resizeactive, 0 -20
-    bind = SUPER CTRL, j, resizeactive, 0 20
+    # bind = SUPER CTRL, h, resizeactive, -20 0
+    # bind = SUPER CTRL, l, resizeactive, 20 0
+    # bind = SUPER CTRL, k, resizeactive, 0 -20
+    # bind = SUPER CTRL, j, resizeactive, 0 20
 
-    # ▀█▀ ▄▀█ █▄▄ █▄▄ █▀▀ █▀▄
-    # ░█░ █▀█ █▄█ █▄█ ██▄ █▄▀
-    bind = SUPER, g, togglegroup
-    bind = SUPER, t, changegroupactive, b
-    bind = SUPER SHIFT, t, changegroupactive, f
 
     # █▀ █▀█ █▀▀ █▀▀ █ ▄▀█ █░░
     # ▄█ █▀▀ ██▄ █▄▄ █ █▀█ █▄▄
@@ -4636,8 +4586,6 @@ user_pref("findbar.highlightAll", true);
     bind = SUPER, 8, workspace, 8
     bind = SUPER, 9, workspace, 9
     # bind = SUPER, 0, workspace, 10
-    bind = SUPER, TAB, workspace, e+1
-    bind = SUPERSHIFT, TAB, workspace, e-1
 
     # █▀▄▀█ █▀█ █░█ █▀▀
     # █░▀░█ █▄█ ▀▄▀ ██▄
@@ -4651,9 +4599,6 @@ user_pref("findbar.highlightAll", true);
     bind = SUPER ALT, 8, movetoworkspace, 8
     bind = SUPER ALT, 9, movetoworkspace, 9
     bind = SUPER ALT, 0, movetoworkspace, 10
-    # Layout Change
-    bind = SUPER, w, exec, hyprctl keyword general:layout "dwindle"
-    bind = SUPERSHIFT, w, exec, hyprctl keyword general:layout "master"
 
 
     # █▀▄▀█ █▀█ █░█ █▀ █▀▀   █▄▄ █ █▄░█ █▀▄ █ █▄░█ █▀▀
@@ -4675,86 +4620,32 @@ user_pref("findbar.highlightAll", true);
     bind = SUPER SHIFT, 9, movetoworkspacesilent, 9
     # bind = SUPER SHIFT, 0, movetoworkspacesilent, 10
 
+    ### Hyprscroller
 
-    # Key Chords
-    bind=SUPER,period,submap,Wordz
-    submap=Wordz
-    bind=,d,exec,d-dict
-    bind=,d,submap,reset
+    # Move focus with mainMod + arrow keys
+    bind = SUPER, j, movefocus, d
+    bind = SUPER, k, movefocus, u
 
-    bind=,a,exec,d-vocab
-    bind=,a,submap,reset
+    # Movement
+    bind = SUPER, n, workspace, e+1
+    bind = SUPER, p, workspace, e-1
 
-    bind=,v,exec, echo type "$(cat ~/.local/share/dict/myglossary | bemenu | awk '{print $1}')" | dotoolcxsxb
-    bind=,v,submap,reset
+    bind = SUPER SHIFT, h, movewindow, l
+    bind = SUPER SHIFT, l, movewindow, r
 
-    bind=,escape,submap,reset
-    bind=CONTROL,g,submap,reset
-    submap=reset
+    # Modes
+    bind = SUPER, bracketleft, scroller:setmode, row
+    bind = SUPER, bracketright, scroller:setmode, col
 
+    # Sizing keys
+    bind = SUPER, equal, scroller:cyclesize, next
+    bind = SUPER, minus, scroller:cyclesize, prev
 
-    bind=SUPER,O,submap,Scripts
-    submap=Scripts
-    bind=,o,exec,d-menu
-    bind=,o,submap,reset
+    # Admit/Expel
+    bind = SUPER, I, scroller:admitwindow,
+    bind = SUPER, O, scroller:expelwindow,
 
-    bind=,i,exec,d-stuff
-    bind=,i,submap,reset
-
-    bind=,p,exec,d-pirt
-    bind=,p,submap,reset
-
-    bind=,x,exec,d-power
-    bind=,x,submap,reset
-
-    bind=,r,exec,d-remind
-    bind=,r,submap,reset
-
-    bind=,escape,submap,reset
-    bind=CONTROL,g,submap,reset
-    submap=reset
-
-    bind=SUPER,P,submap,Apps
-    submap=Apps
-
-    bind=,p,exec,sioyek
-    bind=,p,submap,reset
-
-    bind=,f,exec,firefox
-    bind=,f,submap,reset
-
-    bind=,b,exec,brave
-    bind=,b,submap,reset
-
-    bind=,w,exec,mullvad-browser
-    bind=,w,submap,reset
-
-    bind=,c,exec,chromium
-    bind=,c,submap,reset
-
-    bind=,y,exec,freetube
-    bind=,y,submap,reset
-
-    bind=,e,exec,emacsclient -c
-    bind=,e,submap,reset
-
-    bind=,escape,submap,reset
-    bind=CONTROL,g,submap,reset
-    submap=reset
-
-    bind=SUPER,C,submap,Controls
-    submap=Controls
-
-    bind=SHIFT,equal,exec, d-volume up
-    bind=,minus,exec, d-volume down
-    bind=,m,exec, d-volume toggle
-    bind=,m,submap,reset
-    bind=,p,exec, mpc toggle
-    bind=,p,submap,reset
-
-    bind=,escape,submap,reset
-    bind=CONTROL,g,submap,reset
-    submap=reset
+    bind = SUPER, tab, scroller:toggleoverview
   #+end_src
 *** niri
 - A scrolling window manager with new workflow.
@@ -4901,12 +4792,12 @@ user_pref("findbar.highlightAll", true);
   	Mod+Ctrl+Minus { spawn "niri" "msg" "output" "eDP-1" "scale" "1"; }
 
   	// The allow-when-locked=true property makes them work even when the session is locked.
-  	XF86AudioRaiseVolume allow-when-locked=true { spawn "d-volume" "up"; }
-  	XF86AudioLowerVolume allow-when-locked=true { spawn "d-volume" "down"; }
-  	XF86AudioMute        allow-when-locked=true { spawn "d-volume" "toggle"; }
+  	XF86AudioRaiseVolume allow-when-locked=true { spawn "d-ctrl" "volume" "up"; }
+  	XF86AudioLowerVolume allow-when-locked=true { spawn "d-ctrl" "volume" "down"; }
+  	XF86AudioMute        allow-when-locked=true { spawn "d-ctrl" "volume" "toggle"; }
   	XF86AudioMicMute     allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
-  	XF86MonBrightnessUp allow-when-locked=true { spawn "brightnessctl" "set" "+2%"; }
-  	XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "set" "2%-"; }
+  	XF86MonBrightnessUp allow-when-locked=true { spawn "d-ctrl" "brightness" "up"; }
+  	XF86MonBrightnessDown allow-when-locked=true { spawn "d-ctrl" "brightness" "down"; }
 
   	Mod+Shift+Q { close-window; }
 

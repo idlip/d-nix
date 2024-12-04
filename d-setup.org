@@ -4898,19 +4898,18 @@ user_pref("findbar.highlightAll", true);
   }
 
 #+end_src
-*** kde plasma
+*** COMMENT kde plasma
   #+name: nixos-core
   #+begin_src nix :tangle gdk/core.nix
-  {
-    # programs.ssh.askPassword = lib.mkForce "${pkgs.kdePackages.ksshaskpass.out}/bin/ksshaskpass";
-    services = {
-      desktopManager.plasma6.enable = true;
-      # displayManager.sddm.enable = true;
-      xserver.enable = true;
-      xserver.displayManager.sx.enable = true;
-      # displayManager.sddm.wayland.enable = true;
-    };
-  }
+    {
+      # programs.ssh.askPassword = lib.mkForce "${pkgs.kdePackages.ksshaskpass.out}/bin/ksshaskpass";
+      services = {
+        desktopManager.plasma6.enable = true;
+        displayManager.sddm.enable = true;
+        xserver.enable = true;
+        displayManager.sddm.wayland.enable = true;
+      };
+    }
   #+end_src
 *** COMMENT gnome
 - gnome desktop for elegance

@@ -130,9 +130,6 @@ Also its crucial to only add configuration that is explicitly required, rather t
       # Change it to stable, if you want stable channel (23.05)
       nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-      # For Adblocking and making internet usable
-      hosts.url = "github:StevenBlack/hosts";
-
       # nix index to locate package/path
       nix-index-db = {
         url = "github:nix-community/nix-index-database";
@@ -177,7 +174,6 @@ Also its crucial to only add configuration that is explicitly required, rather t
               system = "x86_64-linux";
               modules = [
                 ./gdk/core.nix
-                inputs.hosts.nixosModule
                 inputs.home-manager.nixosModules.home-manager
                 <<nixos-hm>>
                 stylix.nixosModules.stylix
@@ -390,12 +386,9 @@ Also its crucial to only add configuration that is explicitly required, rather t
 
         # Killer feature, Its a must these days.
         # Adblocker!! It uses steven black hosts.
-        stevenBlackHosts = {
+        stevenblack = {
           enable = true;
-          blockFakenews = true;
-          blockGambling = true;
-          blockPorn = true;
-          blockSocial = false; # stay connected
+          block = [ "fakenews" "gambling" "porn" ];
         };
 
         # mullvad dns

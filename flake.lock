@@ -194,27 +194,9 @@
         "type": "github"
       }
     },
-    "hosts": {
-      "inputs": {
-        "nixpkgs": "nixpkgs_3"
-      },
-      "locked": {
-        "lastModified": 1733188042,
-        "narHash": "sha256-X4F+Q6YGhzYHpopdBfCQdxsSQNv7PE4EY96aS0ZZb0o=",
-        "owner": "StevenBlack",
-        "repo": "hosts",
-        "rev": "83274b80a7b218cf717f9d024e14dd3d89fdd0fb",
-        "type": "github"
-      },
-      "original": {
-        "owner": "StevenBlack",
-        "repo": "hosts",
-        "type": "github"
-      }
-    },
     "nix-index-db": {
       "inputs": {
-        "nixpkgs": "nixpkgs_4"
+        "nixpkgs": "nixpkgs_3"
       },
       "locked": {
         "lastModified": 1733024876,
@@ -280,19 +262,6 @@
     },
     "nixpkgs_3": {
       "locked": {
-        "lastModified": 1732014248,
-        "narHash": "sha256-y/MEyuJ5oBWrWAic/14LaIr/u5E0wRVzyYsouYY3W6w=",
-        "path": "/nix/store/c9wv7i0af6mysmy65x6nvyfw5izzxv4g-source",
-        "rev": "23e89b7da85c3640bbc2173fe04f4bd114342367",
-        "type": "path"
-      },
-      "original": {
-        "id": "nixpkgs",
-        "type": "indirect"
-      }
-    },
-    "nixpkgs_4": {
-      "locked": {
         "lastModified": 1732837521,
         "narHash": "sha256-jNRNr49UiuIwaarqijgdTR2qLPifxsVhlJrKzQ8XUIE=",
         "owner": "NixOS",
@@ -307,7 +276,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_5": {
+    "nixpkgs_4": {
       "locked": {
         "lastModified": 1733015953,
         "narHash": "sha256-t4BBVpwG9B4hLgc6GUBuj3cjU7lP/PJfpTHuSqE+crk=",
@@ -323,7 +292,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_6": {
+    "nixpkgs_5": {
       "locked": {
         "lastModified": 1732238832,
         "narHash": "sha256-sQxuJm8rHY20xq6Ah+GwIUkF95tWjGRd1X8xF+Pkk38=",
@@ -343,9 +312,8 @@
       "inputs": {
         "emacs-overlay": "emacs-overlay",
         "home-manager": "home-manager",
-        "hosts": "hosts",
         "nix-index-db": "nix-index-db",
-        "nixpkgs": "nixpkgs_5",
+        "nixpkgs": "nixpkgs_4",
         "stylix": "stylix"
       }
     },
@@ -359,7 +327,7 @@
         "flake-utils": "flake-utils",
         "gnome-shell": "gnome-shell",
         "home-manager": "home-manager_2",
-        "nixpkgs": "nixpkgs_6",
+        "nixpkgs": "nixpkgs_5",
         "systems": "systems",
         "tinted-foot": "tinted-foot",
         "tinted-kitty": "tinted-kitty",

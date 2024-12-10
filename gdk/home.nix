@@ -192,16 +192,15 @@
       vertico orderless consult marginalia embark org-modern corfu cape
       olivetti nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
       embark-consult consult-eglot markdown-mode nix-mode nix-ts-mode
-      reddigg hnreader howdoyou magit webpaste
+      reddigg hnreader magit webpaste
       org-mime shr-tag-pre-highlight nov devdocs-browser reformatter
       tempel tempel-collection eglot-tempel
       sdcv jinx envrc ready-player
-      speed-type vc-backup aria2 transmission
-      ess auctex julia-mode webfeeder engrave-faces
-      toc-org org-ql org-noter activities
+      vc-backup aria2 transmission
+      ess webfeeder engrave-faces
+      toc-org org-ql activities
       saveplace-pdf-view flycheck consult-flycheck
-      ef-themes doom-themes
-      org-re-reveal dslide gptel pdf-tools
+      org-re-reveal dslide gptel
 
       (melpaBuild {
         pname = "combobulate";

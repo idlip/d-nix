@@ -99,10 +99,6 @@ see its function help for a description of the format."
   (reb-re-syntax 'string)
 
   (history-delete-duplicates t)
-  ;; window/pane
-  (recenter-positions '(top middle bottom))
-  ;; pane
-  (frame-resize-pixelwise t)
 
   (sentence-end-double-space nil)
   (sentence-end "[.?!,;-]")
@@ -377,6 +373,9 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (minibuffer-eldef-shorten-default t)       ; shorten "(default ...)" to "[...]" in minibuffer prompts
   (minibuffer-visible-completions t))
 
+(use-package completion-preview :ensure nil :init (global-completion-preview-mode)
+  :custom (completion-preview-ignore-case t))
+
 (use-package vertico :init (vertico-mode)
   :bind ((:map vertico-map ("C-v" . vertico-scroll-up) ("M-v" . vertico-scroll-down)))
   :custom (vertico-count 5)
@@ -543,8 +542,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (add-hook 'completion-at-point-functions #'cape-abbrev))
 
 (use-package tempel :hook (prog-mode . tempel-abbrev-mode)
-  :bind (("M-+" . tempel-complete) ("M-*" . tempel-insert))
-  :custom (tempel-path "~/.config/emacs/templates/*"))
+  :bind (("M-+" . tempel-complete) ("M-*" . tempel-insert)))
 
 (use-package tempel-collection :after tempel)
 
@@ -565,6 +563,8 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 
 (use-package xt-mouse
   :init (xterm-mouse-mode))
+
+(use-package winner :init (winner-mode))
 
 (use-package pixel-scroll :ensure nil
   :bind (("C-v" . pixel-scroll-interpolate-down) ("M-v" . pixel-scroll-interpolate-up))
@@ -590,6 +590,8 @@ E.g. capitalize or decapitalize the next word, increment number at point."
    ("C-x C-a b" . activities-switch-buffer)
    ("C-x C-a g" . activities-revert)
    ("C-x C-a l" . activities-list)))
+
+(use-package zone :ensure nil :demand t :config (zone-when-idle (* 60 5)))
 
 (use-package helpful :hook (helpful-mode . d/toggle-bar)
   :bind (("C-h f" . helpful-callable) ("C-h v" . helpful-variable) ("C-h k" . helpful-key)
@@ -788,16 +790,10 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   :bind (:map ess-julia-mode-map ("C-c C-d" . devdocs-browser-open))
   :custom (inferior-julia-args "--color=yes" "You get color in julia inferior process"))
 
-(use-package julia-mode :unless d/on-droid)
-
 (use-package executable :ensure nil :hook (after-save . executable-make-buffer-file-executable-if-script-p))
 
-(use-package flymake :ensure nil
-  :hook (prog-mode . flymake-mode)
-  :custom (python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-")))
-
 (use-package flycheck :defer t
-  ;; :hook (prog-mode . flycheck-mode)
+  :hook (prog-mode . flycheck-mode)
   :custom
   (flycheck-check-syntax-automatically '(save idle-change mode-enabled))
   (flycheck-idle-change-delay 3)
@@ -1270,8 +1266,7 @@ out"))
   (eww-mode . variable-pitch-mode)
   (eww-after-render . (lambda () (eww-readable) (setq-local line-spacing '0.4)))
   :custom
-  (eww-auto-rename-buffer 'title)
-  (eww-search-prefix "https://baresearch.org/?q="))
+  (eww-auto-rename-buffer 'title))
 
 (use-package browse-url :ensure nil :unless d/on-droid
   :config ;; browser script
@@ -1517,6 +1512,7 @@ out"))
 
   :custom
   (org-ellipsis " ")
+  (org-use-sub-superscripts '{})
   (org-log-done 'note)
   (org-log-into-drawer t)
   (org-export-exclude-tags '("noexport" "ignore") "excludes these tagged heading from export")
@@ -1646,25 +1642,6 @@ out"))
   :custom
   (org-capture-templates
    `(
-     ;; ("a" "Agenda" entry (file+function "~/d-sync/notes/agenda.org" (lambda () (completing-read "Heading: " my-org-agenda-headlines)))
-     ;;  "** TODO %?%^g\n  SCHEDULED:%U\n  %a\n  %i" :empty-lines 1 :clock-in t :clock-resume t)
-
-     ;; ("n" "Notes")
-     ;; ("nn" "Note to Brain" entry
-     ;;  (file+headline org-default-notes-file "Notes")
-     ;;  "** %?\n %U\n %i\n %a")
-     ;; ("nt" "Note to Thought" entry
-     ;;  (file+headline org-default-notes-file "Thoughts")
-     ;;  "** %?\n %U\n %i\n %a")
-
-     ;; ("nr" "Reading note" entry
-     ;;  (file "~/d-sync/notes/reading.org")
-     ;;  "** %?\n %U\n %i\n %a\n -")
-
-     ;; ("nd" "Development note" entry
-     ;;  (file "~/d-sync/notes/development.org")
-     ;;  "** %?\n %U\n %i\n %a\n")
-
      ("c" "Contacts" entry (file "contacts.org")
       "* %(tempel-insert 'contact)")
 
@@ -1676,8 +1653,9 @@ out"))
       "* %<%H:%M> - %? %^G
 :PROPERTIES:
 :ID:       %(org-id-new)
+:FROM:     %a
 :END:
-%a %i"
+%i"
       ;; :clock-in t :clock-resume t
       :empty-lines 1)
 
@@ -1754,7 +1732,20 @@ absolute path. Finally load eglot."
                ("C-c q f" . org-ql-find)
                ("C-c q s" . org-ql-search)
                ("C-c q l" . org-ql-open-link)
-               ("C-c q v" . org-ql-view))))
+               ("C-c q v" . org-ql-view)))
+  :config
+  (cl-defun org-goto-random-heading (&key (buffers (list (current-buffer)))
+                                          regexp)
+    (let* ((entries (org-ql-select buffers
+                      `(regexp ,regexp)
+                      :action '(cons (current-buffer) (point))))
+           (entry (seq-random-elt entries)))
+      (pop-to-buffer (car entry))
+      (goto-char (cdr entry))))
+
+  (defun d/org-random-heading ()
+    (interactive)
+    (org-goto-random-heading :buffers org-agenda-files :regexp (read-from-minibuffer "Search regexp: "))))
 
 (use-package org-super-agenda :after org
   :hook (org-agenda-mode . org-super-agenda-mode))
@@ -1885,6 +1876,3 @@ absolute path. Finally load eglot."
   :disabled
   :hook (text-mode . flymake-languagetool-load)
   :custom (flymake-languagetool-server-command '("languagetool-http-server")))
-
-(use-package speed-type :unless d/on-droid
-  :hook (speed-type-mode . olivetti-mode))

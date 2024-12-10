@@ -127,12 +127,9 @@
 
     # Killer feature, Its a must these days.
     # Adblocker!! It uses steven black hosts.
-    stevenBlackHosts = {
+    stevenblack = {
       enable = true;
-      blockFakenews = true;
-      blockGambling = true;
-      blockPorn = true;
-      blockSocial = false; # stay connected
+      block = [ "fakenews" "gambling" "porn" ];
     };
 
     # mullvad dns

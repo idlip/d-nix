@@ -8,9 +8,6 @@
     # Change it to stable, if you want stable channel (23.05)
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    # For Adblocking and making internet usable
-    hosts.url = "github:StevenBlack/hosts";
-
     # nix index to locate package/path
     nix-index-db = {
       url = "github:nix-community/nix-index-database";
@@ -55,7 +52,6 @@
             system = "x86_64-linux";
             modules = [
               ./gdk/core.nix
-              inputs.hosts.nixosModule
               inputs.home-manager.nixosModules.home-manager
               {
                 home-manager = {

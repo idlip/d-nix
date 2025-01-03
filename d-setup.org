@@ -564,6 +564,12 @@ see its function help for a description of the format."
       services.power-profiles-daemon.enable = true;
     }
   #+end_src
+**** thermald
+#+begin_src nix :tangle gdk/core.nix
+  {
+    services.thermald.enable = true;
+  }
+#+end_src
 **** display-battery
 - Display battery in emacs
   #+begin_src emacs-lisp
@@ -896,6 +902,7 @@ see its function help for a description of the format."
       (tab-width 2)
       (reb-re-syntax 'string)
 
+      (window-combination-resize t)
       (history-delete-duplicates t)
 
       (sentence-end-double-space nil)
@@ -907,6 +914,7 @@ see its function help for a description of the format."
       (setopt
        read-process-output-max (* 1024 1024)
        inhihbit-compacting-font-caches t
+       pgtk-wait-for-event-timeout nil
        )
       (with-current-buffer "*scratch*" (emacs-lock-mode 'kill))
       (modify-all-frames-parameters
@@ -1113,6 +1121,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (interactive)
   (revert-buffer :ignore-auto :noconfirm))
   #+end_src
+
 **** Undo
 - Another good part is having persistent undo with full extensibility.
 - undo-fu-session write undo states to file, so persist across sessions.
@@ -1152,18 +1161,20 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 **** File History
 - savehist of minibuffer candidates
   #+begin_src emacs-lisp
-  (use-package savehist :ensure nil
-    :init (savehist-mode)
-    :custom (savehist-additional-variables '(kill-ring search-ring regexp-search-ring)))
+    (use-package savehist :ensure nil
+      :init (savehist-mode)
+      :custom (history-length 1000)
+      (savehist-additional-variables
+       '(mark-ring global-mark-ring search-ring regexp-search-ring register-alist extended-command-history)))
   #+end_src
 - to record recently opened files. Useful to jump in quick
   #+begin_src emacs-lisp
-  (use-package recentf :ensure nil
-    :bind ("C-x C-r" . recentf)
-    :custom
-    (recentf-max-menu-items 100)
-    (recentf-max-saved-items 100)
-    :init (recentf-mode))
+    (use-package recentf :ensure nil
+      :bind ("C-x C-r" . recentf)
+      :custom
+      (recentf-max-menu-items history-length)
+      (recentf-max-saved-items history-length)
+      :init (recentf-mode))
   #+end_src
 
 **** no-littering
@@ -1320,6 +1331,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
       (register-preview-function #'consult-register-format)
       (xref-show-xrefs-function #'consult-xref)
       (xref-show-definitions-function #'consult-xref)
+      (imenu-max-item-length nil)
 
       :config
       (consult-customize
@@ -1333,7 +1345,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
       (advice-add #'register-preview :override #'consult-register-window))
   #+end_src
 
-***** consult-omni
+***** COMMENT consult-omni
 - For extensive support and omni search everywhere.
 #+begin_src emacs-lisp
   (use-package consult-omni
@@ -1354,7 +1366,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
                           consult-omni-projects
                           consult-omni-notes
                           consult-omni-apps))
-    (consult-omni-invidious-servers '("https://invidious.privacyredirect.com" "https://yewtu.be" "https://vid.puffyan.us"))
+    (consult-omni-invidious-servers '("https://yewtu.be"))
     (consult-omni-notes-files (list org-directory "~/d-git/d-site/"))
     (consult-omni-http-retrieve-backend 'request)
     :config (require 'consult-omni-sources)
@@ -1423,12 +1435,6 @@ E.g. capitalize or decapitalize the next word, increment number at point."
       (eldoc-add-command #'corfu-insert))
   #+end_src
 
-+ corfu in terminal
-  #+begin_src emacs-lisp :tangle no
-  (unless (display-graphic-p)
-    (corfu-terminal-mode +1))
-  #+end_src
-
 **** cape
 + an extension for corfu
   #+begin_src emacs-lisp
@@ -1463,167 +1469,162 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 ***** nix-templates
 - handy templates to use for quick running thought process.
   #+name: template
-  #+begin_src emacs-lisp :tangle ~/.config/emacs/templates
-  ;; Refer: `tempo-define-template' for doc.
-  ;;  • (s NAME) Inserts a named field.
-  ;;  • (p/r PROMPT <NAME> <NOINSERT>) Insert an optionally named field with a prompt. The PROMPT is
-  ;;  displayed directly in the buffer as default value. If NOINSERT is non-nil, no field is inserted.
-  ;;  Then the minibuffer is used for prompting and the value is bound to NAME.
+  #+begin_src emacs-lisp :tangle ~/.config/emacs/etc/tempel/templates.eld
+    ;; Refer: `tempo-define-template' for doc.
+    ;;  • (s NAME) Inserts a named field.
+    ;;  • (p/r PROMPT <NAME> <NOINSERT>) Insert an optionally named field with a prompt. The PROMPT is
+    ;;  displayed directly in the buffer as default value. If NOINSERT is non-nil, no field is inserted.
+    ;;  Then the minibuffer is used for prompting and the value is bound to NAME.
 
-  nix-mode
-  nix-ts-mode
+    nix-mode
+    nix-ts-mode
 
-  (buildphase > "buildPhase= ''" n (p "Build Instructions") n " '';")
-  (checkPhase > "checkPhase= ''" n (p "") n " '';")
-  (configurephase > "configurePhase= ''" n (p "") n " '';")
-  (fixupphase > "fixupPhase= ''" n (p "") n " '';")
-  (distphase > "distPhase= ''" n (p "") n " '';")
-  (patchphase > "patchPhase= ''" n (p "") n " '';")
-  (unpackphase > "unpackPhase= ''" n (p "") n " '';")
-  (installCheckPhasephase > "installCheckPhasePhase= ''" n (p "") n " '';")
-  (installphase > "installphase= ''" n p " mkdir -p $out/bin" n> "for f in $(find . -executable -type f);" n> "do" n> "cp $f $out/bin" n> "done}" n> " '';")
+    (buildphase > "buildPhase= ''" n (p "Build Instructions") n " '';")
+    (checkPhase > "checkPhase= ''" n (p "") n " '';")
+    (configurephase > "configurePhase= ''" n (p "") n " '';")
+    (fixupphase > "fixupPhase= ''" n (p "") n " '';")
+    (distphase > "distPhase= ''" n (p "") n " '';")
+    (patchphase > "patchPhase= ''" n (p "") n " '';")
+    (unpackphase > "unpackPhase= ''" n (p "") n " '';")
+    (installCheckPhasephase > "installCheckPhasePhase= ''" n (p "") n " '';")
+    (installphase > "installphase= ''" n p " mkdir -p $out/bin" n> "for f in $(find . -executable -type f);" n> "do" n> "cp $f $out/bin" n> "done}" n> " '';")
 
-  (hmpkgs "{" n> "home.packages = with pkgs; [" n> (r "pkgnames") n> n> "];" n> "}")
+    (hmpkgs "{" n> "home.packages = with pkgs; [" n> (r "pkgnames") n> n> "];" n> "}")
 
-  (gitpackage "{ lib" n ", stdenv" n ", fetchFromGitHub" n ", " (p "inputs") n ", " (p "inputs") n "}:" n n>
-              "stdenv.mkDerivation rec {" n> "pname = \"" (p "" pkgn nil) "\";" n> "version = \"" p "\";" n n>
-        "src = fetchFromGitHub {" n> "owner = \"" (p "" own) "\";" n> "repo = \"" (s pkgn) "\";" n>
-        "rev = \"" "v${version}" "\";" n> "sha256 = \"" "${lib.fakeSha256}" "\";" n> "};" n n>
-        "nativeBuildInputs = [ " (p "makeWrapper") " ];" n n> "BuildInputs = [ " (p) " ];" n n>
-        "meta = with lib; {" n>
-        "homepage = \"" "https://github.com/" (s own) "/" (s pkgn) "\";" n>
-        "description = \"" (p) "\";" n>
-        "license = licenses." (p (completing-read "License: " '("agpl3" "asl20" "bsd1" "bsd2" "bsd3" "free" "gpl2" "gpl2Only" "gpl2Plus" "gpl3" "gpl3Only" "gpl3Plus" "isc" "lgpl21Only" "lgpl21Plus" "lgpl2Only" "lgpl2Plus" "lgpl3" "lgpl3Only" "mit" "mpl20" "ofl" "unfree"))) ";" n>
-        "maintainers = with maintainers; [ " (s own) " ];" n>
-        "platforms = platforms."
-        (p (completing-read "Platform: " '("all" "allBut" "arm" "cygwin" "darwin" "freebsd" "gnu" "i686" "illumos" "linux" "mesaPlatforms" "mips" "netbsd" "none" "openbsd" "unix" "x86"))) ";" n> q "};" n> "}"
-        )
+    (gitpackage "{ lib" n ", stdenv" n ", fetchFromGitHub" n ", " (p "inputs") n ", " (p "inputs") n "}:" n n>
+                "stdenv.mkDerivation rec {" n> "pname = \"" (p "" pkgn nil) "\";" n> "version = \"" p "\";" n n>
+          "src = fetchFromGitHub {" n> "owner = \"" (p "" own) "\";" n> "repo = \"" (s pkgn) "\";" n>
+          "rev = \"" "v${version}" "\";" n> "sha256 = \"" "${lib.fakeSha256}" "\";" n> "};" n n>
+          "nativeBuildInputs = [ " (p "makeWrapper") " ];" n n> "BuildInputs = [ " (p) " ];" n n>
+          "meta = with lib; {" n>
+          "homepage = \"" "https://github.com/" (s own) "/" (s pkgn) "\";" n>
+          "description = \"" (p) "\";" n>
+          "license = licenses." (p (completing-read "License: " '("agpl3" "asl20" "bsd1" "bsd2" "bsd3" "free" "gpl2" "gpl2Only" "gpl2Plus" "gpl3" "gpl3Only" "gpl3Plus" "isc" "lgpl21Only" "lgpl21Plus" "lgpl2Only" "lgpl2Plus" "lgpl3" "lgpl3Only" "mit" "mpl20" "ofl" "unfree"))) ";" n>
+          "maintainers = with maintainers; [ " (s own) " ];" n>
+          "platforms = platforms."
+          (p (completing-read "Platform: " '("all" "allBut" "arm" "cygwin" "darwin" "freebsd" "gnu" "i686" "illumos" "linux" "mesaPlatforms" "mips" "netbsd" "none" "openbsd" "unix" "x86"))) ";" n> q "};" n> "}"
+          )
 
-  (shellnix "with import <nixpkgs> {};" n>
-            "pkgs.mkShell {" n n>
-            "nativeBuildInputs = [ pkgs.bashInteractive ];" n n>
-            "# EnvVars = The thung" n
-            "# NIX_LD_LIBRARY_PATH = lib.makeLibraryPath [" n>
-            "# pkgs" n> "# ];" n>
-            "# NIX_LD = lib.fileContents \"${stdenv.cc}/nix-support/dynamic-linker\";" n n>
-            "buildInputs = with pkgs; [" n>
-            (p "pkgs names") n n>
-            "];" n n>
-            "shellHook = ''" n>
-            (p "Command to Run") n>
-            "'';" n
-            "}"
-            )
+    (shellnix "with import <nixpkgs> {};" n>
+              "pkgs.mkShell {" n n>
+              "nativeBuildInputs = [ pkgs.bashInteractive ];" n n>
+              "# EnvVars = The thung" n
+              "# NIX_LD_LIBRARY_PATH = lib.makeLibraryPath [" n>
+              "# pkgs" n> "# ];" n>
+              "# NIX_LD = lib.fileContents \"${stdenv.cc}/nix-support/dynamic-linker\";" n n>
+              "buildInputs = with pkgs; [" n>
+              (p "pkgs names") n n>
+              "];" n n>
+              "shellHook = ''" n>
+              (p "Command to Run") n>
+              "'';" n
+              "}"
+              )
   #+end_src
 ***** org-templates
-  #+begin_src emacs-lisp :tangle ~/.config/emacs/templates
-  org-mode
+  #+begin_src emacs-lisp :tangle ~/.config/emacs/etc/tempel/templates.eld
+    org-mode
 
-  (hugosite ":PROPERTIES:"  n ":EXPORT_FILE_NAME: " (p "simple-name") n ":EXPORT_DATE: " (format-time-string "%Y-%m-%d") n ":EXPORT_HUGO_DRAFT: false" n ":END:")
-  (readonly ":tangle-mode (identity #o444) :mkdirp yes" n)
-  (variablweb "  #+name: " (p "noweb-ref") n "#+begin_src " p n> r> n> "#+end_src" :post (org-edit-src-code))
-  (gitcollapse  "*** " p n "#+begin_html" n "<details>" n "<summary> " (p "heading")  " </summary>" n "#+end_html" n (p "link or any comments") n n "#+begin_html" n "</details>" n "#+end_html" n n)
+    (hugosite ":PROPERTIES:"  n ":EXPORT_FILE_NAME: " (p "simple-name") n ":EXPORT_DATE: " (format-time-string "%Y-%m-%d") n ":EXPORT_HUGO_DRAFT: false" n ":END:")
+    (readonly ":tangle-mode (identity #o444) :mkdirp yes" n)
+    (variablweb "  #+name: " (p "noweb-ref") n "#+begin_src " p n> r> n> "#+end_src" :post (org-edit-src-code))
+    (gitcollapse  "*** " p n "#+begin_html" n "<details>" n "<summary> " (p "heading")  " </summary>" n "#+end_html" n (p "link or any comments") n n "#+begin_html" n "</details>" n "#+end_html" n n)
 
-  (eval n> "#+name: " (p "name" fname) n> "#+begin_src " (p "C++" lang) n> r n> "#+end_src" :post (org-edit-src-code))
+    (eval n> "#+name: " (p "name" fname) n> "#+begin_src " (p "C++" lang) n> r n> "#+end_src" :post (org-edit-src-code))
 
-  (pyeval n "  #+name: " (p "name" fname) n "#+begin_src python :tangle ./codes/python/"
-          (s fname) ".py " n> r> n> "#+end_src" :post (org-edit-src-code))
+    (pyeval n "  #+name: " (p "name" fname) n "#+begin_src python :tangle ./codes/python/"
+            (s fname) ".py " n> r> n> "#+end_src" :post (org-edit-src-code))
 
-  (reval n "  #+name: " (p "name" fname) n "#+begin_src R :tangle ./codes/rstats/"
-         (s fname) ".R " n> r> n> "#+end_src" :post (org-edit-src-code))
+    (reval n "  #+name: " (p "name" fname) n "#+begin_src R :tangle ./codes/rstats/"
+           (s fname) ".R " n> r> n> "#+end_src" :post (org-edit-src-code))
 
-  (jleval n "  #+name: " (p "name" fname) n "#+begin_src julia :tangle ./codes/"
-          (s fname) ".jl " n> r> n> "#+end_src" :post (org-edit-src-code))
+    (jleval n "  #+name: " (p "name" fname) n "#+begin_src julia :tangle ./codes/"
+            (s fname) ".jl " n> r> n> "#+end_src" :post (org-edit-src-code))
 
-  (labmanual "* " p n
-             "** Introduction" n p n
-             "** Aim and Objective" n n
-             "** Procedure" n n
-             "** Results" n n
-             "** Conclusion" n n
-             )
+    (labmanual "* " p n
+               "** Introduction" n p n
+               "** Aim and Objective" n n
+               "** Procedure" n n
+               "** Results" n n
+               "** Conclusion" n n
+               )
 
-  (latimg n "#+CAPTION: " p n
-          "#+ATTR_LATEX: :height :float nil" n
-          :post (org-insert-link))
+    (latimg n "#+CAPTION: " p n
+            "#+ATTR_LATEX: :height :float nil" n
+            :post (org-insert-link))
 
-  (htmlimg n "#+caption: " p n
-           "#+attr_html: :width 70%" n
-           :post (org-insert-link))
+    (htmlimg n "#+caption: " p n
+             "#+attr_html: :width 70%" n
+             :post (org-insert-link))
 
-          n "#+end_src" :post (org-edit-src-code))
+    (elisp "  #+name: " (p "name") n "#+begin_src emacs-lisp" n n "#+end_src" :post (org-edit-src-code))
 
-         n "#+end_src" :post (org-edit-src-code))
+    (blogorg "#+title: " (p "title") n
+             "#+date: [" (format-time-string "%Y-%m-%d %a") "]")
+
+    (contact
+     (r "Person Name") n
+     ":PROPERTIES: " n
+     ":EMAIL: " p n
+     ":URL: " p n
+     ":MOBILE: " p n
+     ":WORKPHONE: " n
+     ":COMPANY: " n
+     ":CITY: " p n
+     ":BIRTHDAY: " p n
+     ":ICON:" n
+     ":ADDRESS:" n
+     ":ITOLDTHEM_EMAIL: " n
+     ":ITOLDTHEM_ADDRESS: " n
+     ":ITOLDTHEM_PHONE: " n
+     ":IGNORE: " n
+     ":CREATED: " (format-time-string "[%Y-%m-%d %a %H:%M]") n
+     ":END:" n
+     )
+
+    (readlist
+     (r "Book/Content") n
+     ":PROPERTIES: " n
+     ":AUTHOR: " n
+     ":YEAR: " n
+     ":PROS: " n
+     ":LINK: " p n
+     ":ID: " (org-id-new) n
+     ":END:" n
+      )
+
+    (pdforg
+     "#+title: " p n
+     "#+author: " p n
+     "#+options: toc:nil num:nil" n
+     "#+date: " (format-time-string "%Y-%m-%d") nnn
+     "* Introduction" n p)
 
 
-  (elisp "  #+name: " (p "name") n "#+begin_src emacs-lisp" n n "#+end_src" :post (org-edit-src-code))
+    (shbin
+     "#+begin_src sh :shebang \"#!/usr/bin/env bash\" :tangle bin/" p
+     n n
+     "#+end_src"
+     :post (org-edit-src-code))
 
-  (blogorg "#+title: " (p "title") n
-           "#+date: [" (format-time-string "%Y-%m-%d %a") "]")
-
-  (contact
-   (r "Person Name") n
-   ":PROPERTIES: " n
-   ":EMAIL: " p n
-   ":URL: " p n
-   ":MOBILE: " p n
-   ":WORKPHONE: " n
-   ":COMPANY: " n
-   ":CITY: " p n
-   ":BIRTHDAY: " p n
-   ":ICON:" n
-   ":ADDRESS:" n
-   ":ITOLDTHEM_EMAIL: " n
-   ":ITOLDTHEM_ADDRESS: " n
-   ":ITOLDTHEM_PHONE: " n
-   ":IGNORE: " n
-   ":CREATED: " (format-time-string "[%Y-%m-%d %a %H:%M]") n
-   ":END:" n
-   )
-
-  (readlist
-   (r "Book/Content") n
-   ":PROPERTIES: " n
-   ":AUTHOR: " n
-   ":YEAR: " n
-   ":PROS: " n
-   ":LINK: " p n
-   ":ID: " (org-id-new) n
-   ":END:" n
+    (revjs n
+    "#+reveal_miscinfo: " p n n
+    "#+REVEAL_ROOT: /home/idlip/learn/revjs/" n
+    "#+OPTIONS: reveal_width:1920 reveal_height:1080" n
+    "#+OPTIONS: toc:nil num:nil" n
+    "#+REVEAL_MIN_SCALE: 0.2" n
+    "#+REVEAL_MAX_SCALE: 1.0" n
+    "#+OPTIONS: reveal_progress:nil" n
+    "#+REVEAL_EXTRA_OPTIONS: navigationMode: 'linear', controls: false" n
+    "#+REVEAL_MARGIN: 0.02" n
+    "#+REVEAL_THEME: black" n
+    "#+REVEAL_TRANS: none" n
+    "#+EXCLUDE_TAGS: noexport" n
+    "#+reveal_extra_css: ./local.scss" n n p
     )
-
-  (pdforg
-   "#+title: " p n
-   "#+author: " p n
-   "#+options: toc:nil num:nil" n
-   "#+date: " (format-time-string "%Y-%m-%d") nnn
-   "* Introduction" n p)
-
-
-  (shbin
-   "#+begin_src sh :shebang \"#!/usr/bin/env bash\" :tangle bin/" p
-   n n
-   "#+end_src"
-   :post (org-edit-src-code))
-
-  (revjs n
-  "#+reveal_miscinfo: " p n n
-  "#+REVEAL_ROOT: /home/idlip/learn/revjs/" n
-  "#+OPTIONS: reveal_width:1920 reveal_height:1080" n
-  "#+OPTIONS: toc:nil num:nil" n
-  "#+REVEAL_MIN_SCALE: 0.2" n
-  "#+REVEAL_MAX_SCALE: 1.0" n
-  "#+OPTIONS: reveal_progress:nil" n
-  "#+REVEAL_EXTRA_OPTIONS: navigationMode: 'linear', controls: false" n
-  "#+REVEAL_MARGIN: 0.02" n
-  "#+REVEAL_THEME: black" n
-  "#+REVEAL_TRANS: none" n
-  "#+EXCLUDE_TAGS: noexport" n
-  "#+reveal_extra_css: ./local.scss" n n p
-  )
   #+end_src
 ***** markdown-templates
-  #+begin_src emacs-lisp :tangle ~/.config/emacs/templates
+  #+begin_src emacs-lisp :tangle ~/.config/emacs/etc/tempel/templates.eld
 markdown-mode
 
 (gitcollapse "## " (p "Heading") n n "<details>" n n
@@ -1648,7 +1649,7 @@ markdown-mode
 
   #+end_src
 ***** elisp-templates
-  #+begin_src emacs-lisp :tangle ~/.config/emacs/templates
+  #+begin_src emacs-lisp :tangle ~/.config/emacs/etc/tempel/templates.eld
 emacs-lisp-mode
 
 (modconfig ";;; " (c-get-current-file) ".el --- " (p "description") " -*- lexical-binding: t -*-" n
@@ -1682,7 +1683,7 @@ emacs-lisp-mode
   #+end_src
 ***** python-templates
 - Credits to jgarte (https://git.sr.ht/~whereiseveryone/dot/tree/master/item/snippets)
-  #+begin_src emacs-lisp :tangle ~/.config/emacs/templates
+  #+begin_src emacs-lisp :tangle ~/.config/emacs/etc/tempel/templates.eld
   python-ts-mode python-mode
 
   (if "if " p ":" p % "else:" n> p)
@@ -1902,7 +1903,7 @@ emacs-lisp-mode
             "assert example_fixture == 1")
   #+end_src
 ***** bash-templates
-  #+begin_src emacs-lisp :tangle ~/.config/emacs/templates
+  #+begin_src emacs-lisp :tangle ~/.config/emacs/etc/tempel/templates.eld
   fundamental-mode
 
   (datime (format-time-string "%Y-%m-%d %A %d %B %Y"))
@@ -1919,7 +1920,7 @@ emacs-lisp-mode
   #+end_src
 ***** html-templates
 - Css and html templates
-#+begin_src emacs-lisp :tangle ~/.config/emacs/templates
+#+begin_src emacs-lisp :tangle ~/.config/emacs/etc/tempel/templates.eld
   css-mode css-ts-mode html-mode html-ts-mode
 
   (var "var(--" p ")")
@@ -1961,9 +1962,11 @@ To manage windows states
     (use-package pixel-scroll :ensure nil
       :bind (("C-v" . pixel-scroll-interpolate-down) ("M-v" . pixel-scroll-interpolate-up))
       :init (pixel-scroll-precision-mode 1)
-      :custom (scroll-step 1) (scroll-margin 0) (pixel-scroll-precision-interpolate-page t)
-      (scroll-conservatively 100000 "Dont jump") (scroll-preserve-screen-position 1 "Preserve position"))
-
+      :custom (scroll-step 1) (scroll-margin 0)
+      ;; (pixel-scroll-precision-interpolate-page t)
+      (pixel-scroll-precision-large-scroll-height 40.0)
+      (mouse-wheel-progressive-speed nil) (mouse-wheel-scroll-amount '(1 ((control) . 1)  ((shift) . 2) ((meta) . 3)))
+      (scroll-conservatively 101 "Dont jump") (scroll-preserve-screen-position 1 "Preserve position"))
   #+end_src
 
 **** repeat-mode
@@ -1994,7 +1997,7 @@ To manage windows states
      ("C-x C-a l" . activities-list)))
 #+end_src
 
-**** COMMENT Gptel
+**** Gptel
 - LLM model to make things quicky
   #+begin_src emacs-lisp
     (use-package gptel :unless d/on-droid :defer t
@@ -2186,7 +2189,7 @@ To manage windows states
   };
 }
   #+end_src
-**** eshell
+ **** eshell
   #+begin_src emacs-lisp
     (use-package esh-mode :ensure nil
       :hook
@@ -2202,7 +2205,6 @@ To manage windows states
 
       :custom
       (eshell-hist-ignoredups t)
-      (eshell-buffer-name "eshell-terminal")
       (eshell-kill-processes-on-exit 'ask)
       (eshell-aliases-file (expand-file-name "eshell/alias" user-emacs-directory))
 
@@ -2252,6 +2254,19 @@ To manage windows states
     :custom
     (eshell-buffer-maximum-lines 10000) (eshell-history-size 10000))
   #+end_src
+
+- buffer window rule to appear as popup terminal
+  #+begin_src emacs-lisp
+    (add-to-list
+     'display-buffer-alist
+     '("\\*\\(shell\\|.*term\\|.*eshell\\|.*eat\\|help\\|compilation\\|Async Shell Command\\|Occur\\|xref\\).*\\*"
+       (display-buffer-reuse-window display-buffer-in-side-window)
+       (side . bottom)
+       (slot . 0)
+       (post-command-select-window . t)
+       (window-height . 0.3)))
+  #+end_src
+
 **** eat
 - emulate a terminal
   #+begin_src emacs-lisp
@@ -2329,7 +2344,22 @@ To manage windows states
         imagemagick # for image-dired and other converts
       ];
       # todo purge many packages
-      programs.emacs = {
+      programs.emacs =
+        let
+        emacs-mps = pkgs.emacs-pgtk.overrideAttrs (old: {
+          name = "emacs-pgtk-mps";
+
+          src = pkgs.fetchFromGitHub {
+            owner = "emacs-mirror";
+            repo = "emacs";
+            rev = "c45b3a28199f43cfbadc215ef5a4c42c3735ed87";
+            sha256 = "sha256-tjWHVCSZsAstYLyn5JCipxXYkZduRsVTbgbW46jvhRo=";
+          };
+
+          buildInputs = old.buildInputs ++ [ pkgs.mps ];
+          configureFlags = old.configureFlags ++ [ "--with-mps=yes" ];
+        });
+        in {
         enable = true;
         package = pkgs.emacs-pgtk;
         extraPackages = (epkgs: (with epkgs; [
@@ -2345,7 +2375,7 @@ To manage windows states
           sdcv jinx envrc ready-player
           vc-backup aria2 transmission
           ess webfeeder engrave-faces
-          toc-org org-ql activities
+          toc-org org-ql activities ox-hugo
           saveplace-pdf-view flycheck consult-flycheck
           org-re-reveal dslide gptel
 
@@ -2374,7 +2404,7 @@ To manage windows states
 
           ## packages kept out to make more vanilla usage!
           # async dirvish beframe powerthesaurus meow
-          # doom-modeline ox-hugo ement kind-icon el-patch
+          # doom-modeline ement kind-icon el-patch
           # rainbow-mode -> replcaed by new package, colorful-mode
           # saveplace-pdf-view pdf-tools
 
@@ -2392,7 +2422,7 @@ To manage windows states
 #+begin_src bash
 git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs/elpa/consult-omni
 #+end_src
-**** helix
+**** COMMENT helix
 - just to test the cool editor out there.
   #+begin_src nix :tangle gdk/home.nix
     {
@@ -2556,26 +2586,26 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
   #+end_src
 **** nix
   #+begin_src emacs-lisp
-  (use-package nix-mode :bind (:map nix-mode-map ("C-c C-e" . nix-eval-line)))
+    (use-package nix-mode :bind (:map nix-mode-map ("C-c C-e" . nix-eval-line)))
 
-  (use-package nix-ts-mode)
+    (use-package nix-ts-mode :ensure nix-mode)
 
-  (defun nix-eval-dwim ()
-    (interactive)
-    (let* ((start (line-beginning-position))
-           (end (line-end-position))
-           (region-string (buffer-substring (region-beginning) (region-end)))
-           (msg (format "%s" (if (use-region-p) region-string (buffer-substring start end)))))
-      (pop-to-buffer "*Nix-REPL*")
-      (insert msg)
-      (comint-send-input)
-      (other-window 1)))
+    (defun nix-eval-dwim ()
+      (interactive)
+      (let* ((start (line-beginning-position))
+             (end (line-end-position))
+             (region-string (buffer-substring (region-beginning) (region-end)))
+             (msg (format "%s" (if (use-region-p) region-string (buffer-substring start end)))))
+        (pop-to-buffer "*Nix-REPL*")
+        (insert msg)
+        (comint-send-input)
+        (other-window 1)))
 
-  (use-package nix-drv-mode :ensure nix-mode :mode "\\.drv\\'")
+    (use-package nix-drv-mode :ensure nix-mode :mode "\\.drv\\'")
 
-  (use-package nix-shell :ensure nix-mode :commands (nix-shell-unpack nix-shell-configure nix-shell-build))
+    (use-package nix-shell :ensure nix-mode :commands (nix-shell-unpack nix-shell-configure nix-shell-build))
 
-  (use-package nix-repl :ensure nix-mode :commands (nix-repl))
+    (use-package nix-repl :ensure nix-mode :commands (nix-repl))
   #+end_src
 **** stack
   #+begin_src nix :tangle gdk/home.nix
@@ -2601,11 +2631,11 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 **** tex writing
 - For scientific latex files, pdf to produce from org mode files.
   #+begin_src nix :tangle gdk/home.nix
-{
-  home.packages = with pkgs; [
-    texlive.combined.scheme-full
-  ];
-}
+    {
+      home.packages = with pkgs; [
+        # texlive.combined.scheme-full
+      ];
+    }
   #+end_src
 *** devMacs
 **** executable
@@ -2903,13 +2933,13 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 *** nov.el
 - to read in comfort couch of emacs!
   #+begin_src emacs-lisp
-  (use-package nov :mode ("\\.epub\\'" . nov-mode)
-    :hook
-    (nov-mode . d/reading-mode)
-    (nov-mode . nov-imenu-setup)
-    :custom
-    (nov-text-width fill-column)
-    (nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title))))
+    (use-package nov :mode ("\\.epub\\'" . nov-mode)
+      :hook
+      (nov-mode . d/reading-mode)
+      (nov-mode . nov-imenu-setup)
+      :custom
+      (nov-text-width fill-column)
+      (nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title))))
   #+end_src
 
 **** d/reading-mode
@@ -2924,14 +2954,16 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
             (d/toggle-bar)
             (variable-pitch-mode 1)
             ;; (setq-local line-spacing 0.5)
-            (text-scale-increase 1)
+            ;; (text-scale-increase 1)
+            (setq-local tab-bar-show nil) (tab-bar--update-tab-bar-lines)
             (setq-local cursor-type nil)
             (setq-local olivetti-body-width 90) (olivetti-mode 1)
             )
 
         (progn
           (d/toggle-bar)
-          (text-scale-decrease 1)
+          ;; (text-scale-decrease 1)
+          (kill-local-variable 'tab-bar-show) (tab-bar--update-tab-bar-lines)
           (kill-local-variable 'cursor-type)
           (kill-local-variable 'olivetti-body-width)
           )
@@ -3029,10 +3061,13 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
              (:map gnus-summary-mode-map
                    ("-" . gnus-summary-hide-thread)
                    ("+" . gnus-summary-show-thread)
-                   ) )
+                   )
+             (:map gnus-article-mode-map
+                   ("i" . consult-imenu)))
       :custom
       (gnus-home-directory (expand-file-name "feeds/gnews" user-emacs-directory))
-      (gnus-directory message-directory)
+      (gnus-directory (expand-file-name "news" gnus-home-directory))
+      (gnus-cache-directory (nnheader-concat gnus-directory "cache/"))
       (message-directory (expand-file-name "mail" gnus-home-directory))
       (gnus-startup-file (expand-file-name "newsrc" gnus-home-directory))
       (gnus-message-archive-group '((format-time-string "sent.%Y")))
@@ -3042,40 +3077,21 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
       (gnus-select-method
        '(nnnil ""))
 
-
-
       (gnus-secondary-select-methods
        '((nntp "feedbase"
                (nntp-open-connection-function nntp-open-tls-stream) ; feedbase does not do STARTTLS (yet?)
-               (nntp-port-number 563) (nntp-address "feedbase.org")
-               (nntp-connection-timeout 5) )
-       (nntp "gwene" (nntp-address "news.gwene.org") (nntp-connection-timeout 5))
-       (nnrss "")
-       ))
+               (nntp-port-number 563) (nntp-address "feedbase.org") )
+         (nntp "gwene" (nntp-address "news.gwene.org"))
+         (nnrss "")
+         ))
 
       ;; refer: https://github.com/redguardtoo/mastering-emacs-in-one-year-guide/blob/master/gnus-guide-en.org
-      (gnus-thread-sort-functions
-       '(gnus-thread-sort-by-most-recent-date))
+      (gnus-thread-sort-functions '(gnus-thread-sort-by-score gnus-thread-sort-by-most-recent-date))
       (gnus-use-cache t)
       (gnus-thread-hide-subtree t)
-
-      ;; (gnus-summary-line-format "%U%R%z%d %I%(%[ %F %] %s %)\n")
-
-      ;;; --- credits to u/unhammer
-      ;; Save time by not checking for new groups (I'm already subscribed to what I want,
-      ;; can always manually M-x gnus-find-new-newsgroups to check new groups)
-      (gnus-check-new-newsgroups nil)
-      (gnus-check-bogus-newsgroups nil)
-      ;; By default only check groups this level or lower on startup
-      ;; (use `C-u g' or `C-c M-g' to activate all groups):
-      (gnus-activate-level 2)
+      ;; (gnus-activate-level 2)
 
       (gnus-auto-center-summary nil)
-      (gnus-nov-is-evil nil)
-      (gnus-show-threads t)
-      (gnus-use-cross-reference nil)
-      ;;;; Async prefetch – useful for newsgroups, maybe not so much for Maildir:
-      ;; https://www.gnu.org/software/emacs/manual/html_mono/gnus.html#Asynchronous-Fetching
       (gnus-asynchronous t)
 
       ;;; credits - https://libreddit.kavin.rocks/r/emacs/comments/1cfv84p/tipps_on_gnus_summary_formatting/ - u/ballfresno
@@ -3087,11 +3103,27 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
          (31536000 . "%e %b")
          (t . " %Y")))
 
-      ;;; credits - https://github.com/jbranso/.emacs.d/blob/master/lisp/init-gnus.org
+      (gnus-summary-line-format
+       (concat
+        "%0{%U%R%z%}"
+        "%3{│%}" "%1{%d%}" "%3{│%}" ;; date
+        "  "
+        "%4{%-20,20f%}"               ;; name
+        "  "
+        "%3{│%}"
+        " "
+        "%1{%B%}"
+        "%s\n"))
+
+      (setopt gnus-group-line-format "%M%S%p%P%5y:%B%(%G%)\n")
+
+      (gnus-topic-line-format "%i[ %(%{%n%}%) -- %g | %A ]%v\n")
+
+          ;;; credits - https://github.com/jbranso/.emacs.d/blob/master/lisp/init-gnus.org
       (gnus-sum-thread-tree-indent "  ")
       (gnus-sum-thread-tree-root "● ")
       (gnus-sum-thread-tree-false-root "◯ ")
-      (gnus-sum-thread-tree-single-indent "📰")
+      (gnus-sum-thread-tree-single-indent "")
       (gnus-sum-thread-tree-vertical        "│")
       (gnus-sum-thread-tree-leaf-with-other "├─► ")
       (gnus-sum-thread-tree-single-leaf     "╰─► ")
@@ -3112,37 +3144,8 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
       ;; gnus-unseen-mark ?★
       ;; gnus-ticked-mark ?⚑
 
-      (gnus-summary-line-format
-       (concat
-        "%0{%U%R%z%}"
-        "%3{│%}" "%1{%d%}" "%3{│%}" ;; date
-        "  "
-        "%4{%-20,20f%}"               ;; name
-        "  "
-        "%3{│%}"
-        " "
-        "%1{%B%}"
-        "%s\n"))
-
-      (gnus-group-line-format "%P│%M%S%4y %B%(%G%)\n")
-
-      (gnus-topic-line-format "%i╭ %(%{✪ %n%}%) %A   %g %v\n")
-
-
-      (gnus-summary-display-arrow t)
-
-
-      (gnus-face-1 'italic)
-      (gnus-face-2 'bold)
-      (gnus-face-3 'bold-italic)
-
       :config
-      (setopt
-       nnrss-group-alist
-       '(
-         ("manga" "https://nyaa.si/?page=rss&c=3_1&f=0")
-         )
-       )
+      (setq nnrss-group-alist '( ("manga" "https://nyaa.si/?page=rss&c=3_1&f=0") ) )
       (gnus-demon-add-handler 'gnus-group-save-newsrc 5 t) ;; minutes
       (gnus-demon-init)
       )
@@ -3156,8 +3159,8 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 - Use gnus with protonmail.
 - Credits to: https://www.vidal-rosset.net/gnus_emacs_as_email_client_in_imap_with_protonmail.html
 #+begin_src emacs-lisp
-  (setopt user-mail-address "idlip@protonmail.com" ;; you can mail me to discuss anything on emacs ;)
-          user-full-name "Dilip")
+  ;; (setopt user-mail-address "idlip@protonmail.com" ;; you can mail me to discuss anything on emacs ;)
+  ;;         user-full-name "Dilip")
 
   (use-package gnus
     :unless d/on-droid
@@ -3177,21 +3180,21 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 
 - Send mail config
 #+begin_src emacs-lisp
-(use-package smtpmail
-  :unless d/on-droid
-  :after gnus
-  :custom
-  (smtpmail-default-smtp-server "127.0.0.1")
-  (mail-sources '((imap :server "127.0.0.1"
-                        :user "idlip")))
-  (smtpmail-smtp-server "127.0.0.1")
-  (smtpmail-smtp-service 1025)
-  (starttls-use-gnutls t)
-  (send-mail-function 'smtpmail-send-it)
-  (message-send-mail-function 'smtpmail-send-it)
-  (mail-from-style 'angles)
-  (smtpmail-debug-info t)
-  (smtpmail-debug-verb t))
+  (use-package smtpmail
+    :unless d/on-droid
+    :after gnus
+    :custom
+    (smtpmail-default-smtp-server "127.0.0.1")
+    (mail-sources '((imap :server "127.0.0.1"
+                          :user "idlip")))
+    (smtpmail-smtp-server "127.0.0.1")
+    (smtpmail-smtp-service 1025)
+    (starttls-use-gnutls t)
+    (send-mail-function 'smtpmail-send-it)
+    (message-send-mail-function 'smtpmail-send-it)
+    (mail-from-style 'angles)
+    (smtpmail-debug-info t)
+    (smtpmail-debug-verb t))
 #+end_src
 
 - More mails
@@ -3300,11 +3303,11 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
   #+begin_src nix :tangle gdk/home.nix
     {
       home.packages = with pkgs; [
-        mullvad-browser
+        # mullvad-browser
         # zen browser when?
         # ungoogled-chromium
         # nyxt
-        brave
+        # brave
       ];
     }
   #+end_src
@@ -3592,7 +3595,33 @@ user_pref("findbar.highlightAll", true);
       (eww-mode . variable-pitch-mode)
       (eww-after-render . (lambda () (eww-readable) (setq-local line-spacing '0.4)))
       :custom
-      (eww-auto-rename-buffer 'title))
+      (eww-auto-rename-buffer 'title)
+      :config
+      (defun d/eww-readable ()
+        "Use more opinionated `eww-readable'.
+
+    Set width is set to `current-fill-column'.  Adjust size of
+    images."
+        (interactive)
+        (let ((shr-width (current-fill-column))
+              (shr-max-image-proportion 0.35))
+          (eww-readable)))
+
+      (setq d/search-engines
+            '(
+              ("go google" . "https://google.com/search?q=%s")
+              ("ddg duckduckgo" . "https://duckduckgo.com/?q=%s")
+              ("yt invidious" . "https://yewtu.be/search?q=%s")
+              ))
+
+      (defun d/search-eww (term)
+        "Search for a term using an engine."
+        (interactive "MTerm: ")
+        (let* ((url
+                (cdr (assoc (completing-read "Engine: " d/search-engines) d/search-engines))))
+          (if (equal url nil) (message "Error: search engine unknown.")
+            (eww (format url (url-hexify-string term))))))
+      )
   #+end_src
 
 - Browse-url with custom bash script, a link handler.
@@ -3603,6 +3632,64 @@ user_pref("findbar.highlightAll", true);
               browse-url-generic-program "d-stuff"
               browse-url-secondary-browser-function 'browse-url-default-browser))
   #+end_src
+
+- Function to use imenu with eww links & headings
+  #+begin_src emacs-lisp
+    (defun unpackaged/eww-imenu-index ()
+      "Return Imenu index for current EWW buffer.
+    Index includes links and headings."
+      (let ((shr-heading-faces '( shr-h1 shr-h2 shr-h3 shr-h4 shr-h5
+                                  shr-h6 shr-heading)))
+        (cl-labels ((range-matching (property predicate)
+                      "Return (BEG . END) cons from point where PROPERTY matches PREDICATE.
+      PREDICATE is used for `text-property-search-forward', which see."
+                      (when-let* ((match (text-property-search-forward property nil predicate))
+                                 (end (cl-loop
+                                       for next-change-pos = (prop-match-end match) then next-change-pos
+                                       for next-change-pos = (next-single-property-change next-change-pos property)
+                                       when next-change-pos
+                                       for end-pos = next-change-pos
+                                       while (funcall predicate nil (get-text-property next-change-pos property))
+                                       finally return end-pos)))
+                        (cons (prop-match-beginning match) end)))
+                    (shr-heading-p (_ value-of)
+                      (cl-typecase value-of
+                        (atom (member value-of shr-heading-faces))
+                        (list (seq-intersection value-of shr-heading-faces)))))
+          (let ((links (save-excursion
+                         (goto-char (point-min))
+                         (delete-dups
+                          (cl-loop for url = (get-text-property (point) 'shr-url)
+                                   when url collect (cons (format "%s <%s>"
+                                                                  (button-label (button-at (point)))
+                                                                  url)
+                                                          (point))
+                                   for pos = (next-single-property-change (point) 'shr-url)
+                                   while pos do (goto-char pos)))))
+                (headings (save-excursion
+                            (goto-char (point-min))
+                            (cl-loop for (next-beg . next-end) = (range-matching 'face #'shr-heading-p)
+                                     while next-beg
+                                     for text = (buffer-substring next-beg next-end)
+                                     collect (cons text next-beg)
+                                     and do (goto-char next-end)))))
+            (list (cons "Headings" headings)
+                  (cons "Links" links))))))
+
+    (defun unpackaged/eww-imenu-goto (_label position)
+      "Go to POSITION and call `eww-follow-link' if one is there."
+      (goto-char position)
+      (when (button-at (point))
+        (call-interactively #'browse-url-generic)))
+
+    (defun unpackaged/eww-imenu-setup ()
+      "Setup Imenu in EWW buffers."
+      (setq-local imenu-create-index-function #'unpackaged/eww-imenu-index
+                  imenu-default-goto-function #'unpackaged/eww-imenu-goto))
+
+    (add-hook 'eww-mode-hook #'unpackaged/eww-imenu-setup)
+    (add-hook 'gnus-article-mode-hook #'unpackaged/eww-imenu-setup)
+#+end_src
 
 **** COMMENT ox-hugo
 - for maintaining a static site generator with posts written in org-mode.
@@ -3997,10 +4084,12 @@ user_pref("findbar.highlightAll", true);
 #+begin_src emacs-lisp
   (use-package erc :ensure nil
     :init
-    (defun erc-run-libera ()
+    (defun erc-run-irc ()
       "Run ERC and connect to Libera"
       (interactive)
-      (erc-tls :server "irc.libera.chat" :nick "zororg") ;; yes, thats me
+      (let ((nickuser (completing-read "Irc network: " '("tilde-chat" "libera"))))
+        (erc-tls :server "znc.tilde.green" :port 6697 :nick "zororg" :user
+                 (concat "zororg" "/" nickuser))) ;; yes, thats me
       )
     :custom (erc-hide-list '("JOIN" "PART" "QUIT")))
 #+end_src
@@ -4012,7 +4101,7 @@ user_pref("findbar.highlightAll", true);
       (rcirc-reconnect-delay 5)
       (rcirc-fill-column 90)
       (rcirc-track-ignore-server-buffer-flag t)
-      (rcirc-server-alist '(("irc.libera.chat" :channels ("#emacs" "#systemcrafters" "#orgmode") :port 6697 :encryption tls)))
+      (rcirc-server-alist '(("irc.libera.chat" :channels ("#systemcrafters") :port 6697 :encryption tls)))
       :config (rcirc-track-minor-mode 1) )
   #+end_src
 *** droidMacs
@@ -4123,7 +4212,6 @@ user_pref("findbar.highlightAll", true);
   #+begin_src nix :tangle gdk/core.nix
   {
     programs.hyprland.enable = true;
-    programs.hyprlock.enable = true; # for pam auth config
   }
   #+end_src
 
@@ -4186,7 +4274,6 @@ user_pref("findbar.highlightAll", true);
 
           animations = {
             enabled = true;
-            animation = "borderangle, 1, 180, linear, loop"; #used by rainbow borders and rotating colors
           };
 
           gestures  =  {
@@ -4568,10 +4655,6 @@ user_pref("findbar.highlightAll", true);
     workspace-auto-back-and-forth
   }
 
-  cursor {
-   xcursor-size 12
-  }
-
   environment {
   	DISPLAY ":0"
   	//QT_SCALE_FACTOR "1.5"
@@ -4592,11 +4675,12 @@ user_pref("findbar.highlightAll", true);
   // startups
   spawn-at-startup "dotoold"
   spawn-at-startup "d-walls"
-  spawn-at-startup "xwayland-satellite"
-  //spawn-at-startup "hypridle"
+  spawn-at-startup "waybar"
+  //spawn-at-startup "xwayland-satellite"
 
   output "eDP-1" {
   	scale 2
+    variable-refresh-rate
   }
 
   output "HDMI-A-1" {
@@ -4785,8 +4869,8 @@ user_pref("findbar.highlightAll", true);
 
   	// Powers off the monitors. To turn them back on, do any input like
   	// moving the mouse or pressing any other key.
-  	Mod+Ctrl+P { power-off-monitors; }
-  	Mod+Ctrl+L { spawn "hyprlock"; }
+  	Mod+Ctrl+P { spawn "sh" "-c" "systemctl suspend"; }
+  	Mod+Ctrl+L { spawn "sh" "-c" "hyprlock & niri msg action power-off-monitors" ; }
   }
 
 #+end_src
@@ -4832,25 +4916,23 @@ user_pref("findbar.highlightAll", true);
   #+end_src
 *** wayland-packages
   #+begin_src nix :tangle gdk/home.nix :noweb yes
-  {
-    home.packages = with pkgs; [
-      # screenshot
-      # grim slurp
-      grimblast
+    {
+      home.packages = with pkgs; [
+        # screenshot
+        # grim slurp
+        grimblast
 
-      libnotify libsixel
-      brightnessctl
-      dotool gtk3
-      swaybg swayimg
-      sway
-      # swayidle gtklock
+        libnotify libsixel
+        brightnessctl
+        dotool gtk3
+        swaybg swayimg
 
-      # utils
-      # ocrscript
-      wl-screenrec wl-mirror
-      wl-clipboard xwayland-satellite
-    ];
-  }
+        # utils
+        # ocrscript
+        wl-screenrec wl-mirror
+        wl-clipboard xwayland-satellite
+      ];
+    }
   #+end_src
 **** hypridle
 - Idle manager made for/with hyprland
@@ -4894,7 +4976,7 @@ user_pref("findbar.highlightAll", true);
               on-resume = "${pkgs.hyprland}/bin/hyprctl dispatch dpms on";
             }
             {
-              timeout = timeout * 5;
+              timeout = timeout + 60;
               on-timeout = "systemctl suspend";
             }
           ];
@@ -5177,17 +5259,17 @@ stdenvNoCC.mkDerivation rec {
     ;; Dont worry about the font name, I use fork of Iosevka font
 
     ;; Set reusable font name variables
-    (defcustom d/fixed-pitch-font "Code OnePiece"
+    (defcustom d/fixed-pitch-font "UbuntuSansMono NF"
       "The font to use for monospaced (fixed width) text.")
 
-    (defcustom d/variable-pitch-font "Code Haki"
+    (defcustom d/variable-pitch-font "UbuntuSans NF"
       "The font to use for variable-pitch (documents) text.")
   #+end_src
 - Invoking fonts.
   #+begin_src emacs-lisp
     (use-package faces :ensure nil
       :custom-face
-      (variable-pitch ((t (:family ,d/variable-pitch-font :height 1.05 :weight medium))))
+      (variable-pitch ((t (:family ,d/variable-pitch-font :height 1.1 :weight medium))))
       (fixed-pitch ((t (:family ,d/fixed-pitch-font :weight medium))))
       (default ((t (:family ,d/fixed-pitch-font :height ,d/font-size :weight medium)))))
   #+end_src
@@ -5196,7 +5278,7 @@ stdenvNoCC.mkDerivation rec {
   #+begin_src emacs-lisp
     (use-package font-lock :ensure nil :init (global-font-lock-mode 1))
   #+end_src
-*** Icons
+*** COMMENT Nerd Icons
 - To visualize and minimize the text.
 - Nerd-icons
   #+begin_src emacs-lisp
@@ -5208,8 +5290,9 @@ stdenvNoCC.mkDerivation rec {
   #+end_src
 - nerd icons in completions
   #+begin_src emacs-lisp
-  (use-package nerd-icons-completion :unless d/on-droid
-    :init (nerd-icons-completion-mode))
+    (use-package nerd-icons-completion :unless d/on-droid
+      :hook (marginalia-mode . nerd-icons-completion-marginalia-setup)
+      :init (nerd-icons-completion-mode))
   #+end_src
 - nerd icons in corfu
   #+begin_src emacs-lisp
@@ -5247,25 +5330,25 @@ stdenvNoCC.mkDerivation rec {
         };
 
         cursor = {
-          package = pkgs.bibata-cursors;
-          name = "Bibata-Modern-Classic";
+          package = pkgs.oreo-cursors-plus;
+          name = "oreo_teal_cursors";
           size = 12;
         };
 
         fonts = {
           serif = {
-            package = pkgs.callPackage ./pkgs/code-nika.nix {};
-            name = "Code Haki";
+            package = pkgs.nerd-fonts.ubuntu-sans;
+            name = "UbuntuSans NF";
           };
 
           sansSerif = {
-            package = pkgs.callPackage ./pkgs/code-nika.nix {};
-            name = "Code Haki";
+            package = pkgs.nerd-fonts.ubuntu-sans;
+            name = "UbuntuSans NF";
           };
 
           monospace = {
-            package = pkgs.callPackage ./pkgs/code-nika.nix {};
-            name = "Code OnePiece";
+            package = pkgs.nerd-fonts.ubuntu-sans;
+            name = "UbuntuSansMono NF";
           };
 
           emoji = {
@@ -5353,7 +5436,7 @@ stdenvNoCC.mkDerivation rec {
     (use-package haki-theme :demand t
       :load-path "~/.config/emacs/var/theme"
       :custom-face
-      (haki-region ((t (:background "#262626" :foreground "#ffffff"))))
+      ;; (haki-region ((t (:background "#262626" :foreground "#ffffff"))))
       :custom
       ;; (haki-heading-font "Code D Ace")
       ;; (haki-sans-font "Code D Haki")
@@ -5366,12 +5449,12 @@ stdenvNoCC.mkDerivation rec {
       :config (load-theme 'haki t))
   #+end_src
 
-** COMMENT Olivetti
+** Olivetti
 - Nice, focused writing environment for emacs.
   TODO replace with daviwil's =document-center-mode= function.
   #+begin_src emacs-lisp
   (use-package olivetti :defer t :custom (olivetti-body-width 100)
-    :hook (org-mode text-mode Info-mode helpful-mode ement-room-mode gnus-group-mode
+    :hook (org-mode text-mode Info-mode helpful-mode ement-room-mode gnus-group-mode eww-mode
                      gnus-article-mode sdcv-mode nov-mode elfeed-show-mode markdown-mode))
   #+end_src
 ** Status bar/Mode-line
@@ -6087,24 +6170,14 @@ stdenvNoCC.mkDerivation rec {
 }
   #+end_src
 *** Notifications
-**** [[https://codeberg.org/dnkl/fnott/][Fnott]]
-- Another simple enough package by dnkl (author of foot terminal)
+**** mako
+
 #+begin_src nix :tangle gdk/home.nix
   {
-    services.fnott = {
+    services.mako = {
       enable = true;
-      settings = {
-        main = {
-          notification-margin = 5;
-          layer = "overlay";
-          border-radius = 16;
-          min-width = 400;
-          max-width = 900;
-          selection-helper = "fuzzel";
-          play-sound = "/home/idlip/.bin/d-notify";
-          # sound-file= "/home/idlip/music/yt/misc/linux-notify.ogg";
-        };
-      };
+      borderRadius = 16;
+      layer = "overlay";
     };
   }
 #+end_src
@@ -6169,12 +6242,12 @@ stdenvNoCC.mkDerivation rec {
 #+begin_src nix :tangle gdk/home.nix
   {
     home.packages = with pkgs; [
-      winePackages.waylandFull
-      winePackages.fonts
-      bottles
-      winetricks
+      # winePackages.waylandFull
+      # winePackages.fonts
+      # bottles
+      # winetricks
       # ASIO -> JACK (which pipewire can support)
-      wineasio
+      # wineasio
     ];
   }
 
@@ -6206,7 +6279,7 @@ stdenvNoCC.mkDerivation rec {
 *** home-pkgs
 - Some programs and packages to be used often. Miscellaneous
   #+begin_src nix :tangle gdk/home.nix
-  { home.packages = with pkgs; [ libnotify xfce.thunar libreoffice pandoc groff mupdf keepassxc easyeffects ]; }
+    { home.packages = with pkgs; [ libnotify nemo libreoffice pandoc groff mupdf keepassxc easyeffects jaq ]; }
   #+end_src
 
 * Note taking
@@ -6229,7 +6302,7 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
   #+begin_src emacs-lisp
     (use-package org :ensure nil :defer t
       :hook
-      ;; (org-mode . variable-pitch-mode)
+      (org-mode . variable-pitch-mode)
       (org-mode . org-indent-mode)
 
       :bind (
@@ -6348,35 +6421,28 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
 
 *** org-agenda
   #+begin_src emacs-lisp
-  (use-package org-agenda :ensure nil :after org
-    :bind (("C-c d a" . org-agenda)
-           ("C-c a a" . org-agenda)
-           (:map org-agenda-mode-map
-                 ("C-x C-k" . org-agenda-exit)))
+    (use-package org-agenda :ensure nil :after org
+      :bind (("C-c d a" . org-agenda)
+             ("C-c a a" . org-agenda)
+             (:map org-agenda-mode-map
+                   ("C-x C-k" . org-agenda-exit)))
 
-    ;; :hook (org-agenda-finalize . org-agenda-entry-text-mode)
-    :custom
-    (org-agenda-restore-windows-after-quit t)
-    (org-agenda-log-mode-items '(closed clock state))
-    (org-agenda-inhibit-startup t)
-    (org-agenda-tags-column fill-column)
-    (org-agenda-block-separator ?─)
-    (org-agenda-time-grid
-     '((daily today require-timed)
-       (800 1000 1200 1400 1600 1800 2000)
-       " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄"))
-    (org-agenda-current-time-string
-     "◀── now ─────────────────────────────────────────────────")
+      ;; :hook (org-agenda-finalize . org-agenda-entry-text-mode)
+      :custom
+      (org-agenda-include-diary t)
+      (org-agenda-tags-column org-tags-column)
+      (org-agenda-restore-windows-after-quit t)
+      (org-agenda-window-setup 'only-window)
 
-    (org-agenda-custom-commands
-     '(("n" "Next tasks" ((todo "STARTED") (todo "NEXT")))
-       ("a" "Agenda and all TODOs" ((agenda "") (alltodo "")))))
+      (org-agenda-custom-commands
+       '(("n" "Next tasks" ((todo "STARTED") (todo "NEXT")))
+         ("a" "Agenda and all TODOs" ((agenda "") (alltodo "")))))
 
-    (org-agenda-files
-     '("~/d-sync/notes/d-brain.org"
-       "~/d-sync/notes/inbox.org"
-       "~/d-git/d-site/README.org"
-       )))
+      (org-agenda-files
+       '("~/d-sync/notes/d-brain.org"
+         "~/d-sync/notes/inbox.org"
+         "~/d-git/d-site/README.org"
+         )))
   #+end_src
 *** org-capture
   #+begin_src emacs-lisp
@@ -6567,32 +6633,31 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
 *** appointment-appt
 - =appt= library to run timer on appointments in diary or org-agenda.
 #+begin_src emacs-lisp
-(use-package appt :ensure nil :demand t
-  :config
-  (setq appt-disp-window-function #'appt-org-notify
-        appt-display-interval 3
-        appt-display-mode-line nil
-        appt-message-warning-time 60)
+  (use-package appt :ensure nil :demand t
+    :custom
+    (appt-disp-window-function #'appt-org-notify)
+    (appt-message-warning-time (* 3 30))
+    :config
+    (define-advice appt-activate (:after (&optional _arg) hold-your-horses)
+      "`appt-activate' is too eager, rein it in."
+      (remove-hook 'write-file-functions #'appt-update-list)
+      (when (timerp appt-timer)
+        (timer-set-time appt-timer (current-time) 600)))
 
-  (define-advice appt-activate (:after (&optional _arg) hold-your-horses)
-    "`appt-activate' is too eager, rein it in."
-    (remove-hook 'write-file-functions #'appt-update-list)
-    (when (timerp appt-timer)
-      (timer-set-time appt-timer (current-time) 600)))
+    (define-advice appt-check (:before (&optional _force) from-org-agenda)
+      "Read events from Org agenda if possible."
+      (and (featurep 'org-agenda)
+           (ignore-errors
+             (let ((inhibit-message t))
+               (org-agenda-to-appt t))))))
 
-  (define-advice appt-check (:before (&optional _force) from-org-agenda)
-    "Read events from Org agenda if possible."
-    (and (featurep 'org-agenda)
-         (ignore-errors
-           (let ((inhibit-message t))
-             (org-agenda-to-appt t))))))
-
-(use-package notifications :ensure nil :config
-  (defun appt-org-notify (remaining new-time msg)
-    (notifications-notify
-     :title (format "In %s minutes" remaining)
-     :body msg
-     :urgency 'critical))  )
+  (use-package notifications :ensure nil :config
+    (defun appt-org-notify (remaining new-time msg)
+      (let ((notif (if d/on-droid 'android-notifications-notify 'notifications-notify)))
+        (funcall notif
+                 :body (format "In %s minutes" remaining)
+                 :title msg
+                 :urgency 'critical))))
 #+end_src
 *** dslide
 - Do the Slides in Org
@@ -6607,7 +6672,7 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
                ("p" . dslide-deck-backward)
                )))
 #+end_src
-*** TODO org-noter
+*** COMMENT org-noter
 - To annotate and note on docs in plain text. Seems useful and handy rather than manual work.
   #+begin_src emacs-lisp
   (use-package org-noter :unless d/on-droid :after org

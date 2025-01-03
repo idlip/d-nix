@@ -19,7 +19,7 @@
       "nvme" "xhci_pci" "usbhid" "usb_storage" "sd_mod" "sdhci_pci"
     ];
 
-    consoleLogLevel = 3;
+    # consoleLogLevel = 3;
 
     supportedFilesystems = [ "ntfs" ];
     tmp.cleanOnBoot = true;
@@ -27,7 +27,7 @@
     kernelParams = [
       "systemd.mask=dev-tpmrm0.device" #this is to mask that stupid 1.5 mins systemd bug
       "nowatchdog" "modprobe.blacklist=iTCO_wdt" #watchdog for Intel
-      "quiet"
+      # "mem_sleep_default=deep" # suspend to RAM (deep) rather than `s2idle`
  	  ];
   };
 }
@@ -115,9 +115,7 @@
 
 {
   systemd.sleep.extraConfig = ''
-   AllowSuspendThenHibernate=yes
-   HibernateDelaySec=3600
-   AllowHibernation=yes
+   AllowSuspend=yes
    '';
 }
 
@@ -138,7 +136,7 @@
     networkmanager = {
       enable = true;
       unmanaged = ["docker0" "rndis0" "interface-name:ve-*" ];
-      # wifi.macAddress = "random"; # randomness? whitelist?
+      wifi.macAddress = "random"; # randomness? whitelist?
     };
 
     # Firewall uses iptables underthehood
@@ -230,6 +228,10 @@
 
 {
   services.power-profiles-daemon.enable = true;
+}
+
+{
+  services.thermald.enable = true;
 }
 
 {
@@ -473,25 +475,25 @@
     };
 
     cursor = {
-      package = pkgs.bibata-cursors;
-      name = "Bibata-Modern-Classic";
+      package = pkgs.oreo-cursors-plus;
+      name = "oreo_teal_cursors";
       size = 12;
     };
 
     fonts = {
       serif = {
-        package = pkgs.callPackage ./pkgs/code-nika.nix {};
-        name = "Code Haki";
+        package = pkgs.nerd-fonts.ubuntu-sans;
+        name = "UbuntuSans NF";
       };
 
       sansSerif = {
-        package = pkgs.callPackage ./pkgs/code-nika.nix {};
-        name = "Code Haki";
+        package = pkgs.nerd-fonts.ubuntu-sans;
+        name = "UbuntuSans NF";
       };
 
       monospace = {
-        package = pkgs.callPackage ./pkgs/code-nika.nix {};
-        name = "Code OnePiece";
+        package = pkgs.nerd-fonts.ubuntu-sans;
+        name = "UbuntuSansMono NF";
       };
 
       emoji = {

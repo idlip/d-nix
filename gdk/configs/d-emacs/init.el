@@ -98,6 +98,7 @@ see its function help for a description of the format."
   (tab-width 2)
   (reb-re-syntax 'string)
 
+  (window-combination-resize t)
   (history-delete-duplicates t)
 
   (sentence-end-double-space nil)
@@ -109,6 +110,7 @@ see its function help for a description of the format."
   (setopt
    read-process-output-max (* 1024 1024)
    inhihbit-compacting-font-caches t
+   pgtk-wait-for-event-timeout nil
    )
   (with-current-buffer "*scratch*" (emacs-lock-mode 'kill))
   (modify-all-frames-parameters
@@ -314,13 +316,15 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 
 (use-package savehist :ensure nil
   :init (savehist-mode)
-  :custom (savehist-additional-variables '(kill-ring search-ring regexp-search-ring)))
+  :custom (history-length 1000)
+  (savehist-additional-variables
+   '(mark-ring global-mark-ring search-ring regexp-search-ring register-alist extended-command-history)))
 
 (use-package recentf :ensure nil
   :bind ("C-x C-r" . recentf)
   :custom
-  (recentf-max-menu-items 100)
-  (recentf-max-saved-items 100)
+  (recentf-max-menu-items history-length)
+  (recentf-max-saved-items history-length)
   :init (recentf-mode))
 
 (use-package no-littering :demand t :ensure t
@@ -450,6 +454,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (register-preview-function #'consult-register-format)
   (xref-show-xrefs-function #'consult-xref)
   (xref-show-definitions-function #'consult-xref)
+  (imenu-max-item-length nil)
 
   :config
   (consult-customize
@@ -461,31 +466,6 @@ E.g. capitalize or decapitalize the next word, increment number at point."
    ;; :preview-key (kbd "M-.")
    :preview-key '(:debounce 0.4 any))
   (advice-add #'register-preview :override #'consult-register-window))
-
-(use-package consult-omni
-  :load-path "~/.config/emacs/elpa/consultomni" "~/.config/emacs/elpa/consultomni/sources"
-  :after consult
-  :custom
-  (consult-omni-show-preview t) ;;; show previews
-  (consult-omni-preview-key "C-o") ;;; set the preview key to C-o
-  (consult-omni-dynamic-input-debounce 2)
-  (consult-omni-dynamic-input-throttle 4)
-  (consult-omni-default-interactive-command #'consult-omni-multi)
-  (consult-omni-sources-modules-to-load
-   '(consult-omni-brave consult-omni-invidious
-                        consult-omni-google consult-omni-youtube consult-omni-gptel
-                        consult-omni-stackoverflow
-                        consult-omni-wikipedia consult-omni-man
-                        consult-omni-calc
-                        consult-omni-projects
-                        consult-omni-notes
-                        consult-omni-apps))
-  (consult-omni-invidious-servers '("https://invidious.privacyredirect.com" "https://yewtu.be" "https://vid.puffyan.us"))
-  (consult-omni-notes-files (list org-directory "~/d-git/d-site/"))
-  (consult-omni-http-retrieve-backend 'request)
-  :config (require 'consult-omni-sources)
-  (consult-omni-sources-load-modules)
-  )
 
 (use-package orderless :demand t :custom (completion-styles '(orderless basic))
   (completion-category-defaults nil)
@@ -569,8 +549,11 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 (use-package pixel-scroll :ensure nil
   :bind (("C-v" . pixel-scroll-interpolate-down) ("M-v" . pixel-scroll-interpolate-up))
   :init (pixel-scroll-precision-mode 1)
-  :custom (scroll-step 1) (scroll-margin 0) (pixel-scroll-precision-interpolate-page t)
-  (scroll-conservatively 100000 "Dont jump") (scroll-preserve-screen-position 1 "Preserve position"))
+  :custom (scroll-step 1) (scroll-margin 0)
+  ;; (pixel-scroll-precision-interpolate-page t)
+  (pixel-scroll-precision-large-scroll-height 40.0)
+  (mouse-wheel-progressive-speed nil) (mouse-wheel-scroll-amount '(1 ((control) . 1)  ((shift) . 2) ((meta) . 3)))
+  (scroll-conservatively 101 "Dont jump") (scroll-preserve-screen-position 1 "Preserve position"))
 
 (use-package repeat :config (repeat-mode 1)
   :custom (repeat-exit-timeout 2))
@@ -590,6 +573,24 @@ E.g. capitalize or decapitalize the next word, increment number at point."
    ("C-x C-a b" . activities-switch-buffer)
    ("C-x C-a g" . activities-revert)
    ("C-x C-a l" . activities-list)))
+
+(use-package gptel :unless d/on-droid :defer t
+  :custom (gptel-model 'llama3.2:latest)
+  :config
+  (setq gptel-backend
+        (gptel-make-ollama "Ollama"
+          :host "localhost:11434"
+          :stream t
+          :models '(llama3.2:latest)))
+  (gptel-make-ollama "Ollama"
+    :host "localhost:11434"
+    :stream t
+    :models '(mistral:latest))
+  ;; some json error until next update ;; also make it lazy to not ask auth pass
+  (gptel-make-gemini "Gemini"
+    :key (gptel-api-key-from-auth-source "api.gemini.com" "apikey")
+    :stream t)
+  )
 
 (use-package zone :ensure nil :demand t :config (zone-when-idle (* 60 5)))
 
@@ -626,7 +627,6 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 
   :custom
   (eshell-hist-ignoredups t)
-  (eshell-buffer-name "eshell-terminal")
   (eshell-kill-processes-on-exit 'ask)
   (eshell-aliases-file (expand-file-name "eshell/alias" user-emacs-directory))
 
@@ -671,6 +671,15 @@ E.g. capitalize or decapitalize the next word, increment number at point."
                ("M-s s" . consult-history)))
   :custom
   (eshell-buffer-maximum-lines 10000) (eshell-history-size 10000))
+
+(add-to-list
+ 'display-buffer-alist
+ '("\\*\\(shell\\|.*term\\|.*eshell\\|.*eat\\|help\\|compilation\\|Async Shell Command\\|Occur\\|xref\\).*\\*"
+   (display-buffer-reuse-window display-buffer-in-side-window)
+   (side . bottom)
+   (slot . 0)
+   (post-command-select-window . t)
+   (window-height . 0.3)))
 
 (use-package eat :unless d/on-droid
   :hook (eshell-load . eat-eshell-mode)
@@ -764,7 +773,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 
 (use-package nix-mode :bind (:map nix-mode-map ("C-c C-e" . nix-eval-line)))
 
-(use-package nix-ts-mode)
+(use-package nix-ts-mode :ensure nix-mode)
 
 (defun nix-eval-dwim ()
   (interactive)
@@ -967,14 +976,16 @@ out"))
         (d/toggle-bar)
         (variable-pitch-mode 1)
         ;; (setq-local line-spacing 0.5)
-        (text-scale-increase 1)
+        ;; (text-scale-increase 1)
+        (setq-local tab-bar-show nil) (tab-bar--update-tab-bar-lines)
         (setq-local cursor-type nil)
         (setq-local olivetti-body-width 90) (olivetti-mode 1)
         )
 
     (progn
       (d/toggle-bar)
-      (text-scale-decrease 1)
+      ;; (text-scale-decrease 1)
+      (kill-local-variable 'tab-bar-show) (tab-bar--update-tab-bar-lines)
       (kill-local-variable 'cursor-type)
       (kill-local-variable 'olivetti-body-width)
       )
@@ -1060,10 +1071,13 @@ out"))
          (:map gnus-summary-mode-map
                ("-" . gnus-summary-hide-thread)
                ("+" . gnus-summary-show-thread)
-               ) )
+               )
+         (:map gnus-article-mode-map
+               ("i" . consult-imenu)))
   :custom
   (gnus-home-directory (expand-file-name "feeds/gnews" user-emacs-directory))
-  (gnus-directory message-directory)
+  (gnus-directory (expand-file-name "news" gnus-home-directory))
+  (gnus-cache-directory (nnheader-concat gnus-directory "cache/"))
   (message-directory (expand-file-name "mail" gnus-home-directory))
   (gnus-startup-file (expand-file-name "newsrc" gnus-home-directory))
   (gnus-message-archive-group '((format-time-string "sent.%Y")))
@@ -1073,40 +1087,21 @@ out"))
   (gnus-select-method
    '(nnnil ""))
 
-
-
   (gnus-secondary-select-methods
    '((nntp "feedbase"
            (nntp-open-connection-function nntp-open-tls-stream) ; feedbase does not do STARTTLS (yet?)
-           (nntp-port-number 563) (nntp-address "feedbase.org")
-           (nntp-connection-timeout 5) )
-   (nntp "gwene" (nntp-address "news.gwene.org") (nntp-connection-timeout 5))
-   (nnrss "")
-   ))
+           (nntp-port-number 563) (nntp-address "feedbase.org") )
+     (nntp "gwene" (nntp-address "news.gwene.org"))
+     (nnrss "")
+     ))
 
   ;; refer: https://github.com/redguardtoo/mastering-emacs-in-one-year-guide/blob/master/gnus-guide-en.org
-  (gnus-thread-sort-functions
-   '(gnus-thread-sort-by-most-recent-date))
+  (gnus-thread-sort-functions '(gnus-thread-sort-by-score gnus-thread-sort-by-most-recent-date))
   (gnus-use-cache t)
   (gnus-thread-hide-subtree t)
-
-  ;; (gnus-summary-line-format "%U%R%z%d %I%(%[ %F %] %s %)\n")
-
-  ;;; --- credits to u/unhammer
-  ;; Save time by not checking for new groups (I'm already subscribed to what I want,
-  ;; can always manually M-x gnus-find-new-newsgroups to check new groups)
-  (gnus-check-new-newsgroups nil)
-  (gnus-check-bogus-newsgroups nil)
-  ;; By default only check groups this level or lower on startup
-  ;; (use `C-u g' or `C-c M-g' to activate all groups):
-  (gnus-activate-level 2)
+  ;; (gnus-activate-level 2)
 
   (gnus-auto-center-summary nil)
-  (gnus-nov-is-evil nil)
-  (gnus-show-threads t)
-  (gnus-use-cross-reference nil)
-  ;;;; Async prefetch – useful for newsgroups, maybe not so much for Maildir:
-  ;; https://www.gnu.org/software/emacs/manual/html_mono/gnus.html#Asynchronous-Fetching
   (gnus-asynchronous t)
 
   ;;; credits - https://libreddit.kavin.rocks/r/emacs/comments/1cfv84p/tipps_on_gnus_summary_formatting/ - u/ballfresno
@@ -1118,11 +1113,27 @@ out"))
      (31536000 . "%e %b")
      (t . " %Y")))
 
-  ;;; credits - https://github.com/jbranso/.emacs.d/blob/master/lisp/init-gnus.org
+  (gnus-summary-line-format
+   (concat
+    "%0{%U%R%z%}"
+    "%3{│%}" "%1{%d%}" "%3{│%}" ;; date
+    "  "
+    "%4{%-20,20f%}"               ;; name
+    "  "
+    "%3{│%}"
+    " "
+    "%1{%B%}"
+    "%s\n"))
+
+  (setopt gnus-group-line-format "%M%S%p%P%5y:%B%(%G%)\n")
+
+  (gnus-topic-line-format "%i[ %(%{%n%}%) -- %g | %A ]%v\n")
+
+      ;;; credits - https://github.com/jbranso/.emacs.d/blob/master/lisp/init-gnus.org
   (gnus-sum-thread-tree-indent "  ")
   (gnus-sum-thread-tree-root "● ")
   (gnus-sum-thread-tree-false-root "◯ ")
-  (gnus-sum-thread-tree-single-indent "📰")
+  (gnus-sum-thread-tree-single-indent "")
   (gnus-sum-thread-tree-vertical        "│")
   (gnus-sum-thread-tree-leaf-with-other "├─► ")
   (gnus-sum-thread-tree-single-leaf     "╰─► ")
@@ -1143,37 +1154,8 @@ out"))
   ;; gnus-unseen-mark ?★
   ;; gnus-ticked-mark ?⚑
 
-  (gnus-summary-line-format
-   (concat
-    "%0{%U%R%z%}"
-    "%3{│%}" "%1{%d%}" "%3{│%}" ;; date
-    "  "
-    "%4{%-20,20f%}"               ;; name
-    "  "
-    "%3{│%}"
-    " "
-    "%1{%B%}"
-    "%s\n"))
-
-  (gnus-group-line-format "%P│%M%S%4y %B%(%G%)\n")
-
-  (gnus-topic-line-format "%i╭ %(%{✪ %n%}%) %A   %g %v\n")
-
-
-  (gnus-summary-display-arrow t)
-
-
-  (gnus-face-1 'italic)
-  (gnus-face-2 'bold)
-  (gnus-face-3 'bold-italic)
-
   :config
-  (setopt
-   nnrss-group-alist
-   '(
-     ("manga" "https://nyaa.si/?page=rss&c=3_1&f=0")
-     )
-   )
+  (setq nnrss-group-alist '( ("manga" "https://nyaa.si/?page=rss&c=3_1&f=0") ) )
   (gnus-demon-add-handler 'gnus-group-save-newsrc 5 t) ;; minutes
   (gnus-demon-init)
   )
@@ -1183,8 +1165,8 @@ out"))
   (:map gnus-server-mode-map
         ("q" . quit-window)))
 
-(setopt user-mail-address "idlip@protonmail.com" ;; you can mail me to discuss anything on emacs ;)
-        user-full-name "Dilip")
+;; (setopt user-mail-address "idlip@protonmail.com" ;; you can mail me to discuss anything on emacs ;)
+;;         user-full-name "Dilip")
 
 (use-package gnus
   :unless d/on-droid
@@ -1266,13 +1248,94 @@ out"))
   (eww-mode . variable-pitch-mode)
   (eww-after-render . (lambda () (eww-readable) (setq-local line-spacing '0.4)))
   :custom
-  (eww-auto-rename-buffer 'title))
+  (eww-auto-rename-buffer 'title)
+  :config
+  (defun d/eww-readable ()
+    "Use more opinionated `eww-readable'.
+
+Set width is set to `current-fill-column'.  Adjust size of
+images."
+    (interactive)
+    (let ((shr-width (current-fill-column))
+          (shr-max-image-proportion 0.35))
+      (eww-readable)))
+
+  (setq d/search-engines
+        '(
+          ("go google" . "https://google.com/search?q=%s")
+          ("ddg duckduckgo" . "https://duckduckgo.com/?q=%s")
+          ("yt invidious" . "https://yewtu.be/search?q=%s")
+          ))
+
+  (defun d/search-eww (term)
+    "Search for a term using an engine."
+    (interactive "MTerm: ")
+    (let* ((url
+            (cdr (assoc (completing-read "Engine: " d/search-engines) d/search-engines))))
+      (if (equal url nil) (message "Error: search engine unknown.")
+        (eww (format url (url-hexify-string term))))))
+  )
 
 (use-package browse-url :ensure nil :unless d/on-droid
   :config ;; browser script
   (setopt browse-url-browser-function 'browse-url-generic
           browse-url-generic-program "d-stuff"
           browse-url-secondary-browser-function 'browse-url-default-browser))
+
+(defun unpackaged/eww-imenu-index ()
+  "Return Imenu index for current EWW buffer.
+Index includes links and headings."
+  (let ((shr-heading-faces '( shr-h1 shr-h2 shr-h3 shr-h4 shr-h5
+                              shr-h6 shr-heading)))
+    (cl-labels ((range-matching (property predicate)
+                  "Return (BEG . END) cons from point where PROPERTY matches PREDICATE.
+  PREDICATE is used for `text-property-search-forward', which see."
+                  (when-let* ((match (text-property-search-forward property nil predicate))
+                             (end (cl-loop
+                                   for next-change-pos = (prop-match-end match) then next-change-pos
+                                   for next-change-pos = (next-single-property-change next-change-pos property)
+                                   when next-change-pos
+                                   for end-pos = next-change-pos
+                                   while (funcall predicate nil (get-text-property next-change-pos property))
+                                   finally return end-pos)))
+                    (cons (prop-match-beginning match) end)))
+                (shr-heading-p (_ value-of)
+                  (cl-typecase value-of
+                    (atom (member value-of shr-heading-faces))
+                    (list (seq-intersection value-of shr-heading-faces)))))
+      (let ((links (save-excursion
+                     (goto-char (point-min))
+                     (delete-dups
+                      (cl-loop for url = (get-text-property (point) 'shr-url)
+                               when url collect (cons (format "%s <%s>"
+                                                              (button-label (button-at (point)))
+                                                              url)
+                                                      (point))
+                               for pos = (next-single-property-change (point) 'shr-url)
+                               while pos do (goto-char pos)))))
+            (headings (save-excursion
+                        (goto-char (point-min))
+                        (cl-loop for (next-beg . next-end) = (range-matching 'face #'shr-heading-p)
+                                 while next-beg
+                                 for text = (buffer-substring next-beg next-end)
+                                 collect (cons text next-beg)
+                                 and do (goto-char next-end)))))
+        (list (cons "Headings" headings)
+              (cons "Links" links))))))
+
+(defun unpackaged/eww-imenu-goto (_label position)
+  "Go to POSITION and call `eww-follow-link' if one is there."
+  (goto-char position)
+  (when (button-at (point))
+    (call-interactively #'browse-url-generic)))
+
+(defun unpackaged/eww-imenu-setup ()
+  "Setup Imenu in EWW buffers."
+  (setq-local imenu-create-index-function #'unpackaged/eww-imenu-index
+              imenu-default-goto-function #'unpackaged/eww-imenu-goto))
+
+(add-hook 'eww-mode-hook #'unpackaged/eww-imenu-setup)
+(add-hook 'gnus-article-mode-hook #'unpackaged/eww-imenu-setup)
 
 (use-package mpc
   :bind (("C-c d m" . mpc)
@@ -1341,10 +1404,12 @@ out"))
 
 (use-package erc :ensure nil
   :init
-  (defun erc-run-libera ()
+  (defun erc-run-irc ()
     "Run ERC and connect to Libera"
     (interactive)
-    (erc-tls :server "irc.libera.chat" :nick "zororg") ;; yes, thats me
+    (let ((nickuser (completing-read "Irc network: " '("tilde-chat" "libera"))))
+      (erc-tls :server "znc.tilde.green" :port 6697 :nick "zororg" :user
+               (concat "zororg" "/" nickuser))) ;; yes, thats me
     )
   :custom (erc-hide-list '("JOIN" "PART" "QUIT")))
 
@@ -1354,7 +1419,7 @@ out"))
   (rcirc-reconnect-delay 5)
   (rcirc-fill-column 90)
   (rcirc-track-ignore-server-buffer-flag t)
-  (rcirc-server-alist '(("irc.libera.chat" :channels ("#emacs" "#systemcrafters" "#orgmode") :port 6697 :encryption tls)))
+  (rcirc-server-alist '(("irc.libera.chat" :channels ("#systemcrafters") :port 6697 :encryption tls)))
   :config (rcirc-track-minor-mode 1) )
 
 ;; access phone storage as default
@@ -1407,34 +1472,24 @@ out"))
 ;; Dont worry about the font name, I use fork of Iosevka font
 
 ;; Set reusable font name variables
-(defcustom d/fixed-pitch-font "Code OnePiece"
+(defcustom d/fixed-pitch-font "UbuntuSansMono NF"
   "The font to use for monospaced (fixed width) text.")
 
-(defcustom d/variable-pitch-font "Code Haki"
+(defcustom d/variable-pitch-font "UbuntuSans NF"
   "The font to use for variable-pitch (documents) text.")
 
 (use-package faces :ensure nil
   :custom-face
-  (variable-pitch ((t (:family ,d/variable-pitch-font :height 1.05 :weight medium))))
+  (variable-pitch ((t (:family ,d/variable-pitch-font :height 1.1 :weight medium))))
   (fixed-pitch ((t (:family ,d/fixed-pitch-font :weight medium))))
   (default ((t (:family ,d/fixed-pitch-font :height ,d/font-size :weight medium)))))
 
 (use-package font-lock :ensure nil :init (global-font-lock-mode 1))
 
-(use-package nerd-icons :custom (nerd-icons-font-family d/fixed-pitch-font))
-
-(use-package nerd-icons-dired :hook (dired-mode . nerd-icons-dired-mode))
-
-(use-package nerd-icons-completion :unless d/on-droid
-  :init (nerd-icons-completion-mode))
-
-(use-package nerd-icons-corfu :after corfu
-  :init (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
-
 (use-package haki-theme :demand t
   :load-path "~/.config/emacs/var/theme"
   :custom-face
-  (haki-region ((t (:background "#262626" :foreground "#ffffff"))))
+  ;; (haki-region ((t (:background "#262626" :foreground "#ffffff"))))
   :custom
   ;; (haki-heading-font "Code D Ace")
   ;; (haki-sans-font "Code D Haki")
@@ -1445,6 +1500,10 @@ out"))
   ;; (haki-link-font "")
   ;; (haki-code-font "Code D Lip")
   :config (load-theme 'haki t))
+
+(use-package olivetti :defer t :custom (olivetti-body-width 100)
+  :hook (org-mode text-mode Info-mode helpful-mode ement-room-mode gnus-group-mode eww-mode
+                   gnus-article-mode sdcv-mode nov-mode elfeed-show-mode markdown-mode))
 
 (use-package emacs :ensure nil :custom
   (mode-line-format
@@ -1497,7 +1556,7 @@ out"))
 
 (use-package org :ensure nil :defer t
   :hook
-  ;; (org-mode . variable-pitch-mode)
+  (org-mode . variable-pitch-mode)
   (org-mode . org-indent-mode)
 
   :bind (
@@ -1615,17 +1674,10 @@ out"))
 
   ;; :hook (org-agenda-finalize . org-agenda-entry-text-mode)
   :custom
+  (org-agenda-include-diary t)
+  (org-agenda-tags-column org-tags-column)
   (org-agenda-restore-windows-after-quit t)
-  (org-agenda-log-mode-items '(closed clock state))
-  (org-agenda-inhibit-startup t)
-  (org-agenda-tags-column fill-column)
-  (org-agenda-block-separator ?─)
-  (org-agenda-time-grid
-   '((daily today require-timed)
-     (800 1000 1200 1400 1600 1800 2000)
-     " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄"))
-  (org-agenda-current-time-string
-   "◀── now ─────────────────────────────────────────────────")
+  (org-agenda-window-setup 'only-window)
 
   (org-agenda-custom-commands
    '(("n" "Next tasks" ((todo "STARTED") (todo "NEXT")))
@@ -1772,12 +1824,10 @@ absolute path. Finally load eglot."
   )
 
 (use-package appt :ensure nil :demand t
+  :custom
+  (appt-disp-window-function #'appt-org-notify)
+  (appt-message-warning-time (* 3 30))
   :config
-  (setq appt-disp-window-function #'appt-org-notify
-        appt-display-interval 3
-        appt-display-mode-line nil
-        appt-message-warning-time 60)
-
   (define-advice appt-activate (:after (&optional _arg) hold-your-horses)
     "`appt-activate' is too eager, rein it in."
     (remove-hook 'write-file-functions #'appt-update-list)
@@ -1793,10 +1843,11 @@ absolute path. Finally load eglot."
 
 (use-package notifications :ensure nil :config
   (defun appt-org-notify (remaining new-time msg)
-    (notifications-notify
-     :title (format "In %s minutes" remaining)
-     :body msg
-     :urgency 'critical))  )
+    (let ((notif (if d/on-droid 'android-notifications-notify 'notifications-notify)))
+      (funcall notif
+               :body (format "In %s minutes" remaining)
+               :title msg
+               :urgency 'critical))))
 
 (use-package dslide :after org
   :bind ((:map org-mode-map
@@ -1805,14 +1856,6 @@ absolute path. Finally load eglot."
                ("n" . dslide-deck-forward)
                ("p" . dslide-deck-backward)
                )))
-
-(use-package org-noter :unless d/on-droid :after org
-  :custom
-  (org-noter-auto-save-last-location t)
-  (org-noter-default-notes-file-names '("d-brain.org"))
-  (org-noter-notes-search-path '("~/d-sync/notes"))
-  (org-noter-notes-window-location 'horizontal-split)
-  )
 
 (use-package ox :after org
   :custom (org-export-backends '(org odt md man latex icalendar html ascii)))

@@ -182,7 +182,22 @@
     imagemagick # for image-dired and other converts
   ];
   # todo purge many packages
-  programs.emacs = {
+  programs.emacs =
+    let
+    emacs-mps = pkgs.emacs-pgtk.overrideAttrs (old: {
+      name = "emacs-pgtk-mps";
+
+      src = pkgs.fetchFromGitHub {
+        owner = "emacs-mirror";
+        repo = "emacs";
+        rev = "c45b3a28199f43cfbadc215ef5a4c42c3735ed87";
+        sha256 = "sha256-tjWHVCSZsAstYLyn5JCipxXYkZduRsVTbgbW46jvhRo=";
+      };
+
+      buildInputs = old.buildInputs ++ [ pkgs.mps ];
+      configureFlags = old.configureFlags ++ [ "--with-mps=yes" ];
+    });
+    in {
     enable = true;
     package = pkgs.emacs-pgtk;
     extraPackages = (epkgs: (with epkgs; [
@@ -198,7 +213,7 @@
       sdcv jinx envrc ready-player
       vc-backup aria2 transmission
       ess webfeeder engrave-faces
-      toc-org org-ql activities
+      toc-org org-ql activities ox-hugo
       saveplace-pdf-view flycheck consult-flycheck
       org-re-reveal dslide gptel
 
@@ -227,7 +242,7 @@
 
       ## packages kept out to make more vanilla usage!
       # async dirvish beframe powerthesaurus meow
-      # doom-modeline ox-hugo ement kind-icon el-patch
+      # doom-modeline ement kind-icon el-patch
       # rainbow-mode -> replcaed by new package, colorful-mode
       # saveplace-pdf-view pdf-tools
 
@@ -239,102 +254,6 @@
 
   xdg.configFile."emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/d-emacs/early-init.el";
 
-}
-
-{
-  programs.helix = {
-    enable = true;
-
-    settings = {
-      # theme = "gruvbox_dark_hard";
-
-      keys.normal = {
-        "{" = "goto_prev_paragraph";
-        "}" = "goto_next_paragraph";
-        "X" = "extend_line_above";
-        "esc" = ["collapse_selection" "keep_primary_selection"];
-        space.space = "file_picker";
-        space.w = ":w";
-        space.q = ":bc";
-        "C-q" = ":xa";
-        space.u = {
-          f = ":format"; # format using LSP formatter
-          w = ":set whitespace.render all";
-          W = ":set whitespace.render none";
-        };
-      };
-
-      keys.insert = {
-        A-x = "normal_mode";
-        j = { k = "normal_mode"; };
-      };
-
-      keys.select = {
-        "%" = "match_brackets";
-      };
-
-      editor = {
-        line-number = "relative";
-        cursorline = true;
-        auto-completion = true;
-        auto-format = true;
-        mouse = true;
-        color-modes = true;
-        idle-timeout = 1;
-        scrolloff = 5;
-        bufferline = "always";
-        true-color = true;
-        rulers = [80];
-        indent-guides = {
-          render = true;
-        };
-        gutters = ["diagnostics" "line-numbers" "spacer" "diff"];
-
-        statusline = {
-          separator = "";
-          left = ["mode" "selections" "spinner" "file-name" "total-line-numbers"];
-          center = [];
-          right = ["diagnostics" "file-encoding" "file-line-ending" "file-type" "position-percentage" "position"];
-          mode = {
-            normal = "NORMAL";
-            insert = "INSERT";
-            select = "SELECT";
-          };
-        };
-
-        whitespace.characters = {
-          space = "·";
-          nbsp = "⍽";
-          tab = "→";
-          newline = "⤶";
-        };
-
-        cursor-shape = {
-          insert = "bar";
-          normal = "block";
-          select = "block";
-        };
-
-        auto-pairs = {
-          "(" = ")";
-          "{" = "}";
-          "[" = "]";
-          "\"" = "\"";
-          "`" = "`";
-          "<" = ">";
-        };
-
-        lsp = {
-          enable = true;
-          display-messages = true;
-          display-inlay-hints = true;
-          snippets = true;
-        };
-
-      };
-    };
-
-  };
 }
 
 {
@@ -356,7 +275,7 @@
 
 {
   home.packages = with pkgs; [
-    texlive.combined.scheme-full
+    # texlive.combined.scheme-full
   ];
 }
 
@@ -414,11 +333,11 @@
 
 {
   home.packages = with pkgs; [
-    mullvad-browser
+    # mullvad-browser
     # zen browser when?
     # ungoogled-chromium
     # nyxt
-    brave
+    # brave
   ];
 }
 
@@ -559,8 +478,6 @@
     brightnessctl
     dotool gtk3
     swaybg swayimg
-    sway
-    # swayidle gtklock
 
     # utils
     # ocrscript
@@ -608,7 +525,7 @@
           on-resume = "${pkgs.hyprland}/bin/hyprctl dispatch dpms on";
         }
         {
-          timeout = timeout * 5;
+          timeout = timeout + 60;
           on-timeout = "systemctl suspend";
         }
       ];
@@ -1166,20 +1083,10 @@
 }
 
 {
-  services.fnott = {
+  services.mako = {
     enable = true;
-    settings = {
-      main = {
-        notification-margin = 5;
-        layer = "overlay";
-        border-radius = 16;
-        min-width = 400;
-        max-width = 900;
-        selection-helper = "fuzzel";
-        play-sound = "/home/idlip/.bin/d-notify";
-        # sound-file= "/home/idlip/music/yt/misc/linux-notify.ogg";
-      };
-    };
+    borderRadius = 16;
+    layer = "overlay";
   };
 }
 
@@ -1195,12 +1102,12 @@
 
 {
   home.packages = with pkgs; [
-    winePackages.waylandFull
-    winePackages.fonts
-    bottles
-    winetricks
+    # winePackages.waylandFull
+    # winePackages.fonts
+    # bottles
+    # winetricks
     # ASIO -> JACK (which pipewire can support)
-    wineasio
+    # wineasio
   ];
 }
 
@@ -1224,7 +1131,7 @@
   };
 }
 
-{ home.packages = with pkgs; [ libnotify xfce.thunar libreoffice pandoc groff mupdf keepassxc easyeffects ]; }
+{ home.packages = with pkgs; [ libnotify nemo libreoffice pandoc groff mupdf keepassxc easyeffects jaq ]; }
 
 {
 

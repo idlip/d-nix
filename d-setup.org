@@ -241,7 +241,7 @@ Also its crucial to only add configuration that is explicitly required, rather t
           "nvme" "xhci_pci" "usbhid" "usb_storage" "sd_mod" "sdhci_pci"
         ];
 
-        consoleLogLevel = 3;
+        # consoleLogLevel = 3;
 
         supportedFilesystems = [ "ntfs" ];
         tmp.cleanOnBoot = true;
@@ -249,7 +249,7 @@ Also its crucial to only add configuration that is explicitly required, rather t
         kernelParams = [
           "systemd.mask=dev-tpmrm0.device" #this is to mask that stupid 1.5 mins systemd bug
           "nowatchdog" "modprobe.blacklist=iTCO_wdt" #watchdog for Intel
-          "quiet"
+          # "mem_sleep_default=deep" # suspend to RAM (deep) rather than `s2idle`
      	  ];
       };
     }
@@ -358,13 +358,11 @@ Also its crucial to only add configuration that is explicitly required, rather t
 - for laptop hibernation.
 - Note: Hibernation wont be enabled with zramSwap.
   #+begin_src nix :tangle gdk/core.nix
-  {
-    systemd.sleep.extraConfig = ''
-     AllowSuspendThenHibernate=yes
-     HibernateDelaySec=3600
-     AllowHibernation=yes
-     '';
-  }
+    {
+      systemd.sleep.extraConfig = ''
+       AllowSuspend=yes
+       '';
+    }
   #+end_src
 * Networking
 - block hosts from stevenBlackHosts
@@ -388,7 +386,7 @@ Also its crucial to only add configuration that is explicitly required, rather t
         networkmanager = {
           enable = true;
           unmanaged = ["docker0" "rndis0" "interface-name:ve-*" ];
-          # wifi.macAddress = "random"; # randomness? whitelist?
+          wifi.macAddress = "random"; # randomness? whitelist?
         };
 
         # Firewall uses iptables underthehood

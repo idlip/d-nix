@@ -8,11 +8,11 @@
 
 #+begin_html
 <p align="center">
-<a href="https://github.com/nixos/nixpkgs"><img src="https://img.shields.io/badge/NixOS-24.05-royalblue.svg?style=for-the-badge&logo=nixos&labelColor=black"></a>
+<a href="https://github.com/nixos/nixpkgs"><img src="https://img.shields.io/badge/NixOS-25.05-royalblue.svg?style=for-the-badge&logo=nixos&labelColor=black"></a>
 
 <a href="https://orgmode.org"><img src="https://img.shields.io/badge/Org-literate%20config-seagreen?style=for-the-badge&logo=org&labelColor=black"></a>
 
-<a href="https://www.gnu.org/software/emacs/emacs.html#Releases"><img src="https://img.shields.io/badge/Emacs-30.0.50-blueviolet.svg?style=for-the-badge&logo=GNU%20Emacs&labelColor=black"></a>
+<a href="https://www.gnu.org/software/emacs/emacs.html#Releases"><img src="https://img.shields.io/badge/Emacs-31.0.50-blueviolet.svg?style=for-the-badge&logo=GNU%20Emacs&labelColor=black"></a>
 </p>
 
 <h1 align="center">NixOrgMacs</h1>
@@ -113,11 +113,9 @@ Also its crucial to only add configuration that is explicitly required, rather t
 + Could be future, but things are not sorted out that well.
 + Inputs:
   1. Nixpkgs - Ocean of packages and modules.
-  2. Hosts - To block various domains.
-  3. Nix-index - To extract nixpkgs db, and locate package/path.
-  4. Home-Manager - to manager user/home modules.
-  5. Emacs-overlay - For latest rolling emacs developments
-  6. Stylix - To style it everywhere
+  2. Home-Manager - to manager user/home modules.
+  3. Emacs-overlay - For latest rolling emacs developments
+  4. Stylix - To style it everywhere
 + A good resource to refer: https://nixos-and-flakes.thiscute.world/nixos-with-flakes/nixos-with-flakes-enabled
 #+begin_src nix :tangle flake.nix
   #
@@ -129,11 +127,6 @@ Also its crucial to only add configuration that is explicitly required, rather t
     inputs = {
       # Change it to stable, if you want stable channel (23.05)
       nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-
-      # nix index to locate package/path
-      nix-index-db = {
-        url = "github:nix-community/nix-index-database";
-      };
 
       # Home to manage all user configs
       # You can you use normal config files,
@@ -202,7 +195,7 @@ Also its crucial to only add configuration that is explicitly required, rather t
 ** Home-manager
 - HM as nixos module, so ~nixos-rebuild~ incorporates HM config as well.
   #+name: nixos-hm
-  #+begin_src nix
+  #+begin_src nix :tangle no
   {
     home-manager = {
       useUserPackages = true;
@@ -234,14 +227,11 @@ Also its crucial to only add configuration that is explicitly required, rather t
         kernelPackages = pkgs.linuxPackages_latest;
         loader = {
           systemd-boot.enable = true;
-          efi.canTouchEfiVariables = true;
-          timeout = 1;
+          efi.canTouchEfiVariables = true; # maybe for dualboot
         };
         initrd.availableKernelModules = [
           "nvme" "xhci_pci" "usbhid" "usb_storage" "sd_mod" "sdhci_pci"
         ];
-
-        # consoleLogLevel = 3;
 
         supportedFilesystems = [ "ntfs" ];
         tmp.cleanOnBoot = true;
@@ -250,6 +240,7 @@ Also its crucial to only add configuration that is explicitly required, rather t
           "systemd.mask=dev-tpmrm0.device" #this is to mask that stupid 1.5 mins systemd bug
           "nowatchdog" "modprobe.blacklist=iTCO_wdt" #watchdog for Intel
           # "mem_sleep_default=deep" # suspend to RAM (deep) rather than `s2idle`
+          # ^ caused quick battery drain. With just ppd+suspend backup is good
      	  ];
       };
     }
@@ -300,40 +291,23 @@ Also its crucial to only add configuration that is explicitly required, rather t
   #+end_src
 
 * Specs
-*** console and locale
-  #+begin_src nix :tangle gdk/core.nix
-    {
-      i18n = {
-        defaultLocale = "en_US.UTF-8";
-        # saves space
-        supportedLocales = [ "en_US.UTF-8/UTF-8" "ja_JP.UTF-8/UTF-8" "ro_RO.UTF-8/UTF-8" ];
-      };
-
-      # Sets big font for bootloader, as I have small laptop.
-      console = {
-        earlySetup = true;
-        font = "${pkgs.terminus_font}/share/consolefonts/ter-v32n.psf.gz";
-        packages = with pkgs; [ terminus_font ];
-        keyMap = "us";
-      };
-    }
-  #+end_src
 *** time zone
+- obviously your timezone here. Have a nice day or good night sleep ;)
+- Don't waste more time on nixos lol, be healthy and have some sleep. Stay healthy!
   #+begin_src nix :tangle gdk/core.nix
 {
-  # obviously your timezone here. Have a nice day or good night sleep ;)
-  # Don't waste more time on nixos lol, be healthy and have some sleep. Stay healthy!
   time = {
     timeZone = "Asia/Kolkata";
-    hardwareClockInLocalTime = true;
   };
 }
   #+end_src
+
 - display time in mode-line
   #+begin_src emacs-lisp
     (use-package time :ensure nil :init (display-time-mode)
       :custom (display-time-24hr-format t) (display-time-default-load-average nil))
   #+end_src
+
 *** useradd
   #+begin_src nix :tangle gdk/core.nix
     {
@@ -344,16 +318,14 @@ Also its crucial to only add configuration that is explicitly required, rather t
       };
     }
   #+end_src
+
 *** zramswap
+- compresses half the ram for use as swap
+
   #+begin_src nix :tangle gdk/core.nix
-    { # compresses half the ram for use as swap
-      zramSwap = {
-        enable = true;
-        memoryPercent = 50;
-        algorithm = "zstd";
-      };
-    }
+    { zramSwap.enable = true; }
   #+end_src
+
 *** sleep
 - for laptop hibernation.
 - Note: Hibernation wont be enabled with zramSwap.
@@ -368,6 +340,7 @@ Also its crucial to only add configuration that is explicitly required, rather t
 - block hosts from stevenBlackHosts
 - setup some dns oriented settings, and enable networkManager.
 - firewall with certain rules to let syncthing and kdeconnect operate as expected.
+
   #+begin_src nix :tangle gdk/core.nix
     {
       networking = {
@@ -410,9 +383,11 @@ Also its crucial to only add configuration that is explicitly required, rather t
       };
     }
   #+end_src
+
 *** networking-services
 - networking oriented services.
 - enable openssh for ssh access
+
   #+begin_src nix :tangle gdk/core.nix
     {
       services = {
@@ -428,12 +403,15 @@ Also its crucial to only add configuration that is explicitly required, rather t
 
 *** tramp
 - Transparent remote (file) access, multiple protocol
+
   #+begin_src emacs-lisp
   (use-package tramp :ensure nil :custom (tramp-backup-directory-alist backup-directory-alist))
   #+end_src
+
 **** systemd-nspawn (container) support for tramp
 - Credits to https://github.com/bjc/tramp-nspawn
 - Since it is few LOC; decided to paste code minimally.
+
 #+begin_src emacs-lisp
 (with-eval-after-load 'tramp
   (unless d/on-droid
@@ -478,13 +456,13 @@ see its function help for a description of the format."
 - some security copied from others config.
 - =doas= is minimal replacement for sudo, to be very minimal, just give me root access that's it.
 - TODO notes on this.
+
   #+begin_src nix :tangle gdk/core.nix
     {
       # this makes our system more secure
       # note that it might break some stuff, eg webcam
 
       security = {
-        protectKernelImage = true;
         rtkit.enable = true;
         polkit.enable = true;
 
@@ -501,9 +479,11 @@ see its function help for a description of the format."
       };
     }
   #+end_src
+
 * Services
 - Utilities that run as service.
 - Might include systemd service as well.
+
   #+begin_src nix :tangle gdk/core.nix
     {
       services = {
@@ -511,33 +491,34 @@ see its function help for a description of the format."
           greetingLine = "Greetings and Welcome back!";
           helpLine = "Let's learn more and get productive!";
         };
-        atd.enable = true; # reminder tool, like @ 2:30 exec this
-        fstrim.enable = true; # file system trim
+        atd.enable = true; # reminder tool, like @ 2:30 | exec this
       };
     }
   #+end_src
+
 *** android file transfer
+
   #+begin_src nix :tangle gdk/core.nix
     { # For android file transfer via usb, or better could use KDE connect
       services.gvfs.enable = true;
     }
   #+end_src
+
 *** logind
 - Suspends with press on power button. (default was to poweroff; why??)
 - note: hibernation does not work with zramswap
+
   #+begin_src nix :tangle gdk/core.nix
-{
-  # For Laptop, make lid close and power buttom click to suspend
-  services.logind = {
-    lidSwitch = "suspend";
-    extraConfig = ''
-        HandlePowerKey=suspend
-      '';
-  };
-}
+    {
+      # For Laptop, make lid close and power buttom click to suspend
+      services.logind = {
+        lidSwitch = "suspend";
+        powerKey = "suspend";
+      };
+    }
   #+end_src
 
-*** Fingerprint
+*** COMMENT Fingerprint
 - Support for fingerprint work legit on my machine. Just these 2 lines, and yes I login by TTY with my FP.
   #+begin_src nix :tangle gdk/core.nix
     { # for fingerprint
@@ -578,16 +559,19 @@ see its function help for a description of the format."
   #+end_src
 
 *** drive access
+
   #+begin_src nix :tangle gdk/core.nix
     {
       services = { # To mount drives with `udiskctl` command
         udisks2.enable = true;
-        printing.enable = true;
+        # printing.enable = true;
       };
     }
   #+end_src
+
 *** gpg-agent
 - gpg agent for polkit, and pinentry?
+
   #+begin_src nix :tangle gdk/home.nix
     {
       services = {
@@ -602,24 +586,26 @@ see its function help for a description of the format."
 
 *** wlsunset
 - replacing redshift for wayland. protecting from blue light during evenings
+
   #+begin_src nix :tangle gdk/home.nix
-{
-  services= {
-    wlsunset = {
-      enable = true;
-      latitude = "19.0";
-      longitude = "72.0";
-      temperature.day = 6500;
-      temperature.night = 4000;
-      systemdTarget = "graphical-session.target";
-    };
-  };
-}
+    {
+      services= {
+        wlsunset = {
+          enable = true;
+          latitude = "22.0";
+          longitude = "77.0";
+          temperature.day = 6500;
+          temperature.night = 4000;
+          systemdTarget = "graphical-session.target";
+        };
+      };
+    }
   #+end_src
 
 *** Syncthing
 - very handy to sync in local network.
-- Mainly use it for syncing important docs, notes, and elfeed (rss reading).
+- Mainly use it for syncing important docs, notes, and gnus (rss reading).
+
   #+begin_src nix :tangle gdk/core.nix
 {
   services.syncthing = {
@@ -656,21 +642,22 @@ see its function help for a description of the format."
   };
 }
   #+end_src
+
 *** kdeConnect
 - Handy to have, but syncthing can do the job as well.
 - Note: Remote input does not work on wayland (wlr) yet. Sending files, sms, phone ring works.
+
   #+begin_src nix :tangle gdk/home.nix
-{
-  services.kdeconnect.enable = true;
-}
+{ services.kdeconnect.enable = true; }
   #+end_src
+
 * Environment
 ** Env-Vars
+
   #+begin_src nix :tangle gdk/core.nix
   {
     environment = {
       variables = {
-        VDPAU_DRIVER = lib.mkDefault "va_gl";
         BROWSER = "d-stuff";
         NIXOS_OZONE_WL = "1";
       };
@@ -686,6 +673,7 @@ see its function help for a description of the format."
 *** xdg user config
 - xdg standard to maintain desktop.
 - The directories, and support.
+
   #+begin_src nix :tangle gdk/home.nix :noweb yes
     {
       xdg = {
@@ -720,9 +708,11 @@ see its function help for a description of the format."
     Name=Stuff Handler
     Exec=d-stuff %u
   #+end_src
+
 ** Nix
 *** flake-channel
 - to inherit the flake-channels from out built config only.
+
   #+begin_src nix :tangle gdk/core.nix
     {
       environment = {
@@ -734,36 +724,23 @@ see its function help for a description of the format."
       };
     }
   #+end_src
+
 *** nixpkgs tweaks
 - if needed for Unfree pkgs like fonts.
+
   #+begin_src nix :tangle gdk/core.nix
     {
       nixpkgs = {
         overlays = with inputs; [emacs-overlay.overlay];
-        config = {
-          allowUnfree = false;
-          allowBroken = false;
-        };
       };
     }
   #+end_src
+
 *** nix conf
+
   #+begin_src nix :tangle gdk/core.nix
     {
-      # Collect garbage and delete generation every 7 day. Will help to get some storage space.
-      # Better to atleast keep it for few days, as you do major update (unstable), if something breaks you can roll back.
       nix = {
-        optimise.automatic = true;
-        gc = {
-          automatic = true;
-          dates = "weekly";
-          options = "--delete-older-than 7d";
-        };
-
-        # Make builds run with low priority so my system stays responsive
-        daemonCPUSchedPolicy = "idle";
-        daemonIOSchedClass = "idle";
-
         # pin the registry to avoid downloading and evaling a new nixpkgs version every time
         registry = lib.mapAttrs (_: value: { flake = value; }) inputs;
 
@@ -776,44 +753,31 @@ see its function help for a description of the format."
           extra-experimental-features = ["flakes" "nix-command" ];
 
           # use binary cache, its not gentoo
-          substituters = [
-            "https://nix-community.cachix.org"
-          ];
-          trusted-public-keys = [
-            "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-          ];
+          substituters = [ "https://nix-community.cachix.org" ];
+          trusted-public-keys = [ "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" ];
         };
       };
-    }
-  #+end_src
-- system upgrade: to disable autoupgrading system
-  #+begin_src nix :tangle gdk/core.nix
-    {
-      system.autoUpgrade.enable = false;
     }
   #+end_src
 
 *** nix-index
 - to locate packages and path from massive nixpkgs index.
+
   #+begin_src nix :tangle gdk/home.nix
-    {
-      imports = [
-        inputs.nix-index-db.hmModules.nix-index
-      ];
-      programs.nix-index.enable = true;
-    }
+    { programs.nix-index.enable = true; }
   #+end_src
 
 *** nix-ld
 - To use dynamic library for tools that are not built for nixos.
+
 #+begin_quote
  Run unpatched dynamic binaries on NixOS
 #+end_quote
+
   #+begin_src nix :tangle gdk/core.nix
-    {
-      programs.nix-ld.enable = true;
-    }
+    { programs.nix-ld.enable = true; }
   #+end_src
+
 * EmacsOS
 - The ever growing environment, ecosystem that is tailored to the user's needs.
 - Power bestowed for the best, and to make the user the best!
@@ -876,11 +840,13 @@ see its function help for a description of the format."
 (provide 'early-init)
 ;;; early-init.el ends here
   #+end_src
+
 ** Init
 - To initialize the environment.
 *** Core-Tweaks
 + Sane default, to make vanilla experience suitable for me, for betterment.
 + Some of the tweak should be self-explanatory, or else just hop on it and do =C-h o=.
+
   #+begin_src emacs-lisp
     (use-package window :ensure nil
       :bind
@@ -892,14 +858,13 @@ see its function help for a description of the format."
 
       :custom
       (inhibit-startup-screen t "Don't show splash screen")
-      (cursor-type 't)
 
       (initial-major-mode 'org-mode)
       (initial-scratch-message (format "\n\n"))
 
       (indent-tabs-mode nil "Spaces!")
       (tab-always-indent 'complete)
-      (tab-width 2)
+      (tab-width 4)
       (reb-re-syntax 'string)
 
       (window-combination-resize t)
@@ -927,14 +892,18 @@ see its function help for a description of the format."
       ;;   (advice-add fn :after #'(lambda (&rest args) (balance-windows))))
       )
   #+end_src
+
 - Functions to enhance core default behavior
+
   #+begin_src emacs-lisp
   (defun d/toggle-window-focus()
     "Toggle full view of selected window."
     (interactive)
       (if (window-parent) (delete-other-windows) (winner-undo)))
   #+end_src
+
 - To toggle narrow or widen region or heading in DWIM way.
+
   #+begin_src emacs-lisp
 (defun d/narrow-or-widen-dwim ()
   "If the buffer is narrowed, it widens. Otherwise,
@@ -945,7 +914,9 @@ it narrows to region, or Org subtree."
         ((eq major-mode 'org-mode) (org-narrow-to-subtree))
         (t (error "Please select a region to narrow to"))))
   #+end_src
+
 - Kill buffer and window, also clear cache if quitting doc-view or pdf-view
+
   #+begin_src emacs-lisp
     (defun d/kill-buffer ()
       "Clear the image cache (to release memory) after killing a pdf buffer."
@@ -955,8 +926,10 @@ it narrows to region, or Org subtree."
       (if (one-window-p) (kill-this-buffer)
         (kill-buffer-and-window)))
   #+end_src
+
 *** Simple
 - Bag of simple basic commands, to enhance.
+
 #+begin_src emacs-lisp
   (save-place-mode 1)
 
@@ -982,9 +955,11 @@ it narrows to region, or Org subtree."
     ;; (global-hl-line-mode 1)
     (global-visual-line-mode 1))
 #+end_src
+
 - DWIM way of joining lines with prefix argument.
   It allows to join lines, by sequence (eg: each of 3 lines in region with a separator)
   Credits: https://whatacold.io/blog/2023-11-25-emacs-join-every-n-lines/
+
   #+begin_src emacs-lisp
   (defvar d/join-lines--last-separator ","
     "Keep the last used separator for `d/join-lines' and
@@ -1025,7 +1000,9 @@ it narrows to region, or Org subtree."
       (insert result)
       (setq q/join-lines--last-separator separator)))
   #+end_src
+
 - Function to increment number at point.
+
   #+begin_src emacs-lisp
 ;; taken from an planet emacs rss feed post
 ;; Stolen from the wiki somewhere
@@ -1037,37 +1014,43 @@ it narrows to region, or Org subtree."
       (error "No number at point"))
   (replace-match (number-to-string (1+ (string-to-number (match-string 0))))))
   #+end_src
+
 - DWIM like to increment, upcase, flex.
 - Credits to a emacs post from planets emacs.
-  #+begin_src emacs-lisp
-(defun d/flex ()
-  "Perform smart flexing at point.
 
-E.g. capitalize or decapitalize the next word, increment number at point."
-  (interactive)
-  (let ((case-fold-search nil))
-    (call-interactively
-     (cond
-      ((looking-at "[[:space:]]") (forward-char 1) (d/flex))
-      ((looking-at "[0-9]+") #'increment-number-at-point)
-      ((looking-at "[[:lower:]]") #'capitalize-word)
-      ((looking-at "==") (delete-char 1) (insert "!") (forward-char 2))
-      ((looking-at "!=") (delete-char 1) (insert "=") (forward-char 2))
-      ((looking-at "+") (delete-char 1) (insert "-") (forward-char 1))
-      ((looking-at "-") (delete-char 1) (insert "+") (forward-char 1))
-      ((looking-at "<=") (delete-char 2) (insert ">=") (forward-char 2))
-      ((looking-at ">=") (delete-char 2) (insert "<=") (forward-char 2))
-      ((looking-at "<") (delete-char 1) (insert ">") (forward-char 1))
-      ((looking-at ">") (delete-char 1) (insert "<") (forward-char 1))
-      (t #'downcase-word)))))
+  #+begin_src emacs-lisp
+    (defun d/flex ()
+      "Perform smart flexing at point.
+
+    E.g. capitalize or decapitalize the next word, increment number at point."
+      (interactive)
+      (let ((case-fold-search nil))
+        (call-interactively
+         (cond
+          ((looking-at "[[:space:]]") (forward-char 1) (d/flex))
+          ((looking-at "[0-9]+") #'increment-number-at-point)
+          ((looking-at "[[:lower:]]") #'capitalize-word)
+          ((looking-at "==") (delete-char 1) (insert "!") (forward-char 2))
+          ((looking-at "!=") (delete-char 1) (insert "=") (forward-char 2))
+          ((looking-at "+") (delete-char 1) (insert "-") (forward-char 1))
+          ((looking-at "-") (delete-char 1) (insert "+") (forward-char 1))
+          ((looking-at "<=") (delete-char 2) (insert ">=") (forward-char 2))
+          ((looking-at ">=") (delete-char 2) (insert "<=") (forward-char 2))
+          ((looking-at "<") (delete-char 1) (insert ">") (forward-char 1))
+          ((looking-at ">") (delete-char 1) (insert "<") (forward-char 1))
+          (t #'downcase-word)))))
   #+end_src
+
 - Display line numbers for prog-mode, in relative numbering.
+
   #+begin_src emacs-lisp
     (use-package display-line-numbers :ensure nil
       :hook (prog-mode)
       :custom (display-line-numbers-type 'relative))
   #+end_src
+
 - Function to improve marking paragraph and word as expected.
+
   #+begin_src emacs-lisp
 ;; credits to
 ;; https://emacs.dyerdwelling.family/emacs/20231209092556-emacs--redefining-mark-paragraph-and-mark-word/
@@ -1089,8 +1072,10 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (forward-word)
   (setq mark-active t))
   #+end_src
+
 *** File
 **** Tidy files
+
   #+begin_src emacs-lisp
     (use-package files :ensure nil
       :hook (before-save . delete-trailing-whitespace)
@@ -1114,7 +1099,9 @@ E.g. capitalize or decapitalize the next word, increment number at point."
       (version-control t)
       (create-lockfiles nil))
   #+end_src
+
 - Refresh or revert the buffer without asking for confirmation.
+
   #+begin_src emacs-lisp
 (defun d/refresh-buffer ()
   "Revert buffer without confirmation."
@@ -1126,6 +1113,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 - Another good part is having persistent undo with full extensibility.
 - undo-fu-session write undo states to file, so persist across sessions.
 - vundo is to visualize undo nodes in a horizontal tree.
+
   #+begin_src emacs-lisp
   (use-package undo-fu-session
     :init (undo-fu-session-global-mode)
@@ -1142,9 +1130,11 @@ E.g. capitalize or decapitalize the next word, increment number at point."
     (vundo-glyph-alist vundo-unicode-symbols)
     (vundo-window-max-height 8))
   #+end_src
+
 **** backup
 - =vc-backup= is such a necessary tool, that diff the states of previous save to current save.
 - It acts on both VC files and as well as file under no VC.
+
   #+begin_src emacs-lisp
   (use-package vc-backup :demand t
     ;; to have auto VC track of files without in git -> C-x v =
@@ -1152,14 +1142,18 @@ E.g. capitalize or decapitalize the next word, increment number at point."
     (vc-make-backup-files t)
     (vc-follow-symlinks t))
   #+end_src
+
 **** Auto revert
 - Revert files with changes, so I can work with sync.
+
   #+begin_src emacs-lisp
     (use-package autorevert :init (global-auto-revert-mode)
       :custom (global-auto-revert-non-file-buffers t))
   #+end_src
+
 **** File History
 - savehist of minibuffer candidates
+
   #+begin_src emacs-lisp
     (use-package savehist :ensure nil
       :init (savehist-mode)
@@ -1167,7 +1161,9 @@ E.g. capitalize or decapitalize the next word, increment number at point."
       (savehist-additional-variables
        '(mark-ring global-mark-ring search-ring regexp-search-ring register-alist extended-command-history)))
   #+end_src
+
 - to record recently opened files. Useful to jump in quick
+
   #+begin_src emacs-lisp
     (use-package recentf :ensure nil
       :bind ("C-x C-r" . recentf)
@@ -1179,6 +1175,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 
 **** no-littering
 - To keep the emacs user directory clean and with less noise.
+
   #+begin_src emacs-lisp
   (use-package no-littering :demand t :ensure t
     :config
@@ -1187,8 +1184,10 @@ E.g. capitalize or decapitalize the next word, increment number at point."
     (add-to-list 'recentf-exclude
                  (recentf-expand-file-name no-littering-etc-directory)))
   #+end_src
+
 **** Dired
 - The directory editor
+
   #+begin_src emacs-lisp
     (use-package dired :ensure nil
       :init (file-name-shadow-mode 1)
@@ -1209,8 +1208,10 @@ E.g. capitalize or decapitalize the next word, increment number at point."
       (dired-kill-when-opening-new-dired-buffer t) ;; in case sinlge buffer is preferred
       )
   #+end_src
+
 **** utf-8
 - To prefer and set coding system
+
   #+begin_src emacs-lisp
     (set-language-environment 'utf-8)
     (setq locale-coding-system 'utf-8)
@@ -1220,11 +1221,13 @@ E.g. capitalize or decapitalize the next word, increment number at point."
     (set-selection-coding-system 'utf-8)
     (prefer-coding-system 'utf-8)
   #+end_src
+
 *** Completions
 + the best part of enjoying emacs, is getting the desired way of completing a text.
 + completions everywhere, that make you use emacs for everything.
 **** mini-buffer completion
 - Trying out default completions.
+
 #+begin_src emacs-lisp
   (use-package minibuffer :ensure nil
     :hook (minibuffer-setup . cursor-intangible-mode)
@@ -1242,14 +1245,18 @@ E.g. capitalize or decapitalize the next word, increment number at point."
     (minibuffer-eldef-shorten-default t)       ; shorten "(default ...)" to "[...]" in minibuffer prompts
     (minibuffer-visible-completions t))
 #+end_src
+
 **** completions-preview
 - preview the known completions.
+
 #+begin_src emacs-lisp
   (use-package completion-preview :ensure nil :init (global-completion-preview-mode)
     :custom (completion-preview-ignore-case t))
 #+end_src
+
 **** Vertico
 - the flagship of minad.
+
   #+begin_src emacs-lisp
     (use-package vertico :init (vertico-mode)
       :bind ((:map vertico-map ("C-v" . vertico-scroll-up) ("M-v" . vertico-scroll-down)))
@@ -1260,7 +1267,9 @@ E.g. capitalize or decapitalize the next word, increment number at point."
             '(read-only t cursor-intangible t face minibuffer-prompt))
       (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode))
   #+end_src
+
 - vertico-multiform: To have some forms of vertico UI. Grid, one-liner, indexed...
+
   #+begin_src emacs-lisp
     (use-package vertico-multiform :init (vertico-multiform-mode)
       :custom
@@ -1282,9 +1291,11 @@ E.g. capitalize or decapitalize the next word, increment number at point."
          (embark-keybinding grid)
          (buffer flat (vertico-cycle . t)))))
   #+end_src
+
 **** Consult
 - wonderful preview UI for completion popup.
 - like doctor diagnosis the candidate for completion
+
   #+begin_src emacs-lisp
     (use-package consult :defer t
       :bind
@@ -1373,16 +1384,19 @@ E.g. capitalize or decapitalize the next word, increment number at point."
     (consult-omni-sources-load-modules)
     )
 #+end_src
+
 **** Orderless
 + nice way of filtering results and candidates.
+
   #+begin_src emacs-lisp
     (use-package orderless :demand t :custom (completion-styles '(orderless basic))
-      (completion-category-defaults nil)
-      (completion-category-overrides '((file (styles partial-completion)))))
+      (completion-category-defaults nil))
   #+end_src
+
 **** Embark
 - For DWIM minibuffer actions. An masterpiece by @Oantolin
 - Pretty OP and dope package, one of my most used and favorite package.
+
   #+begin_src emacs-lisp
     (use-package embark :defer t
       :bind
@@ -1405,8 +1419,8 @@ E.g. capitalize or decapitalize the next word, increment number at point."
       :custom
       (prefix-help-command #'embark-prefix-help-command)
       (eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
-      (embark-prompter 'embark-completing-read-prompter)
-      (embark-indicators '(embark-minimal-indicator embark-highlight-indicator embark-isearch-highlight-indicator))
+      ;; (embark-prompter 'embark-completing-read-prompter)
+      ;; (embark-indicators '(embark-minimal-indicator embark-highlight-indicator embark-isearch-highlight-indicator))
 
       :config
       (add-to-list 'display-buffer-alist
@@ -1418,17 +1432,21 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   #+end_src
 
 - Use consult commands with embark as well.
+
   #+begin_src emacs-lisp
   (use-package embark-consult :defer t :hook (embark-collect-mode . consult-preview-at-point-mode))
   #+end_src
 
 **** marginalia
 + rich annotation of information for candidates.
+
   #+begin_src emacs-lisp
   (use-package marginalia :init (marginalia-mode))
   #+end_src
+
 **** corfu
 + overlay popup
+
   #+begin_src emacs-lisp
     (use-package corfu :init (global-corfu-mode)
       :config (corfu-history-mode) (corfu-echo-mode) (corfu-popupinfo-mode)
@@ -1439,7 +1457,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 + an extension for corfu
   #+begin_src emacs-lisp
     (use-package cape :after corfu
-      :bind ("C-c p" . cape-prefix-map)
+      :bind ("M-<tab>" . cape-prefix-map)
       :init
       (add-hook 'completion-at-point-functions #'cape-dabbrev)
       (add-hook 'completion-at-point-functions #'cape-file)
@@ -1448,20 +1466,24 @@ E.g. capitalize or decapitalize the next word, increment number at point."
       (add-hook 'completion-at-point-functions #'cape-elisp-block)
       (add-hook 'completion-at-point-functions #'cape-abbrev))
   #+end_src
+
 **** tempel
 + snippet template in elisp way
   #+begin_src emacs-lisp
     (use-package tempel :hook (prog-mode . tempel-abbrev-mode)
       :bind (("M-+" . tempel-complete) ("M-*" . tempel-insert)))
   #+end_src
+
 + tempel-collection: collection for some snippets
   Open to contribute more snippets and help community.
+
   #+begin_src emacs-lisp
   (use-package tempel-collection :after tempel)
   #+end_src
 
 + Tempel support for eglot
   If any LSP has some snippet to expand. Eg: bash has few
+
   #+begin_src emacs-lisp :tangle no
   (use-package eglot-tempel :after eglot)
   #+end_src
@@ -1928,9 +1950,11 @@ emacs-lisp-mode
   (tag "<" (p "name" tg) ">" n>
        r> n> "</" (s tg) ">")
 #+end_src
+
 *** Enhancements
 **** Tab bar
 - Use tab bar, instead of frames.
+
   #+begin_src emacs-lisp
     (use-package tab-bar :unless d/on-droid
       :custom ;; tab-bar-format-history
@@ -1944,6 +1968,7 @@ emacs-lisp-mode
       ;; (global-tab-line-mode 1)
       )
   #+end_src
+
 **** Mouse
   #+begin_src emacs-lisp
     (use-package mwheel :ensure nil
@@ -1952,11 +1977,13 @@ emacs-lisp-mode
     (use-package xt-mouse
       :init (xterm-mouse-mode))
   #+end_src
+
 **** winner-window
 To manage windows states
 #+begin_src emacs-lisp
   (use-package winner :init (winner-mode))
 #+end_src
+
 **** pixel scroll
   #+begin_src emacs-lisp
     (use-package pixel-scroll :ensure nil
@@ -2061,6 +2088,7 @@ To manage windows states
              ("C-h x" . helpful-command) ("C-c C-d" . helpful-at-point) ("C-h o" . helpful-symbol)
              ("C-h F" . helpful-function)))
   #+end_src
+
 **** TLDR
   #+begin_src nix :tangle gdk/home.nix
     {
@@ -2116,6 +2144,7 @@ To manage windows states
 
     }
   #+end_src
+
 **** magit
   #+begin_src emacs-lisp
     (use-package magit :defer t
@@ -2125,12 +2154,14 @@ To manage windows states
       (magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1)
       (magit-bury-buffer-function #'magit-restore-window-configuration))
   #+end_src
+
 **** Ediff
 - Emacs way to diff thing
 #+begin_src emacs-lisp
   (use-package ediff :ensure nil
     :custom (ediff-window-setup-function 'ediff-setup-windows-plain "Do actions from single frame"))
 #+end_src
+
 *** Direnv
   #+begin_src nix :tangle gdk/home.nix
     {
@@ -2140,15 +2171,18 @@ To manage windows states
       };
     }
   #+end_src
+
 - envrc for emacs to ensure direcory environment is set for those specific buffers
   #+begin_src emacs-lisp
     (use-package envrc :defer 2
       :config (envrc-global-mode 1)
       (advice-add 'org-babel-eval :around #'envrc-propagate-environment))
   #+end_src
+
 *** Terminal
 **** foot
 - foot is decent, but emacs tho has got it covered too!
+
   #+begin_src nix :tangle gdk/home.nix
     {
       programs.foot = {
@@ -2178,8 +2212,10 @@ To manage windows states
       };
     }
   #+end_src
+
 **** Zellij
 - Its a decent multiplexer
+
   #+begin_src nix :tangle gdk/home.nix
 {
   programs.zellij = {
@@ -2189,7 +2225,8 @@ To manage windows states
   };
 }
   #+end_src
- **** eshell
+
+**** eshell
   #+begin_src emacs-lisp
     (use-package esh-mode :ensure nil
       :hook
@@ -2223,7 +2260,9 @@ To manage windows states
           )))
       (eshell-prompt-regexp " 󰘧 "))
   #+end_src
+
 - eshell function to toggle and clear buffer
+
   #+begin_src emacs-lisp
     (defun d/clear-eshell ()
       (interactive)
@@ -2244,7 +2283,9 @@ To manage windows states
     (defun d/eshell-toggle () (interactive) (d/term-toggle 'eshell))
     (defun d/eat-toggle () (interactive) (d/term-toggle 'eat))
   #+end_src
+
 - eshell history
+
   #+begin_src emacs-lisp
   (use-package em-hist :ensure nil
     :bind ((:map eshell-hist-mode-map
@@ -2256,6 +2297,7 @@ To manage windows states
   #+end_src
 
 - buffer window rule to appear as popup terminal
+
   #+begin_src emacs-lisp
     (add-to-list
      'display-buffer-alist
@@ -2269,6 +2311,7 @@ To manage windows states
 
 **** eat
 - emulate a terminal
+
   #+begin_src emacs-lisp
     (use-package eat :unless d/on-droid
       :hook (eshell-load . eat-eshell-mode)
@@ -2283,22 +2326,28 @@ To manage windows states
              ("M-o" . nil)
              ("M-s" . nil))))
   #+end_src
+
 - function to toggle and set binding state in eat
+
   #+begin_src emacs-lisp
     (defun d/eat-read-write ()
       (interactive)
       (if eat--semi-char-mode (eat-emacs-mode) (eat-semi-char-mode)) )
   #+end_src
+
 **** comint
 - A command interpreter for emacs, used by many repls.
+
   #+begin_src emacs-lisp
   (use-package comint
     :bind ("M-g r" . d/comint-page-output)
     :custom (comint-pager "cat")
     :config (setenv "MANPAGER" "cat"))
   #+end_src
+
 - Function to get comint messages in temp buffer and flush long output.
   Credits to [[https://old.reddit.com/r/emacs/comments/11wmmsu/replacing_comint_for_inferiorpython_mode_with_eg/jd3cidg/][u/ieure]]
+
   #+begin_src emacs-lisp
   (defun d/comint-page-output ()
     "Get the comint output pager in temporary buffer."
@@ -2325,6 +2374,7 @@ To manage windows states
           (comint-output-filter proc replacement)))
       (pop-to-buffer buf)))
   #+end_src
+
 *** Editor
 **** Emacs
 - The GOAT-Editor.
@@ -2418,12 +2468,16 @@ To manage windows states
 
     }
   #+end_src
+
 - Install consult-omni manually.
+
 #+begin_src bash
 git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs/elpa/consult-omni
 #+end_src
+
 **** COMMENT helix
 - just to test the cool editor out there.
+
   #+begin_src nix :tangle gdk/home.nix
     {
       programs.helix = {
@@ -2535,8 +2589,10 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
       ];
     }
   #+end_src
+
 **** python
 - python in emacs, or emacs in python?
+
   #+begin_src emacs-lisp
   (use-package python :ensure nil
     :hook ((python-mode . (lambda ()
@@ -2549,8 +2605,10 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
     ;; (python-forward-sexp-function nil)
     (python-indent-guess-indent-offset-verbose nil))
   #+end_src
+
 **** R-stats
 - Emacs speak statistics
+
   #+begin_src emacs-lisp
   (use-package ess :defer t :unless d/on-droid
     :custom
@@ -2584,8 +2642,10 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
     :custom
     (ess-indent-with-fancy-comments nil))
   #+end_src
+
 **** nix
   #+begin_src emacs-lisp
+    (unless d/on-droid
     (use-package nix-mode :bind (:map nix-mode-map ("C-c C-e" . nix-eval-line)))
 
     (use-package nix-ts-mode :ensure nix-mode)
@@ -2606,7 +2666,9 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
     (use-package nix-shell :ensure nix-mode :commands (nix-shell-unpack nix-shell-configure nix-shell-build))
 
     (use-package nix-repl :ensure nix-mode :commands (nix-repl))
+    )
   #+end_src
+
 **** stack
   #+begin_src nix :tangle gdk/home.nix
 {
@@ -2617,10 +2679,13 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
   ];
 }
   #+end_src
+
 - JavascriptXML - To learn react
+
 #+begin_src emacs-lisp
 (use-package js :ensure nil :mode ("\\.jsx\\'" . js-jsx-mode))
 #+end_src
+
 **** science
   #+begin_src emacs-lisp
   (use-package ess-julia :unless d/on-droid
@@ -2628,8 +2693,10 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
     :bind (:map ess-julia-mode-map ("C-c C-d" . devdocs-browser-open))
     :custom (inferior-julia-args "--color=yes" "You get color in julia inferior process"))
   #+end_src
+
 **** tex writing
 - For scientific latex files, pdf to produce from org mode files.
+
   #+begin_src nix :tangle gdk/home.nix
     {
       home.packages = with pkgs; [
@@ -2637,22 +2704,28 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
       ];
     }
   #+end_src
+
 *** devMacs
 **** executable
 - makes =*.sh= files executable by save
+
   #+begin_src emacs-lisp
   (use-package executable :ensure nil :hook (after-save . executable-make-buffer-file-executable-if-script-p))
   #+end_src
+
 **** Linter
 ***** COMMENT Flymake
 - In-built are more than enough!
+
   #+begin_src emacs-lisp
   (use-package flymake :ensure nil
     :hook (prog-mode . flymake-mode)
     :custom (python-flymake-command '("ruff" "--quiet" "--stdin-filename=stdin" "-")))
   #+end_src
+
 ***** Flycheck
 - To lint and check for good practices in code.
+
   #+begin_src emacs-lisp
     (use-package flycheck :defer t
       :hook (prog-mode . flycheck-mode)
@@ -2666,6 +2739,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 
 **** reformatter
 - Legit, best made design for formatter package.
+
   #+begin_src emacs-lisp
   (use-package reformatter
     :hook
@@ -2695,8 +2769,10 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 
     (reformatter-define nixfmt-rfc :program "nixfmt") )
   #+end_src
+
 **** eglot
 - the lsp gifted in emacs
+
   #+begin_src emacs-lisp
   (use-package eglot :defer t :ensure nil :unless d/on-droid
     :custom
@@ -2712,18 +2788,21 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
   #+end_src
 
 - Eglot booster to speed up workflow.
+
   #+begin_src emacs-lisp :tangle no
   (use-package eglot-booster :after eglot :config (eglot-booster-mode))
   #+end_src
 
 **** xref
 - paired up with eglot, or ctags to reference symbols.
+
   #+begin_src emacs-lisp
     (use-package xref :ensure nil :custom (xref-search-program 'ripgrep) (grep-command "rg -nS --no-heading"))
   #+end_src
 
 **** compile-make
 - To let programs compile and give interactive output.
+
 #+begin_src emacs-lisp
   (use-package compile
     :hook (compilation-filter . ansi-color-compilation-filter)
@@ -2736,6 +2815,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 
 **** treesit
 - could try =combobulate= package to be well supported for navigaton.
+
   #+begin_src emacs-lisp
     (use-package treesit :ensure nil
       :mode
@@ -2758,9 +2838,11 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
          (ruby-mode . ruby-ts-mode) (rust-mode . rust-ts-mode)
          (toml-mode . toml-ts-mode) (yaml-mode . yaml-ts-mode))))
   #+end_src
+
 **** devdocs
 - devdocs in offline mode, for most decent documentation on language.
 - mostly it inherits official doc, maybe little spiced up ;).
+
   #+begin_src emacs-lisp
   (use-package devdocs-browser
     :bind ("C-c d v" . devdocs-browser-open-in)
@@ -2784,19 +2866,25 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 
     (devdocs-browser-data-directory (expand-file-name "var/devdocs" user-emacs-directory)))
   #+end_src
+
 **** prog-mode
 - For all programming modes
+
 #+begin_src emacs-lisp
   (use-package prog-mode :ensure nil :hook (prog-mode . hs-minor-mode) (prog-mode . outline-minor-mode)
     :custom (tab-width 2))
 #+end_src
+
 **** electric-pair
 - to enclose pairs or delimiters
+
   #+begin_src emacs-lisp
   (use-package elec-pair :ensure nil :init (electric-pair-mode))
   #+end_src
+
 **** paren
 - try to escape the parenthesis
+
   #+begin_src emacs-lisp
   (use-package paren :ensure nil
     :hook (after-init . show-paren-mode)
@@ -2806,6 +2894,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 
 **** colorful-mode
 - Alternate to rainbow-mode, with simplicity and more features.
+
   #+begin_src emacs-lisp
   (use-package colorful-mode :unless d/on-droid
     :config (global-colorful-mode))
@@ -2816,6 +2905,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 
 **** combobulate
 - Sructured editing and navigating for =treesit=
+
   #+begin_src emacs-lisp
     (use-package combobulate :after treesit
       :preface (setq combobulate-key-prefix "C-c o")
@@ -2828,6 +2918,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 ** Pdf Reader
 *** sioyek
 - the best pdf reader
+
   #+begin_src nix :tangle gdk/home.nix
   {
     programs.sioyek = {
@@ -2875,9 +2966,11 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
     };
   }
   #+end_src
+
 *** doc-view
 - the emacs way for viewing documents.
 - I found =pdf-tools= to be taking more memory than doc-view.
+
   #+begin_src emacs-lisp
   (use-package doc-view :ensure nil
     :bind ((:map doc-view-mode-map
@@ -2896,7 +2989,9 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
     (large-file-warning-threshold 700000000)
     (image-cache-eviction-delay 10))
   #+end_src
+
 - Function to toggle between dark and reading mode
+
   #+begin_src emacs-lisp
   (defun d/doc-view-theme ()
     "Toggle between dark and reading mode in Doc-view buffer."
@@ -2913,7 +3008,9 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
         (set-face-attribute 'doc-view-svg-face nil :background "#fefefe" :foreground "#000000"))))
     (doc-view-next-page) (doc-view-previous-page))
   #+end_src
+
 - packages required for doc-view to view/render some pdf/text.
+
   #+begin_src nix :tangle gdk/home.nix
 {
   home.packages = with pkgs; [
@@ -2925,6 +3022,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 **** saveplace-pdf-view
 - To save and remember position of pdf or doc view
 -  Credits: https://github.com/nicolaisingh/saveplace-pdf-fview
+
   #+begin_src emacs-lisp
   (use-package saveplace-pdf-view :unless d/on-droid :demand t)
   #+end_src
@@ -2932,6 +3030,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 ** Novel
 *** nov.el
 - to read in comfort couch of emacs!
+
   #+begin_src emacs-lisp
     (use-package nov :mode ("\\.epub\\'" . nov-mode)
       :hook
@@ -2944,6 +3043,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 
 **** d/reading-mode
 - Function for better reading experience, be it org-mode, nov.el or eww web page.
+
   #+begin_src emacs-lisp
     (define-minor-mode d/reading-mode
       "The Zen Mind"
@@ -2955,7 +3055,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
             (variable-pitch-mode 1)
             ;; (setq-local line-spacing 0.5)
             ;; (text-scale-increase 1)
-            (setq-local tab-bar-show nil) (tab-bar--update-tab-bar-lines)
+            ;; (setq-local tab-bar-show nil) (tab-bar--update-tab-bar-lines)
             (setq-local cursor-type nil)
             (setq-local olivetti-body-width 90) (olivetti-mode 1)
             )
@@ -2963,16 +3063,18 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
         (progn
           (d/toggle-bar)
           ;; (text-scale-decrease 1)
-          (kill-local-variable 'tab-bar-show) (tab-bar--update-tab-bar-lines)
+          ;; (kill-local-variable 'tab-bar-show) (tab-bar--update-tab-bar-lines)
           (kill-local-variable 'cursor-type)
           (kill-local-variable 'olivetti-body-width)
           )
         ))
   #+end_src
+
 ** Texinfo
 - Built to read =info= manuals in emacs, and this function lets to read normal text files as info manuals.
 - supports org, texi, md, News file.
 - credits to [[https://emacsnotes.wordpress.com/2023/09/11/view-info-texi-org-and-md-files-as-info-manual][blog post]]
+
   #+begin_src emacs-lisp
 ;; Read normal text files as emacs info manuals
 ;; thanks to:
@@ -3073,6 +3175,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
       (gnus-message-archive-group '((format-time-string "sent.%Y")))
       (gnus-article-save-directory (expand-file-name "saved" gnus-home-directory))
       (gnus-widen-article-window t)
+      (gnus-completion-styles completion-styles)
 
       (gnus-select-method
        '(nnnil ""))
@@ -3155,9 +3258,11 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
       (:map gnus-server-mode-map
             ("q" . quit-window)))
   #+end_src
+
 **** user-mail
 - Use gnus with protonmail.
 - Credits to: https://www.vidal-rosset.net/gnus_emacs_as_email_client_in_imap_with_protonmail.html
+
 #+begin_src emacs-lisp
   ;; (setopt user-mail-address "idlip@protonmail.com" ;; you can mail me to discuss anything on emacs ;)
   ;;         user-full-name "Dilip")
@@ -3202,6 +3307,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
     (unless d/on-droid
       (setopt gnus-init-file "~/d-sync/feeds/gnews/privmail.el"))
   #+end_src
+
 ** Dictionary
 *** sdcv
   #+begin_src emacs-lisp
@@ -3211,9 +3317,11 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
                    ("n" . sdcv-next-dictionary) ("p" . sdcv-previous-dictionary)
                    ("TAB" . hide-entry) ("<backtab>" . show-entry))))
   #+end_src
+
 ** Research
 *** COMMENT Pubmed
 - An emacs package for pubmed to search and read. So cooolie!
+
   #+begin_src emacs-lisp
   (use-package pubmed
     :bind (("C-c s p" . pubmed-search)
@@ -3235,6 +3343,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
   #+end_src
 
 - A function to rename file name with ".pdf"
+
   #+begin_src emacs-lisp
   (defun pubmed-open (url)
     "Open the fulltext PDF of URL."
@@ -3405,6 +3514,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 
 *** Librewolf
 - As of [2024-08-09], making some shift towards better firefox.
+
   #+begin_src nix :tangle gdk/home.nix
     {
       programs.librewolf = {
@@ -3423,6 +3533,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 - User.js for librewolf
   Makes liberwolf not purge cache data, it persists for sessions. Use mullvad for purging data
   Enables and make liberwolf more socially usable :)
+
 #+begin_src js :tangle ~/.librewolf/ihome/user.js
 // userchrome.css usercontent.css activate
 user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
@@ -3548,6 +3659,7 @@ user_pref("findbar.highlightAll", true);
 - Browsing Web in emacs.
 **** Shr
 - Shr, the basic html rendering done in emacs web browser (eww).
+
   #+begin_src emacs-lisp
     (use-package url :ensure nil
       :custom (url-privacy-level 'high) ;; reddit/SO does not like it 'paranoid
@@ -3558,6 +3670,7 @@ user_pref("findbar.highlightAll", true);
   #+end_src
 
 - shr-pre-highlight, to highlight code blocks in eww. Does not guess the language correctly, but syntax highlight legit works.
+
   #+begin_src emacs-lisp
     (use-package shr-tag-pre-highlight
       :demand
@@ -3589,11 +3702,12 @@ user_pref("findbar.highlightAll", true);
   #+end_src
 **** Eww
 - The emacs web browsing, mostly I like to read articles, readable materials in it.
+
   #+begin_src emacs-lisp
     (use-package eww :ensure nil :demand t
       :hook
       (eww-mode . variable-pitch-mode)
-      (eww-after-render . (lambda () (eww-readable) (setq-local line-spacing '0.4)))
+      (eww-after-render . (lambda () (d/eww-readable) (setq-local line-spacing '0.4)))
       :custom
       (eww-auto-rename-buffer 'title)
       :config
@@ -3694,6 +3808,7 @@ user_pref("findbar.highlightAll", true);
 **** COMMENT ox-hugo
 - for maintaining a static site generator with posts written in org-mode.
 - For anyone who has come this far, [[https://idlip.github.io][blog site]].
+
   #+begin_src emacs-lisp
 (use-package ox-hugo :unless d/on-droid :after ox)
   #+end_src
@@ -3725,22 +3840,23 @@ user_pref("findbar.highlightAll", true);
                    (file+olp "~/d-git/d-site/org-mode/posts.org" "Posts")
                    (function org-hugo-new-subtree-post-capture-template))))
   #+end_src
+
 ** Music/Video
 *** Hardware-Graphics
 - gpu acceleration
+
   #+begin_src nix :tangle gdk/core.nix
     {
       hardware = {
         uinput.enable = true;
-        cpu.intel.updateMicrocode = true;
-        pulseaudio.enable = lib.mkForce false;
+        enableRedistributableFirmware = true;
         graphics = {
           enable = true;
           enable32Bit = true;
           extraPackages = with pkgs; [
             libva intel-media-driver
             intel-vaapi-driver
-            vaapiVdpau
+            vaapiVdpau vaapiIntel
             libvdpau-va-gl vpl-gpu-rt
           ];
           extraPackages32 = with pkgs.driversi686Linux; [
@@ -3750,27 +3866,29 @@ user_pref("findbar.highlightAll", true);
       };
     }
   #+end_src
-*** Pipewire
-  #+begin_src nix :tangle gdk/core.nix
-{
-  # Pipewire setup, just these lines enough to make sane default for it
-  services.pipewire = {
-    enable = true;
-    alsa = {
-      enable = true;
-      support32Bit = true;
-    };
-    wireplumber.enable = true;
-    pulse.enable = true;
-    jack.enable = true;
-  };
 
-}
+*** Pipewire
+Pipewire setup, just these lines enough to make sane default for it
+
+  #+begin_src nix :tangle gdk/core.nix
+    {
+      services.pipewire = {
+        enable = true;
+        alsa = {
+          enable = true;
+          support32Bit = true;
+        };
+        wireplumber.enable = true;
+        pulse.enable = true;
+        jack.enable = true;
+      };
+    }
   #+end_src
 
 *** Music Player
 - The MPD - Music player daemon to run music contents.
 **** mpd
+
   #+begin_src nix :tangle gdk/home.nix
   {
     services = {
@@ -3798,8 +3916,10 @@ user_pref("findbar.highlightAll", true);
 
   }
   #+end_src
+
 **** mpc
 - An emacs built-in frontend for MPD.
+
   #+begin_src emacs-lisp
   (use-package mpc
     :bind (("C-c d m" . mpc)
@@ -3820,9 +3940,11 @@ user_pref("findbar.highlightAll", true);
       (next-line)
       ))
   #+end_src
+
 **** COMMENT mingus
 - Mingus - An mpd interface in emacs, its simple and clean to use.
 - Ik EMMS and mpc exist, but mingus is straight forward simple and minimal.
+
   #+begin_src emacs-lisp
   (use-package mingus :unless d/on-droid
     :bind (("C-c d m" . mingus-browse)
@@ -3843,6 +3965,7 @@ user_pref("findbar.highlightAll", true);
 
 *** mpv
 - The most valuable program, to play any media content to play.
+
   #+begin_src nix :tangle gdk/home.nix
     {
       programs = {
@@ -3889,7 +4012,9 @@ user_pref("findbar.highlightAll", true);
       :custom (ready-player-open-playback-commands '(("mpv" "--audio-display=no" "--input-ipc-server=<<socket>>" "--speed=1.0")))
       :config (ready-player-mode))
   #+end_src
+
 *** yt-dlp
+
   #+begin_src nix :tangle gdk/home.nix
 {
   programs = {
@@ -3905,8 +4030,10 @@ user_pref("findbar.highlightAll", true);
   };
 }
   #+end_src
+
 *** ytfzf
 - Just to write config file for bash tool =ytfzf=.
+
   #+begin_src nix :tangle gdk/home.nix :noweb yes
     {
       xdg.configFile."ytfzf/conf.sh".text = ''
@@ -3914,6 +4041,7 @@ user_pref("findbar.highlightAll", true);
       '';
     }
   #+end_src
+
 - Config
   #+name: conf-ytfzf
   #+begin_src conf
@@ -3933,8 +4061,10 @@ user_pref("findbar.highlightAll", true);
   #is_sort=1
   #search_sort_by=upload_date
   #+end_src
+
 ** Image viewer
 - Replaced imv with swayimg
+
 #+begin_src conf :tangle ~/.config/swayimg/config
   [viewer]
   window = #000000
@@ -3976,8 +4106,10 @@ user_pref("findbar.highlightAll", true);
   Shift+Delete = exec rm "%"; skip_file
   q = exit
 #+end_src
+
 ** Application
 *** media-pkgs
+
   #+begin_src nix :tangle gdk/home.nix
   {
     home.packages = with pkgs; [
@@ -3995,13 +4127,17 @@ user_pref("findbar.highlightAll", true);
     ];
   }
   #+end_src
+
 **** Transmission
 - Stream of files peer-to-peer from internet.
+
   #+begin_src emacs-lisp
   (use-package transmission :unless d/on-droid :bind ("C-c d t" . transmission))
   #+end_src
+
 *** reddigg
 - experience the reddit posts in the comfort of org-mode.
+
   #+begin_src emacs-lisp
     (use-package reddigg :defer t
       :bind (("C-c d f" . reddigg-view-frontpage)
@@ -4030,16 +4166,22 @@ user_pref("findbar.highlightAll", true);
         (jinx-mode -1)
         (view-mode 1)))
   #+end_src
+
 *** hacker news
+
   #+begin_src emacs-lisp
   (use-package hnreader :defer t :unless d/on-droid)
   #+end_src
+
 *** stackoverflow
+
   #+begin_src emacs-lisp
 (use-package howdoyou :defer t :unless d/on-droid)
   #+end_src
+
 *** pastebin
 - to share, paste and forget
+
   #+begin_src emacs-lisp
   (use-package webpaste :defer t
     :bind (("C-c C-p C-b" . webpaste-paste-buffer)
@@ -4050,8 +4192,10 @@ user_pref("findbar.highlightAll", true);
     ;; Require confirmation before doing paste
     (setq webpaste-paste-confirmation t))
   #+end_src
+
 *** COMMENT matrix
 - wait, matrix in emacs? Yes, call it =ement.el=
+
   #+begin_src emacs-lisp
     (use-package ement
       :bind (
@@ -4079,8 +4223,10 @@ user_pref("findbar.highlightAll", true);
                  (user (plist-get entry :user)))
             (ement-connect :user-id user :password password)))))
   #+end_src
+
 *** erc-the irc
 - Wander in Irc channels.
+
 #+begin_src emacs-lisp
   (use-package erc :ensure nil
     :init
@@ -4093,7 +4239,9 @@ user_pref("findbar.highlightAll", true);
       )
     :custom (erc-hide-list '("JOIN" "PART" "QUIT")))
 #+end_src
+
 - Also rcirc - the irc
+
   #+begin_src emacs-lisp
     (use-package rcirc :ensure nil
       :custom ;; yes I'm the guy called "zororg"
@@ -4104,8 +4252,10 @@ user_pref("findbar.highlightAll", true);
       (rcirc-server-alist '(("irc.libera.chat" :channels ("#systemcrafters") :port 6697 :encryption tls)))
       :config (rcirc-track-minor-mode 1) )
   #+end_src
+
 *** droidMacs
 - Legit Emacs works very well on Android.
+
   #+begin_src emacs-lisp
     ;; access phone storage as default
     ;; Better is to symlink file to ~/ itself
@@ -4151,8 +4301,10 @@ user_pref("findbar.highlightAll", true);
       )
     ;; (setq use-dialog-box nil)
   #+end_src
+
 **** COMMENT notify-droid
 - Thanks to [[https://github.com/danijelcamdzic/dotemacs/blob/main/elisp/org-config.el][danijelcamdzic]], now emacs android can have notification from org agenda.
+
   #+begin_src emacs-lisp
   (require 'alert)
   (when d/on-droid
@@ -4182,22 +4334,14 @@ user_pref("findbar.highlightAll", true);
     (setq alert-default-icon "ic_popup_reminder")
     )
   #+end_src
+
 ** bluetooth
 - I dont prefer to use bluetooth, dongle; wired equips are better.
+
   #+begin_src nix :tangle gdk/core.nix
   {
     hardware.bluetooth = {
       enable = true;
-      powerOnBoot = true;
-      # package = pkgs.bluez;
-      # settings = {
-      #   General = {
-      #     FastConnectable = true;
-      #     JustWorksRepairing = "always";
-      #     Privacy = "device";
-      #     Experimental = true;
-      #   };
-      # };
     };
     services.blueman.enable = true;
   }
@@ -4629,6 +4773,7 @@ user_pref("findbar.highlightAll", true);
   #+end_src
 *** niri
 - A scrolling window manager with new workflow.
+
 #+begin_src nix :tangle gdk/core.nix
   {
     programs = {
@@ -4637,8 +4782,10 @@ user_pref("findbar.highlightAll", true);
       };
   }
 #+end_src
+
 **** niri-config
 - Note: This is written in =kdl= format
+
 #+begin_src conf :tangle ~/.config/niri/config.kdl
   spawn-at-startup "sh" "-c" "dbus-update-activation-environment --systemd --all && systemctl --user reset-failed && systemctl --user stop niri-session.target && systemctl --user start niri-session.target"
   // Find the full list of options on the wiki:
@@ -4648,6 +4795,10 @@ user_pref("findbar.highlightAll", true);
   		xkb { options "ctrl:nocaps"; }
   		repeat-delay 600; repeat-rate 50;
   	}
+    mouse {
+      accel-speed 0.0
+      accel-profile "flat"
+    }
   	touchpad {
   		tap; dwt; natural-scroll;
   	}
@@ -4777,6 +4928,8 @@ user_pref("findbar.highlightAll", true);
 
   	Mod+Shift+Q { close-window; }
 
+    Mod+Space { toggle-window-floating; }
+
   	Mod+H     { focus-column-left; }
   	Mod+L     { focus-column-right; }
   	Mod+j     { focus-window-or-workspace-down; }
@@ -4874,7 +5027,9 @@ user_pref("findbar.highlightAll", true);
   }
 
 #+end_src
+
 *** COMMENT kde plasma
+
   #+begin_src nix :tangle gdk/core.nix
     {
       # programs.ssh.askPassword = lib.mkForce "${pkgs.kdePackages.ksshaskpass.out}/bin/ksshaskpass";
@@ -4888,6 +5043,7 @@ user_pref("findbar.highlightAll", true);
   #+end_src
 *** COMMENT gnome
 - gnome desktop for elegance
+
   #+begin_src nix :tangle gdk/core.nix
   {
     services = {
@@ -4915,6 +5071,7 @@ user_pref("findbar.highlightAll", true);
   }
   #+end_src
 *** wayland-packages
+
   #+begin_src nix :tangle gdk/home.nix :noweb yes
     {
       home.packages = with pkgs; [
@@ -4934,8 +5091,10 @@ user_pref("findbar.highlightAll", true);
       ];
     }
   #+end_src
+
 **** hypridle
 - Idle manager made for/with hyprland
+
   #+begin_src nix :tangle gdk/home.nix
     {
       systemd.user.startServices = "sd-switch"; # should be default soon
@@ -4986,11 +5145,13 @@ user_pref("findbar.highlightAll", true);
   #+end_src
 
 **** hyprlock
+
 #+begin_src nix :tangle gdk/core.nix
-    {
-      programs.hyprlock.enable = true; # for pam auth config
-    }
+  {
+    programs.hyprlock.enable = true; # for pam auth config
+  }
 #+end_src
+
   #+begin_src nix :tangle gdk/home.nix
     {
       programs.hyprlock = {
@@ -5072,6 +5233,7 @@ user_pref("findbar.highlightAll", true);
       };
     }
   #+end_src
+
 ** Fonts
   #+begin_src nix :tangle gdk/core.nix
     {
@@ -5090,8 +5252,10 @@ user_pref("findbar.highlightAll", true);
       };
     }
   #+end_src
+
 *** code-d-font
 - Recursive font built with a name change and nerd font patch!
+
   #+begin_src nix :tangle gdk/pkgs/code-d-font.nix
   { lib, fetchFromGitHub, stdenvNoCC }:
 
@@ -5131,6 +5295,7 @@ user_pref("findbar.highlightAll", true);
 *** code-iosevka-nika
 - Customized Iosevka font, with my preffered styling.
 - https://typeof.net/Iosevka/customizer
+
 #+begin_src toml
   [buildPlans.CodeOnePiece]
   family = "Code OnePiece"
@@ -5215,6 +5380,7 @@ user_pref("findbar.highlightAll", true);
 #+end_src
 
 - Iosevka custom font
+
 #+begin_src nix :tangle gdk/pkgs/code-nika.nix
 { lib, fetchzip, stdenvNoCC }:
 
@@ -5252,6 +5418,7 @@ stdenvNoCC.mkDerivation rec {
 *** set-face
 - Set fonts for emacs.
 - Defining some variables for adjusting size and font name.
+
   #+begin_src emacs-lisp
     (defcustom d/font-size (if d/on-droid 170 120)
       "Default font size based on the system.")
@@ -5259,49 +5426,59 @@ stdenvNoCC.mkDerivation rec {
     ;; Dont worry about the font name, I use fork of Iosevka font
 
     ;; Set reusable font name variables
-    (defcustom d/fixed-pitch-font "UbuntuSansMono NF"
+    (defcustom d/fixed-pitch-font "Code D OnePiece"
       "The font to use for monospaced (fixed width) text.")
 
-    (defcustom d/variable-pitch-font "UbuntuSans NF"
+    (defcustom d/variable-pitch-font "Code D Ace"
       "The font to use for variable-pitch (documents) text.")
   #+end_src
+
 - Invoking fonts.
+
   #+begin_src emacs-lisp
     (use-package faces :ensure nil
       :custom-face
-      (variable-pitch ((t (:family ,d/variable-pitch-font :height 1.1 :weight medium))))
-      (fixed-pitch ((t (:family ,d/fixed-pitch-font :weight medium))))
-      (default ((t (:family ,d/fixed-pitch-font :height ,d/font-size :weight medium)))))
+      (variable-pitch ((t (:family ,d/variable-pitch-font :height 1.1 :weight normal))))
+      (fixed-pitch ((t (:family ,d/fixed-pitch-font :weight normal))))
+      (default ((t (:family ,d/fixed-pitch-font :height ,d/font-size :weight normal)))))
   #+end_src
 
 - font-lock
+
   #+begin_src emacs-lisp
     (use-package font-lock :ensure nil :init (global-font-lock-mode 1))
   #+end_src
+
 *** COMMENT Nerd Icons
 - To visualize and minimize the text.
 - Nerd-icons
+
   #+begin_src emacs-lisp
     (use-package nerd-icons :custom (nerd-icons-font-family d/fixed-pitch-font))
   #+end_src
+
 - Nerd icons in dired
   #+begin_src emacs-lisp
   (use-package nerd-icons-dired :hook (dired-mode . nerd-icons-dired-mode))
   #+end_src
+
 - nerd icons in completions
   #+begin_src emacs-lisp
     (use-package nerd-icons-completion :unless d/on-droid
       :hook (marginalia-mode . nerd-icons-completion-marginalia-setup)
       :init (nerd-icons-completion-mode))
   #+end_src
+
 - nerd icons in corfu
   #+begin_src emacs-lisp
   (use-package nerd-icons-corfu :after corfu
     :init (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
   #+end_src
+
 ** Theme
 *** Stylix
 - An bundle of color-scheme for tools.
+
   #+begin_src nix :tangle gdk/core.nix
     {
       stylix = {
@@ -5330,25 +5507,26 @@ stdenvNoCC.mkDerivation rec {
         };
 
         cursor = {
-          package = pkgs.oreo-cursors-plus;
-          name = "oreo_teal_cursors";
-          size = 12;
+          package = pkgs.comixcursors.Opaque_Slim_Black;
+          name = "ComixCursors-Opaque-Slim-Black";
         };
 
-        fonts = {
+        fonts = let
+          fpkg = (pkgs.callPackage ./pkgs/code-d-font.nix {});
+        in {
           serif = {
-            package = pkgs.nerd-fonts.ubuntu-sans;
-            name = "UbuntuSans NF";
+            package = fpkg;
+            name = "Code D Haki";
           };
 
           sansSerif = {
-            package = pkgs.nerd-fonts.ubuntu-sans;
-            name = "UbuntuSans NF";
+            package = fpkg;
+            name = "Code D Ace";
           };
 
           monospace = {
-            package = pkgs.nerd-fonts.ubuntu-sans;
-            name = "UbuntuSansMono NF";
+            package = fpkg;
+            name = "Code D OnePiece";
           };
 
           emoji = {
@@ -5370,6 +5548,7 @@ stdenvNoCC.mkDerivation rec {
   #+end_src
 
 - Home manager options for stylix
+
   #+begin_src nix :tangle gdk/home.nix
   {
     stylix = {
@@ -5388,8 +5567,10 @@ stdenvNoCC.mkDerivation rec {
     };
   }
   #+end_src
+
 *** GTK
 - Glorious, aesthetic and pleasant desktop colourscheme.
+
   #+begin_src nix :tangle gdk/home.nix
     {
       gtk = {
@@ -5418,8 +5599,10 @@ stdenvNoCC.mkDerivation rec {
       };
     }
   #+end_src
+
 *** qt
 - to set qt theme appropriately, even with this config, kdeConnect looks bare bone.
+
   #+begin_src nix :tangle gdk/home.nix
   {
     qt = {
@@ -5432,6 +5615,7 @@ stdenvNoCC.mkDerivation rec {
 *** Editor theme - Haki
 - Emacs theme are good, there is doom-themes, modus-themes (masterpiece).
 - After long usage, I felt every theme did not suit me, so I just wrote a theme ([[https://github.com/idlip/haki][haki]])
+
   #+begin_src emacs-lisp
     (use-package haki-theme :demand t
       :load-path "~/.config/emacs/var/theme"
@@ -5452,13 +5636,16 @@ stdenvNoCC.mkDerivation rec {
 ** Olivetti
 - Nice, focused writing environment for emacs.
   TODO replace with daviwil's =document-center-mode= function.
+
   #+begin_src emacs-lisp
   (use-package olivetti :defer t :custom (olivetti-body-width 100)
     :hook (org-mode text-mode Info-mode helpful-mode ement-room-mode gnus-group-mode eww-mode
                      gnus-article-mode sdcv-mode nov-mode elfeed-show-mode markdown-mode))
   #+end_src
+
 ** Status bar/Mode-line
 *** Waybar
+
   #+begin_src nix :tangle gdk/home.nix :noweb yes
     {
       programs.waybar = {
@@ -5478,40 +5665,22 @@ stdenvNoCC.mkDerivation rec {
               ];
 
               modules-center = [
-                "privacy" "custom/recorder" "clock" "mpd" "mpris"
+                "privacy" "custom/recorder" "clock"
+                # "mpd"
+                # "mpris"
               ];
 
               modules-right = [ "tray" "network" "battery" "memory" "wireplumber" "custom/power" ];
 
               "niri/workspaces" = {
     	          format = "{icon}";
-    	          # format-icons = {
-    		          # "active" = "";
-    		          # "default" = "";
-    	          # };
+                all-outputs = true;
               };
 
               "hyprland/workspaces" = {
                 format = "{icon}";
-                disable-scroll = false;
                 all-outputs = true;
-                active-only = false;
                 show-special = true;
-                on-click = "activate";
-                format-icons = {
-                  "1" = "1";
-                  "2" = "2";
-                  "3" = "3";
-                  "4" = "4";
-                  "5" = "5";
-                  "6" = "6";
-                };
-              };
-
-              "hyprland/submap" = {
-                "format" = " {}";
-                "max-length" = 14;
-                "tooltip" = false;
               };
 
               "wlr/taskbar"=  {
@@ -5537,7 +5706,6 @@ stdenvNoCC.mkDerivation rec {
                   "warning" = 40;
                   "critical" = 20;
                 };
-                "max-length" =  25;
                 "format" = "{icon} {capacity}%";
                 "format-charging" = " {capacity}%";
                 "format-plugged" = " {capacity}%";
@@ -5624,21 +5792,10 @@ stdenvNoCC.mkDerivation rec {
               };
 
               "wireplumber" = {
-                "scroll-step" = 2;
                 "format" = "{icon} {volume: >3}%";
-                "format-bluetooth" = "{icon} {volume: >3}%";
                 "format-muted" =" ";
                 "on-click" = "d-volume toggle";
                 "on-click-middle"=  "pavucontrol";
-                "format-icons" = {
-                  "headphones" = "";
-                  "handsfree" = "";
-                  "headset" = "";
-                  "phone" = "";
-                  "portable" = "";
-                  "car" = "";
-                  "default" = ["" ""];
-                };
               };
 
               "custom/recorder" = {
@@ -5783,6 +5940,7 @@ stdenvNoCC.mkDerivation rec {
       };
     }
   #+end_src
+
 - =htop= in emacs, its =proced=
   #+begin_src emacs-lisp
     (use-package proced
@@ -5794,13 +5952,16 @@ stdenvNoCC.mkDerivation rec {
       (proced-auto-update-flag t))
 
   #+end_src
+
 *** bash
 - The Shell Environment
+
 #+begin_src nix :tangle gdk/core.nix
   {
     programs.fish.enable = true;
   }
 #+end_src
+
 #+begin_src nix :tangle gdk/home.nix
   {
     programs = {
@@ -6016,8 +6177,10 @@ stdenvNoCC.mkDerivation rec {
   #     print ""
   # }
   #+end_src
+
 *** HomeSession Variables
 - To set variables for all shell.
+
   #+begin_src nix :tangle gdk/home.nix
     {
       home = {
@@ -6080,7 +6243,9 @@ stdenvNoCC.mkDerivation rec {
       };
     }
   #+end_src
+
 *** cli-packages
+
   #+begin_src nix :tangle gdk/home.nix
 {
   home.packages = with pkgs; [
@@ -6091,9 +6256,11 @@ stdenvNoCC.mkDerivation rec {
   ];
 }
   #+end_src
+
 *** starship
 - for beautiful prompt
 - i have stopped using it, it makes shell little slow.
+
   #+begin_src nix :tangle gdk/home.nix
   {
     programs.starship = {
@@ -6118,9 +6285,11 @@ stdenvNoCC.mkDerivation rec {
     };
   }
   #+end_src
+
 * Programs
 - some programs to manage in core
 - dconf for gnome desktop suitable stuff
+
   #+begin_src nix :tangle gdk/core.nix
     {
       programs = {
@@ -6132,6 +6301,7 @@ stdenvNoCC.mkDerivation rec {
 
 *** DownloadManager
 - Aria2, the minimal, that does just the job.
+
   #+begin_src nix :tangle gdk/home.nix
 {
   programs.aria2 = {
@@ -6169,6 +6339,7 @@ stdenvNoCC.mkDerivation rec {
   };
 }
   #+end_src
+
 *** Notifications
 **** mako
 
@@ -6181,10 +6352,13 @@ stdenvNoCC.mkDerivation rec {
     };
   }
 #+end_src
+
 **** COMMENT notify-emacs
+
 - To get notifications from emacs using =alert= package.
 - So far only using it for org agenda
 - TODO create a class to control priority, so fade time can be avoided.
+
   #+begin_src emacs-lisp
   (use-package alert
     :custom
@@ -6195,20 +6369,22 @@ stdenvNoCC.mkDerivation rec {
     (alert-libnotify-additional-args '("-u" "critical" "-t" "100"))
     (alert-fade-time 100))
   #+end_src
+
 *** clipboard
 - To manage clipboard history and watch it.
+
   #+begin_src nix :tangle gdk/home.nix
 {
   services.cliphist.enable = true;
 }
   #+end_src
+
 **** clip in emacs
 - Clipboard support in wayland using ~wl-clipboard~, especially for terminal use case.
 - Credits to @yorichvP for github gist.
+
   #+begin_src emacs-lisp
     ;; credit: yorickvP on Github
-    ;; (setq wl-copy-process nil)
-
     (defun wl-copy (text)
       (let ((p (make-process :name "wl-copy"
                              :command '("wl-copy")
@@ -6216,20 +6392,15 @@ stdenvNoCC.mkDerivation rec {
         (process-send-string p text)
         (process-send-eof p)))
 
-    ;; (defun wl-paste ()
-    ;;   (if (and wl-copy-process (process-live-p wl-copy-process))
-    ;;       nil ; should return nil if we're the current paste owner
-    ;;     (shell-command-to-string "wl-paste -n")))
-
     (unless d/on-droid
       (setq interprogram-cut-function 'wl-copy)
-      ;; (setq interprogram-paste-function 'wl-paste)
       )
 
   #+end_src
 
-*** games
+*** COMMENT games
 - Some games to play
+
   #+begin_src nix :tangle gdk/home.nix
   {
     home.packages = with pkgs; [
@@ -6239,6 +6410,7 @@ stdenvNoCC.mkDerivation rec {
   #+end_src
 
 - Emulate window env for some apps and games
+
 #+begin_src nix :tangle gdk/home.nix
   {
     home.packages = with pkgs; [
@@ -6252,9 +6424,11 @@ stdenvNoCC.mkDerivation rec {
   }
 
 #+end_src
+
 *** Launcher
 **** fuzzel
 - Simple and focused menu launcher by dnkl (foot author)
+
 #+begin_src nix :tangle gdk/home.nix
 {
   programs.fuzzel = {
@@ -6276,10 +6450,14 @@ stdenvNoCC.mkDerivation rec {
   };
 }
 #+end_src
+
 *** home-pkgs
 - Some programs and packages to be used often. Miscellaneous
+
   #+begin_src nix :tangle gdk/home.nix
-    { home.packages = with pkgs; [ libnotify nemo libreoffice pandoc groff mupdf keepassxc easyeffects jaq ]; }
+    { home.packages = with pkgs; [ libnotify nemo pandoc groff mupdf keepassxc easyeffects jaq
+      # libreoffice-fresh
+    ]; }
   #+end_src
 
 * Note taking
@@ -6296,9 +6474,11 @@ Tags are not just defined in general terms, but in category. With a prefix, =t@c
 This helps in maintain single big org file in =datetree= journal, and hence no more fear of missing out information or files. Everything at one spot.
 
 Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
+
 ** Org
 - the way to organize stuffs, and get things done!
 - https://orgmode.org
+
   #+begin_src emacs-lisp
     (use-package org :ensure nil :defer t
       :hook
@@ -6306,7 +6486,7 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
       (org-mode . org-indent-mode)
 
       :bind (
-             ("C-c t i" . d/set-timer)
+             ("C-c t i" . org-timer-set-timer)
 
              (:map org-mode-map
                    ("C-x n n" . d/narrow-or-widen-dwim)
@@ -6376,13 +6556,12 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
            (org-archive-subtree)
            (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
          "/DONE" 'tree))
-
-      (push '("conf-unix" . conf-unix) org-src-lang-modes)
-      (defalias 'd/set-timer (symbol-function 'org-timer-set-timer)) )
+      )
   #+end_src
 
-*** org-modern
+*** COMMENT org-modern
 - for modern emacs, modern org looks
+
   #+begin_src emacs-lisp
     (use-package org-modern :config (global-org-modern-mode) :hook (org-mode org-agenda-finalize)
       :custom
@@ -6410,7 +6589,9 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
 
       (org-modern-internal-target '("  " t " ")))
   #+end_src
+
 - Prettify symbols alist
+
 #+begin_src emacs-lisp
 (use-package prog-mode
   :custom (prettify-symbols-alist
@@ -6444,6 +6625,7 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
          "~/d-git/d-site/README.org"
          )))
   #+end_src
+
 *** org-capture
   #+begin_src emacs-lisp
     (use-package org-capture :ensure nil :after org
@@ -6479,8 +6661,10 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
 
          )))
   #+end_src
+
 *** COMMENT org-contact
 - Is it any different than manual method?
+
   #+begin_src emacs-lisp
 (use-package org-contacts
   :after org
@@ -6489,12 +6673,16 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
                '("cn" "Contacts" entry (file "~/d-sync/notes/contacts.org")
                  "* %(tempel-insert 'contact)")))
   #+end_src
+
 *** org-list
+
   #+begin_src emacs-lisp
   (use-package org-list
     :custom (org-list-demote-modify-bullet '(("+" . "-") ("-" . "+"))))
   #+end_src
+
 *** org-src
+
 #+begin_src emacs-lisp
     (use-package org-src :ensure nil :after org
         :bind ((:map org-mode-map ("C-c ;" . d/org-babel-edit)))
@@ -6508,6 +6696,7 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
 #+end_src
 
 + To use eglot in =org-edit-special=. Credits to https://github.com/joaotavora/eglot/issues/216#issuecomment-1052931508
+
 #+begin_src emacs-lisp
   (defun d/org-babel-edit ()
     "Edit any src block with lsp support by tangling the block and
@@ -6556,6 +6745,7 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
 
 *** org-re-reveal
 - to make tidy presentations
+
   #+begin_src emacs-lisp
   (use-package org-re-reveal :after ox :unless d/on-droid
     :custom
@@ -6563,9 +6753,11 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
     (org-re-reveal-title-slide
      "<h1 class=\"title\">%t</h1> <br> <br> <h2 class=\"subtitle\">%s</h2> <br> <h4 class=\"misc\">%m</h4> <h3 class=\"misc\">%A</h3> <br> <h2 class=\"author\">%a</h2>"))
   #+end_src
+
 *** org-ql
 - for quick search and queries
 - TODO expand and use bindings for it. Refer manual
+
   #+begin_src emacs-lisp
     (use-package org-ql :after org
       :bind ((:map org-mode-map
@@ -6590,10 +6782,12 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
     (use-package org-super-agenda :after org
       :hook (org-agenda-mode . org-super-agenda-mode))
   #+end_src
+
 *** org-super-links
 - Package to create bi-directional backlinks.
 - Inspired by karl voit post: https://karl-voit.at/2020/07/22/org-super-links/
 - Acts as the minimal zettelkasten links, and having citation-reference relation.
+
   #+begin_src emacs-lisp
   (use-package org-super-links :unless d/on-droid :after org
     :bind ((:map org-mode-map
@@ -6608,8 +6802,10 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
             org-super-links-link-prefix 'org-super-links-link-prefix-timestamp
             org-super-links-backlink-into-drawer "CITATION"))
   #+end_src
+
 *** org-fold
 - To set some decent workflow to maintain single big notes file.
+
   #+begin_src emacs-lisp
   (use-package org-fold :after org
     :custom
@@ -6619,8 +6815,10 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
     ;; (org-fold-core-style 'overlays)
     )
   #+end_src
+
 *** COMMENT org-alert
 - Alert, send notifications for schedules and deadline tasks.
+
   #+begin_src emacs-lisp
   (use-package org-alert
     :config
@@ -6630,8 +6828,10 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
             "\\(?:SCHEDULED\\|DEADLINE\\):.*?<.*?\\([0-9]\\{2\\}:[0-9]\\{2\\}\\).*>")
     (org-alert-enable))
   #+end_src
+
 *** appointment-appt
 - =appt= library to run timer on appointments in diary or org-agenda.
+
 #+begin_src emacs-lisp
   (use-package appt :ensure nil :demand t
     :custom
@@ -6659,10 +6859,12 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
                  :title msg
                  :urgency 'critical))))
 #+end_src
+
 *** dslide
 - Do the Slides in Org
   A great package and good thought out feature by Positron.
 - https://github.com/positron-solutions/dslide
+
 #+begin_src emacs-lisp
 (use-package dslide :after org
   :bind ((:map org-mode-map
@@ -6672,8 +6874,10 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
                ("p" . dslide-deck-backward)
                )))
 #+end_src
+
 *** COMMENT org-noter
 - To annotate and note on docs in plain text. Seems useful and handy rather than manual work.
+
   #+begin_src emacs-lisp
   (use-package org-noter :unless d/on-droid :after org
     :custom
@@ -6693,16 +6897,20 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
 *** org-crypt
 - To encrypt contents of heading.
 - Works like charm, and makes plain text more safe to store.
+
   #+begin_src emacs-lisp
-(use-package org-crypt :after org :ensure nil
-  :config
-  (org-crypt-use-before-save-magic)
-  (setq org-tags-exclude-from-inheritance '("crypt"))
-  (setq org-crypt-key nil))
+    (use-package org-crypt :after org :ensure nil
+      :config (org-crypt-use-before-save-magic)
+      :custom
+      (org-tags-exclude-from-inheritance '("crypt"))
+      (org-crypt-key nil)
+      (epg-pinentry-mode 'loopback)
+      )
   #+end_src
 
 *** org-mime
 - To send html emails in org mode
+
 #+begin_src emacs-lisp
 (use-package org-mime :unless d/on-droid :after message
   :hook (message-send . org-mime-confirm-when-no-multipart)
@@ -6718,10 +6926,12 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
 *** remember
 - Tiny little mode and remember some running thoughts to seek out the insights.
 - Note: =no-littering= package alters =remember-data-file=.
+
   #+begin_src emacs-lisp
   (use-package remember :ensure nil
     :bind ("C-c r r" . remember) ("C-c r n" . remember-notes))
   #+end_src
+
 *** calendar
   #+begin_src emacs-lisp
     (use-package calendar
@@ -6729,6 +6939,7 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
       :custom (diary-file "~/d-sync/notes/diary")
       (calendar-date-style 'european))
   #+end_src
+
 ** Markdown
   #+begin_src emacs-lisp
   (use-package markdown-mode :defer t
@@ -6754,22 +6965,28 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
       (if (derived-mode-p 'markdown-view-mode) (markdown-mode) (markdown-view-mode))
       (variable-pitch-mode 1)))
   #+end_src
+
 ** Spell
 - to check for simple spell corrections
+
   #+begin_src emacs-lisp
   (use-package jinx :unless d/on-droid
     ;; :init (global-jinx-mode)
     :hook org-mode
     :bind ("M-$". jinx-correct))
   #+end_src
+
 - Built-in spell checker
+
   #+begin_src emacs-lisp
   (use-package ispell :demand t
     :custom (ispell-alternate-dictionary (expand-file-name "~/.config/enchant/en_US.dic")))
   #+end_src
+
 *** Vocab
 - to use language-tool for corrections over grammar and vocabulary
 - And some spell correction tools.
+
   #+begin_src nix :tangle gdk/home.nix
   {
 
@@ -6790,14 +7007,17 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
         };
   }
   #+end_src
+
 - language tool as linter
    - Might take too much memory
+
   #+begin_src emacs-lisp
   (use-package flymake-languagetool :unless d/on-droid
     :disabled
     :hook (text-mode . flymake-languagetool-load)
     :custom (flymake-languagetool-server-command '("languagetool-http-server")))
   #+end_src
+
 * EOF
 ** Nixos
   #+begin_src nix :tangle gdk/core.nix

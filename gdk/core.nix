@@ -12,14 +12,11 @@
     kernelPackages = pkgs.linuxPackages_latest;
     loader = {
       systemd-boot.enable = true;
-      efi.canTouchEfiVariables = true;
-      timeout = 1;
+      efi.canTouchEfiVariables = true; # maybe for dualboot
     };
     initrd.availableKernelModules = [
       "nvme" "xhci_pci" "usbhid" "usb_storage" "sd_mod" "sdhci_pci"
     ];
-
-    # consoleLogLevel = 3;
 
     supportedFilesystems = [ "ntfs" ];
     tmp.cleanOnBoot = true;
@@ -28,6 +25,7 @@
       "systemd.mask=dev-tpmrm0.device" #this is to mask that stupid 1.5 mins systemd bug
       "nowatchdog" "modprobe.blacklist=iTCO_wdt" #watchdog for Intel
       # "mem_sleep_default=deep" # suspend to RAM (deep) rather than `s2idle`
+      # ^ caused quick battery drain. With just ppd+suspend backup is good
  	  ];
   };
 }
@@ -73,27 +71,8 @@
 }
 
 {
-  i18n = {
-    defaultLocale = "en_US.UTF-8";
-    # saves space
-    supportedLocales = [ "en_US.UTF-8/UTF-8" "ja_JP.UTF-8/UTF-8" "ro_RO.UTF-8/UTF-8" ];
-  };
-
-  # Sets big font for bootloader, as I have small laptop.
-  console = {
-    earlySetup = true;
-    font = "${pkgs.terminus_font}/share/consolefonts/ter-v32n.psf.gz";
-    packages = with pkgs; [ terminus_font ];
-    keyMap = "us";
-  };
-}
-
-{
-  # obviously your timezone here. Have a nice day or good night sleep ;)
-  # Don't waste more time on nixos lol, be healthy and have some sleep. Stay healthy!
   time = {
     timeZone = "Asia/Kolkata";
-    hardwareClockInLocalTime = true;
   };
 }
 
@@ -105,13 +84,7 @@
   };
 }
 
-{ # compresses half the ram for use as swap
-  zramSwap = {
-    enable = true;
-    memoryPercent = 50;
-    algorithm = "zstd";
-  };
-}
+{ zramSwap.enable = true; }
 
 {
   systemd.sleep.extraConfig = ''
@@ -176,7 +149,6 @@
   # note that it might break some stuff, eg webcam
 
   security = {
-    protectKernelImage = true;
     rtkit.enable = true;
     polkit.enable = true;
 
@@ -199,8 +171,7 @@
       greetingLine = "Greetings and Welcome back!";
       helpLine = "Let's learn more and get productive!";
     };
-    atd.enable = true; # reminder tool, like @ 2:30 exec this
-    fstrim.enable = true; # file system trim
+    atd.enable = true; # reminder tool, like @ 2:30 | exec this
   };
 }
 
@@ -212,14 +183,8 @@
   # For Laptop, make lid close and power buttom click to suspend
   services.logind = {
     lidSwitch = "suspend";
-    extraConfig = ''
-        HandlePowerKey=suspend
-      '';
+    powerKey = "suspend";
   };
-}
-
-{ # for fingerprint
-  services.fprintd.enable = true;
 }
 
 {
@@ -237,7 +202,7 @@
 {
   services = { # To mount drives with `udiskctl` command
     udisks2.enable = true;
-    printing.enable = true;
+    # printing.enable = true;
   };
 }
 
@@ -279,7 +244,6 @@
 {
   environment = {
     variables = {
-      VDPAU_DRIVER = lib.mkDefault "va_gl";
       BROWSER = "d-stuff";
       NIXOS_OZONE_WL = "1";
     };
@@ -303,28 +267,11 @@
 {
   nixpkgs = {
     overlays = with inputs; [emacs-overlay.overlay];
-    config = {
-      allowUnfree = false;
-      allowBroken = false;
-    };
   };
 }
 
 {
-  # Collect garbage and delete generation every 7 day. Will help to get some storage space.
-  # Better to atleast keep it for few days, as you do major update (unstable), if something breaks you can roll back.
   nix = {
-    optimise.automatic = true;
-    gc = {
-      automatic = true;
-      dates = "weekly";
-      options = "--delete-older-than 7d";
-    };
-
-    # Make builds run with low priority so my system stays responsive
-    daemonCPUSchedPolicy = "idle";
-    daemonIOSchedClass = "idle";
-
     # pin the registry to avoid downloading and evaling a new nixpkgs version every time
     registry = lib.mapAttrs (_: value: { flake = value; }) inputs;
 
@@ -337,23 +284,13 @@
       extra-experimental-features = ["flakes" "nix-command" ];
 
       # use binary cache, its not gentoo
-      substituters = [
-        "https://nix-community.cachix.org"
-      ];
-      trusted-public-keys = [
-        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-      ];
+      substituters = [ "https://nix-community.cachix.org" ];
+      trusted-public-keys = [ "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" ];
     };
   };
 }
 
-{
-  system.autoUpgrade.enable = false;
-}
-
-{
-  programs.nix-ld.enable = true;
-}
+{ programs.nix-ld.enable = true; }
 
 { # disable for faster rebuilding
   documentation = {
@@ -371,15 +308,14 @@
 {
   hardware = {
     uinput.enable = true;
-    cpu.intel.updateMicrocode = true;
-    pulseaudio.enable = lib.mkForce false;
+    enableRedistributableFirmware = true;
     graphics = {
       enable = true;
       enable32Bit = true;
       extraPackages = with pkgs; [
         libva intel-media-driver
         intel-vaapi-driver
-        vaapiVdpau
+        vaapiVdpau vaapiIntel
         libvdpau-va-gl vpl-gpu-rt
       ];
       extraPackages32 = with pkgs.driversi686Linux; [
@@ -390,7 +326,6 @@
 }
 
 {
-  # Pipewire setup, just these lines enough to make sane default for it
   services.pipewire = {
     enable = true;
     alsa = {
@@ -401,22 +336,11 @@
     pulse.enable = true;
     jack.enable = true;
   };
-
 }
 
 {
   hardware.bluetooth = {
     enable = true;
-    powerOnBoot = true;
-    # package = pkgs.bluez;
-    # settings = {
-    #   General = {
-    #     FastConnectable = true;
-    #     JustWorksRepairing = "always";
-    #     Privacy = "device";
-    #     Experimental = true;
-    #   };
-    # };
   };
   services.blueman.enable = true;
 }
@@ -475,25 +399,26 @@
     };
 
     cursor = {
-      package = pkgs.oreo-cursors-plus;
-      name = "oreo_teal_cursors";
-      size = 12;
+      package = pkgs.comixcursors.Opaque_Slim_Black;
+      name = "ComixCursors-Opaque-Slim-Black";
     };
 
-    fonts = {
+    fonts = let
+      fpkg = (pkgs.callPackage ./pkgs/code-d-font.nix {});
+    in {
       serif = {
-        package = pkgs.nerd-fonts.ubuntu-sans;
-        name = "UbuntuSans NF";
+        package = fpkg;
+        name = "Code D Haki";
       };
 
       sansSerif = {
-        package = pkgs.nerd-fonts.ubuntu-sans;
-        name = "UbuntuSans NF";
+        package = fpkg;
+        name = "Code D Ace";
       };
 
       monospace = {
-        package = pkgs.nerd-fonts.ubuntu-sans;
-        name = "UbuntuSansMono NF";
+        package = fpkg;
+        name = "Code D OnePiece";
       };
 
       emoji = {

@@ -88,14 +88,13 @@ see its function help for a description of the format."
 
   :custom
   (inhibit-startup-screen t "Don't show splash screen")
-  (cursor-type 't)
 
   (initial-major-mode 'org-mode)
   (initial-scratch-message (format "\n\n"))
 
   (indent-tabs-mode nil "Spaces!")
   (tab-always-indent 'complete)
-  (tab-width 2)
+  (tab-width 4)
   (reb-re-syntax 'string)
 
   (window-combination-resize t)
@@ -468,8 +467,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (advice-add #'register-preview :override #'consult-register-window))
 
 (use-package orderless :demand t :custom (completion-styles '(orderless basic))
-  (completion-category-defaults nil)
-  (completion-category-overrides '((file (styles partial-completion)))))
+  (completion-category-defaults nil))
 
 (use-package embark :defer t
   :bind
@@ -492,8 +490,8 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   :custom
   (prefix-help-command #'embark-prefix-help-command)
   (eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
-  (embark-prompter 'embark-completing-read-prompter)
-  (embark-indicators '(embark-minimal-indicator embark-highlight-indicator embark-isearch-highlight-indicator))
+  ;; (embark-prompter 'embark-completing-read-prompter)
+  ;; (embark-indicators '(embark-minimal-indicator embark-highlight-indicator embark-isearch-highlight-indicator))
 
   :config
   (add-to-list 'display-buffer-alist
@@ -512,7 +510,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (eldoc-add-command #'corfu-insert))
 
 (use-package cape :after corfu
-  :bind ("C-c p" . cape-prefix-map)
+  :bind ("M-<tab>" . cape-prefix-map)
   :init
   (add-hook 'completion-at-point-functions #'cape-dabbrev)
   (add-hook 'completion-at-point-functions #'cape-file)
@@ -771,6 +769,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   :custom
   (ess-indent-with-fancy-comments nil))
 
+(unless d/on-droid
 (use-package nix-mode :bind (:map nix-mode-map ("C-c C-e" . nix-eval-line)))
 
 (use-package nix-ts-mode :ensure nix-mode)
@@ -791,6 +790,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 (use-package nix-shell :ensure nix-mode :commands (nix-shell-unpack nix-shell-configure nix-shell-build))
 
 (use-package nix-repl :ensure nix-mode :commands (nix-repl))
+)
 
 (use-package js :ensure nil :mode ("\\.jsx\\'" . js-jsx-mode))
 
@@ -977,7 +977,7 @@ out"))
         (variable-pitch-mode 1)
         ;; (setq-local line-spacing 0.5)
         ;; (text-scale-increase 1)
-        (setq-local tab-bar-show nil) (tab-bar--update-tab-bar-lines)
+        ;; (setq-local tab-bar-show nil) (tab-bar--update-tab-bar-lines)
         (setq-local cursor-type nil)
         (setq-local olivetti-body-width 90) (olivetti-mode 1)
         )
@@ -985,7 +985,7 @@ out"))
     (progn
       (d/toggle-bar)
       ;; (text-scale-decrease 1)
-      (kill-local-variable 'tab-bar-show) (tab-bar--update-tab-bar-lines)
+      ;; (kill-local-variable 'tab-bar-show) (tab-bar--update-tab-bar-lines)
       (kill-local-variable 'cursor-type)
       (kill-local-variable 'olivetti-body-width)
       )
@@ -1083,6 +1083,7 @@ out"))
   (gnus-message-archive-group '((format-time-string "sent.%Y")))
   (gnus-article-save-directory (expand-file-name "saved" gnus-home-directory))
   (gnus-widen-article-window t)
+  (gnus-completion-styles completion-styles)
 
   (gnus-select-method
    '(nnnil ""))
@@ -1246,7 +1247,7 @@ out"))
 (use-package eww :ensure nil :demand t
   :hook
   (eww-mode . variable-pitch-mode)
-  (eww-after-render . (lambda () (eww-readable) (setq-local line-spacing '0.4)))
+  (eww-after-render . (lambda () (d/eww-readable) (setq-local line-spacing '0.4)))
   :custom
   (eww-auto-rename-buffer 'title)
   :config
@@ -1472,17 +1473,17 @@ Index includes links and headings."
 ;; Dont worry about the font name, I use fork of Iosevka font
 
 ;; Set reusable font name variables
-(defcustom d/fixed-pitch-font "UbuntuSansMono NF"
+(defcustom d/fixed-pitch-font "Code D OnePiece"
   "The font to use for monospaced (fixed width) text.")
 
-(defcustom d/variable-pitch-font "UbuntuSans NF"
+(defcustom d/variable-pitch-font "Code D Ace"
   "The font to use for variable-pitch (documents) text.")
 
 (use-package faces :ensure nil
   :custom-face
-  (variable-pitch ((t (:family ,d/variable-pitch-font :height 1.1 :weight medium))))
-  (fixed-pitch ((t (:family ,d/fixed-pitch-font :weight medium))))
-  (default ((t (:family ,d/fixed-pitch-font :height ,d/font-size :weight medium)))))
+  (variable-pitch ((t (:family ,d/variable-pitch-font :height 1.1 :weight normal))))
+  (fixed-pitch ((t (:family ,d/fixed-pitch-font :weight normal))))
+  (default ((t (:family ,d/fixed-pitch-font :height ,d/font-size :weight normal)))))
 
 (use-package font-lock :ensure nil :init (global-font-lock-mode 1))
 
@@ -1535,8 +1536,6 @@ Index includes links and headings."
   (proced-auto-update-flag t))
 
 ;; credit: yorickvP on Github
-;; (setq wl-copy-process nil)
-
 (defun wl-copy (text)
   (let ((p (make-process :name "wl-copy"
                          :command '("wl-copy")
@@ -1544,14 +1543,8 @@ Index includes links and headings."
     (process-send-string p text)
     (process-send-eof p)))
 
-;; (defun wl-paste ()
-;;   (if (and wl-copy-process (process-live-p wl-copy-process))
-;;       nil ; should return nil if we're the current paste owner
-;;     (shell-command-to-string "wl-paste -n")))
-
 (unless d/on-droid
   (setq interprogram-cut-function 'wl-copy)
-  ;; (setq interprogram-paste-function 'wl-paste)
   )
 
 (use-package org :ensure nil :defer t
@@ -1560,7 +1553,7 @@ Index includes links and headings."
   (org-mode . org-indent-mode)
 
   :bind (
-         ("C-c t i" . d/set-timer)
+         ("C-c t i" . org-timer-set-timer)
 
          (:map org-mode-map
                ("C-x n n" . d/narrow-or-widen-dwim)
@@ -1630,41 +1623,7 @@ Index includes links and headings."
        (org-archive-subtree)
        (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
      "/DONE" 'tree))
-
-  (push '("conf-unix" . conf-unix) org-src-lang-modes)
-  (defalias 'd/set-timer (symbol-function 'org-timer-set-timer)) )
-
-(use-package org-modern :config (global-org-modern-mode) :hook (org-mode org-agenda-finalize)
-  :custom
-  ;; (org-modern-fold-stars '(("󰓏" . "▼") ("󰚀" . "▽") ("󰫤" . "⯆") ("󰴈" . "▿") ("󰄄" . "▾")))
-
-  (org-modern-list
-   '((?* . "") (?- . "") (?+ . "")))
-
-  (org-modern-checkbox
-   '((?X . "✅") (?- . "❌") (?  . "")))
-
-  (org-modern-keyword
-   '(("options" . "") ("title" . "")
-     ("author" . "󱆀") ("email" . "")
-     ("startup" . "") ("property" . "")
-     ("date" . "") ("tags" . "")
-     ("reveal" . "󰐩") ("latex" . "") ("latex_header" . "")
-     ("logbook" . "log")
-     ("todo" . "") (t . t)))
-
-  (org-modern-block-name
-   '(("src" . "") ("example" . "")
-     ("html" . "") ("quote" . ("" ""))
-     (t . t)))
-
-  (org-modern-internal-target '("  " t " ")))
-
-(use-package prog-mode
-  :custom (prettify-symbols-alist
-           '(("LOGBOOK:" . ?) ("END:" . ?󱟀) ("PROPERTIES:" . ?)
-             ("REFERENCE:" . ?) ("CITATION" . ?))
-           ))
+  )
 
 (use-package org-agenda :ensure nil :after org
   :bind (("C-c d a" . org-agenda)
@@ -1861,10 +1820,12 @@ absolute path. Finally load eglot."
   :custom (org-export-backends '(org odt md man latex icalendar html ascii)))
 
 (use-package org-crypt :after org :ensure nil
-  :config
-  (org-crypt-use-before-save-magic)
-  (setq org-tags-exclude-from-inheritance '("crypt"))
-  (setq org-crypt-key nil))
+  :config (org-crypt-use-before-save-magic)
+  :custom
+  (org-tags-exclude-from-inheritance '("crypt"))
+  (org-crypt-key nil)
+  (epg-pinentry-mode 'loopback)
+  )
 
 (use-package org-mime :unless d/on-droid :after message
   :hook (message-send . org-mime-confirm-when-no-multipart)

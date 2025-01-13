@@ -8,11 +8,6 @@
     # Change it to stable, if you want stable channel (23.05)
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    # nix index to locate package/path
-    nix-index-db = {
-      url = "github:nix-community/nix-index-database";
-    };
-
     # Home to manage all user configs
     # You can you use normal config files,
     # just use an org heading and create block and tangle it directly to ~/.config/tool/file path.

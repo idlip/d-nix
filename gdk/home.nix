@@ -20,8 +20,8 @@
   services= {
     wlsunset = {
       enable = true;
-      latitude = "19.0";
-      longitude = "72.0";
+      latitude = "22.0";
+      longitude = "77.0";
       temperature.day = 6500;
       temperature.night = 4000;
       systemdTarget = "graphical-session.target";
@@ -29,9 +29,7 @@
   };
 }
 
-{
-  services.kdeconnect.enable = true;
-}
+{ services.kdeconnect.enable = true; }
 
 {
   xdg = {
@@ -60,12 +58,7 @@
 
 }
 
-{
-  imports = [
-    inputs.nix-index-db.hmModules.nix-index
-  ];
-  programs.nix-index.enable = true;
-}
+{ programs.nix-index.enable = true; }
 
 {
   programs.man = {
@@ -682,40 +675,22 @@
           ];
 
           modules-center = [
-            "privacy" "custom/recorder" "clock" "mpd" "mpris"
+            "privacy" "custom/recorder" "clock"
+            # "mpd"
+            # "mpris"
           ];
 
           modules-right = [ "tray" "network" "battery" "memory" "wireplumber" "custom/power" ];
 
           "niri/workspaces" = {
 	          format = "{icon}";
-	          # format-icons = {
-		          # "active" = "";
-		          # "default" = "";
-	          # };
+            all-outputs = true;
           };
 
           "hyprland/workspaces" = {
             format = "{icon}";
-            disable-scroll = false;
             all-outputs = true;
-            active-only = false;
             show-special = true;
-            on-click = "activate";
-            format-icons = {
-              "1" = "1";
-              "2" = "2";
-              "3" = "3";
-              "4" = "4";
-              "5" = "5";
-              "6" = "6";
-            };
-          };
-
-          "hyprland/submap" = {
-            "format" = " {}";
-            "max-length" = 14;
-            "tooltip" = false;
           };
 
           "wlr/taskbar"=  {
@@ -741,7 +716,6 @@
               "warning" = 40;
               "critical" = 20;
             };
-            "max-length" =  25;
             "format" = "{icon} {capacity}%";
             "format-charging" = " {capacity}%";
             "format-plugged" = " {capacity}%";
@@ -828,21 +802,10 @@
           };
 
           "wireplumber" = {
-            "scroll-step" = 2;
             "format" = "{icon} {volume: >3}%";
-            "format-bluetooth" = "{icon} {volume: >3}%";
             "format-muted" =" ";
             "on-click" = "d-volume toggle";
             "on-click-middle"=  "pavucontrol";
-            "format-icons" = {
-              "headphones" = "";
-              "handsfree" = "";
-              "headset" = "";
-              "phone" = "";
-              "portable" = "";
-              "car" = "";
-              "default" = ["" ""];
-            };
           };
 
           "custom/recorder" = {
@@ -1095,23 +1058,6 @@
 }
 
 {
-  home.packages = with pkgs; [
-    openttd superTux # zeroad # supertuxkart
-  ];
-}
-
-{
-  home.packages = with pkgs; [
-    # winePackages.waylandFull
-    # winePackages.fonts
-    # bottles
-    # winetricks
-    # ASIO -> JACK (which pipewire can support)
-    # wineasio
-  ];
-}
-
-{
   programs.fuzzel = {
     enable = true;
     settings = {
@@ -1131,7 +1077,9 @@
   };
 }
 
-{ home.packages = with pkgs; [ libnotify nemo libreoffice pandoc groff mupdf keepassxc easyeffects jaq ]; }
+{ home.packages = with pkgs; [ libnotify nemo pandoc groff mupdf keepassxc easyeffects jaq
+  # libreoffice-fresh
+]; }
 
 {
 

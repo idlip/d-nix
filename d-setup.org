@@ -1159,7 +1159,7 @@ it narrows to region, or Org subtree."
       :init (savehist-mode)
       :custom (history-length 1000)
       (savehist-additional-variables
-       '(mark-ring global-mark-ring search-ring regexp-search-ring register-alist extended-command-history)))
+       '(mark-ring kill-ring global-mark-ring search-ring regexp-search-ring register-alist extended-command-history)))
   #+end_src
 
 - to record recently opened files. Useful to jump in quick
@@ -2378,6 +2378,7 @@ To manage windows states
 *** Editor
 **** Emacs
 - The GOAT-Editor.
+
   #+begin_src nix :tangle gdk/home.nix
     {
       # does not read local path properly. so ~/.local/bin does not work
@@ -2451,6 +2452,16 @@ To manage windows states
             };
           })
 
+          (melpaBuild {
+            pname = "ultra-scroll";
+            version = "20250113";
+            src = pkgs.fetchFromGitHub {
+              owner = "jdtsmith";
+              repo = "ultra-scroll";
+              rev = "9f62273531ad2f9837ad6da28fccbe2ec4c7938c";
+              hash = "sha256-yuwgWflx835hGBuJz6LiAwBXoaaTRgtF+FCWEv4TCIw=";
+            };
+          })
 
           ## packages kept out to make more vanilla usage!
           # async dirvish beframe powerthesaurus meow
@@ -2831,7 +2842,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
       (major-mode-remap-alist
        '((c-mode . c-ts-mode) (c++-mode . c++-ts-mode) (nix-mode . nix-ts-mode)
          (csharp-mode . csharp-ts-mode) (css-mode . css-ts-mode)
-         (java-mode . java-ts-mode) (js-mode . js-ts-mode)
+         (java-mode . java-ts-mode) (js-mode . js-ts-mode) (html-mode . html-ts-mode)
          (js-json-mode . json-ts-mode) ;; (org-mode . org-ts-mode) ;; not mature yet
          (python-mode . python-ts-mode) (julia-mode . ess-julia-mode)
          (typescript-mode . typescript-ts-mode) (sh-mode . bash-ts-mode) (shell-script-mode . bash-ts-mode)

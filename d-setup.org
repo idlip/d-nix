@@ -4857,6 +4857,18 @@ Pipewire setup, just these lines enough to make sane default for it
       open-on-workspace ""
   }
 
+  window-rule {
+      match app-id="librewolf*" title="^Picture-in-Picture$"
+      match app-id="mpv"
+      max-width 400; max-height 300;
+      open-floating true
+      default-floating-position x=1020 y=550
+  }
+
+  window-rule {
+      match app-id="xdg-desktop-portal-gtk"
+      open-floating true
+  }
 
   window-rule {
   	match app-id=r#"^org\.keepassxc\.KeePassXC$"#
@@ -4901,10 +4913,11 @@ Pipewire setup, just these lines enough to make sane default for it
   	Mod+L     { focus-column-right; }
   	Mod+j     { focus-window-or-workspace-down; }
   	Mod+k     { focus-window-or-workspace-up; }
-  	Mod+Tab           { focus-window-or-workspace-down; }
-  	Mod+Shift+Tab     { focus-window-or-workspace-up; }
+
   	Mod+n     { focus-window-or-workspace-down; }
   	Mod+p     { focus-window-or-workspace-up; }
+
+    Mod+Tab { switch-focus-between-floating-and-tiling; }
 
   	Mod+Shift+H     { move-column-left; }
   	Mod+Shift+L     { move-column-right; }
@@ -5102,7 +5115,7 @@ Pipewire setup, just these lines enough to make sane default for it
               on-resume = "${pkgs.hyprland}/bin/hyprctl dispatch dpms on";
             }
             {
-              timeout = timeout + 60;
+              timeout = timeout * 5;
               on-timeout = "systemctl suspend";
             }
           ];
@@ -6019,7 +6032,6 @@ stdenvNoCC.mkDerivation rec {
   alias rm="rm -vI"
   alias bc="bc -ql"
   alias mkd="mkdir -pv"
-  alias ytfzf="ytfzf -D"
   alias gc="git clone --depth=1"
   alias sudo="doas"
   alias sioyek="sioyek --new-window"
@@ -6188,7 +6200,6 @@ stdenvNoCC.mkDerivation rec {
           rm = "rm -vI";
           bc = "bc -ql";
           mkd = "mkdir -pv";
-          ytfzf = "ytfzf -D";
           gc = "git clone --depth=1";
           sioyek = "sioyek --new-window";
           hyprunlock = "pkill -SIGUSR1 hyprlock";

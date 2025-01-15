@@ -317,7 +317,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   :init (savehist-mode)
   :custom (history-length 1000)
   (savehist-additional-variables
-   '(mark-ring global-mark-ring search-ring regexp-search-ring register-alist extended-command-history)))
+   '(mark-ring kill-ring global-mark-ring search-ring regexp-search-ring register-alist extended-command-history)))
 
 (use-package recentf :ensure nil
   :bind ("C-x C-r" . recentf)
@@ -874,7 +874,7 @@ out"))
   (major-mode-remap-alist
    '((c-mode . c-ts-mode) (c++-mode . c++-ts-mode) (nix-mode . nix-ts-mode)
      (csharp-mode . csharp-ts-mode) (css-mode . css-ts-mode)
-     (java-mode . java-ts-mode) (js-mode . js-ts-mode)
+     (java-mode . java-ts-mode) (js-mode . js-ts-mode) (html-mode . html-ts-mode)
      (js-json-mode . json-ts-mode) ;; (org-mode . org-ts-mode) ;; not mature yet
      (python-mode . python-ts-mode) (julia-mode . ess-julia-mode)
      (typescript-mode . typescript-ts-mode) (sh-mode . bash-ts-mode) (shell-script-mode . bash-ts-mode)

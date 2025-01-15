@@ -232,6 +232,16 @@
         };
       })
 
+      (melpaBuild {
+        pname = "ultra-scroll";
+        version = "20250113";
+        src = pkgs.fetchFromGitHub {
+          owner = "jdtsmith";
+          repo = "ultra-scroll";
+          rev = "9f62273531ad2f9837ad6da28fccbe2ec4c7938c";
+          hash = "sha256-yuwgWflx835hGBuJz6LiAwBXoaaTRgtF+FCWEv4TCIw=";
+        };
+      })
 
       ## packages kept out to make more vanilla usage!
       # async dirvish beframe powerthesaurus meow
@@ -426,26 +436,6 @@
 }
 
 {
-  xdg.configFile."ytfzf/conf.sh".text = ''
-  #video_pref="248+bestaudio/best"
-  # video_pref="[height<=1080]"
-  sub_link_count=1
-  show_thumbnails=0
-  # invidious_instance="https://yewtu.be"
-  external_menu () {
-  # bemenu -w 0.98 -l 24 -p '  play '
-  # rofi -dmenu -i -l 10 -p '󰑈  play'
-  fuzzel -d
-  }
-  
-  thumbnail_quality=high
-  scrape=youtube
-  #is_sort=1
-  #search_sort_by=upload_date
-  '';
-}
-
-{
   home.packages = with pkgs; [
     # audio control
     pavucontrol
@@ -455,7 +445,7 @@
     transmission_4-gtk
 
     mpc_cli
-    ytfzf ani-cli ytmdl
+    ani-cli ytmdl
     # freetube
     mangal
   ];
@@ -518,7 +508,7 @@
           on-resume = "${pkgs.hyprland}/bin/hyprctl dispatch dpms on";
         }
         {
-          timeout = timeout + 60;
+          timeout = timeout * 5;
           on-timeout = "systemctl suspend";
         }
       ];
@@ -955,7 +945,6 @@
       rm = "rm -vI";
       bc = "bc -ql";
       mkd = "mkdir -pv";
-      ytfzf = "ytfzf -D";
       gc = "git clone --depth=1";
       sioyek = "sioyek --new-window";
       hyprunlock = "pkill -SIGUSR1 hyprlock";

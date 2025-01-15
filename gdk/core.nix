@@ -308,19 +308,9 @@
 {
   hardware = {
     uinput.enable = true;
-    enableRedistributableFirmware = true;
     graphics = {
       enable = true;
       enable32Bit = true;
-      extraPackages = with pkgs; [
-        libva intel-media-driver
-        intel-vaapi-driver
-        vaapiVdpau vaapiIntel
-        libvdpau-va-gl vpl-gpu-rt
-      ];
-      extraPackages32 = with pkgs.driversi686Linux; [
-        intel-vaapi-driver intel-media-driver
-      ];
     };
   };
 }

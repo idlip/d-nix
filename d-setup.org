@@ -3860,19 +3860,9 @@ user_pref("findbar.highlightAll", true);
     {
       hardware = {
         uinput.enable = true;
-        enableRedistributableFirmware = true;
         graphics = {
           enable = true;
           enable32Bit = true;
-          extraPackages = with pkgs; [
-            libva intel-media-driver
-            intel-vaapi-driver
-            vaapiVdpau vaapiIntel
-            libvdpau-va-gl vpl-gpu-rt
-          ];
-          extraPackages32 = with pkgs.driversi686Linux; [
-            intel-vaapi-driver intel-media-driver
-          ];
         };
       };
     }
@@ -4042,36 +4032,6 @@ Pipewire setup, just these lines enough to make sane default for it
 }
   #+end_src
 
-*** ytfzf
-- Just to write config file for bash tool =ytfzf=.
-
-  #+begin_src nix :tangle gdk/home.nix :noweb yes
-    {
-      xdg.configFile."ytfzf/conf.sh".text = ''
-      <<conf-ytfzf>>
-      '';
-    }
-  #+end_src
-
-- Config
-  #+name: conf-ytfzf
-  #+begin_src conf
-  #video_pref="248+bestaudio/best"
-  # video_pref="[height<=1080]"
-  sub_link_count=1
-  show_thumbnails=0
-  # invidious_instance="https://yewtu.be"
-  external_menu () {
-  # bemenu -w 0.98 -l 24 -p '  play '
-  # rofi -dmenu -i -l 10 -p '󰑈  play'
-  fuzzel -d
-  }
-
-  thumbnail_quality=high
-  scrape=youtube
-  #is_sort=1
-  #search_sort_by=upload_date
-  #+end_src
 
 ** Image viewer
 - Replaced imv with swayimg
@@ -4132,7 +4092,7 @@ Pipewire setup, just these lines enough to make sane default for it
       transmission_4-gtk
 
       mpc_cli
-      ytfzf ani-cli ytmdl
+      ani-cli ytmdl
       # freetube
       mangal
     ];
@@ -4806,10 +4766,6 @@ Pipewire setup, just these lines enough to make sane default for it
   		xkb { options "ctrl:nocaps"; }
   		repeat-delay 600; repeat-rate 50;
   	}
-    mouse {
-      accel-speed 0.0
-      accel-profile "flat"
-    }
   	touchpad {
   		tap; dwt; natural-scroll;
   	}

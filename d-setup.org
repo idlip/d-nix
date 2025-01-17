@@ -887,6 +887,7 @@ see its function help for a description of the format."
       (tab-always-indent 'complete)
       (tab-width 4)
       (reb-re-syntax 'string)
+      (fill-column 80)
 
       (window-combination-resize t)
       (history-delete-duplicates t)
@@ -2007,12 +2008,11 @@ To manage windows states
 
 **** pixel scroll
   #+begin_src emacs-lisp
-    (use-package pixel-scroll :ensure nil
-      :bind (("C-v" . pixel-scroll-interpolate-down) ("M-v" . pixel-scroll-interpolate-up))
-      :init (pixel-scroll-precision-mode 1)
+    (use-package ultra-scroll :ensure nil
+      ;; :bind (("C-v" . pixel-scroll-interpolate-down) ("M-v" . pixel-scroll-interpolate-up))
+      :init (ultra-scroll-mode 1)
       :custom (scroll-step 1) (scroll-margin 0)
       ;; (pixel-scroll-precision-interpolate-page t)
-      (pixel-scroll-precision-large-scroll-height 40.0)
       (mouse-wheel-progressive-speed nil) (mouse-wheel-scroll-amount '(1 ((control) . 1)  ((shift) . 2) ((meta) . 3)))
       (scroll-conservatively 101 "Dont jump") (scroll-preserve-screen-position 1 "Preserve position"))
   #+end_src
@@ -3073,7 +3073,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
       (nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title))))
   #+end_src
 
-**** d/reading-mode
+**** d-reading-mode
 - Function for better reading experience, be it org-mode, nov.el or eww web page.
 
   #+begin_src emacs-lisp
@@ -3087,7 +3087,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
             (variable-pitch-mode 1)
             ;; (setq-local line-spacing 0.5)
             ;; (text-scale-increase 1)
-            ;; (setq-local tab-bar-show nil) (tab-bar--update-tab-bar-lines)
+            (setq-local tab-bar-show nil) (tab-bar--update-tab-bar-lines)
             (setq-local cursor-type nil)
             (setq-local olivetti-body-width 90) (olivetti-mode 1)
             )
@@ -3095,7 +3095,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
         (progn
           (d/toggle-bar)
           ;; (text-scale-decrease 1)
-          ;; (kill-local-variable 'tab-bar-show) (tab-bar--update-tab-bar-lines)
+          (kill-local-variable 'tab-bar-show) (tab-bar--update-tab-bar-lines)
           (kill-local-variable 'cursor-type)
           (kill-local-variable 'olivetti-body-width)
           )
@@ -3698,7 +3698,8 @@ user_pref("findbar.highlightAll", true);
       :config (url-setup-privacy-info))
 
     (use-package shr :ensure nil :demand t
-      :custom (shr-bullet "⁍ "))
+      :custom (shr-bullet "⁍ ")
+      (shr-max-width fill-column))
   #+end_src
 
 - shr-pre-highlight, to highlight code blocks in eww. Does not guess the language correctly, but syntax highlight legit works.
@@ -5427,10 +5428,10 @@ stdenvNoCC.mkDerivation rec {
     ;; Dont worry about the font name, I use fork of Iosevka font
 
     ;; Set reusable font name variables
-    (defcustom d/fixed-pitch-font "Code D OnePiece"
+    (defcustom d/fixed-pitch-font "Iosevka"
       "The font to use for monospaced (fixed width) text.")
 
-    (defcustom d/variable-pitch-font "Code D Ace"
+    (defcustom d/variable-pitch-font "Iosevka Aile"
       "The font to use for variable-pitch (documents) text.")
   #+end_src
 
@@ -5508,26 +5509,30 @@ stdenvNoCC.mkDerivation rec {
         };
 
         cursor = {
-          package = pkgs.comixcursors.Opaque_Slim_Black;
-          name = "ComixCursors-Opaque-Slim-Black";
+          package = pkgs.bibata-cursors;
+          name = "Bibata-Modern-Classic";
+          size = 12;
         };
 
         fonts = let
           fpkg = (pkgs.callPackage ./pkgs/code-d-font.nix {});
+
+          mpkg = pkgs.iosevka;
+          spkg = (pkgs.iosevka-bin.override { variant = "Aile"; });
         in {
           serif = {
-            package = fpkg;
-            name = "Code D Haki";
+            package = spkg;
+            name = "Iosevka Aile";
           };
 
           sansSerif = {
-            package = fpkg;
-            name = "Code D Ace";
+            package = spkg;
+            name = "Iosevka Aile";
           };
 
           monospace = {
-            package = fpkg;
-            name = "Code D OnePiece";
+            package = mpkg;
+            name = "Iosevka";
           };
 
           emoji = {
@@ -6518,7 +6523,6 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
           (nil :maxlevel . 6)
          ))
 
-      (fill-column 80)
       (org-directory "~/d-sync/notes/")
       (org-default-notes-file (concat org-directory "d-brain.org"))
       (org-src-fontify-natively t)
@@ -6561,6 +6565,21 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
            (setq org-map-continue-from (org-element-property :begin (org-element-at-point))))
          "/DONE" 'tree))
       )
+  #+end_src
+
+- Function to prepare an activity buffer and collect information
+
+  #+begin_src emacs-lisp
+    (defun d/org-activity()
+      "Make temp buffer activity for org tags."
+      (interactive)
+      (with-current-buffer "d-brain.org"
+        (let ((org-export-select-tags (completing-read-multiple "tags: " (org-get-buffer-tags))))
+          (org-export-to-buffer 'org "read-this.org"))
+        (org-mode) (delete-other-windows)
+        ))
+
+    (global-set-key (kbd "C-x C-a C-o") #'d/org-activity)
   #+end_src
 
 *** COMMENT org-modern
@@ -6606,7 +6625,7 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
 
 *** org-agenda
   #+begin_src emacs-lisp
-    (use-package org-agenda :ensure nil :after org
+    (use-package org-agenda :ensure nil :demand t
       :bind (("C-c d a" . org-agenda)
              ("C-c a a" . org-agenda)
              (:map org-agenda-mode-map
@@ -6853,7 +6872,9 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
       (and (featurep 'org-agenda)
            (ignore-errors
              (let ((inhibit-message t))
-               (org-agenda-to-appt t))))))
+               (org-agenda-to-appt t)))))
+
+    (appt-activate))
 
   (use-package notifications :ensure nil :config
     (defun appt-org-notify (remaining new-time msg)

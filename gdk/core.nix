@@ -137,7 +137,10 @@
   services = {
     openssh = { # ssh
       enable = true;
-      settings.UseDns = true;
+      settings = {
+        UseDns = true;
+        SetEnv = "TERM=xterm";
+        };
     };
     # DNS resolver
     resolved.enable = true;
@@ -290,6 +293,11 @@
   };
 }
 
+{
+  programs.nix-index-database.comma.enable = true;
+  programs.nix-index.enable = true;
+}
+
 { programs.nix-ld.enable = true; }
 
 { # disable for faster rebuilding
@@ -389,26 +397,30 @@
     };
 
     cursor = {
-      package = pkgs.comixcursors.Opaque_Slim_Black;
-      name = "ComixCursors-Opaque-Slim-Black";
+      package = pkgs.bibata-cursors;
+      name = "Bibata-Modern-Classic";
+      size = 12;
     };
 
     fonts = let
       fpkg = (pkgs.callPackage ./pkgs/code-d-font.nix {});
+
+      mpkg = pkgs.iosevka;
+      spkg = (pkgs.iosevka-bin.override { variant = "Aile"; });
     in {
       serif = {
-        package = fpkg;
-        name = "Code D Haki";
+        package = spkg;
+        name = "Iosevka Aile";
       };
 
       sansSerif = {
-        package = fpkg;
-        name = "Code D Ace";
+        package = spkg;
+        name = "Iosevka Aile";
       };
 
       monospace = {
-        package = fpkg;
-        name = "Code D OnePiece";
+        package = mpkg;
+        name = "Iosevka";
       };
 
       emoji = {

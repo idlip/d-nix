@@ -13,16 +13,29 @@
     # just use an org heading and create block and tangle it directly to ~/.config/tool/file path.
     home-manager = {
       url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    emacs-overlay.url = "github:nix-community/emacs-overlay";
+    # nix index to locate package/path
+    nix-index-database = {
+      url = "github:nix-community/nix-index-database";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
-    stylix.url = "github:danth/stylix";
+    emacs-overlay = {
+      url = "github:nix-community/emacs-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    stylix = {
+      url = "github:danth/stylix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
   };
 
   outputs =
-    { nixpkgs, home-manager, stylix, ... }@inputs:
+    { nixpkgs, home-manager, nix-index-database, stylix, ... }@inputs:
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.x86_64-linux;
@@ -58,6 +71,7 @@
                   users.${vars.username} = import ./gdk/home.nix;
                 };
               }
+              nix-index-database.nixosModules.nix-index
               stylix.nixosModules.stylix
             ];
             specialArgs = {

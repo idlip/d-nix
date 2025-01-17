@@ -96,6 +96,7 @@ see its function help for a description of the format."
   (tab-always-indent 'complete)
   (tab-width 4)
   (reb-re-syntax 'string)
+  (fill-column 80)
 
   (window-combination-resize t)
   (history-delete-duplicates t)
@@ -544,12 +545,11 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 
 (use-package winner :init (winner-mode))
 
-(use-package pixel-scroll :ensure nil
-  :bind (("C-v" . pixel-scroll-interpolate-down) ("M-v" . pixel-scroll-interpolate-up))
-  :init (pixel-scroll-precision-mode 1)
+(use-package ultra-scroll :ensure nil
+  ;; :bind (("C-v" . pixel-scroll-interpolate-down) ("M-v" . pixel-scroll-interpolate-up))
+  :init (ultra-scroll-mode 1)
   :custom (scroll-step 1) (scroll-margin 0)
   ;; (pixel-scroll-precision-interpolate-page t)
-  (pixel-scroll-precision-large-scroll-height 40.0)
   (mouse-wheel-progressive-speed nil) (mouse-wheel-scroll-amount '(1 ((control) . 1)  ((shift) . 2) ((meta) . 3)))
   (scroll-conservatively 101 "Dont jump") (scroll-preserve-screen-position 1 "Preserve position"))
 
@@ -977,7 +977,7 @@ out"))
         (variable-pitch-mode 1)
         ;; (setq-local line-spacing 0.5)
         ;; (text-scale-increase 1)
-        ;; (setq-local tab-bar-show nil) (tab-bar--update-tab-bar-lines)
+        (setq-local tab-bar-show nil) (tab-bar--update-tab-bar-lines)
         (setq-local cursor-type nil)
         (setq-local olivetti-body-width 90) (olivetti-mode 1)
         )
@@ -985,7 +985,7 @@ out"))
     (progn
       (d/toggle-bar)
       ;; (text-scale-decrease 1)
-      ;; (kill-local-variable 'tab-bar-show) (tab-bar--update-tab-bar-lines)
+      (kill-local-variable 'tab-bar-show) (tab-bar--update-tab-bar-lines)
       (kill-local-variable 'cursor-type)
       (kill-local-variable 'olivetti-body-width)
       )
@@ -1214,7 +1214,8 @@ out"))
   :config (url-setup-privacy-info))
 
 (use-package shr :ensure nil :demand t
-  :custom (shr-bullet "⁍ "))
+  :custom (shr-bullet "⁍ ")
+  (shr-max-width fill-column))
 
 (use-package shr-tag-pre-highlight
   :demand
@@ -1275,6 +1276,7 @@ images."
             (cdr (assoc (completing-read "Engine: " d/search-engines) d/search-engines))))
       (if (equal url nil) (message "Error: search engine unknown.")
         (eww (format url (url-hexify-string term))))))
+
   )
 
 (use-package browse-url :ensure nil :unless d/on-droid
@@ -1473,10 +1475,10 @@ Index includes links and headings."
 ;; Dont worry about the font name, I use fork of Iosevka font
 
 ;; Set reusable font name variables
-(defcustom d/fixed-pitch-font "Code D OnePiece"
+(defcustom d/fixed-pitch-font "Iosevka"
   "The font to use for monospaced (fixed width) text.")
 
-(defcustom d/variable-pitch-font "Code D Ace"
+(defcustom d/variable-pitch-font "Iosevka Aile"
   "The font to use for variable-pitch (documents) text.")
 
 (use-package faces :ensure nil
@@ -1581,7 +1583,6 @@ Index includes links and headings."
       (nil :maxlevel . 6)
      ))
 
-  (fill-column 80)
   (org-directory "~/d-sync/notes/")
   (org-default-notes-file (concat org-directory "d-brain.org"))
   (org-src-fontify-natively t)
@@ -1625,7 +1626,18 @@ Index includes links and headings."
      "/DONE" 'tree))
   )
 
-(use-package org-agenda :ensure nil :after org
+(defun d/org-activity()
+  "Make temp buffer activity for org tags."
+  (interactive)
+  (with-current-buffer "d-brain.org"
+    (let ((org-export-select-tags (completing-read-multiple "tags: " (org-get-buffer-tags))))
+      (org-export-to-buffer 'org "read-this.org"))
+    (org-mode) (delete-other-windows)
+    ))
+
+(global-set-key (kbd "C-x C-a C-o") #'d/org-activity)
+
+(use-package org-agenda :ensure nil :demand t
   :bind (("C-c d a" . org-agenda)
          ("C-c a a" . org-agenda)
          (:map org-agenda-mode-map
@@ -1798,7 +1810,9 @@ absolute path. Finally load eglot."
     (and (featurep 'org-agenda)
          (ignore-errors
            (let ((inhibit-message t))
-             (org-agenda-to-appt t))))))
+             (org-agenda-to-appt t)))))
+
+  (appt-activate))
 
 (use-package notifications :ensure nil :config
   (defun appt-org-notify (remaining new-time msg)

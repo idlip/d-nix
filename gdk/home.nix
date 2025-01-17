@@ -58,8 +58,6 @@
 
 }
 
-{ programs.nix-index.enable = true; }
-
 {
   programs.man = {
     enable = true;
@@ -750,15 +748,15 @@
           };
 
           "clock" = {
-            "format-alt" = " {:%a %d %b  %I:%M %p}";
-            "format" = " {:%H:%M}";
+            "format-alt" = "{:%a %d %b  %I:%M %p}";
+            "format" = "{:%H:%M}";
             ##"timezones" = [ "Kolkata" ];
             ##"max-length" = 200;
             "interval" = 1;
             "calendar" = {
               "format" = {
                 "months" = "<span color='#ffead3'><b>{}</b></span>";
-                "today" = "<span color='#ff6699'><b>{}</b></span>";
+                "today" = "<span color='#238b57'><b>{}</b></span>";
               };
             };
             "tooltip-format" = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
@@ -776,24 +774,24 @@
           "memory" = {
             "on-click" = "foot -e btop";
             "interval" = 30;
-            "format" = " {percentage}%";
-            "format-alt" = " {used}GB";
+            "format" = "{percentage}%";
+            "format-alt" = "{used}GB";
             "max-length" = 10;
           };
 
           "network" = {
             # "interface" = "wlp2s0";
-            "format" = "⚠ Disabled";
-            "format-wifi" = " {bandwidthDownBytes}\n {bandwidthUpBytes}";
-            "format-ethernet" = " {bandwidthDownBytes}  {bandwidthUpBytes}";
-            "format-disconnected" = "⚠ Disconnected";
+            "format" = "-";
+            "format-wifi" = "{bandwidthUpBytes} {bandwidthDownBytes}";
+            "format-ethernet" = "{bandwidthDownBytes} {bandwidthUpBytes}";
+            "format-disconnected" = ".";
             "on-click" = "d-wifi";
             "interval" = 2;
           };
 
           "wireplumber" = {
             "format" = "{icon} {volume: >3}%";
-            "format-muted" =" ";
+            "format-muted" ="M";
             "on-click" = "d-volume toggle";
             "on-click-middle"=  "pavucontrol";
           };
@@ -801,7 +799,7 @@
           "custom/recorder" = {
             "format" = "{}";
             "interval" = "once";
-            "exec" = "echo ' '";
+            "exec" = "echo 'rec '";
             "tooltip" = "false";
             "exec-if" = "pgrep wl-screenrec";
             "on-click" = "pkill -INT wl-screenrec";
@@ -885,7 +883,12 @@
       extraPackages = with pkgs.bat-extras; [ batdiff batman batgrep batwatch ];
     };
 
-    ssh.enable = true;
+    ssh = {
+      enable = true;
+      extraOptionOverrides = {
+        SetEnv = "TERM=xterm";
+      };
+      };
 
     fzf = {
       enable = true;
@@ -1035,10 +1038,17 @@
 }
 
 {
-  services.mako = {
+  services.fnott = {
     enable = true;
-    borderRadius = 16;
-    layer = "overlay";
+    settings = {
+      main = {
+        layer = "overlay";
+        border-radius = 16;
+        dpi-aware = true;
+        play-sound = "/home/idlip/.bin/d-notify \${filename}";
+        sound-file= "/home/idlip/music/yt/misc/linux-notify.ogg";
+      };
+    };
   };
 }
 

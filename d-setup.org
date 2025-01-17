@@ -408,7 +408,10 @@ Also its crucial to only add configuration that is explicitly required, rather t
       services = {
         openssh = { # ssh
           enable = true;
-          settings.UseDns = true;
+          settings = {
+            UseDns = true;
+            SetEnv = "TERM=xterm";
+            };
         };
         # DNS resolver
         resolved.enable = true;
@@ -5928,7 +5931,12 @@ stdenvNoCC.mkDerivation rec {
           extraPackages = with pkgs.bat-extras; [ batdiff batman batgrep batwatch ];
         };
 
-        ssh.enable = true;
+        ssh = {
+          enable = true;
+          extraOptionOverrides = {
+            SetEnv = "TERM=xterm";
+          };
+          };
 
         fzf = {
           enable = true;

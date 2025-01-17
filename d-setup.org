@@ -6362,14 +6362,22 @@ stdenvNoCC.mkDerivation rec {
   #+end_src
 
 *** Notifications
-**** mako
+**** fnott
+- No mako, I need variable width
 
 #+begin_src nix :tangle gdk/home.nix
   {
-    services.mako = {
+    services.fnott = {
       enable = true;
-      borderRadius = 16;
-      layer = "overlay";
+      settings = {
+        main = {
+          layer = "overlay";
+          border-radius = 16;
+          dpi-aware = true;
+          play-sound = "/home/idlip/.bin/d-notify \${filename}";
+          sound-file= "/home/idlip/music/yt/misc/linux-notify.ogg";
+        };
+      };
     };
   }
 #+end_src

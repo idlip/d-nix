@@ -114,8 +114,9 @@ Also its crucial to only add configuration that is explicitly required, rather t
 + Inputs:
   1. Nixpkgs - Ocean of packages and modules.
   2. Home-Manager - to manager user/home modules.
-  3. Emacs-overlay - For latest rolling emacs developments
-  4. Stylix - To style it everywhere
+  3. nix-index-db - to locate and index nix iceberg
+  4. Emacs-overlay - For latest rolling emacs developments
+  5. Stylix - To style it everywhere
 + A good resource to refer: https://nixos-and-flakes.thiscute.world/nixos-with-flakes/nixos-with-flakes-enabled
 #+begin_src nix :tangle flake.nix
   #
@@ -133,16 +134,29 @@ Also its crucial to only add configuration that is explicitly required, rather t
       # just use an org heading and create block and tangle it directly to ~/.config/tool/file path.
       home-manager = {
         url = "github:nix-community/home-manager";
+        inputs.nixpkgs.follows = "nixpkgs";
       };
 
-      emacs-overlay.url = "github:nix-community/emacs-overlay";
+      # nix index to locate package/path
+      nix-index-database = {
+        url = "github:nix-community/nix-index-database";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
 
-      stylix.url = "github:danth/stylix";
+      emacs-overlay = {
+        url = "github:nix-community/emacs-overlay";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
+      stylix = {
+        url = "github:danth/stylix";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
 
     };
 
     outputs =
-      { nixpkgs, home-manager, stylix, ... }@inputs:
+      { nixpkgs, home-manager, nix-index-database, stylix, ... }@inputs:
       let
         system = "x86_64-linux";
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
@@ -169,6 +183,7 @@ Also its crucial to only add configuration that is explicitly required, rather t
                 ./gdk/core.nix
                 inputs.home-manager.nixosModules.home-manager
                 <<nixos-hm>>
+                nix-index-database.nixosModules.nix-index
                 stylix.nixosModules.stylix
               ];
               specialArgs = {
@@ -763,8 +778,11 @@ see its function help for a description of the format."
 *** nix-index
 - to locate packages and path from massive nixpkgs index.
 
-  #+begin_src nix :tangle gdk/home.nix
-    { programs.nix-index.enable = true; }
+  #+begin_src nix :tangle gdk/core.nix
+    {
+      programs.nix-index-database.comma.enable = true;
+      programs.nix-index.enable = true;
+    }
   #+end_src
 
 *** nix-ld

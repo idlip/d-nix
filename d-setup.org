@@ -4802,11 +4802,11 @@ Pipewire setup, just these lines enough to make sane default for it
   }
 
   // names
-  workspace ""
-  workspace "󰈹"
-  workspace ""
-  workspace "󰌱"
-  workspace "󰂧"
+  workspace "org"
+  workspace "www"
+  workspace "cli"
+  workspace "read"
+  workspace "misc"
 
   //workspace "present" {
   //  open-on-output "HDMI-A-1"
@@ -4815,7 +4815,7 @@ Pipewire setup, just these lines enough to make sane default for it
   // startups
   spawn-at-startup "dotoold"
   spawn-at-startup "d-walls"
-  spawn-at-startup "waybar"
+  //spawn-at-startup "waybar"
   //spawn-at-startup "xwayland-satellite"
 
   output "eDP-1" {
@@ -4834,7 +4834,7 @@ Pipewire setup, just these lines enough to make sane default for it
   	//center-focused-column "never"
   	preset-column-widths { proportion 0.33333; proportion 0.5; proportion 0.66667; }
 
-  	default-column-width { proportion 0.5; }
+  	default-column-width { proportion 0.45; }
 
   	focus-ring {
   		width 2
@@ -4863,20 +4863,29 @@ Pipewire setup, just these lines enough to make sane default for it
   }
 
   window-rule {
+      match is-active=false
+      opacity 0.95
+  }
+
+  window-rule {
       match app-id="emacs"
-      open-on-workspace ""
+      open-fullscreen true
+      open-on-workspace "org"
   }
   window-rule {
-      match app-id=r#"Mullvad|Firefox"#
-      open-on-workspace "󰈹"
+      match app-id=r#"Mullvad|Firefox|librewolf"#
+      open-maximized true
+      open-on-workspace "www"
   }
   window-rule {
       match app-id=r#"sioyek"#
-      open-on-workspace "󰌱"
+      open-floating true
+      open-on-workspace "cli"
   }
   window-rule {
       match app-id=r#"foot"#
-      open-on-workspace ""
+      open-floating true
+      open-on-workspace "read"
   }
 
   window-rule {
@@ -4889,6 +4898,7 @@ Pipewire setup, just these lines enough to make sane default for it
 
   window-rule {
       match app-id="xdg-desktop-portal-gtk"
+      match app-id="blueman"
       open-floating true
   }
 
@@ -4896,7 +4906,7 @@ Pipewire setup, just these lines enough to make sane default for it
   	match app-id=r#"^org\.keepassxc\.KeePassXC$"#
   	match app-id=r#"^org\.gnome\.World\.Secrets$"#
   	block-out-from "screen-capture"
-    open-on-workspace "󰂧"
+    open-on-workspace "misc"
   }
 
   // keybindings
@@ -4914,7 +4924,9 @@ Pipewire setup, just these lines enough to make sane default for it
   	Mod+Shift+B {spawn "d-bookmark"; }
   	Mod+F5 {spawn "d-walls"; }
   	Mod+o {spawn "d-stuff"; }
-    Mod+b {spawn "sh" "-c" "pkill -SIGUSR1 waybar || pidof -x waybar || waybar"; }
+    // Mod+b {spawn "sh" "-c" "pkill -SIGUSR1 waybar || pidof -x waybar || waybar"; }
+    Mod+b { spawn "d-stats"; }
+    Mod+Tab { spawn "d-niri"; }
 
   	Mod+Ctrl+Equal { spawn "niri" "msg" "output" "eDP-1" "scale" "2"; }
   	Mod+Ctrl+Minus { spawn "niri" "msg" "output" "eDP-1" "scale" "1"; }
@@ -4939,7 +4951,7 @@ Pipewire setup, just these lines enough to make sane default for it
   	Mod+n     { focus-window-or-workspace-down; }
   	Mod+p     { focus-window-or-workspace-up; }
 
-    Mod+Tab { switch-focus-between-floating-and-tiling; }
+    Mod+s { switch-focus-between-floating-and-tiling; }
 
   	Mod+Shift+H     { move-column-left; }
   	Mod+Shift+L     { move-column-right; }

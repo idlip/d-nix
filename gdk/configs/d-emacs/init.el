@@ -361,22 +361,6 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 (set-selection-coding-system 'utf-8)
 (prefer-coding-system 'utf-8)
 
-(use-package minibuffer :ensure nil
-  :hook (minibuffer-setup . cursor-intangible-mode)
-  :custom
-  (completion-ignore-case t) (completion-auto-select 'second-tab) (completion-auto-help 'visible)
-  (completion-show-help nil) (completions-detailed t) (completions-header-format nil)
-  (completions-max-height 10) (completions-format 'one-column) (completions-sort 'historical)
-
-  (resize-mini-windows t)                    ; allow resizing of mini-windows
-  (enable-recursive-minibuffers t)           ; enable recursive minibuffers
-  (read-buffer-completion-ignore-case t)     ; ignore case when reading buffer name
-  (read-file-name-completion-ignore-case t)  ; ignore case whn reading file name
-  (minibuffer-depth-indicate-mode t)         ; show recursion depth in minibuffer prompt
-  (minibuffer-electric-default-mode t)       ; show default value when it's applicable
-  (minibuffer-eldef-shorten-default t)       ; shorten "(default ...)" to "[...]" in minibuffer prompts
-  (minibuffer-visible-completions t))
-
 (use-package completion-preview :ensure nil :init (global-completion-preview-mode)
   :custom (completion-preview-ignore-case t))
 
@@ -545,13 +529,24 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 
 (use-package winner :init (winner-mode))
 
-(use-package ultra-scroll :ensure nil
-  ;; :bind (("C-v" . pixel-scroll-interpolate-down) ("M-v" . pixel-scroll-interpolate-up))
+(use-package ultra-scroll
+  :bind (("C-v" . smooth-scroll-down) ("M-v" . smooth-scroll-up))
   :init (ultra-scroll-mode 1)
   :custom (scroll-step 1) (scroll-margin 0)
   ;; (pixel-scroll-precision-interpolate-page t)
   (mouse-wheel-progressive-speed nil) (mouse-wheel-scroll-amount '(1 ((control) . 1)  ((shift) . 2) ((meta) . 3)))
-  (scroll-conservatively 101 "Dont jump") (scroll-preserve-screen-position 1 "Preserve position"))
+  (scroll-conservatively 101 "Dont jump") (scroll-preserve-screen-position 1 "Preserve position")
+  :config
+  (defun smooth-scroll-down()
+    (interactive)
+    (ultra-scroll-down 30)
+    )
+
+  (defun smooth-scroll-up()
+    (interactive)
+    (ultra-scroll-up 30)
+    )
+  )
 
 (use-package repeat :config (repeat-mode 1)
   :custom (repeat-exit-timeout 2))
@@ -1131,27 +1126,27 @@ out"))
   (gnus-topic-line-format "%i[ %(%{%n%}%) -- %g | %A ]%v\n")
 
       ;;; credits - https://github.com/jbranso/.emacs.d/blob/master/lisp/init-gnus.org
-  (gnus-sum-thread-tree-indent "  ")
-  (gnus-sum-thread-tree-root "● ")
-  (gnus-sum-thread-tree-false-root "◯ ")
-  (gnus-sum-thread-tree-single-indent "")
-  (gnus-sum-thread-tree-vertical        "│")
-  (gnus-sum-thread-tree-leaf-with-other "├─► ")
-  (gnus-sum-thread-tree-single-leaf     "╰─► ")
+  ;; (gnus-sum-thread-tree-indent "  ")
+  ;; (gnus-sum-thread-tree-root "● ")
+  ;; (gnus-sum-thread-tree-false-root "◯ ")
+  ;; (gnus-sum-thread-tree-single-indent "")
+  ;; (gnus-sum-thread-tree-vertical        "│")
+  ;; (gnus-sum-thread-tree-leaf-with-other "├─► ")
+  ;; (gnus-sum-thread-tree-single-leaf     "╰─► ")
 
   ;; Yay (seen here: `https://github.com/cofi/dotfiles/blob/master/gnus.el')
-  (gnus-cached-mark ?󰃨)
-  (gnus-canceled-mark ?󱞐)
-  (gnus-del-mark ?󰆴)
+  ;; (gnus-cached-mark ?󰃨)
+  ;; (gnus-canceled-mark ?󱞐)
+  ;; (gnus-del-mark ?󰆴)
   ;; gnus-dormant-mark ?⚐
-  (gnus-expirable-mark ?♻)
-  (gnus-forwarded-mark ?)
+  ;; (gnus-expirable-mark ?♻)
+  ;; (gnus-forwarded-mark ?)
   ;; gnus-killed-mark ?☠
   ;; gnus-process-mark ?⚙
-  (gnus-read-mark ?󰑇)
-  (gnus-recent-mark ?✩)
-  (gnus-replied-mark ?↺)
-  (gnus-unread-mark ?)
+  ;; (gnus-read-mark ?󰑇)
+  ;; (gnus-recent-mark ?✩)
+  ;; (gnus-replied-mark ?↺)
+  ;; (gnus-unread-mark ?)
   ;; gnus-unseen-mark ?★
   ;; gnus-ticked-mark ?⚑
 
@@ -1166,8 +1161,8 @@ out"))
   (:map gnus-server-mode-map
         ("q" . quit-window)))
 
-;; (setopt user-mail-address "idlip@protonmail.com" ;; you can mail me to discuss anything on emacs ;)
-;;         user-full-name "Dilip")
+(setopt user-mail-address "zororg@tilde.green" ;; you can mail me to discuss anything on emacs ;)
+        user-full-name "Zororg")
 
 (use-package gnus
   :unless d/on-droid
@@ -1188,9 +1183,9 @@ out"))
   :unless d/on-droid
   :after gnus
   :custom
-  (smtpmail-default-smtp-server "127.0.0.1")
-  (mail-sources '((imap :server "127.0.0.1"
-                        :user "idlip")))
+  ;; (smtpmail-default-smtp-server "127.0.0.1")
+  ;; (mail-sources '((imap :server "127.0.0.1"
+                        ;; :user "idlip")))
   (smtpmail-smtp-server "127.0.0.1")
   (smtpmail-smtp-service 1025)
   (starttls-use-gnutls t)
@@ -1276,7 +1271,6 @@ images."
             (cdr (assoc (completing-read "Engine: " d/search-engines) d/search-engines))))
       (if (equal url nil) (message "Error: search engine unknown.")
         (eww (format url (url-hexify-string term))))))
-
   )
 
 (use-package browse-url :ensure nil :unless d/on-droid
@@ -1475,10 +1469,10 @@ Index includes links and headings."
 ;; Dont worry about the font name, I use fork of Iosevka font
 
 ;; Set reusable font name variables
-(defcustom d/fixed-pitch-font "Iosevka"
+(defcustom d/fixed-pitch-font "Code OnePiece"
   "The font to use for monospaced (fixed width) text.")
 
-(defcustom d/variable-pitch-font "Iosevka Aile"
+(defcustom d/variable-pitch-font "Code Haki"
   "The font to use for variable-pitch (documents) text.")
 
 (use-package faces :ensure nil
@@ -1489,24 +1483,69 @@ Index includes links and headings."
 
 (use-package font-lock :ensure nil :init (global-font-lock-mode 1))
 
-(use-package haki-theme :demand t
-  :load-path "~/.config/emacs/var/theme"
+(use-package modus-themes
+  :init
+  (require-theme 'modus-themes)
   :custom-face
-  ;; (haki-region ((t (:background "#262626" :foreground "#ffffff"))))
+  (region ((t :extend nil)))
   :custom
-  ;; (haki-heading-font "Code D Ace")
-  ;; (haki-sans-font "Code D Haki")
-  ;; (haki-title-font "Code D Ace")
-  (haki-bg-oled t)
-  (haki-theme-mode-line nil)
-  (haki-region)
-  ;; (haki-link-font "")
-  ;; (haki-code-font "Code D Lip")
-  :config (load-theme 'haki t))
+  (modus-themes-italic-constructs t)
+  (modus-themes-bold-constructs nil)
+  (modus-themes-mixed-fonts t)
+  (modus-themes-variable-pitch-ui nil)
+  (modus-themes-custom-auto-reload t)
+  (modus-themes-disable-other-themes t)
+  (modus-themes-prompts '(italic bold))
+  (modus-themes-completions
+   '((matches . (extrabold))
+     (selection . (semibold italic text-also))))
 
-(use-package olivetti :defer t :custom (olivetti-body-width 100)
-  :hook (org-mode text-mode Info-mode helpful-mode ement-room-mode gnus-group-mode eww-mode
-                   gnus-article-mode sdcv-mode nov-mode elfeed-show-mode markdown-mode))
+  (modus-themes-org-blocks 'gray-background)
+
+  (modus-themes-headings
+   '((1 . (variable-pitch 1.5))
+     (2 . (1.3))
+     (agenda-date . (1.3))
+     (agenda-structure . (variable-pitch light 1.8))
+     (t . (1.1))))
+
+
+  (modus-vivendi-palette-overrides
+   '(
+
+     (bg-main     "#000000")
+     (bg-dim      "#111111")
+     (bg-active   "#222222")
+     (bg-inactive "#333333")
+
+     (fg-main     "#ffffff")
+     (fg-dim      "#b4aeae")
+
+     (cursor      "#00ffff")
+     (warning     "#fafad2")
+
+     (fg-heading-1  "#ab82ff")
+     (fg-heading-2  "#fab387")
+
+     (bg-completion "#2e8b57")
+     (bg-region     bg-active)
+     (fg-region unspecified)
+     (bg-tab-bar        bg-main)
+     (bg-tab-current    bg-active)
+     (bg-tab-other      bg-dim)
+     (fringe unspecified)
+     (bg-mode-line-active bg-dim)
+     (border-mode-line-active unspecified)
+     (border-mode-line-inactive unspecified)
+     (bg-line-number-active  bg-main)
+     (bg-line-number-inactive  bg-main)
+     (fg-line-number-active fg-dim)
+     (fg-line-number-inactive border)
+
+     ))
+
+  :config
+  (load-theme 'modus-vivendi t))
 
 (use-package emacs :ensure nil :custom
   (mode-line-format
@@ -1638,6 +1677,7 @@ Index includes links and headings."
 (global-set-key (kbd "C-x C-a C-o") #'d/org-activity)
 
 (use-package org-agenda :ensure nil :demand t
+  :init (org-agenda nil "a")
   :bind (("C-c d a" . org-agenda)
          ("C-c a a" . org-agenda)
          (:map org-agenda-mode-map
@@ -1689,7 +1729,7 @@ Index includes links and headings."
 
      ("i" "Inbox Rough Notes" entry
       (file "inbox.org")
-      "** %?  :fleeting:\n %U\n %i %a\n - ")
+      "** %?  :z@seed:\n %U\n %i %a\n - ")
 
      )))
 

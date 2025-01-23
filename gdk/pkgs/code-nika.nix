@@ -2,21 +2,20 @@
 
 stdenvNoCC.mkDerivation rec {
   pname = "code-nika-font";
-  version = "0.4";
+  version = "0.5";
 
   src = fetchzip {
-    url = "https://github.com/idlip/Iosevka/releases/download/${version}/code-nika.tar.gz";
+    url = "https://github.com/idlip/Iosevka/releases/download/${version}/code-nika.zip";
     stripRoot = false;
-    hash = "sha256-nG2SO4iR6vzipgjAcrHlsbM7+39UIDI4RrojdhHoY28=";
+    hash = "sha256-IeVKwmTLl2+UDvMDpCx8FELuCHJ7IxjIlDidKE7It/M=";
   };
 
 
   installPhase = ''
     runHook preInstall
 
-    fontdir="$out/share/fonts/truetype"
-    install -d "$fontdir"
-    install Code{Haki,OnePiece}/* "$fontdir"
+    install -dm 0755 $out/share/fonts/truetype
+    cp -rf Code*/* $out/share/fonts/truetype
 
     runHook postInstall
   '';

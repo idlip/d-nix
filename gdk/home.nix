@@ -71,7 +71,6 @@
       enable = true;
       homedir = "${config.xdg.dataHome}/gnupg";
     };
-    tealdeer.enable = true;
   };
 }
 
@@ -269,8 +268,8 @@
 {
   home.packages = with pkgs; [
     # basic stack
-    # nodepackages.vscode-langservers-extracted
-    hugo monolith
+    # nodepackages.vscode-langse# rvers-extracted
+    # hugo monolith
   ];
 }
 
@@ -598,6 +597,12 @@
   stylix = {
     enable = true;
 
+    iconTheme = { # watch out soon stylix might implement this
+      enable = true;
+      dark = "Papirus-Dark";
+      package = pkgs.papirus-icon-theme;
+    };
+
     targets = {
       emacs.enable = false;
       kde.enable = false;
@@ -608,40 +613,6 @@
         # enableRightBackColors = true;
       };
     };
-  };
-}
-
-{
-  gtk = {
-    enable = true;
-
-    iconTheme = { # watch out soon stylix might implement this
-      name = "Papirus-Dark";
-      package = pkgs.papirus-icon-theme;
-    };
-
-    gtk3.extraConfig = {
-      gtk-xft-antialias = 1;
-      gtk-xft-hinting = 1;
-      gtk-xft-hintstyle = "hintslight";
-      gtk-xft-rgba = "rgb";
-      gtk-key-theme-name = "Emacs";
-    };
-
-    gtk2.extraConfig = ''
-    gtk-xft-antialias=1
-    gtk-xft-hinting=1
-    gtk-xft-hintstyle="hintslight"
-    gtk-xft-rgba="rgb"
-    gtk-key-theme-name="Emacs"
-    '';
-  };
-}
-
-{
-  qt = {
-    enable = true;
-    style.name = "adwaita-dark";
   };
 }
 
@@ -886,7 +857,7 @@
     ssh = {
       enable = true;
       extraOptionOverrides = {
-        SetEnv = "TERM=xterm";
+        SetEnv = "TERM=xterm-256color";
       };
       };
 
@@ -958,15 +929,6 @@
 
   };
 
-  xresources.properties = {
-    # "Xft.dpi" = 192;
-    "Xft.autohint" = 0;
-    "Xft.lcdfilter" = "lcddefault";
-    "Xft.hintstyle" = "hintfull";
-    "Xft.hinting" = 1;
-    "Xft.antialias" = 1;
-    "Xft.rgba" = "rgb";
-  };
 }
 
 {

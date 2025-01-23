@@ -397,30 +397,29 @@
     };
 
     cursor = {
-      package = pkgs.bibata-cursors;
-      name = "Bibata-Modern-Classic";
-      size = 12;
+      package = (pkgs.callPackage ./pkgs/layan-cursor.nix {});
+      name = "layan-cursors";
     };
 
     fonts = let
-      fpkg = (pkgs.callPackage ./pkgs/code-d-font.nix {});
+      dpkg = (pkgs.callPackage ./pkgs/code-d-font.nix {});
 
       mpkg = pkgs.iosevka;
       spkg = (pkgs.iosevka-bin.override { variant = "Aile"; });
     in {
       serif = {
-        package = spkg;
-        name = "Iosevka Aile";
+        package = dpkg;
+        name = "Code Haki";
       };
 
       sansSerif = {
-        package = spkg;
-        name = "Iosevka Aile";
+        package = dpkg;
+        name = "Code Haki";
       };
 
       monospace = {
-        package = mpkg;
-        name = "Iosevka";
+        package = dpkg;
+        name = "Code OnePiece";
       };
 
       emoji = {

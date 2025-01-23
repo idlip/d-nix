@@ -2016,15 +2016,26 @@ To manage windows states
   (use-package winner :init (winner-mode))
 #+end_src
 
-**** pixel scroll
+**** pixel scroll - ultra scroll
   #+begin_src emacs-lisp
-    (use-package ultra-scroll :ensure nil
-      ;; :bind (("C-v" . pixel-scroll-interpolate-down) ("M-v" . pixel-scroll-interpolate-up))
+    (use-package ultra-scroll
+      :bind (("C-v" . smooth-scroll-down) ("M-v" . smooth-scroll-up))
       :init (ultra-scroll-mode 1)
       :custom (scroll-step 1) (scroll-margin 0)
       ;; (pixel-scroll-precision-interpolate-page t)
       (mouse-wheel-progressive-speed nil) (mouse-wheel-scroll-amount '(1 ((control) . 1)  ((shift) . 2) ((meta) . 3)))
-      (scroll-conservatively 101 "Dont jump") (scroll-preserve-screen-position 1 "Preserve position"))
+      (scroll-conservatively 101 "Dont jump") (scroll-preserve-screen-position 1 "Preserve position")
+      :config
+      (defun smooth-scroll-down()
+        (interactive)
+        (ultra-scroll-down 30)
+        )
+
+      (defun smooth-scroll-up()
+        (interactive)
+        (ultra-scroll-up 30)
+        )
+      )
   #+end_src
 
 **** repeat-mode

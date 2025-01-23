@@ -1,4 +1,3 @@
-#+STARTUP: overview
 #+OPTIONS: num:nil author:nil toc:3
 #+PROPERTY: header-args :noweb yes :results silent :tangle-mode (identity #o444) :mkdirp yes
 #+property: header-args:emacs-lisp :tangle gdk/configs/d-emacs/init.el
@@ -1247,7 +1246,7 @@ it narrows to region, or Org subtree."
 *** Completions
 + the best part of enjoying emacs, is getting the desired way of completing a text.
 + completions everywhere, that make you use emacs for everything.
-**** mini-buffer completion
+**** COMMENT mini-buffer completion
 - Trying out default completions.
 
 #+begin_src emacs-lisp
@@ -1255,18 +1254,29 @@ it narrows to region, or Org subtree."
     :hook (minibuffer-setup . cursor-intangible-mode)
     :custom
     (completion-ignore-case t) (completion-auto-select 'second-tab) (completion-auto-help 'visible)
-    (completion-show-help nil) (completions-detailed t) (completions-header-format nil)
+    (completions-detailed t) (enable-recursive-minibuffers t) (completion-show-help nil)
     (completions-max-height 10) (completions-format 'one-column) (completions-sort 'historical)
-
-    (resize-mini-windows t)                    ; allow resizing of mini-windows
-    (enable-recursive-minibuffers t)           ; enable recursive minibuffers
-    (read-buffer-completion-ignore-case t)     ; ignore case when reading buffer name
-    (read-file-name-completion-ignore-case t)  ; ignore case whn reading file name
-    (minibuffer-depth-indicate-mode t)         ; show recursion depth in minibuffer prompt
-    (minibuffer-electric-default-mode t)       ; show default value when it's applicable
-    (minibuffer-eldef-shorten-default t)       ; shorten "(default ...)" to "[...]" in minibuffer prompts
+    (read-buffer-completion-ignore-case t) (read-file-name-completion-ignore-case t)
+    (minibuffer-depth-indicate-mode t) (minibuffer-electric-default-mode t)
     (minibuffer-visible-completions t))
 #+end_src
+
+**** COMMENT icomplete
+- It can replace vertico for basic purpose.
+
+  #+begin_src emacs-lisp
+    (use-package icomplete
+      :bind (:map icomplete-minibuffer-map
+                    ("RET" . icomplete-force-complete-and-exit))
+      :init
+      (icomplete-vertical-mode 1)
+
+      :custom
+      ;; (setq icomplete-delay-completions-threshold 0)
+      (icomplete-prospects-height 10)
+      (icomplete-scroll t))
+
+  #+end_src
 
 **** completions-preview
 - preview the known completions.

@@ -79,7 +79,7 @@
 {
   users.users.${vars.username} = {
     isNormalUser = true;
-    shell = pkgs.fish;
+    shell = pkgs.bash;
     extraGroups = ["adbusers" "input" "uinput" "libvirtd" "networkmanager" "plugdev" "transmission" "video" "wheel"];
   };
 }
@@ -250,6 +250,7 @@
       BROWSER = "d-stuff";
       NIXOS_OZONE_WL = "1";
     };
+    pathsToLink = [ "/share/xdg-desktop-portal" "/share/applications" ];
     systemPackages = with pkgs; [
       gitFull
       (writeScriptBin "sudo" ''exec doas "$@"'')
@@ -386,14 +387,14 @@
       base05 = "#ffffff"; # fg
       base06 = "#6c7b8b"; # light fg
       base07 = "#444444"; # light bg
-      base08 = "#ffb5c5"; # red
+      base08 = "#ff7f9f"; # red
       base09 = "#ee9572"; # orange
-      base0A = "#fbfba2"; # yellow
-      base0B = "#54ff9f"; # green
-      base0C = "#22fefe"; # aqua/cyan
-      base0D = "#89b4fa"; # blue
-      base0E = "#9370db"; # purple
-      base0F = "#76eec6"; # brown
+      base0A = "#fec43f"; # yellow
+      base0B = "#00c06f"; # green
+      base0C = "#6ae4b9"; # aqua/cyan
+      base0D = "#79a8ff"; # blue
+      base0E = "#b6a0ff"; # purple
+      base0F = "#d65d0e"; # brown
     };
 
     cursor = {
@@ -404,22 +405,33 @@
     fonts = let
       dpkg = (pkgs.callPackage ./pkgs/code-d-font.nix {});
 
-      mpkg = pkgs.iosevka;
+      # mpkg = pkgs.nerd-fonts.iosevka-term;
       spkg = (pkgs.iosevka-bin.override { variant = "Aile"; });
+
+      mpkg = (pkgs.maple-mono-NF.overrideAttrs (oldAttrs: {
+        version = "7.0-beta36";
+        src = pkgs.fetchurl {
+          url = "https://github.com/subframe7536/maple-font/releases/download/v7.0-beta34/MapleMono-NF-unhinted.zip";
+          sha256 = "sha256-4QpOY6b++pDJuS7sJ2li0xdw1KQeMi/S9hSGMSgzh5M=";
+        };
+      }));
+
+      # spkg = pkgs.atkinson-hyperlegible;
+
     in {
       serif = {
         package = dpkg;
-        name = "Code Haki";
+        name = "Maple Mono NF";
       };
 
       sansSerif = {
-        package = dpkg;
-        name = "Code Haki";
+        package = spkg;
+        name = "Maple Mono NF";
       };
 
       monospace = {
-        package = dpkg;
-        name = "Code OnePiece";
+        package = mpkg;
+        name = "Maple Mono NF";
       };
 
       emoji = {
@@ -448,6 +460,12 @@
     adb.enable = true; # help manage android devices via command#  line
     # fish.enable = true;
   };
+}
+
+{
+  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+    "aspell-dict-en-science"
+  ];
 }
 
 ];

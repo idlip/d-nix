@@ -84,11 +84,13 @@ see its function help for a description of the format."
    ;; panes
    ("C-x 1" . d/toggle-window-focus)
    ("C-x C-k" . d/kill-buffer)
-   ("C-x n n" . d/narrow-or-widen-dwim))
+   ("C-x n n" . d/narrow-or-widen-dwim)
+   ("M-o" . other-window) ("M-j" . duplicate-dwim))
 
   :custom
   (inhibit-startup-screen t "Don't show splash screen")
 
+  (recenter-positions '(top middle bottom))
   (initial-major-mode 'org-mode)
   (initial-scratch-message (format "\n\n"))
 
@@ -107,6 +109,7 @@ see its function help for a description of the format."
   :config
   (delete-selection-mode)
   (global-so-long-mode 1)
+  (set-window-margins (selected-window) 2 2)
   (setopt
    read-process-output-max (* 1024 1024)
    inhihbit-compacting-font-caches t
@@ -165,6 +168,11 @@ it narrows to region, or Org subtree."
   (column-number-mode 1)
   (kill-do-not-save-duplicates t)
   (read-mail-command 'gnus)
+  (set-mark-command-repeat-pop t)
+  (use-dialog-box nil)
+  (use-file-dialog nil)
+  (use-short-answers t)
+  (async-shell-command-buffer 'new-buffer)
   :config
   ;; (global-hl-line-mode 1)
   (global-visual-line-mode 1))
@@ -279,6 +287,8 @@ E.g. capitalize or decapitalize the next word, increment number at point."
    `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
   (safe-local-variable-directories
    '("/home/idlip/d-sync/notes/" "/home/idlip/d-sync/projects/lnrna-tool/"))
+  (remote-file-name-inhibit-delete-by-moving-to-trash t)
+  (remote-file-name-inhibit-auto-save t)
   (delete-old-versions t)
   (kept-new-versions 6)
   (kept-old-versions 2)
@@ -316,7 +326,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 
 (use-package savehist :ensure nil
   :init (savehist-mode)
-  :custom (history-length 1000)
+  :custom (history-length 1000)   (save-place-limit nil)
   (savehist-additional-variables
    '(mark-ring kill-ring global-mark-ring search-ring regexp-search-ring register-alist extended-command-history)))
 
@@ -348,10 +358,20 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   :custom
   (dired-listing-switches "-agho --group-directories-first")
   (dired-omit-files "\\`[.]?#\\|\\`[.][.]?\\'\\|^\\..*$")
+  (dired-guess-shell-alist-user
+   '(("\\.\\(png\\|jpe?g\\|tiff\\)" "swayimg")
+     ("\\.\\(mp[34]\\|m4a\\|ogg\\|flac\\|webm\\|mkv\\)" "mpv")
+     (".pdf$" "sioyek")
+     (".*" "xdg-open" "open")))
   (delete-by-moving-to-trash t)
   (dired-dwim-target t)
   (dired-kill-when-opening-new-dired-buffer t) ;; in case sinlge buffer is preferred
   )
+
+(use-package wdired :ensure nil
+  :custom
+  (wdired-allow-to-change-permissions t)
+  (wdired-create-parent-directories t))
 
 (set-language-environment 'utf-8)
 (setq locale-coding-system 'utf-8)
@@ -361,37 +381,70 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 (set-selection-coding-system 'utf-8)
 (prefer-coding-system 'utf-8)
 
-(use-package completion-preview :ensure nil :init (global-completion-preview-mode)
-  :custom (completion-preview-ignore-case t))
-
-(use-package vertico :init (vertico-mode)
-  :bind ((:map vertico-map ("C-v" . vertico-scroll-up) ("M-v" . vertico-scroll-down)))
-  :custom (vertico-count 5)
-  (read-extended-command-predicate #'command-completion-default-include-p)
-  :init
-  (setq minibuffer-prompt-properties
-        '(read-only t cursor-intangible t face minibuffer-prompt))
-  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode))
-
-(use-package vertico-multiform :init (vertico-multiform-mode)
+(use-package minibuffer :ensure nil
+  :hook (minibuffer-setup . cursor-intangible-mode)
   :custom
-  (vertico-multiform-commands
-   '(
-     ;; (jinx-correct reverse)
-     (load-theme grid) (consult-theme grid)
-     (dired-goto-file flat)
-     (consult-recoll buffer)
-     (consult-dff unobtrusive)
-     (embark-act grid)
-     ))
+  (completion-ignore-case t) (completion-auto-select t) (completion-auto-help t)
+  (completions-detailed t) (enable-recursive-minibuffers t) (completion-show-help nil)
+  (completions-max-height 10) (completions-sort 'historical)
+  (read-buffer-completion-ignore-case t) (read-file-name-completion-ignore-case t)
+  (minibuffer-depth-indicate-mode t) (minibuffer-electric-default-mode t)
+  (minibuffer-visible-completions t) (completions-group t)
+  (completion-category-overrides '((file (styles substring basic partial-completion))))
+  (completion-styles '(orderless basic))
+  (completions-format 'vertical)
+  )
 
-  (vertico-multiform-categories
-   '((file  reverse)
-     (consult-grep buffer)
-     (jinx grid)
-     (embark-bindings grid)
-     (embark-keybinding grid)
-     (buffer flat (vertico-cycle . t)))))
+(define-abbrev-table 'mail-mode-abbrev-table
+  '(
+    ("AFAICT" "As far as I can tell" nil :count 0)
+    ("IMNSHO" "In my not so humble opinion" nil :count 0)
+    ("BTW" "By the way" nil :count 0)
+    ("FYI" "For your information" nil :count 0)
+    ("IMO" "In my opinion" nil :count 0)
+    ("IMHO" "In my humble opinion" nil :count 0)
+    ("YMMV" "Your mileage may vary" nil :count 0)
+    ("TL;DR" "Too long; didn't read" nil :count 0)
+    ("IIRC" "If I recall correctly" nil :count 0)
+    ("FWIW" "For what it's worth" nil :count 0)
+    ("HTH" "Hope this helps" nil :count 0)
+    ("LMK" "Let me know" nil :count 0)
+    ("NP" "No problem" nil :count 0)
+    ("POV" "Point of view" nil :count 0)
+    ("OTOH" "On the other hand" nil :count 0)
+    ("TBH" "To be honest" nil :count 0)
+    ("WIP" "Work in progress" nil :count 0)
+    ("WRT" "With respect to" nil :count 0)
+    ("WFM" "Works for me" nil :count 0)
+    ("ICYMI" "In case you missed it" nil :count 0)
+    ("ETA" "Estimated time of arrival" nil :count 0)
+    ("AKA" "Also known as" nil :count 0)
+    ("ASAP" "As soon as possible" nil :count 0)
+    ("IOW" "In other words" nil :count 0)
+    ("NBD" "No big deal" nil :count 0)
+    ("PFA" "Please find attached" nil :count 0)
+    ("TIA" "Thanks in advance" nil :count 0)))
+
+(use-package hippie-exp :ensure nil
+  :init ;; https://www.masteringemacs.org/article/text-expansion-hippie-expand
+  (keymap-global-set "<remap> <dabbrev-expand>" 'hippie-expand)
+  :custom
+  (hippie-expand-verbose t)
+  (hippie-expand-dabbrev-skip-space t)
+  (hippie-expand-try-functions-list
+   '(
+     try-expand-dabbrev
+     try-expand-dabbrev-all-buffers
+     try-expand-dabbrev-from-kill
+     try-complete-lisp-symbol-partially
+     try-complete-lisp-symbol
+     try-expand-list
+     try-expand-line
+     try-complete-file-name-partially
+     try-complete-file-name
+     try-expand-all-abbrevs
+     ))
+  )
 
 (use-package consult :defer t
   :bind
@@ -452,6 +505,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (advice-add #'register-preview :override #'consult-register-window))
 
 (use-package orderless :demand t :custom (completion-styles '(orderless basic))
+  (completion-category-overrides '((file (styles basic partial-completion))))
   (completion-category-defaults nil))
 
 (use-package embark :defer t
@@ -488,14 +542,9 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 
 (use-package embark-consult :defer t :hook (embark-collect-mode . consult-preview-at-point-mode))
 
-(use-package marginalia :init (marginalia-mode))
-
-(use-package corfu :init (global-corfu-mode)
-  :config (corfu-history-mode) (corfu-echo-mode) (corfu-popupinfo-mode)
-  (eldoc-add-command #'corfu-insert))
-
-(use-package cape :after corfu
-  :bind ("M-<tab>" . cape-prefix-map)
+(use-package cape
+  :bind ("C-c p" . cape-prefix-map)
+  ("M-i" . cape-prefix-map)
   :init
   (add-hook 'completion-at-point-functions #'cape-dabbrev)
   (add-hook 'completion-at-point-functions #'cape-file)
@@ -510,6 +559,8 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 (use-package tempel-collection :after tempel)
 
 (use-package tab-bar :unless d/on-droid
+  :bind (("C-<tab>" . tab-line-switch-to-next-tab)
+         ("C-S-<tab>" . tab-line-switch-to-prev-tab))
   :custom ;; tab-bar-format-history
   (tab-bar-format '(tab-bar-separator tab-bar-format-menu-bar tab-bar-format-tabs tab-bar-format-align-right
                                       ;; tab-bar-format-global ;; An issue when used in terminal (cursor wont move properly)
@@ -518,8 +569,49 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   ;; (tab-bar-show nil)
   (tab-bar-mode 1)
   (tab-bar-history-mode 1)
-  ;; (global-tab-line-mode 1)
+  (global-tab-line-mode 1)
   )
+
+(use-package ibuffer :ensure nil
+  :custom
+  (ibuffer-saved-filter-groups
+   '(("default"
+      ("org" (or
+              (mode . org-mode)
+              (name . "^\\*Org Src")
+              (name . "^\\*Org Agenda\\*$")))
+      ("tramp" (name . "^\\*tramp.*"))
+      ("emacs" (or
+                (name . "^\\*scratch\\*$")
+                (name . "^\\*Messages\\*$")
+                (name . "^\\*Warnings\\*$")
+                (name . "^\\*Shell Command Output\\*$")
+                (name . "^\\*Async-native-compile-log\\*$")
+                (name . "^\\*straight-")))
+      ("ediff" (or
+                (name . "^\\*ediff.*")
+                (name . "^\\*Ediff.*")))
+      ("dired" (mode . dired-mode))
+      ("terminal" (or
+                   (mode . term-mode)
+                   (mode . shell-mode)
+                   (mode . eshell-mode)))
+      ("help" (or
+               (name . "^\\*Help\\*$")
+               (name . "^\\*info\\*$")
+               (name . "^\\*helpful"))))))
+  :config
+  (add-hook 'ibuffer-mode-hook
+            (lambda ()
+              (ibuffer-switch-to-saved-filter-groups "default"))))
+
+(use-package uniquify :ensure nil
+  :custom (uniquify-buffer-name-style 'forward))
+
+(use-package isearch :ensure nil
+  :custom
+  (isearch-lazy-count t)
+  (search-whitespace-regexp ".*?"))
 
 (use-package mwheel :ensure nil
   :custom (mouse-autoselect-window t) )
@@ -529,23 +621,23 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 
 (use-package winner :init (winner-mode))
 
-(use-package ultra-scroll
-  :bind (("C-v" . smooth-scroll-down) ("M-v" . smooth-scroll-up))
-  :init (ultra-scroll-mode 1)
+(use-package mwheel
+  ;; :bind (("C-v" . smooth-scroll-down) ("M-v" . smooth-scroll-up))
+  ;; :init (ultra-scroll-mode 1)
   :custom (scroll-step 1) (scroll-margin 0)
   ;; (pixel-scroll-precision-interpolate-page t)
   (mouse-wheel-progressive-speed nil) (mouse-wheel-scroll-amount '(1 ((control) . 1)  ((shift) . 2) ((meta) . 3)))
   (scroll-conservatively 101 "Dont jump") (scroll-preserve-screen-position 1 "Preserve position")
-  :config
-  (defun smooth-scroll-down()
-    (interactive)
-    (ultra-scroll-down 30)
-    )
+  ;; :config
+  ;; (defun smooth-scroll-down()
+  ;;   (interactive)
+  ;;   (ultra-scroll-down 30)
+  ;;   )
 
-  (defun smooth-scroll-up()
-    (interactive)
-    (ultra-scroll-up 30)
-    )
+  ;; (defun smooth-scroll-up()
+  ;;   (interactive)
+  ;;   (ultra-scroll-up 30)
+  ;;   )
   )
 
 (use-package repeat :config (repeat-mode 1)
@@ -601,6 +693,12 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 
 (use-package ediff :ensure nil
   :custom (ediff-window-setup-function 'ediff-setup-windows-plain "Do actions from single frame"))
+
+(use-package diff-mode :ensure nil
+  :custom
+  (diff-default-read-only t)
+  (diff-font-lock-syntax 'hunk-also)
+  (diff-font-lock-prettify nil))
 
 (use-package envrc :defer 2
   :config (envrc-global-mode 1)
@@ -674,8 +772,20 @@ E.g. capitalize or decapitalize the next word, increment number at point."
    (post-command-select-window . t)
    (window-height . 0.3)))
 
+(add-to-list
+ 'display-buffer-alist
+ '("\\*\\(Ibuffer\\)\\*"
+   (display-buffer-in-side-window)
+   (window-width . 100)
+   (side . right)
+   (slot . 1)))
+
 (use-package eat :unless d/on-droid
-  :hook (eshell-load . eat-eshell-mode)
+  :hook
+  ((eshell-mode . eat-eshell-mode)
+   (eshell-mode . eat-eshell-visual-command-mode))
+  :custom
+  (eshell-visual-commands nil)
   :bind
   (("C-c d e" . d/eat-toggle)
    ("S-<f12>" . d/eat-toggle)
@@ -849,7 +959,9 @@ out"))
 
 (use-package compile
   :hook (compilation-filter . ansi-color-compilation-filter)
+  :bind ("M-#" . compile) ; M-! M-# M-& M-\
   :custom
+  (shell-command-switch "-ic")
   (compilation-scroll-output t)
   (compilation-auto-jump-to-first-error t)
   (compilation-max-output-line-length nil)
@@ -900,6 +1012,27 @@ out"))
 
 (use-package prog-mode :ensure nil :hook (prog-mode . hs-minor-mode) (prog-mode . outline-minor-mode)
   :custom (tab-width 2))
+
+(use-package hi-lock
+  :hook (prog-mode . highlight-marker-mode)
+  :config
+  (define-minor-mode highlight-marker-mode
+    "A minor mode that toggles a chunk of functionality."
+    :init-value nil
+    (let ((regexps
+           `((, (rx (or "FIXME:" "fixme:")) . hi-red-b)   ; fixme
+             (, (rx (or "NOTE:" "note:")) . hi-blue)      ; note
+             (, (rx (or "TODO:" "todo:")) . hi-green)     ; todo
+             (, (rx (group (repeat 8 digit))) . org-date) ; date 20250228  (denote style)
+             (, (rx "T" (group (repeat 6 digit))) . org-modeline-clock)))) ; time T201020
+
+      (if highlight-marker-mode
+          (dolist (regexp regexps)
+            (highlight-regexp (car regexp) (cdr regexp)) )
+        (dolist (regexp regexps)
+          (unhighlight-regexp (car regexp)))))
+    )
+  )
 
 (use-package elec-pair :ensure nil :init (electric-pair-mode))
 
@@ -972,7 +1105,7 @@ out"))
         (variable-pitch-mode 1)
         ;; (setq-local line-spacing 0.5)
         ;; (text-scale-increase 1)
-        (setq-local tab-bar-show nil) (tab-bar--update-tab-bar-lines)
+        ;; (setq-local tab-bar-show nil) (tab-bar--update-tab-bar-lines)
         (setq-local cursor-type nil)
         (setq-local olivetti-body-width 90) (olivetti-mode 1)
         )
@@ -980,7 +1113,7 @@ out"))
     (progn
       (d/toggle-bar)
       ;; (text-scale-decrease 1)
-      (kill-local-variable 'tab-bar-show) (tab-bar--update-tab-bar-lines)
+      ;; (kill-local-variable 'tab-bar-show) (tab-bar--update-tab-bar-lines)
       (kill-local-variable 'cursor-type)
       (kill-local-variable 'olivetti-body-width)
       )
@@ -1088,6 +1221,7 @@ out"))
            (nntp-open-connection-function nntp-open-tls-stream) ; feedbase does not do STARTTLS (yet?)
            (nntp-port-number 563) (nntp-address "feedbase.org") )
      (nntp "gwene" (nntp-address "news.gwene.org"))
+	   (nntp "yhetil" (nntp-address "news.yhetil.org"))
      (nnrss "")
      ))
 
@@ -1121,18 +1255,22 @@ out"))
     "%1{%B%}"
     "%s\n"))
 
-  (setopt gnus-group-line-format "%M%S%p%P%5y:%B%(%G%)\n")
+  (gnus-group-line-format "%M%S%p%P%5y:%B%(%G%)\n")
 
   (gnus-topic-line-format "%i[ %(%{%n%}%) -- %g | %A ]%v\n")
 
+  (gnus-summary-thread-gathering-function 'gnus-gather-threads-by-references)
+
       ;;; credits - https://github.com/jbranso/.emacs.d/blob/master/lisp/init-gnus.org
-  ;; (gnus-sum-thread-tree-indent "  ")
-  ;; (gnus-sum-thread-tree-root "● ")
-  ;; (gnus-sum-thread-tree-false-root "◯ ")
-  ;; (gnus-sum-thread-tree-single-indent "")
-  ;; (gnus-sum-thread-tree-vertical        "│")
-  ;; (gnus-sum-thread-tree-leaf-with-other "├─► ")
-  ;; (gnus-sum-thread-tree-single-leaf     "╰─► ")
+  (gnus-sum--tree-indent " ")
+  (gnus-sum-thread-tree-indent " ")
+  (gnus-sum-thread-tree-false-root "○ ")
+  (gnus-sum-thread-tree-single-indent "◎ ")
+  (gnus-sum-thread-tree-leaf-with-other "├► ")
+  (gnus-sum-thread-tree-root "● ")
+  (gnus-sum-thread-tree-single-leaf "╰► ")
+  (gnus-sum-thread-tree-vertical "│")
+
 
   ;; Yay (seen here: `https://github.com/cofi/dotfiles/blob/master/gnus.el')
   ;; (gnus-cached-mark ?󰃨)
@@ -1198,12 +1336,6 @@ out"))
 (unless d/on-droid
   (setopt gnus-init-file "~/d-sync/feeds/gnews/privmail.el"))
 
-(use-package sdcv :defer t :unless d/on-droid
-  :bind (("C-c d w" . sdcv-search-input)
-         (:map sdcv-mode-map
-               ("n" . sdcv-next-dictionary) ("p" . sdcv-previous-dictionary)
-               ("TAB" . hide-entry) ("<backtab>" . show-entry))))
-
 (use-package url :ensure nil
   :custom (url-privacy-level 'high) ;; reddit/SO does not like it 'paranoid
   :config (url-setup-privacy-info))
@@ -1246,6 +1378,7 @@ out"))
   (eww-after-render . (lambda () (d/eww-readable) (setq-local line-spacing '0.4)))
   :custom
   (eww-auto-rename-buffer 'title)
+  (eww-search-prefix "https://baresearch.org/search?q=")
   :config
   (defun d/eww-readable ()
     "Use more opinionated `eww-readable'.
@@ -1262,6 +1395,10 @@ images."
           ("go google" . "https://google.com/search?q=%s")
           ("ddg duckduckgo" . "https://duckduckgo.com/?q=%s")
           ("yt invidious" . "https://yewtu.be/search?q=%s")
+          ("sxng searxng" . "https://searxng.world/search?q=%s")
+          ("mg marginalia rss" . "https://marginalia-search.com/search?query=")
+          ("feedle rss" . "https://feedle.world/search?query=")
+          ("lists gnu mail" . "https://yhetil.org/")
           ))
 
   (defun d/search-eww (term)
@@ -1334,6 +1471,34 @@ Index includes links and headings."
 (add-hook 'eww-mode-hook #'unpackaged/eww-imenu-setup)
 (add-hook 'gnus-article-mode-hook #'unpackaged/eww-imenu-setup)
 
+(use-package ox-hugo :unless d/on-droid :after ox)
+
+(with-eval-after-load 'org-capture
+  (defun org-hugo-new-subtree-post-capture-template ()
+    "Returns `org-capture' template string for new Hugo post.
+  See `org-capture-templates' for more information."
+    (let* ((title (read-from-minibuffer "Post Title: ")) ;Prompt to enter the post title
+           (fname (org-hugo-slug title)))
+      (mapconcat #'identity
+                 `(
+                   ,(concat "* TODO " title)
+                   ":PROPERTIES:"
+                   ,(concat ":EXPORT_FILE_NAME: " fname)
+                   ":END:"
+                   "%?\n")          ;Place the cursor here finally
+                 "\n")))
+
+  (add-to-list 'org-capture-templates
+               '("w" "Website Organize"))
+  (add-to-list 'org-capture-templates
+               '("wt" "website Todo" entry (file+headline "~/d-git/d-site/README.org" "Ideas - TODO")
+                 "* TODO %?\n  SCHEDULED:%T\n " :empty-lines 1))
+  (add-to-list 'org-capture-templates
+               '("ww" "website work"
+                 entry
+                 (file+olp "~/d-git/d-site/org-mode/posts.org" "Posts")
+                 (function org-hugo-new-subtree-post-capture-template))))
+
 (use-package mpc
   :bind (("C-c d m" . mpc)
          (:map mpc-mode-map
@@ -1353,10 +1518,6 @@ Index includes links and headings."
     (next-line)
     ))
 
-(use-package ready-player :unless d/on-droid :demand t
-  :custom (ready-player-open-playback-commands '(("mpv" "--audio-display=no" "--input-ipc-server=" "--speed=1.0")))
-  :config (ready-player-mode))
-
 (use-package transmission :unless d/on-droid :bind ("C-c d t" . transmission))
 
 (use-package reddigg :defer t
@@ -1366,7 +1527,7 @@ Index includes links and headings."
   (org-link-elisp-confirm-function 'y-or-n-p)
   (reddigg-subs '(emacs linux nixos orgmode hyprland bioinformatics onepiece fossdroid piracy bangalore india indiaspeaks developersindia manga aww))
   :config
-  (setq other-subs '(crazyfuckingvideos nextfuckinglevel manga anime animepiracy fossdroid commandline memes jokes funnymemes rss holup unexpected todayilearned lifeprotips askreddit julia))
+  (setq other-subs '(crazyfuckingvideos nextfuckinglevel manga anime animepiracy fossdroid commandline memes jokes funnymemes rss holup unexpected todayilearned lifeprotips askreddit julia indianstockmarket))
 
   (defun reddigg-view-sub ()
     "Prompt SUB and print its post list."
@@ -1375,16 +1536,7 @@ Index includes links and headings."
       (cond ((string= sub "frontpage") (reddigg-view-frontpage))
             ((string= sub "comments") (reddigg-view-comments))
             (t (reddigg--view-sub sub)))))
-
-  (defun reddigg--ensure-modes ()
-    "Get a bunch of modes up and running."
-    (if (equal major-mode 'org-mode)
-        (org-set-startup-visibility)
-      (org-mode)
-      (font-lock-flush))
-    (visual-line-mode)
-    (jinx-mode -1)
-    (view-mode 1)))
+  )
 
 (use-package hnreader :defer t :unless d/on-droid)
 
@@ -1469,10 +1621,10 @@ Index includes links and headings."
 ;; Dont worry about the font name, I use fork of Iosevka font
 
 ;; Set reusable font name variables
-(defcustom d/fixed-pitch-font "Code OnePiece"
+(defcustom d/fixed-pitch-font (if d/on-droid "Code OnePiece" "Maple Mono NF")
   "The font to use for monospaced (fixed width) text.")
 
-(defcustom d/variable-pitch-font "Code Haki"
+(defcustom d/variable-pitch-font (if d/on-droid "Code Haki" "Maple Mono NF")
   "The font to use for variable-pitch (documents) text.")
 
 (use-package faces :ensure nil
@@ -1488,6 +1640,7 @@ Index includes links and headings."
   (require-theme 'modus-themes)
   :custom-face
   (region ((t :extend nil)))
+  (message-header-subject ((t :height 1.5)))
   :custom
   (modus-themes-italic-constructs t)
   (modus-themes-bold-constructs nil)
@@ -1526,6 +1679,7 @@ Index includes links and headings."
 
      (fg-heading-1  "#ab82ff")
      (fg-heading-2  "#fab387")
+     (mail-subject  "#6ae4b9")
 
      (bg-completion "#2e8b57")
      (bg-region     bg-active)
@@ -1572,7 +1726,7 @@ Index includes links and headings."
   :bind ("C-x x p" . 'proced)
   :custom
   (proced-enable-color-flag t)
-  (proced-format 'medium)
+  (proced-format '(user start time pcpu pmem rss args))
   (proced-sort 'pmem)
   (proced-auto-update-flag t))
 
@@ -1615,6 +1769,8 @@ Index includes links and headings."
    '((sequence "TODO(t)" "NEXT(n)" "STARTED(s!)" "WAITING(w@/!)" "|" "DONE(d!)")
      (sequence "SOMEDAY(o)" "|")
      (sequence "|" "DELEGATED(g@/!)" "CANCELLED(c!)")))
+  (org-use-fast-todo-selection 'expert)
+
   (org-clock-in-switch-to-state "STARTED")
 
   (org-refile-targets
@@ -1666,11 +1822,11 @@ Index includes links and headings."
   )
 
 (defun d/org-activity()
-  "Make temp buffer activity for org tags."
+  "Make temp activity buffer for org tags."
   (interactive)
   (with-current-buffer "d-brain.org"
     (let ((org-export-select-tags (completing-read-multiple "tags: " (org-get-buffer-tags))))
-      (org-export-to-buffer 'org "read-this.org"))
+      (org-export-to-buffer 'org (format "export %s.org" org-export-select-tags)))
     (org-mode) (delete-other-windows)
     ))
 
@@ -1679,7 +1835,7 @@ Index includes links and headings."
 (use-package org-agenda :ensure nil :demand t
   :init (org-agenda nil "a")
   :bind (("C-c d a" . org-agenda)
-         ("C-c a a" . org-agenda)
+         ("C-c a" . org-agenda)
          (:map org-agenda-mode-map
                ("C-x C-k" . org-agenda-exit)))
 
@@ -1691,7 +1847,7 @@ Index includes links and headings."
   (org-agenda-window-setup 'only-window)
 
   (org-agenda-custom-commands
-   '(("n" "Next tasks" ((todo "STARTED") (todo "NEXT")))
+   '(("n" "Next tasks" ((todo "STARTED") (todo "NEXT") (todo "PROJ")))
      ("a" "Agenda and all TODOs" ((agenda "") (alltodo "")))))
 
   (org-agenda-files
@@ -1873,6 +2029,17 @@ absolute path. Finally load eglot."
 (use-package ox :after org
   :custom (org-export-backends '(org odt md man latex icalendar html ascii)))
 
+(defun d/org-export-clean()
+  "Function to retain only level 4 heading in `datetree' single big org file export."
+  (interactive)
+  (if (y-or-n-p "Do you want to only have 4th headings and flush rest?")
+      (progn (beginning-of-buffer)
+        (flush-lines "^\\* ")
+        (flush-lines "^\\*\\* ")
+        (flush-lines "^\\*\\*\\* ")
+        (query-replace "****" "*"))
+    ))
+
 (use-package org-crypt :after org :ensure nil
   :config (org-crypt-use-before-save-magic)
   :custom
@@ -1881,18 +2048,12 @@ absolute path. Finally load eglot."
   (epg-pinentry-mode 'loopback)
   )
 
-(use-package org-mime :unless d/on-droid :after message
-  :hook (message-send . org-mime-confirm-when-no-multipart)
-  :bind (:map message-mode-map ("C-c M-o" . org-mime-htmlize))
-  :custom
-  (org-mime-export-options
-   '( :section-numbers nil
-      :with-author nil
-      :with-toc nil))
-  )
-
 (use-package remember :ensure nil
-  :bind ("C-c r r" . remember) ("C-c r n" . remember-notes))
+  :bind ("C-c r r" . remember) ("C-c r n" . remember-notes)
+  :custom
+  (initial-buffer-choice 'remember-notes)
+	(remember-data-file (expand-file-name "inbox.org" org-directory))
+	(remember-notes-initial-major-mode 'org-mode))
 
 (use-package calendar
   :bind ("C-c d d" . calendar)
@@ -1922,15 +2083,7 @@ absolute path. Finally load eglot."
     (if (derived-mode-p 'markdown-view-mode) (markdown-mode) (markdown-view-mode))
     (variable-pitch-mode 1)))
 
-(use-package jinx :unless d/on-droid
-  ;; :init (global-jinx-mode)
-  :hook org-mode
-  :bind ("M-$". jinx-correct))
-
 (use-package ispell :demand t
   :custom (ispell-alternate-dictionary (expand-file-name "~/.config/enchant/en_US.dic")))
 
-(use-package flymake-languagetool :unless d/on-droid
-  :disabled
-  :hook (text-mode . flymake-languagetool-load)
-  :custom (flymake-languagetool-server-command '("languagetool-http-server")))
+(use-package flyspell)

@@ -48,12 +48,26 @@
       };
     };
 
+    portal = {
+      enable = true;
+      extraPortals = [ pkgs.xdg-desktop-portal-gnome pkgs.xdg-desktop-portal-gtk ];
+      configPackages = [ pkgs.niri ];
+      # config = {
+      #   common = {
+      #     default = [
+      #       "gtk" "gnome"
+      #     ];
+      #   };
+      # };
+      # # configPackages = [ pkgs.niri ];
+    };
+
   };
   xdg.dataFile."applications/d-stuff.desktop".text = ''
-  [Desktop Entry]
-  Type=Application
-  Name=Stuff Handler
-  Exec=d-stuff %u
+    [Desktop Entry]
+    Type=Application
+    Name=Stuff Handler
+    Exec=d-stuff %u
   '';
 
 }
@@ -124,7 +138,7 @@
 {
   programs.foot = {
     enable = true;
-    server.enable = true;
+    # server.enable = true; # use emacs dude!
     settings = {
       main = {
         selection-target = "clipboard";
@@ -150,16 +164,6 @@
 }
 
 {
-  programs.zellij = {
-    enable = true;
-    settings = {
-    };
-  };
-}
-
-{
-  # does not read local path properly. so ~/.local/bin does not work
-  # may need exec from path then. Why? Just emacs --bg-daemon in WM
   services.emacs = {
     enable = true;
     defaultEditor = true;
@@ -168,44 +172,36 @@
   };
 
   home.packages = with pkgs; [
-    emacs-lsp-booster
+    # emacs-lsp-booster
     imagemagick # for image-dired and other converts
   ];
   # todo purge many packages
-  programs.emacs =
-    let
-    emacs-mps = pkgs.emacs-pgtk.overrideAttrs (old: {
-      name = "emacs-pgtk-mps";
-
-      src = pkgs.fetchFromGitHub {
-        owner = "emacs-mirror";
-        repo = "emacs";
-        rev = "c45b3a28199f43cfbadc215ef5a4c42c3735ed87";
-        sha256 = "sha256-tjWHVCSZsAstYLyn5JCipxXYkZduRsVTbgbW46jvhRo=";
-      };
-
-      buildInputs = old.buildInputs ++ [ pkgs.mps ];
-      configureFlags = old.configureFlags ++ [ "--with-mps=yes" ];
-    });
-    in {
+  programs.emacs = {
     enable = true;
     package = pkgs.emacs-pgtk;
     extraPackages = (epkgs: (with epkgs; [
       treesit-grammars.with-all-grammars
       eat vundo undo-fu-session helpful
       no-littering rainbow-delimiters colorful-mode
-      vertico orderless consult marginalia embark org-modern corfu cape
-      olivetti nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
+      vertico orderless marginalia corfu
+      # org-modern #### more minimal way?
+      consult embark cape
+      # olivetti nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
       embark-consult consult-eglot markdown-mode nix-mode nix-ts-mode
-      reddigg hnreader magit webpaste
-      org-mime shr-tag-pre-highlight nov devdocs-browser reformatter
-      tempel tempel-collection eglot-tempel
-      sdcv jinx envrc ready-player
+      reddigg hnreader magit
+      # org-mime
+      shr-tag-pre-highlight nov devdocs-browser reformatter
+      tempel tempel-collection
+      # eglot-tempel
+      # sdcv jinx
+      envrc
       vc-backup aria2 transmission
-      ess webfeeder engrave-faces
-      toc-org org-ql activities ox-hugo
-      saveplace-pdf-view flycheck consult-flycheck
-      org-re-reveal dslide gptel
+      ess
+      # webfeeder engrave-faces
+      # toc-org
+      org-ql activities ox-hugo
+      saveplace-pdf-view flycheck consult-flycheck org-re-reveal
+      # dslide gptel
 
       (melpaBuild {
         pname = "combobulate";
@@ -229,16 +225,16 @@
         };
       })
 
-      (melpaBuild {
-        pname = "ultra-scroll";
-        version = "20250113";
-        src = pkgs.fetchFromGitHub {
-          owner = "jdtsmith";
-          repo = "ultra-scroll";
-          rev = "9f62273531ad2f9837ad6da28fccbe2ec4c7938c";
-          hash = "sha256-yuwgWflx835hGBuJz6LiAwBXoaaTRgtF+FCWEv4TCIw=";
-        };
-      })
+      # (melpaBuild {
+      #   pname = "ultra-scroll";
+      #   version = "20250113";
+      #   src = pkgs.fetchFromGitHub {
+      #     owner = "jdtsmith";
+      #     repo = "ultra-scroll";
+      #     rev = "9f62273531ad2f9837ad6da28fccbe2ec4c7938c";
+      #     hash = "sha256-yuwgWflx835hGBuJz6LiAwBXoaaTRgtF+FCWEv4TCIw=";
+      #   };
+      # })
 
       ## packages kept out to make more vanilla usage!
       # async dirvish beframe powerthesaurus meow
@@ -351,6 +347,23 @@
       "gfx.webrender.all" = true;
       "gfx.webrender.enabled" = true;
     };
+  };
+}
+
+{
+  programs.chromium = {
+    enable = true;
+    package = pkgs.brave;
+    extensions = [
+      { id = "cjpalhdlnbpafiamejdnhcphjbkeiagm"; } # ublock origin
+      { id = "eimadpbcbfnmbkopoojfekhnkhdbieeh"; } # dark reader
+      { id = "dbepggeogbaibhgnhhndojpepiihcmeb"; } # vimium
+      { id = "mlbcofjdcpapkhdkchafogjpcnjnfijh"; } # tranquility reader
+      {
+        id = "dcpihecpambacapedldabdbpakmachpb";
+        updateUrl = "https://gitflic.ru/project/magnolia1234/bpc_uploads/blob/raw?file=bypass-paywalls-chrome-clean-4.0.7.0.crx&inline=false&commit=a6c8020c503c37824f6311bd1251aecc36555103";
+      }
+    ];
   };
 }
 
@@ -605,7 +618,6 @@
 
     targets = {
       emacs.enable = false;
-      kde.enable = false;
       waybar = {
         enable = true;
         # enableLeftBackColors = true;
@@ -859,6 +871,11 @@
       extraOptionOverrides = {
         SetEnv = "TERM=xterm-256color";
       };
+      matchBlocks."172.16.2.72" = {
+        forwardX11Trusted = true;
+        forwardX11 = true;
+      };
+
       };
 
     fzf = {
@@ -1010,6 +1027,9 @@
         play-sound = "/home/idlip/.bin/d-notify \${filename}";
         sound-file= "/home/idlip/music/yt/misc/linux-notify.ogg";
       };
+      low = {
+        background = "000000ff";
+      };
     };
   };
 }
@@ -1038,15 +1058,15 @@
   };
 }
 
-{ home.packages = with pkgs; [ libnotify nemo pandoc groff mupdf keepassxc easyeffects jaq
-  # libreoffice-fresh
+{ home.packages = with pkgs; [ libnotify nemo pandoc groff mupdf keepassxc easyeffects jaq nh
+  libreoffice-fresh
 ]; }
 
 {
 
   home = with pkgs;
     let
-      mySpells = aspellWithDicts (dicts: with dicts; [ en en-computers ]);
+      mySpells = aspellWithDicts (dicts: with dicts; [ en en-computers en-science ]);
     in
       {
         file.".aspell.conf".text = ''
@@ -1054,7 +1074,7 @@
           add-extra-dicts en-computers.rws
         '';
         packages = [
-          languagetool
+          # languagetool
           mySpells
           # hunspell hunspellDicts.en_US
         ];

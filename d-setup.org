@@ -327,7 +327,7 @@ Also its crucial to only add configuration that is explicitly required, rather t
     {
       users.users.${vars.username} = {
         isNormalUser = true;
-        shell = pkgs.fish;
+        shell = pkgs.bash;
         extraGroups = ["adbusers" "input" "uinput" "libvirtd" "networkmanager" "plugdev" "transmission" "video" "wheel"];
       };
     }
@@ -672,18 +672,19 @@ see its function help for a description of the format."
 ** Env-Vars
 
   #+begin_src nix :tangle gdk/core.nix
-  {
-    environment = {
-      variables = {
-        BROWSER = "d-stuff";
-        NIXOS_OZONE_WL = "1";
+    {
+      environment = {
+        variables = {
+          BROWSER = "d-stuff";
+          NIXOS_OZONE_WL = "1";
+        };
+        pathsToLink = [ "/share/xdg-desktop-portal" "/share/applications" ];
+        systemPackages = with pkgs; [
+          gitFull
+          (writeScriptBin "sudo" ''exec doas "$@"'')
+        ];
       };
-      systemPackages = with pkgs; [
-        gitFull
-        (writeScriptBin "sudo" ''exec doas "$@"'')
-      ];
-    };
-  }
+    }
   #+end_src
 
 ** xdg
@@ -709,9 +710,23 @@ see its function help for a description of the format."
           };
         };
 
+        portal = {
+          enable = true;
+          extraPortals = [ pkgs.xdg-desktop-portal-gnome pkgs.xdg-desktop-portal-gtk ];
+          configPackages = [ pkgs.niri ];
+          # config = {
+          #   common = {
+          #     default = [
+          #       "gtk" "gnome"
+          #     ];
+          #   };
+          # };
+          # # configPackages = [ pkgs.niri ];
+        };
+
       };
       xdg.dataFile."applications/d-stuff.desktop".text = ''
-      <<conf-dstuff>>
+        <<conf-dstuff>>
       '';
 
     }
@@ -874,11 +889,13 @@ see its function help for a description of the format."
        ;; panes
        ("C-x 1" . d/toggle-window-focus)
        ("C-x C-k" . d/kill-buffer)
-       ("C-x n n" . d/narrow-or-widen-dwim))
+       ("C-x n n" . d/narrow-or-widen-dwim)
+       ("M-o" . other-window) ("M-j" . duplicate-dwim))
 
       :custom
       (inhibit-startup-screen t "Don't show splash screen")
 
+      (recenter-positions '(top middle bottom))
       (initial-major-mode 'org-mode)
       (initial-scratch-message (format "\n\n"))
 
@@ -897,6 +914,7 @@ see its function help for a description of the format."
       :config
       (delete-selection-mode)
       (global-so-long-mode 1)
+      (set-window-margins (selected-window) 2 2)
       (setopt
        read-process-output-max (* 1024 1024)
        inhihbit-compacting-font-caches t
@@ -972,6 +990,11 @@ it narrows to region, or Org subtree."
     (column-number-mode 1)
     (kill-do-not-save-duplicates t)
     (read-mail-command 'gnus)
+    (set-mark-command-repeat-pop t)
+    (use-dialog-box nil)
+    (use-file-dialog nil)
+    (use-short-answers t)
+    (async-shell-command-buffer 'new-buffer)
     :config
     ;; (global-hl-line-mode 1)
     (global-visual-line-mode 1))
@@ -1114,6 +1137,8 @@ it narrows to region, or Org subtree."
        `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
       (safe-local-variable-directories
        '("/home/idlip/d-sync/notes/" "/home/idlip/d-sync/projects/lnrna-tool/"))
+      (remote-file-name-inhibit-delete-by-moving-to-trash t)
+      (remote-file-name-inhibit-auto-save t)
       (delete-old-versions t)
       (kept-new-versions 6)
       (kept-old-versions 2)
@@ -1172,13 +1197,13 @@ it narrows to region, or Org subtree."
       :custom (global-auto-revert-non-file-buffers t))
   #+end_src
 
-**** File History
+**** File History savehist
 - savehist of minibuffer candidates
 
   #+begin_src emacs-lisp
     (use-package savehist :ensure nil
       :init (savehist-mode)
-      :custom (history-length 1000)
+      :custom (history-length 1000)   (save-place-limit nil)
       (savehist-additional-variables
        '(mark-ring kill-ring global-mark-ring search-ring regexp-search-ring register-alist extended-command-history)))
   #+end_src
@@ -1224,10 +1249,24 @@ it narrows to region, or Org subtree."
       :custom
       (dired-listing-switches "-agho --group-directories-first")
       (dired-omit-files "\\`[.]?#\\|\\`[.][.]?\\'\\|^\\..*$")
+      (dired-guess-shell-alist-user
+       '(("\\.\\(png\\|jpe?g\\|tiff\\)" "swayimg")
+         ("\\.\\(mp[34]\\|m4a\\|ogg\\|flac\\|webm\\|mkv\\)" "mpv")
+         (".pdf$" "sioyek")
+         (".*" "xdg-open" "open")))
       (delete-by-moving-to-trash t)
       (dired-dwim-target t)
       (dired-kill-when-opening-new-dired-buffer t) ;; in case sinlge buffer is preferred
       )
+  #+end_src
+
+***** wdired
+- To write changes as it looks.
+  #+begin_src emacs-lisp
+    (use-package wdired :ensure nil
+      :custom
+      (wdired-allow-to-change-permissions t)
+      (wdired-create-parent-directories t))
   #+end_src
 
 **** utf-8
@@ -1246,47 +1285,135 @@ it narrows to region, or Org subtree."
 *** Completions
 + the best part of enjoying emacs, is getting the desired way of completing a text.
 + completions everywhere, that make you use emacs for everything.
-**** COMMENT mini-buffer completion
+**** mini-buffer completion
 - Trying out default completions.
 
 #+begin_src emacs-lisp
   (use-package minibuffer :ensure nil
     :hook (minibuffer-setup . cursor-intangible-mode)
     :custom
-    (completion-ignore-case t) (completion-auto-select 'second-tab) (completion-auto-help 'visible)
+    (completion-ignore-case t) (completion-auto-select t) (completion-auto-help t)
     (completions-detailed t) (enable-recursive-minibuffers t) (completion-show-help nil)
-    (completions-max-height 10) (completions-format 'one-column) (completions-sort 'historical)
+    (completions-max-height 10) (completions-sort 'historical)
     (read-buffer-completion-ignore-case t) (read-file-name-completion-ignore-case t)
     (minibuffer-depth-indicate-mode t) (minibuffer-electric-default-mode t)
-    (minibuffer-visible-completions t))
+    (minibuffer-visible-completions t) (completions-group t)
+    (completion-category-overrides '((file (styles substring basic partial-completion))))
+    (completion-styles '(orderless basic))
+    (completions-format 'vertical)
+    )
 #+end_src
 
-**** COMMENT icomplete
-- It can replace vertico for basic purpose.
-
+***** Abbrev
+- To expand abbrevations
+https://yhetil.org/emacs-devel/CAL6FEzxCFJDxy=7+St8igfGa=N-MBnU==+9VcKyC9MaoWXyfxw@mail.gmail.com/T/#m6ea0ea588940eff4ce4e6e2da7fe636b8202351d
   #+begin_src emacs-lisp
-    (use-package icomplete
-      :bind (:map icomplete-minibuffer-map
-                    ("RET" . icomplete-force-complete-and-exit))
-      :init
-      (icomplete-vertical-mode 1)
-
-      :custom
-      ;; (setq icomplete-delay-completions-threshold 0)
-      (icomplete-prospects-height 10)
-      (icomplete-scroll t))
-
+    (define-abbrev-table 'mail-mode-abbrev-table
+      '(
+        ("AFAICT" "As far as I can tell" nil :count 0)
+        ("IMNSHO" "In my not so humble opinion" nil :count 0)
+        ("BTW" "By the way" nil :count 0)
+        ("FYI" "For your information" nil :count 0)
+        ("IMO" "In my opinion" nil :count 0)
+        ("IMHO" "In my humble opinion" nil :count 0)
+        ("YMMV" "Your mileage may vary" nil :count 0)
+        ("TL;DR" "Too long; didn't read" nil :count 0)
+        ("IIRC" "If I recall correctly" nil :count 0)
+        ("FWIW" "For what it's worth" nil :count 0)
+        ("HTH" "Hope this helps" nil :count 0)
+        ("LMK" "Let me know" nil :count 0)
+        ("NP" "No problem" nil :count 0)
+        ("POV" "Point of view" nil :count 0)
+        ("OTOH" "On the other hand" nil :count 0)
+        ("TBH" "To be honest" nil :count 0)
+        ("WIP" "Work in progress" nil :count 0)
+        ("WRT" "With respect to" nil :count 0)
+        ("WFM" "Works for me" nil :count 0)
+        ("ICYMI" "In case you missed it" nil :count 0)
+        ("ETA" "Estimated time of arrival" nil :count 0)
+        ("AKA" "Also known as" nil :count 0)
+        ("ASAP" "As soon as possible" nil :count 0)
+        ("IOW" "In other words" nil :count 0)
+        ("NBD" "No big deal" nil :count 0)
+        ("PFA" "Please find attached" nil :count 0)
+        ("TIA" "Thanks in advance" nil :count 0)))
   #+end_src
 
-**** completions-preview
+***** Hippie expand dabbrev
+#+begin_src emacs-lisp
+  (use-package hippie-exp :ensure nil
+    :init ;; https://www.masteringemacs.org/article/text-expansion-hippie-expand
+    (keymap-global-set "<remap> <dabbrev-expand>" 'hippie-expand)
+    :custom
+    (hippie-expand-verbose t)
+    (hippie-expand-dabbrev-skip-space t)
+    (hippie-expand-try-functions-list
+     '(
+       try-expand-dabbrev
+       try-expand-dabbrev-all-buffers
+       try-expand-dabbrev-from-kill
+       try-complete-lisp-symbol-partially
+       try-complete-lisp-symbol
+       try-expand-list
+       try-expand-line
+       try-complete-file-name-partially
+       try-complete-file-name
+       try-expand-all-abbrevs
+       ))
+    )
+#+end_src
+
+**** COMMENT icomplete fido vertical
+- It can replace vertico for basic purpose.
+
+  Major cons:
+  - Does not work well with completion-at-point or in-region like corfu
+    Works fine but breaks in python IDLE
+
+  #+begin_src emacs-lisp
+    (use-package icomplete :demand t
+      :bind (:map icomplete-minibuffer-map
+                  ("TAB"    . icomplete-force-complete)
+                  ("DEL" . icomplete-fido-backward-updir)
+                  ("C-n" . icomplete-forward-completions)
+                  ("C-p" . icomplete-backward-completions)
+                  ("RET" . icomplete-fido-ret)
+                  ("M-RET" . icomplete-fido-exit)
+                  )
+      :hook
+      (after-init . (lambda ()
+                      (icomplete-vertical-mode t)
+                      (tty-tip-mode t)))
+      :custom
+      (tab-always-indent 'complete)
+      (icomplete-delay-completions-threshold 0)
+      (icomplete-compute-delay 0)
+      (icomplete-show-matches-on-no-input t)
+      (icomplete-prospects-height 10)
+      (icomplete-with-completion-tables t)
+      (icomplete-in-buffer t)
+      (icomplete-max-delay-chars 0)
+      :config
+      (setopt icomplete-scroll t)
+      ;; (advice-add 'completion-at-point :after #'minibuffer-hide-completions)
+      )
+  #+end_src
+
+**** COMMENT completions-preview
 - preview the known completions.
+  Disabled it as it produces ="0__dummy_completion__"= in python IDLE
+  So if it slows down, why would I use it everytime while typing. Just =C-M-i=
 
 #+begin_src emacs-lisp
   (use-package completion-preview :ensure nil :init (global-completion-preview-mode)
-    :custom (completion-preview-ignore-case t))
+    :bind (:map completion-preview-active-mode-map
+                ("M-n" . completion-preview-next-candidate) ("M-p" . completion-preview-prev-candidate))
+    :custom (completion-preview-ignore-case t)
+    (completion-preview-completion-styles 'completion-styles)
+    )
 #+end_src
 
-**** Vertico
+**** COMMENT Vertico
 - the flagship of minad.
 
   #+begin_src emacs-lisp
@@ -1422,6 +1549,7 @@ it narrows to region, or Org subtree."
 
   #+begin_src emacs-lisp
     (use-package orderless :demand t :custom (completion-styles '(orderless basic))
+      (completion-category-overrides '((file (styles basic partial-completion))))
       (completion-category-defaults nil))
   #+end_src
 
@@ -1469,14 +1597,14 @@ it narrows to region, or Org subtree."
   (use-package embark-consult :defer t :hook (embark-collect-mode . consult-preview-at-point-mode))
   #+end_src
 
-**** marginalia
+**** COMMENT marginalia
 + rich annotation of information for candidates.
 
   #+begin_src emacs-lisp
   (use-package marginalia :init (marginalia-mode))
   #+end_src
 
-**** corfu
+**** COMMENT corfu
 + overlay popup
 
   #+begin_src emacs-lisp
@@ -1488,8 +1616,9 @@ it narrows to region, or Org subtree."
 **** cape
 + an extension for corfu
   #+begin_src emacs-lisp
-    (use-package cape :after corfu
-      :bind ("M-<tab>" . cape-prefix-map)
+    (use-package cape
+      :bind ("C-c p" . cape-prefix-map)
+      ("M-i" . cape-prefix-map)
       :init
       (add-hook 'completion-at-point-functions #'cape-dabbrev)
       (add-hook 'completion-at-point-functions #'cape-file)
@@ -1662,17 +1791,20 @@ it narrows to region, or Org subtree."
      :post (org-edit-src-code))
 
     (revjs n
+    "#+title: " p n
+    "#+author: " p n
     "#+reveal_miscinfo: " p n n
     "#+REVEAL_ROOT: /home/idlip/learn/revjs/" n
-    "#+OPTIONS: reveal_width:1920 reveal_height:1080" n
+    "#+OPTIONS: reveal_width:1920 reveal_height:1200" n
     "#+OPTIONS: toc:nil num:nil" n
     "#+REVEAL_MIN_SCALE: 0.2" n
     "#+REVEAL_MAX_SCALE: 1.0" n
     "#+OPTIONS: reveal_progress:nil" n
     "#+REVEAL_EXTRA_OPTIONS: navigationMode: 'linear', controls: false" n
-    "#+REVEAL_MARGIN: 0.02" n
-    "#+REVEAL_THEME: black" n
+    "#+REVEAL_MARGIN: 0.1" n
+    "#+REVEAL_THEME: white" n
     "#+REVEAL_TRANS: none" n
+    "#+reveal_single_file: t" n
     "#+EXCLUDE_TAGS: noexport" n
     "#+reveal_extra_css: ./local.scss" n n p
     )
@@ -1958,19 +2090,19 @@ emacs-lisp-mode
   #+end_src
 ***** bash-templates
   #+begin_src emacs-lisp :tangle ~/.config/emacs/etc/tempel/templates.eld
-  fundamental-mode
+    fundamental-mode
 
-  (datime (format-time-string "%Y-%m-%d %A %d %B %Y"))
-  (24time (format-time-string "%H:%M - "))
+    (datime (format-time-string "%Y-%m-%d %A %d %B %Y"))
+    (24time (format-time-string "%H:%M - "))
 
-  bash-ts-mode conf-mode
-  (func "function " (p "fname") "() {" n> p n> n "}")
+    bash-ts-mode conf-mode
+    (func "function " (p "fname") "() {" n> p n> n "}")
 
-  (comm "######" (make-string (length str) ?#) "######" n
-       "##### " (s str)                       " #####" n
-       "######" (make-string (length str) ?#) "######")
+    (comm "######" (make-string (length str) ?#) "######" n
+         "##### " (s str)                       " #####" n
+         "######" (make-string (length str) ?#) "######")
 
-  (hinfo "${c_yellow}" p "${c_reset}" n p)
+    (hinfo "${c_yellow}" p "${c_reset}" n p)
   #+end_src
 ***** html-templates
 - Css and html templates
@@ -1989,6 +2121,8 @@ emacs-lisp-mode
 
   #+begin_src emacs-lisp
     (use-package tab-bar :unless d/on-droid
+      :bind (("C-<tab>" . tab-line-switch-to-next-tab)
+             ("C-S-<tab>" . tab-line-switch-to-prev-tab))
       :custom ;; tab-bar-format-history
       (tab-bar-format '(tab-bar-separator tab-bar-format-menu-bar tab-bar-format-tabs tab-bar-format-align-right
                                           ;; tab-bar-format-global ;; An issue when used in terminal (cursor wont move properly)
@@ -1997,10 +2131,57 @@ emacs-lisp-mode
       ;; (tab-bar-show nil)
       (tab-bar-mode 1)
       (tab-bar-history-mode 1)
-      ;; (global-tab-line-mode 1)
+      (global-tab-line-mode 1)
       )
   #+end_src
-
+**** ibuffer
+ibuffer to list and manage buffers
+#+begin_src emacs-lisp
+  (use-package ibuffer :ensure nil
+    :custom
+    (ibuffer-saved-filter-groups
+     '(("default"
+        ("org" (or
+                (mode . org-mode)
+                (name . "^\\*Org Src")
+                (name . "^\\*Org Agenda\\*$")))
+        ("tramp" (name . "^\\*tramp.*"))
+        ("emacs" (or
+                  (name . "^\\*scratch\\*$")
+                  (name . "^\\*Messages\\*$")
+                  (name . "^\\*Warnings\\*$")
+                  (name . "^\\*Shell Command Output\\*$")
+                  (name . "^\\*Async-native-compile-log\\*$")
+                  (name . "^\\*straight-")))
+        ("ediff" (or
+                  (name . "^\\*ediff.*")
+                  (name . "^\\*Ediff.*")))
+        ("dired" (mode . dired-mode))
+        ("terminal" (or
+                     (mode . term-mode)
+                     (mode . shell-mode)
+                     (mode . eshell-mode)))
+        ("help" (or
+                 (name . "^\\*Help\\*$")
+                 (name . "^\\*info\\*$")
+                 (name . "^\\*helpful"))))))
+    :config
+    (add-hook 'ibuffer-mode-hook
+              (lambda ()
+                (ibuffer-switch-to-saved-filter-groups "default"))))
+#+end_src
+***** unique names
+#+begin_src emacs-lisp
+  (use-package uniquify :ensure nil
+    :custom (uniquify-buffer-name-style 'forward))
+#+end_src
+**** isearch
+#+begin_src emacs-lisp
+  (use-package isearch :ensure nil
+    :custom
+    (isearch-lazy-count t)
+    (search-whitespace-regexp ".*?"))
+#+end_src
 **** Mouse
   #+begin_src emacs-lisp
     (use-package mwheel :ensure nil
@@ -2018,23 +2199,23 @@ To manage windows states
 
 **** pixel scroll - ultra scroll
   #+begin_src emacs-lisp
-    (use-package ultra-scroll
-      :bind (("C-v" . smooth-scroll-down) ("M-v" . smooth-scroll-up))
-      :init (ultra-scroll-mode 1)
+    (use-package mwheel
+      ;; :bind (("C-v" . smooth-scroll-down) ("M-v" . smooth-scroll-up))
+      ;; :init (ultra-scroll-mode 1)
       :custom (scroll-step 1) (scroll-margin 0)
       ;; (pixel-scroll-precision-interpolate-page t)
       (mouse-wheel-progressive-speed nil) (mouse-wheel-scroll-amount '(1 ((control) . 1)  ((shift) . 2) ((meta) . 3)))
       (scroll-conservatively 101 "Dont jump") (scroll-preserve-screen-position 1 "Preserve position")
-      :config
-      (defun smooth-scroll-down()
-        (interactive)
-        (ultra-scroll-down 30)
-        )
+      ;; :config
+      ;; (defun smooth-scroll-down()
+      ;;   (interactive)
+      ;;   (ultra-scroll-down 30)
+      ;;   )
 
-      (defun smooth-scroll-up()
-        (interactive)
-        (ultra-scroll-up 30)
-        )
+      ;; (defun smooth-scroll-up()
+      ;;   (interactive)
+      ;;   (ultra-scroll-up 30)
+      ;;   )
       )
   #+end_src
 
@@ -2201,6 +2382,12 @@ To manage windows states
 #+begin_src emacs-lisp
   (use-package ediff :ensure nil
     :custom (ediff-window-setup-function 'ediff-setup-windows-plain "Do actions from single frame"))
+
+  (use-package diff-mode :ensure nil
+    :custom
+    (diff-default-read-only t)
+    (diff-font-lock-syntax 'hunk-also)
+    (diff-font-lock-prettify nil))
 #+end_src
 
 *** Direnv
@@ -2228,7 +2415,7 @@ To manage windows states
     {
       programs.foot = {
         enable = true;
-        server.enable = true;
+        # server.enable = true; # use emacs dude!
         settings = {
           main = {
             selection-target = "clipboard";
@@ -2254,7 +2441,7 @@ To manage windows states
     }
   #+end_src
 
-**** Zellij
+**** COMMENT Zellij
 - Its a decent multiplexer
 
   #+begin_src nix :tangle gdk/home.nix
@@ -2348,14 +2535,77 @@ To manage windows states
        (slot . 0)
        (post-command-select-window . t)
        (window-height . 0.3)))
+
+    (add-to-list
+     'display-buffer-alist
+     '("\\*\\(Ibuffer\\)\\*"
+       (display-buffer-in-side-window)
+       (window-width . 100)
+       (side . right)
+       (slot . 1)))
   #+end_src
+
+- Eshell alias
+~alias | sed -E "s/^alias ([^=]+)='(.*)'$/alias \1 \2 \$*/g; s/'\\\''/'/g;"~
+to get bash alias to eshell way
+
+#+begin_src emacs-lisp :tangle ~/.config/emacs/eshell/alias
+  alias e find-file $1
+  alias edit find-file $1
+  alias vim find-file $1
+  alias d dired $1
+  alias gs magit-status-here
+  alias gd magit-diff-unstaged
+  alias ffo find-file-other-window $1
+  alias ll ls -l $@*
+  alias emacs /etc/profiles/per-user/idlip/bin/emacs $@*
+  alias .1 cd .. $*
+  alias .2 cd ../.. $*
+  alias .3 cd ../../.. $*
+  alias bc bc -ql $*
+  alias bloat nix path-info -Sh /run/current-system $*
+  alias burn pkill -9 $*
+  alias c clear $*
+  alias cat bat $*
+  alias cleanup doas nix-collect-garbage --delete-older-than 7d $*
+  alias cp cp -iv $*
+  alias diff diff --color=auto $*
+  alias du dust $*
+  alias e emacsclient -nw $*
+  alias emd emacs --daemon $*
+  alias eza eza --group-directories-first --header $*
+  alias gc git clone --depth=1 $*
+  alias grep rg $*
+  alias http python3 -m http.server $*
+  alias hyprunlock pkill -SIGUSR1 hyprlock $*
+  alias l ls -lF --time-style=long-iso --icons $*
+  alias la eza -lah --tree $*
+  alias ll eza -l $*
+  alias lla eza -la $*
+  alias ls eza -h --git --icons --color=auto --group-directories-first -s extension $*
+  alias lt eza --tree $*
+  alias mkd mkdir -pv $*
+  alias mv mv -iv $*
+  alias rebuild nixos-rebuild switch --flake ~/d-git/d-nix#gdk --use-remote-sudo $*
+  alias rm rm -vI $*
+  alias sioyek sioyek --new-window $*
+  alias testrebuild nixos-rebuild test --flake ~/d-git/d-nix#gdk --use-remote-sudo $*
+  alias tree eza --tree --icons $*
+  alias v emacsclient -nw $*
+  alias ytdl yt-dlp --embed-metadata --embed-subs $*
+  alias ytmp3 yt-dlp -x --continue --add-metadata --embed-thumbnail --audio-format mp3 --audio-quality 0 --metadata-from-title = '%(artist)s - %(title)s' --prefer-ffmpeg -o '%(title)s.%(ext)s'  $*
+#+end_src
 
 **** eat
 - emulate a terminal
 
   #+begin_src emacs-lisp
     (use-package eat :unless d/on-droid
-      :hook (eshell-load . eat-eshell-mode)
+      :hook
+      ((eshell-mode . eat-eshell-mode)
+       (eshell-mode . eat-eshell-visual-command-mode))
+      :custom
+      (eshell-visual-commands nil)
       :bind
       (("C-c d e" . d/eat-toggle)
        ("S-<f12>" . d/eat-toggle)
@@ -2422,8 +2672,6 @@ To manage windows states
 
   #+begin_src nix :tangle gdk/home.nix
     {
-      # does not read local path properly. so ~/.local/bin does not work
-      # may need exec from path then. Why? Just emacs --bg-daemon in WM
       services.emacs = {
         enable = true;
         defaultEditor = true;
@@ -2432,44 +2680,36 @@ To manage windows states
       };
 
       home.packages = with pkgs; [
-        emacs-lsp-booster
+        # emacs-lsp-booster
         imagemagick # for image-dired and other converts
       ];
       # todo purge many packages
-      programs.emacs =
-        let
-        emacs-mps = pkgs.emacs-pgtk.overrideAttrs (old: {
-          name = "emacs-pgtk-mps";
-
-          src = pkgs.fetchFromGitHub {
-            owner = "emacs-mirror";
-            repo = "emacs";
-            rev = "c45b3a28199f43cfbadc215ef5a4c42c3735ed87";
-            sha256 = "sha256-tjWHVCSZsAstYLyn5JCipxXYkZduRsVTbgbW46jvhRo=";
-          };
-
-          buildInputs = old.buildInputs ++ [ pkgs.mps ];
-          configureFlags = old.configureFlags ++ [ "--with-mps=yes" ];
-        });
-        in {
+      programs.emacs = {
         enable = true;
         package = pkgs.emacs-pgtk;
         extraPackages = (epkgs: (with epkgs; [
           treesit-grammars.with-all-grammars
           eat vundo undo-fu-session helpful
           no-littering rainbow-delimiters colorful-mode
-          vertico orderless consult marginalia embark org-modern corfu cape
-          olivetti nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
+          vertico orderless marginalia corfu
+          # org-modern #### more minimal way?
+          consult embark cape
+          # olivetti nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
           embark-consult consult-eglot markdown-mode nix-mode nix-ts-mode
-          reddigg hnreader magit webpaste
-          org-mime shr-tag-pre-highlight nov devdocs-browser reformatter
-          tempel tempel-collection eglot-tempel
-          sdcv jinx envrc ready-player
+          reddigg hnreader magit
+          # org-mime
+          shr-tag-pre-highlight nov devdocs-browser reformatter
+          tempel tempel-collection
+          # eglot-tempel
+          # sdcv jinx
+          envrc
           vc-backup aria2 transmission
-          ess webfeeder engrave-faces
-          toc-org org-ql activities ox-hugo
-          saveplace-pdf-view flycheck consult-flycheck
-          org-re-reveal dslide gptel
+          ess
+          # webfeeder engrave-faces
+          # toc-org
+          org-ql activities ox-hugo
+          saveplace-pdf-view flycheck consult-flycheck org-re-reveal
+          # dslide gptel
 
           (melpaBuild {
             pname = "combobulate";
@@ -2493,16 +2733,16 @@ To manage windows states
             };
           })
 
-          (melpaBuild {
-            pname = "ultra-scroll";
-            version = "20250113";
-            src = pkgs.fetchFromGitHub {
-              owner = "jdtsmith";
-              repo = "ultra-scroll";
-              rev = "9f62273531ad2f9837ad6da28fccbe2ec4c7938c";
-              hash = "sha256-yuwgWflx835hGBuJz6LiAwBXoaaTRgtF+FCWEv4TCIw=";
-            };
-          })
+          # (melpaBuild {
+          #   pname = "ultra-scroll";
+          #   version = "20250113";
+          #   src = pkgs.fetchFromGitHub {
+          #     owner = "jdtsmith";
+          #     repo = "ultra-scroll";
+          #     rev = "9f62273531ad2f9837ad6da28fccbe2ec4c7938c";
+          #     hash = "sha256-yuwgWflx835hGBuJz6LiAwBXoaaTRgtF+FCWEv4TCIw=";
+          #   };
+          # })
 
           ## packages kept out to make more vanilla usage!
           # async dirvish beframe powerthesaurus meow
@@ -2646,16 +2886,16 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 - python in emacs, or emacs in python?
 
   #+begin_src emacs-lisp
-  (use-package python :ensure nil
-    :hook ((python-mode . (lambda ()
-                            (setq-local completion-at-point-functions
-                                        '(cape-file python-completion-at-point cape-dabbrev)
-                                        devdocs-browser-active-docs
-                                        '("Python")))))
-    :bind (:map python-mode-map ("C-c C-d" . devdocs-browser-open))
-    :custom
-    ;; (python-forward-sexp-function nil)
-    (python-indent-guess-indent-offset-verbose nil))
+    (use-package python :ensure nil
+      :hook ((python-mode . (lambda ()
+                              (setq-local completion-at-point-functions
+                                          '(cape-file python-completion-at-point cape-dabbrev)
+                                          devdocs-browser-active-docs
+                                          '("Python")))))
+      :bind (:map python-mode-map ("C-c C-d" . devdocs-browser-open))
+      :custom
+      ;; (python-forward-sexp-function nil)
+      (python-indent-guess-indent-offset-verbose nil))
   #+end_src
 
 **** R-stats
@@ -2858,7 +3098,9 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 #+begin_src emacs-lisp
   (use-package compile
     :hook (compilation-filter . ansi-color-compilation-filter)
+    :bind ("M-#" . compile) ; M-! M-# M-& M-\
     :custom
+    (shell-command-switch "-ic")
     (compilation-scroll-output t)
     (compilation-auto-jump-to-first-error t)
     (compilation-max-output-line-length nil)
@@ -2926,6 +3168,32 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
   (use-package prog-mode :ensure nil :hook (prog-mode . hs-minor-mode) (prog-mode . outline-minor-mode)
     :custom (tab-width 2))
 #+end_src
+
+**** highlight todo note fixes
+- A custom minor-mode using highlight-regexp lib
+
+  #+begin_src emacs-lisp
+    (use-package hi-lock
+      :hook (prog-mode . highlight-marker-mode)
+      :config
+      (define-minor-mode highlight-marker-mode
+        "A minor mode that toggles a chunk of functionality."
+        :init-value nil
+        (let ((regexps
+               `((, (rx (or "FIXME:" "fixme:")) . hi-red-b)   ; fixme
+                 (, (rx (or "NOTE:" "note:")) . hi-blue)      ; note
+                 (, (rx (or "TODO:" "todo:")) . hi-green)     ; todo
+                 (, (rx (group (repeat 8 digit))) . org-date) ; date 20250228  (denote style)
+                 (, (rx "T" (group (repeat 6 digit))) . org-modeline-clock)))) ; time T201020
+
+          (if highlight-marker-mode
+              (dolist (regexp regexps)
+                (highlight-regexp (car regexp) (cdr regexp)) )
+            (dolist (regexp regexps)
+              (unhighlight-regexp (car regexp)))))
+        )
+      )
+  #+end_src
 
 **** electric-pair
 - to enclose pairs or delimiters
@@ -3107,7 +3375,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
             (variable-pitch-mode 1)
             ;; (setq-local line-spacing 0.5)
             ;; (text-scale-increase 1)
-            (setq-local tab-bar-show nil) (tab-bar--update-tab-bar-lines)
+            ;; (setq-local tab-bar-show nil) (tab-bar--update-tab-bar-lines)
             (setq-local cursor-type nil)
             (setq-local olivetti-body-width 90) (olivetti-mode 1)
             )
@@ -3115,7 +3383,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
         (progn
           (d/toggle-bar)
           ;; (text-scale-decrease 1)
-          (kill-local-variable 'tab-bar-show) (tab-bar--update-tab-bar-lines)
+          ;; (kill-local-variable 'tab-bar-show) (tab-bar--update-tab-bar-lines)
           (kill-local-variable 'cursor-type)
           (kill-local-variable 'olivetti-body-width)
           )
@@ -3237,6 +3505,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
                (nntp-open-connection-function nntp-open-tls-stream) ; feedbase does not do STARTTLS (yet?)
                (nntp-port-number 563) (nntp-address "feedbase.org") )
          (nntp "gwene" (nntp-address "news.gwene.org"))
+    	   (nntp "yhetil" (nntp-address "news.yhetil.org"))
          (nnrss "")
          ))
 
@@ -3270,18 +3539,22 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
         "%1{%B%}"
         "%s\n"))
 
-      (setopt gnus-group-line-format "%M%S%p%P%5y:%B%(%G%)\n")
+      (gnus-group-line-format "%M%S%p%P%5y:%B%(%G%)\n")
 
       (gnus-topic-line-format "%i[ %(%{%n%}%) -- %g | %A ]%v\n")
 
+      (gnus-summary-thread-gathering-function 'gnus-gather-threads-by-references)
+
           ;;; credits - https://github.com/jbranso/.emacs.d/blob/master/lisp/init-gnus.org
-      ;; (gnus-sum-thread-tree-indent "  ")
-      ;; (gnus-sum-thread-tree-root "● ")
-      ;; (gnus-sum-thread-tree-false-root "◯ ")
-      ;; (gnus-sum-thread-tree-single-indent "")
-      ;; (gnus-sum-thread-tree-vertical        "│")
-      ;; (gnus-sum-thread-tree-leaf-with-other "├─► ")
-      ;; (gnus-sum-thread-tree-single-leaf     "╰─► ")
+      (gnus-sum--tree-indent " ")
+      (gnus-sum-thread-tree-indent " ")
+      (gnus-sum-thread-tree-false-root "○ ")
+      (gnus-sum-thread-tree-single-indent "◎ ")
+      (gnus-sum-thread-tree-leaf-with-other "├► ")
+      (gnus-sum-thread-tree-root "● ")
+      (gnus-sum-thread-tree-single-leaf "╰► ")
+      (gnus-sum-thread-tree-vertical "│")
+
 
       ;; Yay (seen here: `https://github.com/cofi/dotfiles/blob/master/gnus.el')
       ;; (gnus-cached-mark ?󰃨)
@@ -3361,7 +3634,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
   #+end_src
 
 ** Dictionary
-*** sdcv
+*** COMMENT sdcv
   #+begin_src emacs-lisp
     (use-package sdcv :defer t :unless d/on-droid
       :bind (("C-c d w" . sdcv-search-input)
@@ -3473,7 +3746,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
     }
   #+end_src
 
-**** userChrome
+**** userChrome css
 - Css customization for Firefox UI.
 - Minimal UI with disabled tab-bar (use sideberry)
   #+begin_src css :tangle ./gdk/configs/userChrome.css
@@ -3481,9 +3754,9 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
     #TabsToolbar { visibility: collapse; }
 
     #sidebar-box{
-      --uc-sidebar-width: 40px;
-      --uc-sidebar-hover-width: 210px;
-      --uc-autohide-sidebar-delay: 600ms; /* Wait 0.6s before hiding sidebar */
+      --uc-sidebar-width: 38px;
+      --uc-sidebar-hover-width: 250px;
+      --uc-autohide-sidebar-delay: 100ms; /* Wait 0.6s before hiding sidebar */
       --uc-autohide-transition-duration: 115ms;
       --uc-autohide-transition-type: linear;
       --browser-area-z-index-sidebar: 3;
@@ -3707,6 +3980,24 @@ user_pref("browser.bookmarks.openInTabClosesMenu", false);
 user_pref("findbar.highlightAll", true);
 #+end_src
 
+*** brave
+- Embrace the brave world
+  It sets insane defaults and seems to be improved well over time. It has settings that I desire. Enough!
+#+begin_src nix :tangle gdk/home.nix
+  {
+    programs.chromium = {
+      enable = true;
+      package = pkgs.brave;
+      extensions = [
+        { id = "cjpalhdlnbpafiamejdnhcphjbkeiagm"; } # ublock origin
+        { id = "eimadpbcbfnmbkopoojfekhnkhdbieeh"; } # dark reader
+        { id = "dbepggeogbaibhgnhhndojpepiihcmeb"; } # vimium
+        { id = "mlbcofjdcpapkhdkchafogjpcnjnfijh"; } # tranquility reader
+      ];
+    };
+  }
+#+end_src
+
 *** Web
 - Browsing Web in emacs.
 **** Shr
@@ -3763,6 +4054,7 @@ user_pref("findbar.highlightAll", true);
       (eww-after-render . (lambda () (d/eww-readable) (setq-local line-spacing '0.4)))
       :custom
       (eww-auto-rename-buffer 'title)
+      (eww-search-prefix "https://baresearch.org/search?q=")
       :config
       (defun d/eww-readable ()
         "Use more opinionated `eww-readable'.
@@ -3779,6 +4071,10 @@ user_pref("findbar.highlightAll", true);
               ("go google" . "https://google.com/search?q=%s")
               ("ddg duckduckgo" . "https://duckduckgo.com/?q=%s")
               ("yt invidious" . "https://yewtu.be/search?q=%s")
+              ("sxng searxng" . "https://searxng.world/search?q=%s")
+              ("mg marginalia rss" . "https://marginalia-search.com/search?query=")
+              ("feedle rss" . "https://feedle.world/search?query=")
+              ("lists gnu mail" . "https://yhetil.org/")
               ))
 
       (defun d/search-eww (term)
@@ -3858,7 +4154,7 @@ user_pref("findbar.highlightAll", true);
     (add-hook 'gnus-article-mode-hook #'unpackaged/eww-imenu-setup)
 #+end_src
 
-**** COMMENT ox-hugo
+**** ox-hugo
 - for maintaining a static site generator with posts written in org-mode.
 - For anyone who has come this far, [[https://idlip.github.io][blog site]].
 
@@ -4048,7 +4344,7 @@ Pipewire setup, just these lines enough to make sane default for it
       };
     }
   #+end_src
-*** ready-player
+*** COMMENT ready-player
 - Simple interface for media files in emacs to play with mpv.
   #+begin_src emacs-lisp
     (use-package ready-player :unless d/on-droid :demand t
@@ -4159,7 +4455,7 @@ Pipewire setup, just these lines enough to make sane default for it
       (org-link-elisp-confirm-function 'y-or-n-p)
       (reddigg-subs '(emacs linux nixos orgmode hyprland bioinformatics onepiece fossdroid piracy bangalore india indiaspeaks developersindia manga aww))
       :config
-      (setq other-subs '(crazyfuckingvideos nextfuckinglevel manga anime animepiracy fossdroid commandline memes jokes funnymemes rss holup unexpected todayilearned lifeprotips askreddit julia))
+      (setq other-subs '(crazyfuckingvideos nextfuckinglevel manga anime animepiracy fossdroid commandline memes jokes funnymemes rss holup unexpected todayilearned lifeprotips askreddit julia indianstockmarket))
 
       (defun reddigg-view-sub ()
         "Prompt SUB and print its post list."
@@ -4168,16 +4464,7 @@ Pipewire setup, just these lines enough to make sane default for it
           (cond ((string= sub "frontpage") (reddigg-view-frontpage))
                 ((string= sub "comments") (reddigg-view-comments))
                 (t (reddigg--view-sub sub)))))
-
-      (defun reddigg--ensure-modes ()
-        "Get a bunch of modes up and running."
-        (if (equal major-mode 'org-mode)
-            (org-set-startup-visibility)
-          (org-mode)
-          (font-lock-flush))
-        (visual-line-mode)
-        (jinx-mode -1)
-        (view-mode 1)))
+      )
   #+end_src
 
 *** hacker news
@@ -4806,10 +5093,10 @@ Pipewire setup, just these lines enough to make sane default for it
   input {
   	keyboard {
   		xkb { options "ctrl:nocaps"; }
-  		repeat-delay 600; repeat-rate 50;
+  		repeat-delay 600; repeat-rate 100;
   	}
   	touchpad {
-  		tap; dwt; natural-scroll;
+  		tap; dwt; natural-scroll; accel-speed 0.4
   	}
   	focus-follows-mouse max-scroll-amount="30%"
     workspace-auto-back-and-forth
@@ -4817,6 +5104,7 @@ Pipewire setup, just these lines enough to make sane default for it
 
   environment {
   	DISPLAY ":0"
+    QT_QPA_PLATFORM "wayland"
   	//QT_SCALE_FACTOR "1.5"
   	//GDK_SCALE "2"
   }
@@ -4840,7 +5128,6 @@ Pipewire setup, just these lines enough to make sane default for it
 
   output "eDP-1" {
   	scale 2
-    variable-refresh-rate
   }
 
   output "HDMI-A-1" {
@@ -4851,10 +5138,10 @@ Pipewire setup, just these lines enough to make sane default for it
   layout {
   	gaps 5
     always-center-single-column
-  	//center-focused-column "never"
-  	preset-column-widths { proportion 0.33333; proportion 0.5; proportion 0.66667; }
 
-  	default-column-width { proportion 0.45; }
+  	preset-column-widths { proportion 0.25; proportion 0.5; proportion 0.75; proportion 1.0; }
+    preset-window-heights { proportion 0.33333; proportion 0.5; proportion 0.66667; }
+    default-column-width { proportion 0.75; }
 
   	focus-ring {
   		width 1
@@ -4868,7 +5155,11 @@ Pipewire setup, just these lines enough to make sane default for it
   	//	 top 10; bottom 10;
   	//}
 
-    preset-window-heights { proportion 0.33333; proportion 0.5; proportion 0.66667; }
+    tab-indicator {
+      width 4; gap 2
+      length total-proportion=0.2
+      place-within-column
+    }
 
   }
 
@@ -4882,6 +5173,7 @@ Pipewire setup, just these lines enough to make sane default for it
   window-rule {
   	geometry-corner-radius 2
   	clip-to-geometry true
+    draw-border-with-background false
   }
 
   window-rule {
@@ -4906,7 +5198,7 @@ Pipewire setup, just these lines enough to make sane default for it
   }
   window-rule {
       match app-id=r#"foot"#
-      open-floating true
+      //open-floating true
       open-on-workspace "cli"
   }
 
@@ -4921,6 +5213,7 @@ Pipewire setup, just these lines enough to make sane default for it
   window-rule {
       match app-id="xdg-desktop-portal-gtk"
       match app-id="blueman"
+      match app-id="emacs" title="^Question$"
       open-floating true
   }
 
@@ -4929,6 +5222,29 @@ Pipewire setup, just these lines enough to make sane default for it
   	match app-id=r#"^org\.gnome\.World\.Secrets$"#
   	block-out-from "screen-capture"
     open-on-workspace "misc"
+  }
+
+  // Indicate screencasted windows with red colors.
+  window-rule {
+      match is-window-cast-target=true
+
+      focus-ring {
+          active-color "#f38ba8"
+          inactive-color "#7d0d2d"
+      }
+
+      border {
+          inactive-color "#7d0d2d"
+      }
+
+      tab-indicator {
+          active-color "#f38ba8"
+          inactive-color "#7d0d2d"
+      }
+  }
+
+  switch-events {
+      lid-close { spawn "systemctl" "suspend"; }
   }
 
   // keybindings
@@ -4941,6 +5257,7 @@ Pipewire setup, just these lines enough to make sane default for it
   	Mod+Return { spawn "footclient"; }
   	Mod+D { spawn "fuzzel"; }
   	Mod+X {spawn "d-power"; }
+    Mod+R { spawn "d-hist"; }
   	Mod+Y {spawn "d-clip"; }
   	Mod+W {spawn "d-urls"; }
   	Mod+Shift+B {spawn "d-bookmark"; }
@@ -4964,6 +5281,7 @@ Pipewire setup, just these lines enough to make sane default for it
   	Mod+Shift+Q { close-window; }
 
     Mod+Space { toggle-window-floating; }
+    Mod+T { toggle-column-tabbed-display; }
 
   	Mod+H     { focus-column-left; }
   	Mod+L     { focus-column-right; }
@@ -5037,9 +5355,9 @@ Pipewire setup, just these lines enough to make sane default for it
   	Mod+BracketLeft  { consume-or-expel-window-left; }
   	Mod+BracketRight { consume-or-expel-window-right; }
 
-    Mod+R { switch-preset-column-width; }
-    Mod+Shift+R { switch-preset-window-height; }
-    Mod+Ctrl+R { reset-window-height; }
+    //Mod+R { switch-preset-column-width; }
+    //Mod+Shift+R { switch-preset-window-height; }
+    //Mod+Ctrl+R { reset-window-height; }
     Mod+F { maximize-column; }
     Mod+Shift+F { fullscreen-window; }
     Mod+C { center-column; }
@@ -5072,9 +5390,8 @@ Pipewire setup, just these lines enough to make sane default for it
       # programs.ssh.askPassword = lib.mkForce "${pkgs.kdePackages.ksshaskpass.out}/bin/ksshaskpass";
       services = {
         desktopManager.plasma6.enable = true;
-        displayManager.sddm.enable = true;
+        displayManager.sddm.enable = lib.mkForce false;
         xserver.enable = true;
-        displayManager.sddm.wayland.enable = true;
       };
     }
   #+end_src
@@ -5502,10 +5819,10 @@ Pipewire setup, just these lines enough to make sane default for it
     ;; Dont worry about the font name, I use fork of Iosevka font
 
     ;; Set reusable font name variables
-    (defcustom d/fixed-pitch-font "Code OnePiece"
+    (defcustom d/fixed-pitch-font (if d/on-droid "Code OnePiece" "Maple Mono NF")
       "The font to use for monospaced (fixed width) text.")
 
-    (defcustom d/variable-pitch-font "Code Haki"
+    (defcustom d/variable-pitch-font (if d/on-droid "Code Haki" "Maple Mono NF")
       "The font to use for variable-pitch (documents) text.")
   #+end_src
 
@@ -5572,14 +5889,14 @@ Pipewire setup, just these lines enough to make sane default for it
           base05 = "#ffffff"; # fg
           base06 = "#6c7b8b"; # light fg
           base07 = "#444444"; # light bg
-          base08 = "#ffb5c5"; # red
+          base08 = "#ff7f9f"; # red
           base09 = "#ee9572"; # orange
-          base0A = "#fbfba2"; # yellow
-          base0B = "#54ff9f"; # green
-          base0C = "#22fefe"; # aqua/cyan
-          base0D = "#89b4fa"; # blue
-          base0E = "#9370db"; # purple
-          base0F = "#76eec6"; # brown
+          base0A = "#fec43f"; # yellow
+          base0B = "#00c06f"; # green
+          base0C = "#6ae4b9"; # aqua/cyan
+          base0D = "#79a8ff"; # blue
+          base0E = "#b6a0ff"; # purple
+          base0F = "#d65d0e"; # brown
         };
 
         cursor = {
@@ -5590,22 +5907,33 @@ Pipewire setup, just these lines enough to make sane default for it
         fonts = let
           dpkg = (pkgs.callPackage ./pkgs/code-d-font.nix {});
 
-          mpkg = pkgs.iosevka;
+          # mpkg = pkgs.nerd-fonts.iosevka-term;
           spkg = (pkgs.iosevka-bin.override { variant = "Aile"; });
+
+          mpkg = (pkgs.maple-mono-NF.overrideAttrs (oldAttrs: {
+            version = "7.0-beta36";
+            src = pkgs.fetchurl {
+              url = "https://github.com/subframe7536/maple-font/releases/download/v7.0-beta34/MapleMono-NF-unhinted.zip";
+              sha256 = "sha256-4QpOY6b++pDJuS7sJ2li0xdw1KQeMi/S9hSGMSgzh5M=";
+            };
+          }));
+
+          # spkg = pkgs.atkinson-hyperlegible;
+
         in {
           serif = {
             package = dpkg;
-            name = "Code Haki";
+            name = "Maple Mono NF";
           };
 
           sansSerif = {
-            package = dpkg;
-            name = "Code Haki";
+            package = spkg;
+            name = "Maple Mono NF";
           };
 
           monospace = {
-            package = dpkg;
-            name = "Code OnePiece";
+            package = mpkg;
+            name = "Maple Mono NF";
           };
 
           emoji = {
@@ -5641,7 +5969,6 @@ Pipewire setup, just these lines enough to make sane default for it
 
         targets = {
           emacs.enable = false;
-          kde.enable = false;
           waybar = {
             enable = true;
             # enableLeftBackColors = true;
@@ -5720,13 +6047,14 @@ Pipewire setup, just these lines enough to make sane default for it
       :config (load-theme 'haki t))
   #+end_src
 
-**** modus theme vivendi
+**** modus theme vivendi haki
 #+begin_src emacs-lisp
   (use-package modus-themes
     :init
     (require-theme 'modus-themes)
     :custom-face
     (region ((t :extend nil)))
+    (message-header-subject ((t :height 1.5)))
     :custom
     (modus-themes-italic-constructs t)
     (modus-themes-bold-constructs nil)
@@ -5765,6 +6093,7 @@ Pipewire setup, just these lines enough to make sane default for it
 
        (fg-heading-1  "#ab82ff")
        (fg-heading-2  "#fab387")
+       (mail-subject  "#6ae4b9")
 
        (bg-completion "#2e8b57")
        (bg-region     bg-active)
@@ -6089,6 +6418,11 @@ Pipewire setup, just these lines enough to make sane default for it
           extraOptionOverrides = {
             SetEnv = "TERM=xterm-256color";
           };
+          matchBlocks."172.16.2.72" = {
+            forwardX11Trusted = true;
+            forwardX11 = true;
+          };
+
           };
 
         fzf = {
@@ -6106,10 +6440,9 @@ Pipewire setup, just these lines enough to make sane default for it
       :bind ("C-x x p" . 'proced)
       :custom
       (proced-enable-color-flag t)
-      (proced-format 'medium)
+      (proced-format '(user start time pcpu pmem rss args))
       (proced-sort 'pmem)
       (proced-auto-update-flag t))
-
   #+end_src
 
 *** bash
@@ -6302,6 +6635,9 @@ Pipewire setup, just these lines enough to make sane default for it
           play-sound = "/home/idlip/.bin/d-notify \${filename}";
           sound-file= "/home/idlip/music/yt/misc/linux-notify.ogg";
         };
+        low = {
+          background = "000000ff";
+        };
       };
     };
   }
@@ -6409,8 +6745,8 @@ Pipewire setup, just these lines enough to make sane default for it
 - Some programs and packages to be used often. Miscellaneous
 
   #+begin_src nix :tangle gdk/home.nix
-    { home.packages = with pkgs; [ libnotify nemo pandoc groff mupdf keepassxc easyeffects jaq
-      # libreoffice-fresh
+    { home.packages = with pkgs; [ libnotify nemo pandoc groff mupdf keepassxc easyeffects jaq nh
+      libreoffice-fresh
     ]; }
   #+end_src
 
@@ -6461,6 +6797,8 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
        '((sequence "TODO(t)" "NEXT(n)" "STARTED(s!)" "WAITING(w@/!)" "|" "DONE(d!)")
          (sequence "SOMEDAY(o)" "|")
          (sequence "|" "DELEGATED(g@/!)" "CANCELLED(c!)")))
+      (org-use-fast-todo-selection 'expert)
+
       (org-clock-in-switch-to-state "STARTED")
 
       (org-refile-targets
@@ -6516,11 +6854,11 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
 
   #+begin_src emacs-lisp
     (defun d/org-activity()
-      "Make temp buffer activity for org tags."
+      "Make temp activity buffer for org tags."
       (interactive)
       (with-current-buffer "d-brain.org"
         (let ((org-export-select-tags (completing-read-multiple "tags: " (org-get-buffer-tags))))
-          (org-export-to-buffer 'org "read-this.org"))
+          (org-export-to-buffer 'org (format "export %s.org" org-export-select-tags)))
         (org-mode) (delete-other-windows)
         ))
 
@@ -6573,7 +6911,7 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
     (use-package org-agenda :ensure nil :demand t
       :init (org-agenda nil "a")
       :bind (("C-c d a" . org-agenda)
-             ("C-c a a" . org-agenda)
+             ("C-c a" . org-agenda)
              (:map org-agenda-mode-map
                    ("C-x C-k" . org-agenda-exit)))
 
@@ -6585,7 +6923,7 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
       (org-agenda-window-setup 'only-window)
 
       (org-agenda-custom-commands
-       '(("n" "Next tasks" ((todo "STARTED") (todo "NEXT")))
+       '(("n" "Next tasks" ((todo "STARTED") (todo "NEXT") (todo "PROJ")))
          ("a" "Agenda and all TODOs" ((agenda "") (alltodo "")))))
 
       (org-agenda-files
@@ -6861,8 +7199,19 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
 
 *** org-export
   #+begin_src emacs-lisp
-  (use-package ox :after org
-    :custom (org-export-backends '(org odt md man latex icalendar html ascii)))
+    (use-package ox :after org
+      :custom (org-export-backends '(org odt md man latex icalendar html ascii)))
+
+    (defun d/org-export-clean()
+      "Function to retain only level 4 heading in `datetree' single big org file export."
+      (interactive)
+      (if (y-or-n-p "Do you want to only have 4th headings and flush rest?")
+          (progn (beginning-of-buffer)
+            (flush-lines "^\\* ")
+            (flush-lines "^\\*\\* ")
+            (flush-lines "^\\*\\*\\* ")
+            (query-replace "****" "*"))
+        ))
   #+end_src
 
 *** org-crypt
@@ -6879,7 +7228,7 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
       )
   #+end_src
 
-*** org-mime
+*** COMMENT org-mime
 - To send html emails in org mode
 
 #+begin_src emacs-lisp
@@ -6899,8 +7248,12 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
 - Note: =no-littering= package alters =remember-data-file=.
 
   #+begin_src emacs-lisp
-  (use-package remember :ensure nil
-    :bind ("C-c r r" . remember) ("C-c r n" . remember-notes))
+    (use-package remember :ensure nil
+      :bind ("C-c r r" . remember) ("C-c r n" . remember-notes)
+      :custom
+      (initial-buffer-choice 'remember-notes)
+    	(remember-data-file (expand-file-name "inbox.org" org-directory))
+    	(remember-notes-initial-major-mode 'org-mode))
   #+end_src
 
 *** calendar
@@ -6940,6 +7293,7 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
 ** Spell
 - to check for simple spell corrections
 
+*** COMMENT jinx - enchant checker
   #+begin_src emacs-lisp
   (use-package jinx :unless d/on-droid
     ;; :init (global-jinx-mode)
@@ -6947,6 +7301,7 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
     :bind ("M-$". jinx-correct))
   #+end_src
 
+*** ispell - emacs checker
 - Built-in spell checker
 
   #+begin_src emacs-lisp
@@ -6954,32 +7309,45 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
     :custom (ispell-alternate-dictionary (expand-file-name "~/.config/enchant/en_US.dic")))
   #+end_src
 
+#+begin_src emacs-lisp
+  (use-package flyspell)
+#+end_src
+
 *** Vocab
 - to use language-tool for corrections over grammar and vocabulary
 - And some spell correction tools.
 
-  #+begin_src nix :tangle gdk/home.nix
-  {
-
-    home = with pkgs;
-      let
-        mySpells = aspellWithDicts (dicts: with dicts; [ en en-computers ]);
-      in
-        {
-          file.".aspell.conf".text = ''
-            dict-dir ${mySpells}/lib/aspell/
-            add-extra-dicts en-computers.rws
-          '';
-          packages = [
-            languagetool
-            mySpells
-            # hunspell hunspellDicts.en_US
-          ];
-        };
-  }
+- Allow science asepll dict
+  #+begin_src nix :tangle gdk/core.nix
+    {
+      nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+        "aspell-dict-en-science"
+      ];
+    }
   #+end_src
 
-- language tool as linter
+  #+begin_src nix :tangle gdk/home.nix
+    {
+
+      home = with pkgs;
+        let
+          mySpells = aspellWithDicts (dicts: with dicts; [ en en-computers en-science ]);
+        in
+          {
+            file.".aspell.conf".text = ''
+              dict-dir ${mySpells}/lib/aspell/
+              add-extra-dicts en-computers.rws
+            '';
+            packages = [
+              # languagetool
+              mySpells
+              # hunspell hunspellDicts.en_US
+            ];
+          };
+    }
+  #+end_src
+
+**** COMMENT language tool as linter
    - Might take too much memory
 
   #+begin_src emacs-lisp

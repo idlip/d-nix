@@ -29,25 +29,24 @@
 * 🌟 Utilities that are Best!
 --------------
 
-|----------------------------+-------------------------|
-| Class                      | Name                    |
-|----------------------------+-------------------------|
-| 🌸 Window Manager         | [[https://github.com/yalTeR/niri][Niri]]                    |
-| 💜 Text Editor            | [[https://www.gnu.org/software/emacs/][Emacs]]                   |
-| 🎨 Gtk Theme              | [[https://github.com/danth/stylix/][Stylix]]                  |
-|   Font                    | [[https://github.com/idlip/Iosevka/tree/nika][Custom Iosevka]]          |
-| 📔 Pdf Reader             | [[https://github.com/ahrm/sioyek][Sioyek]] (ditch zathura)  |
-| 🎬 Media Player           | [[https://mpv.io][MPV!]] (its MVP too)      |
-| 🖼️ Image Viewer           | [[https://github.com/artemsen/swayimg][Swayimg]]                 |
-| 📰 RSS Reader             | [[https://www.gnus.org/][Gnus]]                    |
-| 🎶 Music Player           | [[https://www.musicpd.org/][mpd+mpc]] or [[https://github.com/xenodium/ready-player][ready-player]] |
-|   Terminal                | [[https://codeberg.org/dnkl/foot][Foot]] or emacs eshell    |
-| 🚀 Menu/Launcher          | [[https://codeberg.org/dnkl/fuzzel][Fuzzel]]                  |
-| 🛎️ Notification           | [[https://codeberg.org/dnkl/fnott][Fnott]]                   |
-| 🔰 Shell                  | [[https://fishshell.com/][Fish]]                    |
-| 🍥 Status Bar             | [[https://github.com/Alexays/Waybar][Waybar]]                  |
-| 🫰 Favorite Color-Schemes | [[https://github.com/idlip/haki][Haki]] via [[https://github.com/danth/stylix/][Stylix]]         |
-|----------------------------+-------------------------|
+|---------------------------+----------------------|
+| Class                     | Name                 |
+|---------------------------+----------------------|
+| 🌸 Window Manager         | [[https://github.com/yalTeR/niri][Niri]]                 |
+| 💜 Text Editor            | [[https://www.gnu.org/software/emacs/][Emacs]]                |
+| 🎨 Gtk Theme              | [[https://github.com/danth/stylix/][Stylix]]               |
+|   Font                   | [[https://github.com/subframe7536/maple-font][Maple Mono]]           |
+| 📔 Pdf Reader             | [[https://github.com/ahrm/sioyek][Sioyek]]               |
+| 🎬 Media Player           | [[https://mpv.io][mpv]]                  |
+| 🖼️ Image Viewer           | [[https://github.com/artemsen/swayimg][Swayimg]]              |
+| 📰 RSS Reader             | [[://www.gnu.org/software/emacs/][emacs]]                |
+| 🎶 Music Player           | [[https://www.musicpd.org/][mpd+mpc]]              |
+|   Terminal               | [[https://codeberg.org/dnkl/foot][Foot]] or emacs eshell |
+| 🚀 Menu/Launcher          | [[https://codeberg.org/dnkl/fuzzel][Fuzzel]]               |
+| 🛎️ Notification           | [[https://codeberg.org/dnkl/fnott][Fnott]]                |
+| 🔰 Shell                  | [[https://fishshell.com/][Fish]]                 |
+| 🫰 Favorite Color-Schemes | [[https://github.com/idlip/haki][Haki]] via [[https://github.com/danth/stylix/][Stylix]]      |
+|---------------------------+----------------------|
 
 #+begin_quote
 Rest all other stuffs I do in Emacs, tbh I could do everything in Emacs lol.

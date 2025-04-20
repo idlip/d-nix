@@ -359,10 +359,6 @@
       { id = "eimadpbcbfnmbkopoojfekhnkhdbieeh"; } # dark reader
       { id = "dbepggeogbaibhgnhhndojpepiihcmeb"; } # vimium
       { id = "mlbcofjdcpapkhdkchafogjpcnjnfijh"; } # tranquility reader
-      {
-        id = "dcpihecpambacapedldabdbpakmachpb";
-        updateUrl = "https://gitflic.ru/project/magnolia1234/bpc_uploads/blob/raw?file=bypass-paywalls-chrome-clean-4.0.7.0.crx&inline=false&commit=a6c8020c503c37824f6311bd1251aecc36555103";
-      }
     ];
   };
 }
@@ -843,6 +839,7 @@
         "--colors=line:style:bold"
         "--ignore-case"
         "--follow"
+        "--null" "--line-buffered" "--max-columns=1000" "--smart-case" "--no-heading" "--with-filename" "--line-number"
       ];
     };
 
@@ -953,7 +950,7 @@
     zip unzip # archives
     ffmpeg-full sdcv nq
     # utils
-    du-dust fd wget
+    du-dust fd wget ripgrep-all
   ];
 }
 
@@ -1017,18 +1014,65 @@
 }
 
 {
-  services.fnott = {
+  services.swaync = {
     enable = true;
     settings = {
-      main = {
-        layer = "overlay";
-        border-radius = 16;
-        dpi-aware = true;
-        play-sound = "/home/idlip/.bin/d-notify \${filename}";
-        sound-file= "/home/idlip/music/yt/misc/linux-notify.ogg";
-      };
-      low = {
-        background = "000000ff";
+      layer = "overlay";
+
+      widgets = [ "title" "dnd" "notifications" "mpris" "volume" "backlight" "buttons-grid" ];
+
+      widget-config = {
+        title = {
+          text = "Notification Center";
+          clear-all-button = true;
+          button-text = "󰆴";
+        };
+        mpris = {
+          image-size = 80;
+          image-radius = 10;
+        };
+        volume = {
+          label = "󰕾";
+          step = 5;
+        };
+        backlight = {
+          label = "󰃟";
+          step = 5;
+        };
+        buttons-grid = {
+          actions = [
+            {
+              label = "󰖩";
+              command = "d-wifi";
+            }
+            {
+              label = "󰂯";
+              command = "blueman-manager";
+            }
+            {
+              label = "";
+              command = "d-record";
+            }
+            {
+              label = "󰕾";
+              command = "d-ctrl volume toggle";
+              type = "toggle";
+            }
+            {
+              label = "󰍬";
+              command = "d-ctrl mic";
+              type = "toggle";
+            }
+            {
+              label = "󰌾";
+              command = "hyprlock";
+            }
+            {
+              label = "⏻";
+              command = "d-power";
+            }
+          ];
+        };
       };
     };
   };

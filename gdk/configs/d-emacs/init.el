@@ -1,5 +1,6 @@
 (use-package time :ensure nil :init (display-time-mode)
-  :custom (display-time-24hr-format t) (display-time-default-load-average nil))
+  :custom (display-time-24hr-format t) (display-time-default-load-average nil)
+  (display-time-format "%l:%M %p %b %d W%U"))
 
 (use-package tramp :ensure nil :custom (tramp-backup-directory-alist backup-directory-alist))
 
@@ -45,40 +46,7 @@ see its function help for a description of the format."
 (use-package battery :ensure nil :init (display-battery-mode)
   :custom (battery-load-low '40) (battery-load-critical '29))
 
-;;; early-init.el --- Emacs 27+ pre-initialisation config -*- lexical-binding: t; -*-
-
-;;; Commentary:
-
-;; Emacs 27+ loads this file before (normally) calling
-;; `package-initialize'.  We use this file to suppress that automatic
-;; behaviour so that startup is consistent across Emacs versions.
-
-;; Tangled File, no need to edit !!!
-
-;;; Code:
-
-(tool-bar-mode -1)
-(menu-bar-mode -1)
-(scroll-bar-mode -1)
-
-(setq frame-inhibit-implied-resize t)
-
-(defconst d/on-droid (eq system-type 'android))
-
-;; Emacs (gui app) is also amazing in android
-;; https://sourceforge.net/projects/android-ports-for-gnu-emacs/files/termux/
-(when d/on-droid
-  (setenv "PATH" (format "%s:%s" "/data/data/com.termux/files/usr/bin"
-		                 (getenv "PATH")))
-  (setenv "LD_LIBRARY_PATH" (format "%s:%s"
-				                    "/data/data/com.termux/files/usr/lib"
-				                    (getenv "LD_LIBRARY_PATH")))
-  (push "/data/data/com.termux/files/usr/bin" exec-path))
-
-(provide 'early-init)
-;;; early-init.el ends here
-
-(use-package window :ensure nil
+(use-package emacs :ensure nil
   :bind
   (("C-z" . nil) ("C-x C-z" . nil) ;; avoid suspend-emacs
    ;; panes
@@ -107,7 +75,7 @@ see its function help for a description of the format."
   (sentence-end "[.?!,;-]")
 
   :config
-  (delete-selection-mode)
+  (delete-selection-mode) (blink-cursor-mode nil)
   (global-so-long-mode 1)
   (set-window-margins (selected-window) 2 2)
   (setopt
@@ -122,8 +90,8 @@ see its function help for a description of the format."
      (internal-border-width . 1)))
 
   ;; balance windows when split (https://zck.org/balance-emacs-windows)
-  ;; (seq-doseq (fn (list #'split-window #'delete-window))
-  ;;   (advice-add fn :after #'(lambda (&rest args) (balance-windows))))
+  (seq-doseq (fn (list #'split-window #'delete-window))
+    (advice-add fn :after #'(lambda (&rest args) (balance-windows))))
   )
 
 (defun d/toggle-window-focus()
@@ -326,15 +294,26 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 
 (use-package savehist :ensure nil
   :init (savehist-mode)
-  :custom (history-length 1000)   (save-place-limit nil)
+  :custom (history-length 200)   (save-place-limit nil)
   (savehist-additional-variables
-   '(mark-ring kill-ring global-mark-ring search-ring regexp-search-ring register-alist extended-command-history)))
+   '(kill-ring
+     command-history
+     set-variable-value-history
+     custom-variable-history
+     query-replace-history
+     read-expression-history
+     minibuffer-history
+     read-char-history
+     face-name-history
+     bookmark-history
+     file-name-history
+     mark-ring global-mark-ring search-ring regexp-search-ring register-alist extended-command-history)))
 
 (use-package recentf :ensure nil
   :bind ("C-x C-r" . recentf)
   :custom
-  (recentf-max-menu-items history-length)
-  (recentf-max-saved-items history-length)
+  (recentf-max-menu-items 1000)
+  (recentf-max-saved-items 1000)
   :init (recentf-mode))
 
 (use-package no-littering :demand t :ensure t
@@ -384,7 +363,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 (use-package minibuffer :ensure nil
   :hook (minibuffer-setup . cursor-intangible-mode)
   :custom
-  (completion-ignore-case t) (completion-auto-select t) (completion-auto-help t)
+  (completion-ignore-case t) (completion-auto-select 'second-tab) (completion-auto-help t)
   (completions-detailed t) (enable-recursive-minibuffers t) (completion-show-help nil)
   (completions-max-height 10) (completions-sort 'historical)
   (read-buffer-completion-ignore-case t) (read-file-name-completion-ignore-case t)
@@ -395,7 +374,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (completions-format 'vertical)
   )
 
-(define-abbrev-table 'mail-mode-abbrev-table
+(define-abbrev-table 'internet-terms-abbrev-table
   '(
     ("AFAICT" "As far as I can tell" nil :count 0)
     ("IMNSHO" "In my not so humble opinion" nil :count 0)
@@ -428,23 +407,37 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 (use-package hippie-exp :ensure nil
   :init ;; https://www.masteringemacs.org/article/text-expansion-hippie-expand
   (keymap-global-set "<remap> <dabbrev-expand>" 'hippie-expand)
+  :custom (hippie-expand-verbose t)
+  (hippie-expand-dabbrev-skip-space t) )
+
+(use-package vertico :init (vertico-mode)
+  :bind ((:map vertico-map ("C-v" . vertico-scroll-up) ("M-v" . vertico-scroll-down)))
+  :custom (vertico-count 5)
+  (read-extended-command-predicate #'command-completion-default-include-p)
+  :init
+  (setq minibuffer-prompt-properties
+        '(read-only t cursor-intangible t face minibuffer-prompt))
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode))
+
+(use-package vertico-multiform :init (vertico-multiform-mode)
   :custom
-  (hippie-expand-verbose t)
-  (hippie-expand-dabbrev-skip-space t)
-  (hippie-expand-try-functions-list
+  (vertico-multiform-commands
    '(
-     try-expand-dabbrev
-     try-expand-dabbrev-all-buffers
-     try-expand-dabbrev-from-kill
-     try-complete-lisp-symbol-partially
-     try-complete-lisp-symbol
-     try-expand-list
-     try-expand-line
-     try-complete-file-name-partially
-     try-complete-file-name
-     try-expand-all-abbrevs
+     ;; (jinx-correct reverse)
+     (load-theme grid) (consult-theme grid)
+     (dired-goto-file flat)
+     (consult-recoll buffer)
+     (consult-dff unobtrusive)
+     (embark-act grid)
      ))
-  )
+
+  (vertico-multiform-categories
+   '((file  reverse)
+     (consult-grep buffer)
+     (jinx grid)
+     (embark-bindings grid)
+     (embark-keybinding grid)
+     (buffer flat (vertico-cycle . t)))))
 
 (use-package consult :defer t
   :bind
@@ -492,16 +485,19 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (xref-show-xrefs-function #'consult-xref)
   (xref-show-definitions-function #'consult-xref)
   (imenu-max-item-length nil)
-
+  (consult-ripgrep-args "rga --null --line-buffered --color=never --max-columns=1000 --path-separator /   --smart-case --no-heading --with-filename --line-number")
   :config
+  (setopt completion-in-region-function #'consult-completion-in-region)
   (consult-customize
    consult-theme :preview-key '(:debounce 2.5 any)
+   consult-line :initial (thing-at-point 'symbol)
    consult-ripgrep consult-git-grep consult-grep
    consult-bookmark consult-recent-file consult-xref
    consult--source-bookmark consult--source-file-register
    consult--source-recent-file consult--source-project-recent-file
    ;; :preview-key (kbd "M-.")
    :preview-key '(:debounce 0.4 any))
+
   (advice-add #'register-preview :override #'consult-register-window))
 
 (use-package orderless :demand t :custom (completion-styles '(orderless basic))
@@ -542,6 +538,8 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 
 (use-package embark-consult :defer t :hook (embark-collect-mode . consult-preview-at-point-mode))
 
+(use-package marginalia :init (marginalia-mode))
+
 (use-package cape
   :bind ("C-c p" . cape-prefix-map)
   ("M-i" . cape-prefix-map)
@@ -559,17 +557,18 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 (use-package tempel-collection :after tempel)
 
 (use-package tab-bar :unless d/on-droid
-  :bind (("C-<tab>" . tab-line-switch-to-next-tab)
-         ("C-S-<tab>" . tab-line-switch-to-prev-tab))
+  ;; :bind (("C-<tab>" . tab-line-switch-to-next-tab) ("C-S-<tab>" . tab-line-switch-to-prev-tab))
   :custom ;; tab-bar-format-history
-  (tab-bar-format '(tab-bar-separator tab-bar-format-menu-bar tab-bar-format-tabs tab-bar-format-align-right
-                                      ;; tab-bar-format-global ;; An issue when used in terminal (cursor wont move properly)
+  (tab-bar-format '(tab-bar-separator tab-bar-format-menu-bar tab-bar-format-tabs-groups tab-bar-separator
+                                      ;; tab-bar-format-tabs
+                                      tab-bar-format-align-right
+                                      tab-bar-format-global ;; An issue when used in terminal+daemon (cursor wont move properly)
                                       ))
   (tab-bar-close-button-show nil)
   ;; (tab-bar-show nil)
   (tab-bar-mode 1)
   (tab-bar-history-mode 1)
-  (global-tab-line-mode 1)
+  ;; (global-tab-line-mode 1)
   )
 
 (use-package ibuffer :ensure nil
@@ -613,7 +612,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
   (isearch-lazy-count t)
   (search-whitespace-regexp ".*?"))
 
-(use-package mwheel :ensure nil
+(use-package mouse :ensure nil :init (context-menu-mode t)
   :custom (mouse-autoselect-window t) )
 
 (use-package xt-mouse
@@ -623,6 +622,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 
 (use-package mwheel
   ;; :bind (("C-v" . smooth-scroll-down) ("M-v" . smooth-scroll-up))
+  :init (pixel-scroll-precision-mode 1)
   ;; :init (ultra-scroll-mode 1)
   :custom (scroll-step 1) (scroll-margin 0)
   ;; (pixel-scroll-precision-interpolate-page t)
@@ -643,21 +643,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 (use-package repeat :config (repeat-mode 1)
   :custom (repeat-exit-timeout 2))
 
-(use-package activities :unless d/on-droid
-  :init (activities-mode) (activities-tabs-mode)
-  ;; Prevent `edebug' default bindings from interfering.
-  (setq edebug-inhibit-emacs-lisp-mode-bindings t)
-  :bind
-  (("C-x C-a C-n" . activities-new)
-   ("C-x C-a C-d" . activities-define)
-   ("C-x C-a C-a" . activities-resume)
-   ("C-x C-a C-s" . activities-suspend)
-   ("C-x C-a C-k" . activities-kill)
-   ("C-x C-a C-b" . activities-switch-buffer)
-   ("C-x C-a RET" . activities-switch)
-   ("C-x C-a b" . activities-switch-buffer)
-   ("C-x C-a g" . activities-revert)
-   ("C-x C-a l" . activities-list)))
+(use-package spacious-padding :unless d/on-droid :init (spacious-padding-mode t))
 
 (use-package gptel :unless d/on-droid :defer t
   :custom (gptel-model 'llama3.2:latest)
@@ -679,10 +665,29 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 
 (use-package zone :ensure nil :demand t :config (zone-when-idle (* 60 5)))
 
-(use-package helpful :hook (helpful-mode . d/toggle-bar)
-  :bind (("C-h f" . helpful-callable) ("C-h v" . helpful-variable) ("C-h k" . helpful-key)
-         ("C-h x" . helpful-command) ("C-c C-d" . helpful-at-point) ("C-h o" . helpful-symbol)
-         ("C-h F" . helpful-function)))
+(define-minor-mode d/write-mode
+  "write comment outside emacs."
+  :keymap `((,(kbd "C-c C-c") . d/write-done)))
+
+(defcustom d/write-dir "/tmp/emacs-write"
+  "Directory path for writing files.")
+
+(defun d/write-here ()
+  "Start writing outside emacs, but still using emacs."
+  (files--ensure-directory d/write-dir)
+  (with-current-buffer
+      (find-file (format "%s/%s.org" d/write-dir (format-time-string "%Y%m%dT%H%M%S")))
+    (d/write-mode)
+    (modify-frame-parameters
+     (make-frame '((name . "d-write")))
+     '((width . 80)
+       (height . 20)))))
+
+(defun d/write-done ()
+  "Copy current buffer to kill-ring."
+  (interactive)
+  (clipboard-kill-ring-save (point-min) (point-max))
+  (save-buffer) (kill-buffer) (delete-frame) )
 
 (use-package magit :defer t
   :custom
@@ -765,7 +770,7 @@ E.g. capitalize or decapitalize the next word, increment number at point."
 
 (add-to-list
  'display-buffer-alist
- '("\\*\\(shell\\|.*term\\|.*eshell\\|.*eat\\|help\\|compilation\\|Async Shell Command\\|Occur\\|xref\\).*\\*"
+ '("\\*\\(shell\\|term\\|.*eshell\\|.*eat\\|help\\|compilation\\|Async Shell Command\\|Occur\\|xref\\).*\\*"
    (display-buffer-reuse-window display-buffer-in-side-window)
    (side . bottom)
    (slot . 0)
@@ -955,13 +960,14 @@ out"))
   ;;   (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
   )
 
-(use-package xref :ensure nil :custom (xref-search-program 'ripgrep) (grep-command "rg -nS --no-heading"))
+(use-package xref :ensure nil :custom (xref-search-program 'ripgrep)
+  (grep-command "rga --null --line-buffered --max-columns=1000 --smart-case --no-heading --with-filename --line-number"))
 
 (use-package compile
   :hook (compilation-filter . ansi-color-compilation-filter)
   :bind ("M-#" . compile) ; M-! M-# M-& M-\
   :custom
-  (shell-command-switch "-ic")
+  (shell-command-switch "-c") ;; -i
   (compilation-scroll-output t)
   (compilation-auto-jump-to-first-error t)
   (compilation-max-output-line-length nil)
@@ -1023,7 +1029,7 @@ out"))
            `((, (rx (or "FIXME:" "fixme:")) . hi-red-b)   ; fixme
              (, (rx (or "NOTE:" "note:")) . hi-blue)      ; note
              (, (rx (or "TODO:" "todo:")) . hi-green)     ; todo
-             (, (rx (group (repeat 8 digit))) . org-date) ; date 20250228  (denote style)
+             (, (rx (group (repeat 8 digit)) "T") . org-date) ; date 20250228T  (denote style)
              (, (rx "T" (group (repeat 6 digit))) . org-modeline-clock)))) ; time T201020
 
       (if highlight-marker-mode
@@ -1101,21 +1107,21 @@ out"))
   (if d/reading-mode
       (progn
         (read-only-mode 1)
-        (d/toggle-bar)
+        (d/toggle-bar-mode 1)
         (variable-pitch-mode 1)
+        (d/center-document-mode 1)
         ;; (setq-local line-spacing 0.5)
         ;; (text-scale-increase 1)
         ;; (setq-local tab-bar-show nil) (tab-bar--update-tab-bar-lines)
         (setq-local cursor-type nil)
-        (setq-local olivetti-body-width 90) (olivetti-mode 1)
         )
 
     (progn
-      (d/toggle-bar)
+      (d/toggle-bar-mode -1)
+      (d/center-document-mode -1)
       ;; (text-scale-decrease 1)
       ;; (kill-local-variable 'tab-bar-show) (tab-bar--update-tab-bar-lines)
       (kill-local-variable 'cursor-type)
-      (kill-local-variable 'olivetti-body-width)
       )
     ))
 
@@ -1226,7 +1232,7 @@ out"))
      ))
 
   ;; refer: https://github.com/redguardtoo/mastering-emacs-in-one-year-guide/blob/master/gnus-guide-en.org
-  (gnus-thread-sort-functions '(gnus-thread-sort-by-score gnus-thread-sort-by-most-recent-date))
+  (gnus-thread-sort-functions '(gnus-thread-sort-by-most-recent-date gnus-thread-sort-by-score))
   (gnus-use-cache t)
   (gnus-thread-hide-subtree t)
   ;; (gnus-activate-level 2)
@@ -1310,11 +1316,11 @@ out"))
                         (nnimap-stream plain)
                         (nnimap-address "127.0.0.1") ;; hydroxide
                         (nnimap-server-port 1143)))
-  (add-to-list 'gnus-secondary-select-methods
-               '(nnimap "tilde-green"
-                        (nnimap-stream tls)
-                        (nnimap-address "imap.tilde.green")
-                        (nnimap-server-port 993)))
+  ;; (add-to-list 'gnus-secondary-select-methods
+  ;;              '(nnimap "tilde-green"
+  ;;                       (nnimap-stream tls)
+  ;;                       (nnimap-address "imap.tilde.green")
+  ;;                       (nnimap-server-port 993)))
   )
 
 (use-package smtpmail
@@ -1341,7 +1347,7 @@ out"))
   :config (url-setup-privacy-info))
 
 (use-package shr :ensure nil :demand t
-  :custom (shr-bullet "⁍ ")
+  :custom (shr-bullet "⦿ ")
   (shr-max-width fill-column))
 
 (use-package shr-tag-pre-highlight
@@ -1496,8 +1502,14 @@ Index includes links and headings."
   (add-to-list 'org-capture-templates
                '("ww" "website work"
                  entry
-                 (file+olp "~/d-git/d-site/org-mode/posts.org" "Posts")
-                 (function org-hugo-new-subtree-post-capture-template))))
+                 (file+olp "~/d-git/d-site/org-mode/source.org" "Posts")
+                 ;; (function org-hugo-new-subtree-post-capture-template)
+                 "* TODO %^{Post Title}
+:PROPERTIES:
+:EXPORT_FILE_NAME: %^{File name}
+:EXPORT_DATE: %(org-timestamp-inactive)
+:END:
+%?\n\n" )))
 
 (use-package mpc
   :bind (("C-c d m" . mpc)
@@ -1539,17 +1551,6 @@ Index includes links and headings."
   )
 
 (use-package hnreader :defer t :unless d/on-droid)
-
-(use-package howdoyou :defer t :unless d/on-droid)
-
-(use-package webpaste :defer t
-  :bind (("C-c C-p C-b" . webpaste-paste-buffer)
-         ("C-c C-p C-r" . webpaste-paste-region)
-         ("C-c C-p C-p" . webpaste-paste-buffer-or-region))
-  :config
-  (setq webpaste-provider-priority '("dpaste.org" "dpaste.com" "paste.mozilla.org"))
-  ;; Require confirmation before doing paste
-  (setq webpaste-paste-confirmation t))
 
 (use-package erc :ensure nil
   :init
@@ -1624,7 +1625,7 @@ Index includes links and headings."
 (defcustom d/fixed-pitch-font (if d/on-droid "Code OnePiece" "Maple Mono NF")
   "The font to use for monospaced (fixed width) text.")
 
-(defcustom d/variable-pitch-font (if d/on-droid "Code Haki" "Maple Mono NF")
+(defcustom d/variable-pitch-font (if d/on-droid "Code Haki" "Inter Nerd Font")
   "The font to use for variable-pitch (documents) text.")
 
 (use-package faces :ensure nil
@@ -1682,7 +1683,7 @@ Index includes links and headings."
      (mail-subject  "#6ae4b9")
 
      (bg-completion "#2e8b57")
-     (bg-region     bg-active)
+     (bg-region     bg-completion)
      (fg-region unspecified)
      (bg-tab-bar        bg-main)
      (bg-tab-current    bg-active)
@@ -1701,6 +1702,35 @@ Index includes links and headings."
   :config
   (load-theme 'modus-vivendi t))
 
+(use-package d/center-document :ensure nil :no-require t :init
+  (defcustom d/center-document-desired-width 110 "The desired width of a document centered in the window.")
+
+  (defun d/center-document--adjust-margins ()
+    ;; Reset margins first before recalculating
+    (set-window-parameter nil 'min-margins nil)
+    (set-window-margins nil nil)
+
+    ;; Adjust margins if the mode is on
+    (when d/center-document-mode
+      (let ((margin-width (max 0 (truncate (/ (- (window-width) d/center-document-desired-width) 2.0)))))
+        (when (> margin-width 0)
+          (set-window-parameter nil 'min-margins '(0 . 0))
+          (set-window-margins nil margin-width margin-width)))))
+
+  (define-minor-mode d/center-document-mode
+    "Toggle centered text layout in the current buffer."
+    :lighter " Centered"
+    :group 'editing
+    (if d/center-document-mode
+        (add-hook 'window-configuration-change-hook #'d/center-document--adjust-margins 'append 'local)
+      (remove-hook 'window-configuration-change-hook #'d/center-document--adjust-margins 'local))
+    (d/center-document--adjust-margins))
+
+  ;; :hook
+  ;; (org-mode text-mode Info-mode help-mode ement-room-mode gnus-group-mode eww-mode erc-mode
+  ;;           gnus-summary-mode gnus-article-mode sdcv-mode nov-mode markdown-mode)
+  )
+
 (use-package emacs :ensure nil :custom
   (mode-line-format
    '("%e" "  "
@@ -1709,18 +1739,24 @@ Index includes links and headings."
      mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position
      mode-line-format-right-align
      "  "
-		 (project-mode-line project-mode-line-format) " " (vc-mode vc-mode) "  " mode-line-modes mode-line-misc-info "  ")))
+		 (project-mode-line project-mode-line-format) " " (vc-mode vc-mode) "  " mode-line-modes mode-line-misc-info "  "))
+  :config
+  (setopt minor-mode-alist nil))
 
-(global-set-key [f9] #'d/toggle-bar)
-
-(defun d/toggle-bar ()
-  "The void space."
-  (interactive)
-  (setq mode-line-format
-        (if (equal mode-line-format nil)
+(use-package d/toggle-bar :ensure nil :no-require t
+  :bind ([f9] . d/toggle-bar-mode)
+  :init
+  (define-minor-mode d/toggle-bar-mode
+    "The void space to hide mode-line."
+    :lighter "Vanish" :init-value nil
+    (setq mode-line-format
+          (if d/toggle-bar-mode
+              nil
             (default-value 'mode-line-format)))
-  ;; (toggle-frame-tab-bar)
-  (redraw-display))
+    ;; (toggle-frame-tab-bar)
+    (redraw-display))
+  :hook
+  (help-mode nov-mode))
 
 (use-package proced
   :bind ("C-x x p" . 'proced)
@@ -1830,7 +1866,21 @@ Index includes links and headings."
     (org-mode) (delete-other-windows)
     ))
 
+(defun d/org-heading()
+  "Jump to desired heading in temp buffer or narrow buffer."
+  (interactive)
+  (with-current-buffer "d-brain.org"
+    (let* ((org-goto-interface 'outline-path-completion)
+           (org-outline-path-complete-in-steps nil)
+           (method (completing-read "Choose a method: " '("export" "narrow"))))
+      (org-goto)
+      (if (string= method "narrow") (progn (org-narrow-to-subtree) (switch-to-buffer "d-brain.org"))
+        (org-export-to-buffer 'org (format "export-heading.org") nil t t) (org-mode) (delete-other-windows))
+      ))
+  )
+
 (global-set-key (kbd "C-x C-a C-o") #'d/org-activity)
+(global-set-key (kbd "C-x C-a C-p") #'d/org-heading)
 
 (use-package org-agenda :ensure nil :demand t
   :init (org-agenda nil "a")
@@ -1853,8 +1903,12 @@ Index includes links and headings."
   (org-agenda-files
    '("~/d-sync/notes/d-brain.org"
      "~/d-sync/notes/inbox.org"
+     "~/d-git/d-nix/d-setup.org"
      "~/d-git/d-site/README.org"
      )))
+
+(with-current-buffer "d-setup.org" (emacs-lock-mode 'kill))
+(with-current-buffer "d-brain.org" (emacs-lock-mode 'kill))
 
 (use-package org-capture :ensure nil :after org
   :bind ("C-c c" . org-capture)
@@ -1948,7 +2002,7 @@ absolute path. Finally load eglot."
 
 (use-package org-ql :after org
   :bind ((:map org-mode-map
-               ("C-c q f" . org-ql-find)
+               ("C-c q f" . org-ql-find) ("C-c q /" . org-ql-sparse-tree)
                ("C-c q s" . org-ql-search)
                ("C-c q l" . org-ql-open-link)
                ("C-c q v" . org-ql-view)))
@@ -1964,7 +2018,7 @@ absolute path. Finally load eglot."
 
   (defun d/org-random-heading ()
     (interactive)
-    (org-goto-random-heading :buffers org-agenda-files :regexp (read-from-minibuffer "Search regexp: "))))
+    (org-goto-random-heading :buffers (current-buffer) :regexp (read-from-minibuffer "Search regexp: "))))
 
 (use-package org-super-agenda :after org
   :hook (org-agenda-mode . org-super-agenda-mode))

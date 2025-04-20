@@ -320,6 +320,7 @@
     graphics = {
       enable = true;
       enable32Bit = true;
+      extraPackages = with pkgs; [ intel-media-driver intel-vaapi-driver libvdpau-va-gl];
     };
   };
 }
@@ -406,13 +407,14 @@
       dpkg = (pkgs.callPackage ./pkgs/code-d-font.nix {});
 
       # mpkg = pkgs.nerd-fonts.iosevka-term;
-      spkg = (pkgs.iosevka-bin.override { variant = "Aile"; });
+      # spkg = (pkgs.iosevka-bin.override { variant = "Aile"; });
+      apkg = pkgs.inter-nerdfont;
 
       mpkg = (pkgs.maple-mono-NF.overrideAttrs (oldAttrs: {
-        version = "7.0-beta36";
+        version = "7.0";
         src = pkgs.fetchurl {
-          url = "https://github.com/subframe7536/maple-font/releases/download/v7.0-beta34/MapleMono-NF-unhinted.zip";
-          sha256 = "sha256-4QpOY6b++pDJuS7sJ2li0xdw1KQeMi/S9hSGMSgzh5M=";
+          url = "https://github.com/subframe7536/maple-font/releases/download/v7.0/MapleMono-NF-unhinted.zip";
+          sha256 = "sha256-5P42BHDnIv4ZN4rDtEWFCWEc+NfPd0qHT2VOW2Jhn+Q=";
         };
       }));
 
@@ -420,13 +422,13 @@
 
     in {
       serif = {
-        package = dpkg;
-        name = "Maple Mono NF";
+        package = apkg;
+        name = "Inter Nerd Font";
       };
 
       sansSerif = {
-        package = spkg;
-        name = "Maple Mono NF";
+        package = dpkg;
+        name = "Inter Nerd Font";
       };
 
       monospace = {

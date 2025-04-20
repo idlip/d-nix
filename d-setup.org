@@ -319,7 +319,8 @@ Also its crucial to only add configuration that is explicitly required, rather t
 - display time in mode-line
   #+begin_src emacs-lisp
     (use-package time :ensure nil :init (display-time-mode)
-      :custom (display-time-24hr-format t) (display-time-default-load-average nil))
+      :custom (display-time-24hr-format t) (display-time-default-load-average nil)
+      (display-time-format "%l:%M %p %b %d W%U"))
   #+end_src
 
 *** useradd
@@ -818,7 +819,7 @@ see its function help for a description of the format."
 - Power bestowed for the best, and to make the user the best!
 ** Early-Init
 :PROPERTIES:
-:header-args: :tangle gdk/configs/d-emacs/early-init.el
+:header-args:emacs-lisp:  :tangle gdk/configs/d-emacs/early-init.el
 :END:
 - Emacs 27.0 introduced an early-init file. It allows customization before package and UI initialization.
 - Something to initiate early before anything.
@@ -883,7 +884,7 @@ see its function help for a description of the format."
 + Some of the tweak should be self-explanatory, or else just hop on it and do =C-h o=.
 
   #+begin_src emacs-lisp
-    (use-package window :ensure nil
+    (use-package emacs :ensure nil
       :bind
       (("C-z" . nil) ("C-x C-z" . nil) ;; avoid suspend-emacs
        ;; panes
@@ -912,7 +913,7 @@ see its function help for a description of the format."
       (sentence-end "[.?!,;-]")
 
       :config
-      (delete-selection-mode)
+      (delete-selection-mode) (blink-cursor-mode nil)
       (global-so-long-mode 1)
       (set-window-margins (selected-window) 2 2)
       (setopt
@@ -927,8 +928,8 @@ see its function help for a description of the format."
          (internal-border-width . 1)))
 
       ;; balance windows when split (https://zck.org/balance-emacs-windows)
-      ;; (seq-doseq (fn (list #'split-window #'delete-window))
-      ;;   (advice-add fn :after #'(lambda (&rest args) (balance-windows))))
+      (seq-doseq (fn (list #'split-window #'delete-window))
+        (advice-add fn :after #'(lambda (&rest args) (balance-windows))))
       )
   #+end_src
 
@@ -1203,9 +1204,20 @@ it narrows to region, or Org subtree."
   #+begin_src emacs-lisp
     (use-package savehist :ensure nil
       :init (savehist-mode)
-      :custom (history-length 1000)   (save-place-limit nil)
+      :custom (history-length 200)   (save-place-limit nil)
       (savehist-additional-variables
-       '(mark-ring kill-ring global-mark-ring search-ring regexp-search-ring register-alist extended-command-history)))
+       '(kill-ring
+         command-history
+         set-variable-value-history
+         custom-variable-history
+         query-replace-history
+         read-expression-history
+         minibuffer-history
+         read-char-history
+         face-name-history
+         bookmark-history
+         file-name-history
+         mark-ring global-mark-ring search-ring regexp-search-ring register-alist extended-command-history)))
   #+end_src
 
 - to record recently opened files. Useful to jump in quick
@@ -1214,8 +1226,8 @@ it narrows to region, or Org subtree."
     (use-package recentf :ensure nil
       :bind ("C-x C-r" . recentf)
       :custom
-      (recentf-max-menu-items history-length)
-      (recentf-max-saved-items history-length)
+      (recentf-max-menu-items 1000)
+      (recentf-max-saved-items 1000)
       :init (recentf-mode))
   #+end_src
 
@@ -1292,7 +1304,7 @@ it narrows to region, or Org subtree."
   (use-package minibuffer :ensure nil
     :hook (minibuffer-setup . cursor-intangible-mode)
     :custom
-    (completion-ignore-case t) (completion-auto-select t) (completion-auto-help t)
+    (completion-ignore-case t) (completion-auto-select 'second-tab) (completion-auto-help t)
     (completions-detailed t) (enable-recursive-minibuffers t) (completion-show-help nil)
     (completions-max-height 10) (completions-sort 'historical)
     (read-buffer-completion-ignore-case t) (read-file-name-completion-ignore-case t)
@@ -1308,7 +1320,7 @@ it narrows to region, or Org subtree."
 - To expand abbrevations
 https://yhetil.org/emacs-devel/CAL6FEzxCFJDxy=7+St8igfGa=N-MBnU==+9VcKyC9MaoWXyfxw@mail.gmail.com/T/#m6ea0ea588940eff4ce4e6e2da7fe636b8202351d
   #+begin_src emacs-lisp
-    (define-abbrev-table 'mail-mode-abbrev-table
+    (define-abbrev-table 'internet-terms-abbrev-table
       '(
         ("AFAICT" "As far as I can tell" nil :count 0)
         ("IMNSHO" "In my not so humble opinion" nil :count 0)
@@ -1344,23 +1356,8 @@ https://yhetil.org/emacs-devel/CAL6FEzxCFJDxy=7+St8igfGa=N-MBnU==+9VcKyC9MaoWXyf
   (use-package hippie-exp :ensure nil
     :init ;; https://www.masteringemacs.org/article/text-expansion-hippie-expand
     (keymap-global-set "<remap> <dabbrev-expand>" 'hippie-expand)
-    :custom
-    (hippie-expand-verbose t)
-    (hippie-expand-dabbrev-skip-space t)
-    (hippie-expand-try-functions-list
-     '(
-       try-expand-dabbrev
-       try-expand-dabbrev-all-buffers
-       try-expand-dabbrev-from-kill
-       try-complete-lisp-symbol-partially
-       try-complete-lisp-symbol
-       try-expand-list
-       try-expand-line
-       try-complete-file-name-partially
-       try-complete-file-name
-       try-expand-all-abbrevs
-       ))
-    )
+    :custom (hippie-expand-verbose t)
+    (hippie-expand-dabbrev-skip-space t) )
 #+end_src
 
 **** COMMENT icomplete fido vertical
@@ -1378,12 +1375,10 @@ https://yhetil.org/emacs-devel/CAL6FEzxCFJDxy=7+St8igfGa=N-MBnU==+9VcKyC9MaoWXyf
                   ("C-n" . icomplete-forward-completions)
                   ("C-p" . icomplete-backward-completions)
                   ("RET" . icomplete-fido-ret)
-                  ("M-RET" . icomplete-fido-exit)
-                  )
-      :hook
-      (after-init . (lambda ()
-                      (icomplete-vertical-mode t)
-                      (tty-tip-mode t)))
+                  ("M-RET" . icomplete-fido-exit) )
+      :init
+      ((icomplete-vertical-mode t)
+       (tty-tip-mode t))
       :custom
       (tab-always-indent 'complete)
       (icomplete-delay-completions-threshold 0)
@@ -1413,7 +1408,7 @@ https://yhetil.org/emacs-devel/CAL6FEzxCFJDxy=7+St8igfGa=N-MBnU==+9VcKyC9MaoWXyf
     )
 #+end_src
 
-**** COMMENT Vertico
+**** Vertico
 - the flagship of minad.
 
   #+begin_src emacs-lisp
@@ -1502,16 +1497,19 @@ https://yhetil.org/emacs-devel/CAL6FEzxCFJDxy=7+St8igfGa=N-MBnU==+9VcKyC9MaoWXyf
       (xref-show-xrefs-function #'consult-xref)
       (xref-show-definitions-function #'consult-xref)
       (imenu-max-item-length nil)
-
+      (consult-ripgrep-args "rga --null --line-buffered --color=never --max-columns=1000 --path-separator /   --smart-case --no-heading --with-filename --line-number")
       :config
+      (setopt completion-in-region-function #'consult-completion-in-region)
       (consult-customize
        consult-theme :preview-key '(:debounce 2.5 any)
+       consult-line :initial (thing-at-point 'symbol)
        consult-ripgrep consult-git-grep consult-grep
        consult-bookmark consult-recent-file consult-xref
        consult--source-bookmark consult--source-file-register
        consult--source-recent-file consult--source-project-recent-file
        ;; :preview-key (kbd "M-.")
        :preview-key '(:debounce 0.4 any))
+
       (advice-add #'register-preview :override #'consult-register-window))
   #+end_src
 
@@ -1597,7 +1595,7 @@ https://yhetil.org/emacs-devel/CAL6FEzxCFJDxy=7+St8igfGa=N-MBnU==+9VcKyC9MaoWXyf
   (use-package embark-consult :defer t :hook (embark-collect-mode . consult-preview-at-point-mode))
   #+end_src
 
-**** COMMENT marginalia
+**** marginalia
 + rich annotation of information for candidates.
 
   #+begin_src emacs-lisp
@@ -1606,6 +1604,7 @@ https://yhetil.org/emacs-devel/CAL6FEzxCFJDxy=7+St8igfGa=N-MBnU==+9VcKyC9MaoWXyf
 
 **** COMMENT corfu
 + overlay popup
+  - Using consult as completion in region has advantage as to have vertico and single window/point for completion rather than "get where you type".
 
   #+begin_src emacs-lisp
     (use-package corfu :init (global-corfu-mode)
@@ -1836,36 +1835,36 @@ markdown-mode
   #+end_src
 ***** elisp-templates
   #+begin_src emacs-lisp :tangle ~/.config/emacs/etc/tempel/templates.eld
-emacs-lisp-mode
+    emacs-lisp-mode
 
-(modconfig ";;; " (c-get-current-file) ".el --- " (p "description") " -*- lexical-binding: t -*-" n
-           ";;; Commentary:" n n ";;; Code:" n n n r> n n "(provide '" (c-get-current-file) ".el)" n ";;; " (c-get-current-file) ".el ends here" )
-(autoload ";;;###autoload")
-(lambda "(lambda (" p ")" n> r> ")")
-(defvar "(defvar " p "\n  \"" p "\")")
-(defvar-local "(defvar-local " p "\n  \"" p "\")")
-(const "(defconst " p "\n  \"" p "\")")
-(custom "(defcustom " p "\n  \"" p "\"" n> ":type '" p ")")
-(defface "(defface " p " '((t :inherit " p "))\n  \"" p "\")")
-(defgroup "(defgroup " p " nil\n  \"" p "\"" n> ":group '" p n> ":prefix \"" p "-\")")
-(defmacro "(defmacro " p " (" p ")\n  \"" p "\"" n> r> ")")
-(defalias "(defalias '" p " '" p ")")
-(defun "(defun " p " (" p ")\n  \"" p "\"" n> r> ")")
-(defcustom "(defun " p " (" p ")\n  \"" p "\"" n> "(interactive" p ")" n> r> ")")
-(if-let "(if-let (" p ")" n> r> ")")
-(when-let "(when-let (" p ")" n> r> ")")
-(if-let* "(if-let* (" p ")" n> r> ")")
-(when-let* "(when-let* (" p ")" n> r> ")")
-(cond "(cond" n "(" q "))" >)
-(pcase "(pcase " p n "(" q "))" >)
-(let "(let (" p ")" n> r> ")")
-(let* "(let* (" p ")" n> r> ")")
-(dotimes "(dotimes (" p ")" n> r> ")")
-(dolist "(dolist (" p ")" n> r> ")")
-(obsolete-fun "(define-obsolete-function-alias" n> p n> p n> "\"" p "\")")
-(obsolete-var "(define-obsolete-function-alias" n> p n> p n> "\"" p "\")")
+    (modconfig ";;; " (c-get-current-file) ".el --- " (p "description") " -*- lexical-binding: t -*-" n
+               ";;; Commentary:" n n ";;; Code:" n n n r> n n "(provide '" (c-get-current-file) ".el)" n ";;; " (c-get-current-file) ".el ends here" )
+    (autoload ";;;###autoload")
+    (lambda "(lambda (" p ")" n> r> ")")
+    (defvar "(defvar " p "\n  \"" p "\")")
+    (defvar-local "(defvar-local " p "\n  \"" p "\")")
+    (const "(defconst " p "\n  \"" p "\")")
+    (custom "(defcustom " p "\n  \"" p "\"" n> ":type '" p ")")
+    (defface "(defface " p " '((t :inherit " p "))\n  \"" p "\")")
+    (defgroup "(defgroup " p " nil\n  \"" p "\"" n> ":group '" p n> ":prefix \"" p "-\")")
+    (defmacro "(defmacro " p " (" p ")\n  \"" p "\"" n> r> ")")
+    (defalias "(defalias '" p " '" p ")")
+    (defun "(defun " p " (" p ")\n  \"" p "\"" n> r> ")")
+    (defcustom "(defun " p " (" p ")\n  \"" p "\"" n> "(interactive" p ")" n> r> ")")
+    (if-let "(if-let (" p ")" n> r> ")")
+    (when-let "(when-let (" p ")" n> r> ")")
+    (if-let* "(if-let* (" p ")" n> r> ")")
+    (when-let* "(when-let* (" p ")" n> r> ")")
+    (cond "(cond" n "(" q "))" >)
+    (pcase "(pcase " p n "(" q "))" >)
+    (let "(let (" p ")" n> r> ")")
+    (let* "(let* (" p ")" n> r> ")")
+    (dotimes "(dotimes (" p ")" n> r> ")")
+    (dolist "(dolist (" p ")" n> r> ")")
+    (obsolete-fun "(define-obsolete-function-alias" n> p n> p n> "\"" p "\")")
+    (obsolete-var "(define-obsolete-function-alias" n> p n> p n> "\"" p "\")")
 
-
+    (feeds "(\"" (p "label") "\" \"" (p "url") "\" starttime)")
   #+end_src
 ***** python-templates
 - Credits to jgarte (https://git.sr.ht/~whereiseveryone/dot/tree/master/item/snippets)
@@ -2088,12 +2087,23 @@ emacs-lisp-mode
             "def test_with_fixture(example_fixture):" n>
             "assert example_fixture == 1")
   #+end_src
-***** bash-templates
+***** bash-templates fundamental text
   #+begin_src emacs-lisp :tangle ~/.config/emacs/etc/tempel/templates.eld
     fundamental-mode
 
     (datime (format-time-string "%Y-%m-%d %A %d %B %Y"))
     (24time (format-time-string "%H:%M - "))
+    (box "┌─" (make-string (length str) ?─) "─┐" n
+         "│ " (s str)                       " │" n
+         "└─" (make-string (length str) ?─) "─┘" n)
+    (abox "+-" (make-string (length str) ?-) "-+" n
+          "| " (s str)                       " |" n
+          "+-" (make-string (length str) ?-) "-+" n)
+    (cut "--8<---------------cut here---------------start------------->8---" n r n
+         "--8<---------------cut here---------------end--------------->8---" n)
+    (rebuild "nixos-rebuild switch --flake ~/d-git/d-nix#gdk --use-remote-sudo")
+    (gc "git clone --depth=1")
+
 
     bash-ts-mode conf-mode
     (func "function " (p "fname") "() {" n> p n> n "}")
@@ -2121,17 +2131,18 @@ emacs-lisp-mode
 
   #+begin_src emacs-lisp
     (use-package tab-bar :unless d/on-droid
-      :bind (("C-<tab>" . tab-line-switch-to-next-tab)
-             ("C-S-<tab>" . tab-line-switch-to-prev-tab))
+      ;; :bind (("C-<tab>" . tab-line-switch-to-next-tab) ("C-S-<tab>" . tab-line-switch-to-prev-tab))
       :custom ;; tab-bar-format-history
-      (tab-bar-format '(tab-bar-separator tab-bar-format-menu-bar tab-bar-format-tabs tab-bar-format-align-right
-                                          ;; tab-bar-format-global ;; An issue when used in terminal (cursor wont move properly)
+      (tab-bar-format '(tab-bar-separator tab-bar-format-menu-bar tab-bar-format-tabs-groups tab-bar-separator
+                                          ;; tab-bar-format-tabs
+                                          tab-bar-format-align-right
+                                          tab-bar-format-global ;; An issue when used in terminal+daemon (cursor wont move properly)
                                           ))
       (tab-bar-close-button-show nil)
       ;; (tab-bar-show nil)
       (tab-bar-mode 1)
       (tab-bar-history-mode 1)
-      (global-tab-line-mode 1)
+      ;; (global-tab-line-mode 1)
       )
   #+end_src
 **** ibuffer
@@ -2184,7 +2195,7 @@ ibuffer to list and manage buffers
 #+end_src
 **** Mouse
   #+begin_src emacs-lisp
-    (use-package mwheel :ensure nil
+    (use-package mouse :ensure nil :init (context-menu-mode t)
       :custom (mouse-autoselect-window t) )
 
     (use-package xt-mouse
@@ -2201,6 +2212,7 @@ To manage windows states
   #+begin_src emacs-lisp
     (use-package mwheel
       ;; :bind (("C-v" . smooth-scroll-down) ("M-v" . smooth-scroll-up))
+      :init (pixel-scroll-precision-mode 1)
       ;; :init (ultra-scroll-mode 1)
       :custom (scroll-step 1) (scroll-margin 0)
       ;; (pixel-scroll-precision-interpolate-page t)
@@ -2226,7 +2238,7 @@ To manage windows states
       :custom (repeat-exit-timeout 2))
   #+end_src
 
-**** activities
+**** COMMENT activities
 - To save all session, in a more sensible manner.
 - Again, one of the good design, well thought package by alphapapa.
 #+begin_src emacs-lisp
@@ -2245,6 +2257,13 @@ To manage windows states
      ("C-x C-a b" . activities-switch-buffer)
      ("C-x C-a g" . activities-revert)
      ("C-x C-a l" . activities-list)))
+#+end_src
+
+**** spacious padding
+- To get aesthetic space around.
+
+#+begin_src emacs-lisp
+  (use-package spacious-padding :unless d/on-droid :init (spacious-padding-mode t))
 #+end_src
 
 **** Gptel
@@ -2275,6 +2294,31 @@ To manage windows states
 (use-package zone :ensure nil :demand t :config (zone-when-idle (* 60 5)))
 #+end_src
 
+**** emacs write anywhere
+- Write text in browser or anywhere using emacs.
+  #+begin_src emacs-lisp
+    (define-minor-mode d/write-mode
+      "write comment outside emacs."
+      :keymap `((,(kbd "C-c C-c") . d/write-done)))
+
+    (defcustom d/write-dir "/tmp/emacs-write"
+      "Directory path for writing files.")
+
+    (defun d/write-here ()
+      "Start writing outside emacs, but still using emacs."
+      (files--ensure-directory d/write-dir)
+      (with-current-buffer
+          (find-file (format "%s/%s.org" d/write-dir (format-time-string "%Y%m%dT%H%M%S")))
+        (d/write-mode)
+        (make-frame '((name . "d-write") (width . 70) (height . 20)))
+        ))
+
+    (defun d/write-done ()
+      "Copy current buffer to kill-ring."
+      (interactive)
+      (clipboard-kill-ring-save (point-min) (point-max))
+      (save-buffer) (kill-buffer) (delete-frame) )
+  #+end_src
 * Development
 *** Documentation
 - Documentation matters!
@@ -2303,7 +2347,7 @@ To manage windows states
     }
   #+end_src
 
-**** Helpful
+**** COMMENT Helpful
 - enhanced help page =describe-=  for emacs.
   #+begin_src emacs-lisp
     (use-package helpful :hook (helpful-mode . d/toggle-bar)
@@ -2312,7 +2356,7 @@ To manage windows states
              ("C-h F" . helpful-function)))
   #+end_src
 
-**** TLDR
+**** gpg gnu
   #+begin_src nix :tangle gdk/home.nix
     {
       programs = {
@@ -2529,7 +2573,7 @@ To manage windows states
   #+begin_src emacs-lisp
     (add-to-list
      'display-buffer-alist
-     '("\\*\\(shell\\|.*term\\|.*eshell\\|.*eat\\|help\\|compilation\\|Async Shell Command\\|Occur\\|xref\\).*\\*"
+     '("\\*\\(shell\\|term\\|.*eshell\\|.*eat\\|help\\|compilation\\|Async Shell Command\\|Occur\\|xref\\).*\\*"
        (display-buffer-reuse-window display-buffer-in-side-window)
        (side . bottom)
        (slot . 0)
@@ -3089,7 +3133,8 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 - paired up with eglot, or ctags to reference symbols.
 
   #+begin_src emacs-lisp
-    (use-package xref :ensure nil :custom (xref-search-program 'ripgrep) (grep-command "rg -nS --no-heading"))
+    (use-package xref :ensure nil :custom (xref-search-program 'ripgrep)
+      (grep-command "rga --null --line-buffered --max-columns=1000 --smart-case --no-heading --with-filename --line-number"))
   #+end_src
 
 **** compile-make
@@ -3100,7 +3145,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
     :hook (compilation-filter . ansi-color-compilation-filter)
     :bind ("M-#" . compile) ; M-! M-# M-& M-\
     :custom
-    (shell-command-switch "-ic")
+    (shell-command-switch "-c") ;; -i
     (compilation-scroll-output t)
     (compilation-auto-jump-to-first-error t)
     (compilation-max-output-line-length nil)
@@ -3183,7 +3228,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
                `((, (rx (or "FIXME:" "fixme:")) . hi-red-b)   ; fixme
                  (, (rx (or "NOTE:" "note:")) . hi-blue)      ; note
                  (, (rx (or "TODO:" "todo:")) . hi-green)     ; todo
-                 (, (rx (group (repeat 8 digit))) . org-date) ; date 20250228  (denote style)
+                 (, (rx (group (repeat 8 digit)) "T") . org-date) ; date 20250228T  (denote style)
                  (, (rx "T" (group (repeat 6 digit))) . org-modeline-clock)))) ; time T201020
 
           (if highlight-marker-mode
@@ -3371,21 +3416,21 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
       (if d/reading-mode
           (progn
             (read-only-mode 1)
-            (d/toggle-bar)
+            (d/toggle-bar-mode 1)
             (variable-pitch-mode 1)
+            (d/center-document-mode 1)
             ;; (setq-local line-spacing 0.5)
             ;; (text-scale-increase 1)
             ;; (setq-local tab-bar-show nil) (tab-bar--update-tab-bar-lines)
             (setq-local cursor-type nil)
-            (setq-local olivetti-body-width 90) (olivetti-mode 1)
             )
 
         (progn
-          (d/toggle-bar)
+          (d/toggle-bar-mode -1)
+          (d/center-document-mode -1)
           ;; (text-scale-decrease 1)
           ;; (kill-local-variable 'tab-bar-show) (tab-bar--update-tab-bar-lines)
           (kill-local-variable 'cursor-type)
-          (kill-local-variable 'olivetti-body-width)
           )
         ))
   #+end_src
@@ -3510,7 +3555,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
          ))
 
       ;; refer: https://github.com/redguardtoo/mastering-emacs-in-one-year-guide/blob/master/gnus-guide-en.org
-      (gnus-thread-sort-functions '(gnus-thread-sort-by-score gnus-thread-sort-by-most-recent-date))
+      (gnus-thread-sort-functions '(gnus-thread-sort-by-most-recent-date gnus-thread-sort-by-score))
       (gnus-use-cache t)
       (gnus-thread-hide-subtree t)
       ;; (gnus-activate-level 2)
@@ -3600,11 +3645,11 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
                           (nnimap-stream plain)
                           (nnimap-address "127.0.0.1") ;; hydroxide
                           (nnimap-server-port 1143)))
-    (add-to-list 'gnus-secondary-select-methods
-                 '(nnimap "tilde-green"
-                          (nnimap-stream tls)
-                          (nnimap-address "imap.tilde.green")
-                          (nnimap-server-port 993)))
+    ;; (add-to-list 'gnus-secondary-select-methods
+    ;;              '(nnimap "tilde-green"
+    ;;                       (nnimap-stream tls)
+    ;;                       (nnimap-address "imap.tilde.green")
+    ;;                       (nnimap-server-port 993)))
     )
 #+end_src
 
@@ -4009,7 +4054,7 @@ user_pref("findbar.highlightAll", true);
       :config (url-setup-privacy-info))
 
     (use-package shr :ensure nil :demand t
-      :custom (shr-bullet "⁍ ")
+      :custom (shr-bullet "⦿ ")
       (shr-max-width fill-column))
   #+end_src
 
@@ -4161,33 +4206,40 @@ user_pref("findbar.highlightAll", true);
   #+begin_src emacs-lisp
 (use-package ox-hugo :unless d/on-droid :after ox)
   #+end_src
+
 - Org-capture for writing blog post.
   #+begin_src emacs-lisp
-  (with-eval-after-load 'org-capture
-    (defun org-hugo-new-subtree-post-capture-template ()
-      "Returns `org-capture' template string for new Hugo post.
-    See `org-capture-templates' for more information."
-      (let* ((title (read-from-minibuffer "Post Title: ")) ;Prompt to enter the post title
-             (fname (org-hugo-slug title)))
-        (mapconcat #'identity
-                   `(
-                     ,(concat "* TODO " title)
-                     ":PROPERTIES:"
-                     ,(concat ":EXPORT_FILE_NAME: " fname)
-                     ":END:"
-                     "%?\n")          ;Place the cursor here finally
-                   "\n")))
+    (with-eval-after-load 'org-capture
+      (defun org-hugo-new-subtree-post-capture-template ()
+        "Returns `org-capture' template string for new Hugo post.
+      See `org-capture-templates' for more information."
+        (let* ((title (read-from-minibuffer "Post Title: ")) ;Prompt to enter the post title
+               (fname (org-hugo-slug title)))
+          (mapconcat #'identity
+                     `(
+                       ,(concat "* TODO " title)
+                       ":PROPERTIES:"
+                       ,(concat ":EXPORT_FILE_NAME: " fname)
+                       ":END:"
+                       "%?\n")          ;Place the cursor here finally
+                     "\n")))
 
-    (add-to-list 'org-capture-templates
-                 '("w" "Website Organize"))
-    (add-to-list 'org-capture-templates
-                 '("wt" "website Todo" entry (file+headline "~/d-git/d-site/README.org" "Ideas - TODO")
-                   "* TODO %?\n  SCHEDULED:%T\n " :empty-lines 1))
-    (add-to-list 'org-capture-templates
-                 '("ww" "website work"
-                   entry
-                   (file+olp "~/d-git/d-site/org-mode/posts.org" "Posts")
-                   (function org-hugo-new-subtree-post-capture-template))))
+      (add-to-list 'org-capture-templates
+                   '("w" "Website Organize"))
+      (add-to-list 'org-capture-templates
+                   '("wt" "website Todo" entry (file+headline "~/d-git/d-site/README.org" "Ideas - TODO")
+                     "* TODO %?\n  SCHEDULED:%T\n " :empty-lines 1))
+      (add-to-list 'org-capture-templates
+                   '("ww" "website work"
+                     entry
+                     (file+olp "~/d-git/d-site/org-mode/source.org" "Posts")
+                     ;; (function org-hugo-new-subtree-post-capture-template)
+                     "* TODO %^{Post Title}
+    :PROPERTIES:
+    :EXPORT_FILE_NAME: %^{File name}
+    :EXPORT_DATE: %(org-timestamp-inactive)
+    :END:
+    %?\n\n" )))
   #+end_src
 
 ** Music/Video
@@ -4201,6 +4253,7 @@ user_pref("findbar.highlightAll", true);
         graphics = {
           enable = true;
           enable32Bit = true;
+          extraPackages = with pkgs; [ intel-media-driver intel-vaapi-driver libvdpau-va-gl];
         };
       };
     }
@@ -4278,28 +4331,6 @@ Pipewire setup, just these lines enough to make sane default for it
       (mpc-select-toggle)
       (next-line)
       ))
-  #+end_src
-
-**** COMMENT mingus
-- Mingus - An mpd interface in emacs, its simple and clean to use.
-- Ik EMMS and mpc exist, but mingus is straight forward simple and minimal.
-
-  #+begin_src emacs-lisp
-  (use-package mingus :unless d/on-droid
-    :bind (("C-c d m" . mingus-browse)
-           (:map mingus-browse-mode-map
-                 ("h" . mingus-browse-top-level)
-                 ("l" . mingus-down-dir-or-play-song)
-                 ("M-n" . mingus-move-down)
-                 ("M-p" . mingus-move-up)
-                 ))
-    :custom
-    (mingus-mode-always-modeline t)
-    (mingus-mode-line-string-max 15)
-    (mingus-mode-line-show-volume nil)
-    (mingus-mode-line-show-elapsed-time nil)
-    (mingus-mode-line-show-elapsed-percentage t)
-    (mingus-mode-line-show-consume-and-single-status nil))
   #+end_src
 
 *** mpv
@@ -4468,29 +4499,10 @@ Pipewire setup, just these lines enough to make sane default for it
   #+end_src
 
 *** hacker news
+- Wonderful organized way to read hacker news threads.
 
   #+begin_src emacs-lisp
   (use-package hnreader :defer t :unless d/on-droid)
-  #+end_src
-
-*** stackoverflow
-
-  #+begin_src emacs-lisp
-(use-package howdoyou :defer t :unless d/on-droid)
-  #+end_src
-
-*** pastebin
-- to share, paste and forget
-
-  #+begin_src emacs-lisp
-  (use-package webpaste :defer t
-    :bind (("C-c C-p C-b" . webpaste-paste-buffer)
-           ("C-c C-p C-r" . webpaste-paste-region)
-           ("C-c C-p C-p" . webpaste-paste-buffer-or-region))
-    :config
-    (setq webpaste-provider-priority '("dpaste.org" "dpaste.com" "paste.mozilla.org"))
-    ;; Require confirmation before doing paste
-    (setq webpaste-paste-confirmation t))
   #+end_src
 
 *** COMMENT matrix
@@ -5131,7 +5143,7 @@ Pipewire setup, just these lines enough to make sane default for it
   }
 
   output "HDMI-A-1" {
-    mode "1920x1080"
+  //  mode "1920x1080"
   	//scale 1
   }
 
@@ -5178,13 +5190,14 @@ Pipewire setup, just these lines enough to make sane default for it
 
   window-rule {
       match is-active=false
-      opacity 0.95
+      //opacity 0.95
   }
 
   window-rule {
       match app-id="emacs"
       open-fullscreen true
       open-on-workspace "org"
+      exclude app-id="emacs" title="d-write"
   }
   window-rule {
       match app-id=r#"Mullvad|Firefox|librewolf"#
@@ -5213,7 +5226,8 @@ Pipewire setup, just these lines enough to make sane default for it
   window-rule {
       match app-id="xdg-desktop-portal-gtk"
       match app-id="blueman"
-      match app-id="emacs" title="^Question$"
+      match app-id="emacs" title="d-write"
+      default-window-height { fixed 500; }
       open-floating true
   }
 
@@ -5266,6 +5280,9 @@ Pipewire setup, just these lines enough to make sane default for it
     Mod+Ctrl+b {spawn "sh" "-c" "pkill -SIGUSR1 waybar || pidof -x waybar || waybar"; }
     Mod+b { spawn "d-stats"; }
     Mod+Tab { spawn "d-niri"; }
+    Mod+Delete { spawn "sh" "-c" "d-record stop"; }
+    Mod+Shift+T {spawn "sh" "-c" "swaync-client -t"; }
+    Mod+Ctrl+T {spawn "sh" "-c" "emacsclient -e '(d/write-here)'"; }
 
   	Mod+Ctrl+Equal { spawn "niri" "msg" "output" "eDP-1" "scale" "2"; }
   	Mod+Ctrl+Minus { spawn "niri" "msg" "output" "eDP-1" "scale" "1"; }
@@ -5822,7 +5839,7 @@ Pipewire setup, just these lines enough to make sane default for it
     (defcustom d/fixed-pitch-font (if d/on-droid "Code OnePiece" "Maple Mono NF")
       "The font to use for monospaced (fixed width) text.")
 
-    (defcustom d/variable-pitch-font (if d/on-droid "Code Haki" "Maple Mono NF")
+    (defcustom d/variable-pitch-font (if d/on-droid "Code Haki" "Inter Nerd Font")
       "The font to use for variable-pitch (documents) text.")
   #+end_src
 
@@ -5908,13 +5925,14 @@ Pipewire setup, just these lines enough to make sane default for it
           dpkg = (pkgs.callPackage ./pkgs/code-d-font.nix {});
 
           # mpkg = pkgs.nerd-fonts.iosevka-term;
-          spkg = (pkgs.iosevka-bin.override { variant = "Aile"; });
+          # spkg = (pkgs.iosevka-bin.override { variant = "Aile"; });
+          apkg = pkgs.inter-nerdfont;
 
           mpkg = (pkgs.maple-mono-NF.overrideAttrs (oldAttrs: {
-            version = "7.0-beta36";
+            version = "7.0";
             src = pkgs.fetchurl {
-              url = "https://github.com/subframe7536/maple-font/releases/download/v7.0-beta34/MapleMono-NF-unhinted.zip";
-              sha256 = "sha256-4QpOY6b++pDJuS7sJ2li0xdw1KQeMi/S9hSGMSgzh5M=";
+              url = "https://github.com/subframe7536/maple-font/releases/download/v7.0/MapleMono-NF-unhinted.zip";
+              sha256 = "sha256-5P42BHDnIv4ZN4rDtEWFCWEc+NfPd0qHT2VOW2Jhn+Q=";
             };
           }));
 
@@ -5922,13 +5940,13 @@ Pipewire setup, just these lines enough to make sane default for it
 
         in {
           serif = {
-            package = dpkg;
-            name = "Maple Mono NF";
+            package = apkg;
+            name = "Inter Nerd Font";
           };
 
           sansSerif = {
-            package = spkg;
-            name = "Maple Mono NF";
+            package = dpkg;
+            name = "Inter Nerd Font";
           };
 
           monospace = {
@@ -6096,7 +6114,7 @@ Pipewire setup, just these lines enough to make sane default for it
        (mail-subject  "#6ae4b9")
 
        (bg-completion "#2e8b57")
-       (bg-region     bg-active)
+       (bg-region     bg-completion)
        (fg-region unspecified)
        (bg-tab-bar        bg-main)
        (bg-tab-current    bg-active)
@@ -6116,14 +6134,39 @@ Pipewire setup, just these lines enough to make sane default for it
     (load-theme 'modus-vivendi t))
 #+end_src
 
-** COMMENT Olivetti
-- Nice, focused writing environment for emacs.
-  TODO replace with daviwil's =document-center-mode= function.
+** center buffer document olivetti mode
+- Alternative to olivetti in minimal way
+  Credits to emacs-solo and daviwil
 
   #+begin_src emacs-lisp
-  (use-package olivetti :defer t :custom (olivetti-body-width 100)
-    :hook (org-mode text-mode Info-mode helpful-mode ement-room-mode gnus-group-mode eww-mode
-                     gnus-article-mode sdcv-mode nov-mode elfeed-show-mode markdown-mode))
+    (use-package d/center-document :ensure nil :no-require t :init
+      (defcustom d/center-document-desired-width 110 "The desired width of a document centered in the window.")
+
+      (defun d/center-document--adjust-margins ()
+        ;; Reset margins first before recalculating
+        (set-window-parameter nil 'min-margins nil)
+        (set-window-margins nil nil)
+
+        ;; Adjust margins if the mode is on
+        (when d/center-document-mode
+          (let ((margin-width (max 0 (truncate (/ (- (window-width) d/center-document-desired-width) 2.0)))))
+            (when (> margin-width 0)
+              (set-window-parameter nil 'min-margins '(0 . 0))
+              (set-window-margins nil margin-width margin-width)))))
+
+      (define-minor-mode d/center-document-mode
+        "Toggle centered text layout in the current buffer."
+        :lighter " Centered"
+        :group 'editing
+        (if d/center-document-mode
+            (add-hook 'window-configuration-change-hook #'d/center-document--adjust-margins 'append 'local)
+          (remove-hook 'window-configuration-change-hook #'d/center-document--adjust-margins 'local))
+        (d/center-document--adjust-margins))
+
+      ;; :hook
+      ;; (org-mode text-mode Info-mode help-mode ement-room-mode gnus-group-mode eww-mode erc-mode
+      ;;           gnus-summary-mode gnus-article-mode sdcv-mode nov-mode markdown-mode)
+      )
   #+end_src
 
 ** Status bar/Mode-line
@@ -6341,29 +6384,35 @@ Pipewire setup, just these lines enough to make sane default for it
 *** mode-line
 - Mode-line-format
 #+begin_src emacs-lisp
-(use-package emacs :ensure nil :custom
-  (mode-line-format
-   '("%e" "  "
-     (:propertize
-      ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote))
-     mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position
-     mode-line-format-right-align
-     "  "
-		 (project-mode-line project-mode-line-format) " " (vc-mode vc-mode) "  " mode-line-modes mode-line-misc-info "  ")))
+  (use-package emacs :ensure nil :custom
+    (mode-line-format
+     '("%e" "  "
+       (:propertize
+        ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote))
+       mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position
+       mode-line-format-right-align
+       "  "
+  		 (project-mode-line project-mode-line-format) " " (vc-mode vc-mode) "  " mode-line-modes mode-line-misc-info "  "))
+    :config
+    (setopt minor-mode-alist nil))
 #+end_src
+
 - To toggle mode-line on and off.
   #+begin_src emacs-lisp
-    (global-set-key [f9] #'d/toggle-bar)
-
-    (defun d/toggle-bar ()
-      "The void space."
-      (interactive)
-      (setq mode-line-format
-            (if (equal mode-line-format nil)
+    (use-package d/toggle-bar :ensure nil :no-require t
+      :bind ([f9] . d/toggle-bar-mode)
+      :init
+      (define-minor-mode d/toggle-bar-mode
+        "The void space to hide mode-line."
+        :lighter "Vanish" :init-value nil
+        (setq mode-line-format
+              (if d/toggle-bar-mode
+                  nil
                 (default-value 'mode-line-format)))
-      ;; (toggle-frame-tab-bar)
-      (redraw-display))
-
+        ;; (toggle-frame-tab-bar)
+        (redraw-display))
+      :hook
+      (help-mode nov-mode))
   #+end_src
 
 * Shell
@@ -6390,6 +6439,7 @@ Pipewire setup, just these lines enough to make sane default for it
             "--colors=line:style:bold"
             "--ignore-case"
             "--follow"
+            "--null" "--line-buffered" "--max-columns=1000" "--smart-case" "--no-heading" "--with-filename" "--line-number"
           ];
         };
 
@@ -6531,7 +6581,7 @@ Pipewire setup, just these lines enough to make sane default for it
     zip unzip # archives
     ffmpeg-full sdcv nq
     # utils
-    du-dust fd wget
+    du-dust fd wget ripgrep-all
   ];
 }
   #+end_src
@@ -6620,7 +6670,7 @@ Pipewire setup, just these lines enough to make sane default for it
   #+end_src
 
 *** Notifications
-**** fnott
+**** COMMENT fnott
 - No mako, I need variable width
 
 #+begin_src nix :tangle gdk/home.nix
@@ -6642,7 +6692,73 @@ Pipewire setup, just these lines enough to make sane default for it
     };
   }
 #+end_src
+**** swaync
+#+begin_src nix :tangle gdk/home.nix
+  {
+    services.swaync = {
+      enable = true;
+      settings = {
+        layer = "overlay";
 
+        widgets = [ "title" "dnd" "notifications" "mpris" "volume" "backlight" "buttons-grid" ];
+
+        widget-config = {
+          title = {
+            text = "Notification Center";
+            clear-all-button = true;
+            button-text = "󰆴";
+          };
+          mpris = {
+            image-size = 80;
+            image-radius = 10;
+          };
+          volume = {
+            label = "󰕾";
+            step = 5;
+          };
+          backlight = {
+            label = "󰃟";
+            step = 5;
+          };
+          buttons-grid = {
+            actions = [
+              {
+                label = "󰖩";
+                command = "d-wifi";
+              }
+              {
+                label = "󰂯";
+                command = "blueman-manager";
+              }
+              {
+                label = "";
+                command = "d-record";
+              }
+              {
+                label = "󰕾";
+                command = "d-ctrl volume toggle";
+                type = "toggle";
+              }
+              {
+                label = "󰍬";
+                command = "d-ctrl mic";
+                type = "toggle";
+              }
+              {
+                label = "󰌾";
+                command = "hyprlock";
+              }
+              {
+                label = "⏻";
+                command = "d-power";
+              }
+            ];
+          };
+        };
+      };
+    };
+  }
+#+end_src
 **** COMMENT notify-emacs
 
 - To get notifications from emacs using =alert= package.
@@ -6850,6 +6966,7 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
       )
   #+end_src
 
+*** org-activity tags
 - Function to prepare an activity buffer and collect information
 
   #+begin_src emacs-lisp
@@ -6862,7 +6979,21 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
         (org-mode) (delete-other-windows)
         ))
 
+    (defun d/org-heading()
+      "Jump to desired heading in temp buffer or narrow buffer."
+      (interactive)
+      (with-current-buffer "d-brain.org"
+        (let* ((org-goto-interface 'outline-path-completion)
+               (org-outline-path-complete-in-steps nil)
+               (method (completing-read "Choose a method: " '("export" "narrow"))))
+          (org-goto)
+          (if (string= method "narrow") (progn (org-narrow-to-subtree) (switch-to-buffer "d-brain.org"))
+            (org-export-to-buffer 'org (format "export-heading.org") nil t t) (org-mode) (delete-other-windows))
+          ))
+      )
+
     (global-set-key (kbd "C-x C-a C-o") #'d/org-activity)
+    (global-set-key (kbd "C-x C-a C-p") #'d/org-heading)
   #+end_src
 
 *** COMMENT org-modern
@@ -6929,8 +7060,12 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
       (org-agenda-files
        '("~/d-sync/notes/d-brain.org"
          "~/d-sync/notes/inbox.org"
+         "~/d-git/d-nix/d-setup.org"
          "~/d-git/d-site/README.org"
          )))
+
+    (with-current-buffer "d-setup.org" (emacs-lock-mode 'kill))
+    (with-current-buffer "d-brain.org" (emacs-lock-mode 'kill))
   #+end_src
 
 *** org-capture
@@ -7068,7 +7203,7 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
   #+begin_src emacs-lisp
     (use-package org-ql :after org
       :bind ((:map org-mode-map
-                   ("C-c q f" . org-ql-find)
+                   ("C-c q f" . org-ql-find) ("C-c q /" . org-ql-sparse-tree)
                    ("C-c q s" . org-ql-search)
                    ("C-c q l" . org-ql-open-link)
                    ("C-c q v" . org-ql-view)))
@@ -7084,7 +7219,7 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
 
       (defun d/org-random-heading ()
         (interactive)
-        (org-goto-random-heading :buffers org-agenda-files :regexp (read-from-minibuffer "Search regexp: "))))
+        (org-goto-random-heading :buffers (current-buffer) :regexp (read-from-minibuffer "Search regexp: "))))
 
     (use-package org-super-agenda :after org
       :hook (org-agenda-mode . org-super-agenda-mode))

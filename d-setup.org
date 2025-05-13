@@ -318,9 +318,13 @@ Also its crucial to only add configuration that is explicitly required, rather t
 
 - display time in mode-line
   #+begin_src emacs-lisp
-    (use-package time :ensure nil :init (display-time-mode)
-      :custom (display-time-24hr-format t) (display-time-default-load-average nil)
-      (display-time-format "%l:%M %p %b %d W%U"))
+    ;; -*- lexical-binding: t; -*-
+
+    (setopt
+     display-time-24hr-format t
+     display-time-default-load-average nil
+     display-time-format "%l:%M %p %b %d W%U")
+    (display-time-mode 1)
   #+end_src
 
 *** useradd
@@ -423,7 +427,7 @@ Also its crucial to only add configuration that is explicitly required, rather t
 - Transparent remote (file) access, multiple protocol
 
   #+begin_src emacs-lisp
-  (use-package tramp :ensure nil :custom (tramp-backup-directory-alist backup-directory-alist))
+    (setq tramp-backup-directory-alist backup-directory-alist)
   #+end_src
 
 **** systemd-nspawn (container) support for tramp
@@ -557,25 +561,30 @@ see its function help for a description of the format."
 **** power-profile
 - A ppd used by gnome and kde plasma
 - Commenting as on [2024-04-11], read that ppd is better recommended to AMD cpu, so switching to tlp.
-- As on 2024-10-21, In matrix they suggested to go for PPD
+- As on 2024-10-21, In matrix K900 suggested to go for PPD
+
   #+begin_src nix :tangle gdk/core.nix
     {
       services.power-profiles-daemon.enable = true;
     }
   #+end_src
+
 **** thermald
 #+begin_src nix :tangle gdk/core.nix
   {
     services.thermald.enable = true;
   }
 #+end_src
+
 **** display-battery
 - Display battery in emacs
   #+begin_src emacs-lisp
-    (use-package battery :ensure nil :init (display-battery-mode)
-      :custom (battery-load-low '40) (battery-load-critical '29))
+    (setopt
+     battery-load-low '40
+     battery-load-critical '29)
+    (display-battery-mode 1)
   #+end_src
-
+  
 *** drive access
 
   #+begin_src nix :tangle gdk/core.nix
@@ -840,38 +849,42 @@ see its function help for a description of the format."
   #+end_src
 
 + remove tool-bar, menu-bar, scroll-bar. Although menu-bar is very helpful.
+
   #+name: early-init
   #+begin_src emacs-lisp
-  (tool-bar-mode -1)
-  (menu-bar-mode -1)
-  (scroll-bar-mode -1)
-
-  (setq frame-inhibit-implied-resize t)
+    (tool-bar-mode -1)
+    (menu-bar-mode -1)
+    (scroll-bar-mode -1)
   #+end_src
+
 + Constant variable to check if on Android.
 + Yes, Emacs official App works very well on android. I use it regularly, and this config is compatible with it.
 + In some blocks I use ~if~ and ~unless~ condition for specific choices, for explicit andoid variables see [[android][Android]]
 + For un/Offical builds: [[https://sourceforge.net/projects/android-ports-for-gnu-emacs/]]
   #+name: early-init
   #+begin_src emacs-lisp
-(defconst d/on-droid (eq system-type 'android))
+    (defconst d/on-droid (eq system-type 'android))
   #+end_src
+
 + Andoird, Gets termux path for executing tools and installing packages.
 + It links termux directory to emacs, thus we can leverage the power of unix on android.
+
   #+name: early-init
   #+begin_src emacs-lisp
-;; Emacs (gui app) is also amazing in android
-;; https://sourceforge.net/projects/android-ports-for-gnu-emacs/files/termux/
-(when d/on-droid
-  (setenv "PATH" (format "%s:%s" "/data/data/com.termux/files/usr/bin"
-		                 (getenv "PATH")))
-  (setenv "LD_LIBRARY_PATH" (format "%s:%s"
-				                    "/data/data/com.termux/files/usr/lib"
-				                    (getenv "LD_LIBRARY_PATH")))
-  (push "/data/data/com.termux/files/usr/bin" exec-path))
+    ;; Emacs (gui app) is also amazing in android
+    ;; https://sourceforge.net/projects/android-ports-for-gnu-emacs/files/termux/
+    (when d/on-droid
+      (setenv "PATH" (format "%s:%s" "/data/data/com.termux/files/usr/bin"
+    		                 (getenv "PATH")))
+      (setenv "LD_LIBRARY_PATH" (format "%s:%s"
+    				                    "/data/data/com.termux/files/usr/lib"
+    				                    (getenv "LD_LIBRARY_PATH")))
+      (push "/data/data/com.termux/files/usr/bin" exec-path))
 
   #+end_src
+
 + EOF of early-init
+
   #+begin_src emacs-lisp
 (provide 'early-init)
 ;;; early-init.el ends here
@@ -884,87 +897,38 @@ see its function help for a description of the format."
 + Some of the tweak should be self-explanatory, or else just hop on it and do =C-h o=.
 
   #+begin_src emacs-lisp
-    (use-package emacs :ensure nil
-      :bind
-      (("C-z" . nil) ("C-x C-z" . nil) ;; avoid suspend-emacs
-       ;; panes
-       ("C-x 1" . d/toggle-window-focus)
-       ("C-x C-k" . d/kill-buffer)
-       ("C-x n n" . d/narrow-or-widen-dwim)
-       ("M-o" . other-window) ("M-j" . duplicate-dwim))
+    (bind-keys :package emacs ("C-z") ("C-x C-z") ("M-o" . other-window)
+               ("M-j" . duplicate-dwim))
 
-      :custom
-      (inhibit-startup-screen t "Don't show splash screen")
+    (setopt
+     inhibit-startup-screen t
 
-      (recenter-positions '(top middle bottom))
-      (initial-major-mode 'org-mode)
-      (initial-scratch-message (format "\n\n"))
+     initial-scratch-message (format "\n\n")
 
-      (indent-tabs-mode nil "Spaces!")
-      (tab-always-indent 'complete)
-      (tab-width 4)
-      (reb-re-syntax 'string)
-      (fill-column 80)
+     indent-tabs-mode nil
+     tab-always-indent 'complete
+     tab-width 4
+     reb-re-syntax 'string
+     fill-column 80
 
-      (window-combination-resize t)
-      (history-delete-duplicates t)
+     window-combination-resize t
+     history-delete-duplicates t
 
-      (sentence-end-double-space nil)
-      (sentence-end "[.?!,;-]")
+     sentence-end-double-space nil
+     sentence-end "[.?!,;-]"
+     read-process-output-max (* 1024 1024)
+     inhihbit-compacting-font-caches t
+     pgtk-wait-for-event-timeout nil
+     )
 
-      :config
-      (delete-selection-mode) (blink-cursor-mode nil)
-      (global-so-long-mode 1)
-      (set-window-margins (selected-window) 2 2)
-      (setopt
-       read-process-output-max (* 1024 1024)
-       inhihbit-compacting-font-caches t
-       pgtk-wait-for-event-timeout nil
-       )
-      (with-current-buffer "*scratch*" (emacs-lock-mode 'kill))
-      (modify-all-frames-parameters
-       '((alpha-background . 100)
-         (right-divider-width . 1)
-         (internal-border-width . 1)))
-
-      ;; balance windows when split (https://zck.org/balance-emacs-windows)
-      (seq-doseq (fn (list #'split-window #'delete-window))
-        (advice-add fn :after #'(lambda (&rest args) (balance-windows))))
-      )
-  #+end_src
-
-- Functions to enhance core default behavior
-
-  #+begin_src emacs-lisp
-  (defun d/toggle-window-focus()
-    "Toggle full view of selected window."
-    (interactive)
-      (if (window-parent) (delete-other-windows) (winner-undo)))
-  #+end_src
-
-- To toggle narrow or widen region or heading in DWIM way.
-
-  #+begin_src emacs-lisp
-(defun d/narrow-or-widen-dwim ()
-  "If the buffer is narrowed, it widens. Otherwise,
-it narrows to region, or Org subtree."
-  (interactive)
-  (cond ((buffer-narrowed-p) (widen))
-        ((region-active-p) (narrow-to-region (region-beginning) (region-end)))
-        ((eq major-mode 'org-mode) (org-narrow-to-subtree))
-        (t (error "Please select a region to narrow to"))))
-  #+end_src
-
-- Kill buffer and window, also clear cache if quitting doc-view or pdf-view
-
-  #+begin_src emacs-lisp
-    (defun d/kill-buffer ()
-      "Clear the image cache (to release memory) after killing a pdf buffer."
-      (interactive)
-      (when (derived-mode-p 'doc-view-mode) (progn (clear-image-cache) (doc-view-clear-cache)))
-      ;; (when (derived-mode-p 'pdf-view-mode) (progn (clear-image-cache) (pdf-cache-clear-data)))
-      (if (one-window-p) (kill-this-buffer)
-        (kill-buffer-and-window)))
+    (delete-selection-mode 1) (blink-cursor-mode -1)
+    (global-so-long-mode 1)
+    (with-current-buffer "*scratch*" (emacs-lock-mode 'kill))
+    (modify-all-frames-parameters
+     '((alpha-background . 100) ;; blur
+       (right-divider-width . 1) (internal-border-width . 20)
+       (left-fringe . 0) (right-fringe . 0)
+       ))
   #+end_src
 
 *** Simple
@@ -973,187 +937,59 @@ it narrows to region, or Org subtree."
 #+begin_src emacs-lisp
   (save-place-mode 1)
 
-  (use-package simple :ensure nil
-    :bind
-    (("M-^" . d/join-every-n-lines)
-     ("M-z" . zap-up-to-char)
-
-     ("M-%" . query-replace-regexp)
-
-     ("M-c" . d/flex)
-     ("M-l" . downcase-dwim)
-
-     ("M-@" . d/mark-word)
-     ("M-h" . d/mark-paragraph))
-
-    :custom
-    (kill-ring-max 30000)
-    (column-number-mode 1)
-    (kill-do-not-save-duplicates t)
-    (read-mail-command 'gnus)
-    (set-mark-command-repeat-pop t)
-    (use-dialog-box nil)
-    (use-file-dialog nil)
-    (use-short-answers t)
-    (async-shell-command-buffer 'new-buffer)
-    :config
-    ;; (global-hl-line-mode 1)
-    (global-visual-line-mode 1))
+  (setopt
+   kill-ring-max 30000
+   kill-do-not-save-duplicates t
+   read-mail-command 'gnus
+   set-mark-command-repeat-pop t
+   use-dialog-box nil
+   use-file-dialog nil
+   use-short-answers t
+   async-shell-command-buffer 'new-buffer
+   async-shell-command-display-buffer nil
+   grep-use-headings t
+   save-interprogram-paste-before-kill t
+   )
+  (put 'suspend-frame 'disabled t)
+  (global-hl-line-mode 1)
+  (global-visual-line-mode 1)
 #+end_src
-
-- DWIM way of joining lines with prefix argument.
-  It allows to join lines, by sequence (eg: each of 3 lines in region with a separator)
-  Credits: https://whatacold.io/blog/2023-11-25-emacs-join-every-n-lines/
-
-  #+begin_src emacs-lisp
-  (defvar d/join-lines--last-separator ","
-    "Keep the last used separator for `d/join-lines' and
-  `d/join-every-n-lines', a comma by default.")
-
-  (defun d/join-every-n-lines (&optional specify-separator)
-    "Join every N lines in the active region by a separator,
-  by default the last used.
-
-  Specify the separator by typing C-u before executing this
-  command.
-
-  Note: it depends on s.el."
-    (interactive "P")
-    (require 's)
-    (unless (region-active-p)
-      (error "select a region of all-lines first."))
-    (let* ((n (string-to-number (read-string "N =: ")))
-           (separator (if (not specify-separator)
-                          d/join-lines--last-separator
-                        (read-string "Separator: ")))
-           (text (buffer-substring-no-properties
-                  (region-beginning)
-                  (region-end)))
-           (all-lines (split-string text "\n"))
-           n-lines
-           result)
-      (while all-lines
-        (let (lines line)
-          (dotimes (_ n)
-            (when (setq line (pop all-lines))
-              (push line lines)))
-          (push (reverse lines) n-lines)))
-      (setq result (mapconcat (lambda (lines)
-                                (s-join separator lines))
-                              (reverse n-lines) "\n"))
-      (delete-region (region-beginning) (region-end))
-      (insert result)
-      (setq q/join-lines--last-separator separator)))
-  #+end_src
-
-- Function to increment number at point.
-
-  #+begin_src emacs-lisp
-;; taken from an planet emacs rss feed post
-;; Stolen from the wiki somewhere
-(defun increment-number-at-point ()
-  "Increment the number at point."
-  (interactive)
-  (skip-chars-backward "0-9")
-  (or (looking-at "[0-9]+")
-      (error "No number at point"))
-  (replace-match (number-to-string (1+ (string-to-number (match-string 0))))))
-  #+end_src
-
-- DWIM like to increment, upcase, flex.
-- Credits to a emacs post from planets emacs.
-
-  #+begin_src emacs-lisp
-    (defun d/flex ()
-      "Perform smart flexing at point.
-
-    E.g. capitalize or decapitalize the next word, increment number at point."
-      (interactive)
-      (let ((case-fold-search nil))
-        (call-interactively
-         (cond
-          ((looking-at "[[:space:]]") (forward-char 1) (d/flex))
-          ((looking-at "[0-9]+") #'increment-number-at-point)
-          ((looking-at "[[:lower:]]") #'capitalize-word)
-          ((looking-at "==") (delete-char 1) (insert "!") (forward-char 2))
-          ((looking-at "!=") (delete-char 1) (insert "=") (forward-char 2))
-          ((looking-at "+") (delete-char 1) (insert "-") (forward-char 1))
-          ((looking-at "-") (delete-char 1) (insert "+") (forward-char 1))
-          ((looking-at "<=") (delete-char 2) (insert ">=") (forward-char 2))
-          ((looking-at ">=") (delete-char 2) (insert "<=") (forward-char 2))
-          ((looking-at "<") (delete-char 1) (insert ">") (forward-char 1))
-          ((looking-at ">") (delete-char 1) (insert "<") (forward-char 1))
-          (t #'downcase-word)))))
-  #+end_src
 
 - Display line numbers for prog-mode, in relative numbering.
 
   #+begin_src emacs-lisp
-    (use-package display-line-numbers :ensure nil
-      :hook (prog-mode)
-      :custom (display-line-numbers-type 'relative))
-  #+end_src
-
-- Function to improve marking paragraph and word as expected.
-
-  #+begin_src emacs-lisp
-;; credits to
-;; https://emacs.dyerdwelling.family/emacs/20231209092556-emacs--redefining-mark-paragraph-and-mark-word/
-(defun d/mark-paragraph ()
-  "redefinition of mark-paragraph"
-  (interactive)
-  (forward-char)
-  (backward-paragraph)
-  (push-mark)
-  (forward-paragraph)
-  (setq mark-active t))
-
-(defun d/mark-word ()
-  "redefinition of mark-word"
-  (interactive)
-  (if (not (looking-at "\\<"))
-      (backward-word))
-  (push-mark)
-  (forward-word)
-  (setq mark-active t))
+    (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+    (setopt display-line-numbers-type 'relative)
   #+end_src
 
 *** File
 **** Tidy files
 
   #+begin_src emacs-lisp
-    (use-package files :ensure nil
-      :hook (before-save . delete-trailing-whitespace)
-      :bind (("<f5>" . d/refresh-buffer))
-      :init (auto-save-visited-mode 1)
-      :custom
-      (save-silently t)
-      (confirm-kill-emacs 'yes-or-no-p)
-      ;; backup settings
-      (backup-by-copying t)
-      (custom-file (expand-file-name "custom.el" user-emacs-directory))
-      (backup-directory-alist
-       `((".*" . ,(no-littering-expand-var-file-name "backup/"))))
-      (auto-save-file-name-transforms
-       `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
-      (safe-local-variable-directories
-       '("/home/idlip/d-sync/notes/" "/home/idlip/d-sync/projects/lnrna-tool/"))
-      (remote-file-name-inhibit-delete-by-moving-to-trash t)
-      (remote-file-name-inhibit-auto-save t)
-      (delete-old-versions t)
-      (kept-new-versions 6)
-      (kept-old-versions 2)
-      (version-control t)
-      (create-lockfiles nil))
-  #+end_src
+    (auto-save-visited-mode 1)
 
-- Refresh or revert the buffer without asking for confirmation.
-
-  #+begin_src emacs-lisp
-(defun d/refresh-buffer ()
-  "Revert buffer without confirmation."
-  (interactive)
-  (revert-buffer :ignore-auto :noconfirm))
+    (setopt
+     save-silently t
+     confirm-kill-emacs 'yes-or-no-p
+     ;; backup settings
+     make-backup-files nil
+     view-read-only t
+     truncate-lines t
+     custom-file (expand-file-name "custom.el" user-emacs-directory)
+     backup-directory-alist
+     `((".*" . ,(no-littering-expand-var-file-name "backup/")))
+     auto-save-file-name-transforms
+     `((".*" ,(no-littering-expand-var-file-name "auto-save/") t))
+     safe-local-variable-directories
+     '("/home/idlip/d-sync/notes/" "/home/idlip/d-sync/projects/lnrna-tool/")
+     remote-file-name-inhibit-delete-by-moving-to-trash t
+     remote-file-name-inhibit-auto-save t
+     delete-old-versions t
+     kept-new-versions 6
+     kept-old-versions 2
+     version-control t
+     create-lockfiles nil
+     )
   #+end_src
 
 **** Undo
@@ -1162,73 +998,52 @@ it narrows to region, or Org subtree."
 - vundo is to visualize undo nodes in a horizontal tree.
 
   #+begin_src emacs-lisp
-  (use-package undo-fu-session
-    :init (undo-fu-session-global-mode)
-    :custom (undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'")))
+    (use-package undo-fu-session
+      :init (undo-fu-session-global-mode)
+      :custom (undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'")))
 
-  (use-package vundo
-    :bind
-    (("C-x u" . vundo)
-     ("C-z" . undo-only)
-     ("C-S-z" . undo-redo)
-     ("C-M-r" . undo-redo))
-    :custom
-    (vundo-compact-display t)
-    (vundo-glyph-alist vundo-unicode-symbols)
-    (vundo-window-max-height 8))
-  #+end_src
-
-**** backup
-- =vc-backup= is such a necessary tool, that diff the states of previous save to current save.
-- It acts on both VC files and as well as file under no VC.
-
-  #+begin_src emacs-lisp
-  (use-package vc-backup :demand t
-    ;; to have auto VC track of files without in git -> C-x v =
-    :custom
-    (vc-make-backup-files t)
-    (vc-follow-symlinks t))
+    (use-package vundo
+      :bind
+      (("C-x u" . vundo) ("C-z" . undo-only) ("C-S-z" . undo-redo) ("C-M-r" . undo-redo))
+      :custom
+      (vundo-compact-display t)
+      (vundo-glyph-alist vundo-unicode-symbols)
+      (vundo-window-max-height 8))
   #+end_src
 
 **** Auto revert
 - Revert files with changes, so I can work with sync.
 
   #+begin_src emacs-lisp
-    (use-package autorevert :init (global-auto-revert-mode)
-      :custom (global-auto-revert-non-file-buffers t))
+    (global-auto-revert-mode 1)
+    (setopt global-auto-revert-non-file-buffers t)
   #+end_src
 
 **** File History savehist
 - savehist of minibuffer candidates
 
   #+begin_src emacs-lisp
-    (use-package savehist :ensure nil
-      :init (savehist-mode)
-      :custom (history-length 200)   (save-place-limit nil)
-      (savehist-additional-variables
-       '(kill-ring
-         command-history
-         set-variable-value-history
-         custom-variable-history
-         query-replace-history
-         read-expression-history
-         minibuffer-history
-         read-char-history
-         face-name-history
-         bookmark-history
-         file-name-history
-         mark-ring global-mark-ring search-ring regexp-search-ring register-alist extended-command-history)))
+    (savehist-mode 1)
+    (setopt
+     history-length 200
+     save-place-limit nil
+     savehist-additional-variables
+     '(kill-ring command-history
+                 set-variable-value-history custom-variable-history
+                 query-replace-history read-expression-history
+                 minibuffer-history read-char-history face-name-history
+                 bookmark-history file-name-history
+                 mark-ring global-mark-ring search-ring regexp-search-ring register-alist extended-command-history)
+     )
   #+end_src
 
 - to record recently opened files. Useful to jump in quick
 
   #+begin_src emacs-lisp
-    (use-package recentf :ensure nil
-      :bind ("C-x C-r" . recentf)
-      :custom
-      (recentf-max-menu-items 1000)
-      (recentf-max-saved-items 1000)
-      :init (recentf-mode))
+    (global-set-key (kbd "C-x C-r") #'recentf)
+    (setopt recentf-max-menu-items 1000
+            recentf-max-saved-items 1000)
+    (recentf-mode 1)
   #+end_src
 
 **** no-littering
@@ -1247,38 +1062,29 @@ it narrows to region, or Org subtree."
 - The directory editor
 
   #+begin_src emacs-lisp
-    (use-package dired :ensure nil
-      :init (file-name-shadow-mode 1)
-      :hook
-      (dired-mode . dired-hide-details-mode)
-      (dired-mode . dired-omit-mode)
-      :bind
-      ((:map dired-mode-map
-             ("j" . dired-next-line) ("k" . dired-previous-line)
-             ("l" . dired-find-file) ("h" . dired-up-directory)
-             ("b" . embark-act) ("e" . dired-do-eww)))
+    (file-name-shadow-mode 1)
+    (add-hook 'dired-mode-hook #'dired-hide-details-mode)
+    (add-hook 'dired-mode-hook #'dired-omit-mode)
 
-      :custom
-      (dired-listing-switches "-agho --group-directories-first")
-      (dired-omit-files "\\`[.]?#\\|\\`[.][.]?\\'\\|^\\..*$")
-      (dired-guess-shell-alist-user
-       '(("\\.\\(png\\|jpe?g\\|tiff\\)" "swayimg")
-         ("\\.\\(mp[34]\\|m4a\\|ogg\\|flac\\|webm\\|mkv\\)" "mpv")
-         (".pdf$" "sioyek")
-         (".*" "xdg-open" "open")))
-      (delete-by-moving-to-trash t)
-      (dired-dwim-target t)
-      (dired-kill-when-opening-new-dired-buffer t) ;; in case sinlge buffer is preferred
-      )
+    (setopt
+     dired-listing-switches "-agho --group-directories-first"
+     dired-omit-files "\\`[.]?#\\|\\`[.][.]?\\'\\|^\\..*$"
+     dired-guess-shell-alist-user
+     '(("\\.\\(png\\|jpe?g\\|tiff\\)" "swayimg")
+       ("\\.\\(mp[34]\\|m4a\\|ogg\\|flac\\|webm\\|mkv\\)" "mpv")
+       (".pdf$" "sioyek")
+       (".*" "xdg-open" "open"))
+     delete-by-moving-to-trash t
+     dired-dwim-target t
+     dired-kill-when-opening-new-dired-buffer t ;; in case sinlge buffer is preferred
+     )
   #+end_src
 
 ***** wdired
 - To write changes as it looks.
   #+begin_src emacs-lisp
-    (use-package wdired :ensure nil
-      :custom
-      (wdired-allow-to-change-permissions t)
-      (wdired-create-parent-directories t))
+    (setopt wdired-allow-to-change-permissions t
+            wdired-create-parent-directories t)
   #+end_src
 
 **** utf-8
@@ -1286,8 +1092,8 @@ it narrows to region, or Org subtree."
 
   #+begin_src emacs-lisp
     (set-language-environment 'utf-8)
-    (setq locale-coding-system 'utf-8)
-    (setq buffer-file-coding-system 'utf-8-unix)
+    (setopt locale-coding-system 'utf-8)
+    (setopt buffer-file-coding-system 'utf-8-unix)
     (set-terminal-coding-system 'utf-8)
     (set-keyboard-coding-system 'utf-8)
     (set-selection-coding-system 'utf-8)
@@ -1301,19 +1107,24 @@ it narrows to region, or Org subtree."
 - Trying out default completions.
 
 #+begin_src emacs-lisp
-  (use-package minibuffer :ensure nil
-    :hook (minibuffer-setup . cursor-intangible-mode)
-    :custom
-    (completion-ignore-case t) (completion-auto-select 'second-tab) (completion-auto-help t)
-    (completions-detailed t) (enable-recursive-minibuffers t) (completion-show-help nil)
-    (completions-max-height 10) (completions-sort 'historical)
-    (read-buffer-completion-ignore-case t) (read-file-name-completion-ignore-case t)
-    (minibuffer-depth-indicate-mode t) (minibuffer-electric-default-mode t)
-    (minibuffer-visible-completions t) (completions-group t)
-    (completion-category-overrides '((file (styles substring basic partial-completion))))
-    (completion-styles '(orderless basic))
-    (completions-format 'vertical)
-    )
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+  (setopt
+   completion-ignore-case t
+   completion-auto-select 'second-tab
+   completion-auto-help t
+   completions-detailed t
+   enable-recursive-minibuffers t
+   completion-show-help nil
+   completions-max-height 10
+   completions-sort 'historical
+   read-buffer-completion-ignore-case t
+   read-file-name-completion-ignore-case t
+   minibuffer-depth-indicate-mode t
+   minibuffer-electric-default-mode t
+   minibuffer-visible-completions t
+   completions-group t
+   completions-format 'vertical
+   )
 #+end_src
 
 ***** Abbrev
@@ -1353,11 +1164,9 @@ https://yhetil.org/emacs-devel/CAL6FEzxCFJDxy=7+St8igfGa=N-MBnU==+9VcKyC9MaoWXyf
 
 ***** Hippie expand dabbrev
 #+begin_src emacs-lisp
-  (use-package hippie-exp :ensure nil
-    :init ;; https://www.masteringemacs.org/article/text-expansion-hippie-expand
-    (keymap-global-set "<remap> <dabbrev-expand>" 'hippie-expand)
-    :custom (hippie-expand-verbose t)
-    (hippie-expand-dabbrev-skip-space t) )
+  (keymap-global-set "<remap> <dabbrev-expand>" 'hippie-expand)
+  (setopt hippie-expand-verbose t
+          hippie-expand-dabbrev-skip-space t)
 #+end_src
 
 **** COMMENT icomplete fido vertical
@@ -1413,7 +1222,9 @@ https://yhetil.org/emacs-devel/CAL6FEzxCFJDxy=7+St8igfGa=N-MBnU==+9VcKyC9MaoWXyf
 
   #+begin_src emacs-lisp
     (use-package vertico :init (vertico-mode)
-      :bind ((:map vertico-map ("C-v" . vertico-scroll-up) ("M-v" . vertico-scroll-down)))
+      :bind ((:map vertico-map ("C-v" . vertico-scroll-up) ("M-v" . vertico-scroll-down)
+            ("C-<return>" . vertico-really-exit-input) ("DEL" . vertico-directory-delete-char)
+                   ))
       :custom (vertico-count 5)
       (read-extended-command-predicate #'command-completion-default-include-p)
       :init
@@ -1502,7 +1313,6 @@ https://yhetil.org/emacs-devel/CAL6FEzxCFJDxy=7+St8igfGa=N-MBnU==+9VcKyC9MaoWXyf
       (setopt completion-in-region-function #'consult-completion-in-region)
       (consult-customize
        consult-theme :preview-key '(:debounce 2.5 any)
-       consult-line :initial (thing-at-point 'symbol)
        consult-ripgrep consult-git-grep consult-grep
        consult-bookmark consult-recent-file consult-xref
        consult--source-bookmark consult--source-file-register
@@ -1513,42 +1323,14 @@ https://yhetil.org/emacs-devel/CAL6FEzxCFJDxy=7+St8igfGa=N-MBnU==+9VcKyC9MaoWXyf
       (advice-add #'register-preview :override #'consult-register-window))
   #+end_src
 
-***** COMMENT consult-omni
-- For extensive support and omni search everywhere.
-#+begin_src emacs-lisp
-  (use-package consult-omni
-    :load-path "~/.config/emacs/elpa/consultomni" "~/.config/emacs/elpa/consultomni/sources"
-    :after consult
-    :custom
-    (consult-omni-show-preview t) ;;; show previews
-    (consult-omni-preview-key "C-o") ;;; set the preview key to C-o
-    (consult-omni-dynamic-input-debounce 2)
-    (consult-omni-dynamic-input-throttle 4)
-    (consult-omni-default-interactive-command #'consult-omni-multi)
-    (consult-omni-sources-modules-to-load
-     '(consult-omni-brave consult-omni-invidious
-                          consult-omni-google consult-omni-youtube consult-omni-gptel
-                          consult-omni-stackoverflow
-                          consult-omni-wikipedia consult-omni-man
-                          consult-omni-calc
-                          consult-omni-projects
-                          consult-omni-notes
-                          consult-omni-apps))
-    (consult-omni-invidious-servers '("https://yewtu.be"))
-    (consult-omni-notes-files (list org-directory "~/d-git/d-site/"))
-    (consult-omni-http-retrieve-backend 'request)
-    :config (require 'consult-omni-sources)
-    (consult-omni-sources-load-modules)
-    )
-#+end_src
 
 **** Orderless
 + nice way of filtering results and candidates.
 
   #+begin_src emacs-lisp
-    (use-package orderless :demand t :custom (completion-styles '(orderless basic))
-      (completion-category-overrides '((file (styles basic partial-completion))))
-      (completion-category-defaults nil))
+    (setopt completion-styles '(orderless basic)
+            completion-category-overrides '((file (styles basic partial-completion)))
+            completion-category-defaults nil)
   #+end_src
 
 **** Embark
@@ -1602,7 +1384,7 @@ https://yhetil.org/emacs-devel/CAL6FEzxCFJDxy=7+St8igfGa=N-MBnU==+9VcKyC9MaoWXyf
   (use-package marginalia :init (marginalia-mode))
   #+end_src
 
-**** COMMENT corfu
+**** corfu
 + overlay popup
   - Using consult as completion in region has advantage as to have vertico and single window/point for completion rather than "get where you type".
 
@@ -1617,7 +1399,7 @@ https://yhetil.org/emacs-devel/CAL6FEzxCFJDxy=7+St8igfGa=N-MBnU==+9VcKyC9MaoWXyf
   #+begin_src emacs-lisp
     (use-package cape
       :bind ("C-c p" . cape-prefix-map)
-      ("M-i" . cape-prefix-map)
+      ("M-i" . cape-prefix-map) ("C-<tab>" . cape-prefix-map)
       :init
       (add-hook 'completion-at-point-functions #'cape-dabbrev)
       (add-hook 'completion-at-point-functions #'cape-file)
@@ -1632,20 +1414,6 @@ https://yhetil.org/emacs-devel/CAL6FEzxCFJDxy=7+St8igfGa=N-MBnU==+9VcKyC9MaoWXyf
   #+begin_src emacs-lisp
     (use-package tempel :hook (prog-mode . tempel-abbrev-mode)
       :bind (("M-+" . tempel-complete) ("M-*" . tempel-insert)))
-  #+end_src
-
-+ tempel-collection: collection for some snippets
-  Open to contribute more snippets and help community.
-
-  #+begin_src emacs-lisp
-  (use-package tempel-collection :after tempel)
-  #+end_src
-
-+ Tempel support for eglot
-  If any LSP has some snippet to expand. Eg: bash has few
-
-  #+begin_src emacs-lisp :tangle no
-  (use-package eglot-tempel :after eglot)
   #+end_src
 
 ***** nix-templates
@@ -2130,141 +1898,95 @@ markdown-mode
 - Use tab bar, instead of frames.
 
   #+begin_src emacs-lisp
-    (use-package tab-bar :unless d/on-droid
-      ;; :bind (("C-<tab>" . tab-line-switch-to-next-tab) ("C-S-<tab>" . tab-line-switch-to-prev-tab))
-      :custom ;; tab-bar-format-history
-      (tab-bar-format '(tab-bar-separator tab-bar-format-menu-bar tab-bar-format-tabs-groups tab-bar-separator
-                                          ;; tab-bar-format-tabs
-                                          tab-bar-format-align-right
-                                          tab-bar-format-global ;; An issue when used in terminal+daemon (cursor wont move properly)
-                                          ))
-      (tab-bar-close-button-show nil)
-      ;; (tab-bar-show nil)
-      (tab-bar-mode 1)
-      (tab-bar-history-mode 1)
-      ;; (global-tab-line-mode 1)
-      )
+    (unless d/on-droid
+      (tab-bar-mode 1) (tab-bar-history-mode 1))
+    (setopt
+     tab-bar-format
+     '(tab-bar-separator tab-bar-format-menu-bar tab-bar-format-tabs-groups tab-bar-separator
+                         ;; tab-bar-format-tabs
+                         tab-bar-format-align-right
+                         ;; tab-bar-format-global ;; An issue when used in terminal+daemon (cursor wont move properly)
+                         )
+     tab-bar-close-button-show nil)
   #+end_src
 **** ibuffer
 ibuffer to list and manage buffers
 #+begin_src emacs-lisp
   (use-package ibuffer :ensure nil
+    :bind ("C-x C-b" . ibuffer)
     :custom
     (ibuffer-saved-filter-groups
      '(("default"
         ("org" (or
-                (mode . org-mode)
-                (name . "^\\*Org Src")
-                (name . "^\\*Org Agenda\\*$")))
+                (mode . org-mode) (name . "^\\*Org Src") (name . "^\\*Org Agenda\\*$")))
+        ("reading" (or (mode . nov-mode) (mode . doc-view-mode)))
         ("tramp" (name . "^\\*tramp.*"))
         ("emacs" (or
-                  (name . "^\\*scratch\\*$")
-                  (name . "^\\*Messages\\*$")
-                  (name . "^\\*Warnings\\*$")
-                  (name . "^\\*Shell Command Output\\*$")
-                  (name . "^\\*Async-native-compile-log\\*$")
-                  (name . "^\\*straight-")))
+                  (name . "^\\*scratch\\*$") (name . "^\\*Messages\\*$")
+                  (name . "^\\*Warnings\\*$") (name . "^\\*Shell Command Output\\*$")
+                  (name . "^\\*Async-native-compile-log\\*$") (name . "^\\*straight-")))
         ("ediff" (or
-                  (name . "^\\*ediff.*")
-                  (name . "^\\*Ediff.*")))
+                  (name . "^\\*ediff.*") (name . "^\\*Ediff.*")))
         ("dired" (mode . dired-mode))
+        ("irc" (mode . erc-mode))
         ("terminal" (or
-                     (mode . term-mode)
-                     (mode . shell-mode)
-                     (mode . eshell-mode)))
+                     (mode . term-mode) (mode . shell-mode) (mode . eshell-mode)))
         ("help" (or
-                 (name . "^\\*Help\\*$")
-                 (name . "^\\*info\\*$")
-                 (name . "^\\*helpful"))))))
+                 (name . "^\\*Help\\*$") (name . "^\\*info\\*$") (name . "^\\*helpful"))))))
     :config
     (add-hook 'ibuffer-mode-hook
               (lambda ()
                 (ibuffer-switch-to-saved-filter-groups "default"))))
 #+end_src
+
 ***** unique names
+- Set unique name for buffer names.
+
 #+begin_src emacs-lisp
-  (use-package uniquify :ensure nil
-    :custom (uniquify-buffer-name-style 'forward))
+  (setopt uniquify-buffer-name-style 'forward)
 #+end_src
+
 **** isearch
 #+begin_src emacs-lisp
-  (use-package isearch :ensure nil
-    :custom
-    (isearch-lazy-count t)
-    (search-whitespace-regexp ".*?"))
+  (setopt isearch-lazy-count t
+          search-whitespace-regexp ".*?")
 #+end_src
+
 **** Mouse
   #+begin_src emacs-lisp
-    (use-package mouse :ensure nil :init (context-menu-mode t)
-      :custom (mouse-autoselect-window t) )
+    (context-menu-mode 1)
+    (setopt mouse-autoselect-window t)
 
-    (use-package xt-mouse
-      :init (xterm-mouse-mode))
+    (unless (display-graphic-p)
+      (xterm-mouse-mode 1))
   #+end_src
 
 **** winner-window
 To manage windows states
 #+begin_src emacs-lisp
-  (use-package winner :init (winner-mode))
+  (winner-mode 1)
 #+end_src
 
 **** pixel scroll - ultra scroll
   #+begin_src emacs-lisp
-    (use-package mwheel
-      ;; :bind (("C-v" . smooth-scroll-down) ("M-v" . smooth-scroll-up))
-      :init (pixel-scroll-precision-mode 1)
-      ;; :init (ultra-scroll-mode 1)
-      :custom (scroll-step 1) (scroll-margin 0)
-      ;; (pixel-scroll-precision-interpolate-page t)
-      (mouse-wheel-progressive-speed nil) (mouse-wheel-scroll-amount '(1 ((control) . 1)  ((shift) . 2) ((meta) . 3)))
-      (scroll-conservatively 101 "Dont jump") (scroll-preserve-screen-position 1 "Preserve position")
-      ;; :config
-      ;; (defun smooth-scroll-down()
-      ;;   (interactive)
-      ;;   (ultra-scroll-down 30)
-      ;;   )
+    (setopt
+     scroll-step 1
+     scroll-margin 0
+     mouse-wheel-progressive-speed nil
+     mouse-wheel-scroll-amount '(1 ((control) . 1)  ((shift) . 2) ((meta) . 3))
+     scroll-conservatively 101
+     scroll-preserve-screen-position t)
 
-      ;; (defun smooth-scroll-up()
-      ;;   (interactive)
-      ;;   (ultra-scroll-up 30)
-      ;;   )
-      )
+    (pixel-scroll-precision-mode 1)
   #+end_src
 
 **** repeat-mode
 - To repeat some obstrusive commands, without invoking painful modifers.
   #+begin_src emacs-lisp
-    (use-package repeat :config (repeat-mode 1)
-      :custom (repeat-exit-timeout 2))
+    (setq repeat-exit-timeout 2)
+    (put 'other-window 'repeat-map nil)
+    (repeat-mode 1)
   #+end_src
-
-**** COMMENT activities
-- To save all session, in a more sensible manner.
-- Again, one of the good design, well thought package by alphapapa.
-#+begin_src emacs-lisp
-  (use-package activities :unless d/on-droid
-    :init (activities-mode) (activities-tabs-mode)
-    ;; Prevent `edebug' default bindings from interfering.
-    (setq edebug-inhibit-emacs-lisp-mode-bindings t)
-    :bind
-    (("C-x C-a C-n" . activities-new)
-     ("C-x C-a C-d" . activities-define)
-     ("C-x C-a C-a" . activities-resume)
-     ("C-x C-a C-s" . activities-suspend)
-     ("C-x C-a C-k" . activities-kill)
-     ("C-x C-a C-b" . activities-switch-buffer)
-     ("C-x C-a RET" . activities-switch)
-     ("C-x C-a b" . activities-switch-buffer)
-     ("C-x C-a g" . activities-revert)
-     ("C-x C-a l" . activities-list)))
-#+end_src
-
-**** spacious padding
-- To get aesthetic space around.
-
-#+begin_src emacs-lisp
-  (use-package spacious-padding :unless d/on-droid :init (spacious-padding-mode t))
-#+end_src
 
 **** Gptel
 - LLM model to make things quicky
@@ -2291,11 +2013,13 @@ To manage windows states
 **** zone screensaver
 - Misc fun when idle
 #+begin_src emacs-lisp
-(use-package zone :ensure nil :demand t :config (zone-when-idle (* 60 5)))
+  (with-eval-after-load 'zone
+    (zone-when-idle (* 60 5)))
 #+end_src
 
 **** emacs write anywhere
 - Write text in browser or anywhere using emacs.
+  Inspired by: https://codeberg.org/tusharhero/tinee/
   #+begin_src emacs-lisp
     (define-minor-mode d/write-mode
       "write comment outside emacs."
@@ -2313,12 +2037,21 @@ To manage windows states
         (make-frame '((name . "d-write") (width . 70) (height . 20)))
         ))
 
-    (defun d/write-done ()
+    (defun d/write-done (&optional arg)
       "Copy current buffer to kill-ring."
-      (interactive)
-      (clipboard-kill-ring-save (point-min) (point-max))
-      (save-buffer) (kill-buffer) (delete-frame) )
+      (interactive "P")
+      (let* ((raw-text (buffer-substring-no-properties (point-min) (point-max)))
+             ;; No idea why the 3rd argument of `org-export-with-toc' doesn't work for this.
+             (org-export-with-toc nil)
+             (text (pcase arg
+                     (4  (org-export-string-as raw-text 'md t))
+                     (_  raw-text))))
+      (kill-new text)
+      (save-buffer) (kill-buffer) (delete-frame) ))
+
+      
   #+end_src
+
 * Development
 *** Documentation
 - Documentation matters!
@@ -2345,15 +2078,6 @@ To manage windows states
         generateCaches = true; # will take little time
       };
     }
-  #+end_src
-
-**** COMMENT Helpful
-- enhanced help page =describe-=  for emacs.
-  #+begin_src emacs-lisp
-    (use-package helpful :hook (helpful-mode . d/toggle-bar)
-      :bind (("C-h f" . helpful-callable) ("C-h v" . helpful-variable) ("C-h k" . helpful-key)
-             ("C-h x" . helpful-command) ("C-c C-d" . helpful-at-point) ("C-h o" . helpful-symbol)
-             ("C-h F" . helpful-function)))
   #+end_src
 
 **** gpg gnu
@@ -2468,10 +2192,6 @@ To manage windows states
             lines = 10000;
             multiplier = 3;
           };
-          url = {
-            launch = "d-stuff \${url}";
-            protocols = "http, https, ftp, ftps, file";
-          };
           key-bindings = {
             clipboard-copy = "Control+Shift+c";
             clipboard-paste = "Control+Shift+v Control+y";
@@ -2502,15 +2222,7 @@ To manage windows states
   #+begin_src emacs-lisp
     (use-package esh-mode :ensure nil
       :hook
-      (eshell-mode . (lambda () (setq outline-regexp eshell-prompt-regexp)
-                       (setq-local corfu-auto nil)
-                       (setq-local scroll-margin 0)
-                       (corfu-mode 1)))
-      :bind (
-             ("<f12>" . d/eshell-toggle)
-             ("C-c d s" . project-eshell)
-             (:map eshell-mode-map
-                   ("C-S-l" . d/clear-eshell)))
+      (eshell-mode . (lambda () (setq outline-regexp eshell-prompt-regexp)))
 
       :custom
       (eshell-hist-ignoredups t)
@@ -2536,9 +2248,6 @@ To manage windows states
 - eshell function to toggle and clear buffer
 
   #+begin_src emacs-lisp
-    (defun d/clear-eshell ()
-      (interactive)
-      (eshell-send-input (eshell/clear 1)))
 
     (defun d/term-toggle (term)
       "Minimal hack to toggle eshell."
@@ -2640,7 +2349,7 @@ to get bash alias to eshell way
   alias ytmp3 yt-dlp -x --continue --add-metadata --embed-thumbnail --audio-format mp3 --audio-quality 0 --metadata-from-title = '%(artist)s - %(title)s' --prefer-ffmpeg -o '%(title)s.%(ext)s'  $*
 #+end_src
 
-**** eat
+**** COMMENT eat
 - emulate a terminal
 
   #+begin_src emacs-lisp
@@ -2674,10 +2383,8 @@ to get bash alias to eshell way
 - A command interpreter for emacs, used by many repls.
 
   #+begin_src emacs-lisp
-  (use-package comint
-    :bind ("M-g r" . d/comint-page-output)
-    :custom (comint-pager "cat")
-    :config (setenv "MANPAGER" "cat"))
+    (setq comint-pager "cat")
+    (setenv "MANPAGER" "cat")
   #+end_src
 
 - Function to get comint messages in temp buffer and flush long output.

@@ -399,8 +399,9 @@
     };
 
     cursor = {
-      package = (pkgs.callPackage ./pkgs/layan-cursor.nix {});
-      name = "layan-cursors";
+      package = pkgs.phinger-cursors;
+      name = "phinger-cursors-dark";
+      size = 24;
     };
 
     fonts = let
@@ -410,13 +411,7 @@
       # spkg = (pkgs.iosevka-bin.override { variant = "Aile"; });
       apkg = pkgs.inter-nerdfont;
 
-      mpkg = (pkgs.maple-mono-NF.overrideAttrs (oldAttrs: {
-        version = "7.0";
-        src = pkgs.fetchurl {
-          url = "https://github.com/subframe7536/maple-font/releases/download/v7.0/MapleMono-NF-unhinted.zip";
-          sha256 = "sha256-5P42BHDnIv4ZN4rDtEWFCWEc+NfPd0qHT2VOW2Jhn+Q=";
-        };
-      }));
+      mpkg = pkgs.maple-mono.NF;
 
       # spkg = pkgs.atkinson-hyperlegible;
 

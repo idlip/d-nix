@@ -14,8 +14,6 @@
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
 
-(setq frame-inhibit-implied-resize t)
-
 (defconst d/on-droid (eq system-type 'android))
 
 ;; Emacs (gui app) is also amazing in android

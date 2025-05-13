@@ -147,10 +147,6 @@
         lines = 10000;
         multiplier = 3;
       };
-      url = {
-        launch = "d-stuff \${url}";
-        protocols = "http, https, ftp, ftps, file";
-      };
       key-bindings = {
         clipboard-copy = "Control+Shift+c";
         clipboard-paste = "Control+Shift+v Control+y";
@@ -178,50 +174,50 @@
   # todo purge many packages
   programs.emacs = {
     enable = true;
-    package = pkgs.emacs-pgtk;
+    package = pkgs.emacs-git-pgtk;
     extraPackages = (epkgs: (with epkgs; [
       treesit-grammars.with-all-grammars
-      eat vundo undo-fu-session helpful
+      eat vundo undo-fu-session
       no-littering rainbow-delimiters colorful-mode
       vertico orderless marginalia corfu
       # org-modern #### more minimal way?
       consult embark cape
       # olivetti nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
-      embark-consult consult-eglot markdown-mode nix-mode nix-ts-mode
-      reddigg hnreader magit
+      embark-consult consult-eglot nix-ts-mode
+      magit
       # org-mime
       shr-tag-pre-highlight nov devdocs-browser reformatter
-      tempel tempel-collection
+      tempel
       # eglot-tempel
       # sdcv jinx
       envrc
-      vc-backup aria2 transmission
+      aria2 transmission
       ess
       # webfeeder engrave-faces
       # toc-org
-      org-ql activities ox-hugo
+      org-ql ox-hugo
       saveplace-pdf-view flycheck consult-flycheck org-re-reveal
       # dslide gptel
 
-      (melpaBuild {
-        pname = "combobulate";
-        version = "20241018";
-        src = pkgs.fetchFromGitHub {
-          owner = "mickeynp";
-          repo = "combobulate";
-          rev = "e9c5be84062e8183f556d7133d5a477a57e37e51";
-          hash = "sha256-r6jObsYx7RRTJUmrCN5h3+0WcHqJA67emhr4/W3rBrM=";
-        };
-      })
+      # (melpaBuild {
+      #   pname = "combobulate";
+      #   version = "20241018";
+      #   src = pkgs.fetchFromGitHub {
+      #     owner = "mickeynp";
+      #     repo = "combobulate";
+      #     rev = "e9c5be84062e8183f556d7133d5a477a57e37e51";
+      #     hash = "sha256-r6jObsYx7RRTJUmrCN5h3+0WcHqJA67emhr4/W3rBrM=";
+      #   };
+      # })
 
       (melpaBuild {
         pname = "org-super-links";
-        version = "20221412";
+        version = "20250227";
         src = pkgs.fetchFromGitHub {
           owner = "toshism";
           repo = "org-super-links";
-          rev = "0dd9ed22b4785f50c61051170db7c78b522a37ee";
-          hash = "sha256-OWHUQBKp74sVIFbk8f7Xw7K11jPcR3HIVjpp5xiNwzs=";
+          rev = "ecb72e9e9c60a7acaa30776657c757265297ca13";
+          hash = "sha256-8CQrXYx+QyjxQyyaVq6E/6xOnaxbzb04y/c/wrW0m44=";
         };
       })
 
@@ -364,6 +360,392 @@
 }
 
 {
+  programs.qutebrowser = {
+    enable = true;
+    enableDefaultBindings = false;
+    greasemonkey = [
+      (pkgs.fetchurl {
+        url = "https://raw.githubusercontent.com/afreakk/greasemonkeyscripts/refs/heads/master/youtube_adblock.js";
+        sha256 = "sha256-AyD9VoLJbKPfqmDEwFIEBMl//EIV/FYnZ1+ona+VU9c=";
+      })
+      (pkgs.fetchurl {
+        url = "https://raw.githubusercontent.com/afreakk/greasemonkeyscripts/refs/heads/master/reddit_adblock.js";
+        sha256 = "sha256-KmCXL4GrZtwPLRyAvAxADpyjbdY5UFnS/XKZFKtg7tk=";
+      })
+      (pkgs.fetchurl {
+        url = "https://raw.githubusercontent.com/afreakk/greasemonkeyscripts/refs/heads/master/youtube_sponsorblock.js";
+        sha256 = "sha256-nwNade1oHP+w5LGUPJSgAX1+nQZli4Rhe8FFUoF5mLE=";
+      })
+    ];
+
+    quickmarks = {
+      nixpkgs = "https://github.com/NixOS/nixpkgs";
+      home-manager = "https://github.com/nix-community/home-manager";
+      hackernews = "https://news.ycombinator.com/";
+    };
+    searchEngines = {
+      DEFAULT = "https://search.brave.com/search?q={}";
+      w = "https://en.wikipedia.org/wiki/Special:Search?search={}&go=Go&ns0=1";
+      aw = "https://wiki.archlinux.org/?search={}";
+      nw = "https://wiki.nixos.org/index.php?search={}";
+      g = "https://www.google.com/search?hl=en&q={}";
+      "7x" = "https://1337x.to/search/{}/1/";
+      ddg = "https://duckduckgo.com/?q={}";
+      gh = "https://github.com/search?q={}";
+      imdb = "https://www.imdb.com/find?q={}";
+      yt = "https://www.youtube.com/results?search_query={}";
+      nixpkgs = "https://search.nixos.org/packages?channel=unstable&from=0&size=10&sort=relevance&type=packages&query={}";
+      nixopts = "https://search.nixos.org/options?channel=unstable&size=10&sort=relevance&type=packages&query={}";
+      homeopts = "https://home-manager-options.extranix.com/?query={}&release=master";
+      reddit = "http://127.0.0.1:8080/r/{}";
+    };
+
+    settings = {
+      # tabs.tabs_are_windows = true;
+      editor.command = ["emacsclient" "-c" "{file}"];
+      tabs.title.format = "{audio}{current_title}";
+      completion.open_categories = ["searchengines" "quickmarks" "bookmarks" "history" "filesystem"];
+      auto_save.session = true;
+      colors.webpage.darkmode.algorithm = "lightness-cielab";
+      colors.webpage.darkmode.policy.images = "never";
+      tabs.position = "left";
+
+      content.webgl = false;
+      content.canvas_reading = false;
+      content.geolocation = false;
+      content.blocking.enabled = true;
+
+      completion.height = "30%";
+      completion.show = "always";
+      prompt.radius = 20;
+
+      hints.chars = "asdfghjkl";
+      hints.radius = 10;
+      hints.uppercase = true;
+
+      statusbar.position = "bottom";
+      statusbar.show = "always";
+      statusbar.widgets = ["keypress" "search_match" "url" "scroll" "tabs"];
+    };
+
+    keyBindings = {
+      normal = {
+        ",o" = "spawn mpv {url}";
+        ",t" = lib.mkMerge [
+          "config-cycle tabs.show never always"
+          "config-cycle statusbar.show in-mode always"
+          "config-cycle scrolling.bar never always"
+        ];
+        # Emacs style of bindings; Credits:
+        # https://github.com/qutebrowser/qutebrowser/blob/main/doc/help/configuring.asciidoc#emacs-like-config
+        # https://git.sr.ht/~willvaughn/dots/tree/main/item/.config/qutebrowser/qutemacs.py
+      
+        "<Ctrl-x><Ctrl-r>" = "config-source";
+        "<Alt-m>" = "tab-mute";
+      
+        "<Alt-Shift-.>" = "scroll-to-perc";
+        "<Alt-Shift-,>" = "scroll-to-perc 0";
+        "b" = "scroll-to-perc 0";
+        "e" = "scroll-to-perc";
+        "<Ctrl-n>" = "scroll down";
+        "<Ctrl-p>" = "scroll up";
+        "<Ctrl-f>" = "scroll right";
+        "<Ctrl-b>" = "scroll left";
+        "<Ctrl-v>" = "scroll-page 0 0.5";
+        "<Alt-v>" = "scroll-page 0 -0.5";
+        "<Ctrl-Shift-v>" = "scroll-page 0 -0.5";
+        "<Alt-n>" = "navigate next";
+        "<Shift-Alt-n>" = "navigate next -t";
+        "<Alt-p>" = "navigate prev";
+        "<Shift-Alt-p>" = "navigate prev -t";
+        "^" = "navigate up";
+        "<Alt-Shift-^>" = "navigate up -t";
+        "<Alt-f>" = "navigate increment";
+        "<Alt-b>" = "navigate decrement";
+        # Address
+        "<Ctrl-x><Ctrl-f>" = "cmd-set-text -s :open -t";
+        "<Ctrl-u><Ctrl-x><Ctrl-f>" = "cmd-set-text -s :open";
+        "<Ctrl-x><Ctrl-v>" = "cmd-set-text :open {url:pretty}";
+        "<Ctrl-u><Ctrl-x><Ctrl-v>" = "cmd-set-text :open -t -r {url:pretty}";
+        "l" = "back";
+        "r" = "forward";
+        "<Ctrl-x><Left>" = "back";
+        "<Ctrl-x><Right>" = "forward";
+        "g" = "reload";
+        "<Ctrl-u>g" = "reload -f";
+        "<F5>" = "reload";
+        "<Ctrl-F5>" = "reload -f";
+        # Quickmarks
+        "<Ctrl-x>rM" = "quickmark-save";
+        "<Ctrl-x>rq" = "cmd-set-text -s :quickmark-load -t";
+        "<Ctrl-x>rQ" = "cmd-set-text -s :quickmark-load";
+        "<Ctrl-x>rK" = "cmd-set-text -s :quickmark-del";
+        # Bookmarks
+        "<Ctrl-x>rm" = "bookmark-add";
+        "<Ctrl-x>rl" = "bookmark-list -t";
+        "<Ctrl-x>rb" = "cmd-set-text -s :bookmark-load -t";
+        "<Ctrl-x>rB" = "cmd-set-text -s :bookmark-load";
+        "<Ctrl-x>rk" = "cmd-set-text -s :bookmark-del";
+        # Tabs
+        "<Ctrl-x>0" = "tab-close";
+        "<Ctrl-x>k" = "tab-close";
+        "k" = "tab-close";
+        "<Ctrl-x>b" = "cmd-set-text -s :buffer";
+        "<Ctrl-x>1" = "tab-only";
+        "p" = "tab-prev";
+        "P" = "tab-move -";
+        "n" = "tab-next";
+        "N" = "tab-move +";
+        "<Ctrl-x>ta" = "tab-focus 1";
+        "<Ctrl-x>te" = "tab-focus last";
+        "<Ctrl-x>tp" = "tab-pin";
+        "<Ctrl-x>to" = "tab-next";
+        "<Ctrl-x>tO" = "tab-prev";
+        "<Ctrl-x>t1" = "tab-only";
+        "<Ctrl-x>tM" = "tab-move -";
+        "<Ctrl-x>tm" = "tab-move +";
+        "<Ctrl-x>tG" = "cmd-set-text -s :tab-give";
+        "<Ctrl-x>n" = "tab-clone";
+        "<Ctrl-x>t<Return>" = "cmd-set-text -s :tab-select";
+        "<Ctrl-x>tt" = "tab-focus";
+        "<Ctrl-PgDown>" = "tab-next";
+        "<Ctrl-PgUp>" = "tab-prev";
+        "<Ctrl-/>" = "undo";
+        "<Alt-1>" = "tab-focus 1";
+        "<Alt-2>" = "tab-focus 2";
+        "<Alt-3>" = "tab-focus 3";
+        "<Alt-4>" = "tab-focus 4";
+        "<Alt-5>" = "tab-focus 5";
+        "<Alt-6>" = "tab-focus 6";
+        "<Alt-7>" = "tab-focus 7";
+        "<Alt-8>" = "tab-focus 8";
+        "<Alt-9>" = "tab-focus -1";
+        "<Ctrl-Alt-p>" = "print";
+        "<Ctrl-x>r<Space>" = "mode-enter set_mark";
+        "<Ctrl-x>rj" = "mode-enter jump_mark";
+        # Windows
+        "<Ctrl-x>5f" = "cmd-set-text -s :open -w";
+        "<Ctrl-x>5p" = "cmd-set-text -s :open -p";
+        "<Ctrl-x>u" = "undo -w";
+        # Zooming
+        "<Ctrl-x>+" = "zoom-in";
+        "<Ctrl-x>-" = "zoom-out";
+        "<Ctrl-x>=" = "zoom";
+        # Copying/Yanking
+        "yD" = "yank domain -s";
+        "yM" = "yank inline [{title}]({url}) -s";
+        "yO" = "yank inline [[{url}][{title}]] -s";
+        "yP" = "yank pretty-url -s";
+        "yT" = "yank title -s";
+        "yY" = "yank -s";
+        "yd" = "yank domain";
+        "ym" = "yank inline [{title}]({url})";
+        "yo" = "yank inline [[{url}][{title}]]";
+        "yp" = "yank pretty-url";
+        "yt" = "yank title";
+        "yy" = "yank";
+        "<Alt-w>" = "yank selection";
+        # Macros
+        "<F3>" = "macro-record";
+        "<F4>" = "macro-run";
+        "<Ctrl-x>(" = "macro-record";
+        "<Ctrl-x>)" = "macro-record";
+        "<Ctrl-x>e" = "macro-run";
+        # Downloads
+        "ad" = "download-cancel";
+        "cd" = "download-clear";
+        # Devtools
+        "wi" = "devtools";
+        "wIf" = "devtools-focus";
+        "wIh" = "devtools left";
+        "wIj" = "devtools bottom";
+        "wIk" = "devtools top";
+        "wIl" = "devtools right";
+        "wIw" = "devtools window";
+      
+        # Config Cyclers - toggler
+        "tt" = "config-cycle -pt tabs.show always switching";
+      
+        # Miscellaneous
+        "<F11>" = "fullscreen";
+        "<Return>" = "selection-follow";
+        "<Ctrl-Return>" = "selection-follow -t";
+        "<Ctrl-x>z" = "repeat-command";
+        "<Escape>" = "clear-keychain ;; search ;; fullscreen --leave";
+        "<Ctrl-g>" = "clear-keychain ;; search ;; fullscreen --leave";
+        "<Ctrl-c><Ctrl-c>" = "stop";
+        "<back>" = "back";
+        "<forward>" = "forward";
+        "<Ctrl-c>," = "set";
+        "<Ctrl-c>h" = "history";
+        "<Ctrl-x>s" = "session-save";
+        "<Ctrl-x>l" = "session-load";
+        "<Ctrl-h>i" = "help -t";
+      
+        # Change modes
+        # caret
+        "<Ctrl-Space>" = "mode-enter caret";
+        # command
+        "<Alt-x>" = "cmd-set-text :";
+        # hint
+        "<Space>" = "hint";
+        "<Alt-Space>" = "hint all tab";
+        ";I" = "hint images tab";
+        ";O" = "hint links fill :open -t -r {hint-url}";
+        ";R" = "hint --rapid links window";
+        ";W" = "hint links yank-primary";
+        ";b" = "hint all tab-bg";
+        ";d" = "hint links download";
+        ";f" = "hint all tab-fg";
+        ";h" = "hint all hover";
+        ";i" = "hint images";
+        ";o" = "hint links fill :open {hint-url}";
+        ";r" = "hint --rapid links tab-bg";
+        ";t" = "hint inputs";
+        ";w" = "hint links yank";
+        # insert
+        "<Ctrl-m>" = "mode-enter insert";
+        # passthrough
+        "<Shift-Escape>" = "mode-enter passthrough";
+        # Quit qutebrowser
+        "<Ctrl-x><Ctrl-c>" = "quit --save";
+        "<Ctrl-u><Ctrl-x><Ctrl-c>" = "quit";
+      
+        "<Ctrl-s>" = "cmd-set-text /";
+        "<Ctrl-r>" = "cmd-set-text ?";
+              
+      };
+      
+        command = {
+          # command mode
+          "<Alt-b>" = "rl-backward-word";
+          "<Alt-Backspace>" = "rl-backward-kill-word";
+          "<Alt-d>" = "rl-kill-word";
+          "<Alt-f>" = "rl-forward-word";
+          "<Ctrl-d>" = "rl-delete-char";
+          "<Ctrl-a>" = "rl-beginning-of-line";
+          "<Ctrl-e>" = "rl-end-of-line";
+          "<Ctrl-b>" = "rl-backward-char";
+          "<Ctrl-f" = "rl-forward-char";
+          "<Ctrl-k>" = "rl-kill-line";
+          "<Alt-Delete>" = "rl-filename-rubout";
+          "<Ctrl-w>" = "rl-rubout \" \"";
+          "<Ctrl-Shift-Backspace>" = "rl-unix-line-discard";
+          "<Ctrl-y>" = "rl-yank";
+          "<Alt-w>" = "completion-item-yank";
+          "<Alt-Shift-w>" = "completion-item-yank --sel";
+          "<Shift-Delete>" = "completion-item-del";
+          "<Up>" = "command-history-prev";
+          "<Alt-p>" = "command-history-prev";
+          "<Down>" = "command-history-next";
+          "<Alt-n>" = "command-history-next";
+          "<Shift-Tab>" = "completion-item-focus prev";
+          "<Ctrl-p>" = "completion-item-focus prev";
+          "<Tab>" = "completion-item-focus next";
+          "<Ctrl-n>" = "completion-item-focus next";
+          "<PgDown>" = "completion-item-focus next-page";
+          "<PgUp>" = "completion-item-focus prev-page";
+          "<Ctrl-c><Ctrl-f>" = "completion-item-focus next-category";
+          "<Ctrl-c><Ctrl-b>" = "completion-item-focus prev-category";
+          "<Ctrl-Return>" = "command-accept --rapid";
+          "<Escape>" = "mode-leave";
+          "<Ctrl-g>" = "mode-leave";
+          "<Return>" = "command-accept";
+          "<Ctrl-m>" = "command-accept";
+          "<Ctrl-s>" = "search-next";
+          "<Ctrl-r>" = "search-prev";
+       
+        };
+      
+        insert = {
+          "<Escape>" = "mode-leave";
+          "<Ctrl-g>" = "mode-leave";
+          "<Ctrl-E>" = "edit-text";
+      
+        };
+      
+        prompt = {
+          # prompt
+          "<Alt-b>" = "rl-backward-word";
+          "<Alt-Backspace>" = "rl-backward-kill-word";
+          "<Alt-d>" = "rl-kill-word";
+          "<Alt-f>" = "rl-forward-word";
+          "<Ctrl-d>" = "rl-delete-char";
+          "<Ctrl-a>" = "rl-beginning-of-line";
+          "<Ctrl-e>" = "rl-end-of-line";
+          "<Ctrl-b>" = "rl-backward-char";
+          "<Ctrl-f>" = "rl-forward-char";
+          "<Ctrl-k>" = "rl-kill-line";
+          "<Alt-Delete>" = "rl-filename-rubout";
+          "<Ctrl-w>" = "rl-rubout \" \"";
+          "<Ctrl-Shift-Backspace>" = "rl-unix-line-discard";
+          "<Ctrl-y>" = "rl-yank";
+          "<Ctrl-p>" = "prompt-item-focus prev";
+          "<Shift-Tab>" = "prompt-item-focus prev";
+          "<Up>" = "prompt-item-focus prev";
+          "<Ctrl-n>" = "prompt-item-focus next";
+          "<Tab>" = "prompt-item-focus next";
+          "<Down>" = "prompt-item-focus next";
+          "<Ctrl-g>" = "mode-leave";
+          "<Escape>" = "mode-leave";
+          "<Ctrl-m>" = "prompt-accept";
+          "<Return>" = "prompt-accept";
+          "<Ctrl-x><Ctrl-p>" = "prompt-open-download --pdfjs";
+          "<Ctrl-x><Ctrl-o>" = "prompt-open-download";
+          "<Alt-e>" = "prompt-fileselect-external";
+          "<Alt-Shift-y>" = "prompt-yank --sel";
+          "<Alt-y>" = "prompt-yank";
+      
+        };
+      
+        register = {
+          "<Ctrl-g>" = "mode-leave";
+          "<Escape>" = "mode-leave";
+      
+        };
+      
+        yesno = {
+          "<Alt-Shift-Y>" = "prompt-yank --sel";
+          "<Alt-Y>" = "prompt-yank";
+          "<Ctrl-g>" = "mode-leave";
+          "<Escape>" = "mode-leave";
+          "<Return>" = "prompt-accept";
+          "N" = "prompt-accept --save no";
+          "Y" = "prompt-accept --save yes";
+          "n" = "prompt-accept no";
+          "y" = "prompt-accept yes";
+        };
+      
+        hint = {
+          "<Escape>" = "mode-leave";
+          "<Ctrl-g>" = "mode-leave";
+          "<Return>" = "hint-follow";
+          "<Ctrl-m>" = "hint-follow";
+        };
+      
+        caret = {
+          "<Ctrl-Space>" = "selection-toggle";
+          "<Escape>" = "mode-leave";
+          "<Ctrl-g>" = "mode-leave";
+          # "<Alt-Shift-.>" = "scroll-to-perc 0";
+          # "<Alt-Shift-,>" = "scroll-to-perc";
+          "<Ctrl-f>" = "move-to-next-char";
+          "<Ctrl-b>" = "move-to-prev-char";
+          "<Ctrl-n>" = "move-to-next-line";
+          "<Ctrl-p>" = "move-to-prev-line";
+          "<Ctrl-a>" = "move-to-start-of-line";
+          "<Ctrl-e>" = "move-to-end-of-line";
+          "<Alt-f>" = "move-to-next-word";
+          "<Alt-b>" = "move-to-prev-word";
+          "<Alt-Shift-{>" = "move-to-end-of-prev-block";
+          "<Alt-Shift-}>" = "move-to-end-of-next-block";
+          "<Alt-w>" = "yank selection";
+        };
+      };
+  };
+}
+
+{
   services = {
     mpd = {
       enable = true;
@@ -419,7 +801,7 @@
         save-position-on-quit = true;
         slang = "eng,en,eng,english";
         alang = "jp,jpn,en,eng";
-        sub-font = "Impress Bt";
+        sub-font = lib.mkForce "Impress Bt";
         sub-font-size = "48";
         speed = "1.5";
       };
@@ -444,16 +826,10 @@
 {
   home.packages = with pkgs; [
     # audio control
-    pavucontrol
-    playerctl
-    pulsemixer
-    pamixer
+    pavucontrol playerctl
     transmission_4-gtk
 
-    mpc_cli
-    ani-cli ytmdl
-    # freetube
-    mangal
+    mpc_cli ani-cli
   ];
 }
 
@@ -476,12 +852,10 @@
 }
 
 {
-  systemd.user.startServices = "sd-switch"; # should be default soon
   # HM issue, some service won't start in niri
-  systemd.user.services.cliphist.Unit.After = "graphical-session.target";
-  systemd.user.services.cliphist-images.Unit.After = "graphical-session.target";
-  systemd.user.services.hypridle.Unit.After = lib.mkForce "graphical-session.target";
-  systemd.user.services.wlsunset.Unit.After = lib.mkForce "graphical-session.target";
+  # systemd.user.services.cliphist.Unit.After = "graphical-session.target";
+  # systemd.user.services.hypridle.Unit.After = lib.mkForce "graphical-session.target";
+  # systemd.user.services.wlsunset.Unit.After = lib.mkForce "graphical-session.target";
 
   services.hypridle = let
     hyprlock = lib.getExe config.programs.hyprlock.package;
@@ -614,215 +988,9 @@
 
     targets = {
       emacs.enable = false;
-      waybar = {
-        enable = true;
-        # enableLeftBackColors = true;
-        # enableCenterBackColors = true;
-        # enableRightBackColors = true;
-      };
+      librewolf.profileNames = [ "ihome" ];
     };
   };
-}
-
-{
-  programs.waybar = {
-      enable = true;
-
-      settings = {
-        mainBar = {
-          layer = "top";
-          position = "top";
-
-          modules-left = [
-            "custom/launcher"
-            "niri/workspaces" "hyprland/workspaces"
-            "wlr/taskbar"
-            # "niri/window" "hyprland/window"
-            # "hyprland/submap"
-          ];
-
-          modules-center = [
-            "privacy" "custom/recorder" "clock"
-            # "mpd"
-            # "mpris"
-          ];
-
-          modules-right = [ "tray" "network" "battery" "memory" "wireplumber" "custom/power" ];
-
-          "niri/workspaces" = {
-	          format = "{icon}";
-            all-outputs = true;
-          };
-
-          "hyprland/workspaces" = {
-            format = "{icon}";
-            all-outputs = true;
-            show-special = true;
-          };
-
-          "wlr/taskbar"=  {
-            "format"=  "{icon}";
-            "spacing"=  0;
-            "tooltip-format"=  "{title}";
-            "on-click"=  "activate";
-            "on-click-middle"=  "close";
-          };
-
-          "custom/launcher" = {
-            "format" = "  ";
-            "tooltip" = false;
-            "on-click" = "fuzzel";
-            "interval" = 86400;
-          };
-
-          "battery" =  {
-            "bat" =  "BAT1";
-            "interval" =  60;
-            "states" =  {
-              "good" = 95;
-              "warning" = 40;
-              "critical" = 20;
-            };
-            "format" = "{icon} {capacity}%";
-            "format-charging" = " {capacity}%";
-            "format-plugged" = " {capacity}%";
-            "format-alt" = "{time} {icon}";
-            "format-icons" = ["󰂎" "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹"];
-
-          };
-
-          "mpd" = {
-            "format" = "{stateIcon} {title}  ";
-            "format-disconnected" = "  ";
-            "format-stopped" = "  ";
-            "title-len" = 20;
-            "interval" = 10;
-            "on-click" = "mpc toggle";
-            "state-icons" = {
-              "paused" = "";
-              "playing" = "";
-            };
-            "tooltip-format" = "Mpd Connected";
-            "tooltip-format-disconnected" = "";
-          };
-
-          "mpris" = {
-            "format" = " {player_icon} {dynamic}";
-            "format-paused" = "{status_icon} <i>{dynamic}</i>";
-            "player-icons" = {
-              "default" = "▶";
-              "mpv" = "🎵";
-            };
-            "status-icons" = {
-              "paused" = "󰏤";
-            };
-            "max-length" = 20;
-          };
-
-          "custom/power" = {
-            "format" = "⏻";
-            "on-click" = "d-power";
-            "tooltip" = false;
-            "interval" = 86400;
-          };
-
-          "clock" = {
-            "format-alt" = "{:%a %d %b  %I:%M %p}";
-            "format" = "{:%H:%M}";
-            ##"timezones" = [ "Kolkata" ];
-            ##"max-length" = 200;
-            "interval" = 1;
-            "calendar" = {
-              "format" = {
-                "months" = "<span color='#ffead3'><b>{}</b></span>";
-                "today" = "<span color='#238b57'><b>{}</b></span>";
-              };
-            };
-            "tooltip-format" = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
-          };
-
-          "tray" = {
-            "spacing" = 10;
-          };
-
-          "cpu" = {
-            "format" = " {usage: >3}%";
-            "on-click" = "footclient -e btop";
-          };
-
-          "memory" = {
-            "on-click" = "foot -e btop";
-            "interval" = 30;
-            "format" = "{percentage}%";
-            "format-alt" = "{used}GB";
-            "max-length" = 10;
-          };
-
-          "network" = {
-            # "interface" = "wlp2s0";
-            "format" = "-";
-            "format-wifi" = "{bandwidthUpBytes} {bandwidthDownBytes}";
-            "format-ethernet" = "{bandwidthDownBytes} {bandwidthUpBytes}";
-            "format-disconnected" = ".";
-            "on-click" = "d-wifi";
-            "interval" = 2;
-          };
-
-          "wireplumber" = {
-            "format" = "{icon} {volume: >3}%";
-            "format-muted" ="M";
-            "on-click" = "d-volume toggle";
-            "on-click-middle"=  "pavucontrol";
-          };
-
-          "custom/recorder" = {
-            "format" = "{}";
-            "interval" = "once";
-            "exec" = "echo 'rec '";
-            "tooltip" = "false";
-            "exec-if" = "pgrep wl-screenrec";
-            "on-click" = "pkill -INT wl-screenrec";
-            "signal" = 8;
-          };
-
-          "privacy" = {
-	          "icon-spacing" = 4;
-	          "transition-duration" = 250;
-          };
-
-          "custom/wallpaper" = {
-            "format" = " ";
-            "on-click" = "d-walls";
-          };
-
-        };
-      };
-
-      style = ''
-      .modules-right * {
-          margin: 0px 10px 0px 0px;
-          border-radius: 15px;
-      }
-      
-      window#waybar { background: transparent; }
-      
-      #battery.charging { color: #00ff7f; }
-      #battery.warning { background: orange; }
-      #battery.critical { background: red; }
-      
-      #workspaces button.active,
-      #taskbar button.active,
-      #workspaces button:hover,
-      #taskbar button:hover
-       {
-           background: #2e8b57;
-           transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
-       }
-      '';
-
-    };
-  # home.file.".config/waybar/style.css".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/style.css";
-
 }
 
 {
@@ -1079,7 +1247,12 @@
 }
 
 {
-  services.cliphist.enable = true;
+  services.cliphist = {
+    enable = true;
+    extraOptions = [
+      "-max-dedupe-search" "10" "-max-items" "1000" "-preview-width" "200"
+    ];
+  };
 }
 
 {

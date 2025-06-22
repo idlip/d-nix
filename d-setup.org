@@ -144,7 +144,7 @@ Also its crucial to only add configuration that is explicitly required, rather t
 
       emacs-overlay = {
         url = "github:nix-community/emacs-overlay";
-        inputs.nixpkgs.follows = "nixpkgs";
+        # inputs.nixpkgs.follows = "nixpkgs";
       };
 
       stylix = {
@@ -168,7 +168,7 @@ Also its crucial to only add configuration that is explicitly required, rather t
         {
           devShells.x86_64-linux.default = pkgs.mkShell {
             packages = with pkgs; [
-              statix
+              statix nixfmt-rfc-style
               # nixd
             ];
             name = "dots";
@@ -323,7 +323,7 @@ Also its crucial to only add configuration that is explicitly required, rather t
     (setopt
      display-time-24hr-format t
      display-time-default-load-average nil
-     display-time-format "%l:%M %p %b %d W%U")
+     display-time-format "%H:%M")
     (display-time-mode 1)
   #+end_src
 
@@ -581,7 +581,8 @@ see its function help for a description of the format."
   #+begin_src emacs-lisp
     (setopt
      battery-load-low '40
-     battery-load-critical '29)
+     battery-load-critical '29
+     battery-mode-line-format "⬩ %b%p%%")
     (display-battery-mode 1)
   #+end_src
   
@@ -605,7 +606,7 @@ see its function help for a description of the format."
         gpg-agent = {
           enable = true;
           enableSshSupport = true;
-          pinentryPackage = pkgs.pinentry-gnome3;
+          pinentry.package = pkgs.pinentry-gnome3; 
         };
       };
     }
@@ -634,40 +635,34 @@ see its function help for a description of the format."
 - Mainly use it for syncing important docs, notes, and gnus (rss reading).
 
   #+begin_src nix :tangle gdk/core.nix
-{
-  services.syncthing = {
-    enable = true;
-    user = "${vars.username}";
-    configDir = "/home/${vars.username}/.config/syncthing";
-    dataDir = "/home/${vars.username}/.local/share/syncthing";
-    overrideDevices = true;     # overrides any devices added or deleted through the WebUI
-    overrideFolders = true;     # overrides any folders added or deleted through the WebUI
-    settings = {
-      devices = {
-        "realme" = { id = "CEV3U3M-EJFLUJ3-UXFBEPG-KHX5EVK-3MSYH2W-BRNZEDH-TVJ4QWZ-X3G2CAW"; };
-        #"device2" = { id = "DEVICE-ID-GOES-HERE"; };
-      };
-      folders = {
-        "sync" = {
-	        path = "~/d-sync";
-	        devices = [ "realme" ];
-        };
-        "emacs" = {
-	        path = "~/d-git/d-nix";
-	        devices = [ "realme" ];
-        };
-        "theme" = {
-	        path = "~/d-git/d-theme";
-	        devices = [ "realme" ];
-        };
-        "site" = {
-	        path = "~/d-git/d-site";
-	        devices = [ "realme" ];
+    {
+      services.syncthing = {
+        enable = true;
+        user = "${vars.username}";
+        configDir = "/home/${vars.username}/.config/syncthing";
+        dataDir = "/home/${vars.username}/.local/share/syncthing";
+        overrideDevices = true;     # overrides any devices added or deleted through the WebUI
+        overrideFolders = true;     # overrides any folders added or deleted through the WebUI
+        settings = let
+          device_name = "dphone";
+          in {
+          devices = {
+            "${device_name}" = { id = "CLVZ4YX-RS5G23W-4Y7TGV4-6P7G6DP-VNYUWIP-MQQGZXC-NCH56MN-O3FMAA5"; };
+            #"device2" = { id = "DEVICE-ID-GOES-HERE"; };
+          };
+          folders = {
+            "sync" = {
+    	        path = "~/d-sync";
+    	        devices = [ device_name ];
+            };
+            "emacs" = {
+    	        path = "~/d-git/d-nix";
+    	        devices = [ device_name ];
+            };
+          };
         };
       };
-    };
-  };
-}
+    }
   #+end_src
 
 *** kdeConnect
@@ -898,7 +893,7 @@ see its function help for a description of the format."
 
   #+begin_src emacs-lisp
     (bind-keys :package emacs ("C-z") ("C-x C-z") ("M-o" . other-window)
-               ("M-j" . duplicate-dwim))
+               ("M-j" . duplicate-dwim) )
 
     (setopt
      inhibit-startup-screen t
@@ -927,8 +922,38 @@ see its function help for a description of the format."
     (modify-all-frames-parameters
      '((alpha-background . 100) ;; blur
        (right-divider-width . 1) (internal-border-width . 20)
-       (left-fringe . 0) (right-fringe . 0)
+       (left-fringe . 1) (right-fringe . 0)
        ))
+  #+end_src
+
+- Imported from prot emacs config
+
+  #+begin_src emacs-lisp
+    (defun d/keyboard-quit-dwim ()
+      "Do-What-I-Mean behaviour for a general `keyboard-quit'.
+
+    The generic `keyboard-quit' does not do the expected thing when
+    the minibuffer is open.  Whereas we want it to close the
+    minibuffer, even without explicitly focusing it.
+
+    The DWIM behaviour of this command is as follows:
+
+    - When the region is active, disable it.
+    - When a minibuffer is open, but not focused, close the minibuffer.
+    - When the Completions buffer is selected, close it.
+    - In every other case use the regular `keyboard-quit'."
+      (interactive)
+      (cond
+       ((region-active-p)
+        (keyboard-quit))
+       ((derived-mode-p 'completion-list-mode)
+        (delete-completion-window))
+       ((> (minibuffer-depth) 0)
+        (abort-recursive-edit))
+       (t
+        (keyboard-quit))))
+
+    (global-set-key (kbd "C-g") #'d/keyboard-quit-dwim)
   #+end_src
 
 *** Simple
@@ -1040,7 +1065,7 @@ see its function help for a description of the format."
 - to record recently opened files. Useful to jump in quick
 
   #+begin_src emacs-lisp
-    (global-set-key (kbd "C-x C-r") #'recentf)
+    (global-set-key (kbd "C-x C-r") #'consult-recent-file)
     (setopt recentf-max-menu-items 1000
             recentf-max-saved-items 1000)
     (recentf-mode 1)
@@ -1277,7 +1302,7 @@ https://yhetil.org/emacs-devel/CAL6FEzxCFJDxy=7+St8igfGa=N-MBnU==+9VcKyC9MaoWXyf
        ("M-y" . consult-yank-pop) ;; Other custom bindings
        ;; M-g bindings (goto-map)
        ("M-g e" . consult-compile-error) ("M-g f" . consult-flymake)
-       ("M-g g" . consult-goto-line) ("M-g M-g" . consult-goto-line)
+       ("M-g g" . consult-goto-line)
        ("M-g o" . consult-outline) ("M-g m" . consult-mark)
        ("M-g k" . consult-global-mark) ("M-g i" . consult-imenu)
        ("M-g I" . consult-imenu-multi) ("M-g s" . consult-eglot-symbols)
@@ -1290,6 +1315,7 @@ https://yhetil.org/emacs-devel/CAL6FEzxCFJDxy=7+St8igfGa=N-MBnU==+9VcKyC9MaoWXyf
        ("M-s L" . consult-line-multi) ("M-s k" . consult-keep-lines) ("M-s u" . consult-focus-lines)
        ;; Isearch integration
        ("M-s e" . consult-isearch-history)
+       ("M-s a" . consult-org-agenda)
        :map isearch-mode-map
        ("M-e" . consult-isearch-history) ("M-s e" . consult-isearch-history)
        ("M-s l" . consult-line) ("M-s L" . consult-line-multi)
@@ -1343,7 +1369,7 @@ https://yhetil.org/emacs-devel/CAL6FEzxCFJDxy=7+St8igfGa=N-MBnU==+9VcKyC9MaoWXyf
       (("C-." . embark-act) ("C-;" . embark-act-all)
        ("M-." . embark-dwim) ("C-h B" . embark-bindings)
        (:map embark-identifier-map
-             ("d" . sdcv-search-input)
+             ("d" . quick-sdcv-search-input)
              ("ch" . color-name-to-hex)
              ("cr" . color-name-to-rgb))
        (:map embark-url-map
@@ -1358,7 +1384,6 @@ https://yhetil.org/emacs-devel/CAL6FEzxCFJDxy=7+St8igfGa=N-MBnU==+9VcKyC9MaoWXyf
 
       :custom
       (prefix-help-command #'embark-prefix-help-command)
-      (eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
       ;; (embark-prompter 'embark-completing-read-prompter)
       ;; (embark-indicators '(embark-minimal-indicator embark-highlight-indicator embark-isearch-highlight-indicator))
 
@@ -1399,7 +1424,7 @@ https://yhetil.org/emacs-devel/CAL6FEzxCFJDxy=7+St8igfGa=N-MBnU==+9VcKyC9MaoWXyf
   #+begin_src emacs-lisp
     (use-package cape
       :bind ("C-c p" . cape-prefix-map)
-      ("M-i" . cape-prefix-map) ("C-<tab>" . cape-prefix-map)
+      ("M-i" . cape-prefix-map)
       :init
       (add-hook 'completion-at-point-functions #'cape-dabbrev)
       (add-hook 'completion-at-point-functions #'cape-file)
@@ -1869,7 +1894,7 @@ markdown-mode
           "+-" (make-string (length str) ?-) "-+" n)
     (cut "--8<---------------cut here---------------start------------->8---" n r n
          "--8<---------------cut here---------------end--------------->8---" n)
-    (rebuild "nixos-rebuild switch --flake ~/d-git/d-nix#gdk --use-remote-sudo")
+    (rebuild "nixos-rebuild switch --flake ~/d-git/d-nix#gdk --sudo")
     (gc "git clone --depth=1")
 
 
@@ -1914,29 +1939,7 @@ ibuffer to list and manage buffers
 #+begin_src emacs-lisp
   (use-package ibuffer :ensure nil
     :bind ("C-x C-b" . ibuffer)
-    :custom
-    (ibuffer-saved-filter-groups
-     '(("default"
-        ("org" (or
-                (mode . org-mode) (name . "^\\*Org Src") (name . "^\\*Org Agenda\\*$")))
-        ("reading" (or (mode . nov-mode) (mode . doc-view-mode)))
-        ("tramp" (name . "^\\*tramp.*"))
-        ("emacs" (or
-                  (name . "^\\*scratch\\*$") (name . "^\\*Messages\\*$")
-                  (name . "^\\*Warnings\\*$") (name . "^\\*Shell Command Output\\*$")
-                  (name . "^\\*Async-native-compile-log\\*$") (name . "^\\*straight-")))
-        ("ediff" (or
-                  (name . "^\\*ediff.*") (name . "^\\*Ediff.*")))
-        ("dired" (mode . dired-mode))
-        ("irc" (mode . erc-mode))
-        ("terminal" (or
-                     (mode . term-mode) (mode . shell-mode) (mode . eshell-mode)))
-        ("help" (or
-                 (name . "^\\*Help\\*$") (name . "^\\*info\\*$") (name . "^\\*helpful"))))))
-    :config
-    (add-hook 'ibuffer-mode-hook
-              (lambda ()
-                (ibuffer-switch-to-saved-filter-groups "default"))))
+    :hook (ibuffer-mode . ibuffer-set-filter-groups-by-mode))
 #+end_src
 
 ***** unique names
@@ -1970,14 +1973,18 @@ To manage windows states
 **** pixel scroll - ultra scroll
   #+begin_src emacs-lisp
     (setopt
-     scroll-step 1
+     scroll-step 3
      scroll-margin 0
      mouse-wheel-progressive-speed nil
      mouse-wheel-scroll-amount '(1 ((control) . 1)  ((shift) . 2) ((meta) . 3))
      scroll-conservatively 101
-     scroll-preserve-screen-position t)
+     scroll-preserve-screen-position t
+     pixel-scroll-precision-interpolate-page t)
 
     (pixel-scroll-precision-mode 1)
+
+    ;; (bind-keys ("C-v" . View-scroll-half-page-forward) ("M-v" . View-scroll-half-page-backward))
+    (bind-keys ("C-v" . pixel-scroll-interpolate-down) ("M-v" . pixel-scroll-interpolate-up))
   #+end_src
 
 **** repeat-mode
@@ -1992,21 +1999,19 @@ To manage windows states
 - LLM model to make things quicky
   #+begin_src emacs-lisp
     (use-package gptel :unless d/on-droid :defer t
-      :custom (gptel-model 'llama3.2:latest)
+      :custom (gptel-model 'gemma3:1b)
+      (gptel-default-mode 'org-mode)
       :config
-      (setq gptel-backend
-            (gptel-make-ollama "Ollama"
-              :host "localhost:11434"
-              :stream t
-              :models '(llama3.2:latest)))
-      (gptel-make-ollama "Ollama"
-        :host "localhost:11434"
-        :stream t
-        :models '(mistral:latest))
+      (setopt gptel-backend
+            (gptel-make-ollama "Gemma"
+                               :host "localhost:11434"
+                               :stream t
+                               :models '(gemma3:1b qwen2.5:1.5b gemma3:latest )))
+    ;; deepseek-r1:latest
       ;; some json error until next update ;; also make it lazy to not ask auth pass
-      (gptel-make-gemini "Gemini"
-        :key (gptel-api-key-from-auth-source "api.gemini.com" "apikey")
-        :stream t)
+      ;; (gptel-make-gemini "Gemini"
+      ;;                    :key (gptel-api-key-from-auth-source "api.gemini.com" "apikey")
+      ;;                    :stream t)
       )
   #+end_src
 
@@ -2017,7 +2022,7 @@ To manage windows states
     (zone-when-idle (* 60 5)))
 #+end_src
 
-**** emacs write anywhere
+**** emacs write anywhere tinee
 - Write text in browser or anywhere using emacs.
   Inspired by: https://codeberg.org/tusharhero/tinee/
   #+begin_src emacs-lisp
@@ -2034,6 +2039,7 @@ To manage windows states
       (with-current-buffer
           (find-file (format "%s/%s.org" d/write-dir (format-time-string "%Y%m%dT%H%M%S")))
         (d/write-mode)
+        (insert (shell-command-to-string "wl-paste -p"))
         (make-frame '((name . "d-write") (width . 70) (height . 20)))
         ))
 
@@ -2046,10 +2052,11 @@ To manage windows states
              (text (pcase arg
                      (4  (org-export-string-as raw-text 'md t))
                      (_  raw-text))))
-      (kill-new text)
-      (save-buffer) (kill-buffer) (delete-frame) ))
-
-      
+        (start-process "ee-write" nil "wtype" "-s" "2000" text)
+        ;; (kill-new text)
+        (save-buffer) (kill-buffer)
+        (delete-frame)
+        ))
   #+end_src
 
 * Development
@@ -2078,6 +2085,14 @@ To manage windows states
         generateCaches = true; # will take little time
       };
     }
+  #+end_src
+
+**** Emacs info mode
+- To add local info files, so easy to search via =consult-info=.
+  #+begin_src emacs-lisp
+    (use-package info :ensure nil
+      :config
+      (add-to-list 'Info-additional-directory-list "~/learn/info-manuals/"))
   #+end_src
 
 **** gpg gnu
@@ -2339,10 +2354,10 @@ to get bash alias to eshell way
   alias lt eza --tree $*
   alias mkd mkdir -pv $*
   alias mv mv -iv $*
-  alias rebuild nixos-rebuild switch --flake ~/d-git/d-nix#gdk --use-remote-sudo $*
+  alias rebuild nixos-rebuild switch --flake ~/d-git/d-nix#gdk --sudo $*
   alias rm rm -vI $*
   alias sioyek sioyek --new-window $*
-  alias testrebuild nixos-rebuild test --flake ~/d-git/d-nix#gdk --use-remote-sudo $*
+  alias testrebuild nixos-rebuild test --flake ~/d-git/d-nix#gdk --sudo $*
   alias tree eza --tree --icons $*
   alias v emacsclient -nw $*
   alias ytdl yt-dlp --embed-metadata --embed-subs $*
@@ -2423,18 +2438,11 @@ to get bash alias to eshell way
   If needed helix, try this config: [[https://gist.github.com/seungjin/fed3ed19da5366e10fef496132e9e680][toml]]
   #+begin_src nix :tangle gdk/home.nix
     {
-      services.emacs = {
-        enable = true;
-        defaultEditor = true;
-        socketActivation.enable = true;
-        startWithUserSession = "graphical";
-      };
-
       home.packages = with pkgs; [
         # emacs-lsp-booster
         imagemagick # for image-dired and other converts
       ];
-      # todo purge many packages
+
       programs.emacs = {
         enable = true;
         package = pkgs.emacs-git-pgtk;
@@ -2450,15 +2458,14 @@ to get bash alias to eshell way
           magit
           # org-mime
           shr-tag-pre-highlight nov devdocs-browser reformatter
-          tempel
-          # eglot-tempel
-          # sdcv jinx
+          tempel eglot-tempel
+          jinx quick-sdcv
           envrc
           aria2 transmission
-          ess
+          ess 
           # webfeeder engrave-faces
           # toc-org
-          org-ql ox-hugo
+          org-ql ox-hugo gptel markdown-mode typst-ts-mode
           saveplace-pdf-view flycheck consult-flycheck org-re-reveal
           # dslide gptel
 
@@ -2638,6 +2645,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
     {
       home.packages = with pkgs; [
         # texlive.combined.scheme-full
+        typst ollama
       ];
     }
   #+end_src
@@ -2742,8 +2750,14 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
     (shell-command-switch "-c") ;; -i
     (compilation-scroll-output t)
     (compilation-auto-jump-to-first-error t)
-    (compilation-max-output-line-length nil)
-    (compilation-environment '("TERM=xterm-256color")))
+    ;; (compilation-environment '("TERM=xterm-256color"))
+    )
+#+end_src
+
+**** project
+#+begin_src emacs-lisp
+  (use-package project :ensure nil
+    :custom (project-compilation-buffer-name-function 'project-prefixed-buffer-name))
 #+end_src
 
 **** treesit
@@ -2879,51 +2893,58 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 - the best pdf reader
 
   #+begin_src nix :tangle gdk/home.nix
-  {
-    programs.sioyek = {
-      enable = true;
-      bindings = {
-        "move_up" = ["k" "<C-p>"];
-        "move_down" = ["j" "<C-n>"];
-        "move_left" = "h";
-        "move_right" = "l";
-        "screen_down" = [ "d" "<C-v>" ];
-        "screen_up" = [ "u" "<A-v>" ];
-        "fit_to_page_width" = "<f9>";
-        "fit_to_page_width_smart" = "<f10>";
-        "toggle_fullscreen" = [ "f" "<f11>"  ];
-        "quit" = "q";
-        "toggle_custom_color" = [ "<f8>" "I"];
-        "toggle_highlight" = "<f1>";
-        "command" = "<A-x>";
-        "toggle_dark_mode" = "i";
-        "toggle_presentation_mode" = "<f5>";
-        "toggle_statusbar" = "B";
-      };
+    {
+      programs.sioyek = {
+        enable = true;
+        bindings = {
+          "move_up" = ["k" "<C-p>"];
+          "move_down" = ["j" "<C-n>"];
+          "move_left" = "h";
+          "move_right" = "l";
+          "screen_down" = [ "d" "<C-v>" ];
+          "screen_up" = [ "u" "<A-v>" ];
+          "fit_to_page_width" = "<f9>";
+          "fit_to_page_width_smart" = "<f10>";
+          "toggle_fullscreen" = [ "f" "<f11>"  ];
+          "quit" = "Q";
+          "toggle_custom_color" = [ "<f8>" "I"];
+          "toggle_highlight" = "<f1>";
+          "command" = "<A-x>";
+          "toggle_dark_mode" = "i";
+          "toggle_presentation_mode" = "<f5>";
+          "toggle_statusbar" = "B";
+          "[m]control_menu(move_to_begin)" = "<C-a>";
+          "[m]control_menu(move_to_end)" = "<C-e>";
+          "[m]control_menu(delete_to_end)" = "<C-k>";
+          "[m]control_menu(move_word_forward)" = "<A-f>";
+          "[m]control_menu(move_word_backward)" = "<A-b>";
+          "[m]control_menu('down')" = ["<C-n>" "<C-j>"];
+          "[m]control_menu('up')" = [ "<C-p>" "<C-k" ];
+        };
 
-      config = {
-        "background_color" = "0.0 0.0 0.0";
-        "dark_mode_background_color" = "0.0 0.0 0.0";
-        "custom_background_color" = "0.9 0.8 0.7";
-        "custom_text_color" = "0.0 0.0 0.0";
-        "dark_mode_contrast" = "1.0";
-        "text_highlight_color" = "1.0 1.0 0.0";
-        "search_url_s" = "https://scholar.google.com/scholar?q";
-        "search_url_l" = "http://gen.lib.rus.ec/scimag/?q";
-        "search_url_g" = "https://www.google.com/search?q";
-        "middle_click_search_engine" = "s";
-        "shift_middle_click_search_engine" = "l";
-        "flat_toc" = "0";
-        "default_dark_mode" = "1";
-        "sort_bookmarks_by_location" = "1";
-        "collapsed_toc" = "1";
-        "ruler_mode" = "1";
-        "single_click_selects_words" = "1";
-        "#ignore_whitespace_in_presentation_mode" = "0";
-        "prerender_next_page_presentation" = "1";
+        config = {
+          "background_color" = "0.0 0.0 0.0";
+          "dark_mode_background_color" = "0.0 0.0 0.0";
+          "custom_background_color" = "0.9 0.8 0.7";
+          "custom_text_color" = "0.0 0.0 0.0";
+          "dark_mode_contrast" = "1.0";
+          "text_highlight_color" = "1.0 1.0 0.0";
+          "search_url_s" = "https://scholar.google.com/scholar?q";
+          "search_url_l" = "http://gen.lib.rus.ec/scimag/?q";
+          "search_url_g" = "https://www.google.com/search?q";
+          "middle_click_search_engine" = "s";
+          "shift_middle_click_search_engine" = "l";
+          "flat_toc" = "0";
+          "default_dark_mode" = "1";
+          "sort_bookmarks_by_location" = "1";
+          "collapsed_toc" = "1";
+          "ruler_mode" = "1";
+          "single_click_selects_words" = "1";
+          "#ignore_whitespace_in_presentation_mode" = "0";
+          "prerender_next_page_presentation" = "1";
+        };
       };
-    };
-  }
+    }
   #+end_src
 
 *** doc-view
@@ -2968,6 +2989,18 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
     (doc-view-next-page) (doc-view-previous-page))
   #+end_src
 
+**** emacs reader
+- New package to replace it.
+  #+begin_src emacs-lisp
+    (unless d/on-droid
+      (use-package reader :demand t
+        :load-path "~/learn/emacs-reader"
+        :config (reader-global-dark-mode 1))
+      (require 'reader-saveplace)
+      (require 'reader-bookmark)
+      )
+  #+end_src
+
 - packages required for doc-view to view/render some pdf/text.
 
   #+begin_src nix :tangle gdk/home.nix
@@ -2996,7 +3029,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
       (nov-mode . d/reading-mode)
       (nov-mode . nov-imenu-setup)
       :custom
-      (nov-text-width fill-column)
+      (nov-text-width t)
       (nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title))))
   #+end_src
 
@@ -3012,7 +3045,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
             (read-only-mode 1)
             (d/toggle-bar-mode 1)
             (variable-pitch-mode 1)
-            (d/center-document-mode 1)
+            ;; (d/center-document-mode 1)
             ;; (setq-local line-spacing 0.5)
             ;; (text-scale-increase 1)
             ;; (setq-local tab-bar-show nil) (tab-bar--update-tab-bar-lines)
@@ -3021,7 +3054,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 
         (progn
           (d/toggle-bar-mode -1)
-          (d/center-document-mode -1)
+          ;; (d/center-document-mode -1)
           ;; (text-scale-decrease 1)
           ;; (kill-local-variable 'tab-bar-show) (tab-bar--update-tab-bar-lines)
           (kill-local-variable 'cursor-type)
@@ -3060,7 +3093,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
                (nntp-open-connection-function nntp-open-tls-stream) ; feedbase does not do STARTTLS (yet?)
     					 (nntp-connection-timeout 5)
                (nntp-port-number 563) (nntp-address "feedbase.org") )
-         (nntp "gwene" (nntp-address "news.gwene.org"))
+         ;; (nntp "gwene" (nntp-address "news.gwene.org"))
     		 ;;  		 (nntp-open-connection-function nntp-open-network-stream) (nntp-connection-timeout 5) )
          ;; (nntp "news.gmane.io"
     		 ;;  		 (nntp-open-connection-function nntp-open-network-stream)
@@ -3183,7 +3216,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
   (setq gnus-search-use-imap t)
 
 
-  (use-package gnus :disabed t
+  (use-package gnus :disabled t
     :unless d/on-droid
     :config
     (add-to-list 'gnus-secondary-select-methods
@@ -3193,27 +3226,30 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
                           (nnimap-server-port 1143)))
     (add-to-list 'gnus-secondary-select-methods
                  '(nnimap "tilde-green"
-                          (nnimap-stream tls)
+                          (nnimap-stream plain)
                           (nnimap-address "imap.tilde.green")
-                          (nnimap-server-port 993)))
+            ))
     )
 #+end_src
 
 - Send mail config
+  Refer: https://leon_plickat.srht.site/writing/painless-mail-imaps-smtp-gnus-emacs/article.html
 #+begin_src emacs-lisp
-  (use-package smtpmail
-    :unless d/on-droid
-    :after gnus
+  (use-package smtpmail :unless d/on-droid
+    ;; :after gnus
     :custom
     (smtpmail-default-smtp-server "smtp.tilde.green")
-    ;; (mail-sources '((imap :server "127.0.0.1"
-                          ;; :user "idlip")))
+    (smtpmail-smtp-server "smtp.tilde.green")
+    (smtpmail-smtp-service 465)
     (starttls-use-gnutls t)
     (send-function 'smtpmail-send-it)
     (message-send-mail-function 'smtpmail-send-it)
     (mail-from-style 'angles)
     (smtpmail-debug-info t)
     (smtpmail-debug-verb t))
+
+  (setopt message-server-alist '(("zororg@tilde.green"
+                                  . "smtp smtp.tilde.green 465 zororg")))
 #+end_src
 
 - More mails
@@ -3332,16 +3368,14 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 *** Librewolf
 - As of [2024-08-09], making some shift towards better firefox.
 
-  #+begin_src nix :tangle gdk/home.nix
+  #+begin_src nix :tangle gdk/home.nix :noweb yes
     {
       programs.librewolf = {
         enable = true;
-        settings = {
-          "webgl.disabled" = false;
-          # "privacy.resistFingerprinting" = false;
-          "browser.urlbar.placeholderName" = "Find the OnePiece...";
-          "gfx.webrender.all" = true;
-          "gfx.webrender.enabled" = true;
+        profiles.ihome = {
+          extraConfig = ''
+            <<fox-userjs>>
+          '';
         };
       };
     }
@@ -3351,6 +3385,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
   Makes liberwolf not purge cache data, it persists for sessions. Use mullvad for purging data
   Enables and make liberwolf more socially usable :)
 
+#+name: fox-userjs
 #+begin_src js :tangle no
    // ~/.librewolf/ihome/user.js
   // userchrome.css usercontent.css activate
@@ -3491,7 +3526,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
   }
 #+end_src
 
-*** qutebrowser
+*** COMMENT qutebrowser
 - Enought of waiting for nyxt. Qutebrowser seems mature, and ticks most of the boxes.
 
   #+begin_src nix :tangle gdk/home.nix :noweb yes
@@ -3512,6 +3547,30 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
             url = "https://raw.githubusercontent.com/afreakk/greasemonkeyscripts/refs/heads/master/youtube_sponsorblock.js";
             sha256 = "sha256-nwNade1oHP+w5LGUPJSgAX1+nQZli4Rhe8FFUoF5mLE=";
           })
+          (pkgs.fetchurl {
+            url = "https://update.greasyfork.org/scripts/30545/HTML5%E8%A7%86%E9%A2%91%E6%92%AD%E6%94%BE%E5%B7%A5%E5%85%B7.user.js";
+            sha256 = "sha256-znsDQ7wWXzhxvE0tM/OeOZrV03y1/MwfpmWrTfOXEh0=";
+          })
+          (pkgs.fetchurl {
+            url = "https://update.greasyfork.org/scripts/423851/Simple%20YouTube%20Age%20Restriction%20Bypass.user.js";
+            sha256 = "sha256-qifRTRJhiGPRzPgSt0uPEJ1NCEWA5V3nnM+fnrWFt5o=";
+          })
+          (pkgs.fetchurl {
+            url = "https://adsbypasser.github.io/releases/adsbypasser.full.es7.user.js";
+            sha256 = "sha256-H0IG1L+kpg3F8r7juq42c8uIsQPRYRSe5Znygda84/A=";
+          })
+          (pkgs.fetchurl {
+            url = "https://update.greasyfork.org/scripts/33379/1337x%20-%20Torrent%20page%20improvements.user.js";
+            sha256 = "sha256-deNuNd4eBbZy7P1OWHQp2bfkvmmAOHVJc6AQIcg5bqQ=";
+          })
+          (pkgs.fetchurl {
+            url = "https://codeberg.org/Amm0ni4/bypass-all-shortlinks-debloated/raw/branch/main/Bypass_All_Shortlinks.user.js";
+            sha256 = "sha256-dd33OqfDz5fhimldEi6MgVX84vvzB6KrrGMAhuyAQJc=";
+          })
+
+          (pkgs.writeText "redirect.user.js" ''
+            <<qute-redirect>>
+          '')
         ];
 
         quickmarks = {
@@ -3523,7 +3582,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
           DEFAULT = "https://search.brave.com/search?q={}";
           w = "https://en.wikipedia.org/wiki/Special:Search?search={}&go=Go&ns0=1";
           aw = "https://wiki.archlinux.org/?search={}";
-          nw = "https://wiki.nixos.org/index.php?search={}";
+          nw = "https://wiki.nixos.org/w/index.php?search={}";
           g = "https://www.google.com/search?hl=en&q={}";
           "7x" = "https://1337x.to/search/{}/1/";
           ddg = "https://duckduckgo.com/?q={}";
@@ -3542,6 +3601,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
           tabs.title.format = "{audio}{current_title}";
           completion.open_categories = ["searchengines" "quickmarks" "bookmarks" "history" "filesystem"];
           auto_save.session = true;
+          colors.webpage.darkmode.enabled = true;
           colors.webpage.darkmode.algorithm = "lightness-cielab";
           colors.webpage.darkmode.policy.images = "never";
           tabs.position = "left";
@@ -3550,18 +3610,40 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
           content.canvas_reading = false;
           content.geolocation = false;
           content.blocking.enabled = true;
+          content.pdfjs = false;
+          content.private_browsing = true;
+          content.webrtc_ip_handling_policy = "default-public-interface-only";
+
 
           completion.height = "30%";
           completion.show = "always";
+          completion.shrink = true;
           prompt.radius = 20;
 
-          hints.chars = "asdfghjkl";
+          # hints.chars = "asdfghjkl";
           hints.radius = 10;
           hints.uppercase = true;
 
           statusbar.position = "bottom";
           statusbar.show = "always";
           statusbar.widgets = ["keypress" "search_match" "url" "scroll" "tabs"];
+
+          url.default_page = "about:blank";
+          url.open_base_url = true;
+
+          content.blocking.method = "both";
+          content.blocking.adblock.lists = [
+            "https://easylist.to/easylist/easylist.txt"
+            "https://easylist.to/easylist/easyprivacy.txt"
+            "https://easylist-downloads.adblockplus.org/indianlist.txt"
+            "https://raw.githubusercontent.com/gijsdev/ublock-hide-yt-shorts/master/list.txt"
+            "https://gitflic.ru/project/magnolia1234/bypass-paywalls-clean-filters/blob/raw?file=bpc-paywall-filter.txt"
+            "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/ultimate.txt"
+            "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/fake.txt"
+            "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/adblock/nsfw.txt"
+          ];
+
+          content.user_stylesheets = ["~/.config/qutebrowser/css/block.css" "~/.config/qutebrowser/css/mono.css"];
         };
 
         keyBindings = {
@@ -3579,12 +3661,19 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
 #+name: qute-nkeys
 #+begin_src nix
   normal = {
-    ",o" = "spawn mpv {url}";
-    ",t" = lib.mkMerge [
+    "<Ctrl-c><Ctrl-o>" = "spawn --detach d-stuff {url}";
+    # "<Space>o" = "spawn mpv {url}";
+    "<Ctrl-c><Ctrl-r>" = lib.mkMerge [
       "config-cycle tabs.show never always"
       "config-cycle statusbar.show in-mode always"
       "config-cycle scrolling.bar never always"
     ];
+    "<Ctrl-.>" = lib.mkMerge [
+      "config-cycle tabs.show never always"
+      "config-cycle statusbar.show in-mode always"
+      "config-cycle scrolling.bar never always"
+    ];
+
     # Emacs style of bindings; Credits:
     # https://github.com/qutebrowser/qutebrowser/blob/main/doc/help/configuring.asciidoc#emacs-like-config
     # https://git.sr.ht/~willvaughn/dots/tree/main/item/.config/qutebrowser/qutemacs.py
@@ -3592,8 +3681,11 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
     "<Ctrl-x><Ctrl-r>" = "config-source";
     "<Alt-m>" = "tab-mute";
 
-    "<Alt-Shift-.>" = "scroll-to-perc";
-    "<Alt-Shift-,>" = "scroll-to-perc 0";
+    "tf" = "config-cycle content.user_stylesheets '~/.config/qutebrowser/css/mono.css' ''";
+    "<Ctrl-c>f" = "config-cycle content.user_stylesheets '~/.config/qutebrowser/css/mono.css' ''";
+
+    "<Alt-.>" = "scroll-to-perc";
+    "<Alt-,>" = "scroll-to-perc 0";
     "b" = "scroll-to-perc 0";
     "e" = "scroll-to-perc";
     "<Ctrl-n>" = "scroll down";
@@ -3616,6 +3708,9 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
     "<Ctrl-u><Ctrl-x><Ctrl-f>" = "cmd-set-text -s :open";
     "<Ctrl-x><Ctrl-v>" = "cmd-set-text :open {url:pretty}";
     "<Ctrl-u><Ctrl-x><Ctrl-v>" = "cmd-set-text :open -t -r {url:pretty}";
+    "<Ctrl-x><Ctrl-l>" = "cmd-set-text :open {url:pretty}";
+    "<Ctrl-u><Ctrl-x><Ctrl-l>" = "cmd-set-text :open -t -r {url:pretty}";
+
     "l" = "back";
     "r" = "forward";
     "<Ctrl-x><Left>" = "back";
@@ -3638,8 +3733,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
     # Tabs
     "<Ctrl-x>0" = "tab-close";
     "<Ctrl-x>k" = "tab-close";
-    "k" = "tab-close";
-    "<Ctrl-x>b" = "cmd-set-text -s :buffer";
+    "<Ctrl-x><Ctrl-k>" = "tab-close";
     "<Ctrl-x>1" = "tab-only";
     "p" = "tab-prev";
     "P" = "tab-move -";
@@ -3654,12 +3748,12 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
     "<Ctrl-x>tM" = "tab-move -";
     "<Ctrl-x>tm" = "tab-move +";
     "<Ctrl-x>tG" = "cmd-set-text -s :tab-give";
-    "<Ctrl-x>n" = "tab-clone";
+    "<Ctrl-x>tc" = "tab-clone";
+    "<Ctrl-x>tn" = "cmd-set-text -s :open -t qute://help/index.html";
     "<Ctrl-x>t<Return>" = "cmd-set-text -s :tab-select";
-    "<Ctrl-x>tt" = "tab-focus";
-    "<Ctrl-PgDown>" = "tab-next";
-    "<Ctrl-PgUp>" = "tab-prev";
+    "<Ctrl-x>b" = "cmd-set-text -s :tab-select";
     "<Ctrl-/>" = "undo";
+    "<Ctrl-x>u" = "undo";
     "<Alt-1>" = "tab-focus 1";
     "<Alt-2>" = "tab-focus 2";
     "<Alt-3>" = "tab-focus 3";
@@ -3675,11 +3769,11 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
     # Windows
     "<Ctrl-x>5f" = "cmd-set-text -s :open -w";
     "<Ctrl-x>5p" = "cmd-set-text -s :open -p";
-    "<Ctrl-x>u" = "undo -w";
+    "<Ctrl-x>50" = "cmd-set-text -s :close";
+    "<Ctrl-x>5u" = "undo -w";
     # Zooming
-    "<Ctrl-x>+" = "zoom-in";
+    "<Ctrl-x>=" = "zoom-in";
     "<Ctrl-x>-" = "zoom-out";
-    "<Ctrl-x>=" = "zoom";
     # Copying/Yanking
     "yD" = "yank domain -s";
     "yM" = "yank inline [{title}]({url}) -s";
@@ -3712,9 +3806,6 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
     "wIl" = "devtools right";
     "wIw" = "devtools window";
 
-    # Config Cyclers - toggler
-    "tt" = "config-cycle -pt tabs.show always switching";
-
     # Miscellaneous
     "<F11>" = "fullscreen";
     "<Return>" = "selection-follow";
@@ -3723,6 +3814,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
     "<Escape>" = "clear-keychain ;; search ;; fullscreen --leave";
     "<Ctrl-g>" = "clear-keychain ;; search ;; fullscreen --leave";
     "<Ctrl-c><Ctrl-c>" = "stop";
+    "<Ctrl-c><Alt-w>" = "yank selection";
     "<back>" = "back";
     "<forward>" = "forward";
     "<Ctrl-c>," = "set";
@@ -3737,21 +3829,16 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
     # command
     "<Alt-x>" = "cmd-set-text :";
     # hint
-    "<Space>" = "hint";
-    "<Alt-Space>" = "hint all tab";
-    ";I" = "hint images tab";
-    ";O" = "hint links fill :open -t -r {hint-url}";
-    ";R" = "hint --rapid links window";
-    ";W" = "hint links yank-primary";
-    ";b" = "hint all tab-bg";
-    ";d" = "hint links download";
-    ";f" = "hint all tab-fg";
-    ";h" = "hint all hover";
-    ";i" = "hint images";
-    ";o" = "hint links fill :open {hint-url}";
-    ";r" = "hint --rapid links tab-bg";
-    ";t" = "hint inputs";
-    ";w" = "hint links yank";
+    "ff" = "hint";
+    "ww" = "hint all tab";
+    "fF" = "hint all tab";
+    "fI" = "hint images tab";
+    "fd" = "hint links download";
+    "fi" = "hint images";
+    "ft" = "hint inputs";
+    "fw" = "hint links yank";
+    "fo" = "hint all spawn --detach d-stuff {hint-url}";
+    "<Ctrl-u><Ctrl-c><Ctrl-o>" = "hint all spawn --detach d-stuff {hint-url}";
     # insert
     "<Ctrl-m>" = "mode-enter insert";
     # passthrough
@@ -3810,7 +3897,19 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
       "<Escape>" = "mode-leave";
       "<Ctrl-g>" = "mode-leave";
       "<Ctrl-E>" = "edit-text";
-
+      "<ctrl-f>" = "fake-key <Right>";
+      "<ctrl-b>" = "fake-key <Left>";
+      "<ctrl-a>" = "fake-key <Home>";
+      "<ctrl-e>" = "fake-key <End>";
+      "<ctrl-n>" = "fake-key <Down>";
+      "<ctrl-p>" = "fake-key <Up>";
+      "<alt-f>" = "fake-key <Ctrl-Right>";
+      "<alt-b>" = "fake-key <Ctrl-Left>";
+      "<ctrl-d>" = "fake-key <Delete>";
+      "<alt-d>" = "fake-key <Ctrl-Delete>";
+      "<alt-backspace>" = "fake-key <Ctrl-Backspace>";
+      "<ctrl-w>" = "fake-key <Ctrl-backspace>";
+      "<ctrl-y>" = "insert-text {primary}";
     };
 
     prompt = {
@@ -3876,8 +3975,6 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
       "<Ctrl-Space>" = "selection-toggle";
       "<Escape>" = "mode-leave";
       "<Ctrl-g>" = "mode-leave";
-      # "<Alt-Shift-.>" = "scroll-to-perc 0";
-      # "<Alt-Shift-,>" = "scroll-to-perc";
       "<Ctrl-f>" = "move-to-next-char";
       "<Ctrl-b>" = "move-to-prev-char";
       "<Ctrl-n>" = "move-to-next-line";
@@ -3891,6 +3988,56 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
       "<Alt-w>" = "yank selection";
     };
 #+end_src
+
+**** css and grease scripts
+- Script to toggle monospace and sans font.
+#+begin_src css :tangle ~/.config/qutebrowser/css/mono.css
+  ,*{font-family:Maple Mono NF !important;}
+#+end_src
+
+- block some banner or annoyance
+#+begin_src css :tangle ~/.config/qutebrowser/css/block.css
+  .promotedlink, .ad-container, .premium-banner-outer, .u-bottomFixer, .js-consent-banner, .premium-banner, .ad-container, .promotedlink, .bottommenu.bottommenu-advertise, .happening-now, .email-collection-banner, p.bottommenu, .nub,  .sidebox.create, .redesign-beta-optin, p.debuginfo, .usertext.grayed, .giftgold, #eu-cookie-policy {
+      display:none!important;
+  }
+#+end_src
+
+- Redirect links to self-hosted or privacy alternative.
+#+name: qute-redirect
+  #+begin_src js
+    // ==UserScript==
+    // @name Redirect Script
+    // @namespace https://example.com
+    // @version 1.0
+    // @description Redirects URLs by replacing values from config
+    // @match *://*/*
+    // @run-at document-start
+    // @grant none
+    // ==/UserScript==
+
+    (function() {
+        'use strict';
+
+        var currentUrl = window.location.href;
+        var config = {
+    //      'from': 'to',
+            '^(?:https?://)(?:www.)?youtube.com/shorts/': 'https://yewtu.be/watch?v=',
+            '^(?:https?://)(?:www.)?youtube.com': 'https://yewtu.be',
+            '^(?:https?://)(?:www.)?reddit.com': 'http://127.0.0.1:8080',
+            '^(?:https?://)(?:www.)?old.reddit.com': 'https://libreddit.kavin.rocks',
+        };
+        
+        for (var oldValue in config) {
+            var newValue = config[oldValue];
+            var regex = new RegExp(oldValue, 'g');
+            currentUrl = currentUrl.replace(regex, newValue);
+        }
+        
+        if (currentUrl !== window.location.href) {
+            window.location.href = currentUrl;
+        }
+    })();
+  #+end_src
 
 *** Web
 - Browsing Web in emacs.
@@ -3948,7 +4095,7 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
       (eww-after-render . (lambda () (d/eww-readable) (setq-local line-spacing '0.4)))
       :custom
       (eww-auto-rename-buffer 'title)
-      (eww-search-prefix "https://baresearch.org/search?q=")
+      (eww-search-prefix "https://leta.mullvad.net/search?engine=brave&q=")
       :config
       (defun d/eww-readable ()
         "Use more opinionated `eww-readable'.
@@ -4044,7 +4191,13 @@ git clone --depth=1 https://github.com/armindarvish/consult-omni ~/.config/emacs
         graphics = {
           enable = true;
           enable32Bit = true;
-          extraPackages = with pkgs; [ intel-media-driver intel-vaapi-driver libvdpau-va-gl];
+          extraPackages = with pkgs; [ intel-media-driver intel-vaapi-driver libvdpau-va-gl mesa vulkan-loader vulkan-tools ];
+          extraPackages32 = with pkgs.pkgsi686Linux; [
+            vulkan-loader                        # Vulkan runtime (32-bit).
+            driversi686Linux.mesa                # 32-bit Vulkan drivers for AMD/Intel.
+            driversi686Linux.intel-media-driver  # Intel 32-bit media driver.
+          ];
+
         };
       };
     }
@@ -4186,49 +4339,58 @@ Pipewire setup, just these lines enough to make sane default for it
   #+end_src
 
 
-** Image viewer
-- Replaced imv with swayimg
+** Image viewer swayimg
+- Wayland image viewer
+  Minimal and robust.
 
-#+begin_src conf :tangle ~/.config/swayimg/config
-  [viewer]
-  window = #000000
-  transparency = grid
-  history = 10
-  preload = 1
+#+begin_src nix :tangle gdk/home.nix
+  {
+    programs.swayimg = {
+      enable = true;
+      settings = {
+        viewer = {
+          window = "#00000000";
+          scale = "fit";
+        };
+          "keys.viewer" = {
+            "F1" = "help";
+            "Ctrl+h" = "help";
+            "Ctrl+a" = "first_file";
+            "Ctrl+e" = "last_file";
+            "p" = "prev_file";
+            "n" = "next_file";
+            "Space" = "next_file";
+            "Shift+d" = "prev_dir";
+            "d" = "next_dir";
+            "Shift+o" = "prev_frame";
+            "o" = "next_frame";
+            "c" = "skip_file";
+            "F5" = "slideshow";
+            "s" = "animation";
+            "f" = "fullscreen";
+            "Return" = "mode";
+            "h" = "step_left 10";
+            "l" = "step_right 10";
+            "k" = "step_up 10";
+            "j" = "step_down 10";
+            "Equal" = "zoom +10";
+            "Plus" = "zoom +10";
+            "Minus" = "zoom -10";
+            "Shift+w" = "zoom width";
+            "Shift+h" = "zoom height";
+            "bracketleft" = "rotate_left";
+            "bracketright" = "rotate_right";
+            "r" = "rotate_right";
+            "Shift+r" = "rotate_left";
+            "Shift+Delete" = "exec rm -f '%' && echo 'File removed: %'; skip_file";
+            "m" = "flip_vertical";
+            "Shift+m" = "flip_horizontal";
+            "q" = "exit";
+          };
+      };
+    };
+  }
 
-  [font]
-  size = 24
-
-  [info]
-  show = yes
-  info_timeout = 5
-
-  [keys.viewer]
-  F1 = help
-  Ctrl+h = help
-  Ctrl+a = first_file
-  Ctrl+e = last_file
-  p = prev_file
-  n = next_file
-  Space = next_file
-  Shift+d = prev_dir
-  d = next_dir
-  Shift+o = prev_frame
-  o = next_frame
-  c = skip_file
-  F5 = slideshow
-  s = animation
-  f = fullscreen
-  Return = mode
-  h = step_left 10
-  l = step_right 10
-  k = step_up 10
-  j = step_down 10
-  Equal = zoom +10
-  Plus = zoom +10
-  Minus = zoom -10
-  Shift+Delete = exec rm "%"; skip_file
-  q = exit
 #+end_src
 
 ** Application
@@ -4267,6 +4429,11 @@ Pipewire setup, just these lines enough to make sane default for it
                  (concat "zororg" "/" nickuser))) ;; yes, thats me
       )
     :custom (erc-hide-list '("JOIN" "PART" "QUIT")))
+
+  (use-package erc-fill
+    :custom ;; Prefer one message per line without continuation indicators.
+    (erc-fill-static-center 18))
+
 #+end_src
 
 - Also rcirc - the irc
@@ -4278,7 +4445,7 @@ Pipewire setup, just these lines enough to make sane default for it
       (rcirc-reconnect-delay 5)
       (rcirc-fill-column 90)
       (rcirc-track-ignore-server-buffer-flag t)
-      (rcirc-server-alist '(("irc.libera.chat" :channels ("#systemcrafters") :port 6697 :encryption tls)))
+      (rcirc-server-alist '(("znc.tilde.green" :port 6697 :nick "zororg" :user-name "zororg/libera")))
       :config (rcirc-track-minor-mode 1) )
   #+end_src
 
@@ -4329,6 +4496,7 @@ Pipewire setup, just these lines enough to make sane default for it
         )
       )
     ;; (setq use-dialog-box nil)
+
   #+end_src
 
 ** bluetooth
@@ -4374,6 +4542,12 @@ Pipewire setup, just these lines enough to make sane default for it
   	touchpad {
   		tap; dwt; natural-scroll; accel-speed 0.4
   	}
+    mouse {
+      accel-profile "flat"
+      scroll-factor 0.5
+      scroll-method "no-scroll"
+    }
+
   	focus-follows-mouse max-scroll-amount="30%"
     workspace-auto-back-and-forth
   }
@@ -4397,9 +4571,7 @@ Pipewire setup, just these lines enough to make sane default for it
   //}
 
   // startups
-  spawn-at-startup "dotoold"
   spawn-at-startup "d-walls"
-  //spawn-at-startup "waybar"
   //spawn-at-startup "xwayland-satellite"
 
   output "eDP-1" {
@@ -4407,8 +4579,9 @@ Pipewire setup, just these lines enough to make sane default for it
   }
 
   output "HDMI-A-1" {
-  //  mode "1920x1080"
-  	//scale 1
+   //  mode "1920x1200"
+   // mode "1600x1200"
+   scale 1
   }
 
   layout {
@@ -4424,6 +4597,7 @@ Pipewire setup, just these lines enough to make sane default for it
   		inactive-color "#020202"
   		active-gradient from="#2e8b57" to="#bbddff" angle=45 relative-to="workspace-view"
   	}
+    background-color "transparent"
 
   	border { off; }
   	//struts {
@@ -4469,11 +4643,6 @@ Pipewire setup, just these lines enough to make sane default for it
       open-on-workspace "www"
   }
   window-rule {
-      match app-id=r#"sioyek"#
-      open-floating true
-      open-on-workspace "read"
-  }
-  window-rule {
       match app-id=r#"foot"#
       //open-floating true
       open-on-workspace "cli"
@@ -4500,6 +4669,11 @@ Pipewire setup, just these lines enough to make sane default for it
   	match app-id=r#"^org\.gnome\.World\.Secrets$"#
   	block-out-from "screen-capture"
     open-on-workspace "misc"
+  }
+
+  layer-rule {
+      match namespace="^wallpaper$"
+      place-within-backdrop true
   }
 
   // Indicate screencasted windows with red colors.
@@ -4546,7 +4720,7 @@ Pipewire setup, just these lines enough to make sane default for it
     Mod+Tab { spawn "d-niri"; }
     Mod+Delete { spawn "sh" "-c" "d-record stop"; }
     Mod+Shift+T {spawn "sh" "-c" "swaync-client -t"; }
-    Mod+Ctrl+T {spawn "sh" "-c" "emacsclient -e '(d/write-here)'"; }
+    Mod+E {spawn "sh" "-c" "emacsclient -e '(d/write-here)'"; }
 
   	Mod+Ctrl+Equal { spawn "niri" "msg" "output" "eDP-1" "scale" "2"; }
   	Mod+Ctrl+Minus { spawn "niri" "msg" "output" "eDP-1" "scale" "1"; }
@@ -4563,6 +4737,7 @@ Pipewire setup, just these lines enough to make sane default for it
 
     Mod+Space { toggle-window-floating; }
     Mod+T { toggle-column-tabbed-display; }
+    Mod+Shift+Tab { toggle-overview; }
 
   	Mod+H     { focus-column-left; }
   	Mod+L     { focus-column-right; }
@@ -4582,7 +4757,7 @@ Pipewire setup, just these lines enough to make sane default for it
     Mod+Shift+p     { move-window-up-or-to-workspace-up; }
 
   	Mod+a { focus-column-first; }
-  	Mod+e  { focus-column-last; }
+  	//Mod+e  { focus-column-last; }
   	Mod+Shift+a { move-column-to-first; }
   	Mod+Shift+e  { move-column-to-last; }
 
@@ -4713,13 +4888,13 @@ Pipewire setup, just these lines enough to make sane default for it
 
         libnotify libsixel
         brightnessctl
-        dotool gtk3
+        wtype gtk3
         swaybg swayimg
 
         # utils
         # ocrscript
         wl-screenrec wl-mirror
-        wl-clipboard xwayland-satellite
+        wl-clipboard-rs xwayland-satellite
       ];
     }
   #+end_src
@@ -5095,10 +5270,10 @@ Pipewire setup, just these lines enough to make sane default for it
     ;; Dont worry about the font name, I use fork of Iosevka font
 
     ;; Set reusable font name variables
-    (defcustom d/fixed-pitch-font (if d/on-droid "Code OnePiece" "Maple Mono NF")
+    (defcustom d/fixed-pitch-font (if d/on-droid "Maple Mono NF" "BlexMono Nerd Font")
       "The font to use for monospaced (fixed width) text.")
 
-    (defcustom d/variable-pitch-font (if d/on-droid "Code Haki" "Inter Nerd Font")
+    (defcustom d/variable-pitch-font (if d/on-droid "Inter" "IBM Plex Serif")
       "The font to use for variable-pitch (documents) text.")
   #+end_src
 
@@ -5176,8 +5351,8 @@ Pipewire setup, just these lines enough to make sane default for it
         };
 
         cursor = {
-          package = pkgs.phinger-cursors;
-          name = "phinger-cursors-dark";
+          package = pkgs.bibata-cursors;
+          name = "Bibata-Modern-Classic";
           size = 24;
         };
 
@@ -5186,26 +5361,32 @@ Pipewire setup, just these lines enough to make sane default for it
 
           # mpkg = pkgs.nerd-fonts.iosevka-term;
           # spkg = (pkgs.iosevka-bin.override { variant = "Aile"; });
-          apkg = pkgs.inter-nerdfont;
+
+          oppkg = pkgs.nerd-fonts._0xproto;
+          orpkg = pkgs._0xpropo;
+          plexpkg = pkgs.ibm-plex;
+          blexpkg = pkgs.nerd-fonts.blex-mono;
+          ipkg = pkgs.inter;
 
           mpkg = pkgs.maple-mono.NF;
 
-          # spkg = pkgs.atkinson-hyperlegible;
+          # atnpkg = pkgs.atkinson-hyperlegible-next;
+          # atmpkg = pkgs.atkinson-hyperlegible-mono;
 
         in {
           serif = {
-            package = apkg;
-            name = "Inter Nerd Font";
+            package = plexpkg;
+            name = "IBM Plex Serif";
           };
 
           sansSerif = {
-            package = dpkg;
-            name = "Inter Nerd Font";
+            package = plexpkg;
+            name = "IBM Plex Sans";
           };
 
           monospace = {
-            package = mpkg;
-            name = "Maple Mono NF";
+            package = blexpkg;
+            name = "BlexMono Nerd Font";
           };
 
           emoji = {
@@ -5316,11 +5497,8 @@ Pipewire setup, just these lines enough to make sane default for it
 
 **** modus theme vivendi haki
 #+begin_src emacs-lisp
-  (use-package modus-themes :ensure nil
+  (use-package modus-themes :ensure nil :demand t
     :init (require-theme 'modus-themes)
-    :custom-face
-    (region ((t :extend nil)))
-    (message-header-subject ((t :height 1.5)))
     :custom
     (modus-themes-italic-constructs t)
     (modus-themes-bold-constructs nil)
@@ -5379,6 +5557,22 @@ Pipewire setup, just these lines enough to make sane default for it
 
     :config
     (load-theme 'modus-vivendi t))
+  (set-face-attribute 'region nil :extend nil)
+  (set-face-attribute 'message-header-subject nil :height 1.5)
+
+  (with-eval-after-load 'org
+    (dolist (face '(org-tag org-todo org-done org-priority org-sexp-date))
+      (set-face-attribute face nil
+                          :inverse-video t
+                          :weight 'bold)))
+
+
+  (modus-themes-with-colors
+    (custom-set-faces
+     ;; Add "padding" to the mode lines
+     `(mode-line ((,c :box (:line-width 10 :color ,bg-mode-line-active))))
+     `(mode-line-inactive ((,c :box (:line-width 10 :color ,bg-mode-line-inactive))))))
+   
 #+end_src
 
 
@@ -5386,16 +5580,51 @@ Pipewire setup, just these lines enough to make sane default for it
 *** mode-line
 - Mode-line-format
 #+begin_src emacs-lisp
+  ;; (setopt
+  ;;  mode-line-format
+  ;;  '("%e" "  "
+  ;;    (:propertize
+  ;;     ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote))
+  ;;    mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position
+  ;;    mode-line-format-right-align
+  ;;    "  "
+  ;;    (project-mode-line project-mode-line-format) " " (vc-mode vc-mode) "  " mode-line-modes mode-line-misc-info "  "))
+
   (setopt
    mode-line-format
-   '("%e" "  "
-     (:propertize
-      ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote))
-     mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position
-     mode-line-format-right-align
+   '("%e"
+     mode-line-front-space mode-line-modified
+     ;; mode-line-remote
+     mode-line-window-dedicated
+     "  ⬩"
+     mode-line-frame-identification mode-line-buffer-identification
+     "  ⬩  "
+     mode-line-position mode-line-format-right-align
+     (project-mode-line project-mode-line-format)
+     (vc-mode vc-mode)
+     " ⬩ " mode-name " ⬩ "
+     ;; "  " mode-line-modes
+     mode-line-misc-info
      "  "
-     (project-mode-line project-mode-line-format) " " (vc-mode vc-mode) "  " mode-line-modes mode-line-misc-info "  "))
-  (setf minor-mode-alist nil)
+     mode-line-end-spaces))
+
+  (setopt
+   mode-line-modified
+   '((:eval (cond
+             ((buffer-modified-p)
+              (propertize ""
+                          'face 'modus-themes-fg-yellow-cooler))
+             (buffer-read-only
+              (propertize ""
+                          'face 'modus-themes-fg-magenta-cooler))
+             (t
+              (propertize ""
+                          'face 'modus-themes-fg-cyan-cooler))))))
+
+
+  (setopt mode-line-position-column-line-format '("%l:%c"))
+  (setopt mode-line-position-line-format '("L%l"))
+  (setopt mode-line-right-align-edge 'window)
 #+end_src
 
 - To toggle mode-line on and off.
@@ -5534,6 +5763,7 @@ Pipewire setup, just these lines enough to make sane default for it
     {
       home = {
         sessionVariables = {
+          EDITOR = "emacsclient -nw -a 'emacs -Q -nw'";
           VISUAL = "$EDITOR";
           GRIM_DEFAULT_DIR = "$HOME/pics/sshots/";
           STARDICT_DATA_DIR = "$HOME/d-git/d-bin/treasure/dict/";
@@ -5573,9 +5803,11 @@ Pipewire setup, just these lines enough to make sane default for it
           gc = "git clone --depth=1";
           sioyek = "sioyek --new-window";
           hyprunlock = "pkill -SIGUSR1 hyprlock";
-          rebuild = "nixos-rebuild switch --flake ~/d-git/d-nix#gdk --use-remote-sudo";
-          testrebuild = "nixos-rebuild test --flake ~/d-git/d-nix#gdk --use-remote-sudo";
+          rebuild = "nixos-rebuild switch --flake ~/d-git/d-nix#gdk --sudo";
+          testrebuild = "nixos-rebuild test --flake ~/d-git/d-nix#gdk --sudo";
           ytdl = "yt-dlp --embed-metadata --embed-subs";
+          fcd = "cd $(fd -t d | fzf)";
+          open = "emacsclient -t $(fd -t f | fzf)";
         };
 
       };
@@ -5848,8 +6080,8 @@ Pipewire setup, just these lines enough to make sane default for it
         match-mode = "fuzzy";
       };
       border = {
-        width = 4;
-        radius = 16;
+        width = 1;
+        radius = 50;
       };
     };
   };
@@ -5884,6 +6116,9 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
 - the way to organize stuffs, and get things done!
 - https://orgmode.org
 
+A good explanation on task management can be found over this discussion.
+https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
+
   #+begin_src emacs-lisp
     (use-package org :ensure nil :defer t
       :hook
@@ -5900,7 +6135,7 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
                    ))
 
       :custom
-      (org-ellipsis " ")
+      (org-ellipsis " ...")
       (org-use-sub-superscripts '{})
       (org-log-done 'note)
       (org-log-into-drawer t)
@@ -5908,10 +6143,15 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
       (org-latex-compiler "lualatex" "Lualatex is fast and gets custom font too")
       (org-link-file-path-type 'relative)
       (org-todo-keywords
-       '((sequence "TODO(t)" "NEXT(n)" "STARTED(s!)" "WAITING(w@/!)" "|" "DONE(d!)")
-         (sequence "SOMEDAY(o)" "|")
-         (sequence "|" "DELEGATED(g@/!)" "CANCELLED(c!)")))
-      (org-use-fast-todo-selection 'expert)
+       '((sequence "TODO(t)" "ONGO(o)" "WAIT(w)" "|" "DONE(d)" "SKIP(s)") ))
+      (org-todo-keyword-faces
+       '(("ONGO" . org-agenda-clocking)
+         ("WAIT" . org-sexp-date)
+         ("SKIP" . org-agenda-dimmed-todo-face)))
+
+      (org-priority-highest 1)
+      (org-priority-lowest  5)
+      (org-priority-default 4)
 
       (org-clock-in-switch-to-state "STARTED")
 
@@ -6047,7 +6287,6 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
       ;; :hook (org-agenda-finalize . org-agenda-entry-text-mode)
       :custom
       (org-agenda-include-diary t)
-      (org-agenda-tags-column org-tags-column)
       (org-agenda-restore-windows-after-quit t)
       (org-agenda-window-setup 'only-window)
 
@@ -6059,7 +6298,7 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
        '("~/d-sync/notes/d-brain.org"
          "~/d-sync/notes/inbox.org"
          "~/d-git/d-nix/d-setup.org"
-         "~/d-git/d-site/README.org"
+         ;; "~/d-git/d-site/README.org"
          )))
 
     (with-current-buffer "d-setup.org" (emacs-lock-mode 'kill))
@@ -6340,25 +6579,37 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
       (calendar-date-style 'european))
   #+end_src
 
-** Markdown
+*** Markdown
   #+begin_src emacs-lisp
     (use-package markdown-mode :defer t
       :mode "\\.md\\'" "\\.Rmd\\'"
       :hook (markdown-mode . variable-pitch-mode))
   #+end_src
 
-** Spell
+*** ox-typst
+#+begin_src emacs-lisp
+  (use-package ox-typst :unless d/on-droid 
+    :load-path "~/.config/emacs/elpa/ox-typst/"
+    :config (defalias 'typst-mode #'typst-ts-mode))
+#+end_src
+
+*** Spell
 - to check for simple spell corrections
 
-*** COMMENT jinx - enchant checker
+**** jinx - enchant checker
   #+begin_src emacs-lisp
-  (use-package jinx :unless d/on-droid
-    ;; :init (global-jinx-mode)
-    :hook org-mode
-    :bind ("M-$". jinx-correct))
+    (use-package jinx :unless d/on-droid
+      :init (global-jinx-mode)
+      :hook org-mode
+      :bind ("M-$". jinx-correct))
   #+end_src
 
-*** ispell - emacs checker
+**** quick-sdcv dictionary
+#+begin_src emacs-lisp
+  (use-package quick-sdcv :unless d/on-droid )
+#+end_src
+
+**** ispell - emacs checker
 - Built-in spell checker
 
   #+begin_src emacs-lisp
@@ -6370,7 +6621,7 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
   (use-package flyspell)
 #+end_src
 
-*** Vocab
+**** Vocab
 - to use language-tool for corrections over grammar and vocabulary
 - And some spell correction tools.
 

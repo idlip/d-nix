@@ -217,27 +217,21 @@
     dataDir = "/home/${vars.username}/.local/share/syncthing";
     overrideDevices = true;     # overrides any devices added or deleted through the WebUI
     overrideFolders = true;     # overrides any folders added or deleted through the WebUI
-    settings = {
+    settings = let
+      device_name = "dphone";
+      in {
       devices = {
-        "realme" = { id = "CEV3U3M-EJFLUJ3-UXFBEPG-KHX5EVK-3MSYH2W-BRNZEDH-TVJ4QWZ-X3G2CAW"; };
+        "${device_name}" = { id = "CLVZ4YX-RS5G23W-4Y7TGV4-6P7G6DP-VNYUWIP-MQQGZXC-NCH56MN-O3FMAA5"; };
         #"device2" = { id = "DEVICE-ID-GOES-HERE"; };
       };
       folders = {
         "sync" = {
 	        path = "~/d-sync";
-	        devices = [ "realme" ];
+	        devices = [ device_name ];
         };
         "emacs" = {
 	        path = "~/d-git/d-nix";
-	        devices = [ "realme" ];
-        };
-        "theme" = {
-	        path = "~/d-git/d-theme";
-	        devices = [ "realme" ];
-        };
-        "site" = {
-	        path = "~/d-git/d-site";
-	        devices = [ "realme" ];
+	        devices = [ device_name ];
         };
       };
     };
@@ -320,7 +314,13 @@
     graphics = {
       enable = true;
       enable32Bit = true;
-      extraPackages = with pkgs; [ intel-media-driver intel-vaapi-driver libvdpau-va-gl];
+      extraPackages = with pkgs; [ intel-media-driver intel-vaapi-driver libvdpau-va-gl mesa vulkan-loader vulkan-tools ];
+      extraPackages32 = with pkgs.pkgsi686Linux; [
+        vulkan-loader                        # Vulkan runtime (32-bit).
+        driversi686Linux.mesa                # 32-bit Vulkan drivers for AMD/Intel.
+        driversi686Linux.intel-media-driver  # Intel 32-bit media driver.
+      ];
+
     };
   };
 }
@@ -399,8 +399,8 @@
     };
 
     cursor = {
-      package = pkgs.phinger-cursors;
-      name = "phinger-cursors-dark";
+      package = (pkgs.callPackage ./pkgs/nier.nix {});
+      name = "nier_cursors";
       size = 24;
     };
 
@@ -409,26 +409,32 @@
 
       # mpkg = pkgs.nerd-fonts.iosevka-term;
       # spkg = (pkgs.iosevka-bin.override { variant = "Aile"; });
-      apkg = pkgs.inter-nerdfont;
+
+      oppkg = pkgs.nerd-fonts._0xproto;
+      orpkg = pkgs._0xpropo;
+      plexpkg = pkgs.ibm-plex;
+      blexpkg = pkgs.nerd-fonts.blex-mono;
+      ipkg = pkgs.inter;
 
       mpkg = pkgs.maple-mono.NF;
 
-      # spkg = pkgs.atkinson-hyperlegible;
+      # atnpkg = pkgs.atkinson-hyperlegible-next;
+      # atmpkg = pkgs.atkinson-hyperlegible-mono;
 
     in {
       serif = {
-        package = apkg;
-        name = "Inter Nerd Font";
+        package = plexpkg;
+        name = "IBM Plex Serif";
       };
 
       sansSerif = {
-        package = dpkg;
-        name = "Inter Nerd Font";
+        package = plexpkg;
+        name = "IBM Plex Sans";
       };
 
       monospace = {
-        package = mpkg;
-        name = "Maple Mono NF";
+        package = blexpkg;
+        name = "BlexMono Nerd Font";
       };
 
       emoji = {

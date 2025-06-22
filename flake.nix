@@ -24,7 +24,7 @@
 
     emacs-overlay = {
       url = "github:nix-community/emacs-overlay";
-      inputs.nixpkgs.follows = "nixpkgs";
+      # inputs.nixpkgs.follows = "nixpkgs";
     };
 
     stylix = {
@@ -48,7 +48,7 @@
       {
         devShells.x86_64-linux.default = pkgs.mkShell {
           packages = with pkgs; [
-            statix
+            statix nixfmt-rfc-style
             # nixd
           ];
           name = "dots";

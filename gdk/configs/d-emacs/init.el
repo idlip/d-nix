@@ -3,7 +3,7 @@
 (setopt
  display-time-24hr-format t
  display-time-default-load-average nil
- display-time-format "%l:%M %p %b %d W%U")
+ display-time-format "%H:%M")
 (display-time-mode 1)
 
 (setq tramp-backup-directory-alist backup-directory-alist)
@@ -49,11 +49,12 @@ see its function help for a description of the format."
 
 (setopt
  battery-load-low '40
- battery-load-critical '29)
+ battery-load-critical '29
+ battery-mode-line-format "⬩ %b%p%%")
 (display-battery-mode 1)
 
 (bind-keys :package emacs ("C-z") ("C-x C-z") ("M-o" . other-window)
-           ("M-j" . duplicate-dwim))
+           ("M-j" . duplicate-dwim) )
 
 (setopt
  inhibit-startup-screen t
@@ -82,8 +83,34 @@ see its function help for a description of the format."
 (modify-all-frames-parameters
  '((alpha-background . 100) ;; blur
    (right-divider-width . 1) (internal-border-width . 20)
-   (left-fringe . 0) (right-fringe . 0)
+   (left-fringe . 1) (right-fringe . 0)
    ))
+
+(defun d/keyboard-quit-dwim ()
+  "Do-What-I-Mean behaviour for a general `keyboard-quit'.
+
+The generic `keyboard-quit' does not do the expected thing when
+the minibuffer is open.  Whereas we want it to close the
+minibuffer, even without explicitly focusing it.
+
+The DWIM behaviour of this command is as follows:
+
+- When the region is active, disable it.
+- When a minibuffer is open, but not focused, close the minibuffer.
+- When the Completions buffer is selected, close it.
+- In every other case use the regular `keyboard-quit'."
+  (interactive)
+  (cond
+   ((region-active-p)
+    (keyboard-quit))
+   ((derived-mode-p 'completion-list-mode)
+    (delete-completion-window))
+   ((> (minibuffer-depth) 0)
+    (abort-recursive-edit))
+   (t
+    (keyboard-quit))))
+
+(global-set-key (kbd "C-g") #'d/keyboard-quit-dwim)
 
 (save-place-mode 1)
 
@@ -160,7 +187,7 @@ see its function help for a description of the format."
              mark-ring global-mark-ring search-ring regexp-search-ring register-alist extended-command-history)
  )
 
-(global-set-key (kbd "C-x C-r") #'recentf)
+(global-set-key (kbd "C-x C-r") #'consult-recent-file)
 (setopt recentf-max-menu-items 1000
         recentf-max-saved-items 1000)
 (recentf-mode 1)
@@ -299,7 +326,7 @@ see its function help for a description of the format."
    ("M-y" . consult-yank-pop) ;; Other custom bindings
    ;; M-g bindings (goto-map)
    ("M-g e" . consult-compile-error) ("M-g f" . consult-flymake)
-   ("M-g g" . consult-goto-line) ("M-g M-g" . consult-goto-line)
+   ("M-g g" . consult-goto-line)
    ("M-g o" . consult-outline) ("M-g m" . consult-mark)
    ("M-g k" . consult-global-mark) ("M-g i" . consult-imenu)
    ("M-g I" . consult-imenu-multi) ("M-g s" . consult-eglot-symbols)
@@ -312,6 +339,7 @@ see its function help for a description of the format."
    ("M-s L" . consult-line-multi) ("M-s k" . consult-keep-lines) ("M-s u" . consult-focus-lines)
    ;; Isearch integration
    ("M-s e" . consult-isearch-history)
+   ("M-s a" . consult-org-agenda)
    :map isearch-mode-map
    ("M-e" . consult-isearch-history) ("M-s e" . consult-isearch-history)
    ("M-s l" . consult-line) ("M-s L" . consult-line-multi)
@@ -353,7 +381,7 @@ see its function help for a description of the format."
   (("C-." . embark-act) ("C-;" . embark-act-all)
    ("M-." . embark-dwim) ("C-h B" . embark-bindings)
    (:map embark-identifier-map
-         ("d" . sdcv-search-input)
+         ("d" . quick-sdcv-search-input)
          ("ch" . color-name-to-hex)
          ("cr" . color-name-to-rgb))
    (:map embark-url-map
@@ -368,7 +396,6 @@ see its function help for a description of the format."
 
   :custom
   (prefix-help-command #'embark-prefix-help-command)
-  (eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
   ;; (embark-prompter 'embark-completing-read-prompter)
   ;; (embark-indicators '(embark-minimal-indicator embark-highlight-indicator embark-isearch-highlight-indicator))
 
@@ -390,7 +417,7 @@ see its function help for a description of the format."
 
 (use-package cape
   :bind ("C-c p" . cape-prefix-map)
-  ("M-i" . cape-prefix-map) ("C-<tab>" . cape-prefix-map)
+  ("M-i" . cape-prefix-map)
   :init
   (add-hook 'completion-at-point-functions #'cape-dabbrev)
   (add-hook 'completion-at-point-functions #'cape-file)
@@ -415,29 +442,7 @@ see its function help for a description of the format."
 
 (use-package ibuffer :ensure nil
   :bind ("C-x C-b" . ibuffer)
-  :custom
-  (ibuffer-saved-filter-groups
-   '(("default"
-      ("org" (or
-              (mode . org-mode) (name . "^\\*Org Src") (name . "^\\*Org Agenda\\*$")))
-      ("reading" (or (mode . nov-mode) (mode . doc-view-mode)))
-      ("tramp" (name . "^\\*tramp.*"))
-      ("emacs" (or
-                (name . "^\\*scratch\\*$") (name . "^\\*Messages\\*$")
-                (name . "^\\*Warnings\\*$") (name . "^\\*Shell Command Output\\*$")
-                (name . "^\\*Async-native-compile-log\\*$") (name . "^\\*straight-")))
-      ("ediff" (or
-                (name . "^\\*ediff.*") (name . "^\\*Ediff.*")))
-      ("dired" (mode . dired-mode))
-      ("irc" (mode . erc-mode))
-      ("terminal" (or
-                   (mode . term-mode) (mode . shell-mode) (mode . eshell-mode)))
-      ("help" (or
-               (name . "^\\*Help\\*$") (name . "^\\*info\\*$") (name . "^\\*helpful"))))))
-  :config
-  (add-hook 'ibuffer-mode-hook
-            (lambda ()
-              (ibuffer-switch-to-saved-filter-groups "default"))))
+  :hook (ibuffer-mode . ibuffer-set-filter-groups-by-mode))
 
 (setopt uniquify-buffer-name-style 'forward)
 
@@ -453,35 +458,37 @@ see its function help for a description of the format."
 (winner-mode 1)
 
 (setopt
- scroll-step 1
+ scroll-step 3
  scroll-margin 0
  mouse-wheel-progressive-speed nil
  mouse-wheel-scroll-amount '(1 ((control) . 1)  ((shift) . 2) ((meta) . 3))
  scroll-conservatively 101
- scroll-preserve-screen-position t)
+ scroll-preserve-screen-position t
+ pixel-scroll-precision-interpolate-page t)
 
 (pixel-scroll-precision-mode 1)
+
+;; (bind-keys ("C-v" . View-scroll-half-page-forward) ("M-v" . View-scroll-half-page-backward))
+(bind-keys ("C-v" . pixel-scroll-interpolate-down) ("M-v" . pixel-scroll-interpolate-up))
 
 (setq repeat-exit-timeout 2)
 (put 'other-window 'repeat-map nil)
 (repeat-mode 1)
 
 (use-package gptel :unless d/on-droid :defer t
-  :custom (gptel-model 'llama3.2:latest)
+  :custom (gptel-model 'gemma3:1b)
+  (gptel-default-mode 'org-mode)
   :config
-  (setq gptel-backend
-        (gptel-make-ollama "Ollama"
-          :host "localhost:11434"
-          :stream t
-          :models '(llama3.2:latest)))
-  (gptel-make-ollama "Ollama"
-    :host "localhost:11434"
-    :stream t
-    :models '(mistral:latest))
+  (setopt gptel-backend
+        (gptel-make-ollama "Gemma"
+                           :host "localhost:11434"
+                           :stream t
+                           :models '(gemma3:1b qwen2.5:1.5b gemma3:latest )))
+;; deepseek-r1:latest
   ;; some json error until next update ;; also make it lazy to not ask auth pass
-  (gptel-make-gemini "Gemini"
-    :key (gptel-api-key-from-auth-source "api.gemini.com" "apikey")
-    :stream t)
+  ;; (gptel-make-gemini "Gemini"
+  ;;                    :key (gptel-api-key-from-auth-source "api.gemini.com" "apikey")
+  ;;                    :stream t)
   )
 
 (with-eval-after-load 'zone
@@ -500,6 +507,7 @@ see its function help for a description of the format."
   (with-current-buffer
       (find-file (format "%s/%s.org" d/write-dir (format-time-string "%Y%m%dT%H%M%S")))
     (d/write-mode)
+    (insert (shell-command-to-string "wl-paste -p"))
     (make-frame '((name . "d-write") (width . 70) (height . 20)))
     ))
 
@@ -512,8 +520,15 @@ see its function help for a description of the format."
          (text (pcase arg
                  (4  (org-export-string-as raw-text 'md t))
                  (_  raw-text))))
-  (kill-new text)
-  (save-buffer) (kill-buffer) (delete-frame) ))
+    (start-process "ee-write" nil "wtype" "-s" "2000" text)
+    ;; (kill-new text)
+    (save-buffer) (kill-buffer)
+    (delete-frame)
+    ))
+
+(use-package info :ensure nil
+  :config
+  (add-to-list 'Info-additional-directory-list "~/learn/info-manuals/"))
 
 (use-package magit :defer t
   :custom
@@ -750,8 +765,11 @@ out"))
   (shell-command-switch "-c") ;; -i
   (compilation-scroll-output t)
   (compilation-auto-jump-to-first-error t)
-  (compilation-max-output-line-length nil)
-  (compilation-environment '("TERM=xterm-256color")))
+  ;; (compilation-environment '("TERM=xterm-256color"))
+  )
+
+(use-package project :ensure nil
+  :custom (project-compilation-buffer-name-function 'project-prefixed-buffer-name))
 
 (use-package treesit :ensure nil
   :mode
@@ -865,6 +883,14 @@ out"))
       (set-face-attribute 'doc-view-svg-face nil :background "#fefefe" :foreground "#000000"))))
   (doc-view-next-page) (doc-view-previous-page))
 
+(unless d/on-droid
+  (use-package reader :demand t
+    :load-path "~/learn/emacs-reader"
+    :config (reader-global-dark-mode 1))
+  (require 'reader-saveplace)
+  (require 'reader-bookmark)
+  )
+
 (use-package saveplace-pdf-view :unless d/on-droid :demand t)
 
 (use-package nov :mode ("\\.epub\\'" . nov-mode)
@@ -872,7 +898,7 @@ out"))
   (nov-mode . d/reading-mode)
   (nov-mode . nov-imenu-setup)
   :custom
-  (nov-text-width fill-column)
+  (nov-text-width t)
   (nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title))))
 
 (define-minor-mode d/reading-mode
@@ -883,7 +909,7 @@ out"))
         (read-only-mode 1)
         (d/toggle-bar-mode 1)
         (variable-pitch-mode 1)
-        (d/center-document-mode 1)
+        ;; (d/center-document-mode 1)
         ;; (setq-local line-spacing 0.5)
         ;; (text-scale-increase 1)
         ;; (setq-local tab-bar-show nil) (tab-bar--update-tab-bar-lines)
@@ -892,7 +918,7 @@ out"))
 
     (progn
       (d/toggle-bar-mode -1)
-      (d/center-document-mode -1)
+      ;; (d/center-document-mode -1)
       ;; (text-scale-decrease 1)
       ;; (kill-local-variable 'tab-bar-show) (tab-bar--update-tab-bar-lines)
       (kill-local-variable 'cursor-type)
@@ -924,7 +950,7 @@ out"))
            (nntp-open-connection-function nntp-open-tls-stream) ; feedbase does not do STARTTLS (yet?)
 					 (nntp-connection-timeout 5)
            (nntp-port-number 563) (nntp-address "feedbase.org") )
-     (nntp "gwene" (nntp-address "news.gwene.org"))
+     ;; (nntp "gwene" (nntp-address "news.gwene.org"))
 		 ;;  		 (nntp-open-connection-function nntp-open-network-stream) (nntp-connection-timeout 5) )
      ;; (nntp "news.gmane.io"
 		 ;;  		 (nntp-open-connection-function nntp-open-network-stream)
@@ -1041,7 +1067,7 @@ out"))
 (setq gnus-search-use-imap t)
 
 
-(use-package gnus :disabed t
+(use-package gnus :disabled t
   :unless d/on-droid
   :config
   (add-to-list 'gnus-secondary-select-methods
@@ -1051,24 +1077,26 @@ out"))
                         (nnimap-server-port 1143)))
   (add-to-list 'gnus-secondary-select-methods
                '(nnimap "tilde-green"
-                        (nnimap-stream tls)
+                        (nnimap-stream plain)
                         (nnimap-address "imap.tilde.green")
-                        (nnimap-server-port 993)))
+          ))
   )
 
-(use-package smtpmail
-  :unless d/on-droid
-  :after gnus
+(use-package smtpmail :unless d/on-droid
+  ;; :after gnus
   :custom
   (smtpmail-default-smtp-server "smtp.tilde.green")
-  ;; (mail-sources '((imap :server "127.0.0.1"
-                        ;; :user "idlip")))
+  (smtpmail-smtp-server "smtp.tilde.green")
+  (smtpmail-smtp-service 465)
   (starttls-use-gnutls t)
   (send-function 'smtpmail-send-it)
   (message-send-mail-function 'smtpmail-send-it)
   (mail-from-style 'angles)
   (smtpmail-debug-info t)
   (smtpmail-debug-verb t))
+
+(setopt message-server-alist '(("zororg@tilde.green"
+                                . "smtp smtp.tilde.green 465 zororg")))
 
 (unless d/on-droid
   (setopt gnus-init-file "~/d-sync/feeds/gnews/privmail.el"))
@@ -1115,7 +1143,7 @@ out"))
   (eww-after-render . (lambda () (d/eww-readable) (setq-local line-spacing '0.4)))
   :custom
   (eww-auto-rename-buffer 'title)
-  (eww-search-prefix "https://baresearch.org/search?q=")
+  (eww-search-prefix "https://leta.mullvad.net/search?engine=brave&q=")
   :config
   (defun d/eww-readable ()
     "Use more opinionated `eww-readable'.
@@ -1219,13 +1247,17 @@ images."
     )
   :custom (erc-hide-list '("JOIN" "PART" "QUIT")))
 
+(use-package erc-fill
+  :custom ;; Prefer one message per line without continuation indicators.
+  (erc-fill-static-center 18))
+
 (use-package rcirc :ensure nil
   :custom ;; yes I'm the guy called "zororg"
   (rcirc-default-nick "zororg") (rcirc-default-user-name "zororg") (rcirc-default-full-name "Zororg")
   (rcirc-reconnect-delay 5)
   (rcirc-fill-column 90)
   (rcirc-track-ignore-server-buffer-flag t)
-  (rcirc-server-alist '(("irc.libera.chat" :channels ("#systemcrafters") :port 6697 :encryption tls)))
+  (rcirc-server-alist '(("znc.tilde.green" :port 6697 :nick "zororg" :user-name "zororg/libera")))
   :config (rcirc-track-minor-mode 1) )
 
 ;; access phone storage as default
@@ -1278,10 +1310,10 @@ images."
 ;; Dont worry about the font name, I use fork of Iosevka font
 
 ;; Set reusable font name variables
-(defcustom d/fixed-pitch-font (if d/on-droid "Code OnePiece" "Maple Mono NF")
+(defcustom d/fixed-pitch-font (if d/on-droid "Maple Mono NF" "BlexMono Nerd Font")
   "The font to use for monospaced (fixed width) text.")
 
-(defcustom d/variable-pitch-font (if d/on-droid "Code Haki" "Inter Nerd Font")
+(defcustom d/variable-pitch-font (if d/on-droid "Inter" "IBM Plex Serif")
   "The font to use for variable-pitch (documents) text.")
 
 (use-package faces :ensure nil
@@ -1292,11 +1324,8 @@ images."
 
 (global-font-lock-mode 1)
 
-(use-package modus-themes :ensure nil
+(use-package modus-themes :ensure nil :demand t
   :init (require-theme 'modus-themes)
-  :custom-face
-  (region ((t :extend nil)))
-  (message-header-subject ((t :height 1.5)))
   :custom
   (modus-themes-italic-constructs t)
   (modus-themes-bold-constructs nil)
@@ -1355,17 +1384,67 @@ images."
 
   :config
   (load-theme 'modus-vivendi t))
+(set-face-attribute 'region nil :extend nil)
+(set-face-attribute 'message-header-subject nil :height 1.5)
+
+(with-eval-after-load 'org
+  (dolist (face '(org-tag org-todo org-done org-priority org-sexp-date))
+    (set-face-attribute face nil
+                        :inverse-video t
+                        :weight 'bold)))
+
+
+(modus-themes-with-colors
+  (custom-set-faces
+   ;; Add "padding" to the mode lines
+   `(mode-line ((,c :box (:line-width 10 :color ,bg-mode-line-active))))
+   `(mode-line-inactive ((,c :box (:line-width 10 :color ,bg-mode-line-inactive))))))
+
+;; (setopt
+;;  mode-line-format
+;;  '("%e" "  "
+;;    (:propertize
+;;     ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote))
+;;    mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position
+;;    mode-line-format-right-align
+;;    "  "
+;;    (project-mode-line project-mode-line-format) " " (vc-mode vc-mode) "  " mode-line-modes mode-line-misc-info "  "))
 
 (setopt
  mode-line-format
- '("%e" "  "
-   (:propertize
-    ("" mode-line-mule-info mode-line-client mode-line-modified mode-line-remote))
-   mode-line-frame-identification mode-line-buffer-identification "   " mode-line-position
-   mode-line-format-right-align
+ '("%e"
+   mode-line-front-space mode-line-modified
+   ;; mode-line-remote
+   mode-line-window-dedicated
+   "  ⬩"
+   mode-line-frame-identification mode-line-buffer-identification
+   "  ⬩  "
+   mode-line-position mode-line-format-right-align
+   (project-mode-line project-mode-line-format)
+   (vc-mode vc-mode)
+   " ⬩ " mode-name " ⬩ "
+   ;; "  " mode-line-modes
+   mode-line-misc-info
    "  "
-   (project-mode-line project-mode-line-format) " " (vc-mode vc-mode) "  " mode-line-modes mode-line-misc-info "  "))
-(setf minor-mode-alist nil)
+   mode-line-end-spaces))
+
+(setopt
+ mode-line-modified
+ '((:eval (cond
+           ((buffer-modified-p)
+            (propertize ""
+                        'face 'modus-themes-fg-yellow-cooler))
+           (buffer-read-only
+            (propertize ""
+                        'face 'modus-themes-fg-magenta-cooler))
+           (t
+            (propertize ""
+                        'face 'modus-themes-fg-cyan-cooler))))))
+
+
+(setopt mode-line-position-column-line-format '("%l:%c"))
+(setopt mode-line-position-line-format '("L%l"))
+(setopt mode-line-right-align-edge 'window)
 
 (use-package d/toggle-bar :ensure nil :no-require t
   :bind ([f9] . d/toggle-bar-mode)
@@ -1417,7 +1496,7 @@ images."
                ))
 
   :custom
-  (org-ellipsis " ")
+  (org-ellipsis " ...")
   (org-use-sub-superscripts '{})
   (org-log-done 'note)
   (org-log-into-drawer t)
@@ -1425,10 +1504,15 @@ images."
   (org-latex-compiler "lualatex" "Lualatex is fast and gets custom font too")
   (org-link-file-path-type 'relative)
   (org-todo-keywords
-   '((sequence "TODO(t)" "NEXT(n)" "STARTED(s!)" "WAITING(w@/!)" "|" "DONE(d!)")
-     (sequence "SOMEDAY(o)" "|")
-     (sequence "|" "DELEGATED(g@/!)" "CANCELLED(c!)")))
-  (org-use-fast-todo-selection 'expert)
+   '((sequence "TODO(t)" "ONGO(o)" "WAIT(w)" "|" "DONE(d)" "SKIP(s)") ))
+  (org-todo-keyword-faces
+   '(("ONGO" . org-agenda-clocking)
+     ("WAIT" . org-sexp-date)
+     ("SKIP" . org-agenda-dimmed-todo-face)))
+
+  (org-priority-highest 1)
+  (org-priority-lowest  5)
+  (org-priority-default 4)
 
   (org-clock-in-switch-to-state "STARTED")
 
@@ -1515,7 +1599,6 @@ images."
   ;; :hook (org-agenda-finalize . org-agenda-entry-text-mode)
   :custom
   (org-agenda-include-diary t)
-  (org-agenda-tags-column org-tags-column)
   (org-agenda-restore-windows-after-quit t)
   (org-agenda-window-setup 'only-window)
 
@@ -1527,7 +1610,7 @@ images."
    '("~/d-sync/notes/d-brain.org"
      "~/d-sync/notes/inbox.org"
      "~/d-git/d-nix/d-setup.org"
-     "~/d-git/d-site/README.org"
+     ;; "~/d-git/d-site/README.org"
      )))
 
 (with-current-buffer "d-setup.org" (emacs-lock-mode 'kill))
@@ -1724,6 +1807,17 @@ absolute path. Finally load eglot."
 (use-package markdown-mode :defer t
   :mode "\\.md\\'" "\\.Rmd\\'"
   :hook (markdown-mode . variable-pitch-mode))
+
+(use-package ox-typst :unless d/on-droid 
+  :load-path "~/.config/emacs/elpa/ox-typst/"
+  :config (defalias 'typst-mode #'typst-ts-mode))
+
+(use-package jinx :unless d/on-droid
+  :init (global-jinx-mode)
+  :hook org-mode
+  :bind ("M-$". jinx-correct))
+
+(use-package quick-sdcv :unless d/on-droid )
 
 (use-package ispell :demand t
   :custom (ispell-alternate-dictionary (expand-file-name "~/.config/enchant/en_US.dic")))

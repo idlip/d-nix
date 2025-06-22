@@ -11,7 +11,7 @@
     gpg-agent = {
       enable = true;
       enableSshSupport = true;
-      pinentryPackage = pkgs.pinentry-gnome3;
+      pinentry.package = pkgs.pinentry-gnome3; 
     };
   };
 }
@@ -160,18 +160,11 @@
 }
 
 {
-  services.emacs = {
-    enable = true;
-    defaultEditor = true;
-    socketActivation.enable = true;
-    startWithUserSession = "graphical";
-  };
-
   home.packages = with pkgs; [
     # emacs-lsp-booster
     imagemagick # for image-dired and other converts
   ];
-  # todo purge many packages
+
   programs.emacs = {
     enable = true;
     package = pkgs.emacs-git-pgtk;
@@ -187,15 +180,14 @@
       magit
       # org-mime
       shr-tag-pre-highlight nov devdocs-browser reformatter
-      tempel
-      # eglot-tempel
-      # sdcv jinx
+      tempel eglot-tempel
+      jinx quick-sdcv
       envrc
       aria2 transmission
-      ess
+      ess 
       # webfeeder engrave-faces
       # toc-org
-      org-ql ox-hugo
+      org-ql ox-hugo gptel markdown-mode typst-ts-mode
       saveplace-pdf-view flycheck consult-flycheck org-re-reveal
       # dslide gptel
 
@@ -268,6 +260,7 @@
 {
   home.packages = with pkgs; [
     # texlive.combined.scheme-full
+    typst ollama
   ];
 }
 
@@ -284,13 +277,20 @@
       "fit_to_page_width" = "<f9>";
       "fit_to_page_width_smart" = "<f10>";
       "toggle_fullscreen" = [ "f" "<f11>"  ];
-      "quit" = "q";
+      "quit" = "Q";
       "toggle_custom_color" = [ "<f8>" "I"];
       "toggle_highlight" = "<f1>";
       "command" = "<A-x>";
       "toggle_dark_mode" = "i";
       "toggle_presentation_mode" = "<f5>";
       "toggle_statusbar" = "B";
+      "[m]control_menu(move_to_begin)" = "<C-a>";
+      "[m]control_menu(move_to_end)" = "<C-e>";
+      "[m]control_menu(delete_to_end)" = "<C-k>";
+      "[m]control_menu(move_word_forward)" = "<A-f>";
+      "[m]control_menu(move_word_backward)" = "<A-b>";
+      "[m]control_menu('down')" = ["<C-n>" "<C-j>"];
+      "[m]control_menu('up')" = [ "<C-p>" "<C-k" ];
     };
 
     config = {
@@ -336,12 +336,128 @@
 {
   programs.librewolf = {
     enable = true;
-    settings = {
-      "webgl.disabled" = false;
-      # "privacy.resistFingerprinting" = false;
-      "browser.urlbar.placeholderName" = "Find the OnePiece...";
-      "gfx.webrender.all" = true;
-      "gfx.webrender.enabled" = true;
+    profiles.ihome = {
+      extraConfig = ''
+         // ~/.librewolf/ihome/user.js
+        // userchrome.css usercontent.css activate
+        user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
+        
+        // firefox sync
+        user_pref("identity.fxaccounts.enabled", true);
+        
+        // Fill SVG Color
+        user_pref("svg.context-properties.content.enabled", true);
+        
+        // CSS's `:has()` selector
+        user_pref("layout.css.has-selector.enabled", true);
+        
+        // Integrated calculator at urlbar
+        user_pref("browser.urlbar.suggest.calculator", true);
+        
+        // Integrated unit convertor at urlbar
+        user_pref("browser.urlbar.unitConversion.enabled", true);
+        
+        // Trim  URL
+        user_pref("browser.urlbar.trimHttps", true);
+        user_pref("browser.urlbar.trimURLs", true);
+        
+        // GTK rounded corners
+        user_pref("widget.gtk.rounded-bottom-corners.enabled", true);
+        
+        // Who is bogus? (fixes Sidebery tab dragging on Linux)
+        user_pref("widget.gtk.ignore-bogus-leave-notify", 1);
+        
+        // for librewolf
+        user_pref("privacy.clearOnShutdown.history", false);
+        user_pref("privacy.clearOnShutdown.sessions", false);
+        user_pref("privacy.clearOnShutdown_v2.cookiesAndStorage", false);
+        user_pref("privacy.clearOnShutdown_v2.cache", false);
+        user_pref("privacy.clearOnShutdown.downloads", false);
+        
+        user_pref("pdfjs.forcePageColors", true);
+        user_pref("pdfjs.pageColorsBackground", "#000000");
+        user_pref("pdfjs.pageColorsForeground", "#ffffff");
+        
+        user_pref("layout.css.grid-template-masonry-value.enabled", true);
+        user_pref("dom.enable_web_task_scheduling", true);
+        
+        // Better fox
+        user_pref("urlclassifier.trackingSkipURLs", "*.reddit.com, *.twitter.com, *.twimg.com");
+        user_pref("urlclassifier.features.socialtracking.skipURLs", "*.instagram.com, *.twitter.com, *.twimg.com");
+        
+        /** OCSP & CERTS / HPKP ***/
+        // Use CRLite instead of OCSP
+        user_pref("security.OCSP.enabled", 0);
+        user_pref("security.OCSP.require", false);
+        user_pref("security.pki.crlite_mode", 2);
+        
+        /** RFP ***/
+        // Limits refresh rate to 60mHz, breaks timezone, and forced light theme
+        // [1] https://librewolf.net/docs/faq/#what-are-the-most-common-downsides-of-rfp-resist-fingerprinting
+        user_pref("privacy.resistFingerprinting", false);
+        
+        // WebGL
+        // Breaks Map sites, NYT articles, Nat Geo, and more
+        // [1] https://manu.ninja/25-real-world-applications-using-webgl/
+        user_pref("webgl.disabled", false);
+        
+        // DRM
+        // Netflix, Udemy, Spotify, etc.
+        user_pref("media.eme.enabled", true);
+        
+        /** HTTPS-ONLY MODE ***/
+        user_pref("dom.security.https_only_mode_error_page_user_suggestions", true);
+        
+        /** PASSWORDS AND AUTOFILL ***/
+        user_pref("signon.generation.enabled", false);
+        
+        /** WEBRTC ***/
+        // Breaks video conferencing
+        user_pref("media.peerconnection.ice.no_host", false);
+        
+        /** PERMISSIONS ***/
+        user_pref("permissions.default.geo", 2);
+        user_pref("permissions.default.desktop-notification", 2);
+        user_pref("dom.push.enabled", false);
+        
+        /****************************************************************************
+         * SECTION: PESKYFOX                                                        *
+        ****************************************************************************/
+        /** MOZILLA UI ***/
+        user_pref("layout.css.prefers-color-scheme.content-override", 2);
+        user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
+        user_pref("browser.compactmode.show", true);
+        
+        /** FULLSCREEN ***/
+        user_pref("full-screen-api.transition-duration.enter", "0 0");
+        user_pref("full-screen-api.transition-duration.leave", "0 0");
+        user_pref("full-screen-api.warning.delay", 0);
+        user_pref("full-screen-api.warning.timeout", 0);
+        
+        /** URL BAR ***/
+        user_pref("browser.urlbar.suggest.engines", false);
+        user_pref("browser.urlbar.suggest.topsites", false);
+        user_pref("browser.urlbar.suggest.calculator", true);
+        user_pref("browser.urlbar.unitConversion.enabled", true);
+        
+        /** AUTOPLAY ***/
+        // Default breaks some video players
+        user_pref("media.autoplay.blocking_policy", 0);
+        
+        /** PASSWORDS ***/
+        user_pref("editor.truncate_user_pastes", false);
+        
+        /** DOWNLOADS ***/
+        user_pref("browser.download.autohideButton", true);
+        
+        /** PDF ***/
+        user_pref("browser.download.open_pdf_attachments_inline", true);
+        
+        /** TAB BEHAVIOR ***/
+        user_pref("browser.tabs.loadBookmarksInTabs", true);
+        user_pref("browser.bookmarks.openInTabClosesMenu", false);
+        user_pref("findbar.highlightAll", true);
+      '';
     };
   };
 }
@@ -360,395 +476,9 @@
 }
 
 {
-  programs.qutebrowser = {
-    enable = true;
-    enableDefaultBindings = false;
-    greasemonkey = [
-      (pkgs.fetchurl {
-        url = "https://raw.githubusercontent.com/afreakk/greasemonkeyscripts/refs/heads/master/youtube_adblock.js";
-        sha256 = "sha256-AyD9VoLJbKPfqmDEwFIEBMl//EIV/FYnZ1+ona+VU9c=";
-      })
-      (pkgs.fetchurl {
-        url = "https://raw.githubusercontent.com/afreakk/greasemonkeyscripts/refs/heads/master/reddit_adblock.js";
-        sha256 = "sha256-KmCXL4GrZtwPLRyAvAxADpyjbdY5UFnS/XKZFKtg7tk=";
-      })
-      (pkgs.fetchurl {
-        url = "https://raw.githubusercontent.com/afreakk/greasemonkeyscripts/refs/heads/master/youtube_sponsorblock.js";
-        sha256 = "sha256-nwNade1oHP+w5LGUPJSgAX1+nQZli4Rhe8FFUoF5mLE=";
-      })
-    ];
-
-    quickmarks = {
-      nixpkgs = "https://github.com/NixOS/nixpkgs";
-      home-manager = "https://github.com/nix-community/home-manager";
-      hackernews = "https://news.ycombinator.com/";
-    };
-    searchEngines = {
-      DEFAULT = "https://search.brave.com/search?q={}";
-      w = "https://en.wikipedia.org/wiki/Special:Search?search={}&go=Go&ns0=1";
-      aw = "https://wiki.archlinux.org/?search={}";
-      nw = "https://wiki.nixos.org/index.php?search={}";
-      g = "https://www.google.com/search?hl=en&q={}";
-      "7x" = "https://1337x.to/search/{}/1/";
-      ddg = "https://duckduckgo.com/?q={}";
-      gh = "https://github.com/search?q={}";
-      imdb = "https://www.imdb.com/find?q={}";
-      yt = "https://www.youtube.com/results?search_query={}";
-      nixpkgs = "https://search.nixos.org/packages?channel=unstable&from=0&size=10&sort=relevance&type=packages&query={}";
-      nixopts = "https://search.nixos.org/options?channel=unstable&size=10&sort=relevance&type=packages&query={}";
-      homeopts = "https://home-manager-options.extranix.com/?query={}&release=master";
-      reddit = "http://127.0.0.1:8080/r/{}";
-    };
-
-    settings = {
-      # tabs.tabs_are_windows = true;
-      editor.command = ["emacsclient" "-c" "{file}"];
-      tabs.title.format = "{audio}{current_title}";
-      completion.open_categories = ["searchengines" "quickmarks" "bookmarks" "history" "filesystem"];
-      auto_save.session = true;
-      colors.webpage.darkmode.algorithm = "lightness-cielab";
-      colors.webpage.darkmode.policy.images = "never";
-      tabs.position = "left";
-
-      content.webgl = false;
-      content.canvas_reading = false;
-      content.geolocation = false;
-      content.blocking.enabled = true;
-
-      completion.height = "30%";
-      completion.show = "always";
-      prompt.radius = 20;
-
-      hints.chars = "asdfghjkl";
-      hints.radius = 10;
-      hints.uppercase = true;
-
-      statusbar.position = "bottom";
-      statusbar.show = "always";
-      statusbar.widgets = ["keypress" "search_match" "url" "scroll" "tabs"];
-    };
-
-    keyBindings = {
-      normal = {
-        ",o" = "spawn mpv {url}";
-        ",t" = lib.mkMerge [
-          "config-cycle tabs.show never always"
-          "config-cycle statusbar.show in-mode always"
-          "config-cycle scrolling.bar never always"
-        ];
-        # Emacs style of bindings; Credits:
-        # https://github.com/qutebrowser/qutebrowser/blob/main/doc/help/configuring.asciidoc#emacs-like-config
-        # https://git.sr.ht/~willvaughn/dots/tree/main/item/.config/qutebrowser/qutemacs.py
-      
-        "<Ctrl-x><Ctrl-r>" = "config-source";
-        "<Alt-m>" = "tab-mute";
-      
-        "<Alt-Shift-.>" = "scroll-to-perc";
-        "<Alt-Shift-,>" = "scroll-to-perc 0";
-        "b" = "scroll-to-perc 0";
-        "e" = "scroll-to-perc";
-        "<Ctrl-n>" = "scroll down";
-        "<Ctrl-p>" = "scroll up";
-        "<Ctrl-f>" = "scroll right";
-        "<Ctrl-b>" = "scroll left";
-        "<Ctrl-v>" = "scroll-page 0 0.5";
-        "<Alt-v>" = "scroll-page 0 -0.5";
-        "<Ctrl-Shift-v>" = "scroll-page 0 -0.5";
-        "<Alt-n>" = "navigate next";
-        "<Shift-Alt-n>" = "navigate next -t";
-        "<Alt-p>" = "navigate prev";
-        "<Shift-Alt-p>" = "navigate prev -t";
-        "^" = "navigate up";
-        "<Alt-Shift-^>" = "navigate up -t";
-        "<Alt-f>" = "navigate increment";
-        "<Alt-b>" = "navigate decrement";
-        # Address
-        "<Ctrl-x><Ctrl-f>" = "cmd-set-text -s :open -t";
-        "<Ctrl-u><Ctrl-x><Ctrl-f>" = "cmd-set-text -s :open";
-        "<Ctrl-x><Ctrl-v>" = "cmd-set-text :open {url:pretty}";
-        "<Ctrl-u><Ctrl-x><Ctrl-v>" = "cmd-set-text :open -t -r {url:pretty}";
-        "l" = "back";
-        "r" = "forward";
-        "<Ctrl-x><Left>" = "back";
-        "<Ctrl-x><Right>" = "forward";
-        "g" = "reload";
-        "<Ctrl-u>g" = "reload -f";
-        "<F5>" = "reload";
-        "<Ctrl-F5>" = "reload -f";
-        # Quickmarks
-        "<Ctrl-x>rM" = "quickmark-save";
-        "<Ctrl-x>rq" = "cmd-set-text -s :quickmark-load -t";
-        "<Ctrl-x>rQ" = "cmd-set-text -s :quickmark-load";
-        "<Ctrl-x>rK" = "cmd-set-text -s :quickmark-del";
-        # Bookmarks
-        "<Ctrl-x>rm" = "bookmark-add";
-        "<Ctrl-x>rl" = "bookmark-list -t";
-        "<Ctrl-x>rb" = "cmd-set-text -s :bookmark-load -t";
-        "<Ctrl-x>rB" = "cmd-set-text -s :bookmark-load";
-        "<Ctrl-x>rk" = "cmd-set-text -s :bookmark-del";
-        # Tabs
-        "<Ctrl-x>0" = "tab-close";
-        "<Ctrl-x>k" = "tab-close";
-        "k" = "tab-close";
-        "<Ctrl-x>b" = "cmd-set-text -s :buffer";
-        "<Ctrl-x>1" = "tab-only";
-        "p" = "tab-prev";
-        "P" = "tab-move -";
-        "n" = "tab-next";
-        "N" = "tab-move +";
-        "<Ctrl-x>ta" = "tab-focus 1";
-        "<Ctrl-x>te" = "tab-focus last";
-        "<Ctrl-x>tp" = "tab-pin";
-        "<Ctrl-x>to" = "tab-next";
-        "<Ctrl-x>tO" = "tab-prev";
-        "<Ctrl-x>t1" = "tab-only";
-        "<Ctrl-x>tM" = "tab-move -";
-        "<Ctrl-x>tm" = "tab-move +";
-        "<Ctrl-x>tG" = "cmd-set-text -s :tab-give";
-        "<Ctrl-x>n" = "tab-clone";
-        "<Ctrl-x>t<Return>" = "cmd-set-text -s :tab-select";
-        "<Ctrl-x>tt" = "tab-focus";
-        "<Ctrl-PgDown>" = "tab-next";
-        "<Ctrl-PgUp>" = "tab-prev";
-        "<Ctrl-/>" = "undo";
-        "<Alt-1>" = "tab-focus 1";
-        "<Alt-2>" = "tab-focus 2";
-        "<Alt-3>" = "tab-focus 3";
-        "<Alt-4>" = "tab-focus 4";
-        "<Alt-5>" = "tab-focus 5";
-        "<Alt-6>" = "tab-focus 6";
-        "<Alt-7>" = "tab-focus 7";
-        "<Alt-8>" = "tab-focus 8";
-        "<Alt-9>" = "tab-focus -1";
-        "<Ctrl-Alt-p>" = "print";
-        "<Ctrl-x>r<Space>" = "mode-enter set_mark";
-        "<Ctrl-x>rj" = "mode-enter jump_mark";
-        # Windows
-        "<Ctrl-x>5f" = "cmd-set-text -s :open -w";
-        "<Ctrl-x>5p" = "cmd-set-text -s :open -p";
-        "<Ctrl-x>u" = "undo -w";
-        # Zooming
-        "<Ctrl-x>+" = "zoom-in";
-        "<Ctrl-x>-" = "zoom-out";
-        "<Ctrl-x>=" = "zoom";
-        # Copying/Yanking
-        "yD" = "yank domain -s";
-        "yM" = "yank inline [{title}]({url}) -s";
-        "yO" = "yank inline [[{url}][{title}]] -s";
-        "yP" = "yank pretty-url -s";
-        "yT" = "yank title -s";
-        "yY" = "yank -s";
-        "yd" = "yank domain";
-        "ym" = "yank inline [{title}]({url})";
-        "yo" = "yank inline [[{url}][{title}]]";
-        "yp" = "yank pretty-url";
-        "yt" = "yank title";
-        "yy" = "yank";
-        "<Alt-w>" = "yank selection";
-        # Macros
-        "<F3>" = "macro-record";
-        "<F4>" = "macro-run";
-        "<Ctrl-x>(" = "macro-record";
-        "<Ctrl-x>)" = "macro-record";
-        "<Ctrl-x>e" = "macro-run";
-        # Downloads
-        "ad" = "download-cancel";
-        "cd" = "download-clear";
-        # Devtools
-        "wi" = "devtools";
-        "wIf" = "devtools-focus";
-        "wIh" = "devtools left";
-        "wIj" = "devtools bottom";
-        "wIk" = "devtools top";
-        "wIl" = "devtools right";
-        "wIw" = "devtools window";
-      
-        # Config Cyclers - toggler
-        "tt" = "config-cycle -pt tabs.show always switching";
-      
-        # Miscellaneous
-        "<F11>" = "fullscreen";
-        "<Return>" = "selection-follow";
-        "<Ctrl-Return>" = "selection-follow -t";
-        "<Ctrl-x>z" = "repeat-command";
-        "<Escape>" = "clear-keychain ;; search ;; fullscreen --leave";
-        "<Ctrl-g>" = "clear-keychain ;; search ;; fullscreen --leave";
-        "<Ctrl-c><Ctrl-c>" = "stop";
-        "<back>" = "back";
-        "<forward>" = "forward";
-        "<Ctrl-c>," = "set";
-        "<Ctrl-c>h" = "history";
-        "<Ctrl-x>s" = "session-save";
-        "<Ctrl-x>l" = "session-load";
-        "<Ctrl-h>i" = "help -t";
-      
-        # Change modes
-        # caret
-        "<Ctrl-Space>" = "mode-enter caret";
-        # command
-        "<Alt-x>" = "cmd-set-text :";
-        # hint
-        "<Space>" = "hint";
-        "<Alt-Space>" = "hint all tab";
-        ";I" = "hint images tab";
-        ";O" = "hint links fill :open -t -r {hint-url}";
-        ";R" = "hint --rapid links window";
-        ";W" = "hint links yank-primary";
-        ";b" = "hint all tab-bg";
-        ";d" = "hint links download";
-        ";f" = "hint all tab-fg";
-        ";h" = "hint all hover";
-        ";i" = "hint images";
-        ";o" = "hint links fill :open {hint-url}";
-        ";r" = "hint --rapid links tab-bg";
-        ";t" = "hint inputs";
-        ";w" = "hint links yank";
-        # insert
-        "<Ctrl-m>" = "mode-enter insert";
-        # passthrough
-        "<Shift-Escape>" = "mode-enter passthrough";
-        # Quit qutebrowser
-        "<Ctrl-x><Ctrl-c>" = "quit --save";
-        "<Ctrl-u><Ctrl-x><Ctrl-c>" = "quit";
-      
-        "<Ctrl-s>" = "cmd-set-text /";
-        "<Ctrl-r>" = "cmd-set-text ?";
-              
-      };
-      
-        command = {
-          # command mode
-          "<Alt-b>" = "rl-backward-word";
-          "<Alt-Backspace>" = "rl-backward-kill-word";
-          "<Alt-d>" = "rl-kill-word";
-          "<Alt-f>" = "rl-forward-word";
-          "<Ctrl-d>" = "rl-delete-char";
-          "<Ctrl-a>" = "rl-beginning-of-line";
-          "<Ctrl-e>" = "rl-end-of-line";
-          "<Ctrl-b>" = "rl-backward-char";
-          "<Ctrl-f" = "rl-forward-char";
-          "<Ctrl-k>" = "rl-kill-line";
-          "<Alt-Delete>" = "rl-filename-rubout";
-          "<Ctrl-w>" = "rl-rubout \" \"";
-          "<Ctrl-Shift-Backspace>" = "rl-unix-line-discard";
-          "<Ctrl-y>" = "rl-yank";
-          "<Alt-w>" = "completion-item-yank";
-          "<Alt-Shift-w>" = "completion-item-yank --sel";
-          "<Shift-Delete>" = "completion-item-del";
-          "<Up>" = "command-history-prev";
-          "<Alt-p>" = "command-history-prev";
-          "<Down>" = "command-history-next";
-          "<Alt-n>" = "command-history-next";
-          "<Shift-Tab>" = "completion-item-focus prev";
-          "<Ctrl-p>" = "completion-item-focus prev";
-          "<Tab>" = "completion-item-focus next";
-          "<Ctrl-n>" = "completion-item-focus next";
-          "<PgDown>" = "completion-item-focus next-page";
-          "<PgUp>" = "completion-item-focus prev-page";
-          "<Ctrl-c><Ctrl-f>" = "completion-item-focus next-category";
-          "<Ctrl-c><Ctrl-b>" = "completion-item-focus prev-category";
-          "<Ctrl-Return>" = "command-accept --rapid";
-          "<Escape>" = "mode-leave";
-          "<Ctrl-g>" = "mode-leave";
-          "<Return>" = "command-accept";
-          "<Ctrl-m>" = "command-accept";
-          "<Ctrl-s>" = "search-next";
-          "<Ctrl-r>" = "search-prev";
-       
-        };
-      
-        insert = {
-          "<Escape>" = "mode-leave";
-          "<Ctrl-g>" = "mode-leave";
-          "<Ctrl-E>" = "edit-text";
-      
-        };
-      
-        prompt = {
-          # prompt
-          "<Alt-b>" = "rl-backward-word";
-          "<Alt-Backspace>" = "rl-backward-kill-word";
-          "<Alt-d>" = "rl-kill-word";
-          "<Alt-f>" = "rl-forward-word";
-          "<Ctrl-d>" = "rl-delete-char";
-          "<Ctrl-a>" = "rl-beginning-of-line";
-          "<Ctrl-e>" = "rl-end-of-line";
-          "<Ctrl-b>" = "rl-backward-char";
-          "<Ctrl-f>" = "rl-forward-char";
-          "<Ctrl-k>" = "rl-kill-line";
-          "<Alt-Delete>" = "rl-filename-rubout";
-          "<Ctrl-w>" = "rl-rubout \" \"";
-          "<Ctrl-Shift-Backspace>" = "rl-unix-line-discard";
-          "<Ctrl-y>" = "rl-yank";
-          "<Ctrl-p>" = "prompt-item-focus prev";
-          "<Shift-Tab>" = "prompt-item-focus prev";
-          "<Up>" = "prompt-item-focus prev";
-          "<Ctrl-n>" = "prompt-item-focus next";
-          "<Tab>" = "prompt-item-focus next";
-          "<Down>" = "prompt-item-focus next";
-          "<Ctrl-g>" = "mode-leave";
-          "<Escape>" = "mode-leave";
-          "<Ctrl-m>" = "prompt-accept";
-          "<Return>" = "prompt-accept";
-          "<Ctrl-x><Ctrl-p>" = "prompt-open-download --pdfjs";
-          "<Ctrl-x><Ctrl-o>" = "prompt-open-download";
-          "<Alt-e>" = "prompt-fileselect-external";
-          "<Alt-Shift-y>" = "prompt-yank --sel";
-          "<Alt-y>" = "prompt-yank";
-      
-        };
-      
-        register = {
-          "<Ctrl-g>" = "mode-leave";
-          "<Escape>" = "mode-leave";
-      
-        };
-      
-        yesno = {
-          "<Alt-Shift-Y>" = "prompt-yank --sel";
-          "<Alt-Y>" = "prompt-yank";
-          "<Ctrl-g>" = "mode-leave";
-          "<Escape>" = "mode-leave";
-          "<Return>" = "prompt-accept";
-          "N" = "prompt-accept --save no";
-          "Y" = "prompt-accept --save yes";
-          "n" = "prompt-accept no";
-          "y" = "prompt-accept yes";
-        };
-      
-        hint = {
-          "<Escape>" = "mode-leave";
-          "<Ctrl-g>" = "mode-leave";
-          "<Return>" = "hint-follow";
-          "<Ctrl-m>" = "hint-follow";
-        };
-      
-        caret = {
-          "<Ctrl-Space>" = "selection-toggle";
-          "<Escape>" = "mode-leave";
-          "<Ctrl-g>" = "mode-leave";
-          # "<Alt-Shift-.>" = "scroll-to-perc 0";
-          # "<Alt-Shift-,>" = "scroll-to-perc";
-          "<Ctrl-f>" = "move-to-next-char";
-          "<Ctrl-b>" = "move-to-prev-char";
-          "<Ctrl-n>" = "move-to-next-line";
-          "<Ctrl-p>" = "move-to-prev-line";
-          "<Ctrl-a>" = "move-to-start-of-line";
-          "<Ctrl-e>" = "move-to-end-of-line";
-          "<Alt-f>" = "move-to-next-word";
-          "<Alt-b>" = "move-to-prev-word";
-          "<Alt-Shift-{>" = "move-to-end-of-prev-block";
-          "<Alt-Shift-}>" = "move-to-end-of-next-block";
-          "<Alt-w>" = "yank selection";
-        };
-      };
-  };
-}
-
-{
   services = {
     mpd = {
-      enable = true;
+      enable = false;
       musicDirectory = config.xdg.userDirs.music;
       network = {
         listenAddress = "127.0.0.1";
@@ -824,6 +554,53 @@
 }
 
 {
+  programs.swayimg = {
+    enable = true;
+    settings = {
+      viewer = {
+        window = "#00000000";
+        scale = "fit";
+      };
+        "keys.viewer" = {
+          "F1" = "help";
+          "Ctrl+h" = "help";
+          "Ctrl+a" = "first_file";
+          "Ctrl+e" = "last_file";
+          "p" = "prev_file";
+          "n" = "next_file";
+          "Space" = "next_file";
+          "Shift+d" = "prev_dir";
+          "d" = "next_dir";
+          "Shift+o" = "prev_frame";
+          "o" = "next_frame";
+          "c" = "skip_file";
+          "F5" = "slideshow";
+          "s" = "animation";
+          "f" = "fullscreen";
+          "Return" = "mode";
+          "h" = "step_left 10";
+          "l" = "step_right 10";
+          "k" = "step_up 10";
+          "j" = "step_down 10";
+          "Equal" = "zoom +10";
+          "Plus" = "zoom +10";
+          "Minus" = "zoom -10";
+          "Shift+w" = "zoom width";
+          "Shift+h" = "zoom height";
+          "bracketleft" = "rotate_left";
+          "bracketright" = "rotate_right";
+          "r" = "rotate_right";
+          "Shift+r" = "rotate_left";
+          "Shift+Delete" = "exec rm -f '%' && echo 'File removed: %'; skip_file";
+          "m" = "flip_vertical";
+          "Shift+m" = "flip_horizontal";
+          "q" = "exit";
+        };
+    };
+  };
+}
+
+{
   home.packages = with pkgs; [
     # audio control
     pavucontrol playerctl
@@ -841,13 +618,13 @@
 
     libnotify libsixel
     brightnessctl
-    dotool gtk3
+    wtype gtk3
     swaybg swayimg
 
     # utils
     # ocrscript
     wl-screenrec wl-mirror
-    wl-clipboard xwayland-satellite
+    wl-clipboard-rs xwayland-satellite
   ];
 }
 
@@ -1065,6 +842,7 @@
 {
   home = {
     sessionVariables = {
+      EDITOR = "emacsclient -nw -a 'emacs -Q -nw'";
       VISUAL = "$EDITOR";
       GRIM_DEFAULT_DIR = "$HOME/pics/sshots/";
       STARDICT_DATA_DIR = "$HOME/d-git/d-bin/treasure/dict/";
@@ -1104,9 +882,11 @@
       gc = "git clone --depth=1";
       sioyek = "sioyek --new-window";
       hyprunlock = "pkill -SIGUSR1 hyprlock";
-      rebuild = "nixos-rebuild switch --flake ~/d-git/d-nix#gdk --use-remote-sudo";
-      testrebuild = "nixos-rebuild test --flake ~/d-git/d-nix#gdk --use-remote-sudo";
+      rebuild = "nixos-rebuild switch --flake ~/d-git/d-nix#gdk --sudo";
+      testrebuild = "nixos-rebuild test --flake ~/d-git/d-nix#gdk --sudo";
       ytdl = "yt-dlp --embed-metadata --embed-subs";
+      fcd = "cd $(fd -t d | fzf)";
+      open = "emacsclient -t $(fd -t f | fzf)";
     };
 
   };
@@ -1268,8 +1048,8 @@
         match-mode = "fuzzy";
       };
       border = {
-        width = 4;
-        radius = 16;
+        width = 1;
+        radius = 50;
       };
     };
   };

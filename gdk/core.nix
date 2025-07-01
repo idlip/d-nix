@@ -38,22 +38,33 @@
     [ (modulesPath + "/installer/scan/not-detected.nix")
     ];
 
-  boot.initrd.availableKernelModules = [ "xhci_pci" "thunderbolt" "vmd" "nvme" "usb_storage" "sd_mod" ];
-  boot.initrd.kernelModules = [ "xe" ];
+  boot.initrd.availableKernelModules = [ "xhci_pci" "thunderbolt" "vmd" "nvme" "usbhid" "usb_storage" "sd_mod" ];
   boot.kernelModules = [ "kvm-intel" ];
-  boot.kernelParams = [ "i915.force_probe=a7a0"  ];
-# "intel_pstate=disable"
-
   boot.extraModulePackages = [ ];
+  boot.initrd.kernelModules = [ "xe" ];
 
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/af0bbf7a-ca6f-4823-b548-cc25c63c3d5e";
-      fsType = "ext4";
+    { device = "/dev/disk/by-uuid/209f8b3a-b7ae-44aa-bd18-b9f8965e57ab";
+      fsType = "btrfs";
+      options = [ "subvol=root" "compress=zstd" ];
+    };
+
+  fileSystems."/home" =
+    { device = "/dev/disk/by-uuid/209f8b3a-b7ae-44aa-bd18-b9f8965e57ab";
+      fsType = "btrfs";
+      options = [ "subvol=home" "compress=zstd" ];
+    };
+
+  fileSystems."/nix" =
+    { device = "/dev/disk/by-uuid/209f8b3a-b7ae-44aa-bd18-b9f8965e57ab";
+      fsType = "btrfs";
+      options = [ "subvol=nix" "compress=zstd" "noatime" ];
     };
 
   fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/68E2-CF64";
+    { device = "/dev/disk/by-uuid/C30A-2932";
       fsType = "vfat";
+      options = [ "fmask=0022" "dmask=0022" ];
     };
 
   swapDevices = [ ];
@@ -66,7 +77,6 @@
   # networking.interfaces.wlp0s20f3.useDHCP = lib.mkDefault true;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }
 
@@ -97,11 +107,18 @@
     hostName = "gdk";
 
     # Killer feature, Its a must these days.
-    # Adblocker!! It uses steven black hosts.
-    stevenblack = {
-      enable = true;
-      block = [ "fakenews" "gambling" "porn" ];
-    };
+    # Adblocker!! It uses hagezi dns-blocklist
+    hostFiles = [
+      (pkgs.fetchurl {
+        url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/ultimate-compressed.txt";
+        hash = "sha256-aKViwYQs0+FMOluDawDSjzGoUjBZ+IpCp1zi453hcsg=";
+      })
+      (pkgs.fetchurl {
+        url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/tif-compressed.txt";
+        hash = "sha256-Ar2IGTlhCf1PKy/rntiaLfUULe8rVu/qrPiz7E9M8gc=";
+      })
+
+    ];
 
     # mullvad dns
     nameservers = [ "194.242.2.9" "194.242.2.5" ];
@@ -280,6 +297,7 @@
     settings = {
       flake-registry = "/etc/nix/registry.json";
       extra-experimental-features = ["flakes" "nix-command" ];
+      warn-dirty = false;
 
       # use binary cache, its not gentoo
       substituters = [ "https://nix-community.cachix.org" ];
@@ -294,6 +312,15 @@
 }
 
 { programs.nix-ld.enable = true; }
+
+{
+  programs.nh = {
+    enable = true;
+    clean.enable = true;
+    clean.extraArgs = "--keep-since 4d --keep 3";
+    flake = "/home/${vars.username}/d-git/d-nix";
+  };
+}
 
 { # disable for faster rebuilding
   documentation = {
@@ -399,8 +426,8 @@
     };
 
     cursor = {
-      package = (pkgs.callPackage ./pkgs/nier.nix {});
-      name = "nier_cursors";
+      package = pkgs.bibata-cursors;
+      name = "Bibata-Modern-Classic";
       size = 24;
     };
 
@@ -417,6 +444,7 @@
       ipkg = pkgs.inter;
 
       mpkg = pkgs.maple-mono.NF;
+      apkg = pkgs.aporetic-bin;
 
       # atnpkg = pkgs.atkinson-hyperlegible-next;
       # atmpkg = pkgs.atkinson-hyperlegible-mono;

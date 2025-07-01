@@ -7,11 +7,17 @@
   imports = [
 
 {
+ programs.gpg = {
+    enable = true;
+  };
+
   services = {
     gpg-agent = {
       enable = true;
+      enableExtraSocket = true;
       enableSshSupport = true;
       pinentry.package = pkgs.pinentry-gnome3; 
+      sshKeys = [ "1D0F13CF9061199762A8480B520999B9E78AE837" ];
     };
   };
 }
@@ -40,11 +46,28 @@
       createDirectories = false;
       documents =  "${config.home.homeDirectory}/docs";
       download = "${config.home.homeDirectory}/dloads";
-      videos = "${config.home.homeDirectory}/vids";
-      music = "${config.home.homeDirectory}/music";
-      pictures = "${config.home.homeDirectory}/pics";
+      videos = "${config.home.homeDirectory}/media/vids";
+      music = "${config.home.homeDirectory}/media/music";
+      pictures = "${config.home.homeDirectory}/media/pics";
+      desktop = "${config.home.homeDirectory}/.local/share/desktop";
+      publicShare = "${config.home.homeDirectory}/.local/share/public";
+      templates = "${config.home.homeDirectory}/.local/share/templates";
       extraConfig = {
-        xdg_screenshots_dir = "${config.xdg.userDirs.pictures}/sshots";
+        xdg_screenshots_dir = "${config.xdg.userDirs.pictures}";
+      };
+    };
+
+    mimeApps = {
+      enable = true;
+      defaultApplications = {
+        "x-scheme-handler/magnet"="d-stuff.desktop";
+        "application/x-bittorrent"="d-stuff.desktop";
+        "application/postscript"="sioyek.desktop";
+        "application/pdf"="sioyek.desktop";
+        "image/png"="swayimg.desktop";
+        "image/jpeg"="swayimg.desktop";
+        "image/gif"="swayimg.desktop";
+        "application/rss+xml"="d-stuff.desktop";
       };
     };
 
@@ -92,6 +115,7 @@
   programs.git = {
     enable = true;
     package = pkgs.gitFull;
+    extraConfig.safe.directory = "...";
 
     aliases = {
       a = "add";
@@ -117,10 +141,10 @@
 
     ignores = ["*~" "*.swp" "*result*" ".direnv" "node_modules"];
 
-    # signing = {
-    #   key = "";
-    #   signByDefault = true;
-    # };
+    signing = {
+      key = "53F3BDB57ED8DC48";
+      signByDefault = true;
+    };
 
     userEmail = "igoldlip@gmail.com";
     userName = "Dilip";
@@ -478,7 +502,7 @@
 {
   services = {
     mpd = {
-      enable = false;
+      enable = true;
       musicDirectory = config.xdg.userDirs.music;
       network = {
         listenAddress = "127.0.0.1";
@@ -781,7 +805,7 @@
       enable = true;
       arguments = [
         "--max-columns-preview"
-        "--colors=line:style:bold"
+        # "--colors=line:style:bold"
         "--ignore-case"
         "--follow"
         "--null" "--line-buffered" "--max-columns=1000" "--smart-case" "--no-heading" "--with-filename" "--line-number"
@@ -1023,6 +1047,10 @@
         };
       };
     };
+
+    style = ''
+       @define-color base06 #ffffff;
+    '';
   };
 }
 
@@ -1055,8 +1083,8 @@
   };
 }
 
-{ home.packages = with pkgs; [ libnotify nemo pandoc groff mupdf keepassxc easyeffects jaq nh
-  libreoffice-fresh
+{ home.packages = with pkgs; [ libnotify nemo pandoc groff mupdf keepassxc easyeffects jaq 
+  #libreoffice-fresh
 ]; }
 
 {

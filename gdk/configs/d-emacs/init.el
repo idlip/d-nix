@@ -311,6 +311,13 @@ The DWIM behaviour of this command is as follows:
      (embark-keybinding grid)
      (buffer flat (vertico-cycle . t)))))
 
+(use-package vertico-directory :after vertico :ensure nil
+  :bind (:map vertico-map
+              ("RET" . vertico-directory-enter)
+              ("DEL" . vertico-directory-delete-char)
+              ("M-DEL" . vertico-directory-delete-word))
+  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
+
 (use-package consult :defer t
   :bind
   (;; C-c bindings (mode-specific-map)
@@ -886,10 +893,11 @@ out"))
 (unless d/on-droid
   (use-package reader :demand t
     :load-path "~/learn/emacs-reader"
-    :config (reader-global-dark-mode 1))
-  (require 'reader-saveplace)
-  (require 'reader-bookmark)
-  )
+    :config (reader-global-dark-mode 1)
+    (require 'reader-saveplace)
+    (require 'reader-bookmark)
+    (require 'reader-outline)
+    ))
 
 (use-package saveplace-pdf-view :unless d/on-droid :demand t)
 
@@ -1424,9 +1432,7 @@ images."
    (vc-mode vc-mode)
    " ⬩ " mode-name " ⬩ "
    ;; "  " mode-line-modes
-   mode-line-misc-info
-   "  "
-   mode-line-end-spaces))
+   mode-line-misc-info))
 
 (setopt
  mode-line-modified
@@ -1809,7 +1815,7 @@ absolute path. Finally load eglot."
   :hook (markdown-mode . variable-pitch-mode))
 
 (use-package ox-typst :unless d/on-droid 
-  :load-path "~/.config/emacs/elpa/ox-typst/"
+  :vc (:url "https://github.com/jmpunkt/ox-typst")
   :config (defalias 'typst-mode #'typst-ts-mode))
 
 (use-package jinx :unless d/on-droid

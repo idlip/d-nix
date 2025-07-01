@@ -148,7 +148,7 @@ Also its crucial to only add configuration that is explicitly required, rather t
       };
 
       stylix = {
-        url = "github:danth/stylix";
+        url = "github:nix-community/stylix";
         inputs.nixpkgs.follows = "nixpkgs";
       };
 

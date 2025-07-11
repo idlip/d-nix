@@ -405,29 +405,11 @@
     image = ./configs/chinese-dragon.jpg;
     polarity = "dark";
 
-    # base16Scheme = "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
-    base16Scheme = {
-      base00 = "#000000"; # bg
-      base01 = "#333333"; # light bg
-      base02 = "#303030"; # selection bg
-      base03 = "#2e8b57"; # comment/hl
-      base04 = "#D8DEE9"; # dim fg
-      base05 = "#ffffff"; # fg
-      base06 = "#6c7b8b"; # light fg
-      base07 = "#444444"; # light bg
-      base08 = "#ff7f9f"; # red
-      base09 = "#ee9572"; # orange
-      base0A = "#fec43f"; # yellow
-      base0B = "#00c06f"; # green
-      base0C = "#6ae4b9"; # aqua/cyan
-      base0D = "#79a8ff"; # blue
-      base0E = "#b6a0ff"; # purple
-      base0F = "#d65d0e"; # brown
-    };
+    base16Scheme = "${pkgs.base16-schemes}/share/themes/bright.yaml";
 
     cursor = {
-      package = pkgs.bibata-cursors;
-      name = "Bibata-Modern-Classic";
+      package = pkgs.layan-cursors;
+      name = "layan-cursors";
       size = 24;
     };
 

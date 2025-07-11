@@ -7,17 +7,27 @@
   imports = [
 
 {
- programs.gpg = {
-    enable = true;
-  };
-
-  services = {
+   services = {
     gpg-agent = {
       enable = true;
       enableExtraSocket = true;
       enableSshSupport = true;
       pinentry.package = pkgs.pinentry-gnome3; 
       sshKeys = [ "1D0F13CF9061199762A8480B520999B9E78AE837" ];
+    };
+  };
+}
+
+{
+  programs = {
+    gpg = {
+      enable = true;
+      homedir = "${config.xdg.dataHome}/gnupg";
+      # homedir = "${config.home.homeDirectory}/d-sync/keys/gpg";
+      settings = {
+        default-key = "igoldlip@gmail.com";
+        default-recipient-self = true;
+      };
     };
   };
 }
@@ -99,15 +109,6 @@
   programs.man = {
     enable = true;
     generateCaches = true; # will take little time
-  };
-}
-
-{
-  programs = {
-    gpg = {
-      enable = true;
-      homedir = "${config.xdg.dataHome}/gnupg";
-    };
   };
 }
 
@@ -194,16 +195,14 @@
     package = pkgs.emacs-git-pgtk;
     extraPackages = (epkgs: (with epkgs; [
       treesit-grammars.with-all-grammars
-      eat vundo undo-fu-session
+      vundo undo-fu-session
       no-littering rainbow-delimiters colorful-mode
       vertico orderless marginalia corfu
-      # org-modern #### more minimal way?
-      consult embark cape
-      # olivetti nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
+      consult embark cape olivetti
+      # nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
       embark-consult consult-eglot nix-ts-mode
       magit
-      # org-mime
-      shr-tag-pre-highlight nov devdocs-browser reformatter
+      nov devdocs-browser reformatter
       tempel eglot-tempel
       jinx quick-sdcv
       envrc
@@ -211,8 +210,8 @@
       ess 
       # webfeeder engrave-faces
       # toc-org
-      org-ql ox-hugo gptel markdown-mode typst-ts-mode
-      saveplace-pdf-view flycheck consult-flycheck org-re-reveal
+      org-ql ox-hugo markdown-mode typst-ts-mode
+      flycheck consult-flycheck org-re-reveal
       # dslide gptel
 
       # (melpaBuild {
@@ -269,7 +268,7 @@
     # better to manage it via development shell
 
     ##### core comp ####
-    parallel
+    # parallel
   ];
 }
 
@@ -790,6 +789,10 @@
     targets = {
       emacs.enable = false;
       librewolf.profileNames = [ "ihome" ];
+      gtk.extraCss = ''
+            @define-color light_1 #ffffff;
+            @define-color dark_5 #000000;
+      '';
     };
   };
 }
@@ -866,7 +869,7 @@
 {
   home = {
     sessionVariables = {
-      EDITOR = "emacsclient -nw -a 'emacs -Q -nw'";
+      EDITOR = "emacsclient -nw";
       VISUAL = "$EDITOR";
       GRIM_DEFAULT_DIR = "$HOME/pics/sshots/";
       STARDICT_DATA_DIR = "$HOME/d-git/d-bin/treasure/dict/";
@@ -991,7 +994,8 @@
     settings = {
       layer = "overlay";
 
-      widgets = [ "title" "dnd" "notifications" "mpris" "volume" "backlight" "buttons-grid" ];
+      # widgets = [ "title" "dnd" "notifications" "mpris" "volume" "backlight" "buttons-grid" ];
+      widgets = [ "buttons-grid" "volume" "mpris" "title" "dnd" "notifications" ];
 
       widget-config = {
         title = {
@@ -1064,21 +1068,19 @@
 }
 
 {
-  programs.fuzzel = {
+  programs.rofi = {
     enable = true;
-    settings = {
-      main = {
-        prompt = "'  '";
-        show-actions = true;
-        list-executables-in-path = true;
-        layer = "overlay";
-        exit-on-keyboard-focus-loss = false;
-        match-mode = "fuzzy";
-      };
-      border = {
-        width = 1;
-        radius = 50;
-      };
+    package = pkgs.rofi-wayland;
+    modes = [ "drun" "run" "window" ];
+    extraConfig = {
+      modi = "drun,run,window";
+      show-icons = true;
+      hide-scrollbar = true;
+      display-drun = "   Apps ";
+      display-run = "   Run ";
+      display-window = "󰍲   Window";
+      sidebar-mode = true;
+      drun-show-actions = true;
     };
   };
 }

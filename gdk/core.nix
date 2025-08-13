@@ -108,20 +108,24 @@
 
     # Killer feature, Its a must these days.
     # Adblocker!! It uses hagezi dns-blocklist
+	hosts = {
+	  "127.0.0.1" = [ "test.local" "foss.local" ];
+	};
+
     hostFiles = [
       (pkgs.fetchurl {
         url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/ultimate-compressed.txt";
-        hash = "sha256-aKViwYQs0+FMOluDawDSjzGoUjBZ+IpCp1zi453hcsg=";
+        hash = "sha256-FrbQF7XmAFl5WzmqSarSMTLcNHU6ZUiejcr5sQ2a5hs=";
       })
       (pkgs.fetchurl {
         url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/tif-compressed.txt";
-        hash = "sha256-Ar2IGTlhCf1PKy/rntiaLfUULe8rVu/qrPiz7E9M8gc=";
+        hash = "sha256-v1248nwoLuI8kbq+N9nZKFpdPUYPqgSCJvauKmyvwXo=";
       })
 
     ];
 
     # mullvad dns
-    nameservers = [ "194.242.2.9" "194.242.2.5" ];
+    nameservers = [ "9.9.9.9" "1.1.1.1" ];
 
     networkmanager = {
       enable = true;
@@ -159,8 +163,7 @@
         SetEnv = "TERM=xterm";
         };
     };
-    # DNS resolver
-    resolved.enable = true;
+	resolved.enable = true;
   };
 }
 
@@ -287,6 +290,7 @@
 
 {
   nix = {
+	package = pkgs.nixVersions.nix_2_30;
     # pin the registry to avoid downloading and evaling a new nixpkgs version every time
     registry = lib.mapAttrs (_: value: { flake = value; }) inputs;
 
@@ -316,8 +320,6 @@
 {
   programs.nh = {
     enable = true;
-    clean.enable = true;
-    clean.extraArgs = "--keep-since 4d --keep 3";
     flake = "/home/${vars.username}/d-git/d-nix";
   };
 }
@@ -416,20 +418,11 @@
     fonts = let
       dpkg = (pkgs.callPackage ./pkgs/code-d-font.nix {});
 
-      # mpkg = pkgs.nerd-fonts.iosevka-term;
-      # spkg = (pkgs.iosevka-bin.override { variant = "Aile"; });
-
-      oppkg = pkgs.nerd-fonts._0xproto;
-      orpkg = pkgs._0xpropo;
       plexpkg = pkgs.ibm-plex;
-      blexpkg = pkgs.nerd-fonts.blex-mono;
       ipkg = pkgs.inter;
 
       mpkg = pkgs.maple-mono.NF;
       apkg = pkgs.aporetic-bin;
-
-      # atnpkg = pkgs.atkinson-hyperlegible-next;
-      # atmpkg = pkgs.atkinson-hyperlegible-mono;
 
     in {
       serif = {
@@ -438,13 +431,13 @@
       };
 
       sansSerif = {
-        package = plexpkg;
-        name = "IBM Plex Sans";
+        package = ipkg;
+        name = "Inter";
       };
 
       monospace = {
-        package = blexpkg;
-        name = "BlexMono Nerd Font";
+        package = mpkg;
+        name = "Maple Mono NF";
       };
 
       emoji = {

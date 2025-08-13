@@ -26,6 +26,7 @@
  sentence-end-double-space nil
  sentence-end "[.?!,;-]"
  read-process-output-max (* 1024 1024)
+ initial-major-mode 'org-mode
  )
 
 (delete-selection-mode 1) (indent-tabs-mode -1)
@@ -56,13 +57,16 @@
 (setopt
  save-silently t
  confirm-kill-emacs 'yes-or-no-p
- ;; backup settings
- make-backup-files nil
  view-read-only t
  custom-file (expand-file-name "custom.el" user-emacs-directory)
  safe-local-variable-directories
  '("/home/idlip/d-sync/notes/" "/home/idlip/d-sync/projects/lnrna-tool/")
  create-lockfiles nil
+ backup-directory-alist '(("." . "~/.config/emacs/backups"))
+ version-control t 
+ delete-old-versions t
+ kept-new-versions 5
+ kept-old-versions 2
  )
 
 (use-package undo-fu-session
@@ -79,7 +83,7 @@
 (global-auto-revert-mode 1)
 
 (setopt
- history-length 200
+ history-length 2000
  save-place-limit nil
  savehist-additional-variables
  '(kill-ring command-history
@@ -87,21 +91,13 @@
              query-replace-history read-expression-history
              minibuffer-history read-char-history face-name-history
              bookmark-history file-name-history
-             mark-ring global-mark-ring search-ring regexp-search-ring register-alist extended-command-history)
- )
+             mark-ring global-mark-ring search-ring regexp-search-ring register-alist extended-command-history))
 (savehist-mode 1)
 
-(global-set-key (kbd "C-x C-r") #'consult-recent-file)
+(global-set-key (kbd "C-x C-r") #'recentf)
 (setopt recentf-max-menu-items 1000
         recentf-max-saved-items 1000)
 (recentf-mode 1)
-
-(use-package no-littering :demand t :ensure t
-  :config
-  (add-to-list 'recentf-exclude
-               (recentf-expand-file-name no-littering-var-directory))
-  (add-to-list 'recentf-exclude
-               (recentf-expand-file-name no-littering-etc-directory)))
 
 (file-name-shadow-mode 1)
 (add-hook 'dired-mode-hook #'dired-hide-details-mode)
@@ -113,11 +109,11 @@
  dired-guess-shell-alist-user
  '(("\\.\\(png\\|jpe?g\\|tiff\\)" "swayimg")
    ("\\.\\(mp[34]\\|m4a\\|ogg\\|flac\\|webm\\|mkv\\)" "mpv")
-   (".pdf$" "sioyek")
-   (".*" "xdg-open" "open"))
+   ("\\.\\(pdf\\|cbz\\)" "sioyek")
+   (".*" "d-stuff"))
  delete-by-moving-to-trash t
  dired-dwim-target t
- dired-kill-when-opening-new-dired-buffer t ;; in case sinlge buffer is preferred
+ dired-kill-when-opening-new-dired-buffer nil
  )
 
 (setopt wdired-allow-to-change-permissions t
@@ -127,18 +123,10 @@
 (setopt hippie-expand-verbose t
         hippie-expand-dabbrev-skip-space t)
 
-(use-package completion-preview :ensure nil :init (global-completion-preview-mode)
-  :bind (:map completion-preview-active-mode-map
-              ("M-n" . completion-preview-next-candidate) ("M-p" . completion-preview-prev-candidate))
-  :custom (completion-preview-ignore-case t)
-  (completion-preview-completion-styles 'completion-styles)
-  )
-
 (use-package vertico :init (vertico-mode)
   :bind ((:map vertico-map ("C-v" . vertico-scroll-up) ("M-v" . vertico-scroll-down)
-               ("C-<return>" . vertico-really-exit-input) ("DEL" . vertico-directory-delete-char)
-                ("M-DEL" . vertico-directory-delete-word) ))
-  :custom (vertico-count 5)
+               ("DEL" . vertico-directory-delete-char) ("M-DEL" . vertico-directory-delete-word) ))
+  :custom ;;(vertico-count 5)
   (read-extended-command-predicate #'command-completion-default-include-p)
   :init
   (setq minibuffer-prompt-properties
@@ -148,20 +136,17 @@
 (use-package vertico-multiform :init (vertico-multiform-mode)
   :custom
   (vertico-multiform-commands
-   '(
-     ;; (jinx-correct reverse)
-     (load-theme grid) (consult-theme grid)
+   '((load-theme grid) (consult-theme grid)
      (dired-goto-file flat)
      (consult-recoll buffer) (consult-dff unobtrusive)
      (embark-act grid)
+	 (org-set-tags-command grid)
      ))
 
   (vertico-multiform-categories
-   '((file  reverse)
-     (consult-grep buffer)
-     (jinx grid)
-     (embark-bindings grid)
-     (embark-keybinding grid)
+   '((consult-grep buffer)
+     (jinx grid) (embark-bindings grid) (embark-keybinding grid)
+     (command flat) (file grid)
      (buffer flat (vertico-cycle . t)))))
 
 (use-package consult :defer t
@@ -213,30 +198,55 @@
   :bind
   (("C-." . embark-act) ("C-;" . embark-act-all)
    ("M-." . embark-dwim) ("C-h B" . embark-bindings)
+   ("C-h b" . embark-bindings) ("C-h M" . embark-bindings-in-keymap)
+
    (:map embark-identifier-map
-         ("d" . quick-sdcv-search-input)
+         ("!" . shell-command-on-region)
          ("ch" . color-name-to-hex)
-         ("cr" . color-name-to-rgb))
+         ("cr" . color-name-to-rgb)
+         ("(" . insert-parentheses)
+         ("[" . insert-pair-map) )
    (:map embark-url-map
          ("b" . browse-url-generic)
          ("e" . eww-open-in-new-buffer) )
    (:map embark-file-map
          ("b" . browse-url-of-dired-file))
+   (:map embark-expression-map
+         ("(" . insert-parentheses)
+         ("[" . insert-pair-map))
+   (:map embark-region-map
+         ("(" . insert-parentheses)
+         ("[" . insert-pair-map)
+         ("=" . quick-calc))
    )
 
   :custom
+  (embark-quit-after-action nil)
   (prefix-help-command #'embark-prefix-help-command)
-  ;; (embark-prompter 'embark-completing-read-prompter)
-  ;; (embark-indicators '(embark-minimal-indicator embark-highlight-indicator embark-isearch-highlight-indicator))
-
-  :config
-  (add-to-list 'display-buffer-alist '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*" nil
-                                       (window-parameters (mode-line-format . none))))
+  (embark-help-key "?") (embark-confirm-act-all nil)
   )
+(add-to-list 'display-buffer-alist `("\\*\\(Embark\\|Completions\\).*\\*"
+									 nil (window-parameters (mode-line-format . none))))
 
 (use-package embark-consult :defer t :hook (embark-collect-mode . consult-preview-at-point-mode))
 
 (use-package marginalia :init (marginalia-mode))
+
+(use-package corfu :init (global-corfu-mode)
+  :bind (:map corfu-map ("SPC" . corfu-insert-separator))
+  :config (corfu-history-mode) (corfu-echo-mode) (corfu-popupinfo-mode)
+  (eldoc-add-command #'corfu-insert))
+
+(use-package cape
+  :bind ("C-c p" . cape-prefix-map)
+  ("M-i" . cape-prefix-map)  ("C-'" . cape-prefix-map)
+  :init
+  (add-hook 'completion-at-point-functions #'cape-dabbrev)
+  (add-hook 'completion-at-point-functions #'cape-file)
+  (add-hook 'completion-at-point-functions #'cape-history)
+  (add-hook 'completion-at-point-functions #'cape-keyword)
+  (add-hook 'completion-at-point-functions #'cape-elisp-block)
+  (add-hook 'completion-at-point-functions #'cape-abbrev))
 
 (use-package tempel :hook (prog-mode . tempel-abbrev-mode)
   :bind (("M-+" . tempel-complete) ("M-*" . tempel-insert)))
@@ -331,6 +341,16 @@
   ;; (python-forward-sexp-function nil)
   (python-indent-guess-indent-offset-verbose nil))
 
+;; hacky way to run python tools in any dir without envrc or anything
+(defun d/dev-uvx-command ()
+  "Prompt for package and command, to run dev environment."
+  (interactive)
+  (let ((pkg (read-string "Enter package: "))
+        (cmd (read-string "Enter Command Args: ")))
+    (setq d/dev-uvx-command
+          (append '("uvx" "--from") (list pkg) (split-string cmd)))
+    (message "Set d/dev-uvx-command to: %S" d/dev-uvx-command)))
+
 (use-package ess :defer t :unless d/on-droid
   :custom
   (ess-use-company nil)
@@ -365,7 +385,11 @@
 
 (unless d/on-droid (use-package nix-ts-mode) )
 
-(use-package js :ensure nil :mode ("\\.jsx\\'" . js-jsx-mode))
+(use-package js :ensure nil :mode ("\\.jsx\\'" . js-jsx-mode)
+  ("\\.vue\\'" . js-ts-mode))
+
+(use-package verb :after org
+  :config (define-key org-mode-map (kbd "C-c C-r") verb-command-map))
 
 (use-package ess-julia :unless d/on-droid
   :hook (ess-julia-mode . (lambda () (setq-local devdocs-browser-active-docs '("Julia"))))
@@ -382,6 +406,38 @@
   (flycheck-emacs-lisp-load-path 'inherit)
   (flycheck-buffer-switch-check-intermediate-buffers t)
   (flycheck-display-errors-delay 0.25))
+
+(use-package reformatter
+  :hook
+  (python-ts-mode . ruff-format-on-save-mode)
+  (nix-mode . alejandra-format-on-save-mode)
+  (ess-r-mode . styler-format-on-save-mode)
+  (bash-ts-mode . shell-format-on-save-mode)
+  ;; (nix-ts-mode . nixfmt-rfc-format-on-save-mode)
+
+  :config
+  (reformatter-define ruff-check-fix :program "ruff"
+    :args (list "check" "--fix" "--stdin-filename" input-file "-"))
+  (reformatter-define ruff-format :program "ruff"
+    :args (list "format" "--stdin-filename" input-file "-"))
+
+  (reformatter-define pyblack-format :program "black"
+    :args (list "black" "-"))
+
+  (reformatter-define shell-format :program "shfmt" )
+
+  (reformatter-define nixfmt-rfc :program "nixfmt")
+
+  (reformatter-define eslint-format :program "eslint"
+	:args (list "--fix-dry-run" "--stdin" "--stdin-filename" buffer-file-name)
+	:stdin t :stdout nil )
+
+  (reformatter-define prettier-format :program "prettier"
+	:args (list "--stdin-filepath" buffer-file-name))
+
+  (reformatter-define jinja-format :program "djlint"
+	:args '("--reformat" "--quiet" "-"))
+  )
 
 (use-package eglot :defer t :ensure nil :unless d/on-droid
   :custom
@@ -425,7 +481,7 @@
   (major-mode-remap-alist
    '((c-mode . c-ts-mode) (c++-mode . c++-ts-mode) (nix-mode . nix-ts-mode)
      (csharp-mode . csharp-ts-mode) (css-mode . css-ts-mode)
-     (java-mode . java-ts-mode) (js-mode . js-ts-mode) (html-mode . html-ts-mode)
+     (java-mode . java-ts-mode) (js-mode . js-ts-mode) (html-mode . mhtml-ts-mode)
      (js-json-mode . json-ts-mode) ;; (org-mode . org-ts-mode) ;; not mature yet
      (python-mode . python-ts-mode) (julia-mode . ess-julia-mode)
      (typescript-mode . typescript-ts-mode) (sh-mode . bash-ts-mode) (shell-script-mode . bash-ts-mode)
@@ -479,6 +535,14 @@
   )
 
 (electric-pair-mode 1)
+
+;; credits to oantolin's config
+(bind-keys :prefix-map insert-pair-map
+           :prefix "M-["
+           ([t] . insert-pair))
+
+(define-advice insert-pair (:filter-args (args) numeric-prefix)
+  (cons (prefix-numeric-value (car args)) (cdr args)))
 
 (use-package paren :ensure nil
   :hook (after-init . show-paren-mode)
@@ -715,7 +779,7 @@
   :config (url-setup-privacy-info))
 
 (use-package shr :ensure nil :demand t
-  :custom (shr-bullet "⦿ "))
+  :custom (shr-bullet "⦿ ") (shr-width 100))
 
 (use-package eww :ensure nil :demand t
   :hook
@@ -837,10 +901,10 @@ images."
 ;; Dont worry about the font name, I use fork of Iosevka font
 
 ;; Set reusable font name variables
-(defcustom d/fixed-pitch-font (if d/on-droid "BlexMono Nerd Font" "BlexMono Nerd Font")
+(defcustom d/fixed-pitch-font (if d/on-droid "IBM Plex Mono" "Maple Mono NF")
   "The font to use for monospaced (fixed width) text.")
 
-(defcustom d/variable-pitch-font (if d/on-droid "IBM Plex Serif" "IBM Plex Serif")
+(defcustom d/variable-pitch-font (if d/on-droid "IBM Plex Serif" "Inter")
   "The font to use for variable-pitch (documents) text.")
 
 (use-package faces :ensure nil
@@ -874,7 +938,13 @@ images."
 
      (cursor      "#00ffff")
 
-     (bg-tab-bar        bg-main)
+     (fg-heading-1  "#ab82ff")
+     (fg-heading-2  "#fab387")
+     (mail-subject  "#6ae4b9")
+ 
+     (bg-completion "#2e8b57") (bg-region     bg-completion) (fg-region unspecified)
+
+     (bg-tab-bar bg-main) (bg-tab-current bg-active) (bg-tab-other bg-dim)
      (fringe unspecified)
      (bg-mode-line-active bg-dim)
      (bg-line-number-active  bg-main) (bg-line-number-inactive  bg-main)
@@ -885,26 +955,10 @@ images."
   :config
   (load-theme 'modus-vivendi t))
 
-(setopt
- ml-separator "|"
- mode-line-format
- '("%e"
-   mode-line-front-space mode-line-modified
-   ;; mode-line-remote
-   mode-line-window-dedicated
-   "  "
-   mode-line-frame-identification mode-line-buffer-identification
-   "    "
-   mode-line-position mode-line-format-right-align
-   (project-mode-line project-mode-line-format)
-   (vc-mode vc-mode)
-   "  " mode-name "  "
-   ;; "  " mode-line-modes
-   mode-line-misc-info))
-
-(setopt mode-line-position-column-line-format '("%l:%c"))
-(setopt mode-line-position-line-format '("L%l"))
-(setopt mode-line-right-align-edge 'window)
+(setq-default
+ d/mode-line-format mode-line-format
+ ;; mode-line-format nil
+ )
 
 ;; credits minad in reddit
 (defmacro +diminish (mode)
@@ -912,20 +966,21 @@ images."
 
 ;; (+diminish abbrev-mode)
 
-(use-package d/toggle-bar :ensure nil :no-require t
-  :bind ([f9] . d/toggle-bar-mode)
+(use-package d/hide-mode-line :ensure nil :no-require t
+  :bind ([f9] . d/hide-mode-line-mode)
   :init
-  (define-minor-mode d/toggle-bar-mode
+  (define-minor-mode d/hide-mode-line-mode
     "The void space to hide mode-line."
     :lighter "Vanish" :init-value nil
     (setq mode-line-format
-          (if d/toggle-bar-mode
+          (if d/hide-mode-line-mode
               nil
-            (default-value 'mode-line-format)))
-    ;; (toggle-frame-tab-bar)
+			;; d/mode-line-format
+			(default-value 'mode-line-format)
+			))
     (redraw-display))
-  :hook
-  (help-mode nov-mode))
+  :hook (help-mode nov-mode)
+  )
 
 (use-package olivetti :defer t :custom (olivetti-body-width 100)
   :hook (org-mode text-mode Info-mode helpful-mode ement-room-mode gnus-group-mode eww-mode
@@ -939,17 +994,7 @@ images."
   (proced-sort 'pmem)
   (proced-auto-update-flag t))
 
-;; credit: yorickvP on Github
-(defun wl-copy (text)
-  (let ((p (make-process :name "wl-copy"
-                         :command '("wl-copy")
-                         :connection-type 'pipe)))
-    (process-send-string p text)
-    (process-send-eof p)))
-
-(unless d/on-droid
-  (setq interprogram-cut-function 'wl-copy)
-  )
+(setopt xterm-extra-capabilities '(getSelection setSelection modifyOtherKeys))
 
 (use-package org :ensure nil :defer t
   :hook
@@ -1054,7 +1099,7 @@ images."
 :END:
 %i"
       ;; :clock-in t :clock-resume t
-      :empty-lines 1)
+      :empty-lines 1 :empty-lines-after 3)
 
      ("t" "Tasks for the Day" checkitem
       (file+olp+datetree "d-brain.org")
@@ -1209,5 +1254,3 @@ absolute path. Finally load eglot."
   :init (global-jinx-mode)
   :hook org-mode
   :bind ("M-$". jinx-correct))
-
-(use-package quick-sdcv :unless d/on-droid )

@@ -42,6 +42,8 @@ It makes sense to just appreciate the developers intention and expected usage, r
 
 Also its crucial to only add configuration that is explicitly required, rather than jumping ships on trends.
 
+Emacs configuration is crafted slowly by learning from all users in community. Especially planetemacs blog posts, minad packages and oantolin's package and config.
+
 - Note: Might not be updated, please make use of github's outlining present in top right.
 * Table of Contents :toc:
 :PROPERTIES:
@@ -376,20 +378,24 @@ Also its crucial to only add configuration that is explicitly required, rather t
 
         # Killer feature, Its a must these days.
         # Adblocker!! It uses hagezi dns-blocklist
+    	hosts = {
+    	  "127.0.0.1" = [ "test.local" "foss.local" ];
+    	};
+
         hostFiles = [
           (pkgs.fetchurl {
             url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/ultimate-compressed.txt";
-            hash = "sha256-aKViwYQs0+FMOluDawDSjzGoUjBZ+IpCp1zi453hcsg=";
+            hash = "sha256-FrbQF7XmAFl5WzmqSarSMTLcNHU6ZUiejcr5sQ2a5hs=";
           })
           (pkgs.fetchurl {
             url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/tif-compressed.txt";
-            hash = "sha256-Ar2IGTlhCf1PKy/rntiaLfUULe8rVu/qrPiz7E9M8gc=";
+            hash = "sha256-v1248nwoLuI8kbq+N9nZKFpdPUYPqgSCJvauKmyvwXo=";
           })
 
         ];
 
         # mullvad dns
-        nameservers = [ "194.242.2.9" "194.242.2.5" ];
+        nameservers = [ "9.9.9.9" "1.1.1.1" ];
 
         networkmanager = {
           enable = true;
@@ -433,8 +439,7 @@ Also its crucial to only add configuration that is explicitly required, rather t
             SetEnv = "TERM=xterm";
             };
         };
-        # DNS resolver
-        resolved.enable = true;
+    	resolved.enable = true;
       };
     }
   #+end_src
@@ -779,6 +784,7 @@ Also its crucial to only add configuration that is explicitly required, rather t
   #+begin_src nix :tangle gdk/core.nix
     {
       nix = {
+    	package = pkgs.nixVersions.nix_2_30;
         # pin the registry to avoid downloading and evaling a new nixpkgs version every time
         registry = lib.mapAttrs (_: value: { flake = value; }) inputs;
 
@@ -826,8 +832,6 @@ Also its crucial to only add configuration that is explicitly required, rather t
   {
     programs.nh = {
       enable = true;
-      clean.enable = true;
-      clean.extraArgs = "--keep-since 4d --keep 3";
       flake = "/home/${vars.username}/d-git/d-nix";
     };
   }
@@ -927,6 +931,7 @@ Also its crucial to only add configuration that is explicitly required, rather t
      sentence-end-double-space nil
      sentence-end "[.?!,;-]"
      read-process-output-max (* 1024 1024)
+     initial-major-mode 'org-mode
      )
 
     (delete-selection-mode 1) (indent-tabs-mode -1)
@@ -972,13 +977,16 @@ Also its crucial to only add configuration that is explicitly required, rather t
     (setopt
      save-silently t
      confirm-kill-emacs 'yes-or-no-p
-     ;; backup settings
-     make-backup-files nil
      view-read-only t
      custom-file (expand-file-name "custom.el" user-emacs-directory)
      safe-local-variable-directories
      '("/home/idlip/d-sync/notes/" "/home/idlip/d-sync/projects/lnrna-tool/")
      create-lockfiles nil
+     backup-directory-alist '(("." . "~/.config/emacs/backups"))
+     version-control t 
+     delete-old-versions t
+     kept-new-versions 5
+     kept-old-versions 2
      )
   #+end_src
 
@@ -1012,7 +1020,7 @@ Also its crucial to only add configuration that is explicitly required, rather t
 
   #+begin_src emacs-lisp
     (setopt
-     history-length 200
+     history-length 2000
      save-place-limit nil
      savehist-additional-variables
      '(kill-ring command-history
@@ -1020,30 +1028,17 @@ Also its crucial to only add configuration that is explicitly required, rather t
                  query-replace-history read-expression-history
                  minibuffer-history read-char-history face-name-history
                  bookmark-history file-name-history
-                 mark-ring global-mark-ring search-ring regexp-search-ring register-alist extended-command-history)
-     )
+                 mark-ring global-mark-ring search-ring regexp-search-ring register-alist extended-command-history))
     (savehist-mode 1)
   #+end_src
 
 - to record recently opened files. Useful to jump in quick
 
   #+begin_src emacs-lisp
-    (global-set-key (kbd "C-x C-r") #'consult-recent-file)
+    (global-set-key (kbd "C-x C-r") #'recentf)
     (setopt recentf-max-menu-items 1000
             recentf-max-saved-items 1000)
     (recentf-mode 1)
-  #+end_src
-
-**** no-littering
-- To keep the emacs user directory clean and with less noise.
-
-  #+begin_src emacs-lisp
-  (use-package no-littering :demand t :ensure t
-    :config
-    (add-to-list 'recentf-exclude
-                 (recentf-expand-file-name no-littering-var-directory))
-    (add-to-list 'recentf-exclude
-                 (recentf-expand-file-name no-littering-etc-directory)))
   #+end_src
 
 **** Dired
@@ -1060,11 +1055,11 @@ Also its crucial to only add configuration that is explicitly required, rather t
      dired-guess-shell-alist-user
      '(("\\.\\(png\\|jpe?g\\|tiff\\)" "swayimg")
        ("\\.\\(mp[34]\\|m4a\\|ogg\\|flac\\|webm\\|mkv\\)" "mpv")
-       (".pdf$" "sioyek")
-       (".*" "xdg-open" "open"))
+       ("\\.\\(pdf\\|cbz\\)" "sioyek")
+       (".*" "d-stuff"))
      delete-by-moving-to-trash t
      dired-dwim-target t
-     dired-kill-when-opening-new-dired-buffer t ;; in case sinlge buffer is preferred
+     dired-kill-when-opening-new-dired-buffer nil
      )
   #+end_src
 
@@ -1079,6 +1074,41 @@ Also its crucial to only add configuration that is explicitly required, rather t
 + the best part of enjoying emacs, is getting the desired way of completing a text.
 + completions everywhere, that make you use emacs for everything.
 
+**** COMMENT default minibuffer completions
+- I keep jumping back and forth with vertico & co packages.
+  But I believe the new stack improves alot and speed up process. Default completion is good enough, but its kinda old-school. It is not so enough in-sane default.
+
+#+begin_src emacs-lisp
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+  (setopt
+   completion-ignore-case t
+   completion-auto-select 'second-tab
+   completion-auto-help 'visible
+   completions-detailed t
+   enable-recursive-minibuffers t
+   completion-show-help nil
+   completions-max-height 10
+   completions-sort 'historical
+   read-buffer-completion-ignore-case t
+   read-file-name-completion-ignore-case t
+   minibuffer-depth-indicate-mode t
+   minibuffer-electric-default-mode t
+   minibuffer-visible-completions t
+   completions-group t
+   completions-format 'one-column
+   completion-flex-nospace t
+   )
+#+end_src
+
+***** completion styles
+#+begin_src emacs-lisp
+  (setopt completion-styles
+  		'(basic substring initials flex partial-completion))
+  (setopt completion-category-defaults nil)
+  (setopt completion-category-overrides
+          '((file (styles basic partial-completion initials substring))))
+#+end_src
+
 **** Hippie expand dabbrev
 #+begin_src emacs-lisp
   (keymap-global-set "<remap> <dabbrev-expand>" 'hippie-expand)
@@ -1086,7 +1116,7 @@ Also its crucial to only add configuration that is explicitly required, rather t
           hippie-expand-dabbrev-skip-space t)
 #+end_src
 
-**** completions-preview
+**** COMMENT completions-preview
 - preview the known completions.
   Disabled it as it produces ="0__dummy_completion__"= in python IDLE
   So if it slows down, why would I use it every time while typing. Just =C-M-i=
@@ -1106,9 +1136,8 @@ Also its crucial to only add configuration that is explicitly required, rather t
   #+begin_src emacs-lisp
     (use-package vertico :init (vertico-mode)
       :bind ((:map vertico-map ("C-v" . vertico-scroll-up) ("M-v" . vertico-scroll-down)
-                   ("C-<return>" . vertico-really-exit-input) ("DEL" . vertico-directory-delete-char)
-                    ("M-DEL" . vertico-directory-delete-word) ))
-      :custom (vertico-count 5)
+                   ("DEL" . vertico-directory-delete-char) ("M-DEL" . vertico-directory-delete-word) ))
+      :custom ;;(vertico-count 5)
       (read-extended-command-predicate #'command-completion-default-include-p)
       :init
       (setq minibuffer-prompt-properties
@@ -1122,20 +1151,17 @@ Also its crucial to only add configuration that is explicitly required, rather t
     (use-package vertico-multiform :init (vertico-multiform-mode)
       :custom
       (vertico-multiform-commands
-       '(
-         ;; (jinx-correct reverse)
-         (load-theme grid) (consult-theme grid)
+       '((load-theme grid) (consult-theme grid)
          (dired-goto-file flat)
          (consult-recoll buffer) (consult-dff unobtrusive)
          (embark-act grid)
+    	 (org-set-tags-command grid)
          ))
 
       (vertico-multiform-categories
-       '((file  reverse)
-         (consult-grep buffer)
-         (jinx grid)
-         (embark-bindings grid)
-         (embark-keybinding grid)
+       '((consult-grep buffer)
+         (jinx grid) (embark-bindings grid) (embark-keybinding grid)
+         (command flat) (file grid)
          (buffer flat (vertico-cycle . t)))))
   #+end_src
 
@@ -1205,26 +1231,35 @@ Also its crucial to only add configuration that is explicitly required, rather t
       :bind
       (("C-." . embark-act) ("C-;" . embark-act-all)
        ("M-." . embark-dwim) ("C-h B" . embark-bindings)
+       ("C-h b" . embark-bindings) ("C-h M" . embark-bindings-in-keymap)
+
        (:map embark-identifier-map
-             ("d" . quick-sdcv-search-input)
+             ("!" . shell-command-on-region)
              ("ch" . color-name-to-hex)
-             ("cr" . color-name-to-rgb))
+             ("cr" . color-name-to-rgb)
+             ("(" . insert-parentheses)
+             ("[" . insert-pair-map) )
        (:map embark-url-map
              ("b" . browse-url-generic)
              ("e" . eww-open-in-new-buffer) )
        (:map embark-file-map
              ("b" . browse-url-of-dired-file))
+       (:map embark-expression-map
+             ("(" . insert-parentheses)
+             ("[" . insert-pair-map))
+       (:map embark-region-map
+             ("(" . insert-parentheses)
+             ("[" . insert-pair-map)
+             ("=" . quick-calc))
        )
 
       :custom
+      (embark-quit-after-action nil)
       (prefix-help-command #'embark-prefix-help-command)
-      ;; (embark-prompter 'embark-completing-read-prompter)
-      ;; (embark-indicators '(embark-minimal-indicator embark-highlight-indicator embark-isearch-highlight-indicator))
-
-      :config
-      (add-to-list 'display-buffer-alist '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*" nil
-                                           (window-parameters (mode-line-format . none))))
+      (embark-help-key "?") (embark-confirm-act-all nil)
       )
+    (add-to-list 'display-buffer-alist `("\\*\\(Embark\\|Completions\\).*\\*"
+    									 nil (window-parameters (mode-line-format . none))))
   #+end_src
 
 - Use consult commands with embark as well.
@@ -1240,22 +1275,23 @@ Also its crucial to only add configuration that is explicitly required, rather t
   (use-package marginalia :init (marginalia-mode))
   #+end_src
 
-**** COMMENT corfu
+**** corfu
 + overlay popup
   - Using consult as completion in region has advantage as to have vertico and single window/point for completion rather than "get where you type".
 
   #+begin_src emacs-lisp
     (use-package corfu :init (global-corfu-mode)
+      :bind (:map corfu-map ("SPC" . corfu-insert-separator))
       :config (corfu-history-mode) (corfu-echo-mode) (corfu-popupinfo-mode)
       (eldoc-add-command #'corfu-insert))
   #+end_src
 
-**** COMMENT cape
+**** cape
 + an extension for corfu
   #+begin_src emacs-lisp
     (use-package cape
       :bind ("C-c p" . cape-prefix-map)
-      ("M-i" . cape-prefix-map)
+      ("M-i" . cape-prefix-map)  ("C-'" . cape-prefix-map)
       :init
       (add-hook 'completion-at-point-functions #'cape-dabbrev)
       (add-hook 'completion-at-point-functions #'cape-file)
@@ -1275,7 +1311,7 @@ Also its crucial to only add configuration that is explicitly required, rather t
 ***** nix-templates
 - handy templates to use for quick running thought process.
   #+name: template
-  #+begin_src emacs-lisp :tangle ~/.config/emacs/etc/tempel/templates.eld
+  #+begin_src emacs-lisp :tangle ~/.config/emacs/templates
     ;; Refer: `tempo-define-template' for doc.
     ;;  • (s NAME) Inserts a named field.
     ;;  • (p/r PROMPT <NAME> <NOINSERT>) Insert an optionally named field with a prompt. The PROMPT is
@@ -1328,7 +1364,7 @@ Also its crucial to only add configuration that is explicitly required, rather t
               )
   #+end_src
 ***** org-templates
-  #+begin_src emacs-lisp :tangle ~/.config/emacs/etc/tempel/templates.eld
+  #+begin_src emacs-lisp :tangle ~/.config/emacs/templates
     org-mode
 
     (hugosite ":PROPERTIES:"  n ":EXPORT_FILE_NAME: " (p "simple-name") n ":EXPORT_DATE: " (format-time-string "%Y-%m-%d") n ":EXPORT_HUGO_DRAFT: false" n ":END:")
@@ -1433,7 +1469,7 @@ Also its crucial to only add configuration that is explicitly required, rather t
     )
   #+end_src
 ***** markdown-templates
-  #+begin_src emacs-lisp :tangle ~/.config/emacs/etc/tempel/templates.eld
+  #+begin_src emacs-lisp :tangle ~/.config/emacs/templates
 markdown-mode
 
 (gitcollapse "## " (p "Heading") n n "<details>" n n
@@ -1458,7 +1494,7 @@ markdown-mode
 
   #+end_src
 ***** elisp-templates
-  #+begin_src emacs-lisp :tangle ~/.config/emacs/etc/tempel/templates.eld
+  #+begin_src emacs-lisp :tangle ~/.config/emacs/templates
     emacs-lisp-mode
 
     (modconfig ";;; " (c-get-current-file) ".el --- " (p "description") " -*- lexical-binding: t -*-" n
@@ -1492,7 +1528,7 @@ markdown-mode
   #+end_src
 ***** python-templates
 - Credits to jgarte (https://git.sr.ht/~whereiseveryone/dot/tree/master/item/snippets)
-  #+begin_src emacs-lisp :tangle ~/.config/emacs/etc/tempel/templates.eld
+  #+begin_src emacs-lisp :tangle ~/.config/emacs/templates
   python-ts-mode python-mode
 
   (if "if " p ":" p % "else:" n> p)
@@ -1712,7 +1748,7 @@ markdown-mode
             "assert example_fixture == 1")
   #+end_src
 ***** bash-templates fundamental text
-  #+begin_src emacs-lisp :tangle ~/.config/emacs/etc/tempel/templates.eld
+  #+begin_src emacs-lisp :tangle ~/.config/emacs/templates
     fundamental-mode
 
     (datime (format-time-string "%Y-%m-%d %A %d %B %Y"))
@@ -1740,7 +1776,7 @@ markdown-mode
   #+end_src
 ***** html-templates
 - Css and html templates
-#+begin_src emacs-lisp :tangle ~/.config/emacs/etc/tempel/templates.eld
+#+begin_src emacs-lisp :tangle ~/.config/emacs/templates
   css-mode css-ts-mode html-mode html-ts-mode
 
   (var "var(--" p ")")
@@ -2081,22 +2117,23 @@ to get bash alias to eshell way
         extraPackages = (epkgs: (with epkgs; [
           treesit-grammars.with-all-grammars
           vundo undo-fu-session
-          no-littering rainbow-delimiters colorful-mode
-          vertico orderless marginalia corfu
-          consult embark cape olivetti
+    	  rainbow-delimiters colorful-mode
+          vertico orderless marginalia corfu cape
+          consult embark olivetti
           # nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
           embark-consult consult-eglot nix-ts-mode
           magit
           nov devdocs-browser reformatter
           tempel eglot-tempel
-          jinx quick-sdcv
+          jinx
           envrc
-          aria2 transmission
-          ess 
+          # aria2 transmission
+          # ess 
           # webfeeder engrave-faces
           # toc-org
           org-ql ox-hugo markdown-mode typst-ts-mode
-          flycheck consult-flycheck org-re-reveal
+          flycheck consult-flycheck flycheck-eglot org-re-reveal
+    	  verb
           # dslide gptel
 
           # (melpaBuild {
@@ -2112,12 +2149,12 @@ to get bash alias to eshell way
 
           (melpaBuild {
             pname = "org-super-links";
-            version = "20250227";
+            version = "20250621";
             src = pkgs.fetchFromGitHub {
               owner = "toshism";
               repo = "org-super-links";
-              rev = "ecb72e9e9c60a7acaa30776657c757265297ca13";
-              hash = "sha256-8CQrXYx+QyjxQyyaVq6E/6xOnaxbzb04y/c/wrW0m44=";
+              rev = "ce04bd04b20c498f6deb6338aff142f312144e3b";
+              hash = "sha256-9SGb+imKyi6J+mpBtkheOLAIpmd0E55i0BOGBT617gE=";
             };
           })
 
@@ -2156,9 +2193,7 @@ to get bash alias to eshell way
     {
       home.packages = with pkgs; [
         # better to manage it via development shell
-
-        ##### core comp ####
-        # parallel
+    	uv
       ];
     }
   #+end_src
@@ -2172,6 +2207,16 @@ to get bash alias to eshell way
       :custom
       ;; (python-forward-sexp-function nil)
       (python-indent-guess-indent-offset-verbose nil))
+
+    ;; hacky way to run python tools in any dir without envrc or anything
+    (defun d/dev-uvx-command ()
+      "Prompt for package and command, to run dev environment."
+      (interactive)
+      (let ((pkg (read-string "Enter package: "))
+            (cmd (read-string "Enter Command Args: ")))
+        (setq d/dev-uvx-command
+              (append '("uvx" "--from") (list pkg) (split-string cmd)))
+        (message "Set d/dev-uvx-command to: %S" d/dev-uvx-command)))
   #+end_src
 
 **** R-stats
@@ -2230,8 +2275,15 @@ to get bash alias to eshell way
 - JavascriptXML - To learn react
 
 #+begin_src emacs-lisp
-(use-package js :ensure nil :mode ("\\.jsx\\'" . js-jsx-mode))
+  (use-package js :ensure nil :mode ("\\.jsx\\'" . js-jsx-mode)
+    ("\\.vue\\'" . js-ts-mode))
 #+end_src
+
+- rest API - verb
+  #+begin_src emacs-lisp
+    (use-package verb :after org
+      :config (define-key org-mode-map (kbd "C-c C-r") verb-command-map))
+  #+end_src
 
 **** science
   #+begin_src emacs-lisp
@@ -2282,6 +2334,43 @@ to get bash alias to eshell way
       (flycheck-emacs-lisp-load-path 'inherit)
       (flycheck-buffer-switch-check-intermediate-buffers t)
       (flycheck-display-errors-delay 0.25))
+  #+end_src
+
+**** reformatter
+- Legit, best made design for formatter package.
+
+  #+begin_src emacs-lisp
+    (use-package reformatter
+      :hook
+      (python-ts-mode . ruff-format-on-save-mode)
+      (nix-mode . alejandra-format-on-save-mode)
+      (ess-r-mode . styler-format-on-save-mode)
+      (bash-ts-mode . shell-format-on-save-mode)
+      ;; (nix-ts-mode . nixfmt-rfc-format-on-save-mode)
+
+      :config
+      (reformatter-define ruff-check-fix :program "ruff"
+        :args (list "check" "--fix" "--stdin-filename" input-file "-"))
+      (reformatter-define ruff-format :program "ruff"
+        :args (list "format" "--stdin-filename" input-file "-"))
+
+      (reformatter-define pyblack-format :program "black"
+        :args (list "black" "-"))
+
+      (reformatter-define shell-format :program "shfmt" )
+
+      (reformatter-define nixfmt-rfc :program "nixfmt")
+
+      (reformatter-define eslint-format :program "eslint"
+    	:args (list "--fix-dry-run" "--stdin" "--stdin-filename" buffer-file-name)
+    	:stdin t :stdout nil )
+
+      (reformatter-define prettier-format :program "prettier"
+    	:args (list "--stdin-filepath" buffer-file-name))
+
+      (reformatter-define jinja-format :program "djlint"
+    	:args '("--reformat" "--quiet" "-"))
+      )
   #+end_src
 
 **** eglot
@@ -2348,7 +2437,7 @@ to get bash alias to eshell way
       (major-mode-remap-alist
        '((c-mode . c-ts-mode) (c++-mode . c++-ts-mode) (nix-mode . nix-ts-mode)
          (csharp-mode . csharp-ts-mode) (css-mode . css-ts-mode)
-         (java-mode . java-ts-mode) (js-mode . js-ts-mode) (html-mode . html-ts-mode)
+         (java-mode . java-ts-mode) (js-mode . js-ts-mode) (html-mode . mhtml-ts-mode)
          (js-json-mode . json-ts-mode) ;; (org-mode . org-ts-mode) ;; not mature yet
          (python-mode . python-ts-mode) (julia-mode . ess-julia-mode)
          (typescript-mode . typescript-ts-mode) (sh-mode . bash-ts-mode) (shell-script-mode . bash-ts-mode)
@@ -2423,6 +2512,14 @@ to get bash alias to eshell way
 
   #+begin_src emacs-lisp
     (electric-pair-mode 1)
+
+    ;; credits to oantolin's config
+    (bind-keys :prefix-map insert-pair-map
+               :prefix "M-["
+               ([t] . insert-pair))
+
+    (define-advice insert-pair (:filter-args (args) numeric-prefix)
+      (cons (prefix-numeric-value (car args)) (cdr args)))
   #+end_src
 
 **** paren
@@ -2488,8 +2585,8 @@ to get bash alias to eshell way
           "[m]control_menu(delete_to_end)" = "<C-k>";
           "[m]control_menu(move_word_forward)" = "<A-f>";
           "[m]control_menu(move_word_backward)" = "<A-b>";
-          "[m]control_menu('down')" = ["<C-n>" "<C-j>"];
-          "[m]control_menu('up')" = [ "<C-p>" "<C-k" ];
+          "[m]control_menu('down')" = "<C-n";
+          "[m]control_menu('up')" = "<C-p>";
         };
 
         config = {
@@ -2809,94 +2906,163 @@ to get bash alias to eshell way
 **** userChrome css
 - Css customization for Firefox UI.
 - Minimal UI with disabled tab-bar (use sideberry)
-  #+begin_src css :tangle ~/.librewolf/ihome/chrome/userChrome.css
-    /* Hide the tab bar! */
-    #TabsToolbar { visibility: collapse; }
+#+begin_src css :tangle ~/.librewolf/ihome/chrome/userChrome.css
+  /* Hide the tab bar! */
+  #TabsToolbar { visibility: collapse; }
+#+end_src
 
-    #sidebar-box{
-      --uc-sidebar-width: 38px;
-      --uc-sidebar-hover-width: 250px;
-      --uc-autohide-sidebar-delay: 100ms; /* Wait 0.6s before hiding sidebar */
-      --uc-autohide-transition-duration: 115ms;
-      --uc-autohide-transition-type: linear;
-      --browser-area-z-index-sidebar: 3;
-      position: relative;
-      min-width: var(--uc-sidebar-width) !important;
-      width: var(--uc-sidebar-width) !important;
-      max-width: var(--uc-sidebar-width) !important;
-      z-index: var(--browser-area-z-index-sidebar,3);
-    }
-    #sidebar-box[positionend]{ direction: rtl }
-    #sidebar-box[positionend] > *{ direction: ltr }
 
-    #sidebar-box[positionend]:-moz-locale-dir(rtl){ direction: ltr }
-    #sidebar-box[positionend]:-moz-locale-dir(rtl) > *{ direction: rtl }
+#+begin_src css :tangle no
 
-    #main-window[sizemode="fullscreen"] #sidebar-box{ --uc-sidebar-width: 1px; }
+  /* Source file https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome/autohide_sidebar.css made available under Mozilla Public License v. 2.0
+  See the above repository for updates as well as full license text. */
 
-    #sidebar-splitter{ display: none }
+  /* Show sidebar only when the cursor is over it.
+     The border controlling sidebar width will be removed so you'll need to modify
+     these values to change width. 
+     By default the internal layout of sidebar changes when hovered, but this can
+     be changed by setting pref "userchrome.autohide-sidebar.static-layout.enabled" to true
+   ,,*/
 
-    #sidebar-header{
-      overflow: hidden;
-      color: var(--chrome-color, inherit) !important;
-      padding-inline: 0 !important;
-    }
+  /* Note: If you want only *some* sidebar to be auto-hidden, then you can use [sidebarcommand] attribute selector.
+     For example, to only affect Sidebery's sidebar replace all instances of #sidebar-box with
+     #sidebar-box[sidebarcommand="_3c078156-979c-498b-8990-85f7987dd929_-sidebar-action"].
+     To find the sidebarcommand value for any other sidebar, open that sidebar and use Browser Toolbox to inspect it.
+     See: https://firefox-source-docs.mozilla.org/devtools-user/browser_toolbox/index.html
+  ,,*/
+  :where(#main-window) #browser{
+  	--uc-sidebar-width: 40px;
+  	--uc-sidebar-hover-width: 210px;
+  }
+  #main-window[sizemode="fullscreen"] #browser{
+  	--uc-sidebar-width: 1px;
+  }
+  #sidebar-box{
+  	--uc-autohide-sidebar-delay: 600ms; /* Wait 0.6s before hiding sidebar */
+  	--uc-autohide-transition-duration: 115ms;
+  	--uc-autohide-transition-type: linear;
+  	--browser-area-z-index-sidebar: 3;
+  	position: relative;
+  	min-width: var(--uc-sidebar-width) !important;
+  	width: var(--uc-sidebar-width) !important;
+  	max-width: var(--uc-sidebar-width) !important;
+  	z-index: var(--browser-area-z-index-sidebar,3);
+  	background-color: inherit;
+  	/* This directionality flipper is played so that sidebar "grows" into the right direction */
+  	direction: ltr;
+  	&:is([positionend],[sidebar-positionend]):not(:-moz-locale-dir(rtl)){
+  		direction: rtl;
+  	}
+  }
+  .sidebar-browser-stack{
+  	background: inherit;
+  }
+  #main-window[sizemode="fullscreen"] #browser{ --uc-sidebar-width: 1px; }
 
-    #sidebar-header::before,
-    #sidebar-header::after{
-      content: "";
-      display: flex;
-      padding-left: 8px;
-    }
+  #sidebar-splitter{ display: none }
 
-    #sidebar-header,
-    #sidebar{
-      transition: min-width var(--uc-autohide-transition-duration) var(--uc-autohide-transition-type) var(--uc-autohide-sidebar-delay) !important;
-      min-width: var(--uc-sidebar-width) !important;
-      will-change: min-width;
-    }
-    #sidebar-box:hover > #sidebar-header,
-    #sidebar-box:hover > #sidebar{
-      min-width: var(--uc-sidebar-hover-width) !important;
-      transition-delay: 0ms !important;
-    }
+  #sidebar-header{
+  	overflow: hidden;
+  	color: var(--chrome-color, inherit) !important;
+  	padding-inline: 0 !important;
+  }
 
-    .sidebar-panel{
-      background-color: transparent !important;
-      color: var(--newtab-text-primary-color) !important;
-    }
+  #sidebar-header::before,
+  #sidebar-header::after{
+  	content: "";
+  	display: flex;
+  	padding-left: 8px;
+  }
 
-    .sidebar-panel #search-box{
-      -moz-appearance: none !important;
-      background-color: rgba(249,249,250,0.1) !important;
-      color: inherit !important;
-    }
+  #sidebar-header,
+  #sidebar{
+  	transition: min-width var(--uc-autohide-transition-duration) var(--uc-autohide-transition-type) var(--uc-autohide-sidebar-delay) !important;
+  	min-width: var(--uc-sidebar-width) !important;
+  	will-change: min-width;
+  	direction: ltr;
+  	&:-moz-locale-dir(rtl){
+  		direction: rtl;
+  	}
+  }
+  #sidebar-box:hover > #sidebar-header,
+  #sidebar-box:hover > #sidebar,
+  #sidebar-box:hover > .sidebar-browser-stack > #sidebar{
+  	min-width: var(--uc-sidebar-hover-width) !important;
+  	transition-delay: 0ms !important;
+  }
 
-    /* Add sidebar divider and give it background */
+  .sidebar-panel{
+  	background-color: transparent !important;
+  	color: var(--newtab-text-primary-color) !important;
+  }
 
-    #sidebar,
-    #sidebar-header{
-      background-color: inherit !important;
-      border-inline: 1px solid rgb(80,80,80);
-      border-inline-width: 0px 1px;
-    }
+  .sidebar-panel #search-box{
+  	-moz-appearance: none !important;
+  	background-color: rgba(249,249,250,0.1) !important; 
+  	color: inherit !important;
+  }
 
-    #sidebar-box:not([positionend]) > :-moz-locale-dir(rtl),
-    #sidebar-box[positionend] > *{
-      border-inline-width: 1px 0px;
-    }
+  /* Add sidebar divider and give it background */
 
-    /* Move statuspanel to the other side when sidebar is hovered so it doesn't get covered by sidebar */
+  #sidebar,
+  #sidebar-header{
+  	background-color: inherit !important;
+  	border-inline: 1px solid rgb(80,80,80);
+  	border-inline-width: 0px 1px;
+  }
 
-    #sidebar-box:not([positionend]):hover ~ #appcontent #statuspanel{
-      inset-inline: auto 0px !important;
-    }
-    #sidebar-box:not([positionend]):hover ~ #appcontent #statuspanel-label{
-      margin-inline: 0px !important;
-      border-left-style: solid !important;
-    }
-  #+end_src
+  #sidebar-box:not([positionend],[sidebar-positionend]) > :-moz-locale-dir(rtl),
+  #sidebar-box:is([positionend],[sidebar-positionend]) > *{
+  	border-inline-width: 1px 0px;
+  }
+  @media -moz-pref("sidebar.revamp") {
+  	#sidebar, #sidebar-header{ border-style: none }
+  	#sidebar-box{ padding: 0 !important; }
+  }
+  /* Move statuspanel to the other side when sidebar is hovered so it doesn't get covered by sidebar */
 
+  #sidebar-box:not([positionend],[sidebar-positionend]):hover ~ #appcontent #statuspanel{
+  	inset-inline: auto 0px !important;
+  }
+  #sidebar-box:not([positionend],[sidebar-positionend]):hover ~ #appcontent #statuspanel-label{
+  	margin-inline: 0px !important;
+  	border-left-style: solid !important; 
+  }
+  @media -moz-pref("userchrome.autohide-sidebar.static-layout.enabled"){
+  	#sidebar-box{
+  		min-width: var(--uc-sidebar-width) !important;
+  		contain: size;
+  		box-shadow: var(--content-area-shadow);
+  	}
+  	#sidebar{
+  		min-width: var(--uc-sidebar-hover-width) !important;
+  	}
+  	.sidebar-browser-stack{
+  		overflow: hidden;
+  		width: 100%;
+  		transition: width var(--uc-autohide-transition-duration) var(--uc-autohide-transition-type) var(--uc-autohide-sidebar-delay);
+  		direction: ltr;
+  		&:hover{
+  			transition-delay: 0ms;
+  			width: var(--uc-sidebar-hover-width);
+  		}
+  		&:-moz-locale-dir(rtl){
+  			transition-property: transform,width !important;
+  		}
+  	}
+  	#sidebar-box[sidebar-positionend]:hover :is(#sidebar-header,#sidebar):-moz-locale-dir(ltr){
+  		transform: translateX(0);
+  		transition-delay: 0ms !important;
+  	}
+  	#sidebar-box:not([sidebar-positionend]):hover .sidebar-browser-stack:-moz-locale-dir(rtl){
+  		transform: translateX(calc(-1 * var(--uc-sidebar-hover-width) + var(--uc-sidebar-width)));
+  	}
+  	#sidebar-box[sidebar-positionend]:hover > .sidebar-browser-stack:-moz-locale-dir(rtl){
+  		transform: translateX(calc(var(--uc-sidebar-hover-width) - var(--uc-sidebar-width)));
+  		transition-delay: 0ms !important;
+  	}
+  }
+#+end_src
 *** Librewolf
 - As of [2024-08-09], making some shift towards better firefox.
 
@@ -2937,6 +3103,7 @@ to get bash alias to eshell way
 
   // Integrated unit convertor at urlbar
   user_pref("browser.urlbar.unitConversion.enabled", true);
+   user_pref("browser.tabs.insertAfterCurrent", true);
 
   // Trim  URL
   user_pref("browser.urlbar.trimHttps", true);
@@ -2955,9 +3122,9 @@ to get bash alias to eshell way
   user_pref("privacy.clearOnShutdown_v2.cache", false);
   user_pref("privacy.clearOnShutdown.downloads", false);
 
-  user_pref("pdfjs.forcePageColors", true);
-  user_pref("pdfjs.pageColorsBackground", "#000000");
-  user_pref("pdfjs.pageColorsForeground", "#ffffff");
+   //user_pref("pdfjs.forcePageColors", true);
+   //user_pref("pdfjs.pageColorsBackground", "#000000");
+   //user_pref("pdfjs.pageColorsForeground", "#ffffff");
 
   user_pref("layout.css.grid-template-masonry-value.enabled", true);
   user_pref("dom.enable_web_task_scheduling", true);
@@ -3040,7 +3207,7 @@ to get bash alias to eshell way
   user_pref("findbar.highlightAll", true);
 #+end_src
 
-*** brave
+*** COMMENT brave
 - Embrace the brave world
   It sets insane defaults and seems to be improved well over time. It has settings that I desire. Enough!
 #+begin_src nix :tangle gdk/home.nix
@@ -3058,7 +3225,7 @@ to get bash alias to eshell way
   }
 #+end_src
 
-*** COMMENT qutebrowser
+*** qutebrowser
 - Enought of waiting for nyxt. Qutebrowser seems mature, and ticks most of the boxes.
 
   #+begin_src nix :tangle gdk/home.nix :noweb yes
@@ -3081,11 +3248,7 @@ to get bash alias to eshell way
           })
           (pkgs.fetchurl {
             url = "https://update.greasyfork.org/scripts/30545/HTML5%E8%A7%86%E9%A2%91%E6%92%AD%E6%94%BE%E5%B7%A5%E5%85%B7.user.js";
-            sha256 = "sha256-znsDQ7wWXzhxvE0tM/OeOZrV03y1/MwfpmWrTfOXEh0=";
-          })
-          (pkgs.fetchurl {
-            url = "https://update.greasyfork.org/scripts/423851/Simple%20YouTube%20Age%20Restriction%20Bypass.user.js";
-            sha256 = "sha256-qifRTRJhiGPRzPgSt0uPEJ1NCEWA5V3nnM+fnrWFt5o=";
+            sha256 = "sha256-xyL+AaaQWTc0TIS8qNC8NttheTAr3bXEuT5hNMfFq/0=";
           })
           (pkgs.fetchurl {
             url = "https://adsbypasser.github.io/releases/adsbypasser.full.es7.user.js";
@@ -3097,7 +3260,7 @@ to get bash alias to eshell way
           })
           (pkgs.fetchurl {
             url = "https://codeberg.org/Amm0ni4/bypass-all-shortlinks-debloated/raw/branch/main/Bypass_All_Shortlinks.user.js";
-            sha256 = "sha256-dd33OqfDz5fhimldEi6MgVX84vvzB6KrrGMAhuyAQJc=";
+            sha256 = "sha256-vgmJxjlB92VjA5LIg1zo5H1p0I9nBxvmyBvT+aaf0Vk=";
           })
 
           (pkgs.writeText "redirect.user.js" ''
@@ -3124,7 +3287,7 @@ to get bash alias to eshell way
           nixpkgs = "https://search.nixos.org/packages?channel=unstable&from=0&size=10&sort=relevance&type=packages&query={}";
           nixopts = "https://search.nixos.org/options?channel=unstable&size=10&sort=relevance&type=packages&query={}";
           homeopts = "https://home-manager-options.extranix.com/?query={}&release=master";
-          reddit = "http://127.0.0.1:8080/r/{}";
+          reddit = "https://test.local:9999/r/{}";
         };
 
         settings = {
@@ -3146,6 +3309,7 @@ to get bash alias to eshell way
           content.private_browsing = true;
           content.webrtc_ip_handling_policy = "default-public-interface-only";
 
+    	  fonts.web.size.default = lib.mkForce 18;
 
           completion.height = "30%";
           completion.show = "always";
@@ -3537,38 +3701,38 @@ to get bash alias to eshell way
 - Redirect links to self-hosted or privacy alternative.
 #+name: qute-redirect
   #+begin_src js
-    // ==UserScript==
-    // @name Redirect Script
-    // @namespace https://example.com
-    // @version 1.0
-    // @description Redirects URLs by replacing values from config
-    // @match *://*/*
-    // @run-at document-start
-    // @grant none
-    // ==/UserScript==
+  // ==UserScript==
+  // @name Redirect Script
+  // @namespace https://example.com
+  // @version 1.0
+  // @description Redirects URLs by replacing values from config
+  // @match *://*/*
+  // @run-at document-start
+  // @grant none
+  // ==/UserScript==
 
-    (function() {
-        'use strict';
+  (function() {
+      'use strict';
 
-        var currentUrl = window.location.href;
-        var config = {
-    //      'from': 'to',
-            '^(?:https?://)(?:www.)?youtube.com/shorts/': 'https://yewtu.be/watch?v=',
-            '^(?:https?://)(?:www.)?youtube.com': 'https://yewtu.be',
-            '^(?:https?://)(?:www.)?reddit.com': 'http://127.0.0.1:8080',
-            '^(?:https?://)(?:www.)?old.reddit.com': 'https://libreddit.kavin.rocks',
-        };
-        
-        for (var oldValue in config) {
-            var newValue = config[oldValue];
-            var regex = new RegExp(oldValue, 'g');
-            currentUrl = currentUrl.replace(regex, newValue);
-        }
-        
-        if (currentUrl !== window.location.href) {
-            window.location.href = currentUrl;
-        }
-    })();
+      var currentUrl = window.location.href;
+      var config = {
+  //      'from': 'to',
+          '^(?:https?://)(?:www.)?youtube.com/shorts/': 'https://yewtu.be/watch?v=',
+          '^(?:https?://)(?:www.)?youtube.com': 'https://yewtu.be',
+          '^(?:https?://)(?:www.)?reddit.com': 'https://test.local:9999',
+          '^(?:https?://)(?:www.)?old.reddit.com': 'https://test.local:9999',
+      };
+      
+      for (var oldValue in config) {
+          var newValue = config[oldValue];
+          var regex = new RegExp(oldValue, 'g');
+          currentUrl = currentUrl.replace(regex, newValue);
+      }
+      
+      if (currentUrl !== window.location.href) {
+          window.location.href = currentUrl;
+      }
+  })();
   #+end_src
 
 *** Web
@@ -3582,7 +3746,7 @@ to get bash alias to eshell way
       :config (url-setup-privacy-info))
 
     (use-package shr :ensure nil :demand t
-      :custom (shr-bullet "⦿ "))
+      :custom (shr-bullet "⦿ ") (shr-width 100))
   #+end_src
 
 **** Eww
@@ -3798,22 +3962,35 @@ Pipewire setup, just these lines enough to make sane default for it
             N = "no-osd add contrast 4; no-osd add brightness -4; show-text 'Black Level: \${brightness}'";
             r = ''cycle-values video-rotate "90" "180" "270" "0"'';
             a = "vf toggle hflip";
+    		"Alt+x" = "script-binding select/menu";
+    		s = "cycle_values sub-ass-override force no";
+
           };
 
           config = {
-            sub-border-size = 4.0;
-            sub-shadow-color = "0.0/0.0/0.0";
-            sub-shadow-offset = 1;
             sub-auto = "fuzzy";
             msg-level = "all=error";
             ytdl-format = "bestvideo[height<1080]+bestaudio/best";
             # ytdl-format = "bestvideo";
             save-position-on-quit = true;
+    		keep-open = true;
+    		vo = "gpu-next";
+    		scale-antiring = "0.6";
+    		dither-depth = "8";
             slang = "eng,en,eng,english";
             alang = "jp,jpn,en,eng";
-            sub-font = lib.mkForce "Impress Bt";
-            sub-font-size = "48";
+            sub-font = lib.mkForce "Gandhi Sans";
+            sub-font-size = "50";
             speed = "1.5";
+    		sub-ass-override = "no";
+    		sub-ass-style-overrides = "playresx=1440,playresy=900,Kerning=yes";
+    		sub-color = "#FFFFFF";
+    		sub-margin-y = "40";
+    		sub-border-size = "2.4";
+    		sub-border-color = "#FF000000";
+    		sub-shadow-color = "#A0000000";
+    		sub-shadow-offset = "0.75";
+    		sub-bold = "yes";
           };
         };
       };
@@ -3964,7 +4141,7 @@ Pipewire setup, just these lines enough to make sane default for it
 - Note: This is written in =kdl= format
 
 #+begin_src conf :tangle ~/.config/niri/config.kdl
-  spawn-at-startup "sh" "-c" "dbus-update-activation-environment --systemd --all && systemctl --user reset-failed && systemctl --user stop niri-session.target && systemctl --user start niri-session.target"
+  //spawn-at-startup "sh" "-c" "dbus-update-activation-environment --systemd --all && systemctl --user reset-failed && systemctl --user stop niri-session.target && systemctl --user start niri-session.target"
   // Find the full list of options on the wiki:
   // https://github.com/YaLTeR/niri/wiki/Configuration:-Input
   input {
@@ -3976,9 +4153,9 @@ Pipewire setup, just these lines enough to make sane default for it
   		tap; dwt; natural-scroll; accel-speed 0.4
   	}
     mouse {
-      accel-profile "flat"
-      scroll-factor 0.5
-      scroll-method "no-scroll"
+  //    accel-profile "flat"
+    //  scroll-factor 0.5
+      //scroll-method "no-scroll"
     }
 
   	focus-follows-mouse max-scroll-amount="30%"
@@ -4014,16 +4191,18 @@ Pipewire setup, just these lines enough to make sane default for it
   output "HDMI-A-1" {
    //  mode "1920x1200"
    // mode "1600x1200"
-   scale 1
+  // scale 1
   }
 
   layout {
-  	gaps 5
+    gaps 5
+    center-focused-column "never"
     always-center-single-column
+    //default-column-display "tabbed"
 
-  	preset-column-widths { proportion 0.25; proportion 0.5; proportion 0.75; proportion 1.0; }
-    preset-window-heights { proportion 0.33333; proportion 0.5; proportion 0.66667; }
-    default-column-width { proportion 0.75; }
+    preset-column-widths { proportion 0.33333; proportion 0.5; proportion 0.66667; proportion 1.0; }
+    preset-window-heights { proportion 0.33333; proportion 0.5; proportion 0.66667; proportion 1.0; }
+    default-column-width { proportion 0.666; }
 
   	focus-ring {
   		width 1
@@ -4054,7 +4233,7 @@ Pipewire setup, just these lines enough to make sane default for it
   }
 
   window-rule {
-  	geometry-corner-radius 2
+  	geometry-corner-radius 10
   	clip-to-geometry true
     draw-border-with-background false
   }
@@ -4093,7 +4272,10 @@ Pipewire setup, just these lines enough to make sane default for it
       match app-id="xdg-desktop-portal-gtk"
       match app-id="blueman"
       match app-id="emacs" title="d-write"
+  	match app-id="mpv" title="webcam"
       default-window-height { fixed 500; }
+  	geometry-corner-radius 15
+  	border { on; width 1; inactive-gradient from="#00ffff" to="#d1eeee" angle=45 relative-to="workspace-view" in="srgb-linear"; }
       open-floating true
   }
 
@@ -4107,6 +4289,11 @@ Pipewire setup, just these lines enough to make sane default for it
   layer-rule {
       match namespace="^wallpaper$"
       place-within-backdrop true
+  }
+
+  layer-rule {
+  	match namespace="^rofi$"
+  	block-out-from "screen-capture"
   }
 
   // Indicate screencasted windows with red colors.
@@ -4142,7 +4329,6 @@ Pipewire setup, just these lines enough to make sane default for it
   	Mod+Return { spawn "footclient"; }
   	Mod+D { spawn "rofi" "-show" "drun"; }
   	Mod+X {spawn "d-power"; }
-    Mod+R { spawn "d-hist"; }
   	Mod+Y {spawn "d-clip"; }
   	Mod+W {spawn "d-urls"; }
   	Mod+Shift+B {spawn "d-bookmark"; }
@@ -4155,8 +4341,8 @@ Pipewire setup, just these lines enough to make sane default for it
     Mod+Shift+T {spawn "sh" "-c" "swaync-client -t"; }
     Mod+E {spawn "sh" "-c" "emacsclient -e '(d/write-here)'"; }
 
-  	Mod+Ctrl+Equal { spawn "niri" "msg" "output" "eDP-1" "scale" "2"; }
-  	Mod+Ctrl+Minus { spawn "niri" "msg" "output" "eDP-1" "scale" "1"; }
+  	Mod+Ctrl+Equal { spawn "niri" "msg" "output" "eDP-1" "on"; }
+  	Mod+Ctrl+Minus { spawn "niri" "msg" "output" "eDP-1" "off"; }
 
   	// The allow-when-locked=true property makes them work even when the session is locked.
   	XF86AudioRaiseVolume allow-when-locked=true { spawn "d-ctrl" "volume" "up"; }
@@ -4244,9 +4430,9 @@ Pipewire setup, just these lines enough to make sane default for it
   	Mod+BracketLeft  { consume-or-expel-window-left; }
   	Mod+BracketRight { consume-or-expel-window-right; }
 
-    //Mod+R { switch-preset-column-width; }
-    //Mod+Shift+R { switch-preset-window-height; }
-    //Mod+Ctrl+R { reset-window-height; }
+    Mod+R { switch-preset-column-width; }
+    Mod+Shift+R { switch-preset-window-height; }
+    Mod+Ctrl+R { reset-window-height; }
     Mod+F { maximize-column; }
     Mod+Shift+F { fullscreen-window; }
     Mod+C { center-column; }
@@ -4266,8 +4452,8 @@ Pipewire setup, just these lines enough to make sane default for it
 
   	// Powers off the monitors. To turn them back on, do any input like
   	// moving the mouse or pressing any other key.
-  	Mod+Ctrl+P { spawn "sh" "-c" "systemctl suspend"; }
-  	Mod+Ctrl+L { spawn "sh" "-c" "hyprlock & niri msg action power-off-monitors" ; }
+  	Mod+Ctrl+P allow-when-locked=true { spawn "sh" "-c" "systemctl suspend"; }
+  	Mod+Ctrl+L allow-when-locked=true { spawn "sh" "-c" "hyprlock & niri msg action power-off-monitors" ; }
   }
 
 #+end_src
@@ -4316,8 +4502,7 @@ Pipewire setup, just these lines enough to make sane default for it
     {
       home.packages = with pkgs; [
         # screenshot
-        # grim slurp
-        grimblast
+        grim slurp nautilus
 
         libnotify libsixel
         brightnessctl
@@ -4369,8 +4554,8 @@ Pipewire setup, just these lines enough to make sane default for it
             }
             {
               timeout = timeout + 10;
-              on-timeout = "${niri} msg action power-off-monitors || ${pkgs.hyprland}/bin/hyprctl dispatch dpms off";
-              on-resume = "${pkgs.hyprland}/bin/hyprctl dispatch dpms on";
+              on-timeout = "${niri} msg action power-off-monitors";
+              on-resume = "${niri} msg action power-on-monitors";
             }
             {
               timeout = timeout * 5;
@@ -4703,10 +4888,10 @@ Pipewire setup, just these lines enough to make sane default for it
     ;; Dont worry about the font name, I use fork of Iosevka font
 
     ;; Set reusable font name variables
-    (defcustom d/fixed-pitch-font (if d/on-droid "BlexMono Nerd Font" "BlexMono Nerd Font")
+    (defcustom d/fixed-pitch-font (if d/on-droid "IBM Plex Mono" "Maple Mono NF")
       "The font to use for monospaced (fixed width) text.")
 
-    (defcustom d/variable-pitch-font (if d/on-droid "IBM Plex Serif" "IBM Plex Serif")
+    (defcustom d/variable-pitch-font (if d/on-droid "IBM Plex Serif" "Inter")
       "The font to use for variable-pitch (documents) text.")
   #+end_src
 
@@ -4774,20 +4959,11 @@ Pipewire setup, just these lines enough to make sane default for it
         fonts = let
           dpkg = (pkgs.callPackage ./pkgs/code-d-font.nix {});
 
-          # mpkg = pkgs.nerd-fonts.iosevka-term;
-          # spkg = (pkgs.iosevka-bin.override { variant = "Aile"; });
-
-          oppkg = pkgs.nerd-fonts._0xproto;
-          orpkg = pkgs._0xpropo;
           plexpkg = pkgs.ibm-plex;
-          blexpkg = pkgs.nerd-fonts.blex-mono;
           ipkg = pkgs.inter;
 
           mpkg = pkgs.maple-mono.NF;
           apkg = pkgs.aporetic-bin;
-
-          # atnpkg = pkgs.atkinson-hyperlegible-next;
-          # atmpkg = pkgs.atkinson-hyperlegible-mono;
 
         in {
           serif = {
@@ -4796,13 +4972,13 @@ Pipewire setup, just these lines enough to make sane default for it
           };
 
           sansSerif = {
-            package = plexpkg;
-            name = "IBM Plex Sans";
+            package = ipkg;
+            name = "Inter";
           };
 
           monospace = {
-            package = blexpkg;
-            name = "BlexMono Nerd Font";
+            package = mpkg;
+            name = "Maple Mono NF";
           };
 
           emoji = {
@@ -4923,7 +5099,13 @@ Pipewire setup, just these lines enough to make sane default for it
 
        (cursor      "#00ffff")
 
-       (bg-tab-bar        bg-main)
+       (fg-heading-1  "#ab82ff")
+       (fg-heading-2  "#fab387")
+       (mail-subject  "#6ae4b9")
+   
+       (bg-completion "#2e8b57") (bg-region     bg-completion) (fg-region unspecified)
+
+       (bg-tab-bar bg-main) (bg-tab-current bg-active) (bg-tab-other bg-dim)
        (fringe unspecified)
        (bg-mode-line-active bg-dim)
        (bg-line-number-active  bg-main) (bg-line-number-inactive  bg-main)
@@ -4933,7 +5115,6 @@ Pipewire setup, just these lines enough to make sane default for it
 
     :config
     (load-theme 'modus-vivendi t))
-
 #+end_src
 
 
@@ -4941,26 +5122,10 @@ Pipewire setup, just these lines enough to make sane default for it
 *** mode-line
 - Mode-line-format
 #+begin_src emacs-lisp
-  (setopt
-   ml-separator "|"
-   mode-line-format
-   '("%e"
-     mode-line-front-space mode-line-modified
-     ;; mode-line-remote
-     mode-line-window-dedicated
-     "  "
-     mode-line-frame-identification mode-line-buffer-identification
-     "    "
-     mode-line-position mode-line-format-right-align
-     (project-mode-line project-mode-line-format)
-     (vc-mode vc-mode)
-     "  " mode-name "  "
-     ;; "  " mode-line-modes
-     mode-line-misc-info))
-
-  (setopt mode-line-position-column-line-format '("%l:%c"))
-  (setopt mode-line-position-line-format '("L%l"))
-  (setopt mode-line-right-align-edge 'window)
+  (setq-default
+   d/mode-line-format mode-line-format
+   ;; mode-line-format nil
+   )
 
   ;; credits minad in reddit
   (defmacro +diminish (mode)
@@ -4971,20 +5136,21 @@ Pipewire setup, just these lines enough to make sane default for it
 
 - To toggle mode-line on and off.
   #+begin_src emacs-lisp
-    (use-package d/toggle-bar :ensure nil :no-require t
-      :bind ([f9] . d/toggle-bar-mode)
+    (use-package d/hide-mode-line :ensure nil :no-require t
+      :bind ([f9] . d/hide-mode-line-mode)
       :init
-      (define-minor-mode d/toggle-bar-mode
+      (define-minor-mode d/hide-mode-line-mode
         "The void space to hide mode-line."
         :lighter "Vanish" :init-value nil
         (setq mode-line-format
-              (if d/toggle-bar-mode
+              (if d/hide-mode-line-mode
                   nil
-                (default-value 'mode-line-format)))
-        ;; (toggle-frame-tab-bar)
+    			;; d/mode-line-format
+    			(default-value 'mode-line-format)
+    			))
         (redraw-display))
-      :hook
-      (help-mode nov-mode))
+      :hook (help-mode nov-mode)
+      )
   #+end_src
 
 *** olivetti center mode
@@ -5364,22 +5530,9 @@ Pipewire setup, just these lines enough to make sane default for it
   #+end_src
 
 **** clip in emacs
-- Clipboard support in wayland using ~wl-clipboard~, especially for terminal use case.
-- Credits to @yorichvP for github gist.
 
   #+begin_src emacs-lisp
-    ;; credit: yorickvP on Github
-    (defun wl-copy (text)
-      (let ((p (make-process :name "wl-copy"
-                             :command '("wl-copy")
-                             :connection-type 'pipe)))
-        (process-send-string p text)
-        (process-send-eof p)))
-
-    (unless d/on-droid
-      (setq interprogram-cut-function 'wl-copy)
-      )
-
+    (setopt xterm-extra-capabilities '(getSelection setSelection modifyOtherKeys))
   #+end_src
 
 *** COMMENT games
@@ -5584,7 +5737,7 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
     :END:
     %i"
           ;; :clock-in t :clock-resume t
-          :empty-lines 1)
+          :empty-lines 1 :empty-lines-after 3)
 
          ("t" "Tasks for the Day" checkitem
           (file+olp+datetree "d-brain.org")
@@ -5809,11 +5962,6 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
       :hook org-mode
       :bind ("M-$". jinx-correct))
   #+end_src
-
-**** quick-sdcv dictionary
-#+begin_src emacs-lisp
-  (use-package quick-sdcv :unless d/on-droid )
-#+end_src
 
 **** Vocab
 - to use language-tool for corrections over grammar and vocabulary

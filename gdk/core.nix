@@ -6,6 +6,17 @@
 
   imports = [
 
+  {
+    home-manager = {
+      useUserPackages = true;
+      useGlobalPkgs = true;
+      extraSpecialArgs = {
+        inherit inputs vars;
+      };
+      users.${vars.username} = import ./home.nix;
+    };
+  }
+
 {
   boot = {
     # Uses bleeding edge latest kernel.

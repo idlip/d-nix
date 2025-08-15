@@ -1,9 +1,0 @@
-@import				 "config.rasi"
-window {
-width:                       85%;
-height:			     80%;
-}
-listview {
-columns:                     1;
-lines:                       22;
-}

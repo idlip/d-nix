@@ -1,14 +1,3 @@
-;; -*- lexical-binding: t; -*-
-
-(setopt
- display-time-24hr-format t
- display-time-default-load-average nil
- display-time-format "%H:%M")
-(display-time-mode 1)
-
-(setopt battery-load-low '40 battery-load-critical '29)
-(display-battery-mode 1)
-
 (bind-keys ("C-z") ("C-x C-z") ("M-o" . other-window) ("M-j" . duplicate-dwim) )
 
 (setopt
@@ -32,6 +21,17 @@
 (delete-selection-mode 1) (indent-tabs-mode -1)
 (global-so-long-mode 1)
 (with-current-buffer "*scratch*" (emacs-lock-mode 'kill))
+
+;; -*- lexical-binding: t; -*-
+
+(setopt
+ display-time-24hr-format t
+ display-time-default-load-average nil
+ display-time-format "%H:%M")
+(display-time-mode 1)
+
+(setopt battery-load-low '40 battery-load-critical '29)
+(display-battery-mode 1)
 
 (setopt
  kill-ring-max 30000
@@ -60,7 +60,7 @@
  view-read-only t
  custom-file (expand-file-name "custom.el" user-emacs-directory)
  safe-local-variable-directories
- '("/home/idlip/d-sync/notes/" "/home/idlip/d-sync/projects/lnrna-tool/")
+ '("/home/idlip/d-sync/notes/")
  create-lockfiles nil
  backup-directory-alist '(("." . "~/.config/emacs/backups"))
  version-control t 
@@ -285,6 +285,23 @@
 (with-eval-after-load 'zone
   (zone-when-idle (* 60 5)))
 
+;; access phone storage as default
+;; Better is to symlink file to ~/ itself
+
+;;(setq default-directory "/storage/emulated/0/")
+
+(when d/on-droid
+  (custom-set-variables
+   '(touch-screen-precision-scroll t)
+   '(touch-screen-display-keyboard t)
+   '(browse-url-android-share t)
+   '(touch-screen-enable-hscroll nil "Avoid horizontal scroll that stutters"))
+
+  ;; credits to https://github.com/danijelcamdzic/dotemacs/
+  (setq display-buffer-alist
+        '((".*" (display-buffer-same-window) (inhibit-same-window . nil))))
+  )
+
 (use-package info :ensure nil
   :config
   (add-to-list 'Info-additional-directory-list "~/learn/info-manuals/"))
@@ -334,6 +351,7 @@
 
 (setq comint-pager "cat")
 (setenv "MANPAGER" "cat")
+(setopt xterm-extra-capabilities '(getSelection setSelection modifyOtherKeys))
 
 (use-package python :ensure nil
   :bind (:map python-mode-map ("C-c C-d" . devdocs-browser-open))
@@ -878,23 +896,6 @@ images."
     (next-line)
     ))
 
-;; access phone storage as default
-;; Better is to symlink file to ~/ itself
-
-;;(setq default-directory "/storage/emulated/0/")
-
-(when d/on-droid
-  (custom-set-variables
-   '(touch-screen-precision-scroll t)
-   '(touch-screen-display-keyboard t)
-   '(browse-url-android-share t)
-   '(touch-screen-enable-hscroll nil "Avoid horizontal scroll that stutters"))
-
-  ;; credits to https://github.com/danijelcamdzic/dotemacs/
-  (setq display-buffer-alist
-        '((".*" (display-buffer-same-window) (inhibit-same-window . nil))))
-  )
-
 (defcustom d/font-size (if d/on-droid 170 120)
   "Default font size based on the system.")
 
@@ -994,7 +995,7 @@ images."
   (proced-sort 'pmem)
   (proced-auto-update-flag t))
 
-(setopt xterm-extra-capabilities '(getSelection setSelection modifyOtherKeys))
+
 
 (use-package org :ensure nil :defer t
   :hook

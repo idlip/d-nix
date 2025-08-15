@@ -1,11 +1,11 @@
 #
-# This file is auto-generated from "README.org"
+# This file is auto-generated from "d-setup.org"
 #
 {
   description = "Nix Organized with Emacs";
 
   inputs = {
-    # Change it to stable, if you want stable channel (23.05)
+    # Change it to stable, if you want stable channel (26.05)
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     # Home to manage all user configs
@@ -24,7 +24,6 @@
 
     emacs-overlay = {
       url = "github:nix-community/emacs-overlay";
-      # inputs.nixpkgs.follows = "nixpkgs";
     };
 
     stylix = {
@@ -40,9 +39,17 @@
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.x86_64-linux;
 
-      vars = {
-        username = "idlip";
-        editor = "emacs";
+	  hostVars = {
+        gdk = {
+		  host = "gdk";
+          username = "idlip";
+          editor = "emacs";
+        };
+        foss = {
+		  host = "foss";
+          username = "dev";
+          editor = "emacs";
+        };
       };
     in
       {
@@ -56,28 +63,32 @@
         };
 
         nixosConfigurations = {
-          gdk = nixpkgs.lib.nixosSystem {
-            system = "x86_64-linux";
+          ${hostVars.gdk.host} = nixpkgs.lib.nixosSystem {
+            system = system;
             modules = [
-              ./gdk/core.nix
+              ./${hostVars.gdk.host}/core.nix
               inputs.home-manager.nixosModules.home-manager
-              {
-                home-manager = {
-                  useUserPackages = true;
-                  useGlobalPkgs = true;
-                  extraSpecialArgs = {
-                    inherit inputs vars;
-                  };
-                  users.${vars.username} = import ./gdk/home.nix;
-                };
-              }
+              nix-index-database.nixosModules.nix-index
+		      stylix.nixosModules.stylix
+              ];
+            specialArgs = {
+			  inherit inputs system;
+              vars = hostVars.gdk;
+            };
+          };
+
+		  ${hostVars.foss.host} = nixpkgs.lib.nixosSystem {
+			system = system;
+			modules = [
+              ./${hostVars.foss.host}/core.nix
+              inputs.home-manager.nixosModules.home-manager
               nix-index-database.nixosModules.nix-index
               stylix.nixosModules.stylix
-            ];
-            specialArgs = {
-              inherit inputs;
-              inherit vars system;
-            };
+			];
+			specialArgs = {
+              inherit inputs system;
+              vars = hostVars.foss;
+			};
           };
         };
       };

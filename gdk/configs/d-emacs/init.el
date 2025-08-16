@@ -1,3 +1,14 @@
+;; -*- lexical-binding: t; -*-
+
+(setopt
+ display-time-24hr-format t
+ display-time-default-load-average nil
+ display-time-format "%H:%M")
+(display-time-mode 1)
+
+(setopt battery-load-low '40 battery-load-critical '29)
+(display-battery-mode 1)
+
 (bind-keys ("C-z") ("C-x C-z") ("M-o" . other-window) ("M-j" . duplicate-dwim) )
 
 (setopt
@@ -21,17 +32,6 @@
 (delete-selection-mode 1) (indent-tabs-mode -1)
 (global-so-long-mode 1)
 (with-current-buffer "*scratch*" (emacs-lock-mode 'kill))
-
-;; -*- lexical-binding: t; -*-
-
-(setopt
- display-time-24hr-format t
- display-time-default-load-average nil
- display-time-format "%H:%M")
-(display-time-mode 1)
-
-(setopt battery-load-low '40 battery-load-critical '29)
-(display-battery-mode 1)
 
 (setopt
  kill-ring-max 30000
@@ -251,6 +251,463 @@
 (use-package tempel :hook (prog-mode . tempel-abbrev-mode)
   :bind (("M-+" . tempel-complete) ("M-*" . tempel-insert)))
 
+;; Refer: `tempo-define-template' for doc.
+;;  • (s NAME) Inserts a named field.
+;;  • (p/r PROMPT <NAME> <NOINSERT>) Insert an optionally named field with a prompt. The PROMPT is
+;;  displayed directly in the buffer as default value. If NOINSERT is non-nil, no field is inserted.
+;;  Then the minibuffer is used for prompting and the value is bound to NAME.
+
+nix-mode
+nix-ts-mode
+
+(buildphase > "buildPhase= ''" n (p "Build Instructions") n " '';")
+(checkPhase > "checkPhase= ''" n (p "") n " '';")
+(configurephase > "configurePhase= ''" n (p "") n " '';")
+(fixupphase > "fixupPhase= ''" n (p "") n " '';")
+(distphase > "distPhase= ''" n (p "") n " '';")
+(patchphase > "patchPhase= ''" n (p "") n " '';")
+(unpackphase > "unpackPhase= ''" n (p "") n " '';")
+(installCheckPhasephase > "installCheckPhasePhase= ''" n (p "") n " '';")
+(installphase > "installphase= ''" n p " mkdir -p $out/bin" n> "for f in $(find . -executable -type f);" n> "do" n> "cp $f $out/bin" n> "done}" n> " '';")
+
+(hmpkgs "{" n> "home.packages = with pkgs; [" n> (r "pkgnames") n> n> "];" n> "}")
+
+(gitpackage "{ lib" n ", stdenv" n ", fetchFromGitHub" n ", " (p "inputs") n ", " (p "inputs") n "}:" n n>
+            "stdenv.mkDerivation rec {" n> "pname = \"" (p "" pkgn nil) "\";" n> "version = \"" p "\";" n n>
+      "src = fetchFromGitHub {" n> "owner = \"" (p "" own) "\";" n> "repo = \"" (s pkgn) "\";" n>
+      "rev = \"" "v${version}" "\";" n> "sha256 = \"" "${lib.fakeSha256}" "\";" n> "};" n n>
+      "nativeBuildInputs = [ " (p "makeWrapper") " ];" n n> "BuildInputs = [ " (p) " ];" n n>
+      "meta = with lib; {" n>
+      "homepage = \"" "https://github.com/" (s own) "/" (s pkgn) "\";" n>
+      "description = \"" (p) "\";" n>
+      "license = licenses." (p (completing-read "License: " '("agpl3" "asl20" "bsd1" "bsd2" "bsd3" "free" "gpl2" "gpl2Only" "gpl2Plus" "gpl3" "gpl3Only" "gpl3Plus" "isc" "lgpl21Only" "lgpl21Plus" "lgpl2Only" "lgpl2Plus" "lgpl3" "lgpl3Only" "mit" "mpl20" "ofl" "unfree"))) ";" n>
+      "maintainers = with maintainers; [ " (s own) " ];" n>
+      "platforms = platforms."
+      (p (completing-read "Platform: " '("all" "allBut" "arm" "cygwin" "darwin" "freebsd" "gnu" "i686" "illumos" "linux" "mesaPlatforms" "mips" "netbsd" "none" "openbsd" "unix" "x86"))) ";" n> q "};" n> "}"
+      )
+
+(shellnix "with import <nixpkgs> {};" n>
+          "pkgs.mkShell {" n n>
+          "nativeBuildInputs = [ pkgs.bashInteractive ];" n n>
+          "# EnvVars = The thung" n
+          "# NIX_LD_LIBRARY_PATH = lib.makeLibraryPath [" n>
+          "# pkgs" n> "# ];" n>
+          "# NIX_LD = lib.fileContents \"${stdenv.cc}/nix-support/dynamic-linker\";" n n>
+          "buildInputs = with pkgs; [" n>
+          (p "pkgs names") n n>
+          "];" n n>
+          "shellHook = ''" n>
+          (p "Command to Run") n>
+          "'';" n
+          "}"
+          )
+
+org-mode
+
+(hugosite ":PROPERTIES:"  n ":EXPORT_FILE_NAME: " (p "simple-name") n ":EXPORT_DATE: " (format-time-string "%Y-%m-%d") n ":EXPORT_HUGO_DRAFT: false" n ":END:")
+(readonly ":tangle-mode (identity #o444) :mkdirp yes" n)
+(variablweb "  #+name: " (p "noweb-ref") n "#+begin_src " p n> r> n> "#+end_src" :post (org-edit-src-code))
+(gitcollapse  "*** " p n "#+begin_html" n "<details>" n "<summary> " (p "heading")  " </summary>" n "#+end_html" n (p "link or any comments") n n "#+begin_html" n "</details>" n "#+end_html" n n)
+
+(eval n> "#+name: " (p "name" fname) n> "#+begin_src " (p "C++" lang) n> r n> "#+end_src" :post (org-edit-src-code))
+
+(pyeval n "  #+name: " (p "name" fname) n "#+begin_src python :tangle ./codes/python/"
+        (s fname) ".py " n> r> n> "#+end_src" :post (org-edit-src-code))
+
+(reval n "  #+name: " (p "name" fname) n "#+begin_src R :tangle ./codes/rstats/"
+       (s fname) ".R " n> r> n> "#+end_src" :post (org-edit-src-code))
+
+(jleval n "  #+name: " (p "name" fname) n "#+begin_src julia :tangle ./codes/"
+        (s fname) ".jl " n> r> n> "#+end_src" :post (org-edit-src-code))
+
+(labmanual "* " p n
+           "** Introduction" n p n
+           "** Aim and Objective" n n
+           "** Procedure" n n
+           "** Results" n n
+           "** Conclusion" n n
+           )
+
+(latimg n "#+CAPTION: " p n
+        "#+ATTR_LATEX: :height :float nil" n
+        :post (org-insert-link))
+
+(htmlimg n "#+caption: " p n
+         "#+attr_html: :width 70%" n
+         :post (org-insert-link))
+
+(elisp "  #+name: " (p "name") n "#+begin_src emacs-lisp" n n "#+end_src" :post (org-edit-src-code))
+
+(blogorg "#+title: " (p "title") n
+         "#+date: [" (format-time-string "%Y-%m-%d %a") "]")
+
+(contact
+ (r "Person Name") n
+ ":PROPERTIES: " n
+ ":EMAIL: " p n
+ ":URL: " p n
+ ":MOBILE: " p n
+ ":WORKPHONE: " n
+ ":COMPANY: " n
+ ":CITY: " p n
+ ":BIRTHDAY: " p n
+ ":ICON:" n
+ ":ADDRESS:" n
+ ":ITOLDTHEM_EMAIL: " n
+ ":ITOLDTHEM_ADDRESS: " n
+ ":ITOLDTHEM_PHONE: " n
+ ":IGNORE: " n
+ ":CREATED: " (format-time-string "[%Y-%m-%d %a %H:%M]") n
+ ":END:" n
+ )
+
+(readlist
+ (r "Book/Content") n
+ ":PROPERTIES: " n
+ ":AUTHOR: " n
+ ":YEAR: " n
+ ":PROS: " n
+ ":LINK: " p n
+ ":ID: " (org-id-new) n
+ ":END:" n
+  )
+
+(pdforg
+ "#+title: " p n
+ "#+author: " p n
+ "#+options: toc:nil num:nil" n
+ "#+date: " (format-time-string "%Y-%m-%d") nnn
+ "* Introduction" n p)
+
+
+(shbin
+ "#+begin_src sh :shebang \"#!/usr/bin/env bash\" :tangle bin/" p
+ n n
+ "#+end_src"
+ :post (org-edit-src-code))
+
+(revjs n
+"#+title: " p n
+"#+author: " p n
+"#+reveal_miscinfo: " p n n
+"#+REVEAL_ROOT: /home/idlip/learn/revjs/" n
+"#+OPTIONS: reveal_width:1920 reveal_height:1200" n
+"#+OPTIONS: toc:nil num:nil" n
+"#+REVEAL_MIN_SCALE: 0.2" n
+"#+REVEAL_MAX_SCALE: 1.0" n
+"#+OPTIONS: reveal_progress:nil" n
+"#+REVEAL_EXTRA_OPTIONS: navigationMode: 'linear', controls: false" n
+"#+REVEAL_MARGIN: 0.1" n
+"#+REVEAL_THEME: white" n
+"#+REVEAL_TRANS: none" n
+"#+reveal_single_file: t" n
+"#+EXCLUDE_TAGS: noexport" n
+"#+reveal_extra_css: ./local.scss" n n p
+)
+
+markdown-mode
+
+(gitcollapse "## " (p "Heading") n n "<details>" n n
+       "<summary>" (p "Sub Heading")  "</summary>" n n
+       (r "Insert Link or comments") n n "</details>")
+(bolditalics "***" p "***")
+
+(androidfoss "* [**" (p "pname") "**](" (p "Git") ") <sup>**[[F-Droid](" (p "Fdroid") ")]**</sup>")
+
+(srcblock (call-interactively #'markdown-insert-gfm-code-block))
+(src "'" p "'")
+(unorderlist "- " (p "First") n> "- " (p "Second") n> "- " (p "Third"))
+(orderlist "1. " (p "First") n> "2. " (p "Second") n> "3. " (p "Third"))
+(insertimage (call-interactively #'markdown-insert-image))
+(insertlink (call-interactively #'markdown-insert-link))
+(hugotitle "+++" n "title = " (p "title") n "date = " (format-time-string "%Y-%m-%d") n "tags = [ " (p "tag1, tag2 ") "]" n "draft = false" n "+++")
+(h1 "# " p " #")
+(h2 "## " p " ##")
+(h3 "### " p " ###")
+(h4 "#### " p " ####")
+(inserttable (call-interactively #'markdown-insert-table))
+
+emacs-lisp-mode
+
+(modconfig ";;; " (c-get-current-file) ".el --- " (p "description") " -*- lexical-binding: t -*-" n
+           ";;; Commentary:" n n ";;; Code:" n n n r> n n "(provide '" (c-get-current-file) ".el)" n ";;; " (c-get-current-file) ".el ends here" )
+(autoload ";;;###autoload")
+(lambda "(lambda (" p ")" n> r> ")")
+(defvar "(defvar " p "\n  \"" p "\")")
+(defvar-local "(defvar-local " p "\n  \"" p "\")")
+(const "(defconst " p "\n  \"" p "\")")
+(custom "(defcustom " p "\n  \"" p "\"" n> ":type '" p ")")
+(defface "(defface " p " '((t :inherit " p "))\n  \"" p "\")")
+(defgroup "(defgroup " p " nil\n  \"" p "\"" n> ":group '" p n> ":prefix \"" p "-\")")
+(defmacro "(defmacro " p " (" p ")\n  \"" p "\"" n> r> ")")
+(defalias "(defalias '" p " '" p ")")
+(defun "(defun " p " (" p ")\n  \"" p "\"" n> r> ")")
+(defcustom "(defun " p " (" p ")\n  \"" p "\"" n> "(interactive" p ")" n> r> ")")
+(if-let "(if-let (" p ")" n> r> ")")
+(when-let "(when-let (" p ")" n> r> ")")
+(if-let* "(if-let* (" p ")" n> r> ")")
+(when-let* "(when-let* (" p ")" n> r> ")")
+(cond "(cond" n "(" q "))" >)
+(pcase "(pcase " p n "(" q "))" >)
+(let "(let (" p ")" n> r> ")")
+(let* "(let* (" p ")" n> r> ")")
+(dotimes "(dotimes (" p ")" n> r> ")")
+(dolist "(dolist (" p ")" n> r> ")")
+(obsolete-fun "(define-obsolete-function-alias" n> p n> p n> "\"" p "\")")
+(obsolete-var "(define-obsolete-function-alias" n> p n> p n> "\"" p "\")")
+
+(feeds "(\"" (p "label") "\" \"" (p "url") "\" starttime)")
+
+python-ts-mode python-mode
+
+(if "if " p ":" p % "else:" n> p)
+
+;; https://issues.genenetwork.org/topics/using-pdb-to-troubleshoot.html
+(post-mortem "try:" n> "return " p n> "except Exception:" n> "import pdb; pdb.post_mortem()")
+
+;; subprocess
+;; https://realpython.com/python-subprocess/
+(subprocess-su "subprocess.run([\"ls\", \"-l\", \"/dev/null\"], capture_output=True)")
+(subprocess-sl "subprocess.run([" p "])")
+(subprocess-sc "completed_process = subprocess.run(" n> "[" p "]," n> "check=True" n ")")
+(subprocess-so "subprocess.run(["python", "timer.py", "5"], timeout=1)")
+(subprocess-st "subprocess.run([\"ls /usr/bin | grep pycode\"], shell=True)")
+
+;; json
+(json-w "with open(\"data_file.json\", \"w\") as write_file:" n> "json.dump(data, write_file)")
+(json-r "with open(\"data_file.json\", \"r\") as read_file:" n> "data = json.load(read_file)")
+(json-get-loads "response = requests.get(\"https://jsonplaceholder.typicode.com/todos\")"
+    n
+    "todos = json.loads(response.text)")
+
+;; pathlib
+(pc "pathlib.Path.cwd()")
+(ph "pathlib.Path.home() / 'python' / 'scripts' / 'test.py'")
+
+(type "type(" p ")")
+(list "list(" p ")")
+(len "len(" p ")")
+(str "str(" p ")")
+(dir "dir(" p ")")
+
+;; files
+(withopen-read "with open('data.txt', 'r') as f:" n> "data = f.read()")
+(withopen-write "with open('data.txt', 'w') as f:" n> "data = 'some data to be written to the file'" n> "f.write(data)")
+
+(init "def __init__(self, " p "):")
+
+(al "__all__ = [" n> p n "]")
+
+(pa "parser.add_argument(")
+
+;; types
+(typing-union " Union[" p ", " p "]:")
+(typing-optional " -> Optional[" p "]:" n>)
+(typing-sequence " Sequence[" p "]")
+(typing-string " -> str:" n>)
+(typing-int " -> int:" n>)
+(typing-typevar "T = TypeVar('T')" n)
+
+(asserts "assert " p)
+
+(shebang "#!/usr/bin/env python")
+
+(classmethod "@classmethod" n "def " p "(cls, " p "):" n>)
+
+(class "class " p ":" n>)
+(class-pass "class " p ":" n> "pass")
+(class-employee "class Employee:" n> "def __init__(self, id, name):" n> "self.id = id" n> "self.name = name")
+(class-rectangle "class Rectangle:" n>
+                 "def __init__(self, length, height):" n>
+                 "self._length = length" n> "self._height = height" n> n
+                 "@property" n>
+                 "def area(self):" n>
+                 "return self._length * self._height" n> n
+                 "def resize(self, new_length, new_height):" n>
+                 "self._length = new_length" n>
+                 "self._height = new_height" n>)
+
+
+(dataclass "@dataclass" n> "class " p ":" n>)
+
+
+(main "if __name__ == '__main__':" n> "main()")
+
+(lambda "lambda " p ": "  p)
+
+;; comprehensions
+
+(list-comprehension-fruits "fruits = []"
+    n
+    "newlist = [x for x in fruits if "a" in x]")
+
+(list-comprehension-in "[ " p "for " p " in " p "]")
+(list-comprehension-squares "squares = [i * i for i in range(" p ")]")
+(list-comprehension-sentence "sentence = 'the rocket came back from mars'"
+    n
+    "vowels = [i for i in sentence if i in 'aeiou']")
+(lp "original_prices = [1.25, -9.45, 10.22, 3.78, -5.92, 1.16]"
+    n
+    "prices = [i if i > 0 else 0 for i in original_prices]")
+
+(ld "quote = 'life, uh, finds a way'"
+    n
+    "unique_vowels = {i for i in quote if i in 'aeiou'}")
+(lds "squares = {i: i * i for i in range(10)}")
+
+;; debugging
+(lo "logger = logging.getLogger(" p ")")
+(b "breakpoint()")
+(in "import code; code.interact(local=locals())")
+(pu "from pudb import set_trace; set_trace()")
+
+;; is this one really useful?
+(r "return " p)
+(s "self." p)
+(se "self." p " = " p)
+
+;; docstrings
+(docstring-google "\"\"\"" p n "Args:" n> p "Returns:" n "\"\"\"")
+(docstring-module "\"\"\"" p n "\"\"\"")
+
+;; regex
+(regex-split-word "re.split(r'\W+', " p)
+(regex-split-word-one "re.split(r'\W+', " p ", 1)")
+(regex-split-ignorecase "re.split('[a-f]+', " p "flags=re.IGNORECASE)")
+
+;; isinstance
+(isinstance-bytes "if isinstance(line, bytes):" n>)
+
+;; dicts
+(dicts-print "dictionary = {\"raj\": 2, \"striver\": 3, \"vikram\": 4}"
+    n
+    "print(dictionary.values())")
+
+;; pytest
+(pytest-fixture "@pytest.fixture(params=TERMS_LIST)" n
+     "def poly(request):" n>
+     "return Polynomial(request.param)")
+
+;; mocking
+(mock-return "mock = Mock()" n "mock.__str__ = Mock(return_value='wheeeeee')")
+
+;; numpy
+
+;; csv
+
+(csv "import csv" n
+     "with open('eggs.csv', newline='') as csvfile:" n>
+     "spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')" n>
+     "for row in spamreader:" n>
+     "print(', '.join(row))")
+
+;; sets
+
+;; scipy
+
+;; urllib
+(ul "from urllib.request import urlopen" n
+    "with urlopen('http://worldtimeapi.org/api/timezone/etc/UTC.txt') as response:" n>
+    "for line in response:" n>
+    "line = line.decode()             # Convert bytes to a str" n>
+    "if line.startswith('datetime'):" n>
+    "print(line.rstrip()) ")
+
+;; datetime
+(now "now = date.today()")
+(nstf "now.strftime(\"%m-%d-%y. %d %b %Y is a %A on the %d day of %B.\")")
+
+;; sqlite
+(sqlite-connect "con = sqlite3.connect('example.db')")
+(sqlite-create "cur = con.cursor()" n
+     "cur.execute('''CREATE TABLE stocks (date text, trans text, symbol text, qty real, price real)''')" n
+     "cur.execute(\"INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14)\")" n
+     "con.commit()" n
+     "con.close()" n)
+
+
+;; tempfile
+(tw "fp = tempfile.TemporaryFile()" n
+    "fp.write(b'Hello world!')" n
+    "fp.seek(0)" n
+    "fp.read()" n
+    "fp.close()")
+
+(tc "with tempfile.TemporaryDirectory() as tmpdirname:" n>
+    "print('created temporary directory', tmpdirname)")
+
+;; https://docs.python.org/3/library/glob.html
+(gr "glob.glob('**/*.txt', recursive=True)")
+
+;; time
+(time "from time import gmtime, strftime" n
+      "strftime(\"%a, %d %b %Y %H:%M:%S +0000\", gmtime())")
+
+;; timeit
+(teit "import timeit"
+     "timeit.timeit('\"-\".join(str(n) for n in range(100))', number=10000)")
+
+;; ast
+(ast "print(ast.dump(ast.parse('123', mode='eval'), indent=4))")
+
+;; icecream
+(icecream "ic(" p ")")
+(icecream-install "from icecream import install" n "install()")
+(icecream-import "from icecream import ic; ic(" p ")")
+
+;; sys
+(sys-getsizeof "print(sys.getsizeof(" p "))")
+
+;; https://stackoverflow.com/questions/6579496/using-print-statements-only-to-debug
+(logging "import logging, sys" n
+     "logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)" n
+     "logging.debug('A debug message!')" n
+     "logging.info('We processed %d records', len(processed_records))")
+
+;; https://github.com/AbhijithAJ/clrprint
+(clrprint "from clrprint import *" n
+     "clrprint('ERROR:', information,clr=['r','y'], debug=True)")
+
+;; what am I doing with this?
+(csl "clr = clr.strip().lower()")
+
+(fixtures "@pytest.fixture" n
+          "def example_fixture():" n> "return 1" n n
+          "def test_with_fixture(example_fixture):" n>
+          "assert example_fixture == 1")
+
+fundamental-mode
+
+(datime (format-time-string "%Y-%m-%d %A %d %B %Y"))
+(24time (format-time-string "%H:%M - "))
+(box "┌─" (make-string (length str) ?─) "─┐" n
+     "│ " (s str)                       " │" n
+     "└─" (make-string (length str) ?─) "─┘" n)
+(abox "+-" (make-string (length str) ?-) "-+" n
+      "| " (s str)                       " |" n
+      "+-" (make-string (length str) ?-) "-+" n)
+(cut "--8<---------------cut here---------------start------------->8---" n r n
+     "--8<---------------cut here---------------end--------------->8---" n)
+(rebuild "nixos-rebuild switch --flake ~/d-git/d-nix#host --sudo")
+(gc "git clone --depth=1")
+
+
+bash-ts-mode conf-mode
+(func "function " (p "fname") "() {" n> p n> n "}")
+
+(comm "######" (make-string (length str) ?#) "######" n
+     "##### " (s str)                       " #####" n
+     "######" (make-string (length str) ?#) "######")
+
+(hinfo "${c_yellow}" p "${c_reset}" n p)
+
+css-mode css-ts-mode html-mode html-ts-mode
+
+(var "var(--" p ")")
+
+(tag "<" (p "name" tg) ">" n>
+     r> n> "</" (s tg) ">")
+
 (use-package ibuffer :ensure nil
   :bind ("C-x C-b" . ibuffer)
   :hook (ibuffer-mode . ibuffer-set-filter-groups-by-mode))
@@ -284,23 +741,6 @@
 
 (with-eval-after-load 'zone
   (zone-when-idle (* 60 5)))
-
-;; access phone storage as default
-;; Better is to symlink file to ~/ itself
-
-;;(setq default-directory "/storage/emulated/0/")
-
-(when d/on-droid
-  (custom-set-variables
-   '(touch-screen-precision-scroll t)
-   '(touch-screen-display-keyboard t)
-   '(browse-url-android-share t)
-   '(touch-screen-enable-hscroll nil "Avoid horizontal scroll that stutters"))
-
-  ;; credits to https://github.com/danijelcamdzic/dotemacs/
-  (setq display-buffer-alist
-        '((".*" (display-buffer-same-window) (inhibit-same-window . nil))))
-  )
 
 (use-package info :ensure nil
   :config
@@ -352,67 +792,6 @@
 (setq comint-pager "cat")
 (setenv "MANPAGER" "cat")
 (setopt xterm-extra-capabilities '(getSelection setSelection modifyOtherKeys))
-
-(use-package python :ensure nil
-  :bind (:map python-mode-map ("C-c C-d" . devdocs-browser-open))
-  :custom
-  ;; (python-forward-sexp-function nil)
-  (python-indent-guess-indent-offset-verbose nil))
-
-;; hacky way to run python tools in any dir without envrc or anything
-(defun d/dev-uvx-command ()
-  "Prompt for package and command, to run dev environment."
-  (interactive)
-  (let ((pkg (read-string "Enter package: "))
-        (cmd (read-string "Enter Command Args: ")))
-    (setq d/dev-uvx-command
-          (append '("uvx" "--from") (list pkg) (split-string cmd)))
-    (message "Set d/dev-uvx-command to: %S" d/dev-uvx-command)))
-
-(use-package ess :defer t :unless d/on-droid
-  :custom
-  (ess-use-company nil)
-  (ess-ask-for-ess-directory t)
-  (ess-style 'RStudio)
-  (ess-eldoc-show-on-symbol t)
-
-  (ess-R-font-lock-keywords
-   '((ess-R-fl-keyword:keywords . t) (ess-R-fl-keyword:constants . t)
-     (ess-R-fl-keyword:modifiers . t) (ess-R-fl-keyword:fun-defs . t)
-     (ess-R-fl-keyword:assign-ops . t) (ess-R-fl-keyword:%op% . t)
-     (ess-fl-keyword:fun-calls . t) (ess-fl-keyword:numbers . t)
-     (ess-fl-keyword:operators . t) (ess-fl-keyword:delimiters . t)
-     (ess-fl-keyword:= . t) (ess-R-fl-keyword:F&T . t)))
-
-  (inferior-R-font-lock-keywords
-   '((ess-S-fl-keyword:prompt . t) (ess-R-fl-keyword:keywords . t)
-     (ess-R-fl-keyword:constants . t) (ess-R-fl-keyword:modifiers . t)
-     (ess-R-fl-keyword:messages . t) (ess-R-fl-keyword:fun-defs . t)
-     (ess-R-fl-keyword:assign-ops . t) (ess-fl-keyword:matrix-labels . t)
-     (ess-fl-keyword:fun-calls . t) (ess-fl-keyword:numbers . t)
-     (ess-fl-keyword:operators . t) (ess-fl-keyword:delimiters . t)
-     (ess-fl-keyword:= . t) (ess-R-fl-keyword:F&T . t))))
-
-(use-package ess-r-mode :unless d/on-droid
-  ;; :hook (ess-r-mode . (lambda () (flycheck-mode 0)))
-  :bind (
-         (:map ess-mode-map ("C-;" . ess-insert-assign))
-         (:map inferior-ess-r-mode-map ("C-;" . ess-insert-assign)))
-  :custom
-  (ess-indent-with-fancy-comments nil))
-
-(unless d/on-droid (use-package nix-ts-mode) )
-
-(use-package js :ensure nil :mode ("\\.jsx\\'" . js-jsx-mode)
-  ("\\.vue\\'" . js-ts-mode))
-
-(use-package verb :after org
-  :config (define-key org-mode-map (kbd "C-c C-r") verb-command-map))
-
-(use-package ess-julia :unless d/on-droid
-  :hook (ess-julia-mode . (lambda () (setq-local devdocs-browser-active-docs '("Julia"))))
-  :bind (:map ess-julia-mode-map ("C-c C-d" . devdocs-browser-open))
-  :custom (inferior-julia-args "--color=yes" "You get color in julia inferior process"))
 
 (add-hook 'after-save-hook #'executable-make-buffer-file-executable-if-script-p)
 
@@ -572,6 +951,92 @@
 
 (use-package rainbow-delimiters :defer t
   :hook (prog-mode . rainbow-delimiters-mode))
+
+(use-package proced
+  :bind ("C-x x p" . 'proced)
+  :custom
+  (proced-enable-color-flag t)
+  (proced-format '(user start time pcpu pmem rss args))
+  (proced-sort 'pmem)
+  (proced-auto-update-flag t))
+
+(use-package python :ensure nil
+  :bind (:map python-mode-map ("C-c C-d" . devdocs-browser-open))
+  :custom
+  ;; (python-forward-sexp-function nil)
+  (python-indent-guess-indent-offset-verbose nil))
+
+;; hacky way to run python tools in any dir without envrc or anything
+(defun d/dev-uvx-command ()
+  "Prompt for package and command, to run dev environment."
+  (interactive)
+  (let ((pkg (read-string "Enter package: "))
+        (cmd (read-string "Enter Command Args: ")))
+    (setq d/dev-uvx-command
+          (append '("uvx" "--from") (list pkg) (split-string cmd)))
+    (message "Set d/dev-uvx-command to: %S" d/dev-uvx-command)))
+
+(use-package ess :defer t :unless d/on-droid
+  :custom
+  (ess-use-company nil)
+  (ess-ask-for-ess-directory t)
+  (ess-style 'RStudio)
+  (ess-eldoc-show-on-symbol t)
+
+  (ess-R-font-lock-keywords
+   '((ess-R-fl-keyword:keywords . t) (ess-R-fl-keyword:constants . t)
+     (ess-R-fl-keyword:modifiers . t) (ess-R-fl-keyword:fun-defs . t)
+     (ess-R-fl-keyword:assign-ops . t) (ess-R-fl-keyword:%op% . t)
+     (ess-fl-keyword:fun-calls . t) (ess-fl-keyword:numbers . t)
+     (ess-fl-keyword:operators . t) (ess-fl-keyword:delimiters . t)
+     (ess-fl-keyword:= . t) (ess-R-fl-keyword:F&T . t)))
+
+  (inferior-R-font-lock-keywords
+   '((ess-S-fl-keyword:prompt . t) (ess-R-fl-keyword:keywords . t)
+     (ess-R-fl-keyword:constants . t) (ess-R-fl-keyword:modifiers . t)
+     (ess-R-fl-keyword:messages . t) (ess-R-fl-keyword:fun-defs . t)
+     (ess-R-fl-keyword:assign-ops . t) (ess-fl-keyword:matrix-labels . t)
+     (ess-fl-keyword:fun-calls . t) (ess-fl-keyword:numbers . t)
+     (ess-fl-keyword:operators . t) (ess-fl-keyword:delimiters . t)
+     (ess-fl-keyword:= . t) (ess-R-fl-keyword:F&T . t))))
+
+(use-package ess-r-mode :unless d/on-droid
+  ;; :hook (ess-r-mode . (lambda () (flycheck-mode 0)))
+  :bind (
+         (:map ess-mode-map ("C-;" . ess-insert-assign))
+         (:map inferior-ess-r-mode-map ("C-;" . ess-insert-assign)))
+  :custom
+  (ess-indent-with-fancy-comments nil))
+
+(unless d/on-droid (use-package nix-ts-mode) )
+
+(use-package js :ensure nil :mode ("\\.jsx\\'" . js-jsx-mode)
+  ("\\.vue\\'" . js-ts-mode))
+
+(use-package verb :after org
+  :config (define-key org-mode-map (kbd "C-c C-r") verb-command-map))
+
+(use-package ess-julia :unless d/on-droid
+  :hook (ess-julia-mode . (lambda () (setq-local devdocs-browser-active-docs '("Julia"))))
+  :bind (:map ess-julia-mode-map ("C-c C-d" . devdocs-browser-open))
+  :custom (inferior-julia-args "--color=yes" "You get color in julia inferior process"))
+
+;; access phone storage as default
+;; Better is to symlink file to ~/ itself
+
+;;(setq default-directory "/storage/emulated/0/")
+
+(when d/on-droid
+  (custom-set-variables
+   '(touch-screen-precision-scroll t)
+   '(touch-screen-display-keyboard t)
+   '(browse-url-android-share t)
+   '(touch-screen-enable-hscroll nil "Avoid horizontal scroll that stutters"))
+
+  ;; credits to https://github.com/danijelcamdzic/dotemacs/
+  (setq display-buffer-alist
+        '((".*" (display-buffer-same-window) (inhibit-same-window . nil))))
+  )
 
 (use-package doc-view :ensure nil
   :bind ((:map doc-view-mode-map
@@ -986,16 +1451,6 @@ images."
 (use-package olivetti :defer t :custom (olivetti-body-width 100)
   :hook (org-mode text-mode Info-mode helpful-mode ement-room-mode gnus-group-mode eww-mode
                   gnus-article-mode sdcv-mode nov-mode elfeed-show-mode markdown-mode))
-
-(use-package proced
-  :bind ("C-x x p" . 'proced)
-  :custom
-  (proced-enable-color-flag t)
-  (proced-format '(user start time pcpu pmem rss args))
-  (proced-sort 'pmem)
-  (proced-auto-update-flag t))
-
-
 
 (use-package org :ensure nil :defer t
   :hook

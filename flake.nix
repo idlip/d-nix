@@ -31,6 +31,43 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+	youtube_adblock = {
+	  url = "https://raw.githubusercontent.com/afreakk/greasemonkeyscripts/refs/heads/master/youtube_adblock.js";
+	  flake = false;
+	};
+	reddit_adblock = {
+	  url = "https://raw.githubusercontent.com/afreakk/greasemonkeyscripts/refs/heads/master/reddit_adblock.js";
+	  flake = false;
+	};
+	youtube_sponsorblock = {
+	  url = "https://raw.githubusercontent.com/afreakk/greasemonkeyscripts/refs/heads/master/youtube_sponsorblock.js";
+	  flake = false;
+	};
+	html_player = {
+	  url = "https://update.greasyfork.org/scripts/30545/HTML5%E8%A7%86%E9%A2%91%E6%92%AD%E6%94%BE%E5%B7%A5%E5%85%B7.user.js";
+	  flake = false;
+	};
+	adsbypasser = {
+	  url = "https://adsbypasser.github.io/releases/adsbypasser.full.es7.user.js";
+	  flake = false;
+	};
+	torrent_1337 = {
+	  url = "https://update.greasyfork.org/scripts/33379/1337x%20-%20Torrent%20page%20improvements.user.js";
+	  flake = false;
+	};
+	bypass_all = {
+	  url = "https://codeberg.org/Amm0ni4/bypass-all-shortlinks-debloated/raw/branch/main/Bypass_All_Shortlinks.user.js";
+	  flake = false;
+	};
+	dns-block = {
+	  url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/ultimate-compressed.txt";
+	  flake = false;
+	};
+	dns-tif = {
+	  url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/tif-compressed.txt";
+	  flake = false;
+	};
+
   };
 
   outputs =

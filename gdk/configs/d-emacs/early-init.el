@@ -15,6 +15,8 @@
 (scroll-bar-mode -1)
 
 (defconst d/on-droid (eq system-type 'android))
+(defconst d/on-foss (string= (system-name) "foss"))
+(defconst d/on-gdk (string= (system-name) "gdk"))
 
 ;; Emacs (gui app) is also amazing in android
 ;; https://sourceforge.net/projects/android-ports-for-gnu-emacs/files/termux/

@@ -176,14 +176,16 @@
 	  };
 	}
 	{
-	  home.packages = with pkgs; [
-	    # emacs-lsp-booster
-	    imagemagick # for image-dired and other converts
-	  ];
-	
+	  programs.zellij = {
+	    enable = true;
+	    settings = {
+	    };
+	  };
+	}
+	{
 	  programs.emacs = {
 	    enable = true;
-	    package = pkgs.emacs-pgtk;
+	    package = pkgs.emacs-git-pgtk;
 	    extraPackages = (epkgs: (with epkgs; [
 	      treesit-grammars.with-all-grammars
 	      vundo undo-fu-session
@@ -372,6 +374,7 @@
 	        // Breaks Map sites, NYT articles, Nat Geo, and more
 	        // [1] https://manu.ninja/25-real-world-applications-using-webgl/
 	        user_pref("webgl.disabled", false);
+	        user_pref("gfx.webrender.all", true);
 	        
 	        // DRM
 	        // Netflix, Udemy, Spotify, etc.
@@ -438,13 +441,13 @@
 		enable = true;
 		enableDefaultBindings = false;
 		greasemonkey = [
-		  # inputs.youtube_adblock
-		  # inputs.reddit_adblock
-		  # inputs.youtube_sponsorblock
-		  # inputs.html_player
-		  # inputs.adsbypasser
-		  # inputs.torrent_1337
-		  # inputs.bypass_all
+		  (pkgs.writeText "youtube_adblock.js" (lib.readFile inputs.youtube_adblock.outPath))
+		  (pkgs.writeText "reddit_adblock.js" (lib.readFile inputs.reddit_adblock.outPath))
+		  (pkgs.writeText "youtube_sponsorblock.js" (lib.readFile inputs.youtube_sponsorblock.outPath))
+		  (pkgs.writeText "html_player.js" (lib.readFile inputs.html_player.outPath))
+		  (pkgs.writeText "adsbypasser.js" (lib.readFile inputs.adsbypasser.outPath))
+		  (pkgs.writeText "torrent_1337.js" (lib.readFile inputs.torrent_1337.outPath))
+		  (pkgs.writeText "bypass_all.js" (lib.readFile inputs.bypass_all.outPath))
 	
 		  (pkgs.writeText "redirect.user.js" ''
 			// ==UserScript==
@@ -501,7 +504,7 @@
 		  nixpkgs = "https://search.nixos.org/packages?channel=unstable&from=0&size=10&sort=relevance&type=packages&query={}";
 		  nixopts = "https://search.nixos.org/options?channel=unstable&size=10&sort=relevance&type=packages&query={}";
 		  homeopts = "https://home-manager-options.extranix.com/?query={}&release=master";
-		  reddit = "https://test.local:9999/r/{}";
+		  reddit = "http://test.local:9999/r/{}";
 		};
 	
 		settings = {
@@ -520,7 +523,7 @@
 		  content.geolocation = false;
 		  content.blocking.enabled = true;
 		  content.pdfjs = false;
-		  content.private_browsing = true;
+		  # content.private_browsing = true; # flush all
 		  content.webrtc_ip_handling_policy = "default-public-interface-only";
 	
 		  fonts.web.size.default = lib.mkForce 18;
@@ -726,6 +729,9 @@
 		    # command
 		    "<Alt-x>" = "cmd-set-text :";
 		    # hint
+		    "<Alt-Space>" = "hint";
+		    "<Alt-g>" = "hint";
+		    "<Space>" = "hint";
 		    "ff" = "hint";
 		    "ww" = "hint all tab";
 		    "fF" = "hint all tab";
@@ -941,7 +947,6 @@
 	        # ytdl-format = "bestvideo";
 	        save-position-on-quit = true;
 			keep-open = true;
-			vo = "gpu-next";
 			scale-antiring = "0.6";
 			dither-depth = "8";
 	        slang = "eng,en,eng,english";
@@ -1032,20 +1037,20 @@
 	    wtype gtk3
 	    swaybg swayimg
 	
-	    # utils
-	    # ocrscript
 	    wl-screenrec wl-mirror
 	    wl-clipboard-rs xwayland-satellite
+	    mupdf poppler_utils ghostscript # for doc-view
+	    uv prettier
+	
+	    pavucontrol pulsemixer playerctl
+	    transmission_4-gtk
+	
+	    mpc_cli ani-cli
 	  ];
 	}
 	{
-	  # HM issue, some service won't start in niri
-	  # systemd.user.services.cliphist.Unit.After = "graphical-session.target";
-	  # systemd.user.services.hypridle.Unit.After = lib.mkForce "graphical-session.target";
-	  # systemd.user.services.wlsunset.Unit.After = lib.mkForce "graphical-session.target";
-	
 	  services.hypridle = let
-	    hyprlock = lib.getExe config.programs.hyprlock.package;
+	    hyprlock = lib.getExe pkgs.hyprlock;
 	    brightness = lib.getExe pkgs.brightnessctl;
 	    niri = lib.getExe pkgs.niri;
 	    timeout = 200; # base timer to act upon
@@ -1053,7 +1058,6 @@
 	    enable = true;
 	    settings ={
 	      general = {
-	        # ignore_dbus_inhibit = false;          # whether to ignore dbus-sent idle-inhibit requests (used by e.g. firefox or steam)
 	        lock_cmd = "pidof hyprlock || ${hyprlock}";       # avoid starting multiple hyprlock instances.
 	        before_sleep_cmd = "${pkgs.systemd}/bin/loginctl lock-session";    # lock before suspend.
 	        unlock_cmd = "notify-send 'Welcome back!'";
@@ -1062,7 +1066,7 @@
 	      listener = [
 	        {
 	          timeout = timeout - 50;
-	          on-timeout = "${brightness} -s set 10";         # set monitor backlight to minimum, avoid 0 on OLED monitor.
+	          on-timeout = "${brightness} -s set 5%";         # set monitor backlight to minimum, avoid 0 on OLED monitor.
 	          on-resume = "${brightness} -r";                 # monitor backlight restore.
 	        }
 	        {
@@ -1328,6 +1332,12 @@
 	  };
 	}
 	{
+	  home.packages = with pkgs; [
+	    # texlive.combined.scheme-full
+	    typst ollama
+	  ];
+	}
+	{
 	  programs.aria2 = {
 	    enable = true;
 	    settings = {
@@ -1441,19 +1451,21 @@
 	}
 	
 	{
-	  programs.rofi = {
+	  programs.fuzzel = {
 	    enable = true;
-	    package = pkgs.rofi-wayland;
-	    modes = [ "drun" "run" "window" ];
-	    extraConfig = {
-	      modi = "drun,run,window";
-	      show-icons = true;
-	      hide-scrollbar = true;
-	      display-drun = "   Apps ";
-	      display-run = "   Run ";
-	      display-window = "󰍲   Window";
-	      sidebar-mode = true;
-	      drun-show-actions = true;
+	    settings = {
+	      main = {
+	        prompt = "'  '";
+	        show-actions = true;
+	        list-executables-in-path = true;
+	        layer = "overlay";
+	        exit-on-keyboard-focus-loss = false;
+	        match-mode = "fuzzy";
+	      };
+	      border = {
+	        width = 4;
+	        radius = 16;
+	      };
 	    };
 	  };
 	}

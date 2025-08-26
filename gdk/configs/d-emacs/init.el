@@ -27,6 +27,7 @@
  sentence-end "[.?!,;-]"
  read-process-output-max (* 1024 1024)
  initial-major-mode 'org-mode
+ enable-recursive-minibuffers t
  )
 
 (delete-selection-mode 1) (indent-tabs-mode -1)
@@ -221,7 +222,6 @@
    )
 
   :custom
-  (embark-quit-after-action nil)
   (prefix-help-command #'embark-prefix-help-command)
   (embark-help-key "?") (embark-confirm-act-all nil)
   )
@@ -334,7 +334,6 @@
 
 (setq comint-pager "cat")
 (setenv "MANPAGER" "cat")
-(setopt xterm-extra-capabilities '(getSelection setSelection modifyOtherKeys))
 
 (add-hook 'after-save-hook #'executable-make-buffer-file-executable-if-script-p)
 
@@ -390,6 +389,8 @@
   ;;   (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
   ;;   (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
   )
+
+(use-package flycheck-eglot :unless d/on-droid :after eglot :init (global-flycheck-eglot-mode))
 
 (setopt xref-search-program 'ripgrep
         grep-command "rg ")
@@ -762,43 +763,18 @@
   (:map gnus-server-mode-map
         ("q" . quit-window)))
 
-(setopt user-mail-address "zororg@tilde.green" ;; you can mail me to discuss anything on emacs ;)
-        user-full-name "Zororg")
-
 (setq fast-read-process-output nil)
 (setq gnus-search-use-imap t)
-
-
-(use-package gnus :disabled t
-  :unless d/on-droid
-  :config
-  (add-to-list 'gnus-secondary-select-methods
-               '(nnimap "protonmail"
-                        (nnimap-stream plain)
-                        (nnimap-address "127.0.0.1") ;; hydroxide
-                        (nnimap-server-port 1143)))
-  (add-to-list 'gnus-secondary-select-methods
-               '(nnimap "tilde-green"
-                        (nnimap-stream plain)
-                        (nnimap-address "imap.tilde.green")
-          ))
-  )
 
 (use-package smtpmail :unless d/on-droid
   ;; :after gnus
   :custom
-  (smtpmail-default-smtp-server "smtp.tilde.green")
-  (smtpmail-smtp-server "smtp.tilde.green")
-  (smtpmail-smtp-service 465)
   (starttls-use-gnutls t)
   (send-function 'smtpmail-send-it)
   (message-send-mail-function 'smtpmail-send-it)
   (mail-from-style 'angles)
   (smtpmail-debug-info t)
   (smtpmail-debug-verb t))
-
-(setopt message-server-alist '(("zororg@tilde.green"
-                                . "smtp smtp.tilde.green 465 zororg")))
 
 (use-package url :ensure nil
   :custom (url-privacy-level 'high) ;; reddit/SO does not like it 'paranoid
@@ -1073,7 +1049,7 @@ images."
 
   (org-agenda-files
    '("~/d-sync/notes/d-brain.org"
-     "~/d-sync/notes/inbox.org"
+     "~/d-sync/notes/inbox.org" "~/d-sync/notes/foss.org"
      "~/d-git/d-nix/d-setup.org"
      ;; "~/d-git/d-site/README.org"
      )))
@@ -1098,6 +1074,16 @@ images."
 :END:
 %i"
       ;; :clock-in t :clock-resume t
+      :empty-lines 1 :empty-lines-after 3)
+
+	 ("f" "Foss Work" entry
+      (file+olp+datetree "foss.org")
+      "* %<%H:%M> - %? %^G
+:PROPERTIES:
+:ID:       %(org-id-new)
+:FROM:     %a
+:END:
+%i"
       :empty-lines 1 :empty-lines-after 3)
 
      ("t" "Tasks for the Day" checkitem

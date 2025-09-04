@@ -80,7 +80,7 @@ Emacs configuration is crafted slowly by learning from all users in community. E
       };
 
       emacs-overlay = {
-        url = "github:nix-community/emacs-overlay";
+        url = "github:nix-community/emacs-overlay/a8d10a8a687576f3b8cfa280218cef369192ca40";
       };
 
       stylix = {
@@ -167,6 +167,10 @@ Emacs configuration is crafted slowly by learning from all users in community. E
     <<nixos-hm>>
     <<os-gdk-fs>>
     <<os-nixos>>
+  {
+    boot.initrd.kernelModules = [ "xe" "dm-snapshot" ];
+  }
+
     ];
 
     # stateVersion
@@ -188,8 +192,12 @@ Emacs configuration is crafted slowly by learning from all users in community. E
     <<os-nixos>>
     <<os-foss-fs>>
     {
-  	stylix.base16Scheme = lib.mkForce "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
+  	stylix.base16Scheme = lib.mkForce "${pkgs.base16-schemes}/share/themes/gruvbox-material-dark-hard.yaml";
     }
+    {	
+  	services.throttled.enable = true;
+    }
+  	
     ];
 
     # stateVersion
@@ -345,7 +353,7 @@ Emacs configuration is crafted slowly by learning from all users in community. E
       boot.initrd.availableKernelModules = [ "xhci_pci" "thunderbolt" "vmd" "nvme" "usbhid" "usb_storage" "sd_mod" ];
       boot.kernelModules = [ "kvm-intel" ];
       boot.extraModulePackages = [ ];
-      boot.initrd.kernelModules = [ "xe" "dm-snapshot" ];
+      boot.initrd.kernelModules = [ "dm-snapshot" ];
 
       fileSystems."/" = {
           fsType = "btrfs";
@@ -440,6 +448,17 @@ Emacs configuration is crafted slowly by learning from all users in community. E
       systemd.sleep.extraConfig = ''
        AllowSuspend=yes
        '';
+    }
+  #+end_src
+
+*** maps caps to control key
+- this might be system wide, as I wanted.
+  #+begin_src nix
+    { # remap caps to control
+      services.udev.extraHwdb = ''
+      evdev:atkbd:*
+       KEYBOARD_KEY_3a=leftctrl
+      '';
     }
   #+end_src
 
@@ -594,9 +613,9 @@ Emacs configuration is crafted slowly by learning from all users in community. E
   #+begin_src nix 
     {
       # For Laptop, make lid close and power buttom click to suspend
-      services.logind = {
-        lidSwitch = "suspend";
-        powerKey = "suspend";
+      services.logind.settings.Login = {
+        HandleLidSwitch = "suspend";
+        HandlePowerKey = "suspend";
       };
     }
   #+end_src
@@ -854,7 +873,6 @@ Pipewire setup, just these lines enough to make sane default for it
   {
     programs = {
       niri.enable = true;
-      xwayland.enable = true;
       };
   }
 #+end_src
@@ -923,6 +941,7 @@ Pipewire setup, just these lines enough to make sane default for it
 
 ** Stylix
 - An bundle of color-scheme for tools.
+  https://github.com/tinted-theming/schemes
 
   #+begin_src nix
     {
@@ -1248,7 +1267,7 @@ Pipewire setup, just these lines enough to make sane default for it
           embark-consult consult-eglot nix-ts-mode nix-mode
           magit nov devdocs-browser reformatter
           tempel eglot-tempel
-          jinx envrc
+          jinx envrc ultra-scroll
           # aria2 transmission
           # ess 
           # webfeeder engrave-faces
@@ -1258,16 +1277,16 @@ Pipewire setup, just these lines enough to make sane default for it
     	  verb
           # dslide gptel
 
-          # (melpaBuild {
-          #   pname = "combobulate";
-          #   version = "20241018";
-          #   src = pkgs.fetchFromGitHub {
-          #     owner = "mickeynp";
-          #     repo = "combobulate";
-          #     rev = "e9c5be84062e8183f556d7133d5a477a57e37e51";
-          #     hash = "sha256-r6jObsYx7RRTJUmrCN5h3+0WcHqJA67emhr4/W3rBrM=";
-          #   };
-          # })
+          (melpaBuild {
+            pname = "combobulate";
+            version = "20250621";
+            src = pkgs.fetchFromGitHub {
+              owner = "mickeynp";
+              repo = "combobulate";
+              rev = "17c71802eed2df1a6b25199784806da6763fb90c";
+              hash = "sha256-m+06WLfHkdlMkLzP+fah3YN3rHG0H8t/iWEDSrct25E=";
+            };
+          })
 
           (melpaBuild {
             pname = "org-super-links";
@@ -1279,23 +1298,6 @@ Pipewire setup, just these lines enough to make sane default for it
               hash = "sha256-9SGb+imKyi6J+mpBtkheOLAIpmd0E55i0BOGBT617gE=";
             };
           })
-
-          # (melpaBuild {
-          #   pname = "ultra-scroll";
-          #   version = "20250113";
-          #   src = pkgs.fetchFromGitHub {
-          #     owner = "jdtsmith";
-          #     repo = "ultra-scroll";
-          #     rev = "9f62273531ad2f9837ad6da28fccbe2ec4c7938c";
-          #     hash = "sha256-yuwgWflx835hGBuJz6LiAwBXoaaTRgtF+FCWEv4TCIw=";
-          #   };
-          # })
-
-          ## packages kept out to make more vanilla usage!
-          # async dirvish beframe powerthesaurus meow
-          # doom-modeline ement kind-icon el-patch
-          # rainbow-mode -> replcaed by new package, colorful-mode
-          # saveplace-pdf-view pdf-tools
 
         ])
         );
@@ -1751,9 +1753,8 @@ Pipewire setup, just these lines enough to make sane default for it
     	  colors.webpage.darkmode.policy.images = "never";
     	  tabs.position = "left";
 
-    	  content.webgl = false;
-    	  content.canvas_reading = false;
-    	  content.geolocation = false;
+    	  # content.canvas_reading = false;
+    	  # content.geolocation = false;
     	  content.blocking.enabled = true;
     	  content.pdfjs = false;
     	  # content.private_browsing = true; # flush all
@@ -1916,6 +1917,7 @@ Pipewire setup, just these lines enough to make sane default for it
     "<Ctrl-x>5p" = "cmd-set-text -s :open -p";
     "<Ctrl-x>50" = "cmd-set-text -s :close";
     "<Ctrl-x>5u" = "undo -w";
+    "<Ctrl-x><Ctrl-q>" = "close";
     # Zooming
     "<Ctrl-x>=" = "zoom-in";
     "<Ctrl-x>-" = "zoom-out";
@@ -1992,8 +1994,8 @@ Pipewire setup, just these lines enough to make sane default for it
     # passthrough
     "<Shift-Escape>" = "mode-enter passthrough";
     # Quit qutebrowser
-    "<Ctrl-x><Ctrl-c>" = "quit --save";
-    "<Ctrl-u><Ctrl-x><Ctrl-c>" = "quit";
+    "<Ctrl-x><Ctrl-c>" = "quit";
+    "<Ctrl-u><Ctrl-x><Ctrl-c>" = "close";
 
     "<Ctrl-s>" = "cmd-set-text /";
     "<Ctrl-r>" = "cmd-set-text ?";
@@ -2157,38 +2159,38 @@ Pipewire setup, just these lines enough to make sane default for it
 **** qutebrowser redirect
 - Redirect links to self-hosted or privacy alternative.
   #+begin_src js :noweb-ref qute-redirect
-  // ==UserScript==
-  // @name Redirect Script
-  // @namespace https://example.com
-  // @version 1.0
-  // @description Redirects URLs by replacing values from config
-  // @match *://*/*
-  // @run-at document-start
-  // @grant none
-  // ==/UserScript==
+    // ==UserScript==
+    // @name Redirect Script
+    // @namespace https://example.com
+    // @version 1.0
+    // @description Redirects URLs by replacing values from config
+    // @match *://*/*
+    // @run-at document-start
+    // @grant none
+    // ==/UserScript==
 
-  (function() {
-      'use strict';
+    (function() {
+        'use strict';
 
-      var currentUrl = window.location.href;
-      var config = {
-  //      'from': 'to',
-          '^(?:https?://)(?:www.)?youtube.com/shorts/': 'https://yewtu.be/watch?v=',
-          '^(?:https?://)(?:www.)?youtube.com': 'https://yewtu.be',
-          '^(?:https?://)(?:www.)?reddit.com': 'https://test.local:9999',
-          '^(?:https?://)(?:www.)?old.reddit.com': 'https://test.local:9999',
-      };
-      
-      for (var oldValue in config) {
-          var newValue = config[oldValue];
-          var regex = new RegExp(oldValue, 'g');
-          currentUrl = currentUrl.replace(regex, newValue);
-      }
-      
-      if (currentUrl !== window.location.href) {
-          window.location.href = currentUrl;
-      }
-  })();
+        var currentUrl = window.location.href;
+        var config = {
+    //      'from': 'to',
+            // '^(?:https?://)(?:www.)?youtube.com/shorts/': 'https://yewtu.be/watch?v=',
+            // '^(?:https?://)(?:www.)?youtube.com': 'https://yewtu.be',
+            '^(?:https?://)(?:www.)?reddit.com': 'http://test.local:9999',
+            '^(?:https?://)(?:www.)?old.reddit.com': 'http://test.local:9999',
+        };
+        
+        for (var oldValue in config) {
+            var newValue = config[oldValue];
+            var regex = new RegExp(oldValue, 'g');
+            currentUrl = currentUrl.replace(regex, newValue);
+        }
+        
+        if (currentUrl !== window.location.href) {
+            window.location.href = currentUrl;
+        }
+    })();
   #+end_src
 
 
@@ -2398,7 +2400,6 @@ Pipewire setup, just these lines enough to make sane default for it
 
   // startups
   spawn-at-startup "d-walls"
-  //spawn-at-startup "xwayland-satellite"
 
   output "eDP-1" {
   	//scale 2
@@ -2751,82 +2752,13 @@ Pipewire setup, just these lines enough to make sane default for it
     {
       programs.hyprlock = {
         enable = true;
-        settings = {
-          background = lib.mkForce [
-            {
-              monitor = "";
-              path = "/home/${vars.username}/.local/share/bg2";
-              blur_size = 8;
-              blur_passes = 3;
-            }
-          ];
-
-          label = [
-            {
-              monitor = "";
-              color = "rgba(184, 212, 224, 0.6)";
-              text = ''
-              cmd[update:18000000] echo "<b> "$(date +'%A, %-d %B %Y')" </b>"
-              '';
-              position = "0, -420";
-              halign = "center";
-              valign = "top";
-            }
-
-            {
-              monitor = "";
-              color = "rgba(184, 212, 224, 0.6)";
-              text = ''
-              cmd[update:1000] echo -e "$(date +"%I:%M")"
-              '';
-              position = "0, -220";
-              halign = "center";
-              valign = "top";
-            }
-
-            {
-              monitor = "";
-              text = ''
-              Think Less, Work Smart!
-                '';
-              color = "rgb(126, 247, 138)";
-              position = "0, 70";
-              halign = "center";
-              valign = "bottom";
-            }
-
-            {
-              monitor = "";
-              text = ''
-              cmd[update:60000] echo "<b>$(d-stats) </br> $(uptime) </b>"
-              '';
-              color = "rgba(184, 212, 224, 0.4)";
-              position = "5, 5";
-              halign = "right";
-              valign = "bottom";
-            }
-          ];
-
-          image =[
-            {
-              path = "/home/${vars.username}/.local/share/bg1";
-              size = 200;
-              rounding = -1;
-              border_size = 2;
-              reload_time = -1;
-              position = "0, 350";
-              halign = "center";
-              valign = "bottom";
-            }
-          ];
-
-        };
       };
     }
   #+end_src
 
 ** stylix-theme
 - Home manager options for stylix
+  https://github.com/tinted-theming/schemes
 
   #+begin_src nix
     {
@@ -3673,7 +3605,7 @@ Pipewire setup, just these lines enough to make sane default for it
       (xref-show-xrefs-function #'consult-xref)
       (xref-show-definitions-function #'consult-xref)
       (imenu-max-item-length nil)
-      (consult-ripgrep-args "rga --null --line-buffered --color=never --max-columns=1000 --path-separator /   --smart-case --no-heading --with-filename --line-number") )
+      )
   #+end_src
 
 
@@ -4298,10 +4230,11 @@ To manage windows states
      scroll-preserve-screen-position t
      pixel-scroll-precision-interpolate-page t)
 
-    (pixel-scroll-precision-mode 1)
+    ;; (pixel-scroll-precision-mode 1)
 
     ;; (bind-keys ("C-v" . View-scroll-half-page-forward) ("M-v" . View-scroll-half-page-backward))
-    (bind-keys ("C-v" . pixel-scroll-interpolate-down) ("M-v" . pixel-scroll-interpolate-up))
+    ;; (bind-keys ("C-v" . pixel-scroll-interpolate-down) ("M-v" . pixel-scroll-interpolate-up))
+    (ultra-scroll-mode 1)
   #+end_src
 
 **** repeat-mode
@@ -4685,7 +4618,7 @@ to get bash alias to eshell way
     :hook (prog-mode . rainbow-delimiters-mode))
   #+end_src
 
-**** COMMENT combobulate
+**** combobulate
 - Sructured editing and navigating for =treesit=
 
   #+begin_src emacs-lisp
@@ -5302,16 +5235,32 @@ to get bash alias to eshell way
 **** mode-line
 - Mode-line-format
 #+begin_src emacs-lisp
-  (setq-default
-   d/mode-line-format mode-line-format
-   ;; mode-line-format nil
-   )
+  (setopt
+   mode-line-format
+   '("%e"
+     mode-line-front-space mode-line-modified
+     ;; mode-line-remote
+     mode-line-window-dedicated
+     "  "
+     mode-line-frame-identification mode-line-buffer-identification
+     "    "
+     mode-line-position mode-line-format-right-align
+     (project-mode-line project-mode-line-format)
+     (vc-mode vc-mode)
+     "  " mode-name "  "
+     ;; "  " mode-line-modes
+     mode-line-misc-info))
 
   ;; credits minad in reddit
   (defmacro +diminish (mode)
     `(cl-callf2 assq-delete-all ',mode minor-mode-alist))
 
-  ;; (+diminish abbrev-mode)
+  (+diminish abbrev-mode)
+  (+diminish hs-minor-mode)
+  (+diminish jinx-mode)
+  (+diminish outline-minor-mode)
+  (+diminish eldoc-mode)
+  (+diminish visual-line-mode)
 #+end_src
 
 - To toggle mode-line on and off.

@@ -47,7 +47,7 @@
     boot.initrd.availableKernelModules = [ "xhci_pci" "thunderbolt" "vmd" "nvme" "usbhid" "usb_storage" "sd_mod" ];
     boot.kernelModules = [ "kvm-intel" ];
     boot.extraModulePackages = [ ];
-    boot.initrd.kernelModules = [ "xe" "dm-snapshot" ];
+    boot.initrd.kernelModules = [ "dm-snapshot" ];
   
     fileSystems."/" = {
         fsType = "btrfs";
@@ -98,6 +98,12 @@
     systemd.sleep.extraConfig = ''
      AllowSuspend=yes
      '';
+  }
+  { # remap caps to control
+    services.udev.extraHwdb = ''
+    evdev:atkbd:*
+     KEYBOARD_KEY_3a=leftctrl
+    '';
   }
   {
     networking = {
@@ -203,9 +209,9 @@
   }
   {
     # For Laptop, make lid close and power buttom click to suspend
-    services.logind = {
-      lidSwitch = "suspend";
-      powerKey = "suspend";
+    services.logind.settings.Login = {
+      HandleLidSwitch = "suspend";
+      HandlePowerKey = "suspend";
     };
   }
   {
@@ -352,7 +358,6 @@
   {
     programs = {
       niri.enable = true;
-      xwayland.enable = true;
       };
   }
   {
@@ -432,8 +437,12 @@
     fileSystems."/boot" = { device = "/dev/disk/by-uuid/112B-98A0"; };
   }
   {
-	stylix.base16Scheme = lib.mkForce "${pkgs.base16-schemes}/share/themes/gruvbox-dark-hard.yaml";
+	stylix.base16Scheme = lib.mkForce "${pkgs.base16-schemes}/share/themes/gruvbox-material-dark-hard.yaml";
   }
+  {	
+	services.throttled.enable = true;
+  }
+	
   ];
 
   # stateVersion

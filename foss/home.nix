@@ -196,7 +196,7 @@
 	      embark-consult consult-eglot nix-ts-mode nix-mode
 	      magit nov devdocs-browser reformatter
 	      tempel eglot-tempel
-	      jinx envrc
+	      jinx envrc ultra-scroll
 	      # aria2 transmission
 	      # ess 
 	      # webfeeder engrave-faces
@@ -206,16 +206,16 @@
 		  verb
 	      # dslide gptel
 	
-	      # (melpaBuild {
-	      #   pname = "combobulate";
-	      #   version = "20241018";
-	      #   src = pkgs.fetchFromGitHub {
-	      #     owner = "mickeynp";
-	      #     repo = "combobulate";
-	      #     rev = "e9c5be84062e8183f556d7133d5a477a57e37e51";
-	      #     hash = "sha256-r6jObsYx7RRTJUmrCN5h3+0WcHqJA67emhr4/W3rBrM=";
-	      #   };
-	      # })
+	      (melpaBuild {
+	        pname = "combobulate";
+	        version = "20250621";
+	        src = pkgs.fetchFromGitHub {
+	          owner = "mickeynp";
+	          repo = "combobulate";
+	          rev = "17c71802eed2df1a6b25199784806da6763fb90c";
+	          hash = "sha256-m+06WLfHkdlMkLzP+fah3YN3rHG0H8t/iWEDSrct25E=";
+	        };
+	      })
 	
 	      (melpaBuild {
 	        pname = "org-super-links";
@@ -227,23 +227,6 @@
 	          hash = "sha256-9SGb+imKyi6J+mpBtkheOLAIpmd0E55i0BOGBT617gE=";
 	        };
 	      })
-	
-	      # (melpaBuild {
-	      #   pname = "ultra-scroll";
-	      #   version = "20250113";
-	      #   src = pkgs.fetchFromGitHub {
-	      #     owner = "jdtsmith";
-	      #     repo = "ultra-scroll";
-	      #     rev = "9f62273531ad2f9837ad6da28fccbe2ec4c7938c";
-	      #     hash = "sha256-yuwgWflx835hGBuJz6LiAwBXoaaTRgtF+FCWEv4TCIw=";
-	      #   };
-	      # })
-	
-	      ## packages kept out to make more vanilla usage!
-	      # async dirvish beframe powerthesaurus meow
-	      # doom-modeline ement kind-icon el-patch
-	      # rainbow-mode -> replcaed by new package, colorful-mode
-	      # saveplace-pdf-view pdf-tools
 	
 	    ])
 	    );
@@ -466,10 +449,10 @@
 			    var currentUrl = window.location.href;
 			    var config = {
 			//      'from': 'to',
-			        '^(?:https?://)(?:www.)?youtube.com/shorts/': 'https://yewtu.be/watch?v=',
-			        '^(?:https?://)(?:www.)?youtube.com': 'https://yewtu.be',
-			        '^(?:https?://)(?:www.)?reddit.com': 'https://test.local:9999',
-			        '^(?:https?://)(?:www.)?old.reddit.com': 'https://test.local:9999',
+			        // '^(?:https?://)(?:www.)?youtube.com/shorts/': 'https://yewtu.be/watch?v=',
+			        // '^(?:https?://)(?:www.)?youtube.com': 'https://yewtu.be',
+			        '^(?:https?://)(?:www.)?reddit.com': 'http://test.local:9999',
+			        '^(?:https?://)(?:www.)?old.reddit.com': 'http://test.local:9999',
 			    };
 			    
 			    for (var oldValue in config) {
@@ -518,9 +501,8 @@
 		  colors.webpage.darkmode.policy.images = "never";
 		  tabs.position = "left";
 	
-		  content.webgl = false;
-		  content.canvas_reading = false;
-		  content.geolocation = false;
+		  # content.canvas_reading = false;
+		  # content.geolocation = false;
 		  content.blocking.enabled = true;
 		  content.pdfjs = false;
 		  # content.private_browsing = true; # flush all
@@ -671,6 +653,7 @@
 		    "<Ctrl-x>5p" = "cmd-set-text -s :open -p";
 		    "<Ctrl-x>50" = "cmd-set-text -s :close";
 		    "<Ctrl-x>5u" = "undo -w";
+		    "<Ctrl-x><Ctrl-q>" = "close";
 		    # Zooming
 		    "<Ctrl-x>=" = "zoom-in";
 		    "<Ctrl-x>-" = "zoom-out";
@@ -747,8 +730,8 @@
 		    # passthrough
 		    "<Shift-Escape>" = "mode-enter passthrough";
 		    # Quit qutebrowser
-		    "<Ctrl-x><Ctrl-c>" = "quit --save";
-		    "<Ctrl-u><Ctrl-x><Ctrl-c>" = "quit";
+		    "<Ctrl-x><Ctrl-c>" = "quit";
+		    "<Ctrl-u><Ctrl-x><Ctrl-c>" = "close";
 		  
 		    "<Ctrl-s>" = "cmd-set-text /";
 		    "<Ctrl-r>" = "cmd-set-text ?";
@@ -1089,76 +1072,6 @@
 	{
 	  programs.hyprlock = {
 	    enable = true;
-	    settings = {
-	      background = lib.mkForce [
-	        {
-	          monitor = "";
-	          path = "/home/${vars.username}/.local/share/bg2";
-	          blur_size = 8;
-	          blur_passes = 3;
-	        }
-	      ];
-	
-	      label = [
-	        {
-	          monitor = "";
-	          color = "rgba(184, 212, 224, 0.6)";
-	          text = ''
-	          cmd[update:18000000] echo "<b> "$(date +'%A, %-d %B %Y')" </b>"
-	          '';
-	          position = "0, -420";
-	          halign = "center";
-	          valign = "top";
-	        }
-	
-	        {
-	          monitor = "";
-	          color = "rgba(184, 212, 224, 0.6)";
-	          text = ''
-	          cmd[update:1000] echo -e "$(date +"%I:%M")"
-	          '';
-	          position = "0, -220";
-	          halign = "center";
-	          valign = "top";
-	        }
-	
-	        {
-	          monitor = "";
-	          text = ''
-	          Think Less, Work Smart!
-	            '';
-	          color = "rgb(126, 247, 138)";
-	          position = "0, 70";
-	          halign = "center";
-	          valign = "bottom";
-	        }
-	
-	        {
-	          monitor = "";
-	          text = ''
-	          cmd[update:60000] echo "<b>$(d-stats) </br> $(uptime) </b>"
-	          '';
-	          color = "rgba(184, 212, 224, 0.4)";
-	          position = "5, 5";
-	          halign = "right";
-	          valign = "bottom";
-	        }
-	      ];
-	
-	      image =[
-	        {
-	          path = "/home/${vars.username}/.local/share/bg1";
-	          size = 200;
-	          rounding = -1;
-	          border_size = 2;
-	          reload_time = -1;
-	          position = "0, 350";
-	          halign = "center";
-	          valign = "bottom";
-	        }
-	      ];
-	
-	    };
 	  };
 	}
 	{

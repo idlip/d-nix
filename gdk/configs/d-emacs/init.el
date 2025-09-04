@@ -189,7 +189,7 @@
   (xref-show-xrefs-function #'consult-xref)
   (xref-show-definitions-function #'consult-xref)
   (imenu-max-item-length nil)
-  (consult-ripgrep-args "rga --null --line-buffered --color=never --max-columns=1000 --path-separator /   --smart-case --no-heading --with-filename --line-number") )
+  )
 
 (setopt completion-styles '(orderless basic)
         completion-category-overrides '((file (styles basic partial-completion)))
@@ -274,10 +274,11 @@
  scroll-preserve-screen-position t
  pixel-scroll-precision-interpolate-page t)
 
-(pixel-scroll-precision-mode 1)
+;; (pixel-scroll-precision-mode 1)
 
 ;; (bind-keys ("C-v" . View-scroll-half-page-forward) ("M-v" . View-scroll-half-page-backward))
-(bind-keys ("C-v" . pixel-scroll-interpolate-down) ("M-v" . pixel-scroll-interpolate-up))
+;; (bind-keys ("C-v" . pixel-scroll-interpolate-down) ("M-v" . pixel-scroll-interpolate-up))
+(ultra-scroll-mode 1)
 
 (setq repeat-exit-timeout 2) (put 'other-window 'repeat-map nil)
 (repeat-mode 1)
@@ -495,6 +496,12 @@
 
 (use-package rainbow-delimiters :defer t
   :hook (prog-mode . rainbow-delimiters-mode))
+
+(use-package combobulate :after treesit
+  :preface (setq combobulate-key-prefix "C-c o")
+  :hook
+  ((python-ts-mode . combobulate-mode) (css-ts-mode . combobulate-mode)
+   (bash-ts-mode . combobulate-mode)))
 
 (use-package proced
   :bind ("C-x x p" . 'proced)
@@ -940,16 +947,32 @@ images."
   :config
   (load-theme 'modus-vivendi t))
 
-(setq-default
- d/mode-line-format mode-line-format
- ;; mode-line-format nil
- )
+(setopt
+ mode-line-format
+ '("%e"
+   mode-line-front-space mode-line-modified
+   ;; mode-line-remote
+   mode-line-window-dedicated
+   "  "
+   mode-line-frame-identification mode-line-buffer-identification
+   "    "
+   mode-line-position mode-line-format-right-align
+   (project-mode-line project-mode-line-format)
+   (vc-mode vc-mode)
+   "  " mode-name "  "
+   ;; "  " mode-line-modes
+   mode-line-misc-info))
 
 ;; credits minad in reddit
 (defmacro +diminish (mode)
   `(cl-callf2 assq-delete-all ',mode minor-mode-alist))
 
-;; (+diminish abbrev-mode)
+(+diminish abbrev-mode)
+(+diminish hs-minor-mode)
+(+diminish jinx-mode)
+(+diminish outline-minor-mode)
+(+diminish eldoc-mode)
+(+diminish visual-line-mode)
 
 (use-package d/hide-mode-line :ensure nil :no-require t
   :bind ([f9] . d/hide-mode-line-mode)

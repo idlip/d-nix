@@ -23,7 +23,7 @@
     };
 
     emacs-overlay = {
-      url = "github:nix-community/emacs-overlay";
+      url = "github:nix-community/emacs-overlay/a8d10a8a687576f3b8cfa280218cef369192ca40";
     };
 
     stylix = {

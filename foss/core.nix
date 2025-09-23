@@ -385,8 +385,8 @@
       base16Scheme = "${pkgs.base16-schemes}/share/themes/bright.yaml";
   
       cursor = {
-        package = pkgs.layan-cursors;
-        name = "layan-cursors";
+        package = pkgs.maplestory-cursor;
+        name = "Maple";
         size = 24;
       };
   

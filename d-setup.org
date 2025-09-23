@@ -88,12 +88,23 @@ Emacs configuration is crafted slowly by learning from all users in community. E
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
+  	quickshell = {
+        url = "github:outfoxxed/quickshell";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
+  	noctalia = {
+        url = "github:noctalia-dev/noctalia-shell";
+        inputs.nixpkgs.follows = "nixpkgs";
+        inputs.quickshell.follows = "quickshell";
+      };
+
   	<<flake-files>>
 
     };
 
     outputs =
-      { nixpkgs, home-manager, nix-index-database, stylix, ... }@inputs:
+      { nixpkgs, home-manager, nix-index-database, stylix, noctalia, quickshell, ... }@inputs:
       let
         system = "x86_64-linux";
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
@@ -329,6 +340,7 @@ Emacs configuration is crafted slowly by learning from all users in community. E
 
         supportedFilesystems = [ "ntfs" ];
         tmp.cleanOnBoot = true;
+    	enableContainers = true;
 
         kernelParams = [
           "systemd.mask=dev-tpmrm0.device" #this is to mask that stupid 1.5 mins systemd bug
@@ -645,7 +657,10 @@ Emacs configuration is crafted slowly by learning from all users in community. E
 
   #+begin_src nix 
     {
-      services.power-profiles-daemon.enable = true;
+      services = {
+    	power-profiles-daemon.enable = true;
+    	upower.enable = true;
+    	};
     }
   #+end_src
 
@@ -690,7 +705,7 @@ Emacs configuration is crafted slowly by learning from all users in community. E
   #+begin_src nix 
     {
       nixpkgs = {
-        overlays = with inputs; [emacs-overlay.overlay];
+    	overlays = [ (import inputs.emacs-overlay) ];
       };
     }
   #+end_src
@@ -929,11 +944,9 @@ Pipewire setup, just these lines enough to make sane default for it
     {
       fonts = {
         packages = with pkgs; [
-          noto-fonts noto-fonts-emoji unifont
-          merriweather atkinson-hyperlegible
-          # (iosevka-bin.override { variant = "Aile"; }) nerd-fonts.iosevka
+          noto-fonts noto-fonts-emoji
+          material-symbols material-icons
         ];
-
         enableDefaultPackages = true;
       };
     }
@@ -1044,7 +1057,7 @@ Pipewire setup, just these lines enough to make sane default for it
 
   #+end_src
 
-*** wlsunset
+*** COMMENT wlsunset
 - replacing redshift for wayland. protecting from blue light during evenings
 
   #+begin_src nix 
@@ -1070,6 +1083,58 @@ Pipewire setup, just these lines enough to make sane default for it
 { services.kdeconnect.enable = true; }
   #+end_src
 
+*** easyeffects
+- Tweak the EQ and sound
+
+  #+begin_src nix
+    {
+      services.easyeffects = {
+    	enable = true;
+    	extraPresets = {
+    	  better-mic = {
+    		input = {
+    		  blocklist = [ ];
+    		  "plugins_order" = [
+    			"rnnoise#0" "speex#0" "deepfilternet#0"
+    		  ];
+    		  "rnnoise#0" = {
+    			bypass = false;
+    			"enable-vad" = false;
+    			"input-gain" = 0.0;
+    			"model-path" = "";
+    			"output-gain" = 0.0;
+    			release = 20.0;
+    			"vad-thres" = 50.0;
+    			wet = 0.0;
+    		  };
+    		  "deepfilternet#0" = {
+                "attenuation-limit" = 100.0;
+                "max-df-processing-threshold" = 20.0;
+                "max-erb-processing-threshold" = 30.0;
+                "min-processing-buffer" = 0;
+                "min-processing-threshold" = -10.0;
+                "post-filter-beta" = 0.02;
+              };
+    		  "speex#0" = {
+                "bypass" = false;
+                "enable-agc" = true;
+                "enable-denoise" = true;
+                "enable-dereverb" = true;
+                "input-gain" = 0.0;
+                "noise-suppression" = -70;
+                "output-gain" = 0.0;
+                "vad" = {
+                  "enable" = true;
+                  "probability-continue" = 90;
+                  "probability-start" = 95;
+    			};
+              };
+    		};
+    	  };
+    	};
+      };
+    }
+  #+end_src
 
 ** xdg
 - xdg standard to maintain desktop.
@@ -1110,19 +1175,22 @@ Pipewire setup, just these lines enough to make sane default for it
           };
         };
 
-        portal = {
+    	portal = {
           enable = true;
-          extraPortals = [ pkgs.xdg-desktop-portal-gnome pkgs.xdg-desktop-portal-gtk ];
+          config = {
+    		common = {
+              default = ["gnome" "gtk"];
+              "org.freedesktop.impl.portal.ScreenCast" = "gnome";
+              "org.freedesktop.impl.portal.Screenshot" = "gnome";
+              "org.freedesktop.impl.portal.RemoteDesktop" = "gnome";
+    		};
+          };
           configPackages = [ pkgs.niri ];
-          # config = {
-          #   common = {
-          #     default = [
-          #       "gtk" "gnome"
-          #     ];
-          #   };
-          # };
-          # # configPackages = [ pkgs.niri ];
-        };
+          xdgOpenUsePortal = true;
+          extraPortals = with pkgs; [
+    		xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-gnome
+          ];
+    	};
 
       };
       xdg.dataFile."applications/d-stuff.desktop".text = ''
@@ -1274,7 +1342,7 @@ Pipewire setup, just these lines enough to make sane default for it
           # toc-org
           org-ql ox-hugo markdown-mode typst-ts-mode
           flycheck consult-flycheck flycheck-eglot org-re-reveal
-    	  verb
+    	  verb forge melpaPackages.telega
           # dslide gptel
 
           (melpaBuild {
@@ -2359,29 +2427,39 @@ Pipewire setup, just these lines enough to make sane default for it
 - Note: This is written in =kdl= format
 
 #+begin_src conf :noweb-ref niri-config :tangle ~/.config/niri/config.kdl
-  //spawn-at-startup "sh" "-c" "dbus-update-activation-environment --systemd --all && systemctl --user reset-failed && systemctl --user stop niri-session.target && systemctl --user start niri-session.target"
   // Find the full list of options on the wiki:
   // https://github.com/YaLTeR/niri/wiki/Configuration:-Input
   input {
   	keyboard {
   		xkb { options "ctrl:nocaps"; }
-  		repeat-delay 600; repeat-rate 100;
+  		repeat-delay 600; repeat-rate 200;
   	}
   	touchpad {
   		tap; dwt; natural-scroll; accel-speed 0.4
   	}
-    mouse {
-  //    accel-profile "flat"
-    //  scroll-factor 0.5
-      //scroll-method "no-scroll"
-    }
-
   	focus-follows-mouse max-scroll-amount="30%"
     workspace-auto-back-and-forth
   }
 
+  debug {
+    honor-xdg-activation-with-invalid-serial
+  }
+
+  window-rule {
+      geometry-corner-radius 20
+      clip-to-geometry true
+  }
+
+  layer-rule {
+      match namespace="^quickshell-wallpaper$"
+  }
+
+  layer-rule {
+      match namespace="^quickshell-overview$"
+      place-within-backdrop true
+  }
+
   environment {
-  	DISPLAY ":0"
     QT_QPA_PLATFORM "wayland"
   	//QT_SCALE_FACTOR "1.5"
   	//GDK_SCALE "2"
@@ -2399,7 +2477,8 @@ Pipewire setup, just these lines enough to make sane default for it
   //}
 
   // startups
-  spawn-at-startup "d-walls"
+  spawn-at-startup "noctalia-shell"
+  spawn-at-startup "swayidle -w timeout 150 'brightnessctl -s set 5%' resume 'brightnessctl -r' timeout 180 'noctalia-shell ipc call lockScreen toggle' timeout 200 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' timeout 900 'systemctl suspend'"
 
   output "eDP-1" {
   	//scale 2
@@ -2546,29 +2625,38 @@ Pipewire setup, just these lines enough to make sane default for it
 
   	Mod+Return { spawn "footclient"; }
   	Mod+D { spawn "fuzzel"; }
-  	Mod+X {spawn "d-power"; }
-  	Mod+Y {spawn "d-clip"; }
+  	Mod+Shift+D { spawn-sh "noctalia-shell ipc call launcher toggle"; }
+  	Mod+X {spawn-sh "noctalia-shell ipc call powerPanel toggle"; }
+  	Mod+Y {spawn-sh "d-clip"; }
+  	Mod+Shift+Y {spawn-sh "noctalia-shell ipc call launcher clipboard"; }
   	Mod+W {spawn "d-urls"; }
   	Mod+Shift+B {spawn "d-bookmark"; }
-  	Mod+F5 allow-when-locked=true {spawn "d-walls"; }
+  	Mod+F5 allow-when-locked=true {spawn-sh "noctalia-shell ipc call wallpaper random"; }
   	Mod+o {spawn "d-stuff"; }
-    Mod+Ctrl+b {spawn "sh" "-c" "pkill -SIGUSR1 waybar || pidof -x waybar || waybar"; }
-    Mod+b { spawn "d-stats"; }
+    Mod+b { spawn-sh "noctalia-shell ipc call sidePanel toggle"; }
     Mod+Tab { spawn "d-niri"; }
     Mod+Delete { spawn "sh" "-c" "d-record stop"; }
-    Mod+Shift+T {spawn "sh" "-c" "swaync-client -t"; }
+    Mod+Shift+T {spawn-sh  "noctalia-shell ipc call notifications toggleHistory" ; }
     Mod+E {spawn "sh" "-c" "emacsclient -e '(d/write-here)'"; }
 
   	Mod+Ctrl+Equal allow-when-locked=true { spawn "niri" "msg" "output" "eDP-1" "on"; }
   	Mod+Ctrl+Minus allow-when-locked=true { spawn "niri" "msg" "output" "eDP-1" "off"; }
 
   	// The allow-when-locked=true property makes them work even when the session is locked.
-  	XF86AudioRaiseVolume allow-when-locked=true { spawn "d-ctrl" "volume" "up"; }
-  	XF86AudioLowerVolume allow-when-locked=true { spawn "d-ctrl" "volume" "down"; }
-  	XF86AudioMute        allow-when-locked=true { spawn "d-ctrl" "volume" "toggle"; }
-  	XF86AudioMicMute     allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
-  	XF86MonBrightnessUp allow-when-locked=true { spawn "d-ctrl" "brightness" "up"; }
-  	XF86MonBrightnessDown allow-when-locked=true { spawn "d-ctrl" "brightness" "down"; }
+  	XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "noctalia-shell ipc call volume increase"; }
+  	XF86AudioLowerVolume allow-when-locked=true { spawn-sh "noctalia-shell ipc call volume decrease"; }
+  	XF86AudioMute        allow-when-locked=true { spawn-sh "noctalia-shell ipc call volume muteOutput"; }
+  	//XF86AudioMicMute     allow-when-locked=true { spawn-sh "noctalia-shell ipc call volume muteInput"; }
+  	XF86MonBrightnessUp allow-when-locked=true { spawn-sh "noctalia-shell ipc call brightness increase"; }
+  	XF86MonBrightnessDown allow-when-locked=true { spawn-sh "noctalia-shell ipc call brightness decrease"; }
+
+  	//XF86AudioRaiseVolume allow-when-locked=true { spawn "d-ctrl" "volume" "up"; }
+  	//XF86AudioLowerVolume allow-when-locked=true { spawn "d-ctrl" "volume" "down"; }
+  	//XF86AudioMute        allow-when-locked=true { spawn "d-ctrl" "volume" "toggle"; }
+  	//XF86AudioMicMute     allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
+  	//XF86MonBrightnessUp allow-when-locked=true { spawn "d-ctrl" "brightness" "up"; }
+  	//XF86MonBrightnessDown allow-when-locked=true { spawn "d-ctrl" "brightness" "down"; }
+
 
   	Mod+Shift+Q { close-window; }
 
@@ -2670,8 +2758,8 @@ Pipewire setup, just these lines enough to make sane default for it
 
   	// Powers off the monitors. To turn them back on, do any input like
   	// moving the mouse or pressing any other key.
-  	Mod+Ctrl+P allow-when-locked=true { spawn "sh" "-c" "systemctl suspend"; }
-  	Mod+Ctrl+L allow-when-locked=true { spawn "sh" "-c" "hyprlock & niri msg action power-off-monitors" ; }
+  	Mod+Ctrl+P allow-when-locked=true { spawn-sh "noctalia-shell ipc call lockScreen toggle & systemctl suspend"; }
+  	Mod+Ctrl+L allow-when-locked=true { spawn-sh "noctalia-shell ipc call lockScreen toggle" ; }
   }
 
 #+end_src
@@ -2683,11 +2771,12 @@ Pipewire setup, just these lines enough to make sane default for it
       home.packages = with pkgs; [
         # screenshot
         grim slurp nautilus
+    	libreoffice-fresh
 
         libnotify libsixel
         brightnessctl
         wtype gtk3
-        swaybg swayimg
+        swaybg swayimg swayidle wlsunset
 
         wl-screenrec wl-mirror
         wl-clipboard-rs xwayland-satellite
@@ -2702,7 +2791,7 @@ Pipewire setup, just these lines enough to make sane default for it
     }
   #+end_src
 
-*** hypridle
+*** COMMENT hypridle
 - Idle manager made for/with hyprland
 
   #+begin_src nix 
@@ -2746,7 +2835,7 @@ Pipewire setup, just these lines enough to make sane default for it
     }
   #+end_src
 
-*** hyprlock
+*** COMMENT hyprlock
 
   #+begin_src nix 
     {
@@ -2780,6 +2869,11 @@ Pipewire setup, just these lines enough to make sane default for it
           '';
         };
       };
+
+      home.packages = [
+    	inputs.noctalia.packages.x86_64-linux.default
+        inputs.quickshell.packages.x86_64-linux.default
+      ];
     }
   #+end_src
 
@@ -2827,6 +2921,7 @@ Pipewire setup, just these lines enough to make sane default for it
 
         ssh = {
           enable = true;
+    	  enableDefaultConfig = true;
           extraOptionOverrides = {
             SetEnv = "TERM=xterm-256color";
           };
@@ -3023,7 +3118,7 @@ Pipewire setup, just these lines enough to make sane default for it
   #+end_src
 
 *** Notifications
-**** swaync
+**** COMMENT swaync
 #+begin_src nix 
   {
     services.swaync = {
@@ -3376,7 +3471,7 @@ Pipewire setup, just these lines enough to make sane default for it
      view-read-only t
      custom-file (expand-file-name "custom.el" user-emacs-directory)
      safe-local-variable-directories
-     '("/home/idlip/d-sync/notes/")
+     '("~/d-sync/notes/")
      create-lockfiles nil
      backup-directory-alist '(("." . "~/.config/emacs/backups"))
      version-control t 
@@ -4855,9 +4950,16 @@ to get bash alias to eshell way
          ;; (nntp "news.gmane.io"
     		 ;;  		 (nntp-open-connection-function nntp-open-network-stream)
     		 ;;  		 (nntp-connection-timeout 5))
-    	   (nntp "yhetil" (nntp-address "news.yhetil.org"))
+    	   ;; (nntp "yhetil" (nntp-address "news.yhetil.org"))
          (nnrss "")
          ))
+
+      (gnus-server-alist '(
+    					   ("archive" nnfolder "archive"
+    						(nnfolder-directory "~/.config/emacs/feeds/gnews/mail/archive")
+    						(nnfolder-active-file "~/.config/emacs/feeds/gnews/mail/archive/active")
+    						(nnfolder-get-new-mail nil) (nnfolder-inhibit-expiry t))
+    					   ))
 
       ;; refer: https://github.com/redguardtoo/mastering-emacs-in-one-year-guide/blob/master/gnus-guide-en.org
       (gnus-thread-sort-functions '(gnus-thread-sort-by-most-recent-date gnus-thread-sort-by-score))
@@ -4987,8 +5089,8 @@ to get bash alias to eshell way
 
 - More mails
   #+begin_src emacs-lisp :tangle no
-    (unless d/on-droid
-      (setopt gnus-init-file "~/d-sync/feeds/gnews/privmail.el"))
+    (use-package gnus :if d/on-foss
+      :config (load-file "~/d-sync/feeds/gnews/privmail.el"))
   #+end_src
 
 *** Web
@@ -5104,24 +5206,25 @@ to get bash alias to eshell way
 - An emacs built-in frontend for MPD.
 
   #+begin_src emacs-lisp
-  (use-package mpc
-    :bind (("C-c d m" . mpc)
-           (:map mpc-mode-map
-                 ("SPC" . mpc-playlist-add)
-                 ("RET" . mpc-select)
-                 ("C-k" . mpc-playlist-delete)
-                 ("m" . mpc-select-dwim)
-                 ("C-r" . mpc-songs-search)
-                 ("f" . mpc-ffwd)
-                 ("b" . mpc-rewind)
-                 ))
-    :custom (mpc-browser-tags '(Title))
-    :config
-    (defun mpc-select-dwim ()
-      (interactive)
-      (mpc-select-toggle)
-      (next-line)
-      ))
+    (use-package mpc
+      :bind (("C-c d m" . mpc)
+             (:map mpc-mode-map
+                   ("SPC" . mpc-playlist-add)
+                   ("RET" . mpc-select)
+                   ("C-k" . mpc-playlist-delete)
+                   ("m" . mpc-select-dwim)
+                   ("C-r" . mpc-songs-search)
+                   ("f" . mpc-ffwd)
+                   ("b" . mpc-rewind)
+    			   ("." . mpc-play-at-point) ("u" . mpc-update)
+                   ))
+      :custom (mpc-browser-tags '(Title))
+      :config
+      (defun mpc-select-dwim ()
+        (interactive)
+        (mpc-select-toggle)
+        (next-line)
+        ))
   #+end_src
 
 *** set-face

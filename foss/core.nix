@@ -29,6 +29,7 @@
   
       supportedFilesystems = [ "ntfs" ];
       tmp.cleanOnBoot = true;
+  	enableContainers = true;
   
       kernelParams = [
         "systemd.mask=dev-tpmrm0.device" #this is to mask that stupid 1.5 mins systemd bug
@@ -218,7 +219,10 @@
     services.hardware.bolt.enable = true;
   }
   {
-    services.power-profiles-daemon.enable = true;
+    services = {
+  	power-profiles-daemon.enable = true;
+  	upower.enable = true;
+  	};
   }
   {
     services.thermald.enable = true;
@@ -240,7 +244,7 @@
   }
   {
     nixpkgs = {
-      overlays = with inputs; [emacs-overlay.overlay];
+  	overlays = [ (import inputs.emacs-overlay) ];
     };
   }
   {
@@ -366,11 +370,9 @@
   {
     fonts = {
       packages = with pkgs; [
-        noto-fonts noto-fonts-emoji unifont
-        merriweather atkinson-hyperlegible
-        # (iosevka-bin.override { variant = "Aile"; }) nerd-fonts.iosevka
+        noto-fonts noto-fonts-emoji
+        material-symbols material-icons
       ];
-  
       enableDefaultPackages = true;
     };
   }

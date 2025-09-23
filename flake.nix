@@ -23,12 +23,23 @@
     };
 
     emacs-overlay = {
-      url = "github:nix-community/emacs-overlay/a8d10a8a687576f3b8cfa280218cef369192ca40";
+      url = "github:nix-community/emacs-overlay/d2fb4867d77142eb9933431e2f6f9bb4b151228b";
     };
 
     stylix = {
       url = "github:nix-community/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+	quickshell = {
+      url = "github:outfoxxed/quickshell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+	noctalia = {
+      url = "github:noctalia-dev/noctalia-shell";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.quickshell.follows = "quickshell";
     };
 
 	youtube_adblock = {
@@ -71,7 +82,7 @@
   };
 
   outputs =
-    { nixpkgs, home-manager, nix-index-database, stylix, ... }@inputs:
+    { nixpkgs, home-manager, nix-index-database, stylix, noctalia, quickshell, ... }@inputs:
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.x86_64-linux;

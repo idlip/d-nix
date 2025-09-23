@@ -61,7 +61,7 @@
  view-read-only t
  custom-file (expand-file-name "custom.el" user-emacs-directory)
  safe-local-variable-directories
- '("/home/idlip/d-sync/notes/")
+ '("~/d-sync/notes/")
  create-lockfiles nil
  backup-directory-alist '(("." . "~/.config/emacs/backups"))
  version-control t 
@@ -665,9 +665,16 @@
      ;; (nntp "news.gmane.io"
 		 ;;  		 (nntp-open-connection-function nntp-open-network-stream)
 		 ;;  		 (nntp-connection-timeout 5))
-	   (nntp "yhetil" (nntp-address "news.yhetil.org"))
+	   ;; (nntp "yhetil" (nntp-address "news.yhetil.org"))
      (nnrss "")
      ))
+
+  (gnus-server-alist '(
+					   ("archive" nnfolder "archive"
+						(nnfolder-directory "~/.config/emacs/feeds/gnews/mail/archive")
+						(nnfolder-active-file "~/.config/emacs/feeds/gnews/mail/archive/active")
+						(nnfolder-get-new-mail nil) (nnfolder-inhibit-expiry t))
+					   ))
 
   ;; refer: https://github.com/redguardtoo/mastering-emacs-in-one-year-guide/blob/master/gnus-guide-en.org
   (gnus-thread-sort-functions '(gnus-thread-sort-by-most-recent-date gnus-thread-sort-by-score))
@@ -878,6 +885,7 @@ images."
                ("C-r" . mpc-songs-search)
                ("f" . mpc-ffwd)
                ("b" . mpc-rewind)
+			   ("." . mpc-play-at-point) ("u" . mpc-update)
                ))
   :custom (mpc-browser-tags '(Title))
   :config

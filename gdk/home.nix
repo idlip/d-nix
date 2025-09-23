@@ -30,19 +30,54 @@
 	  };
 	}
 	
+	{ services.kdeconnect.enable = true; }
 	{
-	  services= {
-	    wlsunset = {
-	      enable = true;
-	      latitude = "22.0";
-	      longitude = "77.0";
-	      temperature.day = 6500;
-	      temperature.night = 4000;
-	      systemdTarget = "graphical-session.target";
-	    };
+	  services.easyeffects = {
+		enable = true;
+		extraPresets = {
+		  better-mic = {
+			input = {
+			  blocklist = [ ];
+			  "plugins_order" = [
+				"rnnoise#0" "speex#0" "deepfilternet#0"
+			  ];
+			  "rnnoise#0" = {
+				bypass = false;
+				"enable-vad" = false;
+				"input-gain" = 0.0;
+				"model-path" = "";
+				"output-gain" = 0.0;
+				release = 20.0;
+				"vad-thres" = 50.0;
+				wet = 0.0;
+			  };
+			  "deepfilternet#0" = {
+	            "attenuation-limit" = 100.0;
+	            "max-df-processing-threshold" = 20.0;
+	            "max-erb-processing-threshold" = 30.0;
+	            "min-processing-buffer" = 0;
+	            "min-processing-threshold" = -10.0;
+	            "post-filter-beta" = 0.02;
+	          };
+			  "speex#0" = {
+	            "bypass" = false;
+	            "enable-agc" = true;
+	            "enable-denoise" = true;
+	            "enable-dereverb" = true;
+	            "input-gain" = 0.0;
+	            "noise-suppression" = -70;
+	            "output-gain" = 0.0;
+	            "vad" = {
+	              "enable" = true;
+	              "probability-continue" = 90;
+	              "probability-start" = 95;
+				};
+	          };
+			};
+		  };
+		};
 	  };
 	}
-	{ services.kdeconnect.enable = true; }
 	{
 	  xdg = {
 	    enable = true;
@@ -77,19 +112,22 @@
 	      };
 	    };
 	
-	    portal = {
+		portal = {
 	      enable = true;
-	      extraPortals = [ pkgs.xdg-desktop-portal-gnome pkgs.xdg-desktop-portal-gtk ];
+	      config = {
+			common = {
+	          default = ["gnome" "gtk"];
+	          "org.freedesktop.impl.portal.ScreenCast" = "gnome";
+	          "org.freedesktop.impl.portal.Screenshot" = "gnome";
+	          "org.freedesktop.impl.portal.RemoteDesktop" = "gnome";
+			};
+	      };
 	      configPackages = [ pkgs.niri ];
-	      # config = {
-	      #   common = {
-	      #     default = [
-	      #       "gtk" "gnome"
-	      #     ];
-	      #   };
-	      # };
-	      # # configPackages = [ pkgs.niri ];
-	    };
+	      xdgOpenUsePortal = true;
+	      extraPortals = with pkgs; [
+			xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-gnome
+	      ];
+		};
 	
 	  };
 	  xdg.dataFile."applications/d-stuff.desktop".text = ''
@@ -203,7 +241,7 @@
 	      # toc-org
 	      org-ql ox-hugo markdown-mode typst-ts-mode
 	      flycheck consult-flycheck flycheck-eglot org-re-reveal
-		  verb
+		  verb forge melpaPackages.telega
 	      # dslide gptel
 	
 	      (melpaBuild {
@@ -1014,11 +1052,12 @@
 	  home.packages = with pkgs; [
 	    # screenshot
 	    grim slurp nautilus
+		libreoffice-fresh
 	
 	    libnotify libsixel
 	    brightnessctl
 	    wtype gtk3
-	    swaybg swayimg
+	    swaybg swayimg swayidle wlsunset
 	
 	    wl-screenrec wl-mirror
 	    wl-clipboard-rs xwayland-satellite
@@ -1030,49 +1069,6 @@
 	
 	    mpc_cli ani-cli
 	  ];
-	}
-	{
-	  services.hypridle = let
-	    hyprlock = lib.getExe pkgs.hyprlock;
-	    brightness = lib.getExe pkgs.brightnessctl;
-	    niri = lib.getExe pkgs.niri;
-	    timeout = 200; # base timer to act upon
-	    in {
-	    enable = true;
-	    settings ={
-	      general = {
-	        lock_cmd = "pidof hyprlock || ${hyprlock}";       # avoid starting multiple hyprlock instances.
-	        before_sleep_cmd = "${pkgs.systemd}/bin/loginctl lock-session";    # lock before suspend.
-	        unlock_cmd = "notify-send 'Welcome back!'";
-	      };
-	
-	      listener = [
-	        {
-	          timeout = timeout - 50;
-	          on-timeout = "${brightness} -s set 5%";         # set monitor backlight to minimum, avoid 0 on OLED monitor.
-	          on-resume = "${brightness} -r";                 # monitor backlight restore.
-	        }
-	        {
-	          timeout = timeout;
-	          on-timeout = "loginctl lock-session";
-	        }
-	        {
-	          timeout = timeout + 10;
-	          on-timeout = "${niri} msg action power-off-monitors";
-	          on-resume = "${niri} msg action power-on-monitors";
-	        }
-	        {
-	          timeout = timeout * 5;
-	          on-timeout = "systemctl suspend";
-	        }
-	      ];
-	    };
-	  };
-	}
-	{
-	  programs.hyprlock = {
-	    enable = true;
-	  };
 	}
 	{
 	  stylix = {
@@ -1093,6 +1089,11 @@
 	      '';
 	    };
 	  };
+	
+	  home.packages = [
+		inputs.noctalia.packages.x86_64-linux.default
+	    inputs.quickshell.packages.x86_64-linux.default
+	  ];
 	}
 	{
 	  programs = {
@@ -1134,6 +1135,7 @@
 	
 	    ssh = {
 	      enable = true;
+		  enableDefaultConfig = true;
 	      extraOptionOverrides = {
 	        SetEnv = "TERM=xterm-256color";
 	      };
@@ -1283,75 +1285,6 @@
 	      continue = "true";
 	      rpc-save-upload-metadata = "false";
 	    };
-	  };
-	}
-	{
-	  services.swaync = {
-	    enable = true;
-	    settings = {
-	      layer = "overlay";
-	
-	      # widgets = [ "title" "dnd" "notifications" "mpris" "volume" "backlight" "buttons-grid" ];
-	      widgets = [ "buttons-grid" "volume" "mpris" "title" "dnd" "notifications" ];
-	
-	      widget-config = {
-	        title = {
-	          text = "Notification Center";
-	          clear-all-button = true;
-	          button-text = "󰆴";
-	        };
-	        mpris = {
-	          image-size = 80;
-	          image-radius = 10;
-	        };
-	        volume = {
-	          label = "󰕾";
-	          step = 5;
-	        };
-	        backlight = {
-	          label = "󰃟";
-	          step = 5;
-	        };
-	        buttons-grid = {
-	          actions = [
-	            {
-	              label = "󰖩";
-	              command = "d-wifi";
-	            }
-	            {
-	              label = "󰂯";
-	              command = "blueman-manager";
-	            }
-	            {
-	              label = "";
-	              command = "d-record";
-	            }
-	            {
-	              label = "󰕾";
-	              command = "d-ctrl volume toggle";
-	              type = "toggle";
-	            }
-	            {
-	              label = "󰍬";
-	              command = "d-ctrl mic";
-	              type = "toggle";
-	            }
-	            {
-	              label = "󰌾";
-	              command = "hyprlock";
-	            }
-	            {
-	              label = "⏻";
-	              command = "d-power";
-	            }
-	          ];
-	        };
-	      };
-	    };
-	
-	    style = ''
-	       @define-color base06 #ffffff;
-	    '';
 	  };
 	}
 	{

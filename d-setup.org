@@ -99,6 +99,8 @@ Emacs configuration is crafted slowly by learning from all users in community. E
         inputs.quickshell.follows = "quickshell";
       };
 
+      vicinae.url = "github:vicinaehq/vicinae";
+
   	<<flake-files>>
 
     };
@@ -460,6 +462,11 @@ Emacs configuration is crafted slowly by learning from all users in community. E
       systemd.sleep.extraConfig = ''
        AllowSuspend=yes
        '';
+      # Avoid long stop job (easyeffects)
+      systemd.user.extraConfig = ''DefaultTimeoutStopSec=10s'';
+      systemd.settings.Manager = {
+    	DefaultTimeoutStopSec = "10s";
+      };
     }
   #+end_src
 
@@ -729,6 +736,9 @@ Emacs configuration is crafted slowly by learning from all users in community. E
           warn-dirty = false;
 
           # use binary cache, its not gentoo
+    	  trusted-users = [ "root" "dev" "idlip" ];
+    	  extra-substituters = [ "https://vicinae.cachix.org" ];
+    	  extra-trusted-public-keys = [ "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc=" ];
           substituters = [ "https://nix-community.cachix.org" ];
           trusted-public-keys = [ "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" ];
         };
@@ -1013,6 +1023,246 @@ Pipewire setup, just these lines enough to make sane default for it
 
     }
   #+end_src
+
+** Noctalia
+- Quickshell to make WM as desktop environment
+
+  #+begin_src nix
+    inputs.noctalia.nixosModules.default
+    {
+      services.noctalia-shell = {
+        enable = true;
+      };
+    }
+  #+end_src
+
+*** Noctalia settings
+
+#+begin_src json-ts :noweb-ref noctalia :tangle ~/.config/noctalia/settings.json 
+  {
+    "appLauncher": {
+      "backgroundOpacity": 1,
+      "enableClipboardHistory": true,
+      "pinnedExecs": [
+      ],
+      "position": "center",
+      "useApp2Unit": true
+    },
+    "audio": {
+      "cavaFrameRate": 60,
+      "mprisBlacklist": [
+      ],
+      "preferredPlayer": "",
+      "showMiniplayerAlbumArt": false,
+      "showMiniplayerCava": false,
+      "visualizerType": "linear",
+      "volumeStep": 5
+    },
+    "bar": {
+      "alwaysShowBatteryPercentage": false,
+      "backgroundOpacity": 1,
+      "density": "comfortable",
+      "floating": true,
+      "marginHorizontal": 0.25,
+      "marginVertical": 0.25,
+      "monitors": [
+      ],
+      "position": "top",
+      "showActiveWindowIcon": true,
+      "showCapsule": false,
+      "showNetworkStats": false,
+      "showWorkspaceLabel": "none",
+      "useDistroLogo": false,
+      "widgets": {
+        "center": [
+          {
+            "displayFormat": "time-date-short",
+            "id": "Clock",
+            "reverseDayMonth": false,
+            "use12HourClock": false
+          },
+          {
+            "hideUnoccupied": false,
+            "id": "Workspace",
+            "labelMode": "none"
+          }
+        ],
+        "left": [
+          {
+            "id": "SystemMonitor",
+            "showCpuTemp": true,
+            "showCpuUsage": true,
+            "showDiskUsage": false,
+            "showMemoryAsPercent": false,
+            "showMemoryUsage": true,
+            "showNetworkStats": false
+          },
+          {
+            "id": "Taskbar"
+          }
+        ],
+        "right": [
+          {
+            "id": "MediaMini",
+            "showAlbumArt": true,
+            "showVisualizer": true,
+            "visualizerType": "linear"
+          },
+          {
+            "id": "ScreenRecorderIndicator"
+          },
+          {
+            "id": "Tray"
+          },
+          {
+            "hideWhenZero": true,
+            "id": "NotificationHistory",
+            "showUnreadBadge": true
+          },
+          {
+            "id": "WiFi"
+          },
+          {
+            "alwaysShowPercentage": false,
+            "displayMode": "alwaysShow",
+            "id": "Battery",
+            "warningThreshold": 40
+          },
+          {
+            "alwaysShowPercentage": false,
+            "displayMode": "onhover",
+            "id": "Volume"
+          },
+          {
+            "alwaysShowPercentage": false,
+            "displayMode": "onhover",
+            "id": "Brightness"
+          },
+          {
+            "id": "NightLight"
+          },
+          {
+            "id": "SidePanelToggle",
+            "useDistroLogo": true
+          }
+        ]
+      }
+    },
+    "brightness": {
+      "brightnessStep": 5
+    },
+    "colorSchemes": {
+      "darkMode": true,
+      "predefinedScheme": "",
+      "useWallpaperColors": true
+    },
+    "dock": {
+      "autoHide": false,
+      "backgroundOpacity": 1,
+      "exclusive": false,
+      "floatingRatio": 1,
+      "monitors": [
+      ]
+    },
+    "general": {
+      "animationSpeed": 1,
+      "avatarImage": "/home/dev/media/pics/wp6489081-anime-ps4-luffy-wallpapers.jpg",
+      "dimDesktop": true,
+      "forceBlackScreenCorners": false,
+      "radiusRatio": 1,
+      "screenRadiusRatio": 1,
+      "showScreenCorners": false
+    },
+    "hooks": {
+      "darkModeChange": "",
+      "enabled": false,
+      "wallpaperChange": ""
+    },
+    "location": {
+      "name": "Bengaluru",
+      "reverseDayMonth": false,
+      "showDateWithClock": false,
+      "use12HourClock": false,
+      "useFahrenheit": false
+    },
+    "matugen": {
+      "enableUserTemplates": true,
+      "foot": false,
+      "fuzzel": false,
+      "ghostty": false,
+      "gtk3": false,
+      "gtk4": false,
+      "kitty": false,
+      "pywalfox": false,
+      "qt5": false,
+      "qt6": false,
+      "vesktop": false
+    },
+    "network": {
+      "bluetoothEnabled": false,
+      "wifiEnabled": true
+    },
+    "nightLight": {
+      "autoSchedule": true,
+      "dayTemp": "6500",
+      "enabled": true,
+      "forced": false,
+      "manualSunrise": "06:30",
+      "manualSunset": "18:30",
+      "nightTemp": "4000"
+    },
+    "notifications": {
+      "criticalUrgencyDuration": 15,
+      "doNotDisturb": false,
+      "lastSeenTs": 1758698000000,
+      "lowUrgencyDuration": 3,
+      "monitors": [
+      ],
+      "normalUrgencyDuration": 8
+    },
+    "screenRecorder": {
+      "audioCodec": "opus",
+      "audioSource": "default_output",
+      "colorRange": "limited",
+      "directory": "/home/dev/media/stream/",
+      "frameRate": 60,
+      "quality": "very_high",
+      "showCursor": true,
+      "videoCodec": "h264",
+      "videoSource": "portal"
+    },
+    "settingsVersion": 3,
+    "ui": {
+      "fontBillboard": "Inter",
+      "fontDefault": "Inter",
+      "fontFixed": "Maple Mono NF",
+      "idleInhibitorEnabled": false,
+      "monitorsScaling": [
+      ]
+    },
+    "wallpaper": {
+      "directory": "/home/dev/d-git/d-wallpapers/walls/",
+      "enableMultiMonitorDirectories": true,
+      "enabled": true,
+      "fillColor": "#000000",
+      "fillMode": "crop",
+      "monitors": [
+        {
+          "directory": "/home/dev/d-git/d-wallpapers/walls/",
+          "name": "eDP-1",
+          "wallpaper": "/home/dev/d-git/d-wallpapers/walls//collected-56.jpg"
+        }
+      ],
+      "randomEnabled": true,
+      "randomIntervalSec": 3600,
+      "setWallpaperOnAllMonitors": true,
+      "transitionDuration": 1500,
+      "transitionEdgeSmoothness": 0.05,
+      "transitionType": "random"
+    }
+  }
+#+end_src
+
 
 
 * HomeManager
@@ -1342,6 +1592,7 @@ Pipewire setup, just these lines enough to make sane default for it
           # toc-org
           org-ql ox-hugo markdown-mode typst-ts-mode
           flycheck consult-flycheck flycheck-eglot org-re-reveal
+    	  flycheck-vale
     	  verb forge melpaPackages.telega
           # dslide gptel
 
@@ -1816,6 +2067,7 @@ Pipewire setup, just these lines enough to make sane default for it
     	  tabs.title.format = "{audio}{current_title}";
     	  completion.open_categories = ["searchengines" "quickmarks" "bookmarks" "history" "filesystem"];
     	  auto_save.session = true;
+    	  colors.webpage.preferred_color_scheme = "dark";
     	  colors.webpage.darkmode.enabled = true;
     	  colors.webpage.darkmode.algorithm = "lightness-cielab";
     	  colors.webpage.darkmode.policy.images = "never";
@@ -1840,7 +2092,7 @@ Pipewire setup, just these lines enough to make sane default for it
     	  hints.uppercase = true;
 
     	  statusbar.position = "bottom";
-    	  statusbar.show = "always";
+    	  statusbar.show = "never";
     	  statusbar.widgets = ["keypress" "search_match" "url" "scroll" "tabs"];
 
     	  url.default_page = "about:blank";
@@ -1897,6 +2149,7 @@ Pipewire setup, just these lines enough to make sane default for it
 
     "tf" = "config-cycle content.user_stylesheets '~/.config/qutebrowser/css/mono.css' ''";
     "<Ctrl-c>f" = "config-cycle content.user_stylesheets '~/.config/qutebrowser/css/mono.css' ''";
+    "i" = "config-cycle colors.webpage.darkmode.enabled";
 
     "<Alt-.>" = "scroll-to-perc";
     "<Alt-,>" = "scroll-to-perc 0";
@@ -1985,7 +2238,6 @@ Pipewire setup, just these lines enough to make sane default for it
     "<Ctrl-x>5p" = "cmd-set-text -s :open -p";
     "<Ctrl-x>50" = "cmd-set-text -s :close";
     "<Ctrl-x>5u" = "undo -w";
-    "<Ctrl-x><Ctrl-q>" = "close";
     # Zooming
     "<Ctrl-x>=" = "zoom-in";
     "<Ctrl-x>-" = "zoom-out";
@@ -2061,6 +2313,7 @@ Pipewire setup, just these lines enough to make sane default for it
     "<Ctrl-m>" = "mode-enter insert";
     # passthrough
     "<Shift-Escape>" = "mode-enter passthrough";
+    "<Ctrl-x><Ctrl-q>" = "mode-enter passthrough";
     # Quit qutebrowser
     "<Ctrl-x><Ctrl-c>" = "quit";
     "<Ctrl-u><Ctrl-x><Ctrl-c>" = "close";
@@ -2069,6 +2322,13 @@ Pipewire setup, just these lines enough to make sane default for it
     "<Ctrl-r>" = "cmd-set-text ?";
           
   };
+
+    passthrough = {
+    	"<Shift-Escape>" = "mode-leave";
+      "<Escape>" = "mode-leave";
+      "<Ctrl-g>" = "mode-leave";
+    };
+
 
     command = {
       # command mode
@@ -2267,31 +2527,31 @@ Pipewire setup, just these lines enough to make sane default for it
 *** mpd
 
   #+begin_src nix 
-  {
-    services = {
-      mpd = {
-        enable = true;
-        musicDirectory = config.xdg.userDirs.music;
-        network = {
-          listenAddress = "127.0.0.1";
-          port = 6600;
-          startWhenNeeded = true;
+    {
+      services = {
+        mpd = {
+          enable = true;
+          musicDirectory = config.xdg.userDirs.music;
+          network = {
+            listenAddress = "127.0.0.1";
+            port = 6600;
+            startWhenNeeded = true;
+          };
+          extraConfig = ''
+          audio_output {
+            type            "pipewire"
+            name            "pipewire sound server"
+          }
+          auto_update "yes"
+          bind_to_address "@mpd"
+        '';
         };
-        extraConfig = ''
-        audio_output {
-          type            "pipewire"
-          name            "pipewire sound server"
-        }
-        auto_update "yes"
-        bind_to_address "@mpd"
-      '';
+
+    	mpd-mpris.enable = true;
+        playerctld.enable = true;
+
       };
-
-      playerctld.enable = true;
-
-    };
-
-  }
+    }
   #+end_src
 
 *** mpv
@@ -2478,7 +2738,7 @@ Pipewire setup, just these lines enough to make sane default for it
 
   // startups
   spawn-at-startup "noctalia-shell"
-  spawn-at-startup "swayidle -w timeout 150 'brightnessctl -s set 5%' resume 'brightnessctl -r' timeout 180 'noctalia-shell ipc call lockScreen toggle' timeout 200 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' timeout 900 'systemctl suspend'"
+  spawn-at-startup "sh" "-c" "swayidle -w timeout 150 'brightnessctl -s set 5%' resume 'brightnessctl -r' timeout 180 'noctalia-shell ipc call lockScreen toggle' timeout 200 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' timeout 900 'systemctl suspend'"
 
   output "eDP-1" {
   	//scale 2
@@ -2624,16 +2884,16 @@ Pipewire setup, just these lines enough to make sane default for it
   	Mod+Shift+Slash { show-hotkey-overlay; } // S-?
 
   	Mod+Return { spawn "footclient"; }
-  	Mod+D { spawn "fuzzel"; }
+  	Mod+D { spawn-sh "vicinae"; }
   	Mod+Shift+D { spawn-sh "noctalia-shell ipc call launcher toggle"; }
-  	Mod+X {spawn-sh "noctalia-shell ipc call powerPanel toggle"; }
-  	Mod+Y {spawn-sh "d-clip"; }
+  	Mod+X {spawn-sh "noctalia-shell ipc call sessionMenu toggle"; }
+  	Mod+Y {spawn-sh "vicinae vicinae://extensions/vicinae/clipboard/history"; }
   	Mod+Shift+Y {spawn-sh "noctalia-shell ipc call launcher clipboard"; }
   	Mod+W {spawn "d-urls"; }
   	Mod+Shift+B {spawn "d-bookmark"; }
   	Mod+F5 allow-when-locked=true {spawn-sh "noctalia-shell ipc call wallpaper random"; }
   	Mod+o {spawn "d-stuff"; }
-    Mod+b { spawn-sh "noctalia-shell ipc call sidePanel toggle"; }
+    Mod+b { spawn-sh "noctalia-shell ipc call controlCenter toggle"; }
     Mod+Tab { spawn "d-niri"; }
     Mod+Delete { spawn "sh" "-c" "d-record stop"; }
     Mod+Shift+T {spawn-sh  "noctalia-shell ipc call notifications toggleHistory" ; }
@@ -2869,13 +3129,48 @@ Pipewire setup, just these lines enough to make sane default for it
           '';
         };
       };
-
-      home.packages = [
-    	inputs.noctalia.packages.x86_64-linux.default
-        inputs.quickshell.packages.x86_64-linux.default
-      ];
     }
   #+end_src
+
+** Vicinae
+- The raycast for Linux
+
+  #+begin_src nix
+    inputs.vicinae.homeManagerModules.default
+    {
+      services.vicinae = {
+        enable = true;
+        autoStart = true;
+      };
+    }
+  #+end_src
+
+
+
+*** vicinae config/setting
+#+begin_src json-ts :noweb-ref vicinae :tangle ~/.config/vicinae/vicinae.json
+  {
+    "closeOnFocusLoss": false,
+    "faviconService": "twenty",
+    "font": {
+      "size": 12
+    },
+    "keybinding": "emacs",
+    "popToRootOnClose": false,
+    "rootSearch": {
+      "searchFiles": false
+    },
+    "theme": {
+      "iconTheme": "Papirus-Dark",
+      "name": "github-dark.json"
+    },
+    "window": {
+      "csd": true,
+      "opacity": 0.95,
+      "rounding": 10
+    }
+  }
+#+end_src
 
 ** CLI
 - fast, robust cli tools.
@@ -3191,7 +3486,7 @@ Pipewire setup, just these lines enough to make sane default for it
   }
 #+end_src
 
-*** clipboard
+*** COMMENT clipboard
 - To manage clipboard history and watch it.
 
   #+begin_src nix 
@@ -3203,11 +3498,6 @@ Pipewire setup, just these lines enough to make sane default for it
         ];
       };
     }
-  #+end_src
-
-**** clip in emacs
-
-  #+begin_src emacs-lisp
   #+end_src
 
 *** COMMENT games
@@ -3243,21 +3533,19 @@ Pipewire setup, just these lines enough to make sane default for it
 
 #+begin_src nix 
   {
-    programs.fuzzel = {
+    programs.rofi = {
       enable = true;
-      settings = {
-        main = {
-          prompt = "'  '";
-          show-actions = true;
-          list-executables-in-path = true;
-          layer = "overlay";
-          exit-on-keyboard-focus-loss = false;
-          match-mode = "fuzzy";
-        };
-        border = {
-          width = 4;
-          radius = 16;
-        };
+  	plugins = with pkgs; [ rofi-nerdy rofi-calc rofi-emoji ];
+  	modes = [ "drun" "run" "window" ];
+      extraConfig = {
+        modi = "drun,run,window";
+        show-icons = true;
+        hide-scrollbar = true;
+        display-drun = "   Apps ";
+        display-run = "   Run ";
+        display-window = "󰍲   Window";
+        sidebar-mode = true;
+        drun-show-actions = true;
       };
     };
   }
@@ -3965,28 +4253,29 @@ Pipewire setup, just these lines enough to make sane default for it
   #+end_src
 ****** markdown-templates
   #+begin_src emacs-lisp
-markdown-mode
+    markdown-mode
 
-(gitcollapse "## " (p "Heading") n n "<details>" n n
-       "<summary>" (p "Sub Heading")  "</summary>" n n
-       (r "Insert Link or comments") n n "</details>")
-(bolditalics "***" p "***")
+    (gitcollapse "## " (p "Heading") n n "<details>" n n
+           "<summary>" (p "Sub Heading")  "</summary>" n n
+           (r "Insert Link or comments") n n "</details>")
+    (bolditalics "***" p "***")
 
-(androidfoss "* [**" (p "pname") "**](" (p "Git") ") <sup>**[[F-Droid](" (p "Fdroid") ")]**</sup>")
+    (androidfoss "* [**" (p "pname") "**](" (p "Git") ") <sup>**[[F-Droid](" (p "Fdroid") ")]**</sup>")
 
-(srcblock (call-interactively #'markdown-insert-gfm-code-block))
-(src "'" p "'")
-(unorderlist "- " (p "First") n> "- " (p "Second") n> "- " (p "Third"))
-(orderlist "1. " (p "First") n> "2. " (p "Second") n> "3. " (p "Third"))
-(insertimage (call-interactively #'markdown-insert-image))
-(insertlink (call-interactively #'markdown-insert-link))
-(hugotitle "+++" n "title = " (p "title") n "date = " (format-time-string "%Y-%m-%d") n "tags = [ " (p "tag1, tag2 ") "]" n "draft = false" n "+++")
-(h1 "# " p " #")
-(h2 "## " p " ##")
-(h3 "### " p " ###")
-(h4 "#### " p " ####")
-(inserttable (call-interactively #'markdown-insert-table))
+    (srcblock (call-interactively #'markdown-insert-gfm-code-block))
+    (src "'" p "'")
+    (unorderlist "- " (p "First") n> "- " (p "Second") n> "- " (p "Third"))
+    (orderlist "1. " (p "First") n> "2. " (p "Second") n> "3. " (p "Third"))
+    (insertimage (call-interactively #'markdown-insert-image))
+    (insertlink (call-interactively #'markdown-insert-link))
+    (hugotitle "+++" n "title = " (p "title") n "date = " (format-time-string "%Y-%m-%d") n "tags = [ " (p "tag1, tag2 ") "]" n "draft = false" n "+++")
+    (h1 "# " p " #")
+    (h2 "## " p " ##")
+    (h3 "### " p " ###")
+    (h4 "#### " p " ####")
+    (inserttable (call-interactively #'markdown-insert-table))
 
+    (techreport "## " (p "Month") " 2025" n> n> "---" n> "### 🚀 PR Highlights" n> n> "#### " (p "Report") n> n> "---" n> "### 🌟 New Contributor Spotlight" n>)
   #+end_src
 ****** elisp-templates
   #+begin_src emacs-lisp
@@ -5771,6 +6060,9 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
       :init (global-jinx-mode)
       :hook org-mode
       :bind ("M-$". jinx-correct))
+
+    (use-package flycheck-vale :if d/on-foss :config
+     (flycheck-vale-setup))
   #+end_src
 
 

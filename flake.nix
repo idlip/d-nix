@@ -42,6 +42,8 @@
       inputs.quickshell.follows = "quickshell";
     };
 
+    vicinae.url = "github:vicinaehq/vicinae";
+
 	youtube_adblock = {
 	  url = "https://raw.githubusercontent.com/afreakk/greasemonkeyscripts/refs/heads/master/youtube_adblock.js";
 	  flake = false;

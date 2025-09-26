@@ -94,7 +94,7 @@
     "dns-block": {
       "flake": false,
       "locked": {
-        "narHash": "sha256-2Zt8YXLli0DbBRChd50jnDZBAvZiVEDGAeCvG81+uIY=",
+        "narHash": "sha256-Z+RsO+8kBB6c2ly3LSSPVsnZh4zmo8BRcz2lGtRPVJo=",
         "type": "file",
         "url": "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/ultimate-compressed.txt"
       },
@@ -106,7 +106,7 @@
     "dns-tif": {
       "flake": false,
       "locked": {
-        "narHash": "sha256-Kr1/hti2aCRLcpS1zk7Lcx7DXoI4slywFK3kSfNMLYo=",
+        "narHash": "sha256-WkN88f50tcU9a8DYpjOB4HPzu1Rit3HLaToL52Ed9cs=",
         "type": "file",
         "url": "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/tif-compressed.txt"
       },
@@ -169,6 +169,24 @@
       "original": {
         "owner": "hercules-ci",
         "repo": "flake-parts",
+        "type": "github"
+      }
+    },
+    "flake-utils": {
+      "inputs": {
+        "systems": "systems_3"
+      },
+      "locked": {
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
         "type": "github"
       }
     },
@@ -305,6 +323,22 @@
         "type": "github"
       }
     },
+    "nixpkgs_3": {
+      "locked": {
+        "lastModified": 1755027561,
+        "narHash": "sha256-IVft239Bc8p8Dtvf7UAACMG5P3ZV+3/aO28gXpGtMXI=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "005433b926e16227259a1843015b5b2b7f7d1fc3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "noctalia": {
       "inputs": {
         "nixpkgs": [
@@ -316,11 +350,11 @@
         "systems": "systems"
       },
       "locked": {
-        "lastModified": 1758595284,
-        "narHash": "sha256-ROxBpl7K8JgmEO58De47KOjJ7iZTIUS/KyecQNo5fgM=",
+        "lastModified": 1758766702,
+        "narHash": "sha256-Uzs0BLeOnvR5kmXI6EB6iM0g1W/ep5S8SCqm6Prp6AE=",
         "owner": "noctalia-dev",
         "repo": "noctalia-shell",
-        "rev": "120ed36deb41bd12b8659d6095ff9d238a1eb127",
+        "rev": "36489491e450b7c00572341b7b7f674a116807fa",
         "type": "github"
       },
       "original": {
@@ -402,6 +436,7 @@
         "reddit_adblock": "reddit_adblock",
         "stylix": "stylix",
         "torrent_1337": "torrent_1337",
+        "vicinae": "vicinae",
         "youtube_adblock": "youtube_adblock",
         "youtube_sponsorblock": "youtube_sponsorblock"
       }
@@ -427,11 +462,11 @@
         "tinted-zed": "tinted-zed"
       },
       "locked": {
-        "lastModified": 1757956156,
-        "narHash": "sha256-f0W7qbsCqpi6swQ5w8H+0YrAbNwsHgCFDkNRMTJjqrE=",
+        "lastModified": 1758757969,
+        "narHash": "sha256-2zC4aHoDsR12Jyd6WvSxmQbAKT4V93frnHHDjA8o3r8=",
         "owner": "nix-community",
         "repo": "stylix",
-        "rev": "0ce0103b498bb22f899ed8862d8d7f9503ed9cdb",
+        "rev": "484819a16fdc1c76cdd62d8e94018db44e5e1a8b",
         "type": "github"
       },
       "original": {
@@ -456,6 +491,21 @@
       }
     },
     "systems_2": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "systems_3": {
       "locked": {
         "lastModified": 1681028828,
         "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
@@ -561,6 +611,25 @@
       "original": {
         "type": "file",
         "url": "https://update.greasyfork.org/scripts/33379/1337x%20-%20Torrent%20page%20improvements.user.js"
+      }
+    },
+    "vicinae": {
+      "inputs": {
+        "flake-utils": "flake-utils",
+        "nixpkgs": "nixpkgs_3"
+      },
+      "locked": {
+        "lastModified": 1758908485,
+        "narHash": "sha256-4DZiqy4eUaqLiRkcyMAVb00nDJdx5sm41KKeDZNB9So=",
+        "owner": "vicinaehq",
+        "repo": "vicinae",
+        "rev": "cdd9ddcb0dc00f662292acfb1c1d124abaa7d05f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "vicinaehq",
+        "repo": "vicinae",
+        "type": "github"
       }
     },
     "youtube_adblock": {

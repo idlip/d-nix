@@ -99,6 +99,11 @@
     systemd.sleep.extraConfig = ''
      AllowSuspend=yes
      '';
+    # Avoid long stop job (easyeffects)
+    systemd.user.extraConfig = ''DefaultTimeoutStopSec=10s'';
+    systemd.settings.Manager = {
+  	DefaultTimeoutStopSec = "10s";
+    };
   }
   { # remap caps to control
     services.udev.extraHwdb = ''
@@ -263,6 +268,9 @@
         warn-dirty = false;
   
         # use binary cache, its not gentoo
+  	  trusted-users = [ "root" "dev" "idlip" ];
+  	  extra-substituters = [ "https://vicinae.cachix.org" ];
+  	  extra-trusted-public-keys = [ "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc=" ];
         substituters = [ "https://nix-community.cachix.org" ];
         trusted-public-keys = [ "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" ];
       };
@@ -430,6 +438,12 @@
       };
     };
   
+  }
+  inputs.noctalia.nixosModules.default
+  {
+    services.noctalia-shell = {
+      enable = true;
+    };
   }
   {
     boot.initrd.luks.devices.cryptroot.device = "/dev/disk/by-uuid/ad2f4bf9-01eb-4c84-9a94-ba122aee88df";

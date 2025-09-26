@@ -241,6 +241,7 @@
 	      # toc-org
 	      org-ql ox-hugo markdown-mode typst-ts-mode
 	      flycheck consult-flycheck flycheck-eglot org-re-reveal
+		  flycheck-vale
 		  verb forge melpaPackages.telega
 	      # dslide gptel
 	
@@ -534,6 +535,7 @@
 		  tabs.title.format = "{audio}{current_title}";
 		  completion.open_categories = ["searchengines" "quickmarks" "bookmarks" "history" "filesystem"];
 		  auto_save.session = true;
+		  colors.webpage.preferred_color_scheme = "dark";
 		  colors.webpage.darkmode.enabled = true;
 		  colors.webpage.darkmode.algorithm = "lightness-cielab";
 		  colors.webpage.darkmode.policy.images = "never";
@@ -558,7 +560,7 @@
 		  hints.uppercase = true;
 	
 		  statusbar.position = "bottom";
-		  statusbar.show = "always";
+		  statusbar.show = "never";
 		  statusbar.widgets = ["keypress" "search_match" "url" "scroll" "tabs"];
 	
 		  url.default_page = "about:blank";
@@ -603,6 +605,7 @@
 		  
 		    "tf" = "config-cycle content.user_stylesheets '~/.config/qutebrowser/css/mono.css' ''";
 		    "<Ctrl-c>f" = "config-cycle content.user_stylesheets '~/.config/qutebrowser/css/mono.css' ''";
+		    "i" = "config-cycle colors.webpage.darkmode.enabled";
 		  
 		    "<Alt-.>" = "scroll-to-perc";
 		    "<Alt-,>" = "scroll-to-perc 0";
@@ -691,7 +694,6 @@
 		    "<Ctrl-x>5p" = "cmd-set-text -s :open -p";
 		    "<Ctrl-x>50" = "cmd-set-text -s :close";
 		    "<Ctrl-x>5u" = "undo -w";
-		    "<Ctrl-x><Ctrl-q>" = "close";
 		    # Zooming
 		    "<Ctrl-x>=" = "zoom-in";
 		    "<Ctrl-x>-" = "zoom-out";
@@ -767,6 +769,7 @@
 		    "<Ctrl-m>" = "mode-enter insert";
 		    # passthrough
 		    "<Shift-Escape>" = "mode-enter passthrough";
+		    "<Ctrl-x><Ctrl-q>" = "mode-enter passthrough";
 		    # Quit qutebrowser
 		    "<Ctrl-x><Ctrl-c>" = "quit";
 		    "<Ctrl-u><Ctrl-x><Ctrl-c>" = "close";
@@ -775,6 +778,13 @@
 		    "<Ctrl-r>" = "cmd-set-text ?";
 		          
 		  };
+		  
+		    passthrough = {
+		    	"<Shift-Escape>" = "mode-leave";
+		      "<Escape>" = "mode-leave";
+		      "<Ctrl-g>" = "mode-leave";
+		    };
+		  
 		  
 		    command = {
 		      # command mode
@@ -934,10 +944,10 @@
 	    '';
 	    };
 	
+		mpd-mpris.enable = true;
 	    playerctld.enable = true;
 	
 	  };
-	
 	}
 	{
 	  programs = {
@@ -1089,11 +1099,13 @@
 	      '';
 	    };
 	  };
-	
-	  home.packages = [
-		inputs.noctalia.packages.x86_64-linux.default
-	    inputs.quickshell.packages.x86_64-linux.default
-	  ];
+	}
+	inputs.vicinae.homeManagerModules.default
+	{
+	  services.vicinae = {
+	    enable = true;
+	    autoStart = true;
+	  };
 	}
 	{
 	  programs = {
@@ -1288,30 +1300,19 @@
 	  };
 	}
 	{
-	  services.cliphist = {
+	  programs.rofi = {
 	    enable = true;
-	    extraOptions = [
-	      "-max-dedupe-search" "10" "-max-items" "1000" "-preview-width" "200"
-	    ];
-	  };
-	}
-	
-	{
-	  programs.fuzzel = {
-	    enable = true;
-	    settings = {
-	      main = {
-	        prompt = "'  '";
-	        show-actions = true;
-	        list-executables-in-path = true;
-	        layer = "overlay";
-	        exit-on-keyboard-focus-loss = false;
-	        match-mode = "fuzzy";
-	      };
-	      border = {
-	        width = 4;
-	        radius = 16;
-	      };
+		plugins = with pkgs; [ rofi-nerdy rofi-calc rofi-emoji ];
+		modes = [ "drun" "run" "window" ];
+	    extraConfig = {
+	      modi = "drun,run,window";
+	      show-icons = true;
+	      hide-scrollbar = true;
+	      display-drun = "   Apps ";
+	      display-run = "   Run ";
+	      display-window = "󰍲   Window";
+	      sidebar-mode = true;
+	      drun-show-actions = true;
 	    };
 	  };
 	}

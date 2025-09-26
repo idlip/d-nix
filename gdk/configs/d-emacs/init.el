@@ -1270,3 +1270,6 @@ absolute path. Finally load eglot."
   :init (global-jinx-mode)
   :hook org-mode
   :bind ("M-$". jinx-correct))
+
+(use-package flycheck-vale :if d/on-foss :config
+ (flycheck-vale-setup))

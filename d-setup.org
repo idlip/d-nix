@@ -213,12 +213,25 @@ Emacs configuration is crafted slowly by learning from all users in community. E
     <<os-nixos>>
     <<os-foss-fs>>
     {
-  	stylix.base16Scheme = lib.mkForce "${pkgs.base16-schemes}/share/themes/gruvbox-material-dark-hard.yaml";
+  	stylix.base16Scheme = lib.mkForce "${pkgs.base16-schemes}/share/themes/kanagawa.yaml";
     }
     {	
   	services.throttled.enable = true;
+      programs.mango.enable = true;
     }
-  	
+
+  	{
+  	  virtualisation.docker = {
+  		enable = true;
+  		storageDriver = "btrfs";
+  		# Customize Docker daemon settings using the daemon.settings option
+  		daemon.settings = {
+  		  dns = [ "1.1.1.1" "9.9.9.9" ];
+  		  log-driver = "journald";
+  		  registry-mirrors = [ "https://mirror.gcr.io" ];
+  		};
+  	  };
+  	}
     ];
 
     # stateVersion

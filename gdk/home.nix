@@ -109,6 +109,7 @@
 	        "image/jpeg"="swayimg.desktop";
 	        "image/gif"="swayimg.desktop";
 	        "application/rss+xml"="d-stuff.desktop";
+	        "x-scheme-handler/mailto"="emacsmail.desktop";
 	      };
 	    };
 	
@@ -116,16 +117,16 @@
 	      enable = true;
 	      config = {
 			common = {
-	          default = ["gnome" "gtk"];
+	          default = ["gtk" "gnome" "wlr"];
 	          "org.freedesktop.impl.portal.ScreenCast" = "gnome";
 	          "org.freedesktop.impl.portal.Screenshot" = "gnome";
 	          "org.freedesktop.impl.portal.RemoteDesktop" = "gnome";
-			};
-	      };
-	      configPackages = [ pkgs.niri ];
+	        };
+		  };
+	      configPackages = [ pkgs.niri config.wayland.windowManager.mango.package ];
 	      xdgOpenUsePortal = true;
 	      extraPortals = with pkgs; [
-			xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-gnome
+			xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-gnome xdg-desktop-portal-wlr
 	      ];
 		};
 	
@@ -242,7 +243,7 @@
 	      org-ql ox-hugo markdown-mode typst-ts-mode
 	      flycheck consult-flycheck flycheck-eglot org-re-reveal
 		  flycheck-vale
-		  verb forge melpaPackages.telega
+		  verb forge melpaPackages.telega melpaPackages.mastodon
 	      # dslide gptel
 	
 	      (melpaBuild {
@@ -329,12 +330,14 @@
 	  };
 	}
 	{
+	  home.packages = [ (pkgs.callPackage ./pkgs/glide.nix {}) ];
 	  programs.librewolf = {
 	    enable = true;
 	    profiles.ihome = {
 	      extraConfig = ''
 	         // ~/.librewolf/ihome/user.js
 	        // userchrome.css usercontent.css activate
+	        user_pref("sidebar.animation.expand-on-hover.duration-ms", "50");
 	        user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
 	        
 	        // firefox sync
@@ -351,7 +354,7 @@
 	        
 	        // Integrated unit convertor at urlbar
 	        user_pref("browser.urlbar.unitConversion.enabled", true);
-	         user_pref("browser.tabs.insertAfterCurrent", true);
+	        user_pref("browser.tabs.insertAfterCurrent", true);
 	        
 	        // Trim  URL
 	        user_pref("browser.urlbar.trimHttps", true);
@@ -587,12 +590,12 @@
 		    # "<Space>o" = "spawn mpv {url}";
 		    "<Ctrl-c><Ctrl-r>" = lib.mkMerge [
 		      "config-cycle tabs.show never always"
-		      "config-cycle statusbar.show in-mode always"
+		      # "config-cycle statusbar.show in-mode always"
 		      "config-cycle scrolling.bar never always"
 		    ];
 		    "<Ctrl-.>" = lib.mkMerge [
 		      "config-cycle tabs.show never always"
-		      "config-cycle statusbar.show in-mode always"
+		      # "config-cycle statusbar.show in-mode always"
 		      "config-cycle scrolling.bar never always"
 		    ];
 		  
@@ -752,7 +755,7 @@
 		    # command
 		    "<Alt-x>" = "cmd-set-text :";
 		    # hint
-		    "<Alt-Space>" = "hint";
+		    "<Alt-Space>" = "hint all tab";
 		    "<Alt-g>" = "hint";
 		    "<Space>" = "hint";
 		    "ff" = "hint";
@@ -771,8 +774,8 @@
 		    "<Shift-Escape>" = "mode-enter passthrough";
 		    "<Ctrl-x><Ctrl-q>" = "mode-enter passthrough";
 		    # Quit qutebrowser
-		    "<Ctrl-x><Ctrl-c>" = "quit";
-		    "<Ctrl-u><Ctrl-x><Ctrl-c>" = "close";
+		    "<Ctrl-x><Ctrl-c>" = "close";
+		    "<Ctrl-u><Ctrl-x><Ctrl-c>" = "quit";
 		  
 		    "<Ctrl-s>" = "cmd-set-text /";
 		    "<Ctrl-r>" = "cmd-set-text ?";
@@ -781,8 +784,8 @@
 		  
 		    passthrough = {
 		    	"<Shift-Escape>" = "mode-leave";
-		      "<Escape>" = "mode-leave";
 		      "<Ctrl-g>" = "mode-leave";
+		  	"<Ctrl-x><Ctrl-q>" = "mode-leave";
 		    };
 		  
 		  
@@ -1081,6 +1084,51 @@
 	  ];
 	}
 	{
+	  services.hypridle = let
+	    hyprlock = lib.getExe pkgs.hyprlock;
+		noctalia = lib.getExe inputs.noctalia.defaultPackage.x86_64-linux;
+	    brightness = lib.getExe pkgs.brightnessctl;
+	    niri = lib.getExe pkgs.niri;
+	    timeout = 200; # base timer to act upon
+	    in {
+	    enable = true;
+	    settings ={
+	      general = {
+	        lock_cmd = "${noctalia} ipc call lockScreen lock";       # avoid starting multiple hyprlock instances.
+	        before_sleep_cmd = "${pkgs.systemd}/bin/loginctl lock-session";    # lock before suspend.
+	        unlock_cmd = "notify-send 'Welcome back!'";
+	      };
+	
+	      listener = [
+	        {
+	          timeout = timeout - 50;
+	          on-timeout = "${brightness} -s set 5%";         # set monitor backlight to minimum, avoid 0 on OLED monitor.
+	          on-resume = "${brightness} -r";                 # monitor backlight restore.
+	        }
+	        {
+	          timeout = timeout;
+	          on-timeout = "loginctl lock-session";
+	        }
+	        {
+	          timeout = timeout + 10;
+	          on-timeout = "${niri} msg action power-off-monitors";
+	          on-resume = "${niri} msg action power-on-monitors";
+	        }
+	        {
+	          timeout = timeout * 5;
+	          on-timeout = "systemctl suspend";
+	        }
+	      ];
+	    };
+	  };
+	}
+	inputs.mango.hmModules.mango
+	{
+	  wayland.windowManager.mango = {
+	    enable = true;
+	  };
+	}
+	{
 	  stylix = {
 	    enable = true;
 	
@@ -1168,7 +1216,7 @@
 	{
 	  home = {
 	    sessionVariables = {
-	      EDITOR = "emacsclient -nw";
+	      EDITOR = "emacsclient -c";
 	      VISUAL = "$EDITOR";
 	      GRIM_DEFAULT_DIR = "$HOME/pics/sshots/";
 	      STARDICT_DATA_DIR = "$HOME/d-git/d-bin/treasure/dict/";
@@ -1300,20 +1348,32 @@
 	  };
 	}
 	{
+	  services.cliphist = {
+	    enable = true;
+	    extraOptions = [
+	      "-max-dedupe-search" "10" "-max-items" "1000" "-preview-width" "200"
+	    ];
+	  };
+	}
+	{
 	  programs.rofi = {
 	    enable = true;
 		plugins = with pkgs; [ rofi-nerdy rofi-calc rofi-emoji ];
-		modes = [ "drun" "run" "window" ];
+		modes = [ "drun" "run" "window" "calc" "nerdy" "emoji" ];
 	    extraConfig = {
-	      modi = "drun,run,window";
+	      modi = "drun,run,window,combi";
+		  combi-modes = [ "window" "drun" "run" "nerdy" "emoji" ];
 	      show-icons = true;
 	      hide-scrollbar = true;
-	      display-drun = "   Apps ";
-	      display-run = "   Run ";
-	      display-window = "󰍲   Window";
+	      display-drun = " Apps ";
+	      display-run = "  Run ";
+	      display-window = "󰍲   Window ";
 	      sidebar-mode = true;
 	      drun-show-actions = true;
 	    };
+		theme = {
+		  "@import" = "dmenu";
+		};
 	  };
 	}
 	{ home.packages = with pkgs; [ libnotify nemo pandoc groff mupdf keepassxc easyeffects jaq

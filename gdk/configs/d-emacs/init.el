@@ -16,9 +16,8 @@
  initial-scratch-message (format "\n\n")
 
  tab-always-indent 'complete
- tab-width 4
  reb-re-syntax 'string
- fill-column 80
+ fill-column 100
 
  window-combination-resize t
  history-delete-duplicates t
@@ -30,7 +29,11 @@
  enable-recursive-minibuffers t
  )
 
-(delete-selection-mode 1) (indent-tabs-mode -1)
+(delete-selection-mode 1)
+(setq-default
+ indent-tabs-mode nil
+ tab-width 4
+ standard-indent 4)
 (global-so-long-mode 1)
 (with-current-buffer "*scratch*" (emacs-lock-mode 'kill))
 
@@ -46,9 +49,12 @@
  grep-use-headings t
  save-interprogram-paste-before-kill t
  )
-;; (global-hl-line-mode 1)
+
+(global-hl-line-mode 1)
 (save-place-mode 1)
+(column-number-mode)
 (global-visual-line-mode 1)
+(global-subword-mode 1)
 
 (setopt display-line-numbers-type 'relative)
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
@@ -107,11 +113,6 @@
 (setopt
  dired-listing-switches "-agho --group-directories-first"
  dired-omit-files "\\`[.]?#\\|\\`[.][.]?\\'\\|^\\..*$"
- dired-guess-shell-alist-user
- '(("\\.\\(png\\|jpe?g\\|tiff\\)" "swayimg")
-   ("\\.\\(mp[34]\\|m4a\\|ogg\\|flac\\|webm\\|mkv\\)" "mpv")
-   ("\\.\\(pdf\\|cbz\\)" "sioyek")
-   (".*" "d-stuff"))
  delete-by-moving-to-trash t
  dired-dwim-target t
  dired-kill-when-opening-new-dired-buffer nil
@@ -223,7 +224,7 @@
 
   :custom
   (prefix-help-command #'embark-prefix-help-command)
-  (embark-help-key "?") (embark-confirm-act-all nil)
+  (embark-confirm-act-all nil)
   )
 (add-to-list 'display-buffer-alist `("\\*\\(Embark\\|Completions\\).*\\*"
 									 nil (window-parameters (mode-line-format . none))))
@@ -278,7 +279,7 @@
 
 ;; (bind-keys ("C-v" . View-scroll-half-page-forward) ("M-v" . View-scroll-half-page-backward))
 ;; (bind-keys ("C-v" . pixel-scroll-interpolate-down) ("M-v" . pixel-scroll-interpolate-up))
-(ultra-scroll-mode 1)
+(if d/on-foss (ultra-scroll-mode 1))
 
 (setq repeat-exit-timeout 2) (put 'other-window 'repeat-map nil)
 (repeat-mode 1)
@@ -399,6 +400,7 @@
 (use-package compile
   :hook (compilation-filter . ansi-color-compilation-filter)
   :bind ("M-#" . compile) ; M-! M-# M-& M-\
+  ("M-s c" . compile)
   :custom
   (shell-command-switch "-c") ;; -i
   (compilation-scroll-output t)
@@ -452,8 +454,7 @@
 
   (devdocs-browser-data-directory (expand-file-name "var/devdocs" user-emacs-directory)))
 
-(use-package prog-mode :ensure nil :hook (prog-mode . hs-minor-mode) (prog-mode . outline-minor-mode)
-  :custom (tab-width 4))
+(use-package prog-mode :ensure nil :hook (prog-mode . hs-minor-mode) (prog-mode . outline-minor-mode))
 
 (use-package hi-lock
   :hook (prog-mode . highlight-marker-mode)
@@ -480,8 +481,11 @@
 
 ;; credits to oantolin's config
 (bind-keys :prefix-map insert-pair-map
-           :prefix "M-["
+           :prefix "M-]"
+           ("d" . delete-pair)
            ([t] . insert-pair))
+(global-set-key (kbd "C-M-z") #'delete-pair)
+(setopt delete-pair-blink-delay 0.1)
 
 (define-advice insert-pair (:filter-args (args) numeric-prefix)
   (cons (prefix-numeric-value (car args)) (cdr args)))
@@ -743,6 +747,7 @@
   (setq nnrss-group-alist '( ("manga" "https://nyaa.si/?page=rss&c=3_1&f=0") ) )
   (gnus-demon-add-handler 'gnus-group-save-newsrc 5 t) ;; minutes
   (gnus-demon-init)
+  (if d/on-foss (load-file "~/d-sync/feeds/gnews/privmail.el"))
   )
 
 (use-package gnus-group
@@ -895,7 +900,7 @@ images."
     (next-line)
     ))
 
-(defcustom d/font-size (if d/on-droid 170 120)
+(defcustom d/font-size (if d/on-droid 170 130)
   "Default font size based on the system.")
 
 ;; Dont worry about the font name, I use fork of Iosevka font
@@ -917,6 +922,8 @@ images."
 
 (use-package modus-themes :ensure nil :demand t
   :init (require-theme 'modus-themes)
+  :custom-face
+  (minibuffer-nonselected ((t (:inverse-video t))))
   :custom
   (modus-themes-italic-constructs t) (modus-themes-bold-constructs t)
   (modus-themes-mixed-fonts t)
@@ -924,25 +931,31 @@ images."
   (modus-themes-headings
    '((1 . (variable-pitch 1.5))
      (2 . (1.3))
-     (agenda-date . (1.3))
-     (agenda-structure . (variable-pitch light 1.8))
+     (agenda-date . (regular 1.1))
+     (agenda-structure . (variable-pitch light 1.3))
      (t . (1.1))))
 
   (modus-vivendi-palette-overrides
    '(
-     (bg-main     "#000000") (bg-dim      "#111111")
-     (bg-active   "#222222") (bg-inactive "#333333")
+     (bg-main        "#000000") (bg-dim         "#0a0f0a")
+     (bg-active      "#111c17") (bg-inactive    "#1b2a24")
 
-     (fg-main     "#ffffff")
-     (fg-dim      "#b4aeae")
+     (fg-main     "#ffffff") (fg-dim      "#b4aeae")
 
-     (cursor      "#00ffff")
-
-     (fg-heading-1  "#ab82ff")
-     (fg-heading-2  "#fab387")
+     (fg-heading-1  "#ab82ff") (fg-heading-2  "#fab387") (prose-tag "#ffe")
      (mail-subject  "#6ae4b9")
- 
-     (bg-completion "#2e8b57") (bg-region     bg-completion) (fg-region unspecified)
+     
+     (cursor "#5fd7af") (bg-completion "#248f6c") (bg-hl-line "#142f2b") ;;seagreen
+     ;; (cursor "#7aa2f7") (bg-completion "#2a2e3b") (bg-hl-line "#24283b") ;; tokyonight
+     ;; (cursor "#528bff") (bg-completion "#3e4451") (bg-hl-line "#2c313c") ;; onedark
+     ;; (cursor "#9fc5e8") (bg-completion "#2a2f3a") (bg-hl-line "#212530") ;; Moonlight
+     ;; (cursor "#89b4fa") (bg-completion "#292d3e") (bg-hl-line "#222538") ;; Palenight
+     ;; (cursor "#d3869b") (bg-completion "#665c54") (bg-hl-line "#3c3836") ;; Gruvbox Dark Hard
+     ;; (cursor "#a7c080") (bg-completion "#2a2e26") (bg-hl-line "#232823") ;; Everforest
+     ;; (cursor "#f2cdcd") (bg-completion "#6d4f4f") (bg-hl-line "#3e2f2f") ;; Catppuccin Mocha
+     ;; (cursor "#e0def4") (bg-completion "#44415a") (bg-hl-line "#2a273f") ;; Rose Pine
+
+     (bg-region     bg-completion) (fg-region unspecified)
 
      (bg-tab-bar bg-main) (bg-tab-current bg-active) (bg-tab-other bg-dim)
      (fringe unspecified)
@@ -967,38 +980,13 @@ images."
    mode-line-position mode-line-format-right-align
    (project-mode-line project-mode-line-format)
    (vc-mode vc-mode)
-   "  " mode-name "  "
-   ;; "  " mode-line-modes
-   mode-line-misc-info))
+   "  " mode-line-modes
+   mode-line-misc-info)
 
-;; credits minad in reddit
-(defmacro +diminish (mode)
-  `(cl-callf2 assq-delete-all ',mode minor-mode-alist))
+ mode-line-collapse-minor-modes t)
+(global-set-key (kbd "<f9>") 'mode-line-invisible-mode)
 
-(+diminish abbrev-mode)
-(+diminish hs-minor-mode)
-(+diminish jinx-mode)
-(+diminish outline-minor-mode)
-(+diminish eldoc-mode)
-(+diminish visual-line-mode)
-
-(use-package d/hide-mode-line :ensure nil :no-require t
-  :bind ([f9] . d/hide-mode-line-mode)
-  :init
-  (define-minor-mode d/hide-mode-line-mode
-    "The void space to hide mode-line."
-    :lighter "Vanish" :init-value nil
-    (setq mode-line-format
-          (if d/hide-mode-line-mode
-              nil
-			;; d/mode-line-format
-			(default-value 'mode-line-format)
-			))
-    (redraw-display))
-  :hook (help-mode nov-mode)
-  )
-
-(use-package olivetti :defer t :custom (olivetti-body-width 100)
+(use-package olivetti :defer t :custom (olivetti-body-width 140)
   :hook (org-mode text-mode Info-mode helpful-mode ement-room-mode gnus-group-mode eww-mode
                   gnus-article-mode sdcv-mode nov-mode elfeed-show-mode markdown-mode))
 
@@ -1031,12 +1019,12 @@ images."
   (org-priority-highest 1) (org-priority-lowest  5) (org-priority-default 3)
 
   (org-clock-in-switch-to-state "STARTED")
-
+  
   (org-refile-targets '( (org-default-notes-file :maxlevel . 5) (nil :maxlevel . 6) ))
 
   (org-directory "~/d-sync/notes/")
   (org-default-notes-file (concat org-directory "d-brain.org")) ;; my second brain in OBTF
-  (org-pretty-entities t)
+  (org-pretty-entities t) (org-hide-emphasis-markers t)
   (org-list-allow-alphabetical t)
 
   (org-fontify-whole-heading-line t) (org-fontify-quote-and-verse-blocks t)
@@ -1224,7 +1212,7 @@ absolute path. Finally load eglot."
     (let ((notif (if d/on-droid 'android-notifications-notify 'notifications-notify)))
       (funcall notif
                :body (format "In %s minutes" remaining)
-               :title msg
+               :title msg :timeout 0
                :urgency 'critical))))
 
 (use-package ox :after org
@@ -1250,10 +1238,10 @@ absolute path. Finally load eglot."
   )
 
 (use-package remember :ensure nil
-  :bind ("C-c r r" . remember) ("C-c r n" . remember-notes)
+  :bind ("C-x M-r" . remember) ("C-c r r" . remember) ("C-c r n" . remember-notes)
   :custom
   (initial-buffer-choice 'remember-notes)
-	(remember-data-file (expand-file-name "inbox.org" org-directory))
+	(remember-data-file (expand-file-name (if d/on-foss "foss.org" "inbox.org") org-directory))
 	(remember-notes-initial-major-mode 'org-mode))
 
 (use-package calendar :bind ("C-c d d" . calendar))
@@ -1273,3 +1261,13 @@ absolute path. Finally load eglot."
 
 (use-package flycheck-vale :if d/on-foss :config
  (flycheck-vale-setup))
+
+(use-package telega :if d/on-foss
+  :custom-face
+  (telega-msg-heading ((t :extend nil :background nil)))
+  (telega-msg-user-title ((t :extend nil :background "#111"))))
+
+(use-package mastodon :if d/on-foss
+  :custom
+  (mastodon-instance-url "https://fosstodon.org")
+  (mastodon-active-user "idlip"))

@@ -97,7 +97,7 @@
     users.users.${vars.username} = {
       isNormalUser = true;
       shell = pkgs.fish;
-      extraGroups = ["adbusers" "input" "uinput" "libvirtd" "networkmanager" "plugdev" "transmission" "video" "wheel"];
+      extraGroups = ["adbusers" "input" "uinput" "libvirtd" "networkmanager" "plugdev" "transmission" "video" "wheel" "docker"];
     };
   }
   { zramSwap.enable = true; }
@@ -130,6 +130,7 @@
       hostFiles = [
   	  inputs.dns-block
   	  inputs.dns-tif
+        inputs.dns-bpc
       ];
   
       nameservers = [ "9.9.9.9" "1.1.1.1" ];
@@ -146,8 +147,8 @@
         enable = true;
         allowedTCPPortRanges = [ { from = 1714; to = 1764; } ];
         allowedUDPPortRanges = allowedTCPPortRanges;
-        allowedTCPPorts = [8384 22000];
-        allowedUDPPorts = [22000 21027];
+        allowedTCPPorts = [8384 22000 80 8000 53 5300 8080 8081];
+        allowedUDPPorts = [22000 21027 53 5300];
       };
   
       nat = { # for container or vm
@@ -257,6 +258,9 @@
     nixpkgs = {
   	overlays = [ (import inputs.emacs-overlay) ];
     };
+    nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+      "steam-unwrapped"
+    ];
   }
   {
     nix = {

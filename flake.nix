@@ -42,7 +42,15 @@
       inputs.quickshell.follows = "quickshell";
     };
 
-    vicinae.url = "github:vicinaehq/vicinae";
+    vicinae = {
+	  url = "github:vicinaehq/vicinae";
+      # inputs.nixpkgs.follows = "nixpkgs"; # compile yourself ?
+	};
+
+    mango = {
+      url = "github:DreamMaoMao/mango";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
 	youtube_adblock = {
 	  url = "https://raw.githubusercontent.com/afreakk/greasemonkeyscripts/refs/heads/master/youtube_adblock.js";
@@ -80,7 +88,10 @@
 	  url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/tif-compressed.txt";
 	  flake = false;
 	};
-
+	dns-bpc = {
+	  url = "https://gitflic.ru/project/magnolia1234/bypass-paywalls-clean-filters/blob/raw?file=bpc-paywall-filter.txt";
+	  flake = false;
+	};
   };
 
   outputs =
@@ -134,6 +145,7 @@
               inputs.home-manager.nixosModules.home-manager
               nix-index-database.nixosModules.nix-index
               stylix.nixosModules.stylix
+              inputs.mango.nixosModules.mango
 			];
 			specialArgs = {
               inherit inputs system;

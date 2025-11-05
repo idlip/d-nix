@@ -13,6 +13,7 @@
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
+(set-fringe-mode 10)
 
 (defconst d/on-droid (eq system-type 'android))
 (defconst d/on-foss (string= (system-name) "foss"))

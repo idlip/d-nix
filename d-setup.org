@@ -338,6 +338,10 @@ Emacs configuration is crafted slowly by learning from all users in community. E
     url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/tif-compressed.txt";
     flake = false;
   };
+  dns-bpc = {
+    url = "https://gitflic.ru/project/magnolia1234/bypass-paywalls-clean-filters/blob/raw?file=bpc-paywall-filter.txt";
+    flake = false;
+  };
 #+end_src
 
 
@@ -463,7 +467,7 @@ Emacs configuration is crafted slowly by learning from all users in community. E
       users.users.${vars.username} = {
         isNormalUser = true;
         shell = pkgs.fish;
-        extraGroups = ["adbusers" "input" "uinput" "libvirtd" "networkmanager" "plugdev" "transmission" "video" "wheel"];
+        extraGroups = ["adbusers" "input" "uinput" "libvirtd" "networkmanager" "plugdev" "transmission" "video" "wheel" "docker"];
       };
     }
   #+end_src
@@ -521,6 +525,7 @@ Emacs configuration is crafted slowly by learning from all users in community. E
         hostFiles = [
     	  inputs.dns-block
     	  inputs.dns-tif
+          inputs.dns-bpc
         ];
 
         nameservers = [ "9.9.9.9" "1.1.1.1" ];
@@ -537,8 +542,8 @@ Emacs configuration is crafted slowly by learning from all users in community. E
           enable = true;
           allowedTCPPortRanges = [ { from = 1714; to = 1764; } ];
           allowedUDPPortRanges = allowedTCPPortRanges;
-          allowedTCPPorts = [8384 22000];
-          allowedUDPPorts = [22000 21027];
+          allowedTCPPorts = [8384 22000 80 8000 53 5300 8080 8081];
+          allowedUDPPorts = [22000 21027 53 5300];
         };
 
         nat = { # for container or vm
@@ -735,6 +740,9 @@ Emacs configuration is crafted slowly by learning from all users in community. E
       nixpkgs = {
     	overlays = [ (import inputs.emacs-overlay) ];
       };
+      nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+        "steam-unwrapped"
+      ];
     }
   #+end_src
 
@@ -1063,10 +1071,14 @@ Pipewire setup, just these lines enough to make sane default for it
   {
     "appLauncher": {
       "backgroundOpacity": 1,
-      "enableClipboardHistory": true,
+      "customLaunchPrefix": "",
+      "customLaunchPrefixEnabled": false,
+      "enableClipboardHistory": false,
       "pinnedExecs": [
       ],
       "position": "center",
+      "sortByMostUsed": true,
+      "terminalCommand": "xterm -e",
       "useApp2Unit": true
     },
     "audio": {
@@ -1074,35 +1086,34 @@ Pipewire setup, just these lines enough to make sane default for it
       "mprisBlacklist": [
       ],
       "preferredPlayer": "",
-      "showMiniplayerAlbumArt": false,
-      "showMiniplayerCava": false,
       "visualizerType": "linear",
+      "volumeOverdrive": false,
       "volumeStep": 5
     },
     "bar": {
-      "alwaysShowBatteryPercentage": false,
-      "backgroundOpacity": 1,
-      "density": "comfortable",
-      "floating": true,
+      "backgroundOpacity": 0.85,
+      "density": "default",
+      "exclusive": true,
+      "floating": false,
       "marginHorizontal": 0.25,
       "marginVertical": 0.25,
       "monitors": [
       ],
+      "outerCorners": true,
       "position": "top",
-      "showActiveWindowIcon": true,
       "showCapsule": false,
-      "showNetworkStats": false,
-      "showWorkspaceLabel": "none",
-      "useDistroLogo": false,
       "widgets": {
         "center": [
           {
-            "displayFormat": "time-date-short",
+            "customFont": "",
+            "formatHorizontal": "HH:mm ddd, MMM dd",
+            "formatVertical": "HH mm - dd MM",
             "id": "Clock",
-            "reverseDayMonth": false,
-            "use12HourClock": false
+            "useCustomFont": false,
+            "usePrimaryColor": true
           },
           {
+            "characterCount": 2,
             "hideUnoccupied": false,
             "id": "Workspace",
             "labelMode": "none"
@@ -1114,25 +1125,32 @@ Pipewire setup, just these lines enough to make sane default for it
             "showCpuTemp": true,
             "showCpuUsage": true,
             "showDiskUsage": false,
-            "showMemoryAsPercent": false,
+            "showMemoryAsPercent": true,
             "showMemoryUsage": true,
             "showNetworkStats": false
           },
           {
-            "id": "Taskbar"
+            "hideMode": "idle",
+            "hideWhenIdle": false,
+            "id": "MediaMini",
+            "maxWidth": 145,
+            "scrollingMode": "hover",
+            "showAlbumArt": true,
+            "showVisualizer": true,
+            "useFixedWidth": false,
+            "visualizerType": "linear"
           }
         ],
         "right": [
           {
-            "id": "MediaMini",
-            "showAlbumArt": true,
-            "showVisualizer": true,
-            "visualizerType": "linear"
+            "id": "ScreenRecorder"
           },
           {
-            "id": "ScreenRecorderIndicator"
-          },
-          {
+            "blacklist": [
+            ],
+            "colorizeIcons": false,
+            "favorites": [
+            ],
             "id": "Tray"
           },
           {
@@ -1141,57 +1159,137 @@ Pipewire setup, just these lines enough to make sane default for it
             "showUnreadBadge": true
           },
           {
+            "displayMode": "onhover",
             "id": "WiFi"
           },
           {
-            "alwaysShowPercentage": false,
+            "displayMode": "onhover",
+            "id": "Bluetooth"
+          },
+          {
             "displayMode": "alwaysShow",
             "id": "Battery",
             "warningThreshold": 40
           },
           {
-            "alwaysShowPercentage": false,
             "displayMode": "onhover",
             "id": "Volume"
           },
           {
-            "alwaysShowPercentage": false,
             "displayMode": "onhover",
             "id": "Brightness"
           },
           {
-            "id": "NightLight"
-          },
-          {
-            "id": "SidePanelToggle",
+            "customIconPath": "",
+            "icon": "",
+            "id": "ControlCenter",
             "useDistroLogo": true
           }
         ]
       }
     },
+    "battery": {
+      "chargingMode": 0
+    },
     "brightness": {
-      "brightnessStep": 5
+      "brightnessStep": 5,
+      "enableDdcSupport": false,
+      "enforceMinimum": true
     },
     "colorSchemes": {
       "darkMode": true,
-      "predefinedScheme": "",
+      "generateTemplatesForPredefined": true,
+      "manualSunrise": "06:30",
+      "manualSunset": "18:30",
+      "matugenSchemeType": "scheme-fruit-salad",
+      "predefinedScheme": "Noctalia (default)",
+      "schedulingMode": "off",
       "useWallpaperColors": true
     },
+    "controlCenter": {
+      "cards": [
+        {
+          "enabled": true,
+          "id": "profile-card"
+        },
+        {
+          "enabled": true,
+          "id": "shortcuts-card"
+        },
+        {
+          "enabled": true,
+          "id": "audio-card"
+        },
+        {
+          "enabled": true,
+          "id": "weather-card"
+        },
+        {
+          "enabled": true,
+          "id": "media-sysmon-card"
+        }
+      ],
+      "position": "center",
+      "shortcuts": {
+        "left": [
+          {
+            "id": "WiFi"
+          },
+          {
+            "id": "Bluetooth"
+          },
+          {
+            "id": "ScreenRecorder"
+          },
+          {
+            "id": "WallpaperSelector"
+          }
+        ],
+        "right": [
+          {
+            "id": "Notifications"
+          },
+          {
+            "id": "PowerProfile"
+          },
+          {
+            "id": "KeepAwake"
+          },
+          {
+            "id": "NightLight"
+          }
+        ]
+      }
+    },
     "dock": {
-      "autoHide": false,
       "backgroundOpacity": 1,
-      "exclusive": false,
+      "colorizeIcons": false,
+      "displayMode": "always_visible",
+      "enabled": false,
       "floatingRatio": 1,
       "monitors": [
-      ]
+      ],
+      "onlySameOutput": true,
+      "pinnedApps": [
+      ],
+      "size": 1
     },
     "general": {
+      "animationDisabled": false,
       "animationSpeed": 1,
       "avatarImage": "/home/dev/media/pics/wp6489081-anime-ps4-luffy-wallpapers.jpg",
+      "compactLockScreen": false,
       "dimDesktop": true,
+      "enableShadows": true,
       "forceBlackScreenCorners": false,
+      "language": "",
+      "lockOnSuspend": true,
       "radiusRatio": 1,
+      "scaleRatio": 1,
       "screenRadiusRatio": 1,
+      "shadowDirection": "bottom_right",
+      "shadowOffsetX": 2,
+      "shadowOffsetY": 3,
       "showScreenCorners": false
     },
     "hooks": {
@@ -1200,27 +1298,17 @@ Pipewire setup, just these lines enough to make sane default for it
       "wallpaperChange": ""
     },
     "location": {
+      "analogClockInCalendar": false,
+      "firstDayOfWeek": -1,
       "name": "Bengaluru",
-      "reverseDayMonth": false,
-      "showDateWithClock": false,
-      "use12HourClock": false,
-      "useFahrenheit": false
-    },
-    "matugen": {
-      "enableUserTemplates": true,
-      "foot": false,
-      "fuzzel": false,
-      "ghostty": false,
-      "gtk3": false,
-      "gtk4": false,
-      "kitty": false,
-      "pywalfox": false,
-      "qt5": false,
-      "qt6": false,
-      "vesktop": false
+      "showCalendarEvents": true,
+      "showCalendarWeather": true,
+      "showWeekNumberInCalendar": true,
+      "use12hourFormat": false,
+      "useFahrenheit": false,
+      "weatherEnabled": true
     },
     "network": {
-      "bluetoothEnabled": false,
       "wifiEnabled": true
     },
     "nightLight": {
@@ -1233,49 +1321,94 @@ Pipewire setup, just these lines enough to make sane default for it
       "nightTemp": "4000"
     },
     "notifications": {
-      "criticalUrgencyDuration": 15,
+      "backgroundOpacity": 0.9,
+      "criticalUrgencyDuration": 100,
       "doNotDisturb": false,
-      "lastSeenTs": 1758698000000,
-      "lowUrgencyDuration": 3,
+      "location": "top_right",
+      "lowUrgencyDuration": 10,
       "monitors": [
       ],
-      "normalUrgencyDuration": 8
+      "normalUrgencyDuration": 20,
+      "overlayLayer": true,
+      "respectExpireTimeout": true
+    },
+    "osd": {
+      "autoHideMs": 2000,
+      "enabled": true,
+      "location": "top_right",
+      "monitors": [
+      ],
+      "overlayLayer": true
     },
     "screenRecorder": {
       "audioCodec": "opus",
       "audioSource": "default_output",
       "colorRange": "limited",
-      "directory": "/home/dev/media/stream/",
+      "directory": "/home/dev/media/stream",
       "frameRate": 60,
       "quality": "very_high",
       "showCursor": true,
       "videoCodec": "h264",
       "videoSource": "portal"
     },
-    "settingsVersion": 3,
+    "settingsVersion": 18,
+    "setupCompleted": true,
+    "templates": {
+      "alacritty": false,
+      "code": false,
+      "discord": false,
+      "discord_armcord": false,
+      "discord_dorion": false,
+      "discord_equibop": false,
+      "discord_lightcord": false,
+      "discord_vesktop": false,
+      "discord_webcord": false,
+      "enableUserTemplates": true,
+      "foot": false,
+      "fuzzel": false,
+      "ghostty": false,
+      "gtk": false,
+      "kcolorscheme": false,
+      "kitty": false,
+      "pywalfox": false,
+      "qt": false,
+      "vicinae": false,
+      "walker": false,
+      "wezterm": false
+    },
     "ui": {
-      "fontBillboard": "Inter",
       "fontDefault": "Inter",
-      "fontFixed": "Maple Mono NF",
-      "idleInhibitorEnabled": false,
-      "monitorsScaling": [
-      ]
+      "fontDefaultScale": 1,
+      "fontFixed": "Maple Mono NF Medium",
+      "fontFixedScale": 1,
+      "panelsAttachedToBar": true,
+      "panelsOverlayLayer": false,
+      "tooltipsEnabled": true
     },
     "wallpaper": {
-      "directory": "/home/dev/d-git/d-wallpapers/walls/",
-      "enableMultiMonitorDirectories": true,
+      "defaultWallpaper": "/nix/store/l794qx7as7v6rsrvy8s0j1s27rjmx8xd-noctalia-shell-6bc23e905d6c514db74e2649c0d4c09db7533e00/share/noctalia-shell/Assets/Wallpaper/noctalia.png",
+      "directory": "/home/dev/d-git/d-wallpapers/walls",
+      "enableMultiMonitorDirectories": false,
       "enabled": true,
       "fillColor": "#000000",
       "fillMode": "crop",
       "monitors": [
         {
-          "directory": "/home/dev/d-git/d-wallpapers/walls/",
+          "directory": "/home/dev/d-git/d-wallpapers/walls",
           "name": "eDP-1",
-          "wallpaper": "/home/dev/d-git/d-wallpapers/walls//collected-56.jpg"
+          "wallpaper": "/home/dev/d-git/d-wallpapers/walls/Fantasy-Lanscape-Night.png"
+        },
+        {
+          "directory": "/home/dev/d-git/d-wallpapers/walls",
+          "name": "HDMI-A-1",
+          "wallpaper": "/home/dev/d-git/d-wallpapers/walls/Forest-Light.png"
         }
       ],
+      "overviewEnabled": true,
+      "panelPosition": "follow_bar",
       "randomEnabled": true,
       "randomIntervalSec": 3600,
+      "recursiveSearch": false,
       "setWallpaperOnAllMonitors": true,
       "transitionDuration": 1500,
       "transitionEdgeSmoothness": 0.05,
@@ -1283,7 +1416,6 @@ Pipewire setup, just these lines enough to make sane default for it
     }
   }
 #+end_src
-
 
 
 * HomeManager
@@ -1443,6 +1575,7 @@ Pipewire setup, just these lines enough to make sane default for it
             "image/jpeg"="swayimg.desktop";
             "image/gif"="swayimg.desktop";
             "application/rss+xml"="d-stuff.desktop";
+            "x-scheme-handler/mailto"="emacsmail.desktop";
           };
         };
 
@@ -1450,16 +1583,16 @@ Pipewire setup, just these lines enough to make sane default for it
           enable = true;
           config = {
     		common = {
-              default = ["gnome" "gtk"];
+              default = ["gtk" "gnome" "wlr"];
               "org.freedesktop.impl.portal.ScreenCast" = "gnome";
               "org.freedesktop.impl.portal.Screenshot" = "gnome";
               "org.freedesktop.impl.portal.RemoteDesktop" = "gnome";
-    		};
-          };
-          configPackages = [ pkgs.niri ];
+            };
+    	  };
+          configPackages = [ pkgs.niri config.wayland.windowManager.mango.package ];
           xdgOpenUsePortal = true;
           extraPortals = with pkgs; [
-    		xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-gnome
+    		xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-gnome xdg-desktop-portal-wlr
           ];
     	};
 
@@ -1614,7 +1747,7 @@ Pipewire setup, just these lines enough to make sane default for it
           org-ql ox-hugo markdown-mode typst-ts-mode
           flycheck consult-flycheck flycheck-eglot org-re-reveal
     	  flycheck-vale
-    	  verb forge melpaPackages.telega
+    	  verb forge melpaPackages.telega melpaPackages.mastodon
           # dslide gptel
 
           (melpaBuild {
@@ -1717,6 +1850,7 @@ Pipewire setup, just these lines enough to make sane default for it
 
   #+begin_src nix
     {
+      home.packages = [ (pkgs.callPackage ./pkgs/glide.nix {}) ];
       programs.librewolf = {
         enable = true;
         profiles.ihome = {
@@ -1737,160 +1871,7 @@ Pipewire setup, just these lines enough to make sane default for it
 - Minimal UI with disabled tab-bar (use sideberry)
 #+begin_src css :tangle ~/.librewolf/ihome/chrome/userChrome.css
   /* Hide the tab bar! */
-  #TabsToolbar { visibility: collapse; }
-#+end_src
-
-
-#+begin_src css :tangle no
-
-  /* Source file https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome/autohide_sidebar.css made available under Mozilla Public License v. 2.0
-  See the above repository for updates as well as full license text. */
-
-  /* Show sidebar only when the cursor is over it.
-     The border controlling sidebar width will be removed so you'll need to modify
-     these values to change width. 
-     By default the internal layout of sidebar changes when hovered, but this can
-     be changed by setting pref "userchrome.autohide-sidebar.static-layout.enabled" to true
-   ,,*/
-
-  /* Note: If you want only *some* sidebar to be auto-hidden, then you can use [sidebarcommand] attribute selector.
-     For example, to only affect Sidebery's sidebar replace all instances of #sidebar-box with
-     #sidebar-box[sidebarcommand="_3c078156-979c-498b-8990-85f7987dd929_-sidebar-action"].
-     To find the sidebarcommand value for any other sidebar, open that sidebar and use Browser Toolbox to inspect it.
-     See: https://firefox-source-docs.mozilla.org/devtools-user/browser_toolbox/index.html
-  ,,*/
-  :where(#main-window) #browser{
-  	--uc-sidebar-width: 40px;
-  	--uc-sidebar-hover-width: 210px;
-  }
-  #main-window[sizemode="fullscreen"] #browser{
-  	--uc-sidebar-width: 1px;
-  }
-  #sidebar-box{
-  	--uc-autohide-sidebar-delay: 600ms; /* Wait 0.6s before hiding sidebar */
-  	--uc-autohide-transition-duration: 115ms;
-  	--uc-autohide-transition-type: linear;
-  	--browser-area-z-index-sidebar: 3;
-  	position: relative;
-  	min-width: var(--uc-sidebar-width) !important;
-  	width: var(--uc-sidebar-width) !important;
-  	max-width: var(--uc-sidebar-width) !important;
-  	z-index: var(--browser-area-z-index-sidebar,3);
-  	background-color: inherit;
-  	/* This directionality flipper is played so that sidebar "grows" into the right direction */
-  	direction: ltr;
-  	&:is([positionend],[sidebar-positionend]):not(:-moz-locale-dir(rtl)){
-  		direction: rtl;
-  	}
-  }
-  .sidebar-browser-stack{
-  	background: inherit;
-  }
-  #main-window[sizemode="fullscreen"] #browser{ --uc-sidebar-width: 1px; }
-
-  #sidebar-splitter{ display: none }
-
-  #sidebar-header{
-  	overflow: hidden;
-  	color: var(--chrome-color, inherit) !important;
-  	padding-inline: 0 !important;
-  }
-
-  #sidebar-header::before,
-  #sidebar-header::after{
-  	content: "";
-  	display: flex;
-  	padding-left: 8px;
-  }
-
-  #sidebar-header,
-  #sidebar{
-  	transition: min-width var(--uc-autohide-transition-duration) var(--uc-autohide-transition-type) var(--uc-autohide-sidebar-delay) !important;
-  	min-width: var(--uc-sidebar-width) !important;
-  	will-change: min-width;
-  	direction: ltr;
-  	&:-moz-locale-dir(rtl){
-  		direction: rtl;
-  	}
-  }
-  #sidebar-box:hover > #sidebar-header,
-  #sidebar-box:hover > #sidebar,
-  #sidebar-box:hover > .sidebar-browser-stack > #sidebar{
-  	min-width: var(--uc-sidebar-hover-width) !important;
-  	transition-delay: 0ms !important;
-  }
-
-  .sidebar-panel{
-  	background-color: transparent !important;
-  	color: var(--newtab-text-primary-color) !important;
-  }
-
-  .sidebar-panel #search-box{
-  	-moz-appearance: none !important;
-  	background-color: rgba(249,249,250,0.1) !important; 
-  	color: inherit !important;
-  }
-
-  /* Add sidebar divider and give it background */
-
-  #sidebar,
-  #sidebar-header{
-  	background-color: inherit !important;
-  	border-inline: 1px solid rgb(80,80,80);
-  	border-inline-width: 0px 1px;
-  }
-
-  #sidebar-box:not([positionend],[sidebar-positionend]) > :-moz-locale-dir(rtl),
-  #sidebar-box:is([positionend],[sidebar-positionend]) > *{
-  	border-inline-width: 1px 0px;
-  }
-  @media -moz-pref("sidebar.revamp") {
-  	#sidebar, #sidebar-header{ border-style: none }
-  	#sidebar-box{ padding: 0 !important; }
-  }
-  /* Move statuspanel to the other side when sidebar is hovered so it doesn't get covered by sidebar */
-
-  #sidebar-box:not([positionend],[sidebar-positionend]):hover ~ #appcontent #statuspanel{
-  	inset-inline: auto 0px !important;
-  }
-  #sidebar-box:not([positionend],[sidebar-positionend]):hover ~ #appcontent #statuspanel-label{
-  	margin-inline: 0px !important;
-  	border-left-style: solid !important; 
-  }
-  @media -moz-pref("userchrome.autohide-sidebar.static-layout.enabled"){
-  	#sidebar-box{
-  		min-width: var(--uc-sidebar-width) !important;
-  		contain: size;
-  		box-shadow: var(--content-area-shadow);
-  	}
-  	#sidebar{
-  		min-width: var(--uc-sidebar-hover-width) !important;
-  	}
-  	.sidebar-browser-stack{
-  		overflow: hidden;
-  		width: 100%;
-  		transition: width var(--uc-autohide-transition-duration) var(--uc-autohide-transition-type) var(--uc-autohide-sidebar-delay);
-  		direction: ltr;
-  		&:hover{
-  			transition-delay: 0ms;
-  			width: var(--uc-sidebar-hover-width);
-  		}
-  		&:-moz-locale-dir(rtl){
-  			transition-property: transform,width !important;
-  		}
-  	}
-  	#sidebar-box[sidebar-positionend]:hover :is(#sidebar-header,#sidebar):-moz-locale-dir(ltr){
-  		transform: translateX(0);
-  		transition-delay: 0ms !important;
-  	}
-  	#sidebar-box:not([sidebar-positionend]):hover .sidebar-browser-stack:-moz-locale-dir(rtl){
-  		transform: translateX(calc(-1 * var(--uc-sidebar-hover-width) + var(--uc-sidebar-width)));
-  	}
-  	#sidebar-box[sidebar-positionend]:hover > .sidebar-browser-stack:-moz-locale-dir(rtl){
-  		transform: translateX(calc(var(--uc-sidebar-hover-width) - var(--uc-sidebar-width)));
-  		transition-delay: 0ms !important;
-  	}
-  }
+  /* #TabsToolbar { visibility: collapse; } */
 #+end_src
 
 - User.js for librewolf
@@ -1899,6 +1880,7 @@ Pipewire setup, just these lines enough to make sane default for it
 #+begin_src js :noweb-ref fox-userjs :tangle no
    // ~/.librewolf/ihome/user.js
   // userchrome.css usercontent.css activate
+  user_pref("sidebar.animation.expand-on-hover.duration-ms", "50");
   user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
 
   // firefox sync
@@ -1915,7 +1897,7 @@ Pipewire setup, just these lines enough to make sane default for it
 
   // Integrated unit convertor at urlbar
   user_pref("browser.urlbar.unitConversion.enabled", true);
-   user_pref("browser.tabs.insertAfterCurrent", true);
+  user_pref("browser.tabs.insertAfterCurrent", true);
 
   // Trim  URL
   user_pref("browser.urlbar.trimHttps", true);
@@ -2152,12 +2134,12 @@ Pipewire setup, just these lines enough to make sane default for it
     # "<Space>o" = "spawn mpv {url}";
     "<Ctrl-c><Ctrl-r>" = lib.mkMerge [
       "config-cycle tabs.show never always"
-      "config-cycle statusbar.show in-mode always"
+      # "config-cycle statusbar.show in-mode always"
       "config-cycle scrolling.bar never always"
     ];
     "<Ctrl-.>" = lib.mkMerge [
       "config-cycle tabs.show never always"
-      "config-cycle statusbar.show in-mode always"
+      # "config-cycle statusbar.show in-mode always"
       "config-cycle scrolling.bar never always"
     ];
 
@@ -2317,7 +2299,7 @@ Pipewire setup, just these lines enough to make sane default for it
     # command
     "<Alt-x>" = "cmd-set-text :";
     # hint
-    "<Alt-Space>" = "hint";
+    "<Alt-Space>" = "hint all tab";
     "<Alt-g>" = "hint";
     "<Space>" = "hint";
     "ff" = "hint";
@@ -2336,8 +2318,8 @@ Pipewire setup, just these lines enough to make sane default for it
     "<Shift-Escape>" = "mode-enter passthrough";
     "<Ctrl-x><Ctrl-q>" = "mode-enter passthrough";
     # Quit qutebrowser
-    "<Ctrl-x><Ctrl-c>" = "quit";
-    "<Ctrl-u><Ctrl-x><Ctrl-c>" = "close";
+    "<Ctrl-x><Ctrl-c>" = "close";
+    "<Ctrl-u><Ctrl-x><Ctrl-c>" = "quit";
 
     "<Ctrl-s>" = "cmd-set-text /";
     "<Ctrl-r>" = "cmd-set-text ?";
@@ -2346,8 +2328,8 @@ Pipewire setup, just these lines enough to make sane default for it
 
     passthrough = {
     	"<Shift-Escape>" = "mode-leave";
-      "<Escape>" = "mode-leave";
       "<Ctrl-g>" = "mode-leave";
+  	"<Ctrl-x><Ctrl-q>" = "mode-leave";
     };
 
 
@@ -2722,13 +2704,19 @@ Pipewire setup, just these lines enough to make sane default for it
     workspace-auto-back-and-forth
   }
 
+  cursor {
+      xcursor-size 32
+      hide-after-inactive-ms 5000
+  }
+
   debug {
     honor-xdg-activation-with-invalid-serial
   }
 
   window-rule {
-      geometry-corner-radius 20
-      clip-to-geometry true
+  	geometry-corner-radius 10
+  	clip-to-geometry true
+      draw-border-with-background false
   }
 
   layer-rule {
@@ -2758,8 +2746,8 @@ Pipewire setup, just these lines enough to make sane default for it
   //}
 
   // startups
-  spawn-at-startup "noctalia-shell"
-  spawn-at-startup "sh" "-c" "swayidle -w timeout 150 'brightnessctl -s set 5%' resume 'brightnessctl -r' timeout 180 'noctalia-shell ipc call lockScreen toggle' timeout 200 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' timeout 900 'systemctl suspend'"
+  //spawn-at-startup "noctalia-shell"
+  //spawn-at-startup "sh" "-c" "swayidle -w timeout 150 'brightnessctl -s set 5%' resume 'brightnessctl -r' timeout 180 'noctalia-shell ipc call lockScreen toggle' timeout 200 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' timeout 900 'systemctl suspend'"
 
   output "eDP-1" {
   	//scale 2
@@ -2807,12 +2795,6 @@ Pipewire setup, just these lines enough to make sane default for it
 
   animations {
   	//off
-  }
-
-  window-rule {
-  	geometry-corner-radius 10
-  	clip-to-geometry true
-    draw-border-with-background false
   }
 
   window-rule {
@@ -2865,12 +2847,14 @@ Pipewire setup, just these lines enough to make sane default for it
 
   layer-rule {
       match namespace="^wallpaper$"
+      match namespace="^noctalia-overview*"
       place-within-backdrop true
   }
 
   layer-rule {
   	match namespace="^rofi$"
   	match namespace="^fuzzel$"
+      // match namespace="^vicinae"
   	block-out-from "screen-capture"
   }
 
@@ -2905,8 +2889,8 @@ Pipewire setup, just these lines enough to make sane default for it
   	Mod+Shift+Slash { show-hotkey-overlay; } // S-?
 
   	Mod+Return { spawn "footclient"; }
-  	Mod+D { spawn-sh "vicinae"; }
-  	Mod+Shift+D { spawn-sh "noctalia-shell ipc call launcher toggle"; }
+  	Mod+D { spawn-sh "vicinae toggle"; }
+  	Mod+Shift+D { spawn-sh "rofi -show drun"; }
   	Mod+X {spawn-sh "noctalia-shell ipc call sessionMenu toggle"; }
   	Mod+Y {spawn-sh "vicinae vicinae://extensions/vicinae/clipboard/history"; }
   	Mod+Shift+Y {spawn-sh "noctalia-shell ipc call launcher clipboard"; }
@@ -2915,8 +2899,8 @@ Pipewire setup, just these lines enough to make sane default for it
   	Mod+F5 allow-when-locked=true {spawn-sh "noctalia-shell ipc call wallpaper random"; }
   	Mod+o {spawn "d-stuff"; }
     Mod+b { spawn-sh "noctalia-shell ipc call controlCenter toggle"; }
-    Mod+Tab { spawn "d-niri"; }
-    Mod+Delete { spawn "sh" "-c" "d-record stop"; }
+    Mod+Tab { spawn-sh "vicinae vicinae://extensions/vicinae/wm/switch-windows"; }
+    Mod+Delete { spawn-sh "noctalia-shell ipc call screenRecorder toggle"; }
     Mod+Shift+T {spawn-sh  "noctalia-shell ipc call notifications toggleHistory" ; }
     Mod+E {spawn "sh" "-c" "emacsclient -e '(d/write-here)'"; }
 
@@ -3039,8 +3023,8 @@ Pipewire setup, just these lines enough to make sane default for it
 
   	// Powers off the monitors. To turn them back on, do any input like
   	// moving the mouse or pressing any other key.
-  	Mod+Ctrl+P allow-when-locked=true { spawn-sh "noctalia-shell ipc call lockScreen toggle & systemctl suspend"; }
-  	Mod+Ctrl+L allow-when-locked=true { spawn-sh "noctalia-shell ipc call lockScreen toggle" ; }
+  	Mod+Ctrl+P allow-when-locked=true { spawn-sh "noctalia-shell ipc call sessionMenu lockAndSuspend"; }
+  	Mod+Ctrl+L allow-when-locked=true { spawn-sh "noctalia-shell ipc call lockScreen lock & niri msg action power-off-monitors" ; }
   }
 
 #+end_src
@@ -3072,13 +3056,14 @@ Pipewire setup, just these lines enough to make sane default for it
     }
   #+end_src
 
-*** COMMENT hypridle
+*** hypridle
 - Idle manager made for/with hyprland
 
   #+begin_src nix 
     {
       services.hypridle = let
         hyprlock = lib.getExe pkgs.hyprlock;
+    	noctalia = lib.getExe inputs.noctalia.defaultPackage.x86_64-linux;
         brightness = lib.getExe pkgs.brightnessctl;
         niri = lib.getExe pkgs.niri;
         timeout = 200; # base timer to act upon
@@ -3086,7 +3071,7 @@ Pipewire setup, just these lines enough to make sane default for it
         enable = true;
         settings ={
           general = {
-            lock_cmd = "pidof hyprlock || ${hyprlock}";       # avoid starting multiple hyprlock instances.
+            lock_cmd = "${noctalia} ipc call lockScreen lock";       # avoid starting multiple hyprlock instances.
             before_sleep_cmd = "${pkgs.systemd}/bin/loginctl lock-session";    # lock before suspend.
             unlock_cmd = "notify-send 'Welcome back!'";
           };
@@ -3121,6 +3106,18 @@ Pipewire setup, just these lines enough to make sane default for it
   #+begin_src nix 
     {
       programs.hyprlock = {
+        enable = true;
+      };
+    }
+  #+end_src
+
+** mangowc
+- Minimal dwl inspired WM with all batteries!
+
+  #+begin_src nix
+    inputs.mango.hmModules.mango
+    {
+      wayland.windowManager.mango = {
         enable = true;
       };
     }
@@ -3167,26 +3164,30 @@ Pipewire setup, just these lines enough to make sane default for it
   #+end_src
 
 
-
 *** vicinae config/setting
 #+begin_src json-ts :noweb-ref vicinae :tangle ~/.config/vicinae/vicinae.json
   {
-    "closeOnFocusLoss": false,
+    "closeOnFocusLoss": true,
     "faviconService": "twenty",
     "font": {
       "size": 12
     },
     "keybinding": "emacs",
-    "popToRootOnClose": false,
+    "keybinds": {
+      "action.open": "alt+O",
+      "open-settings": "control+,",
+      "toggle-action-panel": "control+."
+    },
+    "popToRootOnClose": true,
     "rootSearch": {
       "searchFiles": false
     },
     "theme": {
       "iconTheme": "Papirus-Dark",
-      "name": "github-dark.json"
+      "name": "matugen"
     },
     "window": {
-      "csd": true,
+      "csd": false,
       "opacity": 0.95,
       "rounding": 10
     }
@@ -3266,7 +3267,7 @@ Pipewire setup, just these lines enough to make sane default for it
     {
       home = {
         sessionVariables = {
-          EDITOR = "emacsclient -nw";
+          EDITOR = "emacsclient -c";
           VISUAL = "$EDITOR";
           GRIM_DEFAULT_DIR = "$HOME/pics/sshots/";
           STARDICT_DATA_DIR = "$HOME/d-git/d-bin/treasure/dict/";
@@ -3507,7 +3508,7 @@ Pipewire setup, just these lines enough to make sane default for it
   }
 #+end_src
 
-*** COMMENT clipboard
+*** clipboard
 - To manage clipboard history and watch it.
 
   #+begin_src nix 
@@ -3549,7 +3550,7 @@ Pipewire setup, just these lines enough to make sane default for it
 #+end_src
 
 *** Launcher
-**** fuzzel
+**** rofi
 - Simple and focused menu launcher by dnkl (foot author)
 
 #+begin_src nix 
@@ -3557,20 +3558,48 @@ Pipewire setup, just these lines enough to make sane default for it
     programs.rofi = {
       enable = true;
   	plugins = with pkgs; [ rofi-nerdy rofi-calc rofi-emoji ];
-  	modes = [ "drun" "run" "window" ];
+  	modes = [ "drun" "run" "window" "calc" "nerdy" "emoji" ];
       extraConfig = {
-        modi = "drun,run,window";
+        modi = "drun,run,window,combi";
+  	  combi-modes = [ "window" "drun" "run" "nerdy" "emoji" ];
         show-icons = true;
         hide-scrollbar = true;
-        display-drun = "   Apps ";
-        display-run = "   Run ";
-        display-window = "󰍲   Window";
+        display-drun = " Apps ";
+        display-run = "  Run ";
+        display-window = "󰍲   Window ";
         sidebar-mode = true;
         drun-show-actions = true;
       };
+  	theme = {
+  	  "@import" = "dmenu";
+  	};
     };
   }
 #+end_src
+
+- dmenu rofi config to enhance theme
+
+  #+begin_src conf :noweb-ref rofi-dmenu :tangle ~/.config/rofi/dmenu.rasi
+    ,*{
+        background-color:   transparent;
+    }
+    window {
+    width: 600;
+    border-radius:  12;
+    }
+    listview {columns: 2;}
+    element {
+    padding: 5px 20px;
+    spacing: 16px;
+    }
+    listview {lines: 10;}
+
+    inputbar {children:  [ icon-search, entry ]; padding: 10px 15px; spacing: 10px;}
+
+    icon-search {expand: false; filename: "search"; size: 28px;}
+    entry { placeholder : "Search"; }
+    element-icon { size: 32px; }
+  #+end_src
 
 *** home-pkgs
 - Some programs and packages to be used often. Miscellaneous
@@ -3646,6 +3675,7 @@ Pipewire setup, just these lines enough to make sane default for it
     (tool-bar-mode -1)
     (menu-bar-mode -1)
     (scroll-bar-mode -1)
+    (set-fringe-mode 10)
   #+end_src
 
 + Constant variable to check if on Android.
@@ -3720,9 +3750,8 @@ Pipewire setup, just these lines enough to make sane default for it
      initial-scratch-message (format "\n\n")
 
      tab-always-indent 'complete
-     tab-width 4
      reb-re-syntax 'string
-     fill-column 80
+     fill-column 100
 
      window-combination-resize t
      history-delete-duplicates t
@@ -3734,7 +3763,11 @@ Pipewire setup, just these lines enough to make sane default for it
      enable-recursive-minibuffers t
      )
 
-    (delete-selection-mode 1) (indent-tabs-mode -1)
+    (delete-selection-mode 1)
+    (setq-default
+     indent-tabs-mode nil
+     tab-width 4
+     standard-indent 4)
     (global-so-long-mode 1)
     (with-current-buffer "*scratch*" (emacs-lock-mode 'kill))
 
@@ -3756,9 +3789,12 @@ Pipewire setup, just these lines enough to make sane default for it
    grep-use-headings t
    save-interprogram-paste-before-kill t
    )
-  ;; (global-hl-line-mode 1)
+
+  (global-hl-line-mode 1)
   (save-place-mode 1)
+  (column-number-mode)
   (global-visual-line-mode 1)
+  (global-subword-mode 1)
 #+end_src
 
 - Display line numbers for prog-mode, in relative numbering.
@@ -3852,11 +3888,6 @@ Pipewire setup, just these lines enough to make sane default for it
     (setopt
      dired-listing-switches "-agho --group-directories-first"
      dired-omit-files "\\`[.]?#\\|\\`[.][.]?\\'\\|^\\..*$"
-     dired-guess-shell-alist-user
-     '(("\\.\\(png\\|jpe?g\\|tiff\\)" "swayimg")
-       ("\\.\\(mp[34]\\|m4a\\|ogg\\|flac\\|webm\\|mkv\\)" "mpv")
-       ("\\.\\(pdf\\|cbz\\)" "sioyek")
-       (".*" "d-stuff"))
      delete-by-moving-to-trash t
      dired-dwim-target t
      dired-kill-when-opening-new-dired-buffer nil
@@ -4055,7 +4086,7 @@ Pipewire setup, just these lines enough to make sane default for it
 
       :custom
       (prefix-help-command #'embark-prefix-help-command)
-      (embark-help-key "?") (embark-confirm-act-all nil)
+      (embark-confirm-act-all nil)
       )
     (add-to-list 'display-buffer-alist `("\\*\\(Embark\\|Completions\\).*\\*"
     									 nil (window-parameters (mode-line-format . none))))
@@ -4621,7 +4652,7 @@ ibuffer to list and manage buffers
 **** winner-window
 To manage windows states
 #+begin_src emacs-lisp
-  (winner-mode 1)
+   (winner-mode 1)
 #+end_src
 
 **** pixel scroll - ultra scroll
@@ -4639,7 +4670,7 @@ To manage windows states
 
     ;; (bind-keys ("C-v" . View-scroll-half-page-forward) ("M-v" . View-scroll-half-page-backward))
     ;; (bind-keys ("C-v" . pixel-scroll-interpolate-down) ("M-v" . pixel-scroll-interpolate-up))
-    (ultra-scroll-mode 1)
+    (if d/on-foss (ultra-scroll-mode 1))
   #+end_src
 
 **** repeat-mode
@@ -4855,6 +4886,7 @@ to get bash alias to eshell way
 - the lsp gifted in emacs
 
   #+begin_src emacs-lisp
+
     (use-package eglot :defer t :ensure nil :unless d/on-droid
       :custom
       (eglot-autoshutdown t)
@@ -4885,6 +4917,7 @@ to get bash alias to eshell way
   (use-package compile
     :hook (compilation-filter . ansi-color-compilation-filter)
     :bind ("M-#" . compile) ; M-! M-# M-& M-\
+    ("M-s c" . compile)
     :custom
     (shell-command-switch "-c") ;; -i
     (compilation-scroll-output t)
@@ -4957,8 +4990,7 @@ to get bash alias to eshell way
 - For all programming modes
 
 #+begin_src emacs-lisp
-  (use-package prog-mode :ensure nil :hook (prog-mode . hs-minor-mode) (prog-mode . outline-minor-mode)
-    :custom (tab-width 4))
+  (use-package prog-mode :ensure nil :hook (prog-mode . hs-minor-mode) (prog-mode . outline-minor-mode))
 #+end_src
 
 **** highlight todo note fixes
@@ -4995,8 +5027,11 @@ to get bash alias to eshell way
 
     ;; credits to oantolin's config
     (bind-keys :prefix-map insert-pair-map
-               :prefix "M-["
+               :prefix "M-]"
+               ("d" . delete-pair)
                ([t] . insert-pair))
+    (global-set-key (kbd "C-M-z") #'delete-pair)
+    (setopt delete-pair-blink-delay 0.1)
 
     (define-advice insert-pair (:filter-args (args) numeric-prefix)
       (cons (prefix-numeric-value (car args)) (cdr args)))
@@ -5338,6 +5373,7 @@ to get bash alias to eshell way
       (setq nnrss-group-alist '( ("manga" "https://nyaa.si/?page=rss&c=3_1&f=0") ) )
       (gnus-demon-add-handler 'gnus-group-save-newsrc 5 t) ;; minutes
       (gnus-demon-init)
+      (if d/on-foss (load-file "~/d-sync/feeds/gnews/privmail.el"))
       )
 
     (use-package gnus-group
@@ -5396,12 +5432,6 @@ to get bash alias to eshell way
     (smtpmail-debug-verb t))
 
 #+end_src
-
-- More mails
-  #+begin_src emacs-lisp :tangle no
-    (use-package gnus :if d/on-foss
-      :config (load-file "~/d-sync/feeds/gnews/privmail.el"))
-  #+end_src
 
 *** Web
 - Browsing Web in emacs.
@@ -5542,7 +5572,7 @@ to get bash alias to eshell way
 - Defining some variables for adjusting size and font name.
 
   #+begin_src emacs-lisp
-    (defcustom d/font-size (if d/on-droid 170 120)
+    (defcustom d/font-size (if d/on-droid 170 130)
       "Default font size based on the system.")
 
     ;; Dont worry about the font name, I use fork of Iosevka font
@@ -5605,6 +5635,8 @@ to get bash alias to eshell way
 #+begin_src emacs-lisp
   (use-package modus-themes :ensure nil :demand t
     :init (require-theme 'modus-themes)
+    :custom-face
+    (minibuffer-nonselected ((t (:inverse-video t))))
     :custom
     (modus-themes-italic-constructs t) (modus-themes-bold-constructs t)
     (modus-themes-mixed-fonts t)
@@ -5612,25 +5644,31 @@ to get bash alias to eshell way
     (modus-themes-headings
      '((1 . (variable-pitch 1.5))
        (2 . (1.3))
-       (agenda-date . (1.3))
-       (agenda-structure . (variable-pitch light 1.8))
+       (agenda-date . (regular 1.1))
+       (agenda-structure . (variable-pitch light 1.3))
        (t . (1.1))))
 
     (modus-vivendi-palette-overrides
      '(
-       (bg-main     "#000000") (bg-dim      "#111111")
-       (bg-active   "#222222") (bg-inactive "#333333")
+       (bg-main        "#000000") (bg-dim         "#0a0f0a")
+       (bg-active      "#111c17") (bg-inactive    "#1b2a24")
 
-       (fg-main     "#ffffff")
-       (fg-dim      "#b4aeae")
+       (fg-main     "#ffffff") (fg-dim      "#b4aeae")
 
-       (cursor      "#00ffff")
-
-       (fg-heading-1  "#ab82ff")
-       (fg-heading-2  "#fab387")
+       (fg-heading-1  "#ab82ff") (fg-heading-2  "#fab387") (prose-tag "#ffe")
        (mail-subject  "#6ae4b9")
-   
-       (bg-completion "#2e8b57") (bg-region     bg-completion) (fg-region unspecified)
+       
+       (cursor "#5fd7af") (bg-completion "#248f6c") (bg-hl-line "#142f2b") ;;seagreen
+       ;; (cursor "#7aa2f7") (bg-completion "#2a2e3b") (bg-hl-line "#24283b") ;; tokyonight
+       ;; (cursor "#528bff") (bg-completion "#3e4451") (bg-hl-line "#2c313c") ;; onedark
+       ;; (cursor "#9fc5e8") (bg-completion "#2a2f3a") (bg-hl-line "#212530") ;; Moonlight
+       ;; (cursor "#89b4fa") (bg-completion "#292d3e") (bg-hl-line "#222538") ;; Palenight
+       ;; (cursor "#d3869b") (bg-completion "#665c54") (bg-hl-line "#3c3836") ;; Gruvbox Dark Hard
+       ;; (cursor "#a7c080") (bg-completion "#2a2e26") (bg-hl-line "#232823") ;; Everforest
+       ;; (cursor "#f2cdcd") (bg-completion "#6d4f4f") (bg-hl-line "#3e2f2f") ;; Catppuccin Mocha
+       ;; (cursor "#e0def4") (bg-completion "#44415a") (bg-hl-line "#2a273f") ;; Rose Pine
+
+       (bg-region     bg-completion) (fg-region unspecified)
 
        (bg-tab-bar bg-main) (bg-tab-current bg-active) (bg-tab-other bg-dim)
        (fringe unspecified)
@@ -5642,6 +5680,7 @@ to get bash alias to eshell way
 
     :config
     (load-theme 'modus-vivendi t))
+
 #+end_src
 
 *** Status bar/Mode-line
@@ -5660,46 +5699,18 @@ to get bash alias to eshell way
      mode-line-position mode-line-format-right-align
      (project-mode-line project-mode-line-format)
      (vc-mode vc-mode)
-     "  " mode-name "  "
-     ;; "  " mode-line-modes
-     mode-line-misc-info))
+     "  " mode-line-modes
+     mode-line-misc-info)
 
-  ;; credits minad in reddit
-  (defmacro +diminish (mode)
-    `(cl-callf2 assq-delete-all ',mode minor-mode-alist))
-
-  (+diminish abbrev-mode)
-  (+diminish hs-minor-mode)
-  (+diminish jinx-mode)
-  (+diminish outline-minor-mode)
-  (+diminish eldoc-mode)
-  (+diminish visual-line-mode)
+   mode-line-collapse-minor-modes t)
+  (global-set-key (kbd "<f9>") 'mode-line-invisible-mode)
 #+end_src
-
-- To toggle mode-line on and off.
-  #+begin_src emacs-lisp
-    (use-package d/hide-mode-line :ensure nil :no-require t
-      :bind ([f9] . d/hide-mode-line-mode)
-      :init
-      (define-minor-mode d/hide-mode-line-mode
-        "The void space to hide mode-line."
-        :lighter "Vanish" :init-value nil
-        (setq mode-line-format
-              (if d/hide-mode-line-mode
-                  nil
-    			;; d/mode-line-format
-    			(default-value 'mode-line-format)
-    			))
-        (redraw-display))
-      :hook (help-mode nov-mode)
-      )
-  #+end_src
 
 **** olivetti center mode
 - Nice, focused writing environment for emacs.
 
   #+begin_src emacs-lisp
-    (use-package olivetti :defer t :custom (olivetti-body-width 100)
+    (use-package olivetti :defer t :custom (olivetti-body-width 140)
       :hook (org-mode text-mode Info-mode helpful-mode ement-room-mode gnus-group-mode eww-mode
                       gnus-article-mode sdcv-mode nov-mode elfeed-show-mode markdown-mode))
   #+end_src
@@ -5757,12 +5768,12 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
       (org-priority-highest 1) (org-priority-lowest  5) (org-priority-default 3)
 
       (org-clock-in-switch-to-state "STARTED")
-
+      
       (org-refile-targets '( (org-default-notes-file :maxlevel . 5) (nil :maxlevel . 6) ))
 
       (org-directory "~/d-sync/notes/")
       (org-default-notes-file (concat org-directory "d-brain.org")) ;; my second brain in OBTF
-      (org-pretty-entities t)
+      (org-pretty-entities t) (org-hide-emphasis-markers t)
       (org-list-allow-alphabetical t)
 
       (org-fontify-whole-heading-line t) (org-fontify-quote-and-verse-blocks t)
@@ -6003,7 +6014,7 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
       (let ((notif (if d/on-droid 'android-notifications-notify 'notifications-notify)))
         (funcall notif
                  :body (format "In %s minutes" remaining)
-                 :title msg
+                 :title msg :timeout 0
                  :urgency 'critical))))
 #+end_src
 
@@ -6044,10 +6055,10 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
 
   #+begin_src emacs-lisp
     (use-package remember :ensure nil
-      :bind ("C-c r r" . remember) ("C-c r n" . remember-notes)
+      :bind ("C-x M-r" . remember) ("C-c r r" . remember) ("C-c r n" . remember-notes)
       :custom
       (initial-buffer-choice 'remember-notes)
-    	(remember-data-file (expand-file-name "inbox.org" org-directory))
+    	(remember-data-file (expand-file-name (if d/on-foss "foss.org" "inbox.org") org-directory))
     	(remember-notes-initial-major-mode 'org-mode))
   #+end_src
 
@@ -6086,6 +6097,30 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
      (flycheck-vale-setup))
   #+end_src
 
+
+*** Social Media
+
+**** telega
+- Get better and enhance fast messaging and catch-ups in telegram.
+
+  #+begin_src emacs-lisp
+    (use-package telega :if d/on-foss
+      :custom-face
+      (telega-msg-heading ((t :extend nil :background nil)))
+      (telega-msg-user-title ((t :extend nil :background "#111"))))
+  #+end_src
+
+- Maybe next will be ement (matrix) and mastodon?
+
+**** mastodon
+- Fediverse to have peaceful discussion
+
+  #+begin_src emacs-lisp
+    (use-package mastodon :if d/on-foss
+      :custom
+      (mastodon-instance-url "https://fosstodon.org")
+      (mastodon-active-user "idlip"))
+  #+end_src
 
 * Packages
 ** code-d-font

@@ -99,10 +99,17 @@ Emacs configuration is crafted slowly by learning from all users in community. E
         inputs.quickshell.follows = "quickshell";
       };
 
-      vicinae.url = "github:vicinaehq/vicinae";
+      vicinae = {
+  	  url = "github:vicinaehq/vicinae";
+        # inputs.nixpkgs.follows = "nixpkgs"; # compile yourself ?
+  	};
+
+      mango = {
+        url = "github:DreamMaoMao/mango";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
 
   	<<flake-files>>
-
     };
 
     outputs =
@@ -156,6 +163,7 @@ Emacs configuration is crafted slowly by learning from all users in community. E
                 inputs.home-manager.nixosModules.home-manager
                 nix-index-database.nixosModules.nix-index
                 stylix.nixosModules.stylix
+                inputs.mango.nixosModules.mango
   			];
   			specialArgs = {
                 inherit inputs system;

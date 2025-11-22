@@ -80,7 +80,7 @@ Emacs configuration is crafted slowly by learning from all users in community. E
       };
 
       emacs-overlay = {
-        url = "github:nix-community/emacs-overlay/dff97e46997a60c0ade49d2c7fbd3d7326685401";
+        url = "github:nix-community/emacs-overlay";
       };
 
       stylix = {
@@ -101,13 +101,7 @@ Emacs configuration is crafted slowly by learning from all users in community. E
 
       vicinae = {
   	  url = "github:vicinaehq/vicinae";
-        # inputs.nixpkgs.follows = "nixpkgs"; # compile yourself ?
   	};
-
-      mango = {
-        url = "github:DreamMaoMao/mango";
-        inputs.nixpkgs.follows = "nixpkgs";
-      };
 
   	<<flake-files>>
     };
@@ -163,7 +157,6 @@ Emacs configuration is crafted slowly by learning from all users in community. E
                 inputs.home-manager.nixosModules.home-manager
                 nix-index-database.nixosModules.nix-index
                 stylix.nixosModules.stylix
-                inputs.mango.nixosModules.mango
   			];
   			specialArgs = {
                 inherit inputs system;
@@ -217,7 +210,6 @@ Emacs configuration is crafted slowly by learning from all users in community. E
     }
     {	
   	services.throttled.enable = true;
-      programs.mango.enable = true;
     }
 
   	{
@@ -983,7 +975,7 @@ Pipewire setup, just these lines enough to make sane default for it
     {
       fonts = {
         packages = with pkgs; [
-          noto-fonts noto-fonts-emoji
+          noto-fonts noto-fonts-color-emoji
           material-symbols material-icons
         ];
         enableDefaultPackages = true;
@@ -1036,7 +1028,7 @@ Pipewire setup, just these lines enough to make sane default for it
           };
 
           emoji = {
-            package = pkgs.noto-fonts-emoji;
+            package = pkgs.noto-fonts-color-emoji;
             name = "Noto Color Emoji";
           };
 
@@ -1074,6 +1066,407 @@ Pipewire setup, just these lines enough to make sane default for it
       "customLaunchPrefix": "",
       "customLaunchPrefixEnabled": false,
       "enableClipboardHistory": false,
+      {
+      "appLauncher": {
+        "customLaunchPrefix": "",
+        "customLaunchPrefixEnabled": false,
+        "enableClipboardHistory": false,
+        "pinnedExecs": [
+        ],
+        "position": "center",
+        "sortByMostUsed": true,
+        "terminalCommand": "xterm -e",
+        "useApp2Unit": true
+      },
+      "audio": {
+        "cavaFrameRate": 60,
+        "mprisBlacklist": [
+        ],
+        "preferredPlayer": "mpv, mpc",
+        "visualizerQuality": "high",
+        "visualizerType": "linear",
+        "volumeOverdrive": true,
+        "volumeStep": 5
+      },
+      "bar": {
+        "backgroundOpacity": 0.85,
+        "capsuleOpacity": 1,
+        "density": "default",
+        "exclusive": true,
+        "floating": false,
+        "marginHorizontal": 0.25,
+        "marginVertical": 0.25,
+        "monitors": [
+        ],
+        "outerCorners": true,
+        "position": "top",
+        "showCapsule": false,
+        "widgets": {
+          "center": [
+            {
+              "customFont": "",
+              "formatHorizontal": "HH:mm ddd, MMM dd",
+              "formatVertical": "HH mm - dd MM",
+              "id": "Clock",
+              "useCustomFont": false,
+              "usePrimaryColor": true
+            },
+            {
+              "characterCount": 2,
+              "hideUnoccupied": false,
+              "id": "Workspace",
+              "labelMode": "none"
+            }
+          ],
+          "left": [
+            {
+              "id": "SystemMonitor",
+              "showCpuTemp": true,
+              "showCpuUsage": true,
+              "showDiskUsage": false,
+              "showMemoryAsPercent": true,
+              "showMemoryUsage": true,
+              "showNetworkStats": false
+            },
+            {
+              "hideMode": "idle",
+              "hideWhenIdle": false,
+              "id": "MediaMini",
+              "maxWidth": 145,
+              "scrollingMode": "hover",
+              "showAlbumArt": true,
+              "showVisualizer": true,
+              "useFixedWidth": false,
+              "visualizerType": "linear"
+            }
+          ],
+          "right": [
+            {
+              "id": "ScreenRecorder"
+            },
+            {
+              "blacklist": [
+              ],
+              "colorizeIcons": false,
+              "favorites": [
+              ],
+              "id": "Tray"
+            },
+            {
+              "hideWhenZero": true,
+              "id": "NotificationHistory",
+              "showUnreadBadge": true
+            },
+            {
+              "displayMode": "onhover",
+              "id": "WiFi"
+            },
+            {
+              "displayMode": "alwaysShow",
+              "id": "Battery",
+              "warningThreshold": 40
+            },
+            {
+              "displayMode": "onhover",
+              "id": "Volume"
+            },
+            {
+              "displayMode": "onhover",
+              "id": "Brightness"
+            },
+            {
+              "customIconPath": "",
+              "icon": "",
+              "id": "ControlCenter",
+              "useDistroLogo": true
+            }
+          ]
+        }
+      },
+      "brightness": {
+        "brightnessStep": 5,
+        "enableDdcSupport": false,
+        "enforceMinimum": true
+      },
+      "colorSchemes": {
+        "darkMode": true,
+        "generateTemplatesForPredefined": true,
+        "manualSunrise": "06:30",
+        "manualSunset": "18:30",
+        "matugenSchemeType": "scheme-fruit-salad",
+        "predefinedScheme": "Noctalia (default)",
+        "schedulingMode": "off",
+        "useWallpaperColors": true
+      },
+      "controlCenter": {
+        "cards": [
+          {
+            "enabled": true,
+            "id": "profile-card"
+          },
+          {
+            "enabled": true,
+            "id": "shortcuts-card"
+          },
+          {
+            "enabled": true,
+            "id": "audio-card"
+          },
+          {
+            "enabled": true,
+            "id": "weather-card"
+          },
+          {
+            "enabled": true,
+            "id": "media-sysmon-card"
+          }
+        ],
+        "position": "center",
+        "shortcuts": {
+          "left": [
+            {
+              "id": "WiFi"
+            },
+            {
+              "id": "Bluetooth"
+            },
+            {
+              "id": "ScreenRecorder"
+            },
+            {
+              "id": "WallpaperSelector"
+            }
+          ],
+          "right": [
+            {
+              "id": "Notifications"
+            },
+            {
+              "id": "PowerProfile"
+            },
+            {
+              "id": "KeepAwake"
+            },
+            {
+              "id": "NightLight"
+            }
+          ]
+        }
+      },
+      "dock": {
+        "backgroundOpacity": 1,
+        "colorizeIcons": false,
+        "displayMode": "always_visible",
+        "enabled": false,
+        "floatingRatio": 1,
+        "monitors": [
+        ],
+        "onlySameOutput": true,
+        "pinnedApps": [
+        ],
+        "size": 1
+      },
+      "general": {
+        "allowPanelsOnScreenWithoutBar": true,
+        "animationDisabled": true,
+        "animationSpeed": 1,
+        "avatarImage": "/home/dev/media/pics/wp6489081-anime-ps4-luffy-wallpapers.jpg",
+        "compactLockScreen": false,
+        "dimmerOpacity": 0.78,
+        "enableShadows": true,
+        "forceBlackScreenCorners": false,
+        "language": "",
+        "lockOnSuspend": true,
+        "radiusRatio": 1,
+        "scaleRatio": 1,
+        "screenRadiusRatio": 1,
+        "shadowDirection": "bottom_right",
+        "shadowOffsetX": 2,
+        "shadowOffsetY": 3,
+        "showScreenCorners": false
+      },
+      "hooks": {
+        "darkModeChange": "",
+        "enabled": false,
+        "wallpaperChange": ""
+      },
+      "location": {
+        "analogClockInCalendar": false,
+        "firstDayOfWeek": -1,
+        "name": "Bengaluru",
+        "showCalendarEvents": true,
+        "showCalendarWeather": true,
+        "showWeekNumberInCalendar": true,
+        "use12hourFormat": false,
+        "useFahrenheit": false,
+        "weatherEnabled": true
+      },
+      "network": {
+        "wifiEnabled": true
+      },
+      "nightLight": {
+        "autoSchedule": true,
+        "dayTemp": "6500",
+        "enabled": true,
+        "forced": false,
+        "manualSunrise": "06:30",
+        "manualSunset": "18:30",
+        "nightTemp": "4000"
+      },
+      "notifications": {
+        "backgroundOpacity": 0.9,
+        "criticalUrgencyDuration": 100,
+        "enableKeyboardLayoutToast": true,
+        "enabled": true,
+        "location": "top_right",
+        "lowUrgencyDuration": 10,
+        "monitors": [
+        ],
+        "normalUrgencyDuration": 20,
+        "overlayLayer": true,
+        "respectExpireTimeout": true
+      },
+      "osd": {
+        "autoHideMs": 2000,
+        "backgroundOpacity": 1,
+        "enabled": true,
+        "location": "top_right",
+        "monitors": [
+        ],
+        "overlayLayer": true
+      },
+      "screenRecorder": {
+        "audioCodec": "opus",
+        "audioSource": "default_output",
+        "colorRange": "limited",
+        "directory": "/home/dev/media/stream",
+        "frameRate": 60,
+        "quality": "very_high",
+        "showCursor": true,
+        "videoCodec": "h264",
+        "videoSource": "portal"
+      },
+      "sessionMenu": {
+        "countdownDuration": 10000,
+        "enableCountdown": true,
+        "position": "center",
+        "powerOptions": [
+          {
+            "action": "lock",
+            "countdownEnabled": true,
+            "enabled": true
+          },
+          {
+            "action": "suspend",
+            "countdownEnabled": true,
+            "enabled": true
+          },
+          {
+            "action": "hibernate",
+            "countdownEnabled": true,
+            "enabled": true
+          },
+          {
+            "action": "reboot",
+            "countdownEnabled": true,
+            "enabled": true
+          },
+          {
+            "action": "logout",
+            "countdownEnabled": true,
+            "enabled": true
+          },
+          {
+            "action": "shutdown",
+            "countdownEnabled": true,
+            "enabled": true
+          }
+        ],
+        "showHeader": true
+      },
+      "settingsVersion": 18,
+      "setupCompleted": true,
+      "systemMonitor": {
+        "cpuCriticalThreshold": 90,
+        "cpuWarningThreshold": 70,
+        "criticalColor": "",
+        "diskCriticalThreshold": 90,
+        "diskWarningThreshold": 80,
+        "memCriticalThreshold": 90,
+        "memWarningThreshold": 70,
+        "tempCriticalThreshold": 90,
+        "tempWarningThreshold": 80,
+        "useCustomColors": false,
+        "warningColor": ""
+      },
+      "templates": {
+        "alacritty": false,
+        "code": true,
+        "discord": false,
+        "enableUserTemplates": false,
+        "foot": false,
+        "fuzzel": false,
+        "ghostty": false,
+        "gtk": true,
+        "kcolorscheme": false,
+        "kitty": false,
+        "pywalfox": false,
+        "qt": false,
+        "spicetify": false,
+        "vicinae": true,
+        "walker": false,
+        "wezterm": false
+      },
+      "ui": {
+        "fontDefault": "Inter",
+        "fontDefaultScale": 1,
+        "fontFixed": "Maple Mono NF Medium",
+        "fontFixedScale": 1,
+        "panelBackgroundOpacity": 1,
+        "panelsAttachedToBar": true,
+        "settingsPanelAttachToBar": true,
+        "tooltipsEnabled": true
+      },
+      "wallpaper": {
+        "defaultWallpaper": "/nix/store/l794qx7as7v6rsrvy8s0j1s27rjmx8xd-noctalia-shell-6bc23e905d6c514db74e2649c0d4c09db7533e00/share/noctalia-shell/Assets/Wallpaper/noctalia.png",
+        "directory": "/home/dev/d-git/d-wallpapers/walls",
+        "enableMultiMonitorDirectories": false,
+        "enabled": true,
+        "fillColor": "#000000",
+        "fillMode": "crop",
+        "hideWallpaperFilenames": false,
+        "monitors": [
+          {
+            "directory": "/home/dev/d-git/d-wallpapers/walls",
+            "name": "eDP-1",
+            "wallpaper": "/home/dev/d-git/d-wallpapers/walls/sky-snow-lake.png"
+          },
+          {
+            "directory": "/home/dev/d-git/d-wallpapers/walls",
+            "name": "HDMI-A-1",
+            "wallpaper": "/home/dev/d-git/d-wallpapers/walls/0156.jpg"
+          }
+        ],
+        "overviewEnabled": true,
+        "panelPosition": "follow_bar",
+        "randomEnabled": true,
+        "randomIntervalSec": 3600,
+        "recursiveSearch": false,
+        "setWallpaperOnAllMonitors": true,
+        "transitionDuration": 1500,
+        "transitionEdgeSmoothness": 0.05,
+        "transitionType": "random",
+        "useWallhaven": false,
+        "wallhavenCategories": "111",
+        "wallhavenOrder": "desc",
+        "wallhavenPurity": "100",
+        "wallhavenQuery": "",
+        "wallhavenResolutionHeight": "",
+        "wallhavenResolutionMode": "atleast",
+        "wallhavenResolutionWidth": "",
+        "wallhavenSorting": "relevance"
+      }
+    }
       "pinnedExecs": [
       ],
       "position": "center",
@@ -1086,6 +1479,7 @@ Pipewire setup, just these lines enough to make sane default for it
       "mprisBlacklist": [
       ],
       "preferredPlayer": "",
+      "visualizerQuality": "high",
       "visualizerType": "linear",
       "volumeOverdrive": false,
       "volumeStep": 5
@@ -1161,10 +1555,6 @@ Pipewire setup, just these lines enough to make sane default for it
           {
             "displayMode": "onhover",
             "id": "WiFi"
-          },
-          {
-            "displayMode": "onhover",
-            "id": "Bluetooth"
           },
           {
             "displayMode": "alwaysShow",
@@ -1275,7 +1665,7 @@ Pipewire setup, just these lines enough to make sane default for it
       "size": 1
     },
     "general": {
-      "animationDisabled": false,
+      "animationDisabled": true,
       "animationSpeed": 1,
       "avatarImage": "/home/dev/media/pics/wp6489081-anime-ps4-luffy-wallpapers.jpg",
       "compactLockScreen": false,
@@ -1323,7 +1713,7 @@ Pipewire setup, just these lines enough to make sane default for it
     "notifications": {
       "backgroundOpacity": 0.9,
       "criticalUrgencyDuration": 100,
-      "doNotDisturb": false,
+      "enabled": true,
       "location": "top_right",
       "lowUrgencyDuration": 10,
       "monitors": [
@@ -1363,16 +1753,17 @@ Pipewire setup, just these lines enough to make sane default for it
       "discord_lightcord": false,
       "discord_vesktop": false,
       "discord_webcord": false,
-      "enableUserTemplates": true,
+      "enableUserTemplates": false,
       "foot": false,
       "fuzzel": false,
       "ghostty": false,
-      "gtk": false,
+      "gtk": true,
       "kcolorscheme": false,
       "kitty": false,
       "pywalfox": false,
       "qt": false,
-      "vicinae": false,
+      "spicetify": false,
+      "vicinae": true,
       "walker": false,
       "wezterm": false
     },
@@ -1382,7 +1773,7 @@ Pipewire setup, just these lines enough to make sane default for it
       "fontFixed": "Maple Mono NF Medium",
       "fontFixedScale": 1,
       "panelsAttachedToBar": true,
-      "panelsOverlayLayer": false,
+      "settingsPanelAttachToBar": true,
       "tooltipsEnabled": true
     },
     "wallpaper": {
@@ -1583,16 +1974,16 @@ Pipewire setup, just these lines enough to make sane default for it
           enable = true;
           config = {
     		common = {
-              default = ["gtk" "gnome" "wlr"];
+              default = ["gtk" "gnome"];
               "org.freedesktop.impl.portal.ScreenCast" = "gnome";
               "org.freedesktop.impl.portal.Screenshot" = "gnome";
               "org.freedesktop.impl.portal.RemoteDesktop" = "gnome";
             };
     	  };
-          configPackages = [ pkgs.niri config.wayland.windowManager.mango.package ];
+          configPackages = [ pkgs.niri ];
           xdgOpenUsePortal = true;
           extraPortals = with pkgs; [
-    		xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-gnome xdg-desktop-portal-wlr
+    		xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-gnome
           ];
     	};
 
@@ -1629,28 +2020,34 @@ Pipewire setup, just these lines enough to make sane default for it
       programs.git = {
         enable = true;
         package = pkgs.gitFull;
-        extraConfig.safe.directory = "...";
+        settings = {
+          safe.directory = "...";
+          user = {
+            name = "Dilip";
+            email = "igoldlip@gmail.com";
+          };
 
-        aliases = {
-          a = "add";
-          b = "branch";
-          c = "commit";
-          ca = "commit --amend";
-          cm = "commit -m";
-          cho = "checkout";
-          d = "diff";
-          ds = "diff --staged";
-          p = "push";
-          pf = "push --force-with-lease";
-          pl = "pull";
-          l = "log";
-          r = "rebase";
-          s = "status --short";
-          ss = "status";
-          forgor = "commit --amend --no-edit";
-          graph = "log --all --decorate --graph --oneline";
-          logrep = "log --decorate --oneline --grep=";
-          oops = "checkout --";
+          alias = {
+            a = "add";
+            b = "branch";
+            c = "commit";
+            ca = "commit --amend";
+            cm = "commit -m";
+            cho = "checkout";
+            d = "diff";
+            ds = "diff --staged";
+            p = "push";
+            pf = "push --force-with-lease";
+            pl = "pull";
+            l = "log";
+            r = "rebase";
+            s = "status --short";
+            ss = "status";
+            forgor = "commit --amend --no-edit";
+            graph = "log --all --decorate --graph --oneline";
+            logrep = "log --decorate --oneline --grep=";
+            oops = "checkout --";
+          };
         };
 
         ignores = ["*~" "*.swp" "*result*" ".direnv" "node_modules"];
@@ -1659,9 +2056,6 @@ Pipewire setup, just these lines enough to make sane default for it
           key = "53F3BDB57ED8DC48";
           signByDefault = true;
         };
-
-        userEmail = "igoldlip@gmail.com";
-        userName = "Dilip";
       };
 
     }
@@ -1698,6 +2092,9 @@ Pipewire setup, just these lines enough to make sane default for it
             clipboard-copy = "Control+Shift+c";
             clipboard-paste = "Control+Shift+v Control+y";
             primary-paste = "Shift+Insert";
+          };
+          url = {
+            launch = "d-stuff \${url}";
           };
           mouse = {
             hide-when-typing = "yes";
@@ -1748,7 +2145,7 @@ Pipewire setup, just these lines enough to make sane default for it
           flycheck consult-flycheck flycheck-eglot org-re-reveal
     	  flycheck-vale
     	  verb forge melpaPackages.telega melpaPackages.mastodon
-          # dslide gptel
+          # dslide
 
           (melpaBuild {
             pname = "combobulate";
@@ -2693,45 +3090,36 @@ Pipewire setup, just these lines enough to make sane default for it
   // Find the full list of options on the wiki:
   // https://github.com/YaLTeR/niri/wiki/Configuration:-Input
   input {
-  	keyboard {
-  		xkb { options "ctrl:nocaps"; }
-  		repeat-delay 600; repeat-rate 200;
-  	}
-  	touchpad {
-  		tap; dwt; natural-scroll; accel-speed 0.4
-  	}
-  	focus-follows-mouse max-scroll-amount="30%"
-    workspace-auto-back-and-forth
+  keyboard {
+  xkb { options "ctrl:nocaps"; }
+  repeat-delay 600; repeat-rate 200;
+  }
+  touchpad {
+  tap; dwt; natural-scroll; accel-speed 0.4
+  }
+  focus-follows-mouse max-scroll-amount="30%"
+  workspace-auto-back-and-forth
   }
 
   cursor {
-      xcursor-size 32
-      hide-after-inactive-ms 5000
+  xcursor-size 32
+  hide-after-inactive-ms 5000
+  }
+
+  window-rule {
+  geometry-corner-radius 20
+  clip-to-geometry true
+  draw-border-with-background false
   }
 
   debug {
     honor-xdg-activation-with-invalid-serial
   }
 
-  window-rule {
-  	geometry-corner-radius 10
-  	clip-to-geometry true
-      draw-border-with-background false
-  }
-
-  layer-rule {
-      match namespace="^quickshell-wallpaper$"
-  }
-
-  layer-rule {
-      match namespace="^quickshell-overview$"
-      place-within-backdrop true
-  }
-
   environment {
-    QT_QPA_PLATFORM "wayland"
-  	//QT_SCALE_FACTOR "1.5"
-  	//GDK_SCALE "2"
+  QT_QPA_PLATFORM "wayland"
+  //QT_SCALE_FACTOR "1.5"
+  //GDK_SCALE "2"
   }
 
   // names
@@ -2750,43 +3138,51 @@ Pipewire setup, just these lines enough to make sane default for it
   //spawn-at-startup "sh" "-c" "swayidle -w timeout 150 'brightnessctl -s set 5%' resume 'brightnessctl -r' timeout 180 'noctalia-shell ipc call lockScreen toggle' timeout 200 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' timeout 900 'systemctl suspend'"
 
   output "eDP-1" {
-  	//scale 2
+  //scale 2
   }
 
   output "HDMI-A-1" {
-   //  mode "1920x1200"
-   // mode "1600x1200"
+  //  mode "1920x1200"
+  // mode "1600x1200"
   // scale 1
   }
 
   layout {
-    gaps 5
-    center-focused-column "never"
-    always-center-single-column
-    //default-column-display "tabbed"
+  gaps 5
+  center-focused-column "never"
+  always-center-single-column
+  //default-column-display "tabbed"
 
-    preset-column-widths { proportion 0.33333; proportion 0.5; proportion 0.66667; proportion 1.0; }
-    preset-window-heights { proportion 0.33333; proportion 0.5; proportion 0.66667; proportion 1.0; }
-    default-column-width { proportion 0.666; }
+  preset-column-widths { proportion 0.33333; proportion 0.5; proportion 0.66667; proportion 1.0; }
+  preset-window-heights { proportion 0.33333; proportion 0.5; proportion 0.66667; proportion 1.0; }
+  default-column-width { proportion 0.666; }
 
-  	focus-ring {
-  		width 1
-  		inactive-color "#020202"
-  		active-gradient from="#2e8b57" to="#bbddff" angle=45 relative-to="workspace-view"
-  	}
-    background-color "transparent"
+  focus-ring {
+  width 1
+  inactive-color "#020202"
+  active-gradient from="#2e8b57" to="#bbddff" angle=45 relative-to="workspace-view"
+  }
+  background-color "transparent"
 
-  	border { off; }
-  	//struts {
-  	//	 left 10; right 10;
-  	//	 top 10; bottom 10;
-  	//}
+  shadow {
+  on
+  offset x=0 y=0
+  softness 20
+  spread 5
+  color "#2e8b5790"
+  }
 
-    tab-indicator {
-      width 4; gap 2
-      length total-proportion=0.2
-      place-within-column
-    }
+  border { off; }
+  //struts {
+  //	 left 10; right 10;
+  //	 top 10; bottom 10;
+  //}
+
+  tab-indicator {
+  width 4; gap 2
+  length total-proportion=0.2
+  place-within-column
+  }
 
   }
 
@@ -2794,237 +3190,237 @@ Pipewire setup, just these lines enough to make sane default for it
   screenshot-path "~/media/pics/sshots/%Y%m%dT%H%M%S_capture.png"
 
   animations {
-  	//off
+  //off
   }
 
   window-rule {
-      match is-active=false
-      //opacity 0.95
+  match is-active=false
+  //opacity 0.95
   }
 
   window-rule {
-      match app-id="emacs"
-      open-fullscreen true
-      open-on-workspace "org"
-      exclude app-id="emacs" title="d-write"
+  match app-id="emacs"
+  open-fullscreen true
+  open-on-workspace "org"
+  exclude app-id="emacs" title="spawnhere"
   }
   window-rule {
-      match app-id=r#"Mullvad|Firefox|librewolf"#
-      open-maximized true
-      open-on-workspace "www"
+  match app-id=r#"Mullvad|Firefox|librewolf"#
+  open-maximized true
+  open-on-workspace "www"
   }
   window-rule {
-      match app-id=r#"foot"#
-      //open-floating true
-      open-on-workspace "cli"
+  match app-id=r#"foot"#
+  //open-floating true
+  open-on-workspace "cli"
   }
 
   window-rule {
-      match app-id="librewolf*" title="^Picture-in-Picture$"
-      match app-id="mpv"
-      max-width 400; max-height 300;
-      open-floating true
-      default-floating-position x=1020 y=550
+  match app-id="librewolf*" title="^Picture-in-Picture$"
+  match app-id="mpv"
+  max-width 400; max-height 300;
+  open-floating true
+  default-floating-position x=1020 y=550
   }
 
   window-rule {
-      match app-id="xdg-desktop-portal-gtk"
-      match app-id="blueman"
-      match app-id="emacs" title="d-write"
-  	match app-id="mpv" title="webcam"
-      default-window-height { fixed 500; }
-  	geometry-corner-radius 15
-  	border { on; width 1; inactive-gradient from="#00ffff" to="#d1eeee" angle=45 relative-to="workspace-view" in="srgb-linear"; }
-      open-floating true
+  match app-id="xdg-desktop-portal-gtk"
+  match app-id="blueman"
+  match app-id="emacs" title="spawnhere"
+  match app-id="mpv" title="webcam"
+  default-window-height { fixed 500; }
+  geometry-corner-radius 15
+  border { on; width 1; inactive-gradient from="#00ffff" to="#d1eeee" angle=45 relative-to="workspace-view" in="srgb-linear"; }
+  open-floating true
   }
 
   window-rule {
-  	match app-id=r#"^org\.keepassxc\.KeePassXC$"#
-  	match app-id=r#"^org\.gnome\.World\.Secrets$"#
-  	block-out-from "screen-capture"
-    open-on-workspace "misc"
-  }
-
-  layer-rule {
-      match namespace="^wallpaper$"
-      match namespace="^noctalia-overview*"
-      place-within-backdrop true
+  match app-id=r#"^org\.keepassxc\.KeePassXC$"#
+  match app-id=r#"^org\.gnome\.World\.Secrets$"#
+  block-out-from "screen-capture"
+  open-on-workspace "misc"
   }
 
   layer-rule {
-  	match namespace="^rofi$"
-  	match namespace="^fuzzel$"
-      // match namespace="^vicinae"
-  	block-out-from "screen-capture"
+  match namespace="^wallpaper$"
+  match namespace="^noctalia-overview*"
+  place-within-backdrop true
+  }
+
+  layer-rule {
+  match namespace="^rofi$"
+  match namespace="^fuzzel$"
+  // match namespace="^vicinae"
+  block-out-from "screen-capture"
   }
 
   // Indicate screencasted windows with red colors.
   window-rule {
-      match is-window-cast-target=true
+  match is-window-cast-target=true
 
-      focus-ring {
-          active-color "#f38ba8"
-          inactive-color "#7d0d2d"
-      }
+  focus-ring {
+  active-color "#f38ba8"
+  inactive-color "#7d0d2d"
+  }
 
-      border {
-          inactive-color "#7d0d2d"
-      }
+  border {
+  inactive-color "#7d0d2d"
+  }
 
-      tab-indicator {
-          active-color "#f38ba8"
-          inactive-color "#7d0d2d"
-      }
+  tab-indicator {
+  active-color "#f38ba8"
+  inactive-color "#7d0d2d"
+  }
   }
 
   switch-events {
-      lid-close { spawn "systemctl" "suspend"; }
+  lid-close { spawn "systemctl" "suspend"; }
   }
 
   // keybindings
   binds {
-  	// `niri msg action do-something`.
-    // Plan is to set: Ctrl -> controls/operation | Shift -> moving/navigation | Alt -> To alternate or move (monitor)
-    // Bindings should be sensible as in Emacs, and vim (just hjkl)
-  	Mod+Shift+Slash { show-hotkey-overlay; } // S-?
+  // `niri msg action do-something`.
+  // Plan is to set: Ctrl -> controls/operation | Shift -> moving/navigation | Alt -> To alternate or move (monitor)
+  // Bindings should be sensible as in Emacs, and vim (just hjkl)
+  Mod+Shift+Slash { show-hotkey-overlay; } // S-?
 
-  	Mod+Return { spawn "footclient"; }
-  	Mod+D { spawn-sh "vicinae toggle"; }
-  	Mod+Shift+D { spawn-sh "rofi -show drun"; }
-  	Mod+X {spawn-sh "noctalia-shell ipc call sessionMenu toggle"; }
-  	Mod+Y {spawn-sh "vicinae vicinae://extensions/vicinae/clipboard/history"; }
-  	Mod+Shift+Y {spawn-sh "noctalia-shell ipc call launcher clipboard"; }
-  	Mod+W {spawn "d-urls"; }
-  	Mod+Shift+B {spawn "d-bookmark"; }
-  	Mod+F5 allow-when-locked=true {spawn-sh "noctalia-shell ipc call wallpaper random"; }
-  	Mod+o {spawn "d-stuff"; }
-    Mod+b { spawn-sh "noctalia-shell ipc call controlCenter toggle"; }
-    Mod+Tab { spawn-sh "vicinae vicinae://extensions/vicinae/wm/switch-windows"; }
-    Mod+Delete { spawn-sh "noctalia-shell ipc call screenRecorder toggle"; }
-    Mod+Shift+T {spawn-sh  "noctalia-shell ipc call notifications toggleHistory" ; }
-    Mod+E {spawn "sh" "-c" "emacsclient -e '(d/write-here)'"; }
+  Mod+Return { spawn "footclient"; }
+  Mod+D { spawn-sh "vicinae toggle"; }
+  Mod+Shift+D { spawn-sh "rofi -show drun"; }
+  Mod+X {spawn-sh "noctalia-shell ipc call sessionMenu toggle"; }
+  Mod+Y {spawn-sh "vicinae vicinae://extensions/vicinae/clipboard/history"; }
+  Mod+Shift+Y {spawn-sh "d-clip"; }
+  Mod+W {spawn "d-urls"; }
+  Mod+Shift+B {spawn "d-bookmark"; }
+  Mod+F5 allow-when-locked=true {spawn-sh "noctalia-shell ipc call wallpaper random"; }
+  Mod+o {spawn "d-stuff"; }
+  Mod+b { spawn-sh "noctalia-shell ipc call controlCenter toggle"; }
+  Mod+Tab { spawn-sh "vicinae vicinae://extensions/vicinae/wm/switch-windows"; }
+  Mod+Delete { spawn-sh "noctalia-shell ipc call screenRecorder toggle"; }
+  Mod+Shift+T {spawn-sh  "noctalia-shell ipc call notifications toggleHistory" ; }
+  Mod+E {spawn "sh" "-c" "emacsclient -e '(d/write-here)'"; }
 
-  	Mod+Ctrl+Equal allow-when-locked=true { spawn "niri" "msg" "output" "eDP-1" "on"; }
-  	Mod+Ctrl+Minus allow-when-locked=true { spawn "niri" "msg" "output" "eDP-1" "off"; }
+  Mod+Ctrl+Equal allow-when-locked=true { spawn "niri" "msg" "output" "eDP-1" "on"; }
+  Mod+Ctrl+Minus allow-when-locked=true { spawn "niri" "msg" "output" "eDP-1" "off"; }
 
-  	// The allow-when-locked=true property makes them work even when the session is locked.
-  	XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "noctalia-shell ipc call volume increase"; }
-  	XF86AudioLowerVolume allow-when-locked=true { spawn-sh "noctalia-shell ipc call volume decrease"; }
-  	XF86AudioMute        allow-when-locked=true { spawn-sh "noctalia-shell ipc call volume muteOutput"; }
-  	//XF86AudioMicMute     allow-when-locked=true { spawn-sh "noctalia-shell ipc call volume muteInput"; }
-  	XF86MonBrightnessUp allow-when-locked=true { spawn-sh "noctalia-shell ipc call brightness increase"; }
-  	XF86MonBrightnessDown allow-when-locked=true { spawn-sh "noctalia-shell ipc call brightness decrease"; }
+  // The allow-when-locked=true property makes them work even when the session is locked.
+  XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "noctalia-shell ipc call volume increase"; }
+  XF86AudioLowerVolume allow-when-locked=true { spawn-sh "noctalia-shell ipc call volume decrease"; }
+  XF86AudioMute        allow-when-locked=true { spawn-sh "noctalia-shell ipc call volume muteOutput"; }
+  //XF86AudioMicMute     allow-when-locked=true { spawn-sh "noctalia-shell ipc call volume muteInput"; }
+  XF86MonBrightnessUp allow-when-locked=true { spawn-sh "noctalia-shell ipc call brightness increase"; }
+  XF86MonBrightnessDown allow-when-locked=true { spawn-sh "noctalia-shell ipc call brightness decrease"; }
 
-  	//XF86AudioRaiseVolume allow-when-locked=true { spawn "d-ctrl" "volume" "up"; }
-  	//XF86AudioLowerVolume allow-when-locked=true { spawn "d-ctrl" "volume" "down"; }
-  	//XF86AudioMute        allow-when-locked=true { spawn "d-ctrl" "volume" "toggle"; }
-  	//XF86AudioMicMute     allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
-  	//XF86MonBrightnessUp allow-when-locked=true { spawn "d-ctrl" "brightness" "up"; }
-  	//XF86MonBrightnessDown allow-when-locked=true { spawn "d-ctrl" "brightness" "down"; }
+  //XF86AudioRaiseVolume allow-when-locked=true { spawn "d-ctrl" "volume" "up"; }
+  //XF86AudioLowerVolume allow-when-locked=true { spawn "d-ctrl" "volume" "down"; }
+  //XF86AudioMute        allow-when-locked=true { spawn "d-ctrl" "volume" "toggle"; }
+  //XF86AudioMicMute     allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
+  //XF86MonBrightnessUp allow-when-locked=true { spawn "d-ctrl" "brightness" "up"; }
+  //XF86MonBrightnessDown allow-when-locked=true { spawn "d-ctrl" "brightness" "down"; }
 
 
-  	Mod+Shift+Q { close-window; }
+  Mod+Shift+Q { close-window; }
 
-    Mod+Space { toggle-window-floating; }
-    Mod+T { toggle-column-tabbed-display; }
-    Mod+Shift+Tab { toggle-overview; }
+  Mod+Space { toggle-window-floating; }
+  Mod+T { toggle-column-tabbed-display; }
+  Mod+Shift+Tab { toggle-overview; }
 
-  	Mod+H     { focus-column-left; }
-  	Mod+L     { focus-column-right; }
-  	Mod+j     { focus-window-or-workspace-down; }
-  	Mod+k     { focus-window-or-workspace-up; }
+  Mod+H     { focus-column-left; }
+  Mod+L     { focus-column-right; }
+  Mod+j     { focus-window-or-workspace-down; }
+  Mod+k     { focus-window-or-workspace-up; }
 
-  	Mod+n     { focus-window-or-workspace-down; }
-  	Mod+p     { focus-window-or-workspace-up; }
+  Mod+n     { focus-window-or-workspace-down; }
+  Mod+p     { focus-window-or-workspace-up; }
 
-    Mod+s { switch-focus-between-floating-and-tiling; }
+  Mod+s { switch-focus-between-floating-and-tiling; }
 
-  	Mod+Shift+H     { move-column-left; }
-  	Mod+Shift+L     { move-column-right; }
-    Mod+Shift+J     { move-window-down-or-to-workspace-down; }
-    Mod+Shift+K     { move-window-up-or-to-workspace-up; }
-    Mod+Shift+n     { move-window-down-or-to-workspace-down; }
-    Mod+Shift+p     { move-window-up-or-to-workspace-up; }
+  Mod+Shift+H     { move-column-left; }
+  Mod+Shift+L     { move-column-right; }
+  Mod+Shift+J     { move-window-down-or-to-workspace-down; }
+  Mod+Shift+K     { move-window-up-or-to-workspace-up; }
+  Mod+Shift+n     { move-window-down-or-to-workspace-down; }
+  Mod+Shift+p     { move-window-up-or-to-workspace-up; }
 
-  	Mod+a { focus-column-first; }
-  	//Mod+e  { focus-column-last; }
-  	Mod+Shift+a { move-column-to-first; }
-  	Mod+Shift+e  { move-column-to-last; }
+  Mod+a { focus-column-first; }
+  //Mod+e  { focus-column-last; }
+  Mod+Shift+a { move-column-to-first; }
+  Mod+Shift+e  { move-column-to-last; }
 
-  	// Monitors should be R&L, not up and down
-  	Mod+Alt+p     { focus-monitor-left; }
-  	Mod+Alt+n     { focus-monitor-right; }
-  	Mod+Shift+BracketLeft      { focus-monitor-left; }
-  	Mod+Shift+BracketRight     { focus-monitor-right; }
+  // Monitors should be R&L, not up and down
+  Mod+Alt+p     { focus-monitor-left; }
+  Mod+Alt+n     { focus-monitor-right; }
+  Mod+Shift+BracketLeft      { focus-monitor-left; }
+  Mod+Shift+BracketRight     { focus-monitor-right; }
 
-  	Mod+Shift+Alt+Left  { move-column-to-monitor-left; }
-  	Mod+Shift+Alt+Right { move-column-to-monitor-right; }
-  	Mod+Shift+Alt+H     { move-column-to-monitor-left; }
-  	Mod+Shift+Alt+L     { move-column-to-monitor-right; }
-  	Mod+Shift+Alt+p     { move-column-to-monitor-left; }
-  	Mod+Shift+Alt+n     { move-column-to-monitor-right; }
+  Mod+Shift+Alt+Left  { move-column-to-monitor-left; }
+  Mod+Shift+Alt+Right { move-column-to-monitor-right; }
+  Mod+Shift+Alt+H     { move-column-to-monitor-left; }
+  Mod+Shift+Alt+L     { move-column-to-monitor-right; }
+  Mod+Shift+Alt+p     { move-column-to-monitor-left; }
+  Mod+Shift+Alt+n     { move-column-to-monitor-right; }
 
-  	Mod+V              { focus-workspace-down; }
-  	Mod+Shift+V              { focus-workspace-up; }
-  	Mod+Ctrl+V         { move-column-to-workspace-down; }
-  	Mod+Ctrl+Shift+V         { move-column-to-workspace-up; }
+  Mod+V              { focus-workspace-down; }
+  Mod+Shift+V              { focus-workspace-up; }
+  Mod+Ctrl+V         { move-column-to-workspace-down; }
+  Mod+Ctrl+Shift+V         { move-column-to-workspace-up; }
 
-  	Mod+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
-  	Mod+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
+  Mod+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
+  Mod+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
 
-  	Mod+Shift+WheelScrollDown      { focus-column-right; }
-  	Mod+Shift+WheelScrollUp        { focus-column-left; }
-  	Mod+Ctrl+Shift+WheelScrollDown { move-column-right; }
-  	Mod+Ctrl+Shift+WheelScrollUp   { move-column-left; }
+  Mod+Shift+WheelScrollDown      { focus-column-right; }
+  Mod+Shift+WheelScrollUp        { focus-column-left; }
+  Mod+Ctrl+Shift+WheelScrollDown { move-column-right; }
+  Mod+Ctrl+Shift+WheelScrollUp   { move-column-left; }
 
-  	Mod+1 { focus-workspace 1; }
-  	Mod+2 { focus-workspace 2; }
-  	Mod+3 { focus-workspace 3; }
-  	Mod+4 { focus-workspace 4; }
-  	Mod+5 { focus-workspace 5; }
-  	Mod+6 { focus-workspace 6; }
-  	Mod+7 { focus-workspace 7; }
-  	Mod+8 { focus-workspace 8; }
-  	Mod+9 { focus-workspace 9; }
-  	Mod+Shift+1 { move-column-to-workspace 1; }
-  	Mod+Shift+2 { move-column-to-workspace 2; }
-  	Mod+Shift+3 { move-column-to-workspace 3; }
-  	Mod+Shift+4 { move-column-to-workspace 4; }
-  	Mod+Shift+5 { move-column-to-workspace 5; }
-  	Mod+Shift+6 { move-column-to-workspace 6; }
-  	Mod+Shift+7 { move-column-to-workspace 7; }
-  	Mod+Shift+8 { move-column-to-workspace 8; }
-  	Mod+Shift+9 { move-column-to-workspace 9; }
+  Mod+1 { focus-workspace 1; }
+  Mod+2 { focus-workspace 2; }
+  Mod+3 { focus-workspace 3; }
+  Mod+4 { focus-workspace 4; }
+  Mod+5 { focus-workspace 5; }
+  Mod+6 { focus-workspace 6; }
+  Mod+7 { focus-workspace 7; }
+  Mod+8 { focus-workspace 8; }
+  Mod+9 { focus-workspace 9; }
+  Mod+Shift+1 { move-column-to-workspace 1; }
+  Mod+Shift+2 { move-column-to-workspace 2; }
+  Mod+Shift+3 { move-column-to-workspace 3; }
+  Mod+Shift+4 { move-column-to-workspace 4; }
+  Mod+Shift+5 { move-column-to-workspace 5; }
+  Mod+Shift+6 { move-column-to-workspace 6; }
+  Mod+Shift+7 { move-column-to-workspace 7; }
+  Mod+Shift+8 { move-column-to-workspace 8; }
+  Mod+Shift+9 { move-column-to-workspace 9; }
 
-  	Mod+Comma  { consume-window-into-column; }
-  	Mod+Period { expel-window-from-column; }
-  	Mod+BracketLeft  { consume-or-expel-window-left; }
-  	Mod+BracketRight { consume-or-expel-window-right; }
+  Mod+Comma  { consume-window-into-column; }
+  Mod+Period { expel-window-from-column; }
+  Mod+BracketLeft  { consume-or-expel-window-left; }
+  Mod+BracketRight { consume-or-expel-window-right; }
 
-    Mod+R { switch-preset-column-width; }
-    Mod+Shift+R { switch-preset-window-height; }
-    Mod+Ctrl+R { reset-window-height; }
-    Mod+F { maximize-column; }
-    Mod+Shift+F { fullscreen-window; }
-    Mod+C { center-column; }
+  Mod+R { switch-preset-column-width; }
+  Mod+Shift+R { switch-preset-window-height; }
+  Mod+Ctrl+R { reset-window-height; }
+  Mod+F { maximize-column; }
+  Mod+Shift+F { fullscreen-window; }
+  Mod+C { center-column; }
 
-  	Mod+Minus { set-column-width "-10%"; }
-  	Mod+Equal { set-column-width "+10%"; }
+  Mod+Minus { set-column-width "-10%"; }
+  Mod+Equal { set-column-width "+10%"; }
 
-  	Mod+Shift+Minus { set-window-height "-10%"; }
-  	Mod+Shift+Equal { set-window-height "+10%"; }
+  Mod+Shift+Minus { set-window-height "-10%"; }
+  Mod+Shift+Equal { set-window-height "+10%"; }
 
-  	Print { screenshot; }
-  	Ctrl+Print { screenshot-screen; }
-  	Alt+Print { screenshot-window; }
+  Print { screenshot; }
+  Ctrl+Print { screenshot-screen; }
+  Alt+Print { screenshot-window; }
 
-  	// The quit action will show a confirmation dialog to avoid accidental exits.
-  	Mod+Ctrl+E { quit; }
+  // The quit action will show a confirmation dialog to avoid accidental exits.
+  Mod+Ctrl+E { quit; }
 
-  	// Powers off the monitors. To turn them back on, do any input like
-  	// moving the mouse or pressing any other key.
-  	Mod+Ctrl+P allow-when-locked=true { spawn-sh "noctalia-shell ipc call sessionMenu lockAndSuspend"; }
-  	Mod+Ctrl+L allow-when-locked=true { spawn-sh "noctalia-shell ipc call lockScreen lock & niri msg action power-off-monitors" ; }
+  // Powers off the monitors. To turn them back on, do any input like
+  // moving the mouse or pressing any other key.
+  Mod+Ctrl+P allow-when-locked=true { spawn-sh "noctalia-shell ipc call sessionMenu lockAndSuspend"; }
+  Mod+Ctrl+L allow-when-locked=true { spawn-sh "noctalia-shell ipc call lockScreen lock & niri msg action power-off-monitors" ; }
   }
 
 #+end_src
@@ -3045,13 +3441,13 @@ Pipewire setup, just these lines enough to make sane default for it
 
         wl-screenrec wl-mirror
         wl-clipboard-rs xwayland-satellite
-        mupdf poppler_utils ghostscript # for doc-view
+        mupdf poppler-utils ghostscript # for doc-view
         uv prettier
 
         pavucontrol pulsemixer playerctl
         transmission_4-gtk
 
-        mpc_cli ani-cli
+        mpc ani-cli
       ];
     }
   #+end_src
@@ -3106,18 +3502,6 @@ Pipewire setup, just these lines enough to make sane default for it
   #+begin_src nix 
     {
       programs.hyprlock = {
-        enable = true;
-      };
-    }
-  #+end_src
-
-** mangowc
-- Minimal dwl inspired WM with all batteries!
-
-  #+begin_src nix
-    inputs.mango.hmModules.mango
-    {
-      wayland.windowManager.mango = {
         enable = true;
       };
     }
@@ -3327,7 +3711,7 @@ Pipewire setup, just these lines enough to make sane default for it
     zip unzip # archives
     ffmpeg-full sdcv nq
     # utils
-    du-dust fd wget ripgrep-all
+    dust fd wget ripgrep-all file
   ];
 }
   #+end_src
@@ -3508,7 +3892,7 @@ Pipewire setup, just these lines enough to make sane default for it
   }
 #+end_src
 
-*** clipboard
+*** COMMENT clipboard
 - To manage clipboard history and watch it.
 
   #+begin_src nix 
@@ -3795,6 +4179,19 @@ Pipewire setup, just these lines enough to make sane default for it
   (column-number-mode)
   (global-visual-line-mode 1)
   (global-subword-mode 1)
+
+  ;; credits oantolin's config
+  (dolist (cmd '(narrow-to-region
+                 upcase-region
+                 downcase-region
+                 dired-find-alternate-file
+                 LaTeX-narrow-to-environment
+                 TeX-narrow-to-group
+                 narrow-to-page
+                 set-goal-column
+                 scroll-left
+                 scroll-right))
+    (put cmd 'disabled nil))
 #+end_src
 
 - Display line numbers for prog-mode, in relative numbering.
@@ -3841,6 +4238,15 @@ Pipewire setup, just these lines enough to make sane default for it
       (("C-x u" . vundo) ("C-z" . undo-only) ("C-S-z" . undo-redo) ("C-M-r" . undo-redo))
       :custom
       (vundo-compact-display t) (vundo-glyph-alist vundo-unicode-symbols))
+
+    (setopt undo-limit         (* 96 1024 1024)) ;  96 MiB. The change group at which this size is exceeded is the last one kept.
+    (setopt undo-strong-limit (* 128 1024 1024)) ; 128 MiB
+    ;; The change group at which this size is exceeded is discarded itself (along with all older change
+    ;; groups).There is one exception: the very latest change group is only discarded if it exceeds
+    ;; ‘undo-outer-limit’.
+    (setopt undo-outer-limit (* 1024 1024 1024)) ;   1 GiB
+    ;;.If at garbage collection time the undo info for the current command exceeds this limit,Emacs
+    ;;discards the info and displays a warning.This is a last ditch limit to prevent memory overflow.
   #+end_src
 
 **** Auto revert
@@ -4811,7 +5217,7 @@ to get bash alias to eshell way
 
   #+begin_src emacs-lisp
     (setq comint-pager "cat")
-    (setenv "MANPAGER" "cat")
+    (setenv "MANPAGER" "cat") ;; or mxp script
   #+end_src
 
 
@@ -5212,7 +5618,6 @@ to get bash alias to eshell way
     :custom-face (doc-view-svg-face ((t (:background "#000000" :foreground "#ffffff"))))
     :custom
     (doc-view-continuous t)
-    (large-file-warning-threshold 700000000)
     (image-cache-eviction-delay 10))
   #+end_src
 
@@ -5578,7 +5983,7 @@ to get bash alias to eshell way
     ;; Dont worry about the font name, I use fork of Iosevka font
 
     ;; Set reusable font name variables
-    (defcustom d/fixed-pitch-font (if d/on-droid "Maple Mono NF" "Maple Mono NF")
+    (defcustom d/fixed-pitch-font (if d/on-droid "Maple Mono NF" "Iosevka Extended")
       "The font to use for monospaced (fixed width) text.")
 
     (defcustom d/variable-pitch-font (if d/on-droid "Inter" "Inter")
@@ -5682,6 +6087,64 @@ to get bash alias to eshell way
     (load-theme 'modus-vivendi t))
 
 #+end_src
+
+- Matugen theme palette via noctalia shell
+  #+begin_src elisp :tangle ~/.config/noctalia/templates/emacs.el
+    ;; -*- lexical-binding: t; -*-
+    (setq
+     matugen-color-palette
+     '(
+       ;; Core backgrounds - keeping true black with subtle variants
+       (bg-main        "{{colors.surface.default.hex}}")
+       (bg-dim         "{{colors.surface_dim.default.hex}}")
+       (bg-active      "{{colors.surface_container_low.default.hex}}")
+       (bg-inactive    "{{colors.surface_container.default.hex}}")
+
+       ;; Foreground colors
+       (fg-main        "{{colors.on_surface.default.hex}}")
+       (fg-dim         "{{colors.on_surface_variant.default.hex}}")
+
+       ;; Headings - using primary/secondary/tertiary for hierarchy
+       (fg-heading-1   "{{colors.secondary.default.hex}}")
+       (fg-heading-2   "{{colors.tertiary.default.hex}}")
+       (prose-tag      "{{colors.on_secondary_container.default.hex}}")
+       (mail-subject   "{{colors.primary.default.hex}}")
+
+       ;; Interactive elements
+       (cursor         "{{colors.primary.default.hex}}")
+       (bg-completion  "{{colors.primary_container.default.hex}}")
+       (bg-hl-line     "{{colors.surface_container_high.default.hex}}")
+
+       ;; Region selection
+       (bg-region      "{{colors.primary_container.default.hex}}")
+       (fg-region      unspecified)
+
+       ;; Tab bar
+       (bg-tab-bar     "{{colors.surface.default.hex}}")
+       (bg-tab-current "{{colors.surface_container_low.default.hex}}")
+       (bg-tab-other   "{{colors.surface_dim.default.hex}}")
+
+       ;; UI elements
+       (fringe         unspecified)
+       (bg-mode-line-active "{{colors.surface_dim.default.hex}}")
+
+       ;; Line numbers
+       (bg-line-number-active    "{{colors.surface.default.hex}}")
+       (bg-line-number-inactive  "{{colors.surface.default.hex}}")
+       (fg-line-number-active    "{{colors.on_surface_variant.default.hex}}")
+       (fg-line-number-inactive  "{{colors.outline_variant.default.hex}}")
+
+       ;; Borders
+       (border-mode-line-active   unspecified)
+       (border-mode-line-inactive unspecified)
+       ))
+
+    (dolist (color matugen-color-palette)
+      (let ((key (car color))
+            (new-value (cdr color)))
+        (setf (cdr (assoc key modus-vivendi-palette-overrides)) new-value)))
+    (load-theme 'modus-vivendi t)
+  #+end_src
 
 *** Status bar/Mode-line
 **** mode-line

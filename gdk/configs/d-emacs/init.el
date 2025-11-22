@@ -56,6 +56,19 @@
 (global-visual-line-mode 1)
 (global-subword-mode 1)
 
+;; credits oantolin's config
+(dolist (cmd '(narrow-to-region
+               upcase-region
+               downcase-region
+               dired-find-alternate-file
+               LaTeX-narrow-to-environment
+               TeX-narrow-to-group
+               narrow-to-page
+               set-goal-column
+               scroll-left
+               scroll-right))
+  (put cmd 'disabled nil))
+
 (setopt display-line-numbers-type 'relative)
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 
@@ -85,6 +98,15 @@
   (("C-x u" . vundo) ("C-z" . undo-only) ("C-S-z" . undo-redo) ("C-M-r" . undo-redo))
   :custom
   (vundo-compact-display t) (vundo-glyph-alist vundo-unicode-symbols))
+
+(setopt undo-limit         (* 96 1024 1024)) ;  96 MiB. The change group at which this size is exceeded is the last one kept.
+(setopt undo-strong-limit (* 128 1024 1024)) ; 128 MiB
+;; The change group at which this size is exceeded is discarded itself (along with all older change
+;; groups).There is one exception: the very latest change group is only discarded if it exceeds
+;; ‘undo-outer-limit’.
+(setopt undo-outer-limit (* 1024 1024 1024)) ;   1 GiB
+;;.If at garbage collection time the undo info for the current command exceeds this limit,Emacs
+;;discards the info and displays a warning.This is a last ditch limit to prevent memory overflow.
 
 (setopt global-auto-revert-non-file-buffers t)
 (global-auto-revert-mode 1)
@@ -335,7 +357,7 @@
    (window-height . 0.3)))
 
 (setq comint-pager "cat")
-(setenv "MANPAGER" "cat")
+(setenv "MANPAGER" "cat") ;; or mxp script
 
 (add-hook 'after-save-hook #'executable-make-buffer-file-executable-if-script-p)
 
@@ -607,7 +629,6 @@
   :custom-face (doc-view-svg-face ((t (:background "#000000" :foreground "#ffffff"))))
   :custom
   (doc-view-continuous t)
-  (large-file-warning-threshold 700000000)
   (image-cache-eviction-delay 10))
 
 (defun d/doc-view-theme ()
@@ -906,7 +927,7 @@ images."
 ;; Dont worry about the font name, I use fork of Iosevka font
 
 ;; Set reusable font name variables
-(defcustom d/fixed-pitch-font (if d/on-droid "Maple Mono NF" "Maple Mono NF")
+(defcustom d/fixed-pitch-font (if d/on-droid "Maple Mono NF" "Iosevka Extended")
   "The font to use for monospaced (fixed width) text.")
 
 (defcustom d/variable-pitch-font (if d/on-droid "Inter" "Inter")
@@ -967,6 +988,10 @@ images."
 
   :config
   (load-theme 'modus-vivendi t))
+
+(defun d/matugen-theme()
+  (interactive)
+  (load-file "~/.config/emacs/theme.el"))
 
 (setopt
  mode-line-format

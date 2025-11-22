@@ -117,16 +117,16 @@
 	      enable = true;
 	      config = {
 			common = {
-	          default = ["gtk" "gnome" "wlr"];
+	          default = ["gtk" "gnome"];
 	          "org.freedesktop.impl.portal.ScreenCast" = "gnome";
 	          "org.freedesktop.impl.portal.Screenshot" = "gnome";
 	          "org.freedesktop.impl.portal.RemoteDesktop" = "gnome";
 	        };
 		  };
-	      configPackages = [ pkgs.niri config.wayland.windowManager.mango.package ];
+	      configPackages = [ pkgs.niri ];
 	      xdgOpenUsePortal = true;
 	      extraPortals = with pkgs; [
-			xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-gnome xdg-desktop-portal-wlr
+			xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-gnome
 	      ];
 		};
 	
@@ -149,28 +149,34 @@
 	  programs.git = {
 	    enable = true;
 	    package = pkgs.gitFull;
-	    extraConfig.safe.directory = "...";
+	    settings = {
+	      safe.directory = "...";
+	      user = {
+	        name = "Dilip";
+	        email = "igoldlip@gmail.com";
+	      };
 	
-	    aliases = {
-	      a = "add";
-	      b = "branch";
-	      c = "commit";
-	      ca = "commit --amend";
-	      cm = "commit -m";
-	      cho = "checkout";
-	      d = "diff";
-	      ds = "diff --staged";
-	      p = "push";
-	      pf = "push --force-with-lease";
-	      pl = "pull";
-	      l = "log";
-	      r = "rebase";
-	      s = "status --short";
-	      ss = "status";
-	      forgor = "commit --amend --no-edit";
-	      graph = "log --all --decorate --graph --oneline";
-	      logrep = "log --decorate --oneline --grep=";
-	      oops = "checkout --";
+	      alias = {
+	        a = "add";
+	        b = "branch";
+	        c = "commit";
+	        ca = "commit --amend";
+	        cm = "commit -m";
+	        cho = "checkout";
+	        d = "diff";
+	        ds = "diff --staged";
+	        p = "push";
+	        pf = "push --force-with-lease";
+	        pl = "pull";
+	        l = "log";
+	        r = "rebase";
+	        s = "status --short";
+	        ss = "status";
+	        forgor = "commit --amend --no-edit";
+	        graph = "log --all --decorate --graph --oneline";
+	        logrep = "log --decorate --oneline --grep=";
+	        oops = "checkout --";
+	      };
 	    };
 	
 	    ignores = ["*~" "*.swp" "*result*" ".direnv" "node_modules"];
@@ -179,9 +185,6 @@
 	      key = "53F3BDB57ED8DC48";
 	      signByDefault = true;
 	    };
-	
-	    userEmail = "igoldlip@gmail.com";
-	    userName = "Dilip";
 	  };
 	
 	}
@@ -207,6 +210,9 @@
 	        clipboard-copy = "Control+Shift+c";
 	        clipboard-paste = "Control+Shift+v Control+y";
 	        primary-paste = "Shift+Insert";
+	      };
+	      url = {
+	        launch = "d-stuff \${url}";
 	      };
 	      mouse = {
 	        hide-when-typing = "yes";
@@ -244,7 +250,7 @@
 	      flycheck consult-flycheck flycheck-eglot org-re-reveal
 		  flycheck-vale
 		  verb forge melpaPackages.telega melpaPackages.mastodon
-	      # dslide gptel
+	      # dslide
 	
 	      (melpaBuild {
 	        pname = "combobulate";
@@ -1074,13 +1080,13 @@
 	
 	    wl-screenrec wl-mirror
 	    wl-clipboard-rs xwayland-satellite
-	    mupdf poppler_utils ghostscript # for doc-view
+	    mupdf poppler-utils ghostscript # for doc-view
 	    uv prettier
 	
 	    pavucontrol pulsemixer playerctl
 	    transmission_4-gtk
 	
-	    mpc_cli ani-cli
+	    mpc ani-cli
 	  ];
 	}
 	{
@@ -1120,12 +1126,6 @@
 	        }
 	      ];
 	    };
-	  };
-	}
-	inputs.mango.hmModules.mango
-	{
-	  wayland.windowManager.mango = {
-	    enable = true;
 	  };
 	}
 	{
@@ -1271,7 +1271,7 @@
 	    zip unzip # archives
 	    ffmpeg-full sdcv nq
 	    # utils
-	    du-dust fd wget ripgrep-all
+	    dust fd wget ripgrep-all file
 	  ];
 	}
 	{
@@ -1345,14 +1345,6 @@
 	      continue = "true";
 	      rpc-save-upload-metadata = "false";
 	    };
-	  };
-	}
-	{
-	  services.cliphist = {
-	    enable = true;
-	    extraOptions = [
-	      "-max-dedupe-search" "10" "-max-items" "1000" "-preview-width" "200"
-	    ];
 	  };
 	}
 	{

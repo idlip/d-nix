@@ -23,7 +23,7 @@
     };
 
     emacs-overlay = {
-      url = "github:nix-community/emacs-overlay/dff97e46997a60c0ade49d2c7fbd3d7326685401";
+      url = "github:nix-community/emacs-overlay";
     };
 
     stylix = {
@@ -44,13 +44,7 @@
 
     vicinae = {
 	  url = "github:vicinaehq/vicinae";
-      # inputs.nixpkgs.follows = "nixpkgs"; # compile yourself ?
 	};
-
-    mango = {
-      url = "github:DreamMaoMao/mango";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
 
 	youtube_adblock = {
 	  url = "https://raw.githubusercontent.com/afreakk/greasemonkeyscripts/refs/heads/master/youtube_adblock.js";
@@ -145,7 +139,6 @@
               inputs.home-manager.nixosModules.home-manager
               nix-index-database.nixosModules.nix-index
               stylix.nixosModules.stylix
-              inputs.mango.nixosModules.mango
 			];
 			specialArgs = {
               inherit inputs system;

@@ -388,7 +388,7 @@
   {
     fonts = {
       packages = with pkgs; [
-        noto-fonts noto-fonts-emoji
+        noto-fonts noto-fonts-color-emoji
         material-symbols material-icons
       ];
       enableDefaultPackages = true;
@@ -434,7 +434,7 @@
         };
   
         emoji = {
-          package = pkgs.noto-fonts-emoji;
+          package = pkgs.noto-fonts-color-emoji;
           name = "Noto Color Emoji";
         };
   

@@ -821,7 +821,7 @@
   :config (url-setup-privacy-info))
 
 (use-package shr :ensure nil :demand t
-  :custom (shr-bullet "⦿ ") (shr-width 100))
+  :custom (shr-bullet "⦿ ") (shr-width 100) (shr-max-image-proportion 0.5))
 
 (use-package eww :ensure nil :demand t
   :hook
@@ -927,7 +927,7 @@ images."
 ;; Dont worry about the font name, I use fork of Iosevka font
 
 ;; Set reusable font name variables
-(defcustom d/fixed-pitch-font (if d/on-droid "Maple Mono NF" "Iosevka Extended")
+(defcustom d/fixed-pitch-font (if d/on-droid "Maple Mono NF" "Julia Mono")
   "The font to use for monospaced (fixed width) text.")
 
 (defcustom d/variable-pitch-font (if d/on-droid "Inter" "Inter")
@@ -988,10 +988,6 @@ images."
 
   :config
   (load-theme 'modus-vivendi t))
-
-(defun d/matugen-theme()
-  (interactive)
-  (load-file "~/.config/emacs/theme.el"))
 
 (setopt
  mode-line-format

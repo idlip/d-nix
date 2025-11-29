@@ -1092,7 +1092,7 @@
 	{
 	  services.hypridle = let
 	    hyprlock = lib.getExe pkgs.hyprlock;
-		noctalia = lib.getExe inputs.noctalia.defaultPackage.x86_64-linux;
+		noctalia = lib.getExe inputs.noctalia.packages.x86_64-linux.default;
 	    brightness = lib.getExe pkgs.brightnessctl;
 	    niri = lib.getExe pkgs.niri;
 	    timeout = 200; # base timer to act upon
@@ -1100,16 +1100,16 @@
 	    enable = true;
 	    settings ={
 	      general = {
-	        lock_cmd = "${noctalia} ipc call lockScreen lock";       # avoid starting multiple hyprlock instances.
-	        before_sleep_cmd = "${pkgs.systemd}/bin/loginctl lock-session";    # lock before suspend.
+	        lock_cmd = "${noctalia} ipc call lockScreen lock";
+	        before_sleep_cmd = "${pkgs.systemd}/bin/loginctl lock-session";
 	        unlock_cmd = "notify-send 'Welcome back!'";
 	      };
 	
 	      listener = [
 	        {
 	          timeout = timeout - 50;
-	          on-timeout = "${brightness} -s set 5%";         # set monitor backlight to minimum, avoid 0 on OLED monitor.
-	          on-resume = "${brightness} -r";                 # monitor backlight restore.
+	          on-timeout = "${brightness} -s set 5%";
+	          on-resume = "${brightness} -r";
 	        }
 	        {
 	          timeout = timeout;

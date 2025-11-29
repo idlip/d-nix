@@ -1062,430 +1062,32 @@ Pipewire setup, just these lines enough to make sane default for it
 #+begin_src json-ts :noweb-ref noctalia :tangle ~/.config/noctalia/settings.json 
   {
     "appLauncher": {
-      "backgroundOpacity": 1,
       "customLaunchPrefix": "",
       "customLaunchPrefixEnabled": false,
+      "enableClipPreview": true,
       "enableClipboardHistory": false,
-      {
-      "appLauncher": {
-        "customLaunchPrefix": "",
-        "customLaunchPrefixEnabled": false,
-        "enableClipboardHistory": false,
-        "pinnedExecs": [
-        ],
-        "position": "center",
-        "sortByMostUsed": true,
-        "terminalCommand": "xterm -e",
-        "useApp2Unit": true
-      },
-      "audio": {
-        "cavaFrameRate": 60,
-        "mprisBlacklist": [
-        ],
-        "preferredPlayer": "mpv, mpc",
-        "visualizerQuality": "high",
-        "visualizerType": "linear",
-        "volumeOverdrive": true,
-        "volumeStep": 5
-      },
-      "bar": {
-        "backgroundOpacity": 0.85,
-        "capsuleOpacity": 1,
-        "density": "default",
-        "exclusive": true,
-        "floating": false,
-        "marginHorizontal": 0.25,
-        "marginVertical": 0.25,
-        "monitors": [
-        ],
-        "outerCorners": true,
-        "position": "top",
-        "showCapsule": false,
-        "widgets": {
-          "center": [
-            {
-              "customFont": "",
-              "formatHorizontal": "HH:mm ddd, MMM dd",
-              "formatVertical": "HH mm - dd MM",
-              "id": "Clock",
-              "useCustomFont": false,
-              "usePrimaryColor": true
-            },
-            {
-              "characterCount": 2,
-              "hideUnoccupied": false,
-              "id": "Workspace",
-              "labelMode": "none"
-            }
-          ],
-          "left": [
-            {
-              "id": "SystemMonitor",
-              "showCpuTemp": true,
-              "showCpuUsage": true,
-              "showDiskUsage": false,
-              "showMemoryAsPercent": true,
-              "showMemoryUsage": true,
-              "showNetworkStats": false
-            },
-            {
-              "hideMode": "idle",
-              "hideWhenIdle": false,
-              "id": "MediaMini",
-              "maxWidth": 145,
-              "scrollingMode": "hover",
-              "showAlbumArt": true,
-              "showVisualizer": true,
-              "useFixedWidth": false,
-              "visualizerType": "linear"
-            }
-          ],
-          "right": [
-            {
-              "id": "ScreenRecorder"
-            },
-            {
-              "blacklist": [
-              ],
-              "colorizeIcons": false,
-              "favorites": [
-              ],
-              "id": "Tray"
-            },
-            {
-              "hideWhenZero": true,
-              "id": "NotificationHistory",
-              "showUnreadBadge": true
-            },
-            {
-              "displayMode": "onhover",
-              "id": "WiFi"
-            },
-            {
-              "displayMode": "alwaysShow",
-              "id": "Battery",
-              "warningThreshold": 40
-            },
-            {
-              "displayMode": "onhover",
-              "id": "Volume"
-            },
-            {
-              "displayMode": "onhover",
-              "id": "Brightness"
-            },
-            {
-              "customIconPath": "",
-              "icon": "",
-              "id": "ControlCenter",
-              "useDistroLogo": true
-            }
-          ]
-        }
-      },
-      "brightness": {
-        "brightnessStep": 5,
-        "enableDdcSupport": false,
-        "enforceMinimum": true
-      },
-      "colorSchemes": {
-        "darkMode": true,
-        "generateTemplatesForPredefined": true,
-        "manualSunrise": "06:30",
-        "manualSunset": "18:30",
-        "matugenSchemeType": "scheme-fruit-salad",
-        "predefinedScheme": "Noctalia (default)",
-        "schedulingMode": "off",
-        "useWallpaperColors": true
-      },
-      "controlCenter": {
-        "cards": [
-          {
-            "enabled": true,
-            "id": "profile-card"
-          },
-          {
-            "enabled": true,
-            "id": "shortcuts-card"
-          },
-          {
-            "enabled": true,
-            "id": "audio-card"
-          },
-          {
-            "enabled": true,
-            "id": "weather-card"
-          },
-          {
-            "enabled": true,
-            "id": "media-sysmon-card"
-          }
-        ],
-        "position": "center",
-        "shortcuts": {
-          "left": [
-            {
-              "id": "WiFi"
-            },
-            {
-              "id": "Bluetooth"
-            },
-            {
-              "id": "ScreenRecorder"
-            },
-            {
-              "id": "WallpaperSelector"
-            }
-          ],
-          "right": [
-            {
-              "id": "Notifications"
-            },
-            {
-              "id": "PowerProfile"
-            },
-            {
-              "id": "KeepAwake"
-            },
-            {
-              "id": "NightLight"
-            }
-          ]
-        }
-      },
-      "dock": {
-        "backgroundOpacity": 1,
-        "colorizeIcons": false,
-        "displayMode": "always_visible",
-        "enabled": false,
-        "floatingRatio": 1,
-        "monitors": [
-        ],
-        "onlySameOutput": true,
-        "pinnedApps": [
-        ],
-        "size": 1
-      },
-      "general": {
-        "allowPanelsOnScreenWithoutBar": true,
-        "animationDisabled": true,
-        "animationSpeed": 1,
-        "avatarImage": "/home/dev/media/pics/wp6489081-anime-ps4-luffy-wallpapers.jpg",
-        "compactLockScreen": false,
-        "dimmerOpacity": 0.78,
-        "enableShadows": true,
-        "forceBlackScreenCorners": false,
-        "language": "",
-        "lockOnSuspend": true,
-        "radiusRatio": 1,
-        "scaleRatio": 1,
-        "screenRadiusRatio": 1,
-        "shadowDirection": "bottom_right",
-        "shadowOffsetX": 2,
-        "shadowOffsetY": 3,
-        "showScreenCorners": false
-      },
-      "hooks": {
-        "darkModeChange": "",
-        "enabled": false,
-        "wallpaperChange": ""
-      },
-      "location": {
-        "analogClockInCalendar": false,
-        "firstDayOfWeek": -1,
-        "name": "Bengaluru",
-        "showCalendarEvents": true,
-        "showCalendarWeather": true,
-        "showWeekNumberInCalendar": true,
-        "use12hourFormat": false,
-        "useFahrenheit": false,
-        "weatherEnabled": true
-      },
-      "network": {
-        "wifiEnabled": true
-      },
-      "nightLight": {
-        "autoSchedule": true,
-        "dayTemp": "6500",
-        "enabled": true,
-        "forced": false,
-        "manualSunrise": "06:30",
-        "manualSunset": "18:30",
-        "nightTemp": "4000"
-      },
-      "notifications": {
-        "backgroundOpacity": 0.9,
-        "criticalUrgencyDuration": 100,
-        "enableKeyboardLayoutToast": true,
-        "enabled": true,
-        "location": "top_right",
-        "lowUrgencyDuration": 10,
-        "monitors": [
-        ],
-        "normalUrgencyDuration": 20,
-        "overlayLayer": true,
-        "respectExpireTimeout": true
-      },
-      "osd": {
-        "autoHideMs": 2000,
-        "backgroundOpacity": 1,
-        "enabled": true,
-        "location": "top_right",
-        "monitors": [
-        ],
-        "overlayLayer": true
-      },
-      "screenRecorder": {
-        "audioCodec": "opus",
-        "audioSource": "default_output",
-        "colorRange": "limited",
-        "directory": "/home/dev/media/stream",
-        "frameRate": 60,
-        "quality": "very_high",
-        "showCursor": true,
-        "videoCodec": "h264",
-        "videoSource": "portal"
-      },
-      "sessionMenu": {
-        "countdownDuration": 10000,
-        "enableCountdown": true,
-        "position": "center",
-        "powerOptions": [
-          {
-            "action": "lock",
-            "countdownEnabled": true,
-            "enabled": true
-          },
-          {
-            "action": "suspend",
-            "countdownEnabled": true,
-            "enabled": true
-          },
-          {
-            "action": "hibernate",
-            "countdownEnabled": true,
-            "enabled": true
-          },
-          {
-            "action": "reboot",
-            "countdownEnabled": true,
-            "enabled": true
-          },
-          {
-            "action": "logout",
-            "countdownEnabled": true,
-            "enabled": true
-          },
-          {
-            "action": "shutdown",
-            "countdownEnabled": true,
-            "enabled": true
-          }
-        ],
-        "showHeader": true
-      },
-      "settingsVersion": 18,
-      "setupCompleted": true,
-      "systemMonitor": {
-        "cpuCriticalThreshold": 90,
-        "cpuWarningThreshold": 70,
-        "criticalColor": "",
-        "diskCriticalThreshold": 90,
-        "diskWarningThreshold": 80,
-        "memCriticalThreshold": 90,
-        "memWarningThreshold": 70,
-        "tempCriticalThreshold": 90,
-        "tempWarningThreshold": 80,
-        "useCustomColors": false,
-        "warningColor": ""
-      },
-      "templates": {
-        "alacritty": false,
-        "code": true,
-        "discord": false,
-        "enableUserTemplates": false,
-        "foot": false,
-        "fuzzel": false,
-        "ghostty": false,
-        "gtk": true,
-        "kcolorscheme": false,
-        "kitty": false,
-        "pywalfox": false,
-        "qt": false,
-        "spicetify": false,
-        "vicinae": true,
-        "walker": false,
-        "wezterm": false
-      },
-      "ui": {
-        "fontDefault": "Inter",
-        "fontDefaultScale": 1,
-        "fontFixed": "Maple Mono NF Medium",
-        "fontFixedScale": 1,
-        "panelBackgroundOpacity": 1,
-        "panelsAttachedToBar": true,
-        "settingsPanelAttachToBar": true,
-        "tooltipsEnabled": true
-      },
-      "wallpaper": {
-        "defaultWallpaper": "/nix/store/l794qx7as7v6rsrvy8s0j1s27rjmx8xd-noctalia-shell-6bc23e905d6c514db74e2649c0d4c09db7533e00/share/noctalia-shell/Assets/Wallpaper/noctalia.png",
-        "directory": "/home/dev/d-git/d-wallpapers/walls",
-        "enableMultiMonitorDirectories": false,
-        "enabled": true,
-        "fillColor": "#000000",
-        "fillMode": "crop",
-        "hideWallpaperFilenames": false,
-        "monitors": [
-          {
-            "directory": "/home/dev/d-git/d-wallpapers/walls",
-            "name": "eDP-1",
-            "wallpaper": "/home/dev/d-git/d-wallpapers/walls/sky-snow-lake.png"
-          },
-          {
-            "directory": "/home/dev/d-git/d-wallpapers/walls",
-            "name": "HDMI-A-1",
-            "wallpaper": "/home/dev/d-git/d-wallpapers/walls/0156.jpg"
-          }
-        ],
-        "overviewEnabled": true,
-        "panelPosition": "follow_bar",
-        "randomEnabled": true,
-        "randomIntervalSec": 3600,
-        "recursiveSearch": false,
-        "setWallpaperOnAllMonitors": true,
-        "transitionDuration": 1500,
-        "transitionEdgeSmoothness": 0.05,
-        "transitionType": "random",
-        "useWallhaven": false,
-        "wallhavenCategories": "111",
-        "wallhavenOrder": "desc",
-        "wallhavenPurity": "100",
-        "wallhavenQuery": "",
-        "wallhavenResolutionHeight": "",
-        "wallhavenResolutionMode": "atleast",
-        "wallhavenResolutionWidth": "",
-        "wallhavenSorting": "relevance"
-      }
-    }
       "pinnedExecs": [
       ],
       "position": "center",
       "sortByMostUsed": true,
       "terminalCommand": "xterm -e",
-      "useApp2Unit": true
+      "useApp2Unit": false,
+      "viewMode": "list"
     },
     "audio": {
-      "cavaFrameRate": 60,
+      "cavaFrameRate": 30,
+      "externalMixer": "pwvucontrol || pavucontrol",
       "mprisBlacklist": [
       ],
       "preferredPlayer": "",
       "visualizerQuality": "high",
       "visualizerType": "linear",
-      "volumeOverdrive": false,
+      "volumeOverdrive": true,
       "volumeStep": 5
     },
     "bar": {
       "backgroundOpacity": 0.85,
+      "capsuleOpacity": 1,
       "density": "default",
       "exclusive": true,
       "floating": false,
@@ -1578,13 +1180,13 @@ Pipewire setup, just these lines enough to make sane default for it
         ]
       }
     },
-    "battery": {
-      "chargingMode": 0
-    },
     "brightness": {
       "brightnessStep": 5,
       "enableDdcSupport": false,
       "enforceMinimum": true
+    },
+    "changelog": {
+      "lastSeenVersion": ""
     },
     "colorSchemes": {
       "darkMode": true,
@@ -1592,7 +1194,7 @@ Pipewire setup, just these lines enough to make sane default for it
       "manualSunrise": "06:30",
       "manualSunset": "18:30",
       "matugenSchemeType": "scheme-fruit-salad",
-      "predefinedScheme": "Noctalia (default)",
+      "predefinedScheme": "Ayu",
       "schedulingMode": "off",
       "useWallpaperColors": true
     },
@@ -1619,7 +1221,7 @@ Pipewire setup, just these lines enough to make sane default for it
           "id": "media-sysmon-card"
         }
       ],
-      "position": "center",
+      "position": "close_to_bar_button",
       "shortcuts": {
         "left": [
           {
@@ -1662,14 +1264,16 @@ Pipewire setup, just these lines enough to make sane default for it
       "onlySameOutput": true,
       "pinnedApps": [
       ],
+      "radiusRatio": 0.1,
       "size": 1
     },
     "general": {
-      "animationDisabled": true,
+      "allowPanelsOnScreenWithoutBar": true,
+      "animationDisabled": false,
       "animationSpeed": 1,
       "avatarImage": "/home/dev/media/pics/wp6489081-anime-ps4-luffy-wallpapers.jpg",
       "compactLockScreen": false,
-      "dimDesktop": true,
+      "dimmerOpacity": 0.76,
       "enableShadows": true,
       "forceBlackScreenCorners": false,
       "language": "",
@@ -1680,6 +1284,7 @@ Pipewire setup, just these lines enough to make sane default for it
       "shadowDirection": "bottom_right",
       "shadowOffsetX": 2,
       "shadowOffsetY": 3,
+      "showHibernateOnLockScreen": false,
       "showScreenCorners": false
     },
     "hooks": {
@@ -1693,10 +1298,11 @@ Pipewire setup, just these lines enough to make sane default for it
       "name": "Bengaluru",
       "showCalendarEvents": true,
       "showCalendarWeather": true,
-      "showWeekNumberInCalendar": true,
+      "showWeekNumberInCalendar": false,
       "use12hourFormat": false,
       "useFahrenheit": false,
-      "weatherEnabled": true
+      "weatherEnabled": true,
+      "weatherShowEffects": true
     },
     "network": {
       "wifiEnabled": true
@@ -1711,24 +1317,27 @@ Pipewire setup, just these lines enough to make sane default for it
       "nightTemp": "4000"
     },
     "notifications": {
-      "backgroundOpacity": 0.9,
-      "criticalUrgencyDuration": 100,
+      "backgroundOpacity": 1,
+      "criticalUrgencyDuration": 30,
+      "enableKeyboardLayoutToast": true,
       "enabled": true,
       "location": "top_right",
-      "lowUrgencyDuration": 10,
+      "lowUrgencyDuration": 6,
       "monitors": [
       ],
-      "normalUrgencyDuration": 20,
+      "normalUrgencyDuration": 15,
       "overlayLayer": true,
       "respectExpireTimeout": true
     },
     "osd": {
       "autoHideMs": 2000,
+      "backgroundOpacity": 1,
       "enabled": true,
       "location": "top_right",
       "monitors": [
       ],
-      "overlayLayer": true
+      "overlayLayer": true,
+      "showLockKeyNotifications": true
     },
     "screenRecorder": {
       "audioCodec": "opus",
@@ -1741,69 +1350,117 @@ Pipewire setup, just these lines enough to make sane default for it
       "videoCodec": "h264",
       "videoSource": "portal"
     },
-    "settingsVersion": 18,
+    "sessionMenu": {
+      "countdownDuration": 10000,
+      "enableCountdown": true,
+      "position": "center",
+      "powerOptions": [
+        {
+          "action": "lock",
+          "countdownEnabled": true,
+          "enabled": true
+        },
+        {
+          "action": "suspend",
+          "countdownEnabled": true,
+          "enabled": true
+        },
+        {
+          "action": "hibernate",
+          "countdownEnabled": true,
+          "enabled": true
+        },
+        {
+          "action": "reboot",
+          "countdownEnabled": true,
+          "enabled": true
+        },
+        {
+          "action": "logout",
+          "countdownEnabled": true,
+          "enabled": true
+        },
+        {
+          "action": "shutdown",
+          "countdownEnabled": true,
+          "enabled": true
+        }
+      ],
+      "showHeader": true
+    },
+    "settingsVersion": 23,
     "setupCompleted": true,
+    "systemMonitor": {
+      "cpuCriticalThreshold": 90,
+      "cpuWarningThreshold": 70,
+      "criticalColor": "",
+      "diskCriticalThreshold": 90,
+      "diskWarningThreshold": 80,
+      "memCriticalThreshold": 90,
+      "memWarningThreshold": 70,
+      "tempCriticalThreshold": 90,
+      "tempWarningThreshold": 80,
+      "useCustomColors": false,
+      "warningColor": ""
+    },
     "templates": {
       "alacritty": false,
-      "code": false,
+      "cava": false,
+      "code": true,
       "discord": false,
-      "discord_armcord": false,
-      "discord_dorion": false,
-      "discord_equibop": false,
-      "discord_lightcord": false,
-      "discord_vesktop": false,
-      "discord_webcord": false,
-      "enableUserTemplates": false,
+      "enableUserTemplates": true,
       "foot": false,
       "fuzzel": false,
       "ghostty": false,
-      "gtk": true,
+      "gtk": false,
       "kcolorscheme": false,
       "kitty": false,
       "pywalfox": false,
       "qt": false,
       "spicetify": false,
+      "telegram": false,
       "vicinae": true,
       "walker": false,
       "wezterm": false
     },
     "ui": {
-      "fontDefault": "Inter",
+      "fontDefault": "Inter Medium",
       "fontDefaultScale": 1,
-      "fontFixed": "Maple Mono NF Medium",
+      "fontFixed": "Maple Mono NF",
       "fontFixedScale": 1,
+      "panelBackgroundOpacity": 1,
       "panelsAttachedToBar": true,
       "settingsPanelAttachToBar": true,
       "tooltipsEnabled": true
     },
     "wallpaper": {
-      "defaultWallpaper": "/nix/store/l794qx7as7v6rsrvy8s0j1s27rjmx8xd-noctalia-shell-6bc23e905d6c514db74e2649c0d4c09db7533e00/share/noctalia-shell/Assets/Wallpaper/noctalia.png",
+      "defaultWallpaper": "/nix/store/ysmnlcqf36jic008ax3g6bnjqsr8j49r-noctalia-shell-2025-11-25_3f08493/share/noctalia-shell/Assets/Wallpaper/noctalia.png",
       "directory": "/home/dev/d-git/d-wallpapers/walls",
       "enableMultiMonitorDirectories": false,
       "enabled": true,
       "fillColor": "#000000",
       "fillMode": "crop",
+      "hideWallpaperFilenames": false,
       "monitors": [
-        {
-          "directory": "/home/dev/d-git/d-wallpapers/walls",
-          "name": "eDP-1",
-          "wallpaper": "/home/dev/d-git/d-wallpapers/walls/Fantasy-Lanscape-Night.png"
-        },
-        {
-          "directory": "/home/dev/d-git/d-wallpapers/walls",
-          "name": "HDMI-A-1",
-          "wallpaper": "/home/dev/d-git/d-wallpapers/walls/Forest-Light.png"
-        }
       ],
       "overviewEnabled": true,
       "panelPosition": "follow_bar",
       "randomEnabled": true,
       "randomIntervalSec": 3600,
-      "recursiveSearch": false,
+      "recursiveSearch": true,
       "setWallpaperOnAllMonitors": true,
       "transitionDuration": 1500,
       "transitionEdgeSmoothness": 0.05,
-      "transitionType": "random"
+      "transitionType": "random",
+      "useWallhaven": false,
+      "wallhavenCategories": "111",
+      "wallhavenOrder": "desc",
+      "wallhavenPurity": "100",
+      "wallhavenQuery": "",
+      "wallhavenResolutionHeight": "",
+      "wallhavenResolutionMode": "atleast",
+      "wallhavenResolutionWidth": "",
+      "wallhavenSorting": "relevance"
     }
   }
 #+end_src
@@ -3289,8 +2946,9 @@ Pipewire setup, just these lines enough to make sane default for it
   Mod+Shift+D { spawn-sh "rofi -show drun"; }
   Mod+X {spawn-sh "noctalia-shell ipc call sessionMenu toggle"; }
   Mod+Y {spawn-sh "vicinae vicinae://extensions/vicinae/clipboard/history"; }
-  Mod+Shift+Y {spawn-sh "d-clip"; }
+  Mod+Shift+Y {spawn-sh "d-passentry"; }
   Mod+W {spawn "d-urls"; }
+  Mod+Shift+W {spawn "d-passentry"; }
   Mod+Shift+B {spawn "d-bookmark"; }
   Mod+F5 allow-when-locked=true {spawn-sh "noctalia-shell ipc call wallpaper random"; }
   Mod+o {spawn "d-stuff"; }
@@ -3459,7 +3117,7 @@ Pipewire setup, just these lines enough to make sane default for it
     {
       services.hypridle = let
         hyprlock = lib.getExe pkgs.hyprlock;
-    	noctalia = lib.getExe inputs.noctalia.defaultPackage.x86_64-linux;
+    	noctalia = lib.getExe inputs.noctalia.packages.x86_64-linux.default;
         brightness = lib.getExe pkgs.brightnessctl;
         niri = lib.getExe pkgs.niri;
         timeout = 200; # base timer to act upon
@@ -3467,16 +3125,16 @@ Pipewire setup, just these lines enough to make sane default for it
         enable = true;
         settings ={
           general = {
-            lock_cmd = "${noctalia} ipc call lockScreen lock";       # avoid starting multiple hyprlock instances.
-            before_sleep_cmd = "${pkgs.systemd}/bin/loginctl lock-session";    # lock before suspend.
+            lock_cmd = "${noctalia} ipc call lockScreen lock";
+            before_sleep_cmd = "${pkgs.systemd}/bin/loginctl lock-session";
             unlock_cmd = "notify-send 'Welcome back!'";
           };
 
           listener = [
             {
               timeout = timeout - 50;
-              on-timeout = "${brightness} -s set 5%";         # set monitor backlight to minimum, avoid 0 on OLED monitor.
-              on-resume = "${brightness} -r";                 # monitor backlight restore.
+              on-timeout = "${brightness} -s set 5%";
+              on-resume = "${brightness} -r";
             }
             {
               timeout = timeout;
@@ -5849,7 +5507,7 @@ to get bash alias to eshell way
       :config (url-setup-privacy-info))
 
     (use-package shr :ensure nil :demand t
-      :custom (shr-bullet "⦿ ") (shr-width 100))
+      :custom (shr-bullet "⦿ ") (shr-width 100) (shr-max-image-proportion 0.5))
   #+end_src
 
 **** Eww
@@ -5983,7 +5641,7 @@ to get bash alias to eshell way
     ;; Dont worry about the font name, I use fork of Iosevka font
 
     ;; Set reusable font name variables
-    (defcustom d/fixed-pitch-font (if d/on-droid "Maple Mono NF" "Iosevka Extended")
+    (defcustom d/fixed-pitch-font (if d/on-droid "Maple Mono NF" "Julia Mono")
       "The font to use for monospaced (fixed width) text.")
 
     (defcustom d/variable-pitch-font (if d/on-droid "Inter" "Inter")

@@ -96,12 +96,12 @@ Emacs configuration is crafted slowly by learning from all users in community. E
   	noctalia = {
         url = "github:noctalia-dev/noctalia-shell";
         inputs.nixpkgs.follows = "nixpkgs";
-        inputs.quickshell.follows = "quickshell";
       };
 
-      vicinae = {
-  	  url = "github:vicinaehq/vicinae";
-  	};
+      mango = {
+        url = "github:DreamMaoMao/mango";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
 
   	<<flake-files>>
     };
@@ -157,6 +157,7 @@ Emacs configuration is crafted slowly by learning from all users in community. E
                 inputs.home-manager.nixosModules.home-manager
                 nix-index-database.nixosModules.nix-index
                 stylix.nixosModules.stylix
+                inputs.mango.nixosModules.mango
   			];
   			specialArgs = {
                 inherit inputs system;
@@ -657,13 +658,12 @@ Emacs configuration is crafted slowly by learning from all users in community. E
     }
   #+end_src
 
-*** COMMENT Fingerprint
+*** Fingerprint
 - Support for fingerprint work legit on my machine. Just these 2 lines, and yes I login by TTY with my FP.
   #+begin_src nix 
     { # for fingerprint
       services.fprintd.enable = true;
     }
-
   #+end_src
 
 *** thunderbolt
@@ -758,8 +758,8 @@ Emacs configuration is crafted slowly by learning from all users in community. E
 
           # use binary cache, its not gentoo
     	  trusted-users = [ "root" "dev" "idlip" ];
-    	  extra-substituters = [ "https://vicinae.cachix.org" ];
-    	  extra-trusted-public-keys = [ "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc=" ];
+    	  # extra-substituters = [ "https://vicinae.cachix.org" ];
+    	  # extra-trusted-public-keys = [ "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc=" ];
           substituters = [ "https://nix-community.cachix.org" ];
           trusted-public-keys = [ "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=" ];
         };
@@ -970,6 +970,14 @@ Pipewire setup, just these lines enough to make sane default for it
   #+end_src
 
 
+*** COMMENT mangowc
+
+#+begin_src nix
+  {
+    programs.mango.enable = true;
+  }
+#+end_src
+
 ** Fonts
   #+begin_src nix
     {
@@ -1066,9 +1074,12 @@ Pipewire setup, just these lines enough to make sane default for it
       "customLaunchPrefixEnabled": false,
       "enableClipPreview": true,
       "enableClipboardHistory": false,
+      "iconMode": "tabler",
+      "ignoreMouseInput": false,
       "pinnedExecs": [
       ],
       "position": "center",
+      "showCategories": true,
       "sortByMostUsed": true,
       "terminalCommand": "xterm -e",
       "useApp2Unit": false,
@@ -1080,7 +1091,6 @@ Pipewire setup, just these lines enough to make sane default for it
       "mprisBlacklist": [
       ],
       "preferredPlayer": "",
-      "visualizerQuality": "high",
       "visualizerType": "linear",
       "volumeOverdrive": true,
       "volumeStep": 5
@@ -1098,6 +1108,8 @@ Pipewire setup, just these lines enough to make sane default for it
       "outerCorners": true,
       "position": "top",
       "showCapsule": false,
+      "showOutline": false,
+      "useSeparateOpacity": false,
       "widgets": {
         "center": [
           {
@@ -1105,25 +1117,39 @@ Pipewire setup, just these lines enough to make sane default for it
             "formatHorizontal": "HH:mm ddd, MMM dd",
             "formatVertical": "HH mm - dd MM",
             "id": "Clock",
+            "tooltipFormat": "HH:mm ddd, MMM dd",
             "useCustomFont": false,
             "usePrimaryColor": true
           },
           {
             "characterCount": 2,
+            "colorizeIcons": false,
+            "enableScrollWheel": true,
+            "followFocusedScreen": false,
+            "groupedBorderOpacity": 1,
             "hideUnoccupied": false,
+            "iconScale": 0.8,
             "id": "Workspace",
-            "labelMode": "none"
+            "labelMode": "none",
+            "showApplications": false,
+            "showLabelsOnlyWhenOccupied": true,
+            "unfocusedIconsOpacity": 1
           }
         ],
         "left": [
           {
+            "compactMode": false,
+            "diskPath": "/",
             "id": "SystemMonitor",
             "showCpuTemp": true,
             "showCpuUsage": true,
             "showDiskUsage": false,
+            "showGpuTemp": false,
             "showMemoryAsPercent": true,
             "showMemoryUsage": true,
-            "showNetworkStats": false
+            "showNetworkStats": true,
+            "useMonospaceFont": false,
+            "usePrimaryColor": false
           },
           {
             "hideMode": "idle",
@@ -1132,6 +1158,8 @@ Pipewire setup, just these lines enough to make sane default for it
             "maxWidth": 145,
             "scrollingMode": "hover",
             "showAlbumArt": true,
+            "showArtistFirst": true,
+            "showProgressRing": true,
             "showVisualizer": true,
             "useFixedWidth": false,
             "visualizerType": "linear"
@@ -1145,9 +1173,11 @@ Pipewire setup, just these lines enough to make sane default for it
             "blacklist": [
             ],
             "colorizeIcons": false,
-            "favorites": [
-            ],
-            "id": "Tray"
+            "drawerEnabled": true,
+            "hidePassive": false,
+            "id": "Tray",
+            "pinned": [
+            ]
           },
           {
             "hideWhenZero": true,
@@ -1159,8 +1189,12 @@ Pipewire setup, just these lines enough to make sane default for it
             "id": "WiFi"
           },
           {
+            "deviceNativePath": "",
             "displayMode": "alwaysShow",
+            "hideIfNotDetected": true,
             "id": "Battery",
+            "showNoctaliaPerformance": false,
+            "showPowerProfiles": false,
             "warningThreshold": 40
           },
           {
@@ -1172,7 +1206,10 @@ Pipewire setup, just these lines enough to make sane default for it
             "id": "Brightness"
           },
           {
+            "colorizeDistroLogo": false,
+            "colorizeSystemIcon": "none",
             "customIconPath": "",
+            "enableColorization": false,
             "icon": "",
             "id": "ControlCenter",
             "useDistroLogo": true
@@ -1185,8 +1222,25 @@ Pipewire setup, just these lines enough to make sane default for it
       "enableDdcSupport": false,
       "enforceMinimum": true
     },
-    "changelog": {
-      "lastSeenVersion": ""
+    "calendar": {
+      "cards": [
+        {
+          "enabled": true,
+          "id": "calendar-header-card"
+        },
+        {
+          "enabled": true,
+          "id": "calendar-month-card"
+        },
+        {
+          "enabled": true,
+          "id": "timer-card"
+        },
+        {
+          "enabled": true,
+          "id": "weather-card"
+        }
+      ]
     },
     "colorSchemes": {
       "darkMode": true,
@@ -1219,6 +1273,10 @@ Pipewire setup, just these lines enough to make sane default for it
         {
           "enabled": true,
           "id": "media-sysmon-card"
+        },
+        {
+          "enabled": false,
+          "id": "brightness-card"
         }
       ],
       "position": "close_to_bar_button",
@@ -1253,18 +1311,32 @@ Pipewire setup, just these lines enough to make sane default for it
         ]
       }
     },
+    "desktopWidgets": {
+      "enabled": false,
+      "gridSnap": true,
+      "monitorWidgets": [
+        {
+          "name": "eDP-1",
+          "widgets": [
+          ]
+        }
+      ]
+    },
     "dock": {
+      "animationSpeed": 1,
       "backgroundOpacity": 1,
       "colorizeIcons": false,
+      "deadOpacity": 0.6,
       "displayMode": "always_visible",
       "enabled": false,
       "floatingRatio": 1,
+      "inactiveIndicators": false,
       "monitors": [
       ],
       "onlySameOutput": true,
       "pinnedApps": [
       ],
-      "radiusRatio": 0.1,
+      "pinnedStatic": false,
       "size": 1
     },
     "general": {
@@ -1272,10 +1344,12 @@ Pipewire setup, just these lines enough to make sane default for it
       "animationDisabled": false,
       "animationSpeed": 1,
       "avatarImage": "/home/dev/media/pics/wp6489081-anime-ps4-luffy-wallpapers.jpg",
+      "boxRadiusRatio": 1,
       "compactLockScreen": false,
-      "dimmerOpacity": 0.76,
-      "enableShadows": true,
+      "dimmerOpacity": 0,
+      "enableShadows": false,
       "forceBlackScreenCorners": false,
+      "iRadiusRatio": 1,
       "language": "",
       "lockOnSuspend": true,
       "radiusRatio": 1,
@@ -1285,11 +1359,16 @@ Pipewire setup, just these lines enough to make sane default for it
       "shadowOffsetX": 2,
       "shadowOffsetY": 3,
       "showHibernateOnLockScreen": false,
-      "showScreenCorners": false
+      "showScreenCorners": false,
+      "showSessionButtonsOnLockScreen": true
     },
     "hooks": {
       "darkModeChange": "",
       "enabled": false,
+      "performanceModeDisabled": "",
+      "performanceModeEnabled": "",
+      "screenLock": "",
+      "screenUnlock": "",
       "wallpaperChange": ""
     },
     "location": {
@@ -1327,22 +1406,41 @@ Pipewire setup, just these lines enough to make sane default for it
       ],
       "normalUrgencyDuration": 15,
       "overlayLayer": true,
-      "respectExpireTimeout": true
+      "respectExpireTimeout": true,
+      "saveToHistory": {
+        "critical": true,
+        "low": true,
+        "normal": true
+      },
+      "sounds": {
+        "criticalSoundFile": "",
+        "enabled": false,
+        "excludedApps": "discord,firefox,chrome,chromium,edge",
+        "lowSoundFile": "",
+        "normalSoundFile": "",
+        "separateSounds": false,
+        "volume": 0.5
+      }
     },
     "osd": {
       "autoHideMs": 2000,
       "backgroundOpacity": 1,
       "enabled": true,
+      "enabledTypes": [
+        0,
+        1,
+        2
+      ],
       "location": "top_right",
       "monitors": [
       ],
-      "overlayLayer": true,
-      "showLockKeyNotifications": true
+      "overlayLayer": true
     },
     "screenRecorder": {
       "audioCodec": "opus",
       "audioSource": "default_output",
       "colorRange": "limited",
+      "copyToClipboard": true,
       "directory": "/home/dev/media/stream",
       "frameRate": 60,
       "quality": "very_high",
@@ -1353,52 +1451,70 @@ Pipewire setup, just these lines enough to make sane default for it
     "sessionMenu": {
       "countdownDuration": 10000,
       "enableCountdown": true,
+      "largeButtonsStyle": false,
       "position": "center",
       "powerOptions": [
         {
           "action": "lock",
+          "command": "",
           "countdownEnabled": true,
           "enabled": true
         },
         {
           "action": "suspend",
+          "command": "",
           "countdownEnabled": true,
           "enabled": true
         },
         {
           "action": "hibernate",
+          "command": "",
           "countdownEnabled": true,
           "enabled": true
         },
         {
           "action": "reboot",
+          "command": "",
           "countdownEnabled": true,
           "enabled": true
         },
         {
           "action": "logout",
+          "command": "",
           "countdownEnabled": true,
           "enabled": true
         },
         {
           "action": "shutdown",
+          "command": "",
           "countdownEnabled": true,
           "enabled": true
         }
       ],
-      "showHeader": true
+      "showHeader": true,
+      "showNumberLabels": true
     },
-    "settingsVersion": 23,
-    "setupCompleted": true,
+    "settingsVersion": 35,
     "systemMonitor": {
       "cpuCriticalThreshold": 90,
+      "cpuPollingInterval": 3000,
       "cpuWarningThreshold": 70,
       "criticalColor": "",
       "diskCriticalThreshold": 90,
+      "diskPath": "/",
+      "diskPollingInterval": 3000,
       "diskWarningThreshold": 80,
+      "enableDgpuMonitoring": false,
+      "externalMonitor": "resources || missioncenter || jdsystemmonitor || corestats || system-monitoring-center || gnome-system-monitor || plasma-systemmonitor || mate-system-monitor || ukui-system-monitor || deepin-system-monitor || pantheon-system-monitor",
+      "gpuCriticalThreshold": 90,
+      "gpuPollingInterval": 3000,
+      "gpuWarningThreshold": 80,
       "memCriticalThreshold": 90,
+      "memPollingInterval": 3000,
       "memWarningThreshold": 70,
+      "networkPollingInterval": 3000,
       "tempCriticalThreshold": 90,
+      "tempPollingInterval": 3000,
       "tempWarningThreshold": 80,
       "useCustomColors": false,
       "warningColor": ""
@@ -1408,42 +1524,51 @@ Pipewire setup, just these lines enough to make sane default for it
       "cava": false,
       "code": true,
       "discord": false,
+      "emacs": false,
       "enableUserTemplates": true,
       "foot": false,
       "fuzzel": false,
       "ghostty": false,
       "gtk": false,
+      "helix": false,
+      "hyprland": false,
       "kcolorscheme": false,
       "kitty": false,
+      "mango": true,
+      "niri": true,
       "pywalfox": false,
-      "qt": false,
+      "qt": true,
       "spicetify": false,
       "telegram": false,
       "vicinae": true,
       "walker": false,
-      "wezterm": false
+      "wezterm": false,
+      "yazi": false,
+      "zed": false
     },
     "ui": {
-      "fontDefault": "Inter Medium",
-      "fontDefaultScale": 1,
+      "bluetoothDetailsViewMode": "grid",
+      "bluetoothHideUnnamedDevices": false,
+      "fontDefault": "Inter",
+      "fontDefaultScale": 1.05,
       "fontFixed": "Maple Mono NF",
       "fontFixedScale": 1,
       "panelBackgroundOpacity": 1,
-      "panelsAttachedToBar": true,
-      "settingsPanelAttachToBar": true,
-      "tooltipsEnabled": true
+      "panelsAttachedToBar": false,
+      "settingsPanelMode": "window",
+      "tooltipsEnabled": true,
+      "wifiDetailsViewMode": "grid"
     },
     "wallpaper": {
-      "defaultWallpaper": "/nix/store/ysmnlcqf36jic008ax3g6bnjqsr8j49r-noctalia-shell-2025-11-25_3f08493/share/noctalia-shell/Assets/Wallpaper/noctalia.png",
       "directory": "/home/dev/d-git/d-wallpapers/walls",
       "enableMultiMonitorDirectories": false,
       "enabled": true,
       "fillColor": "#000000",
       "fillMode": "crop",
       "hideWallpaperFilenames": false,
-      "monitors": [
+      "monitorDirectories": [
       ],
-      "overviewEnabled": true,
+      "overviewEnabled": false,
       "panelPosition": "follow_bar",
       "randomEnabled": true,
       "randomIntervalSec": 3600,
@@ -1453,14 +1578,17 @@ Pipewire setup, just these lines enough to make sane default for it
       "transitionEdgeSmoothness": 0.05,
       "transitionType": "random",
       "useWallhaven": false,
+      "wallhavenApiKey": "",
       "wallhavenCategories": "111",
       "wallhavenOrder": "desc",
       "wallhavenPurity": "100",
       "wallhavenQuery": "",
+      "wallhavenRatios": "",
       "wallhavenResolutionHeight": "",
       "wallhavenResolutionMode": "atleast",
       "wallhavenResolutionWidth": "",
-      "wallhavenSorting": "relevance"
+      "wallhavenSorting": "relevance",
+      "wallpaperChangeMode": "random"
     }
   }
 #+end_src
@@ -1534,7 +1662,7 @@ Pipewire setup, just these lines enough to make sane default for it
 { services.kdeconnect.enable = true; }
   #+end_src
 
-*** easyeffects
+*** COMMENT easyeffects
 - Tweak the EQ and sound
 
   #+begin_src nix
@@ -1626,23 +1754,6 @@ Pipewire setup, just these lines enough to make sane default for it
             "x-scheme-handler/mailto"="emacsmail.desktop";
           };
         };
-
-    	portal = {
-          enable = true;
-          config = {
-    		common = {
-              default = ["gtk" "gnome"];
-              "org.freedesktop.impl.portal.ScreenCast" = "gnome";
-              "org.freedesktop.impl.portal.Screenshot" = "gnome";
-              "org.freedesktop.impl.portal.RemoteDesktop" = "gnome";
-            };
-    	  };
-          configPackages = [ pkgs.niri ];
-          xdgOpenUsePortal = true;
-          extraPortals = with pkgs; [
-    		xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-gnome
-          ];
-    	};
 
       };
       xdg.dataFile."applications/d-stuff.desktop".text = ''
@@ -1801,7 +1912,7 @@ Pipewire setup, just these lines enough to make sane default for it
           org-ql ox-hugo markdown-mode typst-ts-mode
           flycheck consult-flycheck flycheck-eglot org-re-reveal
     	  flycheck-vale
-    	  verb forge melpaPackages.telega melpaPackages.mastodon
+    	  verb forge melpaPackages.mastodon melpaPackages.telega
           # dslide
 
           (melpaBuild {
@@ -1898,6 +2009,733 @@ Pipewire setup, just these lines enough to make sane default for it
 
 ** Browser
 - The pioneer of modern day Internet.
+
+*** Glide
+:PROPERTIES:
+:header-args: :noweb-ref glide-browser
+:END:
+
+- The best of all worlds, keyboard driven, API to play with and firefox!
+  https://github.com/glide-browser/glide
+
+  #+begin_src nix :tangle foss/pkgs/glide.nix
+    { lib, stdenv, fetchurl,
+      adwaita-icon-theme, alsa-lib, autoPatchelfHook, copyDesktopItems, curl, dbus-glib, gtk3, hicolor-icon-theme,
+      libXtst, libva, mesa, makeBinaryWrapper, makeDesktopItem, patchelfUnstable, pciutils, pipewire, wrapGAppsHook3,
+      ffmpeg_7, libGL, libX11, libXScrnSaver, libpciaccess, libffi, libgcrypt, libxcomposite, libxdamage, libxrandr,
+      libXt, libevent, libGLU,
+    }:
+    stdenv.mkDerivation (finalAttrs: {
+      pname = "glide-browser";
+      version = "0.1.57a";
+
+      src = fetchurl {
+        url = "https://github.com/glide-browser/glide/releases/download/${finalAttrs.version}/glide.linux-x86_64.tar.xz";
+        hash = "sha256-BK0vB8B6DN3TXs7MweiOAycB7+6IaQPau/0HvNbNta0=";
+      };
+
+      nativeBuildInputs = [
+        autoPatchelfHook
+        copyDesktopItems
+        makeBinaryWrapper
+        patchelfUnstable
+        wrapGAppsHook3
+      ];
+
+      buildInputs = [
+        adwaita-icon-theme
+        alsa-lib
+        dbus-glib
+        gtk3
+        hicolor-icon-theme
+        libXtst
+        libGL
+        libX11
+        libXScrnSaver
+        libpciaccess
+        ffmpeg_7
+        libffi
+        libgcrypt
+        libxcomposite
+        libxdamage
+        libxrandr
+        libXt
+        alsa-lib
+        libevent
+        mesa
+        libGLU
+      ];
+
+      runtimeDependencies = [
+        curl
+        libva.out
+        mesa
+        pciutils
+        libGL
+      ];
+
+      appendRunpaths = [ "${pipewire}/lib" "${libGL}/lib" ];
+
+      patchelfFlags = [ "--no-clobber-old-sections" ];
+
+      preFixup = ''
+        gappsWrapperArgs+=(
+            --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ffmpeg_7]}"
+          )
+      '';
+
+      installPhase = ''
+        runHook preInstall
+
+        mkdir -p $out/bin $out/share/icons/hicolor/ $out/lib/glide-browser-bin-${finalAttrs.version}
+        cp -t $out/lib/glide-browser-bin-${finalAttrs.version} -r *
+        chmod +x $out/lib/glide-browser-bin-${finalAttrs.version}/glide
+        iconDir=$out/share/icons/hicolor
+        browserIcons=$out/lib/glide-browser-bin-${finalAttrs.version}/browser/chrome/icons/default
+
+        for i in 16 32 48 64 128; do
+          iconSizeDir="$iconDir/''${i}x$i/apps"
+          mkdir -p $iconSizeDir
+          cp $browserIcons/default$i.png $iconSizeDir/glide-browser.png
+        done
+
+        ln -s $out/lib/glide-browser-bin-${finalAttrs.version}/glide $out/bin/glide
+        ln -s $out/bin/glide $out/bin/glide-browser
+
+        runHook postInstall
+      '';
+
+      # WebGL/Graphics settings via environment variables
+      shellHook = ''
+        export MOZ_DISABLE_RDD_SANDBOX=1  # Disable RDD sandbox to prevent WebGL issues
+        export MOZ_WEBRENDER=1  # Enable WebRender for GPU acceleration
+        export MOZ_ACCELERATED=1  # Enable hardware acceleration for WebGL
+        export WebglAllowWindowsNativeGl=true  # Allow native GL for WebGL
+        export AllowWebgl2=true  # Enable WebGL2 support
+      '';
+
+      desktopItems = [
+        (makeDesktopItem {
+          name = "glide-browser-bin";
+          exec = "glide-browser --name glide-browser %U";
+          icon = "glide-browser";
+          desktopName = "Glide Browser";
+          genericName = "Web Browser";
+          terminal = false;
+          startupNotify = true;
+          startupWMClass = "glide-browser";
+          categories = [
+            "Network"
+            "WebBrowser"
+          ];
+          mimeTypes = ["text/html" "text/xml" "application/xhtml+xml" "application/vnd.mozilla.xul+xml" "x-scheme-handler/http" "x-scheme-handler/https"];
+          actions = {
+            new-window = {
+              name = "New Window";
+              exec = "glide-browser --new-window %U";
+            };
+            new-private-window = {
+              name = "New Private Window";
+              exec = "glide-browser --private-window %U";
+            };
+            profile-manager-window = {
+              name = "Profile Manager";
+              exec = "glide-browser --ProfileManager";
+            };
+          };
+        })
+      ];
+
+      meta = {
+        changelog = "https://glide-browser.app/changelog#${finalAttrs.version}";
+        description = "Extensible and keyboard-focused web browser, based on Firefox (binary package)";
+        homepage = "https://glide-browser.app/";
+        license = lib.licenses.mpl20;
+        sourceProvenance = [ lib.sourceTypes.binaryNativeCode ];
+        platforms = [ "x86_64-linux" ];
+        maintainers = with lib.maintainers; [ pyrox0 idlip ];
+        mainProgram = "glide-browser";
+      };
+    })
+  #+end_src
+
+**** Config
+
+#+begin_src typescript :tangle ~/.config/glide/glide.ts
+  // Config docs: https://glide-browser.app/config
+  // API reference: ~/.config/glide/glide.d.ts
+
+  const myAddons = [
+    "https://addons.mozilla.org/firefox/downloads/file/4598854/ublock_origin-1.67.0.xpi",
+    "https://gitflic.ru/project/magnolia1234/bpc_uploads/blob/raw?file=bypass_paywalls_clean-latest.xpi",
+    "https://addons.mozilla.org/firefox/downloads/file/4432106/clearurls-1.27.3.xpi",
+    "https://addons.mozilla.org/firefox/downloads/file/4598977/darkreader-4.9.112.xpi",
+    "https://addons.mozilla.org/firefox/downloads/file/4583940/youtube_addon-4.1350.xpi",
+    "https://addons.mozilla.org/firefox/downloads/file/4538560/languagetool-9.0.1.xpi",
+  ];
+
+  // myAddons.forEach(addon => {
+  //   glide.addons.install(addon)
+  // });
+
+  glide.styles.add(css`
+  :root {
+    --completion-color: #4dd9e5;
+    --completion-opacity: 0.7;
+  }
+
+  #glide-hints-container * {
+  text-transform: uppercase;
+  font-family: "Lilex";
+  }
+
+  [anonid="glide-commandline-completions"] .gcl-option:not(.focused):hover {
+    background: rgba(77, 217, 229, var(--completion-opacity));
+  }
+
+  [anonid="glide-commandline-completions"] .focused {
+    background: rgba(77, 217, 229, var(--completion-opacity));
+    color: black;
+  }
+  `);
+
+  // Disable default (vim) keybindings ;-}
+  const defaultKeymaps = glide.keymaps.list();
+
+  defaultKeymaps.forEach(keymap => {
+    glide.keymaps.del(keymap.mode, keymap.lhs); // Delete keymap by its mode and lhs
+  });
+
+  // Define the array of modes
+  const allModes: GlideModes[keyof GlideModes][] = [
+    "normal",
+    "insert",
+    "visual",
+    "ignore",
+    "command",
+    "op-pending"
+  ];
+
+  glide.keymaps.set(["normal", "insert"], "<C-x>", "");
+
+  glide.o.hint_size = "18px";
+  glide.o.hint_chars = "asdfhjklnpw"; // we will use custom hint generator
+  glide.o.which_key_delay = 100;
+  glide.o.mapping_timeout = 10000;
+
+  glide.prefs.set("sidebar.animation.expand-on-hover.duration-ms", 10);
+  glide.prefs.set("toolkit.legacyUserProfileCustomizations.stylesheets", true);
+
+  glide.prefs.set("font.name.monospace.x-western", "Ioskeley Mono");
+  glide.prefs.set("font.name.sans-serif.x-western", "Inter");
+  glide.prefs.set("font.name.serif.x-western", "Inter");
+
+  // firefox sync
+  glide.prefs.set("identity.fxaccounts.enabled", true);
+
+  // Fill SVG Color
+  glide.prefs.set("svg.context-properties.content.enabled", true);
+
+  // CSS's `:has()` selector
+  glide.prefs.set("layout.css.has-selector.enabled", true);
+
+  // Integrated calculator at urlbar
+  glide.prefs.set("browser.urlbar.suggest.calculator", true);
+
+  // Integrated unit convertor at urlbar
+  glide.prefs.set("browser.urlbar.unitConversion.enabled", true);
+  glide.prefs.set("browser.tabs.insertAfterCurrent", true);
+
+  // Trim  URL
+  glide.prefs.set("browser.urlbar.trimHttps", true);
+  glide.prefs.set("browser.urlbar.trimURLs", true);
+
+  // GTK rounded corners
+  glide.prefs.set("widget.gtk.rounded-bottom-corners.enabled", true);
+
+  glide.prefs.set("layout.css.grid-template-masonry-value.enabled", true);
+  glide.prefs.set("dom.enable_web_task_scheduling", true);
+
+  glide.prefs.set("webgl.disabled", false);
+  glide.prefs.set("gfx.webrender.all", true);
+
+  glide.prefs.set("dom.security.https_only_mode_error_page_user_suggestions", true);
+
+  glide.prefs.set("signon.generation.enabled", false);
+
+  glide.prefs.set("layout.css.prefers-color-scheme.content-override", 2);
+  glide.prefs.set("browser.compactmode.show", true);
+
+  /** URL BAR ***/
+  glide.prefs.set("browser.urlbar.suggest.engines", false);
+  glide.prefs.set("browser.urlbar.suggest.topsites", false);
+  glide.prefs.set("browser.urlbar.suggest.calculator", true);
+  glide.prefs.set("browser.urlbar.unitConversion.enabled", true);
+
+  /** AUTOPLAY ***/
+  // Default breaks some video players
+  glide.prefs.set("media.autoplay.blocking_policy", 0);
+
+  /** PASSWORDS ***/
+  glide.prefs.set("editor.truncate_user_pastes", false);
+
+  /** DOWNLOADS ***/
+  glide.prefs.set("browser.download.autohideButton", true);
+
+  /** PDF ***/
+  glide.prefs.set("browser.download.open_pdf_attachments_inline", true);
+
+  /** TAB BEHAVIOR ***/
+  glide.prefs.set("browser.tabs.loadBookmarksInTabs", true);
+  glide.prefs.set("browser.bookmarks.openInTabClosesMenu", false);
+  glide.prefs.set("findbar.highlightAll", true);
+
+  glide.g.mapleader = "C-c"
+  glide.keymaps.set("normal", "<leader>r", "config_reload");
+
+  glide.keymaps.set("normal", "<leader>r", "reload");
+  glide.keymaps.set("normal", "<leader>R", "reload_hard");
+  glide.keymaps.set("normal", "<leader><leader>", "commandline_show tab ");
+  glide.keymaps.set("normal", "<C-x>b", "commandline_show tab ");
+
+  // glide.keymaps.set("normal", "<C-x><C-f>", "commandline_show tab_new ");
+  glide.keymaps.set("normal", "<C-x><C-c>", "quit");
+  // glide.keymaps.set("normal", "<C-x><C-v>", "editURL");
+
+  glide.keymaps.set("normal", "<A-<>", "scroll_top");
+  glide.keymaps.set("normal", "<A-]>", "scroll_bottom");
+  glide.keymaps.set(["normal", "insert", ], "<C-y>", () => glide.keys.send("<C-v>", { skip_mappings: true }));
+  glide.keymaps.set(["normal", "visual", ], "<A-v>", () => glide.keys.send("<pageup>", { skip_mappings: true }));
+  glide.keymaps.set(["normal", "visual", ], "<C-v>", () => glide.keys.send("<pagedown>", { skip_mappings: true }));
+
+
+  // ignore mode
+  glide.keymaps.set(["normal", "insert", "visual", "command"], "<C-g>", "mode_change ignore");
+  glide.keymaps.set(allModes, "<C-q>", );
+  glide.keymaps.set("ignore", "<C-g>", "mode_change normal");
+  glide.keymaps.set(["insert", "command", "ignore"], "<C-x><C-q>", "mode_change normal");
+  glide.keymaps.set(["visual", "normal"], "<C-x><C-q>", "mode_change insert");
+
+  // history
+  glide.keymaps.set(["normal"], "l", "back");
+  glide.keymaps.set(["normal"], "r", "forward");
+  glide.keymaps.set(["normal"], "<A-b>", "back");
+  glide.keymaps.set(["normal" ], "<A-f>", "forward");
+
+  // hint mode
+  glide.keymaps.set("normal", "f", "hint");
+  glide.keymaps.set("normal", "<C-.>", "hint");
+  glide.keymaps.set("normal", "<A-.>", "hint --action=newtab-click");
+  glide.keymaps.set("normal", "<A-;>", "hint --location=browser-ui");
+  glide.keymaps.set("hint", ["<C-g>", "<escape"], "hints_remove");
+
+  // page navigation
+  glide.keymaps.set("normal", "<C-x>i", "focusinput last");
+
+  // command mode
+  glide.keymaps.set("command", "<C-g>", "commandline_toggle");
+  glide.keymaps.set("command", "<Tab>", "commandline_focus_next");
+  glide.keymaps.set("command", "<S-Tab>", "commandline_focus_back");
+  glide.keymaps.set("command", "<C-n>", "commandline_focus_next");
+  glide.keymaps.set("command", "<C-p>", "commandline_focus_back");
+  glide.keymaps.set("command", "<Enter>", "commandline_accept");
+  glide.keymaps.set("command", "<C-d>", "commandline_delete");
+
+  // tabs
+  glide.keymaps.set("normal", "<C-x>k", "tab_close");
+  glide.keymaps.set(["normal", "insert"], "<C-j>", "tab_next");
+  glide.keymaps.set(["normal", "insert"], "<C-k>", "tab_prev");
+  glide.keymaps.set(["normal", "insert"], "<A-n>", "tab_next");
+  glide.keymaps.set(["normal", "insert"], "<A-p>", "tab_prev");
+
+  // map emacs keybinding to firefox native keybindings
+  glide.keymaps.set(["normal", "insert"], "<C-x><C-f>", () => glide.keys.send('<C-l>', { skip_mappings: true }));
+  glide.keymaps.set(["normal", "insert", "ignore"], "<C-s>", () => glide.keys.send('<C-f>', { skip_mappings: true }));
+
+  glide.keymaps.set(["normal", "insert"], "<C-g>", () => glide.keys.send('<Esc>'));
+
+  glide.keymaps.set(["normal", "insert", "visual", "ignore"], "<C-n>", () => glide.keys.send("<Down>", { skip_mappings: true }));
+  glide.keymaps.set(["normal", "insert", "visual", "ignore"], "<C-p>", () => glide.keys.send("<Up>", { skip_mappings: true }));
+  // glide.keymaps.set("normal", "<C-n>", "caret_move down");
+  // glide.keymaps.set("normal", "<C-p>", "caret_move up");
+
+  glide.keymaps.set("normal", "<C-x>z", "repeat");
+  glide.keymaps.set(["normal","visual","insert"], "<A-x>", "commandline_toggle");
+  glide.keymaps.set("normal", ":", );
+  glide.keymaps.set("normal", "<A>", "commandline_toggle");
+  glide.keymaps.set("normal", "<C-h>t", "tutor");
+  glide.keymaps.set("normal", "<C-h>h", "help");
+  glide.keymaps.set("normal", "<C-h>m", "map");
+
+
+  glide.keymaps.set(["insert", "visual", "op-pending"], "<C-g>", "mode_change normal");
+
+  glide.keymaps.set("normal", "i", "mode_change insert --automove=left");
+  glide.keymaps.set("normal", "a", "mode_change insert");
+  glide.keymaps.set("normal", "A", "mode_change insert --automove=endline");
+
+  glide.keymaps.set(["normal", "insert"], "<C-x>u", "undo");
+  glide.keymaps.set(["normal", "insert"], "<C-/>", "undo");
+
+  // TODO(glide-motions): more general support for numbers like this
+  glide.keymaps.set(["normal", "visual", "insert"], "<A-h>", () => glide.keys.send("<C-a>", { skip_mappings: true }));
+  glide.keymaps.set(["normal", "visual", "insert"], "<C-x>h", () => glide.keys.send("<C-a>", { skip_mappings: true }));
+  glide.keymaps.set(["normal", "insert", "visual"], "<C-a>", "motion 0");
+  glide.keymaps.set(["normal", "insert", "visual"], "<C-e>", "motion $");
+  glide.keymaps.set(["normal", "insert"], "<C-b>", "caret_move left");
+  glide.keymaps.set(["normal", "insert"], "<C-f>", "caret_move right");
+  glide.keymaps.set("normal", "<A-w>", "url_yank");
+
+  // jumplist
+  // note: unlike Vim, we define these keymaps in insert mode as well
+  //       as it can be jarring when switching tabs, for the jumplist
+  //       to stop working just because you had an input element
+  //       focused in a particular tab
+  glide.keymaps.set(["normal", "insert"], "<C-o>", "jumplist_back");
+  glide.keymaps.set(["normal", "insert"], "<C-i>", "jumplist_forward");
+
+  // note sure what they do
+  // glide.keymaps.set("normal", "d", "mode_change op-pending --operator=d", { retain_key_display: true });
+  // glide.keymaps.set("normal", "c", "mode_change op-pending --operator=c", { retain_key_display: true });
+  glide.keymaps.set(["visual", "insert"], "<A-f>", "motion e");
+  glide.keymaps.set(["visual", "insert"], "<A-b>", "motion b");
+  glide.keymaps.set(["visual", "insert"], "<C-d>", "motion x");
+
+  // visual motions
+  glide.keymaps.set(["normal", "insert"], "<C-Space>", "motion v");
+  glide.keymaps.set("visual", "<C-b>", "motion vh");
+  glide.keymaps.set("visual", "<C-f>", "motion vl");
+  glide.keymaps.set("visual", "d", "motion vd");
+  glide.keymaps.set("visual", "c", "motion vc");
+  glide.keymaps.set("visual", "<A-w>", "visual_selection_copy");
+
+
+  // Flexfox preferences
+
+  glide.keymaps.set(
+    "normal",
+    "<C-x>2",
+    async ({ tab_id }) => {
+      const all_tabs = await glide.tabs.query({});
+      const current_index = all_tabs.findIndex((t) =>
+        t.id === tab_id
+      );
+      const other = all_tabs[current_index + 1];
+      if (!other) {
+        throw new Error("No next tab");
+      }
+      glide.unstable.split_views.create([tab_id, other]);
+    },
+    {
+      description:
+        "Create a split view with the tab to the right",
+    },
+  );
+
+  glide.keymaps.set(
+    "normal",
+    "<C-x>1",
+    async ({ tab_id }) => {
+      glide.unstable.split_views.separate(tab_id);
+    },
+    {
+      description: "Close the split view for the current tab",
+    },
+  );
+
+  glide.keymaps.set("normal", "<A-w>", async () => {
+    glide.hints.show({
+      selector: ":any-link",
+      async action({ content }) {
+        const link: string = await content.execute((target) => {
+          if (target instanceof HTMLAreaElement || target instanceof HTMLAnchorElement) {
+            return target.href
+          }
+          return ""
+        }
+        );
+        navigator.clipboard.writeText(link)
+      },
+    })
+
+  }, { description: "copy link at hint" })
+
+
+  // credits: @jyn514
+  // https://github.com/glide-browser/glide/discussions/147#discussioncomment-15286767
+  function shorten_unique_prefixes(haystack) {
+      // first, construct a set of duplicates
+      const seen = new Set();
+      const duplicates = new Set();
+      for (let t of haystack) {
+          if (seen.has(t)) {
+              duplicates.add(t);
+          } else {
+              seen.add(t);
+          }
+      }
+
+      // shorten each word
+      return haystack.map((needle, pos) => {
+          if (duplicates.has(needle)) return needle;
+          // while all words have the same character at position i, increment i
+          for (let i = 1; i <= needle.length; i++) {
+              const prefix = needle.slice(0, i);
+              const is_unique = haystack.every((w, j) => pos === j || !w.startsWith(prefix));
+              if (is_unique) {
+                  return prefix;
+              }
+          }
+          // no unique prefix
+          return needle;
+      });
+  }
+
+  function strip(text) {
+      // strip numbers, non-ascii text, and annoying-to-type characters
+      return text.replace(/[0-9]+/g, '').replace(/[^a-zA-Z0-9-]/g, '').toLowerCase();
+  }
+
+  function labels(texts) {
+      // now shorten as much as we can without losing info
+      const haystack = shorten_unique_prefixes(texts);
+
+      let nums_used = 0;
+      const result = new Array(haystack.length);
+
+      // trim prefixes longer than 3 characters by using letters that occur later in the label.
+      // also, try to replace the last letter of duplicates.
+      // note that that can only help if the original text was > 3 characters.
+      const used = new Set();
+      outer: for (const [index, prefix] of haystack.entries()) {
+          if (prefix === "") {
+              result[index] = String(nums_used++);
+          } else if (prefix.length > 3 || used.has(prefix)) {
+              const base = prefix.substring(0, 2);
+              // try each character after the 3rd in turn.
+              // consider the original text, not the shortened prefix.
+              for (const c of texts[index].substring(2)) {
+                  const candidate = base + c;
+                  if (!used.has(candidate)) {
+                      result[index] = candidate;
+                      used.add(candidate);
+                      continue outer;
+                  }
+              }
+              // we couldn't shorten it. use a number.
+              result[index] = String(nums_used++);
+          } else {
+              // already short enough, use it as-is.
+              result[index] = prefix;
+              used.add(prefix);
+          }
+      }
+
+      // try one last time to shorten prefixes—if we gave up earlier, we might have freed up a spot.
+      return shorten_unique_prefixes(result);
+  }
+
+  glide.o.hint_label_generator = async ({ content }) => {
+      const texts = await content.map(element => [element.textContent, element.ariaLabel]);
+      const haystack = texts.map(([text, label]) => strip(text) || strip(label || ""));
+      return labels(haystack);
+  };
+
+  // ============================================================================
+  // Emacs helper functions
+  // ============================================================================
+
+  /**
+   ,* Swap to existing tab or create new one
+   ,*/
+  async function swap_to_tab_if_exists(url: string): Promise<void> {
+    const tab = await glide.tabs.get_first({ url });
+
+    if (tab?.id && tab.windowId !== undefined) {
+      await browser.windows.update(tab.windowId, { focused: true });
+      await browser.tabs.update(tab.id, { active: true });
+    } else {
+      await browser.tabs.create({ active: true, url });
+    }
+  }
+
+  /**
+   ,* Simple fuzzy matching score
+   ,*/
+  function fuzzy_score(haystack: string, needle: string): number {
+    if (!needle) return 1;
+
+    const hay = haystack.toLowerCase();
+    const need = needle.toLowerCase();
+
+    if (hay === need) return 1000;
+    if (hay.startsWith(need)) return 500;
+    if (hay.includes(need)) return 100;
+
+    let score = 0;
+    let lastIndex = -1;
+    for (const char of need) {
+      const index = hay.indexOf(char, lastIndex + 1);
+      if (index === -1) return 0;
+      score += 1;
+      lastIndex = index;
+    }
+
+    return score;
+  }
+
+  /**
+   ,* Create a favicon + title + url display element
+   ,*/
+  function create_item_display(item: { url?: string; title?: string; visitCount?: number }): HTMLElement {
+    return DOM.create_element("div", {
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+        marginLeft: "1em",
+        overflow: "hidden"
+      },
+      children: [
+        DOM.create_element("img", {
+          src: `page-icon:${item.url}`,
+          style: {
+            width: "24px",
+            height: "24px",
+            flexShrink: "0"
+          },
+        }),
+        DOM.create_element("div", {
+          style: {
+            minWidth: 0,
+            overflow: "hidden",
+            flex: 1
+          },
+          children: [
+            DOM.create_element("div", {
+              children: item.title || item.url || "",
+              style: {
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                fontWeight: "500"
+              }
+            }),
+            DOM.create_element("div", {
+              children: item.url || "",
+              style: {
+                fontSize: "11px",
+                opacity: "0.6",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap"
+              }
+            })
+          ],
+        }),
+      ],
+    });
+  }
+
+  // ============================================================================
+  // Completions commands
+  // ============================================================================
+
+  /**
+   ,* C-x C-v: Current site history picker
+   ,*/
+  glide.keymaps.set(["normal", "insert"], "<C-x><C-v>", async () => {
+    const activeTab = await glide.tabs.active();
+    if (!activeTab?.url) return;
+
+    const origin = (() => {
+      try { return new URL(activeTab.url).origin; }
+      catch { return null; }
+    })();
+    if (!origin) return;
+
+    const allHistory = await browser.history.search({
+      text: "",
+      startTime: 0,
+      maxResults: 2000,
+    });
+
+    const sameOrigin = allHistory.filter(item => {
+      try { return new URL(item.url).origin === origin; }
+      catch { return false; }
+    });
+
+    sameOrigin.sort((a, b) => (b.lastVisitTime || 0) - (a.lastVisitTime || 0));
+
+    // Deduplicate (strip fragments)
+    const seen = new Set<string>();
+    const unique = sameOrigin.filter(item => {
+      const canonical = item.url.split("#")[0];
+      if (seen.has(canonical)) return false;
+      seen.add(canonical);
+      return true;
+    });
+
+    glide.commandline.show({
+      title: `History for ${origin}`,
+      filter(input, option) {
+        const item = unique.find(e => e.url === option.value);
+        if (!item) return false;
+
+        const titleScore = fuzzy_score(item.title || "", input);
+        const urlScore = fuzzy_score(item.url || "", input) * 0.5;
+
+        return (titleScore + urlScore) > 0;
+      },
+      options: unique.map(item => ({
+        label: item.title || item.url || "",
+        value: item.url,
+        render: () => create_item_display(item),
+        async execute() {
+          if (item.url) await swap_to_tab_if_exists(item.url);
+        },
+      })),
+    });
+  }, { description: "Fuzzy find current site history" });
+
+
+  glide.keymaps.set(["normal", "insert"], "<A-o>", async () => {
+    const allHistory = await browser.history.search({
+      text: "",
+      startTime: 0,
+      maxResults: 50000
+    });
+
+    console.log(`Total history items: ${allHistory.length}`);
+
+    // Group by domain
+    const byDomain = new Map<string, typeof allHistory>();
+    for (const item of allHistory) {
+      try {
+        const domain = new URL(item.url).hostname;
+        if (!byDomain.has(domain)) {
+          byDomain.set(domain, []);
+        }
+        byDomain.get(domain)?.push(item);
+      } catch (e) {
+        // Invalid URL
+      }
+    }
+
+    console.log(`Unique domains: ${byDomain.size}`);
+
+    glide.commandline.show({
+      title: `All History (${allHistory.length} items)`,
+      options: allHistory.slice(0, 4000).map((item) => ({
+        label: item.title || item.url,
+        render: () => create_item_display(item),
+        async execute() {
+          await swap_to_tab_if_exists(item.url);
+        },
+      })),
+    });
+  }, { description: "Show all raw history" });
+#+end_src
 
 *** Librewolf
 - As of [2024-08-09], making some shift towards better firefox.
@@ -2074,13 +2912,13 @@ Pipewire setup, just these lines enough to make sane default for it
   }
 #+end_src
 
-*** qutebrowser
+*** COMMENT qutebrowser
 - Enought of waiting for nyxt. Qutebrowser seems mature, and ticks most of the boxes.
 
   #+begin_src nix
     {
       programs.qutebrowser = {
-    	enable = true;
+    	enable = false;
     	enableDefaultBindings = false;
     	greasemonkey = [
     	  (pkgs.writeText "youtube_adblock.js" (lib.readFile inputs.youtube_adblock.outPath))
@@ -2843,6 +3681,26 @@ Pipewire setup, just these lines enough to make sane default for it
 
   }
 
+  recent-windows {
+  // off
+  highlight {
+  active-color "#999999ff"
+  urgent-color "#ff9999ff"
+  padding 10
+  corner-radius 16
+  }
+
+  previews {
+  max-height 480
+  max-scale 0.5
+  }
+
+  binds {
+  Mod+grave         { next-window; }
+  Mod+Shift+grave   { previous-window; }
+  }
+  }
+
   prefer-no-csd
   screenshot-path "~/media/pics/sshots/%Y%m%dT%H%M%S_capture.png"
 
@@ -2873,7 +3731,7 @@ Pipewire setup, just these lines enough to make sane default for it
   }
 
   window-rule {
-  match app-id="librewolf*" title="^Picture-in-Picture$"
+  match title="^Picture-in-Picture$"
   match app-id="mpv"
   max-width 400; max-height 300;
   open-floating true
@@ -3083,6 +3941,17 @@ Pipewire setup, just these lines enough to make sane default for it
 
 #+end_src
 
+** COMMENT mangowc
+
+#+begin_src nix
+  inputs.mango.hmModules.mango
+    {
+      wayland.windowManager.mango = {
+        enable = true;
+      };
+    }
+#+end_src
+
 ** wayland-packages
 
   #+begin_src nix
@@ -3196,45 +4065,36 @@ Pipewire setup, just these lines enough to make sane default for it
 - The raycast for Linux
 
   #+begin_src nix
-    inputs.vicinae.homeManagerModules.default
     {
-      services.vicinae = {
+      programs.vicinae = {
         enable = true;
-        autoStart = true;
+        systemd.enable = true;
+        settings = {
+          pop_to_root_on_close = false;
+          close_on_focus_loss = true;
+          font.normal.size = 12;
+          keybinding = "emacs";
+          keybinds = {
+            "action.open" = "alt+O";
+            "open-settings" = "control+;";
+            "toggle-action-panel" = "control+.";
+          };
+          theme.dark = {
+            "icon_theme" = "auto";
+            "name" = lib.mkForce "noctalia";
+          };
+          launcher_window = {
+            "client_side_decorations".enabled = true;
+            layer_shell.layer = "overlay";
+          };
+    	  favorites = [ "system:run" "clipboard:history"
+          "@destiner/662c8adc-5711-465d-89c0-3488c1dc6e59:view-icons"
+          "applications:emacsclient"
+          ];
+        };
       };
     }
   #+end_src
-
-
-*** vicinae config/setting
-#+begin_src json-ts :noweb-ref vicinae :tangle ~/.config/vicinae/vicinae.json
-  {
-    "closeOnFocusLoss": true,
-    "faviconService": "twenty",
-    "font": {
-      "size": 12
-    },
-    "keybinding": "emacs",
-    "keybinds": {
-      "action.open": "alt+O",
-      "open-settings": "control+,",
-      "toggle-action-panel": "control+."
-    },
-    "popToRootOnClose": true,
-    "rootSearch": {
-      "searchFiles": false
-    },
-    "theme": {
-      "iconTheme": "Papirus-Dark",
-      "name": "matugen"
-    },
-    "window": {
-      "csd": false,
-      "opacity": 0.95,
-      "rounding": 10
-    }
-  }
-#+end_src
 
 ** CLI
 - fast, robust cli tools.
@@ -3275,21 +4135,29 @@ Pipewire setup, just these lines enough to make sane default for it
 
         bat = {
           enable = true;
-          extraPackages = with pkgs.bat-extras; [ batdiff batman batgrep batwatch ];
         };
 
         ssh = {
           enable = true;
-    	  enableDefaultConfig = true;
+          enableDefaultConfig = false;
           extraOptionOverrides = {
             SetEnv = "TERM=xterm-256color";
           };
-          matchBlocks."172.16.2.72" = {
+          matchBlocks."*" = {
+            forwardAgent = false;
+            addKeysToAgent = "no";
+            compression = false;
+            serverAliveInterval = 0;
+            serverAliveCountMax = 3;
+            hashKnownHosts = false;
+            userKnownHostsFile = "~/.ssh/known_hosts";
+            controlMaster = "no";
+            controlPath = "~/.ssh/master-%r@%n:%p";
+            controlPersist = "no";
             forwardX11Trusted = true;
             forwardX11 = true;
           };
-
-          };
+        };
 
         fzf = {
           enable = true;
@@ -3409,11 +4277,14 @@ Pipewire setup, just these lines enough to make sane default for it
   {
     programs = {
       fish = {
-      enable = true;
-      };
-      bash = {
         enable = true;
+        binds = {
+          "alt-backspace".command = "backward-kill-word";
+        };
+
       };
+      nushell = {enable = true;};
+      bash = {enable = true;};
     };
   }
 #+end_src
@@ -3425,7 +4296,7 @@ Pipewire setup, just these lines enough to make sane default for it
     {
       home.packages = with pkgs; [
         # texlive.combined.scheme-full
-        typst ollama
+        typst # ollama
       ];
     }
   #+end_src
@@ -4114,6 +4985,7 @@ Pipewire setup, just these lines enough to make sane default for it
   #+begin_src emacs-lisp
     (setopt completion-styles '(orderless basic)
             completion-category-overrides '((file (styles basic partial-completion)))
+            completion-pcm-leading-wildcard t
             completion-category-defaults nil)
   #+end_src
 
@@ -4176,6 +5048,7 @@ Pipewire setup, just these lines enough to make sane default for it
   #+begin_src emacs-lisp
     (use-package corfu :init (global-corfu-mode)
       :bind (:map corfu-map ("SPC" . corfu-insert-separator))
+      :custom (corfu-auto nil) (corfu-auto-trigger ".")
       :config (corfu-history-mode) (corfu-echo-mode) (corfu-popupinfo-mode)
       (eldoc-add-command #'corfu-insert))
   #+end_src
@@ -5641,7 +6514,7 @@ to get bash alias to eshell way
     ;; Dont worry about the font name, I use fork of Iosevka font
 
     ;; Set reusable font name variables
-    (defcustom d/fixed-pitch-font (if d/on-droid "Maple Mono NF" "Julia Mono")
+    (defcustom d/fixed-pitch-font (if d/on-droid "Maple Mono NF" "Maple Mono NF")
       "The font to use for monospaced (fixed width) text.")
 
     (defcustom d/variable-pitch-font (if d/on-droid "Inter" "Inter")
@@ -5831,9 +6704,25 @@ to get bash alias to eshell way
 - Nice, focused writing environment for emacs.
 
   #+begin_src emacs-lisp
-    (use-package olivetti :defer t :custom (olivetti-body-width 140)
-      :hook (org-mode text-mode Info-mode helpful-mode ement-room-mode gnus-group-mode eww-mode
-                      gnus-article-mode sdcv-mode nov-mode elfeed-show-mode markdown-mode))
+    (use-package olivetti :defer t :custom (olivetti-body-width 100)
+      :hook (org-mode Info-mode help-mode gnus-group-mode eww-mode gnus-article-mode nov-mode markdown-mode))
+    (add-hook 'olivetti-mode-hook #'variable-pitch-mode)
+  #+end_src
+
+
+**** Tab bar
+- Use tab bar, instead of frames.
+
+  #+begin_src emacs-lisp
+    (tab-bar-mode 1) (tab-bar-history-mode 1)
+    (setopt
+     tab-bar-format
+     '(tab-bar-format-menu-bar tab-bar-format-history
+                               tab-bar-format-tabs-groups tab-bar-separator
+                               tab-bar-format-align-right
+                               tab-bar-format-global ;; An issue when used in terminal+daemon (cursor wont move properly)
+                               )
+     tab-bar-close-button-show nil)
   #+end_src
 
 

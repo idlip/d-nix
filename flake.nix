@@ -39,12 +39,12 @@
 	noctalia = {
       url = "github:noctalia-dev/noctalia-shell";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.quickshell.follows = "quickshell";
     };
 
-    vicinae = {
-	  url = "github:vicinaehq/vicinae";
-	};
+    mango = {
+      url = "github:DreamMaoMao/mango";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
 	youtube_adblock = {
 	  url = "https://raw.githubusercontent.com/afreakk/greasemonkeyscripts/refs/heads/master/youtube_adblock.js";
@@ -139,6 +139,7 @@
               inputs.home-manager.nixosModules.home-manager
               nix-index-database.nixosModules.nix-index
               stylix.nixosModules.stylix
+              inputs.mango.nixosModules.mango
 			];
 			specialArgs = {
               inherit inputs system;

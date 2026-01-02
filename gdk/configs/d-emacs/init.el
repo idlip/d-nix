@@ -216,6 +216,7 @@
 
 (setopt completion-styles '(orderless basic)
         completion-category-overrides '((file (styles basic partial-completion)))
+        completion-pcm-leading-wildcard t
         completion-category-defaults nil)
 
 (use-package embark :defer t
@@ -257,6 +258,7 @@
 
 (use-package corfu :init (global-corfu-mode)
   :bind (:map corfu-map ("SPC" . corfu-insert-separator))
+  :custom (corfu-auto nil) (corfu-auto-trigger ".")
   :config (corfu-history-mode) (corfu-echo-mode) (corfu-popupinfo-mode)
   (eldoc-add-command #'corfu-insert))
 
@@ -927,7 +929,7 @@ images."
 ;; Dont worry about the font name, I use fork of Iosevka font
 
 ;; Set reusable font name variables
-(defcustom d/fixed-pitch-font (if d/on-droid "Maple Mono NF" "Julia Mono")
+(defcustom d/fixed-pitch-font (if d/on-droid "Maple Mono NF" "Maple Mono NF")
   "The font to use for monospaced (fixed width) text.")
 
 (defcustom d/variable-pitch-font (if d/on-droid "Inter" "Inter")
@@ -1007,9 +1009,19 @@ images."
  mode-line-collapse-minor-modes t)
 (global-set-key (kbd "<f9>") 'mode-line-invisible-mode)
 
-(use-package olivetti :defer t :custom (olivetti-body-width 140)
-  :hook (org-mode text-mode Info-mode helpful-mode ement-room-mode gnus-group-mode eww-mode
-                  gnus-article-mode sdcv-mode nov-mode elfeed-show-mode markdown-mode))
+(use-package olivetti :defer t :custom (olivetti-body-width 100)
+  :hook (org-mode Info-mode help-mode gnus-group-mode eww-mode gnus-article-mode nov-mode markdown-mode))
+(add-hook 'olivetti-mode-hook #'variable-pitch-mode)
+
+(tab-bar-mode 1) (tab-bar-history-mode 1)
+(setopt
+ tab-bar-format
+ '(tab-bar-format-menu-bar tab-bar-format-history
+                           tab-bar-format-tabs-groups tab-bar-separator
+                           tab-bar-format-align-right
+                           tab-bar-format-global ;; An issue when used in terminal+daemon (cursor wont move properly)
+                           )
+ tab-bar-close-button-show nil)
 
 (use-package org :ensure nil :defer t
   :hook

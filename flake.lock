@@ -71,7 +71,7 @@
     "dns-block": {
       "flake": false,
       "locked": {
-        "narHash": "sha256-j6Ya5juVYOdApkhuJm9jorqHH2dBiNGMYr9CHyVsexY=",
+        "narHash": "sha256-cubNjGFeAfW7giHTJEaNej7QcD8pe6BLQiWYnul2w9g=",
         "type": "file",
         "url": "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/ultimate-compressed.txt"
       },
@@ -83,7 +83,7 @@
     "dns-bpc": {
       "flake": false,
       "locked": {
-        "narHash": "sha256-olwcASTZpRIJopEuDQ+inFWxOFrptHuMytYBLdJ245E=",
+        "narHash": "sha256-PTUoGPUse56AV3NyGoLiIDkJCVZ9vN/r7GILYfpNaAY=",
         "type": "file",
         "url": "https://gitflic.ru/project/magnolia1234/bypass-paywalls-clean-filters/blob/raw?file=bpc-paywall-filter.txt"
       },
@@ -242,11 +242,11 @@
         "scenefx": "scenefx"
       },
       "locked": {
-        "lastModified": 1768810060,
-        "narHash": "sha256-zg0L57UZmPiahntja4z8NxUq+7crHEihlmSqhRIAHIM=",
+        "lastModified": 1770365657,
+        "narHash": "sha256-pXny9cvfkfvVu0/jBc4cPlUcUbSCpCQEVNFZOuncyVM=",
         "owner": "DreamMaoMao",
         "repo": "mango",
-        "rev": "b0e4781fec1237b13c696def162887b7f231d45c",
+        "rev": "4586319bef10c44506615cfab43870b502245f06",
         "type": "github"
       },
       "original": {

@@ -31,65 +31,28 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-	quickshell = {
-      url = "github:outfoxxed/quickshell";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-	noctalia = {
-      url = "github:noctalia-dev/noctalia-shell";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     mango = {
       url = "github:DreamMaoMao/mango";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-	youtube_adblock = {
-	  url = "https://raw.githubusercontent.com/afreakk/greasemonkeyscripts/refs/heads/master/youtube_adblock.js";
-	  flake = false;
-	};
-	reddit_adblock = {
-	  url = "https://raw.githubusercontent.com/afreakk/greasemonkeyscripts/refs/heads/master/reddit_adblock.js";
-	  flake = false;
-	};
-	youtube_sponsorblock = {
-	  url = "https://raw.githubusercontent.com/afreakk/greasemonkeyscripts/refs/heads/master/youtube_sponsorblock.js";
-	  flake = false;
-	};
-	html_player = {
-	  url = "https://update.greasyfork.org/scripts/30545/HTML5%E8%A7%86%E9%A2%91%E6%92%AD%E6%94%BE%E5%B7%A5%E5%85%B7.user.js";
-	  flake = false;
-	};
-	adsbypasser = {
-	  url = "https://adsbypasser.github.io/releases/adsbypasser.full.es7.user.js";
-	  flake = false;
-	};
-	torrent_1337 = {
-	  url = "https://update.greasyfork.org/scripts/33379/1337x%20-%20Torrent%20page%20improvements.user.js";
-	  flake = false;
-	};
-	bypass_all = {
-	  url = "https://codeberg.org/Amm0ni4/bypass-all-shortlinks-debloated/raw/branch/main/Bypass_All_Shortlinks.user.js";
-	  flake = false;
-	};
-	dns-block = {
-	  url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/ultimate-compressed.txt";
-	  flake = false;
-	};
-	dns-tif = {
-	  url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/tif-compressed.txt";
-	  flake = false;
-	};
-	dns-bpc = {
-	  url = "https://gitflic.ru/project/magnolia1234/bypass-paywalls-clean-filters/blob/raw?file=bpc-paywall-filter.txt";
-	  flake = false;
-	};
+    dns-block = {
+      url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/ultimate-compressed.txt";
+      flake = false;
+    };
+    dns-tif = {
+      url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/tif-compressed.txt";
+      flake = false;
+    };
+    dns-bpc = {
+      url = "https://gitflic.ru/project/magnolia1234/bypass-paywalls-clean-filters/blob/raw?file=bpc-paywall-filter.txt";
+      flake = false;
+    };
+
   };
 
   outputs =
-    { nixpkgs, home-manager, nix-index-database, stylix, noctalia, quickshell, ... }@inputs:
+    { nixpkgs, home-manager, nix-index-database, stylix, ... }@inputs:
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.x86_64-linux;
@@ -125,7 +88,7 @@
               inputs.home-manager.nixosModules.home-manager
               nix-index-database.nixosModules.nix-index
 		      stylix.nixosModules.stylix
-              ];
+            ];
             specialArgs = {
 			  inherit inputs system;
               vars = hostVars.gdk;

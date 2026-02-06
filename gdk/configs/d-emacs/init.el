@@ -36,6 +36,7 @@
  standard-indent 4)
 (global-so-long-mode 1)
 (with-current-buffer "*scratch*" (emacs-lock-mode 'kill))
+(modify-all-frames-parameters '((alpha-background . 90)))
 
 (setopt
  kill-ring-max 30000
@@ -368,6 +369,7 @@
   :custom
   (flycheck-check-syntax-automatically '(save idle-change mode-enabled))
   (flycheck-idle-change-delay 3)
+  (flycheck-checker-error-threshold 5000)
   (flycheck-emacs-lisp-load-path 'inherit)
   (flycheck-buffer-switch-check-intermediate-buffers t)
   (flycheck-display-errors-delay 0.25))
@@ -412,6 +414,9 @@
   :config
   (fset #'jsonrpc--log-event #'ignore)
   (add-to-list 'eglot-server-programs '(nix-mode . ("nixd")))
+  (add-to-list 'eglot-server-programs '(markdown-mode . ("harper-ls" "--stdio")))
+  (add-to-list 'eglot-server-programs '(org-mode . ("harper-ls" "--stdio")))
+  (add-to-list 'eglot-server-programs '(text-mode . ("harper-ls" "--stdio")))
   ;;   (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
   ;;   (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
   )
@@ -1038,7 +1043,7 @@ images."
                ))
 
   :custom
-  (org-ellipsis " ...")
+  (org-ellipsis " [...]")
   (org-use-sub-superscripts '{})
   (org-log-done 'note) (orgl-log-reschedule 'note)
   (org-log-into-drawer t)
@@ -1205,7 +1210,38 @@ absolute path. Finally load eglot."
                ("C-c q v" . org-ql-view))) )
 
 (use-package org-super-agenda :after org
-  :hook (org-agenda-mode . org-super-agenda-mode))
+  :hook (org-agenda-mode . org-super-agenda-mode)
+  :custom
+  (org-super-agenda-hide-empty-groups t)
+  (org-super-agenda-header-separator
+   (concat (make-string 120 ?─) "\n\n"))
+  (org-agenda-block-separator ?─)
+  (org-super-agenda-groups
+   '(
+     (:name "🚨 FOSS ASAP" :and (:todo ("TODO" "ONGO") :time-grid t :regexp "\\<foss@") :order 0)
+
+     (:name "💼 FOSS Work" :and (:todo ("TODO" "ONGO") :regexp "\\<foss@") :order 1)
+
+     (:name "📌 FOSS Meetings / Reports"
+            :tag ("foss@meeting" "foss@report"
+                  "foss@log" "foss@checkin"
+                  "foss@talk")
+            :order 2)
+
+     (:name "🚨 ASAP Tasks" :and (:todo ("TODO" "ONGO") :tag "t@asap") :order 3)
+
+     (:name "🎓 Learning Now" :and (:todo ("TODO" "ONGO") :tag ("l@" "msc@")) :order 4)
+
+     (:name "⏳ Waiting" :todo "WAIT" :order 20)
+
+     (:name "📖 Reading" :tag ("t@read" "r@article" "r@book" "b@article" "b@res") :order 5)
+
+     (:name "🏠 Personal & Home" :tag ("h@grocery" "h@bill" "h@plan" "w@birthday" "w@anniversary") :order 6)
+
+     (:name "💪 Health & Fitness" :tag ("g@workout" "g@food") :order 7)
+
+     (:name "💤 Someday / Skipped" :todo "SKIP" :order 21)
+     )))
 
 (use-package org-super-links :unless d/on-droid :after org
   :bind ((:map org-mode-map

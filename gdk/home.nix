@@ -153,6 +153,9 @@
 	      mouse = {
 	        hide-when-typing = "yes";
 	      };
+	      colors = {
+	        alpha = "0.9";
+	      };
 	    };
 	  };
 	}
@@ -277,128 +280,7 @@
 	    enable = true;
 	    profiles.ihome = {
 	      extraConfig = ''
-	         // ~/.librewolf/ihome/user.js
-	        // userchrome.css usercontent.css activate
-	        user_pref("sidebar.animation.expand-on-hover.duration-ms", "50");
-	        user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
 	        
-	        // firefox sync
-	        user_pref("identity.fxaccounts.enabled", true);
-	        
-	        // Fill SVG Color
-	        user_pref("svg.context-properties.content.enabled", true);
-	        
-	        // CSS's `:has()` selector
-	        user_pref("layout.css.has-selector.enabled", true);
-	        
-	        // Integrated calculator at urlbar
-	        user_pref("browser.urlbar.suggest.calculator", true);
-	        
-	        // Integrated unit convertor at urlbar
-	        user_pref("browser.urlbar.unitConversion.enabled", true);
-	        user_pref("browser.tabs.insertAfterCurrent", true);
-	        
-	        // Trim  URL
-	        user_pref("browser.urlbar.trimHttps", true);
-	        user_pref("browser.urlbar.trimURLs", true);
-	        
-	        // GTK rounded corners
-	        user_pref("widget.gtk.rounded-bottom-corners.enabled", true);
-	        
-	        // Who is bogus? (fixes Sidebery tab dragging on Linux)
-	        user_pref("widget.gtk.ignore-bogus-leave-notify", 1);
-	        
-	        // for librewolf
-	        user_pref("privacy.clearOnShutdown.history", false);
-	        user_pref("privacy.clearOnShutdown.sessions", false);
-	        user_pref("privacy.clearOnShutdown_v2.cookiesAndStorage", false);
-	        user_pref("privacy.clearOnShutdown_v2.cache", false);
-	        user_pref("privacy.clearOnShutdown.downloads", false);
-	        
-	         //user_pref("pdfjs.forcePageColors", true);
-	         //user_pref("pdfjs.pageColorsBackground", "#000000");
-	         //user_pref("pdfjs.pageColorsForeground", "#ffffff");
-	        
-	        user_pref("layout.css.grid-template-masonry-value.enabled", true);
-	        user_pref("dom.enable_web_task_scheduling", true);
-	        
-	        // Better fox
-	        user_pref("urlclassifier.trackingSkipURLs", "*.reddit.com, *.twitter.com, *.twimg.com");
-	        user_pref("urlclassifier.features.socialtracking.skipURLs", "*.instagram.com, *.twitter.com, *.twimg.com");
-	        
-	        /** OCSP & CERTS / HPKP ***/
-	        // Use CRLite instead of OCSP
-	        user_pref("security.OCSP.enabled", 0);
-	        user_pref("security.OCSP.require", false);
-	        user_pref("security.pki.crlite_mode", 2);
-	        
-	        /** RFP ***/
-	        // Limits refresh rate to 60mHz, breaks timezone, and forced light theme
-	        // [1] https://librewolf.net/docs/faq/#what-are-the-most-common-downsides-of-rfp-resist-fingerprinting
-	        user_pref("privacy.resistFingerprinting", false);
-	        
-	        // WebGL
-	        // Breaks Map sites, NYT articles, Nat Geo, and more
-	        // [1] https://manu.ninja/25-real-world-applications-using-webgl/
-	        user_pref("webgl.disabled", false);
-	        user_pref("gfx.webrender.all", true);
-	        
-	        // DRM
-	        // Netflix, Udemy, Spotify, etc.
-	        user_pref("media.eme.enabled", true);
-	        
-	        /** HTTPS-ONLY MODE ***/
-	        user_pref("dom.security.https_only_mode_error_page_user_suggestions", true);
-	        
-	        /** PASSWORDS AND AUTOFILL ***/
-	        user_pref("signon.generation.enabled", false);
-	        
-	        /** WEBRTC ***/
-	        // Breaks video conferencing
-	        user_pref("media.peerconnection.ice.no_host", false);
-	        
-	        /** PERMISSIONS ***/
-	        user_pref("permissions.default.geo", 2);
-	        user_pref("permissions.default.desktop-notification", 2);
-	        user_pref("dom.push.enabled", false);
-	        
-	        /****************************************************************************
-	         * SECTION: PESKYFOX                                                        *
-	        ****************************************************************************/
-	        /** MOZILLA UI ***/
-	        user_pref("layout.css.prefers-color-scheme.content-override", 2);
-	        user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
-	        user_pref("browser.compactmode.show", true);
-	        
-	        /** FULLSCREEN ***/
-	        user_pref("full-screen-api.transition-duration.enter", "0 0");
-	        user_pref("full-screen-api.transition-duration.leave", "0 0");
-	        user_pref("full-screen-api.warning.delay", 0);
-	        user_pref("full-screen-api.warning.timeout", 0);
-	        
-	        /** URL BAR ***/
-	        user_pref("browser.urlbar.suggest.engines", false);
-	        user_pref("browser.urlbar.suggest.topsites", false);
-	        user_pref("browser.urlbar.suggest.calculator", true);
-	        user_pref("browser.urlbar.unitConversion.enabled", true);
-	        
-	        /** AUTOPLAY ***/
-	        // Default breaks some video players
-	        user_pref("media.autoplay.blocking_policy", 0);
-	        
-	        /** PASSWORDS ***/
-	        user_pref("editor.truncate_user_pastes", false);
-	        
-	        /** DOWNLOADS ***/
-	        user_pref("browser.download.autohideButton", true);
-	        
-	        /** PDF ***/
-	        user_pref("browser.download.open_pdf_attachments_inline", true);
-	        
-	        /** TAB BEHAVIOR ***/
-	        user_pref("browser.tabs.loadBookmarksInTabs", true);
-	        user_pref("browser.bookmarks.openInTabClosesMenu", false);
-	        user_pref("findbar.highlightAll", true);
 	      '';
 	    };
 	  };
@@ -537,21 +419,32 @@
 	  };
 	}
 	
+	inputs.mango.hmModules.mango
+	  {
+	    wayland.windowManager.mango = {
+	      enable = true;
+	      systemd = {
+	        enable = true;
+	        xdgAutostart = true;
+	      };
+	    };
+	  }
 	{
 	  home.packages = with pkgs; [
 	    # screenshot
-	    grim slurp nautilus
+	    grim slurp
 		libreoffice-fresh
 	
 	    libnotify libsixel
 	    brightnessctl
 	    wtype gtk3
-	    swaybg swayimg swayidle wlsunset
+	    swaybg swayimg wlsunset
+	    hyprshot gpu-screen-recorder noctalia-shell vicinae
 	
-	    wl-screenrec wl-mirror
+	    wl-screenrec wl-mirror wlr-randr
 	    wl-clipboard-rs xwayland-satellite
 	    mupdf poppler-utils ghostscript # for doc-view
-	    uv prettier
+	    uv prettier ruff
 	
 	    pavucontrol pulsemixer playerctl
 	    transmission_4-gtk
@@ -562,9 +455,10 @@
 	{
 	  services.hypridle = let
 	    hyprlock = lib.getExe pkgs.hyprlock;
-		noctalia = lib.getExe inputs.noctalia.packages.x86_64-linux.default;
+		noctalia = lib.getExe pkgs.noctalia-shell;
 	    brightness = lib.getExe pkgs.brightnessctl;
 	    niri = lib.getExe pkgs.niri;
+	    mmsg = lib.getExe' inputs.mango.packages.x86_64-linux.mango "mmsg";
 	    timeout = 200; # base timer to act upon
 	    in {
 	    enable = true;
@@ -572,7 +466,6 @@
 	      general = {
 	        lock_cmd = "${noctalia} ipc call lockScreen lock";
 	        before_sleep_cmd = "${pkgs.systemd}/bin/loginctl lock-session";
-	        unlock_cmd = "notify-send 'Welcome back!'";
 	      };
 	
 	      listener = [
@@ -587,8 +480,8 @@
 	        }
 	        {
 	          timeout = timeout + 10;
-	          on-timeout = "${niri} msg action power-off-monitors";
-	          on-resume = "${niri} msg action power-on-monitors";
+	          on-timeout = "${niri} msg action power-off-monitors || ${mmsg} -d disable_monitor";
+	          on-resume = "${niri} msg action power-on-monitors || ${mmsg} -d enable_monitor";
 	        }
 	        {
 	          timeout = timeout * 5;
@@ -602,7 +495,7 @@
 	  stylix = {
 	    enable = true;
 	
-	    iconTheme = { # watch out soon stylix might implement this
+	    icons = { # watch out soon stylix might implement this
 	      enable = true;
 	      dark = "Papirus-Dark";
 	      package = pkgs.papirus-icon-theme;
@@ -615,35 +508,6 @@
 	            @define-color light_1 #ffffff;
 	            @define-color dark_5 #000000;
 	      '';
-	    };
-	  };
-	}
-	{
-	  programs.vicinae = {
-	    enable = true;
-	    systemd.enable = true;
-	    settings = {
-	      pop_to_root_on_close = false;
-	      close_on_focus_loss = true;
-	      font.normal.size = 12;
-	      keybinding = "emacs";
-	      keybinds = {
-	        "action.open" = "alt+O";
-	        "open-settings" = "control+;";
-	        "toggle-action-panel" = "control+.";
-	      };
-	      theme.dark = {
-	        "icon_theme" = "auto";
-	        "name" = lib.mkForce "noctalia";
-	      };
-	      launcher_window = {
-	        "client_side_decorations".enabled = true;
-	        layer_shell.layer = "overlay";
-	      };
-		  favorites = [ "system:run" "clipboard:history"
-	      "@destiner/662c8adc-5711-465d-89c0-3488c1dc6e59:view-icons"
-	      "applications:emacsclient"
-	      ];
 	    };
 	  };
 	}
@@ -871,7 +735,7 @@
 		};
 	  };
 	}
-	{ home.packages = with pkgs; [ libnotify nemo pandoc groff mupdf keepassxc easyeffects jaq
+	{ home.packages = with pkgs; [ libnotify nautilus pandoc groff mupdf keepassxc easyeffects jaq
 	  #libreoffice-fresh
 	]; }
 	{

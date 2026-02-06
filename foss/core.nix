@@ -46,8 +46,8 @@
       ];
   
     boot.initrd.availableKernelModules = [ "xhci_pci" "thunderbolt" "vmd" "nvme" "usbhid" "usb_storage" "sd_mod" ];
-    boot.kernelModules = [ "kvm-intel" ];
-    boot.extraModulePackages = [ ];
+    boot.kernelModules = [ "kvm-intel" "i2c-dev" "ddcci_backlight" ];
+    boot.extraModulePackages = [ config.boot.kernelPackages.ddcci-driver ];
     boot.initrd.kernelModules = [ "dm-snapshot" ];
   
     fileSystems."/" = {
@@ -91,7 +91,7 @@
     users.users.${vars.username} = {
       isNormalUser = true;
       shell = pkgs.fish;
-      extraGroups = ["adbusers" "input" "uinput" "libvirtd" "networkmanager" "plugdev" "transmission" "video" "wheel" "docker"];
+      extraGroups = ["adbusers" "input" "uinput" "libvirtd" "networkmanager" "plugdev" "transmission" "video" "wheel" "docker" "i2c"];
     };
   }
   { zramSwap.enable = true; }
@@ -208,8 +208,6 @@
       };
       atd.enable = true; # reminder tool, like @ 2:30 | exec this
     };
-    programs.adb.enable = true; # help manage android devices via command#  line
-  
   }
   { # For android file transfer via usb, or better could use KDE connect
     services.gvfs.enable = true;
@@ -312,6 +310,7 @@
   {
     hardware = {
       uinput.enable = true;
+      i2c.enable = true;
       graphics = {
         enable = true;
         enable32Bit = true;
@@ -383,6 +382,9 @@
     programs.hyprlock.enable = true; # for pam auth config
   }
   {
+    programs.mango.enable = true;
+  }
+  {
     fonts = {
       packages = with pkgs; [
         noto-fonts noto-fonts-color-emoji
@@ -445,12 +447,6 @@
       };
     };
   
-  }
-  inputs.noctalia.nixosModules.default
-  {
-    services.noctalia-shell = {
-      enable = true;
-    };
   }
   {
     boot.initrd.luks.devices.cryptroot.device = "/dev/disk/by-uuid/ad2f4bf9-01eb-4c84-9a94-ba122aee88df";

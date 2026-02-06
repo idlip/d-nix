@@ -88,26 +88,28 @@ Emacs configuration is crafted slowly by learning from all users in community. E
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
-  	quickshell = {
-        url = "github:outfoxxed/quickshell";
-        inputs.nixpkgs.follows = "nixpkgs";
-      };
-
-  	noctalia = {
-        url = "github:noctalia-dev/noctalia-shell";
-        inputs.nixpkgs.follows = "nixpkgs";
-      };
-
       mango = {
         url = "github:DreamMaoMao/mango";
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
-  	<<flake-files>>
+      dns-block = {
+        url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/ultimate-compressed.txt";
+        flake = false;
+      };
+      dns-tif = {
+        url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/tif-compressed.txt";
+        flake = false;
+      };
+      dns-bpc = {
+        url = "https://gitflic.ru/project/magnolia1234/bypass-paywalls-clean-filters/blob/raw?file=bpc-paywall-filter.txt";
+        flake = false;
+      };
+
     };
 
     outputs =
-      { nixpkgs, home-manager, nix-index-database, stylix, noctalia, quickshell, ... }@inputs:
+      { nixpkgs, home-manager, nix-index-database, stylix, ... }@inputs:
       let
         system = "x86_64-linux";
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
@@ -143,7 +145,7 @@ Emacs configuration is crafted slowly by learning from all users in community. E
                 inputs.home-manager.nixosModules.home-manager
                 nix-index-database.nixosModules.nix-index
   		      stylix.nixosModules.stylix
-                ];
+              ];
               specialArgs = {
   			  inherit inputs system;
                 vars = hostVars.gdk;
@@ -289,55 +291,6 @@ Emacs configuration is crafted slowly by learning from all users in community. E
 
   #+end_src
 
-** Hosts & FIles in flakes
-:PROPERTIES:
-:header-args: :noweb-ref flake-files
-:END:
-
-#+begin_src nix
-  youtube_adblock = {
-    url = "https://raw.githubusercontent.com/afreakk/greasemonkeyscripts/refs/heads/master/youtube_adblock.js";
-    flake = false;
-  };
-  reddit_adblock = {
-    url = "https://raw.githubusercontent.com/afreakk/greasemonkeyscripts/refs/heads/master/reddit_adblock.js";
-    flake = false;
-  };
-  youtube_sponsorblock = {
-    url = "https://raw.githubusercontent.com/afreakk/greasemonkeyscripts/refs/heads/master/youtube_sponsorblock.js";
-    flake = false;
-  };
-  html_player = {
-    url = "https://update.greasyfork.org/scripts/30545/HTML5%E8%A7%86%E9%A2%91%E6%92%AD%E6%94%BE%E5%B7%A5%E5%85%B7.user.js";
-    flake = false;
-  };
-  adsbypasser = {
-    url = "https://adsbypasser.github.io/releases/adsbypasser.full.es7.user.js";
-    flake = false;
-  };
-  torrent_1337 = {
-    url = "https://update.greasyfork.org/scripts/33379/1337x%20-%20Torrent%20page%20improvements.user.js";
-    flake = false;
-  };
-  bypass_all = {
-    url = "https://codeberg.org/Amm0ni4/bypass-all-shortlinks-debloated/raw/branch/main/Bypass_All_Shortlinks.user.js";
-    flake = false;
-  };
-  dns-block = {
-    url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/ultimate-compressed.txt";
-    flake = false;
-  };
-  dns-tif = {
-    url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/tif-compressed.txt";
-    flake = false;
-  };
-  dns-bpc = {
-    url = "https://gitflic.ru/project/magnolia1234/bypass-paywalls-clean-filters/blob/raw?file=bpc-paywall-filter.txt";
-    flake = false;
-  };
-#+end_src
-
-
 * Nixos
 :PROPERTIES:
 :header-args: :noweb-ref os-nixos
@@ -383,8 +336,8 @@ Emacs configuration is crafted slowly by learning from all users in community. E
         ];
 
       boot.initrd.availableKernelModules = [ "xhci_pci" "thunderbolt" "vmd" "nvme" "usbhid" "usb_storage" "sd_mod" ];
-      boot.kernelModules = [ "kvm-intel" ];
-      boot.extraModulePackages = [ ];
+      boot.kernelModules = [ "kvm-intel" "i2c-dev" "ddcci_backlight" ];
+      boot.extraModulePackages = [ config.boot.kernelPackages.ddcci-driver ];
       boot.initrd.kernelModules = [ "dm-snapshot" ];
 
       fileSystems."/" = {
@@ -460,7 +413,7 @@ Emacs configuration is crafted slowly by learning from all users in community. E
       users.users.${vars.username} = {
         isNormalUser = true;
         shell = pkgs.fish;
-        extraGroups = ["adbusers" "input" "uinput" "libvirtd" "networkmanager" "plugdev" "transmission" "video" "wheel" "docker"];
+        extraGroups = ["adbusers" "input" "uinput" "libvirtd" "networkmanager" "plugdev" "transmission" "video" "wheel" "docker" "i2c"];
       };
     }
   #+end_src
@@ -631,8 +584,6 @@ Emacs configuration is crafted slowly by learning from all users in community. E
         };
         atd.enable = true; # reminder tool, like @ 2:30 | exec this
       };
-      programs.adb.enable = true; # help manage android devices via command#  line
-
     }
   #+end_src
 
@@ -830,6 +781,7 @@ Emacs configuration is crafted slowly by learning from all users in community. E
     {
       hardware = {
         uinput.enable = true;
+        i2c.enable = true;
         graphics = {
           enable = true;
           enable32Bit = true;
@@ -970,7 +922,14 @@ Pipewire setup, just these lines enough to make sane default for it
   #+end_src
 
 
-*** COMMENT mangowc
+*** mangowc
+- The module takes care of adding xdg portal config and other dbus. We need to add some dbus activation for wlr to start properly. (as niri/sway does)
+
+  #+begin_src conf :noweb-ref mango-init
+    exec-once=dbus-update-activation-environment --systemd WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP PATH
+    exec-once=systemctl --user import-environment WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP PATH
+    exec-once=systemctl --user start mango-session.target
+  #+end_src
 
 #+begin_src nix
   {
@@ -1052,547 +1011,6 @@ Pipewire setup, just these lines enough to make sane default for it
 
     }
   #+end_src
-
-** Noctalia
-- Quickshell to make WM as desktop environment
-
-  #+begin_src nix
-    inputs.noctalia.nixosModules.default
-    {
-      services.noctalia-shell = {
-        enable = true;
-      };
-    }
-  #+end_src
-
-*** Noctalia settings
-
-#+begin_src json-ts :noweb-ref noctalia :tangle ~/.config/noctalia/settings.json 
-  {
-    "appLauncher": {
-      "customLaunchPrefix": "",
-      "customLaunchPrefixEnabled": false,
-      "enableClipPreview": true,
-      "enableClipboardHistory": false,
-      "iconMode": "tabler",
-      "ignoreMouseInput": false,
-      "pinnedExecs": [
-      ],
-      "position": "center",
-      "showCategories": true,
-      "sortByMostUsed": true,
-      "terminalCommand": "xterm -e",
-      "useApp2Unit": false,
-      "viewMode": "list"
-    },
-    "audio": {
-      "cavaFrameRate": 30,
-      "externalMixer": "pwvucontrol || pavucontrol",
-      "mprisBlacklist": [
-      ],
-      "preferredPlayer": "",
-      "visualizerType": "linear",
-      "volumeOverdrive": true,
-      "volumeStep": 5
-    },
-    "bar": {
-      "backgroundOpacity": 0.85,
-      "capsuleOpacity": 1,
-      "density": "default",
-      "exclusive": true,
-      "floating": false,
-      "marginHorizontal": 0.25,
-      "marginVertical": 0.25,
-      "monitors": [
-      ],
-      "outerCorners": true,
-      "position": "top",
-      "showCapsule": false,
-      "showOutline": false,
-      "useSeparateOpacity": false,
-      "widgets": {
-        "center": [
-          {
-            "customFont": "",
-            "formatHorizontal": "HH:mm ddd, MMM dd",
-            "formatVertical": "HH mm - dd MM",
-            "id": "Clock",
-            "tooltipFormat": "HH:mm ddd, MMM dd",
-            "useCustomFont": false,
-            "usePrimaryColor": true
-          },
-          {
-            "characterCount": 2,
-            "colorizeIcons": false,
-            "enableScrollWheel": true,
-            "followFocusedScreen": false,
-            "groupedBorderOpacity": 1,
-            "hideUnoccupied": false,
-            "iconScale": 0.8,
-            "id": "Workspace",
-            "labelMode": "none",
-            "showApplications": false,
-            "showLabelsOnlyWhenOccupied": true,
-            "unfocusedIconsOpacity": 1
-          }
-        ],
-        "left": [
-          {
-            "compactMode": false,
-            "diskPath": "/",
-            "id": "SystemMonitor",
-            "showCpuTemp": true,
-            "showCpuUsage": true,
-            "showDiskUsage": false,
-            "showGpuTemp": false,
-            "showMemoryAsPercent": true,
-            "showMemoryUsage": true,
-            "showNetworkStats": true,
-            "useMonospaceFont": false,
-            "usePrimaryColor": false
-          },
-          {
-            "hideMode": "idle",
-            "hideWhenIdle": false,
-            "id": "MediaMini",
-            "maxWidth": 145,
-            "scrollingMode": "hover",
-            "showAlbumArt": true,
-            "showArtistFirst": true,
-            "showProgressRing": true,
-            "showVisualizer": true,
-            "useFixedWidth": false,
-            "visualizerType": "linear"
-          }
-        ],
-        "right": [
-          {
-            "id": "ScreenRecorder"
-          },
-          {
-            "blacklist": [
-            ],
-            "colorizeIcons": false,
-            "drawerEnabled": true,
-            "hidePassive": false,
-            "id": "Tray",
-            "pinned": [
-            ]
-          },
-          {
-            "hideWhenZero": true,
-            "id": "NotificationHistory",
-            "showUnreadBadge": true
-          },
-          {
-            "displayMode": "onhover",
-            "id": "WiFi"
-          },
-          {
-            "deviceNativePath": "",
-            "displayMode": "alwaysShow",
-            "hideIfNotDetected": true,
-            "id": "Battery",
-            "showNoctaliaPerformance": false,
-            "showPowerProfiles": false,
-            "warningThreshold": 40
-          },
-          {
-            "displayMode": "onhover",
-            "id": "Volume"
-          },
-          {
-            "displayMode": "onhover",
-            "id": "Brightness"
-          },
-          {
-            "colorizeDistroLogo": false,
-            "colorizeSystemIcon": "none",
-            "customIconPath": "",
-            "enableColorization": false,
-            "icon": "",
-            "id": "ControlCenter",
-            "useDistroLogo": true
-          }
-        ]
-      }
-    },
-    "brightness": {
-      "brightnessStep": 5,
-      "enableDdcSupport": false,
-      "enforceMinimum": true
-    },
-    "calendar": {
-      "cards": [
-        {
-          "enabled": true,
-          "id": "calendar-header-card"
-        },
-        {
-          "enabled": true,
-          "id": "calendar-month-card"
-        },
-        {
-          "enabled": true,
-          "id": "timer-card"
-        },
-        {
-          "enabled": true,
-          "id": "weather-card"
-        }
-      ]
-    },
-    "colorSchemes": {
-      "darkMode": true,
-      "generateTemplatesForPredefined": true,
-      "manualSunrise": "06:30",
-      "manualSunset": "18:30",
-      "matugenSchemeType": "scheme-fruit-salad",
-      "predefinedScheme": "Ayu",
-      "schedulingMode": "off",
-      "useWallpaperColors": true
-    },
-    "controlCenter": {
-      "cards": [
-        {
-          "enabled": true,
-          "id": "profile-card"
-        },
-        {
-          "enabled": true,
-          "id": "shortcuts-card"
-        },
-        {
-          "enabled": true,
-          "id": "audio-card"
-        },
-        {
-          "enabled": true,
-          "id": "weather-card"
-        },
-        {
-          "enabled": true,
-          "id": "media-sysmon-card"
-        },
-        {
-          "enabled": false,
-          "id": "brightness-card"
-        }
-      ],
-      "position": "close_to_bar_button",
-      "shortcuts": {
-        "left": [
-          {
-            "id": "WiFi"
-          },
-          {
-            "id": "Bluetooth"
-          },
-          {
-            "id": "ScreenRecorder"
-          },
-          {
-            "id": "WallpaperSelector"
-          }
-        ],
-        "right": [
-          {
-            "id": "Notifications"
-          },
-          {
-            "id": "PowerProfile"
-          },
-          {
-            "id": "KeepAwake"
-          },
-          {
-            "id": "NightLight"
-          }
-        ]
-      }
-    },
-    "desktopWidgets": {
-      "enabled": false,
-      "gridSnap": true,
-      "monitorWidgets": [
-        {
-          "name": "eDP-1",
-          "widgets": [
-          ]
-        }
-      ]
-    },
-    "dock": {
-      "animationSpeed": 1,
-      "backgroundOpacity": 1,
-      "colorizeIcons": false,
-      "deadOpacity": 0.6,
-      "displayMode": "always_visible",
-      "enabled": false,
-      "floatingRatio": 1,
-      "inactiveIndicators": false,
-      "monitors": [
-      ],
-      "onlySameOutput": true,
-      "pinnedApps": [
-      ],
-      "pinnedStatic": false,
-      "size": 1
-    },
-    "general": {
-      "allowPanelsOnScreenWithoutBar": true,
-      "animationDisabled": false,
-      "animationSpeed": 1,
-      "avatarImage": "/home/dev/media/pics/wp6489081-anime-ps4-luffy-wallpapers.jpg",
-      "boxRadiusRatio": 1,
-      "compactLockScreen": false,
-      "dimmerOpacity": 0,
-      "enableShadows": false,
-      "forceBlackScreenCorners": false,
-      "iRadiusRatio": 1,
-      "language": "",
-      "lockOnSuspend": true,
-      "radiusRatio": 1,
-      "scaleRatio": 1,
-      "screenRadiusRatio": 1,
-      "shadowDirection": "bottom_right",
-      "shadowOffsetX": 2,
-      "shadowOffsetY": 3,
-      "showHibernateOnLockScreen": false,
-      "showScreenCorners": false,
-      "showSessionButtonsOnLockScreen": true
-    },
-    "hooks": {
-      "darkModeChange": "",
-      "enabled": false,
-      "performanceModeDisabled": "",
-      "performanceModeEnabled": "",
-      "screenLock": "",
-      "screenUnlock": "",
-      "wallpaperChange": ""
-    },
-    "location": {
-      "analogClockInCalendar": false,
-      "firstDayOfWeek": -1,
-      "name": "Bengaluru",
-      "showCalendarEvents": true,
-      "showCalendarWeather": true,
-      "showWeekNumberInCalendar": false,
-      "use12hourFormat": false,
-      "useFahrenheit": false,
-      "weatherEnabled": true,
-      "weatherShowEffects": true
-    },
-    "network": {
-      "wifiEnabled": true
-    },
-    "nightLight": {
-      "autoSchedule": true,
-      "dayTemp": "6500",
-      "enabled": true,
-      "forced": false,
-      "manualSunrise": "06:30",
-      "manualSunset": "18:30",
-      "nightTemp": "4000"
-    },
-    "notifications": {
-      "backgroundOpacity": 1,
-      "criticalUrgencyDuration": 30,
-      "enableKeyboardLayoutToast": true,
-      "enabled": true,
-      "location": "top_right",
-      "lowUrgencyDuration": 6,
-      "monitors": [
-      ],
-      "normalUrgencyDuration": 15,
-      "overlayLayer": true,
-      "respectExpireTimeout": true,
-      "saveToHistory": {
-        "critical": true,
-        "low": true,
-        "normal": true
-      },
-      "sounds": {
-        "criticalSoundFile": "",
-        "enabled": false,
-        "excludedApps": "discord,firefox,chrome,chromium,edge",
-        "lowSoundFile": "",
-        "normalSoundFile": "",
-        "separateSounds": false,
-        "volume": 0.5
-      }
-    },
-    "osd": {
-      "autoHideMs": 2000,
-      "backgroundOpacity": 1,
-      "enabled": true,
-      "enabledTypes": [
-        0,
-        1,
-        2
-      ],
-      "location": "top_right",
-      "monitors": [
-      ],
-      "overlayLayer": true
-    },
-    "screenRecorder": {
-      "audioCodec": "opus",
-      "audioSource": "default_output",
-      "colorRange": "limited",
-      "copyToClipboard": true,
-      "directory": "/home/dev/media/stream",
-      "frameRate": 60,
-      "quality": "very_high",
-      "showCursor": true,
-      "videoCodec": "h264",
-      "videoSource": "portal"
-    },
-    "sessionMenu": {
-      "countdownDuration": 10000,
-      "enableCountdown": true,
-      "largeButtonsStyle": false,
-      "position": "center",
-      "powerOptions": [
-        {
-          "action": "lock",
-          "command": "",
-          "countdownEnabled": true,
-          "enabled": true
-        },
-        {
-          "action": "suspend",
-          "command": "",
-          "countdownEnabled": true,
-          "enabled": true
-        },
-        {
-          "action": "hibernate",
-          "command": "",
-          "countdownEnabled": true,
-          "enabled": true
-        },
-        {
-          "action": "reboot",
-          "command": "",
-          "countdownEnabled": true,
-          "enabled": true
-        },
-        {
-          "action": "logout",
-          "command": "",
-          "countdownEnabled": true,
-          "enabled": true
-        },
-        {
-          "action": "shutdown",
-          "command": "",
-          "countdownEnabled": true,
-          "enabled": true
-        }
-      ],
-      "showHeader": true,
-      "showNumberLabels": true
-    },
-    "settingsVersion": 35,
-    "systemMonitor": {
-      "cpuCriticalThreshold": 90,
-      "cpuPollingInterval": 3000,
-      "cpuWarningThreshold": 70,
-      "criticalColor": "",
-      "diskCriticalThreshold": 90,
-      "diskPath": "/",
-      "diskPollingInterval": 3000,
-      "diskWarningThreshold": 80,
-      "enableDgpuMonitoring": false,
-      "externalMonitor": "resources || missioncenter || jdsystemmonitor || corestats || system-monitoring-center || gnome-system-monitor || plasma-systemmonitor || mate-system-monitor || ukui-system-monitor || deepin-system-monitor || pantheon-system-monitor",
-      "gpuCriticalThreshold": 90,
-      "gpuPollingInterval": 3000,
-      "gpuWarningThreshold": 80,
-      "memCriticalThreshold": 90,
-      "memPollingInterval": 3000,
-      "memWarningThreshold": 70,
-      "networkPollingInterval": 3000,
-      "tempCriticalThreshold": 90,
-      "tempPollingInterval": 3000,
-      "tempWarningThreshold": 80,
-      "useCustomColors": false,
-      "warningColor": ""
-    },
-    "templates": {
-      "alacritty": false,
-      "cava": false,
-      "code": true,
-      "discord": false,
-      "emacs": false,
-      "enableUserTemplates": true,
-      "foot": false,
-      "fuzzel": false,
-      "ghostty": false,
-      "gtk": false,
-      "helix": false,
-      "hyprland": false,
-      "kcolorscheme": false,
-      "kitty": false,
-      "mango": true,
-      "niri": true,
-      "pywalfox": false,
-      "qt": true,
-      "spicetify": false,
-      "telegram": false,
-      "vicinae": true,
-      "walker": false,
-      "wezterm": false,
-      "yazi": false,
-      "zed": false
-    },
-    "ui": {
-      "bluetoothDetailsViewMode": "grid",
-      "bluetoothHideUnnamedDevices": false,
-      "fontDefault": "Inter",
-      "fontDefaultScale": 1.05,
-      "fontFixed": "Maple Mono NF",
-      "fontFixedScale": 1,
-      "panelBackgroundOpacity": 1,
-      "panelsAttachedToBar": false,
-      "settingsPanelMode": "window",
-      "tooltipsEnabled": true,
-      "wifiDetailsViewMode": "grid"
-    },
-    "wallpaper": {
-      "directory": "/home/dev/d-git/d-wallpapers/walls",
-      "enableMultiMonitorDirectories": false,
-      "enabled": true,
-      "fillColor": "#000000",
-      "fillMode": "crop",
-      "hideWallpaperFilenames": false,
-      "monitorDirectories": [
-      ],
-      "overviewEnabled": false,
-      "panelPosition": "follow_bar",
-      "randomEnabled": true,
-      "randomIntervalSec": 3600,
-      "recursiveSearch": true,
-      "setWallpaperOnAllMonitors": true,
-      "transitionDuration": 1500,
-      "transitionEdgeSmoothness": 0.05,
-      "transitionType": "random",
-      "useWallhaven": false,
-      "wallhavenApiKey": "",
-      "wallhavenCategories": "111",
-      "wallhavenOrder": "desc",
-      "wallhavenPurity": "100",
-      "wallhavenQuery": "",
-      "wallhavenRatios": "",
-      "wallhavenResolutionHeight": "",
-      "wallhavenResolutionMode": "atleast",
-      "wallhavenResolutionWidth": "",
-      "wallhavenSorting": "relevance",
-      "wallpaperChangeMode": "random"
-    }
-  }
-#+end_src
-
 
 * HomeManager
 :PROPERTIES:
@@ -1867,6 +1285,9 @@ Pipewire setup, just these lines enough to make sane default for it
           mouse = {
             hide-when-typing = "yes";
           };
+          colors = {
+            alpha = "0.9";
+          };
         };
       };
     }
@@ -2027,7 +1448,7 @@ Pipewire setup, just these lines enough to make sane default for it
     }:
     stdenv.mkDerivation (finalAttrs: {
       pname = "glide-browser";
-      version = "0.1.57a";
+      version = "0.1.58a";
 
       src = fetchurl {
         url = "https://github.com/glide-browser/glide/releases/download/${finalAttrs.version}/glide.linux-x86_64.tar.xz";
@@ -2106,13 +1527,13 @@ Pipewire setup, just these lines enough to make sane default for it
       '';
 
       # WebGL/Graphics settings via environment variables
-      shellHook = ''
-        export MOZ_DISABLE_RDD_SANDBOX=1  # Disable RDD sandbox to prevent WebGL issues
-        export MOZ_WEBRENDER=1  # Enable WebRender for GPU acceleration
-        export MOZ_ACCELERATED=1  # Enable hardware acceleration for WebGL
-        export WebglAllowWindowsNativeGl=true  # Allow native GL for WebGL
-        export AllowWebgl2=true  # Enable WebGL2 support
-      '';
+      # shellHook = ''
+      #   export MOZ_DISABLE_RDD_SANDBOX=1  # Disable RDD sandbox to prevent WebGL issues
+      #   export MOZ_WEBRENDER=1  # Enable WebRender for GPU acceleration
+      #   export MOZ_ACCELERATED=1  # Enable hardware acceleration for WebGL
+      #   export WebglAllowWindowsNativeGl=true  # Allow native GL for WebGL
+      #   export AllowWebgl2=true  # Enable WebGL2 support
+      # '';
 
       desktopItems = [
         (makeDesktopItem {
@@ -2165,406 +1586,37 @@ Pipewire setup, just these lines enough to make sane default for it
   // Config docs: https://glide-browser.app/config
   // API reference: ~/.config/glide/glide.d.ts
 
-  const myAddons = [
+  // ============================================================================
+  // CONSTANTS & CONFIG
+  // ============================================================================
+
+  const ADDONS = [
     "https://addons.mozilla.org/firefox/downloads/file/4598854/ublock_origin-1.67.0.xpi",
     "https://gitflic.ru/project/magnolia1234/bpc_uploads/blob/raw?file=bypass_paywalls_clean-latest.xpi",
     "https://addons.mozilla.org/firefox/downloads/file/4432106/clearurls-1.27.3.xpi",
     "https://addons.mozilla.org/firefox/downloads/file/4598977/darkreader-4.9.112.xpi",
     "https://addons.mozilla.org/firefox/downloads/file/4583940/youtube_addon-4.1350.xpi",
-    "https://addons.mozilla.org/firefox/downloads/file/4538560/languagetool-9.0.1.xpi",
+    "https://addons.mozilla.org/firefox/downloads/file/4649158/private_grammar_checker_harper-1.3.0.xpi",
   ];
 
-  // myAddons.forEach(addon => {
-  //   glide.addons.install(addon)
-  // });
-
-  glide.styles.add(css`
-  :root {
-    --completion-color: #4dd9e5;
-    --completion-opacity: 0.7;
-  }
-
-  #glide-hints-container * {
-  text-transform: uppercase;
-  font-family: "Lilex";
-  }
-
-  [anonid="glide-commandline-completions"] .gcl-option:not(.focused):hover {
-    background: rgba(77, 217, 229, var(--completion-opacity));
-  }
-
-  [anonid="glide-commandline-completions"] .focused {
-    background: rgba(77, 217, 229, var(--completion-opacity));
-    color: black;
-  }
-  `);
-
-  // Disable default (vim) keybindings ;-}
-  const defaultKeymaps = glide.keymaps.list();
-
-  defaultKeymaps.forEach(keymap => {
-    glide.keymaps.del(keymap.mode, keymap.lhs); // Delete keymap by its mode and lhs
-  });
-
-  // Define the array of modes
-  const allModes: GlideModes[keyof GlideModes][] = [
+  const ALL_MODES: GlideModes[keyof GlideModes][] = [
     "normal",
     "insert",
     "visual",
     "ignore",
     "command",
-    "op-pending"
+    "op-pending",
   ];
 
-  glide.keymaps.set(["normal", "insert"], "<C-x>", "");
-
-  glide.o.hint_size = "18px";
-  glide.o.hint_chars = "asdfhjklnpw"; // we will use custom hint generator
-  glide.o.which_key_delay = 100;
-  glide.o.mapping_timeout = 10000;
-
-  glide.prefs.set("sidebar.animation.expand-on-hover.duration-ms", 10);
-  glide.prefs.set("toolkit.legacyUserProfileCustomizations.stylesheets", true);
-
-  glide.prefs.set("font.name.monospace.x-western", "Ioskeley Mono");
-  glide.prefs.set("font.name.sans-serif.x-western", "Inter");
-  glide.prefs.set("font.name.serif.x-western", "Inter");
-
-  // firefox sync
-  glide.prefs.set("identity.fxaccounts.enabled", true);
-
-  // Fill SVG Color
-  glide.prefs.set("svg.context-properties.content.enabled", true);
-
-  // CSS's `:has()` selector
-  glide.prefs.set("layout.css.has-selector.enabled", true);
-
-  // Integrated calculator at urlbar
-  glide.prefs.set("browser.urlbar.suggest.calculator", true);
-
-  // Integrated unit convertor at urlbar
-  glide.prefs.set("browser.urlbar.unitConversion.enabled", true);
-  glide.prefs.set("browser.tabs.insertAfterCurrent", true);
-
-  // Trim  URL
-  glide.prefs.set("browser.urlbar.trimHttps", true);
-  glide.prefs.set("browser.urlbar.trimURLs", true);
-
-  // GTK rounded corners
-  glide.prefs.set("widget.gtk.rounded-bottom-corners.enabled", true);
-
-  glide.prefs.set("layout.css.grid-template-masonry-value.enabled", true);
-  glide.prefs.set("dom.enable_web_task_scheduling", true);
-
-  glide.prefs.set("webgl.disabled", false);
-  glide.prefs.set("gfx.webrender.all", true);
-
-  glide.prefs.set("dom.security.https_only_mode_error_page_user_suggestions", true);
-
-  glide.prefs.set("signon.generation.enabled", false);
-
-  glide.prefs.set("layout.css.prefers-color-scheme.content-override", 2);
-  glide.prefs.set("browser.compactmode.show", true);
-
-  /** URL BAR ***/
-  glide.prefs.set("browser.urlbar.suggest.engines", false);
-  glide.prefs.set("browser.urlbar.suggest.topsites", false);
-  glide.prefs.set("browser.urlbar.suggest.calculator", true);
-  glide.prefs.set("browser.urlbar.unitConversion.enabled", true);
-
-  /** AUTOPLAY ***/
-  // Default breaks some video players
-  glide.prefs.set("media.autoplay.blocking_policy", 0);
-
-  /** PASSWORDS ***/
-  glide.prefs.set("editor.truncate_user_pastes", false);
-
-  /** DOWNLOADS ***/
-  glide.prefs.set("browser.download.autohideButton", true);
-
-  /** PDF ***/
-  glide.prefs.set("browser.download.open_pdf_attachments_inline", true);
-
-  /** TAB BEHAVIOR ***/
-  glide.prefs.set("browser.tabs.loadBookmarksInTabs", true);
-  glide.prefs.set("browser.bookmarks.openInTabClosesMenu", false);
-  glide.prefs.set("findbar.highlightAll", true);
-
-  glide.g.mapleader = "C-c"
-  glide.keymaps.set("normal", "<leader>r", "config_reload");
-
-  glide.keymaps.set("normal", "<leader>r", "reload");
-  glide.keymaps.set("normal", "<leader>R", "reload_hard");
-  glide.keymaps.set("normal", "<leader><leader>", "commandline_show tab ");
-  glide.keymaps.set("normal", "<C-x>b", "commandline_show tab ");
-
-  // glide.keymaps.set("normal", "<C-x><C-f>", "commandline_show tab_new ");
-  glide.keymaps.set("normal", "<C-x><C-c>", "quit");
-  // glide.keymaps.set("normal", "<C-x><C-v>", "editURL");
-
-  glide.keymaps.set("normal", "<A-<>", "scroll_top");
-  glide.keymaps.set("normal", "<A-]>", "scroll_bottom");
-  glide.keymaps.set(["normal", "insert", ], "<C-y>", () => glide.keys.send("<C-v>", { skip_mappings: true }));
-  glide.keymaps.set(["normal", "visual", ], "<A-v>", () => glide.keys.send("<pageup>", { skip_mappings: true }));
-  glide.keymaps.set(["normal", "visual", ], "<C-v>", () => glide.keys.send("<pagedown>", { skip_mappings: true }));
-
-
-  // ignore mode
-  glide.keymaps.set(["normal", "insert", "visual", "command"], "<C-g>", "mode_change ignore");
-  glide.keymaps.set(allModes, "<C-q>", );
-  glide.keymaps.set("ignore", "<C-g>", "mode_change normal");
-  glide.keymaps.set(["insert", "command", "ignore"], "<C-x><C-q>", "mode_change normal");
-  glide.keymaps.set(["visual", "normal"], "<C-x><C-q>", "mode_change insert");
-
-  // history
-  glide.keymaps.set(["normal"], "l", "back");
-  glide.keymaps.set(["normal"], "r", "forward");
-  glide.keymaps.set(["normal"], "<A-b>", "back");
-  glide.keymaps.set(["normal" ], "<A-f>", "forward");
-
-  // hint mode
-  glide.keymaps.set("normal", "f", "hint");
-  glide.keymaps.set("normal", "<C-.>", "hint");
-  glide.keymaps.set("normal", "<A-.>", "hint --action=newtab-click");
-  glide.keymaps.set("normal", "<A-;>", "hint --location=browser-ui");
-  glide.keymaps.set("hint", ["<C-g>", "<escape"], "hints_remove");
-
-  // page navigation
-  glide.keymaps.set("normal", "<C-x>i", "focusinput last");
-
-  // command mode
-  glide.keymaps.set("command", "<C-g>", "commandline_toggle");
-  glide.keymaps.set("command", "<Tab>", "commandline_focus_next");
-  glide.keymaps.set("command", "<S-Tab>", "commandline_focus_back");
-  glide.keymaps.set("command", "<C-n>", "commandline_focus_next");
-  glide.keymaps.set("command", "<C-p>", "commandline_focus_back");
-  glide.keymaps.set("command", "<Enter>", "commandline_accept");
-  glide.keymaps.set("command", "<C-d>", "commandline_delete");
-
-  // tabs
-  glide.keymaps.set("normal", "<C-x>k", "tab_close");
-  glide.keymaps.set(["normal", "insert"], "<C-j>", "tab_next");
-  glide.keymaps.set(["normal", "insert"], "<C-k>", "tab_prev");
-  glide.keymaps.set(["normal", "insert"], "<A-n>", "tab_next");
-  glide.keymaps.set(["normal", "insert"], "<A-p>", "tab_prev");
-
-  // map emacs keybinding to firefox native keybindings
-  glide.keymaps.set(["normal", "insert"], "<C-x><C-f>", () => glide.keys.send('<C-l>', { skip_mappings: true }));
-  glide.keymaps.set(["normal", "insert", "ignore"], "<C-s>", () => glide.keys.send('<C-f>', { skip_mappings: true }));
-
-  glide.keymaps.set(["normal", "insert"], "<C-g>", () => glide.keys.send('<Esc>'));
-
-  glide.keymaps.set(["normal", "insert", "visual", "ignore"], "<C-n>", () => glide.keys.send("<Down>", { skip_mappings: true }));
-  glide.keymaps.set(["normal", "insert", "visual", "ignore"], "<C-p>", () => glide.keys.send("<Up>", { skip_mappings: true }));
-  // glide.keymaps.set("normal", "<C-n>", "caret_move down");
-  // glide.keymaps.set("normal", "<C-p>", "caret_move up");
-
-  glide.keymaps.set("normal", "<C-x>z", "repeat");
-  glide.keymaps.set(["normal","visual","insert"], "<A-x>", "commandline_toggle");
-  glide.keymaps.set("normal", ":", );
-  glide.keymaps.set("normal", "<A>", "commandline_toggle");
-  glide.keymaps.set("normal", "<C-h>t", "tutor");
-  glide.keymaps.set("normal", "<C-h>h", "help");
-  glide.keymaps.set("normal", "<C-h>m", "map");
-
-
-  glide.keymaps.set(["insert", "visual", "op-pending"], "<C-g>", "mode_change normal");
-
-  glide.keymaps.set("normal", "i", "mode_change insert --automove=left");
-  glide.keymaps.set("normal", "a", "mode_change insert");
-  glide.keymaps.set("normal", "A", "mode_change insert --automove=endline");
-
-  glide.keymaps.set(["normal", "insert"], "<C-x>u", "undo");
-  glide.keymaps.set(["normal", "insert"], "<C-/>", "undo");
-
-  // TODO(glide-motions): more general support for numbers like this
-  glide.keymaps.set(["normal", "visual", "insert"], "<A-h>", () => glide.keys.send("<C-a>", { skip_mappings: true }));
-  glide.keymaps.set(["normal", "visual", "insert"], "<C-x>h", () => glide.keys.send("<C-a>", { skip_mappings: true }));
-  glide.keymaps.set(["normal", "insert", "visual"], "<C-a>", "motion 0");
-  glide.keymaps.set(["normal", "insert", "visual"], "<C-e>", "motion $");
-  glide.keymaps.set(["normal", "insert"], "<C-b>", "caret_move left");
-  glide.keymaps.set(["normal", "insert"], "<C-f>", "caret_move right");
-  glide.keymaps.set("normal", "<A-w>", "url_yank");
-
-  // jumplist
-  // note: unlike Vim, we define these keymaps in insert mode as well
-  //       as it can be jarring when switching tabs, for the jumplist
-  //       to stop working just because you had an input element
-  //       focused in a particular tab
-  glide.keymaps.set(["normal", "insert"], "<C-o>", "jumplist_back");
-  glide.keymaps.set(["normal", "insert"], "<C-i>", "jumplist_forward");
-
-  // note sure what they do
-  // glide.keymaps.set("normal", "d", "mode_change op-pending --operator=d", { retain_key_display: true });
-  // glide.keymaps.set("normal", "c", "mode_change op-pending --operator=c", { retain_key_display: true });
-  glide.keymaps.set(["visual", "insert"], "<A-f>", "motion e");
-  glide.keymaps.set(["visual", "insert"], "<A-b>", "motion b");
-  glide.keymaps.set(["visual", "insert"], "<C-d>", "motion x");
-
-  // visual motions
-  glide.keymaps.set(["normal", "insert"], "<C-Space>", "motion v");
-  glide.keymaps.set("visual", "<C-b>", "motion vh");
-  glide.keymaps.set("visual", "<C-f>", "motion vl");
-  glide.keymaps.set("visual", "d", "motion vd");
-  glide.keymaps.set("visual", "c", "motion vc");
-  glide.keymaps.set("visual", "<A-w>", "visual_selection_copy");
-
-
-  // Flexfox preferences
-
-  glide.keymaps.set(
-    "normal",
-    "<C-x>2",
-    async ({ tab_id }) => {
-      const all_tabs = await glide.tabs.query({});
-      const current_index = all_tabs.findIndex((t) =>
-        t.id === tab_id
-      );
-      const other = all_tabs[current_index + 1];
-      if (!other) {
-        throw new Error("No next tab");
-      }
-      glide.unstable.split_views.create([tab_id, other]);
-    },
-    {
-      description:
-        "Create a split view with the tab to the right",
-    },
-  );
-
-  glide.keymaps.set(
-    "normal",
-    "<C-x>1",
-    async ({ tab_id }) => {
-      glide.unstable.split_views.separate(tab_id);
-    },
-    {
-      description: "Close the split view for the current tab",
-    },
-  );
-
-  glide.keymaps.set("normal", "<A-w>", async () => {
-    glide.hints.show({
-      selector: ":any-link",
-      async action({ content }) {
-        const link: string = await content.execute((target) => {
-          if (target instanceof HTMLAreaElement || target instanceof HTMLAnchorElement) {
-            return target.href
-          }
-          return ""
-        }
-        );
-        navigator.clipboard.writeText(link)
-      },
-    })
-
-  }, { description: "copy link at hint" })
-
-
-  // credits: @jyn514
-  // https://github.com/glide-browser/glide/discussions/147#discussioncomment-15286767
-  function shorten_unique_prefixes(haystack) {
-      // first, construct a set of duplicates
-      const seen = new Set();
-      const duplicates = new Set();
-      for (let t of haystack) {
-          if (seen.has(t)) {
-              duplicates.add(t);
-          } else {
-              seen.add(t);
-          }
-      }
-
-      // shorten each word
-      return haystack.map((needle, pos) => {
-          if (duplicates.has(needle)) return needle;
-          // while all words have the same character at position i, increment i
-          for (let i = 1; i <= needle.length; i++) {
-              const prefix = needle.slice(0, i);
-              const is_unique = haystack.every((w, j) => pos === j || !w.startsWith(prefix));
-              if (is_unique) {
-                  return prefix;
-              }
-          }
-          // no unique prefix
-          return needle;
-      });
-  }
-
-  function strip(text) {
-      // strip numbers, non-ascii text, and annoying-to-type characters
-      return text.replace(/[0-9]+/g, '').replace(/[^a-zA-Z0-9-]/g, '').toLowerCase();
-  }
-
-  function labels(texts) {
-      // now shorten as much as we can without losing info
-      const haystack = shorten_unique_prefixes(texts);
-
-      let nums_used = 0;
-      const result = new Array(haystack.length);
-
-      // trim prefixes longer than 3 characters by using letters that occur later in the label.
-      // also, try to replace the last letter of duplicates.
-      // note that that can only help if the original text was > 3 characters.
-      const used = new Set();
-      outer: for (const [index, prefix] of haystack.entries()) {
-          if (prefix === "") {
-              result[index] = String(nums_used++);
-          } else if (prefix.length > 3 || used.has(prefix)) {
-              const base = prefix.substring(0, 2);
-              // try each character after the 3rd in turn.
-              // consider the original text, not the shortened prefix.
-              for (const c of texts[index].substring(2)) {
-                  const candidate = base + c;
-                  if (!used.has(candidate)) {
-                      result[index] = candidate;
-                      used.add(candidate);
-                      continue outer;
-                  }
-              }
-              // we couldn't shorten it. use a number.
-              result[index] = String(nums_used++);
-          } else {
-              // already short enough, use it as-is.
-              result[index] = prefix;
-              used.add(prefix);
-          }
-      }
-
-      // try one last time to shorten prefixes—if we gave up earlier, we might have freed up a spot.
-      return shorten_unique_prefixes(result);
-  }
-
-  glide.o.hint_label_generator = async ({ content }) => {
-      const texts = await content.map(element => [element.textContent, element.ariaLabel]);
-      const haystack = texts.map(([text, label]) => strip(text) || strip(label || ""));
-      return labels(haystack);
-  };
-
   // ============================================================================
-  // Emacs helper functions
+  // UTILITIES
   // ============================================================================
 
   /**
-   ,* Swap to existing tab or create new one
+   ,* Fuzzy matching score for search/filter
    ,*/
-  async function swap_to_tab_if_exists(url: string): Promise<void> {
-    const tab = await glide.tabs.get_first({ url });
-
-    if (tab?.id && tab.windowId !== undefined) {
-      await browser.windows.update(tab.windowId, { focused: true });
-      await browser.tabs.update(tab.id, { active: true });
-    } else {
-      await browser.tabs.create({ active: true, url });
-    }
-  }
-
-  /**
-   ,* Simple fuzzy matching score
-   ,*/
-  function fuzzy_score(haystack: string, needle: string): number {
+  function fuzzyScore(haystack: string, needle: string): number {
     if (!needle) return 1;
-
     const hay = haystack.toLowerCase();
     const need = needle.toLowerCase();
 
@@ -2580,161 +1632,1242 @@ Pipewire setup, just these lines enough to make sane default for it
       score += 1;
       lastIndex = index;
     }
+    return score;
+  }
+
+  // Add after the fuzzyScore function in UTILITIES section
+
+  /**
+   ,* Orderless matching: check if all words in needle appear in haystack (any order)
+   ,*/
+  function orderlessMatch(haystack: string, needle: string): boolean {
+    if (!needle.trim()) return true;
+
+    const hay = haystack.toLowerCase();
+    const words = needle.toLowerCase().trim().split(/\s+/);
+
+    return words.every((word) => hay.includes(word));
+  }
+
+  /**
+   ,* Score for orderless matching (higher = better match)
+   ,*/
+  function orderlessScore(haystack: string, needle: string): number {
+    if (!needle.trim()) return 1;
+    if (!orderlessMatch(haystack, needle)) return 0;
+
+    const hay = haystack.toLowerCase();
+    const words = needle.toLowerCase().trim().split(/\s+/);
+
+    let score = 100;
+
+    // Bonus for matching at word start
+    words.forEach((word) => {
+      if (hay.startsWith(word)) score += 50;
+      else if (new RegExp(`\\b${word}`).test(hay)) score += 25;
+    });
+
+    // Penalty for distance between matched words
+    score -= words.length * 5;
 
     return score;
   }
 
   /**
-   ,* Create a favicon + title + url display element
+   ,* Create favicon + title + url display element as table row
    ,*/
-  function create_item_display(item: { url?: string; title?: string; visitCount?: number }): HTMLElement {
-    return DOM.create_element("div", {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-        marginLeft: "1em",
-        overflow: "hidden"
-      },
+  function createItemDisplay(item: {
+    url?: string;
+    title?: string;
+    visitCount?: number;
+  }): HTMLElement {
+    return DOM.create_element("tr", {
+      className: "TabCompletionOption gcl-option",
       children: [
-        DOM.create_element("img", {
-          src: `page-icon:${item.url}`,
-          style: {
-            width: "24px",
-            height: "24px",
-            flexShrink: "0"
-          },
-        }),
-        DOM.create_element("div", {
-          style: {
-            minWidth: 0,
-            overflow: "hidden",
-            flex: 1
-          },
+        DOM.create_element("td", {
+          className: "icon",
           children: [
-            DOM.create_element("div", {
-              children: item.title || item.url || "",
-              style: {
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                fontWeight: "500"
-              }
+            DOM.create_element("img", {
+              src: `page-icon:${item.url}`,
+              alt: "icon",
             }),
-            DOM.create_element("div", {
-              children: item.url || "",
-              style: {
-                fontSize: "11px",
-                opacity: "0.6",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap"
-              }
-            })
           ],
+        }),
+        DOM.create_element("td", {
+          className: "label",
+          children: item.title || item.url || "",
+        }),
+        DOM.create_element("td", {
+          className: "url",
+          children: item.url || "",
         }),
       ],
     });
   }
 
-  // ============================================================================
-  // Completions commands
-  // ============================================================================
+  /**
+   ,* Swap to existing tab or create new one
+   ,*/
+  async function swapToTabIfExists(url: string): Promise<void> {
+    const tab = await glide.tabs.get_first({ url });
+
+    if (tab?.id && tab.windowId !== undefined) {
+      await browser.windows.update(tab.windowId, { focused: true });
+      await browser.tabs.update(tab.id, { active: true });
+    } else {
+      await browser.tabs.create({ active: true, url });
+    }
+  }
 
   /**
-   ,* C-x C-v: Current site history picker
+   ,* Get current active tab safely
    ,*/
-  glide.keymaps.set(["normal", "insert"], "<C-x><C-v>", async () => {
-    const activeTab = await glide.tabs.active();
-    if (!activeTab?.url) return;
+  async function getCurrentTab() {
+    const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+    return tabs[0];
+  }
 
-    const origin = (() => {
-      try { return new URL(activeTab.url).origin; }
-      catch { return null; }
-    })();
-    if (!origin) return;
+  // ============================================================================
+  // HINT LABEL GENERATION (credits: @jyn514)
+  // ============================================================================
 
-    const allHistory = await browser.history.search({
-      text: "",
-      startTime: 0,
-      maxResults: 2000,
-    });
-
-    const sameOrigin = allHistory.filter(item => {
-      try { return new URL(item.url).origin === origin; }
-      catch { return false; }
-    });
-
-    sameOrigin.sort((a, b) => (b.lastVisitTime || 0) - (a.lastVisitTime || 0));
-
-    // Deduplicate (strip fragments)
-    const seen = new Set<string>();
-    const unique = sameOrigin.filter(item => {
-      const canonical = item.url.split("#")[0];
-      if (seen.has(canonical)) return false;
-      seen.add(canonical);
-      return true;
-    });
-
-    glide.commandline.show({
-      title: `History for ${origin}`,
-      filter(input, option) {
-        const item = unique.find(e => e.url === option.value);
-        if (!item) return false;
-
-        const titleScore = fuzzy_score(item.title || "", input);
-        const urlScore = fuzzy_score(item.url || "", input) * 0.5;
-
-        return (titleScore + urlScore) > 0;
-      },
-      options: unique.map(item => ({
-        label: item.title || item.url || "",
-        value: item.url,
-        render: () => create_item_display(item),
-        async execute() {
-          if (item.url) await swap_to_tab_if_exists(item.url);
-        },
-      })),
-    });
-  }, { description: "Fuzzy find current site history" });
-
-
-  glide.keymaps.set(["normal", "insert"], "<A-o>", async () => {
-    const allHistory = await browser.history.search({
-      text: "",
-      startTime: 0,
-      maxResults: 50000
-    });
-
-    console.log(`Total history items: ${allHistory.length}`);
-
-    // Group by domain
-    const byDomain = new Map<string, typeof allHistory>();
-    for (const item of allHistory) {
-      try {
-        const domain = new URL(item.url).hostname;
-        if (!byDomain.has(domain)) {
-          byDomain.set(domain, []);
-        }
-        byDomain.get(domain)?.push(item);
-      } catch (e) {
-        // Invalid URL
+  function shortenUniquePrefixes(haystack: string[]): string[] {
+    const seen = new Set();
+    const duplicates = new Set();
+    for (let t of haystack) {
+      if (seen.has(t)) {
+        duplicates.add(t);
+      } else {
+        seen.add(t);
       }
     }
 
-    console.log(`Unique domains: ${byDomain.size}`);
+    return haystack.map((needle, pos) => {
+      if (duplicates.has(needle)) return needle;
+      for (let i = 1; i <= needle.length; i++) {
+        const prefix = needle.slice(0, i);
+        const is_unique = haystack.every(
+          (w, j) => pos === j || !w.startsWith(prefix),
+        );
+        if (is_unique) return prefix;
+      }
+      return needle;
+    });
+  }
+
+  function stripText(text: string): string {
+    return text
+      .replace(/[0-9]+/g, "")
+      .replace(/[^a-zA-Z0-9-]/g, "")
+      .toLowerCase();
+  }
+
+  function generateLabels(texts: string[]): string[] {
+    const haystack = shortenUniquePrefixes(texts);
+    let nums_used = 0;
+    const result = new Array(haystack.length);
+    const used = new Set();
+
+    outer: for (const [index, prefix] of haystack.entries()) {
+      if (prefix === "") {
+        result[index] = String(nums_used++);
+      } else if (prefix.length > 3 || used.has(prefix)) {
+        const base = prefix.substring(0, 2);
+        for (const c of texts[index].substring(2)) {
+          const candidate = base + c;
+          if (!used.has(candidate)) {
+            result[index] = candidate;
+            used.add(candidate);
+            continue outer;
+          }
+        }
+        result[index] = String(nums_used++);
+      } else {
+        result[index] = prefix;
+        used.add(prefix);
+      }
+    }
+
+    return shortenUniquePrefixes(result);
+  }
+
+  // ============================================================================
+  // LINK PICKER SYSTEM
+  // ============================================================================
+
+  type ClickableAction = 'click' | 'open' | 'newtab' | 'background' | 'copy';
+
+  async function showClickablePicker(action: ClickableAction = 'click') {
+    const currentTab = await getCurrentTab();
+    if (!currentTab.id) return;
+
+    let clickables: Array<{
+      type: string;
+      text: string;
+      href?: string;
+      xpath: string;
+    }>;
+
+    try {
+      // Use a simpler, faster query - just get essential data
+      clickables = await glide.content.execute(() => {
+        const results: Array<{
+          type: string;
+          text: string;
+          href?: string;
+          xpath: string;
+        }> = [];
+
+        const MAX_ITEMS = 1000;
+        let count = 0;
+
+        // Fast xpath generator using element ID if available
+        const getXPath = (element: Element): string => {
+          if (element.id) {
+            return `//*[@id="${element.id}"]`;
+          }
+          let path = '';
+          let el: Element | null = element;
+          for (; el && el.nodeType === 1 && count < 5; el = el.parentElement) {
+            const tagName = el.tagName.toLowerCase();
+            path = '/' + tagName + path;
+            count++;
+          }
+          return path;
+        };
+
+        const getText = (el: Element): string => {
+          let text = el.textContent || '';
+          text = text.trim().replace(/\s+/g, ' ');
+          return text.length > 100 ? text.substring(0, 100) + '...' : text;
+        };
+
+        // Just links - fastest and most common use case
+        if (count < MAX_ITEMS) {
+          const links = document.querySelectorAll('a[href]');
+          const len = Math.min(links.length, MAX_ITEMS);
+          for (let i = 0; i < len; i++) {
+            const el = links[i] as HTMLAnchorElement;
+            const text = getText(el);
+            if (text.length > 2) {
+              results.push({
+                type: 'link',
+                text: text,
+                href: el.href,
+                xpath: getXPath(el)
+              });
+              count++;
+            }
+          }
+        }
+
+        // Buttons
+        if (count < MAX_ITEMS) {
+          const buttons = document.querySelectorAll('button');
+          const len = Math.min(buttons.length, MAX_ITEMS - count);
+          for (let i = 0; i < len; i++) {
+            const el = buttons[i];
+            const text = getText(el);
+            if (text) {
+              results.push({
+                type: 'button',
+                text: text,
+                xpath: getXPath(el)
+              });
+              count++;
+            }
+          }
+        }
+
+        return results;
+      }, { tab_id: currentTab.id });
+    } catch (error) {
+      console.error('Clickable picker error:', error);
+      glide.commandline.show({
+        title: "Error: Could not extract clickable elements",
+        options: []
+      });
+      return;
+    }
+
+    const actionTitles: Record<ClickableAction, string> = {
+      click: "Click Element",
+      open: "Open Link",
+      newtab: "Open in New Tab",
+      background: "Open in Background",
+      copy: "Copy Link"
+    };
 
     glide.commandline.show({
-      title: `All History (${allHistory.length} items)`,
-      options: allHistory.slice(0, 4000).map((item) => ({
-        label: item.title || item.url,
-        render: () => create_item_display(item),
+      title: `${actionTitles[action]} (${clickables.length} found)`,
+      options: clickables.map((item) => ({
+        label: item.text,
+        description: item.href || item.type,
+        matches({ input }) {
+          const searchText = `${item.text} ${item.href}`.toLowerCase();
+          return orderlessMatch(searchText, input);
+        },
         async execute() {
-          await swap_to_tab_if_exists(item.url);
+          if (action === 'click' || (action === 'open' && !item.href)) {
+            await glide.content.execute((xpath: string) => {
+              const result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+              const target = result.singleNodeValue as HTMLElement;
+              if (target) target.click();
+            }, { tab_id: currentTab.id, args: [item.xpath] });
+          } else if (item.href) {
+            switch (action) {
+              case 'open':
+                await browser.tabs.update(currentTab.id, { url: item.href });
+                break;
+              case 'copy':
+                await navigator.clipboard.writeText(item.href);
+                break;
+              case 'newtab':
+                await browser.tabs.create({ url: item.href });
+                break;
+              case 'background':
+                await browser.tabs.create({ url: item.href, active: false });
+                break;
+            }
+          }
         },
       })),
     });
-  }, { description: "Show all raw history" });
+  }
+
+  /**
+   ,* Show semantic element picker to jump to any important page element
+   ,*/
+  async function showPageNavigator() {
+    const currentTab = await getCurrentTab();
+    if (!currentTab.id) return;
+
+    const elements = await glide.content.execute(() => {
+      const results: Array<{
+        type: string;
+        tag: string;
+        text: string;
+        level?: number;
+        id?: string;
+        class?: string;
+        role?: string;
+        href?: string;
+        src?: string;
+        xpath: string;
+      }> = [];
+
+      // Helper to create xpath
+      const getXPath = (element: Element): string => {
+        let path = '';
+        let el: Element | null = element;
+        for (; el && el.nodeType === 1; el = el.parentElement) {
+          let index = 0;
+          for (let sibling = el.previousSibling; sibling; sibling = sibling.previousSibling) {
+            if (sibling.nodeType === Node.ELEMENT_NODE && (sibling as Element).tagName === el.tagName) {
+              index++;
+            }
+          }
+          const tagName = el.tagName.toLowerCase();
+          const pathIndex = '[' + (index + 1) + ']';
+          path = '/' + tagName + pathIndex + path;
+        }
+        return path;
+      };
+
+      // Helper to get text preview
+      const getTextPreview = (el: Element, maxLength: number = 80): string => {
+        const text = el.textContent?.trim() || '';
+        return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+      };
+
+      // Headings (h1-h6)
+      document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
+        const level = parseInt(el.tagName.substring(1));
+        results.push({
+          type: 'heading',
+          tag: el.tagName.toLowerCase(),
+          level: level,
+          text: getTextPreview(el),
+          id: el.id || '',
+          xpath: getXPath(el)
+        });
+      });
+
+      // Semantic HTML5 elements
+      document.querySelectorAll('header, nav, main, article, section, aside, footer').forEach(el => {
+        results.push({
+          type: 'landmark',
+          tag: el.tagName.toLowerCase(),
+          text: getTextPreview(el, 60),
+          id: el.id || '',
+          class: el.className || '',
+          xpath: getXPath(el)
+        });
+      });
+
+      // Lists (only top-level ul/ol with multiple items)
+      document.querySelectorAll('ul, ol').forEach(el => {
+        if (el.parentElement?.closest('ul, ol')) return;
+
+        const items = el.querySelectorAll(':scope > li');
+        if (items.length > 0) {
+          results.push({
+            type: 'list',
+            tag: el.tagName.toLowerCase(),
+            text: `${items.length} items: ${getTextPreview(items[0], 50)}`,
+            id: el.id || '',
+            xpath: getXPath(el)
+          });
+        }
+      });
+
+      // Images with alt text or meaningful src
+      document.querySelectorAll('img').forEach(el => {
+        const img = el as HTMLImageElement;
+        if (img.alt || img.width > 100 || img.height > 100) {
+          results.push({
+            type: 'image',
+            tag: 'img',
+            text: img.alt || img.title || img.src.split('/').pop() || 'Image',
+            src: img.src,
+            xpath: getXPath(el)
+          });
+        }
+      });
+
+      // Links with aria-label or meaningful text
+      document.querySelectorAll('a[aria-label], a[role="button"]').forEach(el => {
+        const link = el as HTMLAnchorElement;
+        results.push({
+          type: 'link',
+          tag: 'a',
+          text: el.getAttribute('aria-label') || getTextPreview(el, 50),
+          href: link.href,
+          xpath: getXPath(el)
+        });
+      });
+
+      // Forms and inputs
+      document.querySelectorAll('form').forEach(el => {
+        const inputs = el.querySelectorAll('input, textarea, select');
+        results.push({
+          type: 'form',
+          tag: 'form',
+          text: `Form with ${inputs.length} fields`,
+          id: el.id || '',
+          name: (el as HTMLFormElement).name || '',
+          xpath: getXPath(el)
+        });
+      });
+
+      // Tables
+      document.querySelectorAll('table').forEach(el => {
+        const rows = el.querySelectorAll('tr').length;
+        const caption = el.querySelector('caption')?.textContent?.trim() || '';
+        results.push({
+          type: 'table',
+          tag: 'table',
+          text: caption || `Table with ${rows} rows`,
+          id: el.id || '',
+          xpath: getXPath(el)
+        });
+      });
+
+      // Buttons with text
+      document.querySelectorAll('button').forEach(el => {
+        const text = getTextPreview(el, 50);
+        if (text) {
+          results.push({
+            type: 'button',
+            tag: 'button',
+            text: text,
+            id: el.id || '',
+            xpath: getXPath(el)
+          });
+        }
+      });
+
+      // ARIA landmarks
+      document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"]').forEach(el => {
+        results.push({
+          type: 'aria',
+          tag: el.tagName.toLowerCase(),
+          role: el.getAttribute('role') || '',
+          text: el.getAttribute('aria-label') || getTextPreview(el, 60),
+          xpath: getXPath(el)
+        });
+      });
+
+      return results;
+    }, { tab_id: currentTab.id });
+
+    if (!elements || elements.length === 0) {
+      glide.commandline.show({
+        title: "No navigable elements found",
+        options: []
+      });
+      return;
+    }
+
+    // Group elements by type for better organization
+    const typeOrder = ['landmark', 'heading', 'aria', 'list', 'form', 'table', 'image', 'button', 'link'];
+    elements.sort((a, b) => {
+      const typeCompare = typeOrder.indexOf(a.type) - typeOrder.indexOf(b.type);
+      if (typeCompare !== 0) return typeCompare;
+      if (a.type === 'heading' && b.type === 'heading') {
+        return (a.level || 0) - (b.level || 0);
+      }
+      return 0;
+    });
+
+    const typeIcons: Record<string, string> = {
+      heading: '📝',
+      landmark: '🏛️',
+      list: '📋',
+      image: '🖼️',
+      link: '🔗',
+      form: '📝',
+      table: '📊',
+      button: '🔘',
+      aria: '♿'
+    };
+
+    glide.commandline.show({
+      title: `Navigate Page (${elements.length} elements)`,
+      options: elements.map((element) => {
+        const icon = typeIcons[element.type] || '•';
+        const indent = element.type === 'heading' && element.level
+          ? '  '.repeat(element.level - 1)
+          : '';
+
+        let label = '';
+        if (element.type === 'heading') {
+          label = `${indent}${element.tag.toUpperCase()}: ${element.text}`;
+        } else if (element.type === 'landmark') {
+          label = `${icon} <${element.tag}> ${element.text}`;
+        } else if (element.type === 'aria') {
+          label = `${icon} [${element.role}] ${element.text}`;
+        } else {
+          label = `${icon} ${element.text}`;
+        }
+
+        let description = '';
+        if (element.id) description = `#${element.id}`;
+        else if (element.class) description = `.${element.class.split(' ')[0]}`;
+        else if (element.href) description = element.href;
+        else if (element.src) description = element.src;
+
+        return {
+          label,
+          description,
+          matches({ input }) {
+            const searchText = `${element.type} ${element.tag} ${element.text} ${element.id || ''} ${element.role || ''}`.toLowerCase();
+            return orderlessMatch(searchText, input);
+          },
+          async execute() {
+            await glide.content.execute((xpath: string) => {
+              const getElementByXPath = (xp: string) => {
+                return document.evaluate(xp, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+              };
+
+              const target = getElementByXPath(xpath) as HTMLElement;
+              if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                const originalOutline = target.style.outline;
+                target.style.outline = '3px solid orange';
+                setTimeout(() => { target.style.outline = originalOutline; }, 2000);
+              }
+            }, { tab_id: currentTab.id, args: [element.xpath] });
+          },
+        };
+      }),
+    });
+  }
+  async function showLineNavigator() {
+    const currentTab = await getCurrentTab();
+    if (!currentTab.id) return;
+
+    let lines: Array<{
+      text: string;
+      lineNumber: number;
+      xpath: string;
+    }>;
+
+    try {
+      lines = await glide.content.execute(() => {
+        const results: Array<{
+          text: string;
+          lineNumber: number;
+          xpath: string;
+        }> = [];
+
+        const getXPath = (element: Element): string => {
+          let path = '';
+          let el: Element | null = element;
+          for (; el && el.nodeType === 1; el = el.parentElement) {
+            let index = 0;
+            for (let sibling = el.previousSibling; sibling; sibling = sibling.previousSibling) {
+              if (sibling.nodeType === Node.ELEMENT_NODE && (sibling as Element).tagName === el.tagName) {
+                index++;
+              }
+            }
+            const tagName = el.tagName.toLowerCase();
+            const pathIndex = '[' + (index + 1) + ']';
+            path = '/' + tagName + pathIndex + path;
+          }
+          return path;
+        };
+
+        // Get all text-containing elements
+        const walker = document.createTreeWalker(
+          document.body,
+          NodeFilter.SHOW_TEXT,
+          {
+            acceptNode: (node) => {
+              const text = node.textContent?.trim() || '';
+              // Skip empty, very short, or script/style content
+              if (text.length < 3) return NodeFilter.FILTER_REJECT;
+              const parent = node.parentElement;
+              if (!parent) return NodeFilter.FILTER_REJECT;
+              const tagName = parent.tagName.toLowerCase();
+              if (tagName === 'script' || tagName === 'style' || tagName === 'noscript') {
+                return NodeFilter.FILTER_REJECT;
+              }
+              return NodeFilter.FILTER_ACCEPT;
+            }
+          }
+        );
+
+        let lineNumber = 0;
+        let currentNode: Node | null;
+
+        while (currentNode = walker.nextNode()) {
+          const text = (currentNode.textContent || '').trim();
+          if (text) {
+            // Split by line breaks if multi-line
+            const lines = text.split('\n').filter(line => line.trim().length > 3);
+            lines.forEach(line => {
+              lineNumber++;
+              const parent = currentNode!.parentElement;
+              if (parent) {
+                results.push({
+                  text: line.trim(),
+                  lineNumber: lineNumber,
+                  xpath: getXPath(parent)
+                });
+              }
+            });
+          }
+        }
+
+        return results;
+      }, { tab_id: currentTab.id });
+    } catch (error) {
+      console.error('Line navigator error:', error);
+      glide.commandline.show({
+        title: "Error: Could not extract text content",
+        options: []
+      });
+      return;
+    }
+
+    glide.commandline.show({
+      title: `Search Lines (${lines.length} found)`,
+      options: lines.map((line) => ({
+        label: `Line ${line.lineNumber}`,
+        description: line.text,
+        matches({ input }) {
+          return orderlessMatch(line.text, input);
+        },
+        async execute() {
+          await glide.content.execute((xpath: string) => {
+            const getElementByXPath = (xp: string) => {
+              return document.evaluate(xp, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            };
+            const target = getElementByXPath(xpath) as HTMLElement;
+            if (target) {
+              target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              const originalBg = target.style.backgroundColor;
+              target.style.backgroundColor = 'rgba(255, 165, 0, 0.3)';
+              setTimeout(() => { target.style.backgroundColor = originalBg; }, 2000);
+            }
+          }, { tab_id: currentTab.id, args: [line.xpath] });
+        },
+      })),
+    });
+  }
+
+
+  // ============================================================================
+  // TAB MANAGEMENT
+  // ============================================================================
+
+  async function showTabPicker(
+    action: "close" | "discard",
+    filterFn?: (tab: browser.tabs.Tab) => boolean,
+  ) {
+    const tabs = await browser.tabs.query({ currentWindow: true });
+    const filtered = filterFn ? tabs.filter(filterFn) : tabs;
+
+    const actionTitles = {
+      close: "Kill Tab",
+      discard: "Discard Tab",
+    };
+
+    glide.commandline.show({
+      title: `${actionTitles[action]} (${filtered.length} tabs)`,
+      options: filtered.map((tab) => ({
+        label: tab.title || tab.url || "Untitled",
+        description: tab.url,
+        matches({ input }) {
+          const searchText = `${tab.title} ${tab.url}`.toLowerCase();
+          return orderlessMatch(searchText, input);
+        },
+        async execute() {
+          if (tab.id === undefined) return;
+
+          if (action === "close") {
+            await browser.tabs.remove(tab.id);
+          } else if (action === "discard") {
+            const currentTab = await glide.tabs.active();
+            if (currentTab.id === tab.id) {
+              const allTabs = await browser.tabs.query({ currentWindow: true });
+              const currentIndex = allTabs.findIndex(
+                (t) => t.id === currentTab.id,
+              );
+              const nextTab =
+                allTabs[currentIndex + 1] || allTabs[currentIndex - 1];
+              if (nextTab?.id) {
+                await browser.tabs.update(nextTab.id, { active: true });
+              }
+            }
+            await browser.tabs.discard(tab.id);
+          }
+        },
+      })),
+    });
+  }
+
+  // ============================================================================
+  // HISTORY NAVIGATION
+  // ============================================================================
+
+  async function showHistoryPicker(currentSiteOnly: boolean = false) {
+    const allHistory = await browser.history.search({
+      text: "",
+      startTime: 0,
+      maxResults: currentSiteOnly ? 400 : 1000,
+    });
+
+    let filtered = allHistory;
+    let title = `All History (${allHistory.length} items)`;
+
+    if (currentSiteOnly) {
+      const activeTab = await glide.tabs.active();
+      if (!activeTab?.url) return;
+
+      const origin = (() => {
+        try {
+          return new URL(activeTab.url).origin;
+        } catch {
+          return null;
+        }
+      })();
+      if (!origin) return;
+
+      filtered = allHistory.filter((item) => {
+        try {
+          return new URL(item.url).origin === origin;
+        } catch {
+          return false;
+        }
+      });
+
+      filtered.sort((a, b) => (b.lastVisitTime || 0) - (a.lastVisitTime || 0));
+
+      // Deduplicate (strip fragments)
+      const seen = new Set<string>();
+      filtered = filtered.filter((item) => {
+        const canonical = item.url.split("#")[0];
+        if (seen.has(canonical)) return false;
+        seen.add(canonical);
+        return true;
+      });
+
+      title = `History for ${origin}`;
+    }
+
+    glide.commandline.show({
+      title,
+      options: filtered.slice(0, 4000).map((item) => ({
+        label: item.title || item.url,
+        description: item.url,
+        matches({ input }) {
+          const searchText = `${item.title} ${item.url}`.toLowerCase();
+          return orderlessMatch(searchText, input);
+        },
+        async execute() {
+          await swapToTabIfExists(item.url);
+        },
+      })),
+    });
+  }
+
+  // ============================================================================
+  // SPLIT VIEW
+  // ============================================================================
+
+  async function showSplitViewPicker(tab_id: number) {
+    const all_tabs = await glide.tabs.query({});
+
+    glide.commandline.show({
+      title: "Select a tab to split with",
+      options: all_tabs.map((tab) => ({
+        label: tab.title || tab.url || "Untitled",
+        description: tab.url,
+        matches({ input }) {
+          const searchText = `${tab.title} ${tab.url}`.toLowerCase();
+          return orderlessMatch(searchText, input);
+        },
+        async execute() {
+          if (tab.id === tab_id) {
+            glide.commandline.show({
+              title: "You cannot split with the current tab.",
+            });
+            return;
+          }
+          await glide.unstable.split_views.create([tab_id, tab.id]);
+        },
+      })),
+    });
+  }
+
+  // ============================================================================
+  // CONTEXT MENU & REDIRECTS (credits: @poslat-pismo)
+  // ============================================================================
+
+  async function setupExtendedContextMenu() {
+    if (!glide.prefs.get("network.protocol-handler.external.mpv")) {
+      glide.prefs.set("network.protocol-handler.external.mpv", true);
+    }
+
+    browser.contextMenus.create({
+      id: "glide-mpv",
+      title: "🎬 Play in mpv",
+      contexts: ["link"],
+      onclick: (info) => {
+        const mpvUrl = `mpv://#${info.linkUrl}`;
+        browser.tabs.update({ url: mpvUrl });
+      },
+    });
+
+    browser.contextMenus.create({
+      id: "glide-lens",
+      title: "🔎 Search with Google Lens",
+      contexts: ["image"],
+      onclick: (info) => {
+        if (!info.srcUrl) return;
+        const encodedUrl = encodeURIComponent(info.srcUrl);
+        const googleLensUrl = `https://lens.google.com/uploadbyurl?url=${encodedUrl}`;
+        browser.tabs.create({ url: googleLensUrl });
+      },
+    });
+
+    browser.contextMenus.create({
+      id: "glide-tts",
+      title: "📢 Read with TTS",
+      contexts: ["selection"],
+      onclick: (info) => {
+        const selection = info.selectionText.trim();
+        browser.notifications.create("tts", {
+          type: "basic",
+          title: "glide-say-TTS",
+          message: selection,
+        });
+      },
+    });
+  }
+
+  const REDIRECT_RULES: Record<string, string> = {
+    "^https?://(?:www\\.|old\\.|new\\.|np\\.)?reddit\\.com(.*)$":
+      "https://libreddit.kavin.rocks$1",
+  };
+
+  async function handleBeforeRequest(
+    details: browser.webRequest.OnBeforeRequestDetailsType,
+  ): browser.webRequest.RedirectOption | browser.webRequest.CancelOption {
+    const url = details.url;
+
+    for (const [pattern, replacement] of Object.entries(REDIRECT_RULES)) {
+      const re = new RegExp(pattern);
+      const match = url.match(re);
+      if (!match) continue;
+
+      const newUrl = replacement.replace(/\$(\d+)/g, (full, groupIndexStr) => {
+        const idx = Number(groupIndexStr);
+        return match[idx] ?? full;
+      });
+
+      return { redirectUrl: newUrl };
+    }
+
+    return { cancel: false };
+  }
+
+  // ============================================================================
+  // INITIALIZATION
+  // ============================================================================
+
+  function setupStyles() {
+    glide.styles.add(css`
+      :root {
+        --completion-color: #4dd9e5;
+        --completion-bg: #222b32;
+        --completion-opacity: 0.7;
+        --glide-fallback-mode: #666;
+
+        --glide-mode-normal: #4caf50;
+        --glide-mode-insert: #2196f3;
+        --glide-mode-visual: #9c27b0;
+        --glide-mode-command: #ff9800;
+        --glide-mode-hint: #03a9f4;
+        --glide-mode-ignore: #9e9e9e;
+        --glide-mode-op-pending: #f44336;
+        --option-height: 300px;
+      }
+
+      #glide-hints-container * {
+        text-transform: uppercase;
+        font-family: "Maple Mono NF";
+      }
+
+      [anonid="glide-commandline-completions"] .gcl-option:not(.focused):hover {
+        background: rgba(77, 217, 229, var(--completion-opacity));
+      }
+      [anonid="glide-commandline-completions"] {
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      [anonid="glide-commandline-completions"] .focused {
+        background: rgba(77, 217, 229, var(--completion-opacity));
+        color: black;
+      }
+      /* URL column background color for custom completions */
+      .CustomCompletionOption:not(.focused) td.description {
+        background: var(--completion-bg);
+      }
+
+      .CustomCompletionOption.focused td.description {
+        background: transparent;
+      }
+    `);
+  }
+
+  function setupOptions() {
+    glide.o.hint_size = "18px";
+    glide.o.hint_chars = "asdfhjklnpw";
+    glide.o.which_key_delay = 100;
+    glide.o.mapping_timeout = 10000;
+
+    glide.o.hint_label_generator = async ({ content }) => {
+      const texts = await content.map((element) => [
+        element.textContent,
+        element.ariaLabel,
+      ]);
+      const haystack = texts.map(
+        ([text, label]) => stripText(text) || stripText(label || ""),
+      );
+      return generateLabels(haystack);
+    };
+  }
+
+  function setupPrefs() {
+    const prefs: Record<string, any> = {
+      "sidebar.animation.expand-on-hover.duration-ms": 10,
+      "toolkit.legacyUserProfileCustomizations.stylesheets": true,
+      "font.name.monospace.x-western": "Ioskeley Mono",
+      "font.name.sans-serif.x-western": "Inter",
+      "font.name.serif.x-western": "Inter",
+      "identity.fxaccounts.enabled": true,
+      "svg.context-properties.content.enabled": true,
+      "layout.css.has-selector.enabled": true,
+      "browser.urlbar.suggest.calculator": true,
+      "browser.urlbar.unitConversion.enabled": true,
+      "browser.tabs.insertAfterCurrent": true,
+      "browser.urlbar.trimHttps": true,
+      "browser.urlbar.trimURLs": true,
+      "widget.gtk.rounded-bottom-corners.enabled": true,
+      "layout.css.grid-template-masonry-value.enabled": true,
+      "dom.enable_web_task_scheduling": true,
+      "webgl.disabled": false,
+      "gfx.webrender.all": true,
+      "dom.security.https_only_mode_error_page_user_suggestions": true,
+      "signon.generation.enabled": false,
+      "layout.css.prefers-color-scheme.content-override": 2,
+      "browser.compactmode.show": true,
+      "browser.urlbar.suggest.engines": false,
+      "browser.urlbar.suggest.topsites": false,
+      "media.autoplay.blocking_policy": 0,
+      "editor.truncate_user_pastes": false,
+      "browser.download.autohideButton": true,
+      "browser.download.open_pdf_attachments_inline": true,
+      "browser.tabs.loadBookmarksInTabs": true,
+      "browser.bookmarks.openInTabClosesMenu": false,
+      "findbar.highlightAll": true,
+      "toolkit.scrollbox.pagescroll.maxOverlapLines": 50,
+      "toolkit.scrollbox.pagescroll.maxOverlapPercent": 50,
+    };
+
+    for (const [key, value] of Object.entries(prefs)) {
+      glide.prefs.set(key, value);
+    }
+  }
+
+  function setupKeymaps() {
+    // Clear default keymaps
+    glide.keymaps.list().forEach((km) => glide.keymaps.del(km.mode, km.lhs));
+
+    glide.g.mapleader = "<A-Space>";
+
+    // Core config
+    glide.keymaps.set("normal", "<leader>c", "config_reload");
+    glide.keymaps.set("normal", "<leader>r", "reload");
+    glide.keymaps.set("normal", "<leader>R", "reload_hard");
+    glide.keymaps.set("normal", "<C-h>t", "tutor");
+    glide.keymaps.set("normal", "<C-h>h", "help");
+    glide.keymaps.set("normal", "<C-h>m", "map");
+
+    // Quit & blur
+    glide.keymaps.set("normal", "<C-x><C-c>", "quit");
+    glide.keymaps.set(
+      ["normal", "insert", "visual", "command"],
+      "<C-g>",
+      "mode_change ignore",
+    );
+    glide.keymaps.set(["normal", "insert", "visual", "command"], "<C-q>", "mode_change normal");
+    glide.keymaps.set(["normal", "insert"], "<C-,>", "blur");
+    glide.keymaps.set("ignore", "<C-g>", "mode_change normal");
+    glide.keymaps.set(ALL_MODES, "<C-x><C-q>", "blur");
+
+    // History
+    glide.keymaps.set("normal", "l", "back");
+    glide.keymaps.set("normal", "r", "forward");
+    glide.keymaps.set("normal", "<A-b>", "back");
+    glide.keymaps.set("normal", "<A-f>", "forward");
+
+    // Hints
+    glide.keymaps.set("normal", "f", "hint");
+    glide.keymaps.set("normal", "<C-.>", "hint");
+    glide.keymaps.set("normal", "<A-.>", "hint --action=newtab-click");
+    glide.keymaps.set("normal", "<A-;>", "hint --location=browser-ui");
+    glide.keymaps.set("hint", "<C-g>", "hints_remove");
+
+    // Focus input
+    glide.keymaps.set("normal", "<C-x>i", "focusinput last");
+
+    // Command mode
+    glide.keymaps.set(
+      ["normal", "visual", "insert"],
+      "<A-x>",
+      "commandline_toggle",
+    );
+    glide.keymaps.set("normal", ":", "commandline_toggle");
+    glide.keymaps.set("command", "<C-g>", "commandline_toggle");
+    glide.keymaps.set("command", "<Tab>", "commandline_focus_next");
+    glide.keymaps.set("command", "<S-Tab>", "commandline_focus_back");
+    glide.keymaps.set("command", "<C-n>", "commandline_focus_next");
+    glide.keymaps.set("command", "<C-p>", "commandline_focus_back");
+    glide.keymaps.set("command", "<Enter>", "commandline_accept");
+    glide.keymaps.set("command", "<C-d>", "commandline_delete");
+
+    // Tab management
+    glide.keymaps.set("normal", "<leader><leader>", "commandline_show tab ");
+    glide.keymaps.set("normal", "<C-x>b", "commandline_show tab ");
+    glide.keymaps.set(["normal", "insert"], "<C-j>", "tab_next");
+    glide.keymaps.set(["normal", "insert"], "<C-k>", "tab_prev");
+    glide.keymaps.set(["normal", "insert"], "<A-n>", "tab_next");
+    glide.keymaps.set(["normal", "insert"], "<A-p>", "tab_prev");
+
+    // Tab close/discard pickers
+    glide.keymaps.set(["normal", "insert"], "<C-x>k", () =>
+      showTabPicker("close"),
+    );
+    glide.keymaps.set(["normal", "insert"], "<A-u>", "tab_discard");
+    glide.keymaps.set(["normal", "insert"], "<A-U>", () =>
+      showTabPicker("discard", (tab) => !tab.discarded),
+    );
+
+    // Scrolling
+    glide.keymaps.set("normal", "<A-[>", "scroll_top");
+    glide.keymaps.set("normal", "<A-]>", "scroll_bottom");
+    glide.keymaps.set(["normal", "visual"], "<A-v>", "scroll_page_up");
+    glide.keymaps.set(["normal", "visual"], "<C-v>", "scroll_page_down");
+
+    // Paste
+    glide.keymaps.set(["normal", "insert"], "<C-y>", () =>
+      glide.keys.send("<C-v>", { skip_mappings: true }),
+    );
+
+    // Firefox native keybindings
+    glide.keymaps.set(["normal", "insert"], "<C-x><C-f>", () =>
+      glide.keys.send("<C-l>", { skip_mappings: true }),
+    );
+    glide.keymaps.set(["normal", "insert", "ignore"], "<C-s>", () =>
+      glide.keys.send("<C-f>", { skip_mappings: true }),
+    );
+    glide.keymaps.set(["normal", "insert"], "<C-g>", () =>
+      glide.keys.send("<Esc>"),
+    );
+
+    // Arrow keys via Emacs bindings
+    glide.keymaps.set(["normal", "insert", "visual", "ignore"], "<C-n>", () =>
+      glide.keys.send("<Down>", { skip_mappings: true }),
+    );
+    glide.keymaps.set(["normal", "insert", "visual", "ignore"], "<C-p>", () =>
+      glide.keys.send("<Up>", { skip_mappings: true }),
+    );
+
+    // Undo & repeat
+    glide.keymaps.set(["normal", "insert"], "<C-x>u", "undo");
+    glide.keymaps.set(["normal", "insert"], "<C-/>", "undo");
+    glide.keymaps.set("normal", "<C-x>z", "repeat");
+
+    // Text selection & editing
+    glide.keymaps.set(["normal", "visual", "insert"], "<A-h>", () =>
+      glide.keys.send("<C-a>", { skip_mappings: true }),
+    );
+    glide.keymaps.set(["normal", "visual", "insert"], "<C-x>h", () =>
+      glide.keys.send("<C-a>", { skip_mappings: true }),
+    );
+    glide.keymaps.set(["normal", "insert", "visual"], "<C-a>", "motion 0");
+    glide.keymaps.set(["normal", "insert", "visual"], "<C-e>", "motion $");
+    glide.keymaps.set(["normal", "insert"], "<C-b>", "caret_move left");
+    glide.keymaps.set(["normal", "insert"], "<C-f>", "caret_move right");
+
+    // Word motions
+    glide.keymaps.set(["visual", "insert"], "<A-f>", "motion e");
+    glide.keymaps.set(["visual", "insert"], "<A-b>", "motion b");
+    glide.keymaps.set(["visual", "insert"], "<C-d>", "motion x");
+
+    // Mode changes
+    glide.keymaps.set(
+      ["insert", "visual", "op-pending"],
+      "<C-g>",
+      "mode_change normal",
+    );
+    glide.keymaps.set("normal", "i", "mode_change insert --automove=left");
+    glide.keymaps.set("normal", "a", "mode_change insert");
+    glide.keymaps.set("normal", "A", "mode_change insert --automove=endline");
+
+    // Visual mode
+    glide.keymaps.set(["normal", "insert"], "<C-Space>", "motion v");
+    glide.keymaps.set("visual", "<C-b>", "motion vh");
+    glide.keymaps.set("visual", "<C-f>", "motion vl");
+    glide.keymaps.set("visual", "d", "motion vd");
+    glide.keymaps.set("visual", "c", "motion vc");
+    glide.keymaps.set("visual", "<A-w>", "visual_selection_copy");
+
+    // Jumplist
+    // glide.keymaps.set(["normal", "insert"], "<C-o>", "jumplist_back");
+    // glide.keymaps.set(["normal", "insert"], "<C-i>", "jumplist_forward");
+    // Split views
+    glide.keymaps.set("normal", "<C-x>2", ({ tab_id }) =>
+      showSplitViewPicker(tab_id),
+    );
+    glide.keymaps.set("normal", "<C-x>1", ({ tab_id }) =>
+      glide.unstable.split_views.separate(tab_id),
+    );
+
+    // Link pickers
+    glide.keymaps.set(ALL_MODES, "<C-.>", () => showClickablePicker("open"));
+    glide.keymaps.set("normal", "<A-y>", () => showClickablePicker("copy"));
+    glide.keymaps.set("normal", "<A-.>", () => showClickablePicker("newtab"));
+    glide.keymaps.set("normal", "<A-:>", () => showClickablePicker('click'));
+
+    glide.keymaps.set("normal", "<A-s>", () => showLineNavigator());
+    glide.keymaps.set("normal", "<A-g>", () => showPageNavigator());
+
+    // History pickers
+    glide.keymaps.set(["normal", "insert"], "<C-x><C-v>", () =>
+      showHistoryPicker(true),
+    );
+    glide.keymaps.set(["normal", "insert"], "<A-o>", () =>
+      showHistoryPicker(false),
+    );
+  }
+
+  function setupExcmds() {
+    glide.excmds.create(
+      {
+        name: "tab_discard",
+        description: "Discard (unload) a tab to free memory",
+      },
+      async ({ tab_id }) => {
+        const currentTab = await glide.tabs.active();
+        if (currentTab.id === tab_id) {
+          await browser.tabs.update(currentTab.id, { active: false });
+          const allTabs = await browser.tabs.query({ currentWindow: true });
+          const currentIndex = allTabs.findIndex((t) => t.id === currentTab.id);
+          const nextTab = allTabs[currentIndex + 1] || allTabs[currentIndex - 1];
+          if (nextTab?.id) {
+            await browser.tabs.update(nextTab.id, { active: true });
+          }
+        }
+        await browser.tabs.discard(tab_id);
+      },
+    );
+  }
+
+  function setupAutocommands() {
+    // Extended context menu
+    glide.autocmds.create("ConfigLoaded", async () => {
+      await setupExtendedContextMenu();
+    });
+
+    // Mode indicator
+    glide.autocmds.create("ModeChanged", "*", (args) => {
+      const fallback = "--glide-fallback-mode";
+      const mode_colors: Record<keyof GlideModes, string> = {
+        command: "--glide-mode-command",
+        hint: "--glide-mode-hint",
+        ignore: "--glide-mode-ignore",
+        insert: "--glide-mode-insert",
+        normal: "--glide-mode-normal",
+        "op-pending": "--glide-mode-op-pending",
+        visual: "--glide-mode-visual",
+      };
+
+      glide.styles.add(
+        `#browser { border-bottom: 3px solid var(${mode_colors[args.new_mode] ?? fallback}) }`,
+        { id: "glide-custom-mode-indicator", overwrite: true },
+      );
+    });
+  }
+
+  function setupRedirects() {
+    browser.webRequest.onBeforeRequest.addListener(
+      handleBeforeRequest,
+      { urls: ["<all_urls>"] },
+      ["blocking"],
+    );
+  }
+
+  // ============================================================================
+  // MAIN INITIALIZATION
+  // ============================================================================
+
+  function init() {
+    setupStyles();
+    setupOptions();
+    setupPrefs();
+    setupExcmds();
+    setupKeymaps();
+    setupAutocommands();
+    setupRedirects();
+  }
+
+  // Run initialization
+  init();
 #+end_src
 
 *** Librewolf
@@ -2753,146 +2886,6 @@ Pipewire setup, just these lines enough to make sane default for it
       };
     }
   #+end_src
-
-**** userChrome css
-:PROPERTIES:
-:header-args: :noweb-ref userchrome
-:END:
-
-- Css customization for Firefox UI.
-- Minimal UI with disabled tab-bar (use sideberry)
-#+begin_src css :tangle ~/.librewolf/ihome/chrome/userChrome.css
-  /* Hide the tab bar! */
-  /* #TabsToolbar { visibility: collapse; } */
-#+end_src
-
-- User.js for librewolf
-  Makes liberwolf not purge cache data, it persists for sessions. Use mullvad for purging data
-  Enables and make liberwolf more socially usable :)
-#+begin_src js :noweb-ref fox-userjs :tangle no
-   // ~/.librewolf/ihome/user.js
-  // userchrome.css usercontent.css activate
-  user_pref("sidebar.animation.expand-on-hover.duration-ms", "50");
-  user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
-
-  // firefox sync
-  user_pref("identity.fxaccounts.enabled", true);
-
-  // Fill SVG Color
-  user_pref("svg.context-properties.content.enabled", true);
-
-  // CSS's `:has()` selector
-  user_pref("layout.css.has-selector.enabled", true);
-
-  // Integrated calculator at urlbar
-  user_pref("browser.urlbar.suggest.calculator", true);
-
-  // Integrated unit convertor at urlbar
-  user_pref("browser.urlbar.unitConversion.enabled", true);
-  user_pref("browser.tabs.insertAfterCurrent", true);
-
-  // Trim  URL
-  user_pref("browser.urlbar.trimHttps", true);
-  user_pref("browser.urlbar.trimURLs", true);
-
-  // GTK rounded corners
-  user_pref("widget.gtk.rounded-bottom-corners.enabled", true);
-
-  // Who is bogus? (fixes Sidebery tab dragging on Linux)
-  user_pref("widget.gtk.ignore-bogus-leave-notify", 1);
-
-  // for librewolf
-  user_pref("privacy.clearOnShutdown.history", false);
-  user_pref("privacy.clearOnShutdown.sessions", false);
-  user_pref("privacy.clearOnShutdown_v2.cookiesAndStorage", false);
-  user_pref("privacy.clearOnShutdown_v2.cache", false);
-  user_pref("privacy.clearOnShutdown.downloads", false);
-
-   //user_pref("pdfjs.forcePageColors", true);
-   //user_pref("pdfjs.pageColorsBackground", "#000000");
-   //user_pref("pdfjs.pageColorsForeground", "#ffffff");
-
-  user_pref("layout.css.grid-template-masonry-value.enabled", true);
-  user_pref("dom.enable_web_task_scheduling", true);
-
-  // Better fox
-  user_pref("urlclassifier.trackingSkipURLs", "*.reddit.com, *.twitter.com, *.twimg.com");
-  user_pref("urlclassifier.features.socialtracking.skipURLs", "*.instagram.com, *.twitter.com, *.twimg.com");
-
-  /** OCSP & CERTS / HPKP ***/
-  // Use CRLite instead of OCSP
-  user_pref("security.OCSP.enabled", 0);
-  user_pref("security.OCSP.require", false);
-  user_pref("security.pki.crlite_mode", 2);
-
-  /** RFP ***/
-  // Limits refresh rate to 60mHz, breaks timezone, and forced light theme
-  // [1] https://librewolf.net/docs/faq/#what-are-the-most-common-downsides-of-rfp-resist-fingerprinting
-  user_pref("privacy.resistFingerprinting", false);
-
-  // WebGL
-  // Breaks Map sites, NYT articles, Nat Geo, and more
-  // [1] https://manu.ninja/25-real-world-applications-using-webgl/
-  user_pref("webgl.disabled", false);
-  user_pref("gfx.webrender.all", true);
-
-  // DRM
-  // Netflix, Udemy, Spotify, etc.
-  user_pref("media.eme.enabled", true);
-
-  /** HTTPS-ONLY MODE ***/
-  user_pref("dom.security.https_only_mode_error_page_user_suggestions", true);
-
-  /** PASSWORDS AND AUTOFILL ***/
-  user_pref("signon.generation.enabled", false);
-
-  /** WEBRTC ***/
-  // Breaks video conferencing
-  user_pref("media.peerconnection.ice.no_host", false);
-
-  /** PERMISSIONS ***/
-  user_pref("permissions.default.geo", 2);
-  user_pref("permissions.default.desktop-notification", 2);
-  user_pref("dom.push.enabled", false);
-
-  /****************************************************************************
-   ,* SECTION: PESKYFOX                                                        *
-  ,****************************************************************************/
-  /** MOZILLA UI ***/
-  user_pref("layout.css.prefers-color-scheme.content-override", 2);
-  user_pref("toolkit.legacyUserProfileCustomizations.stylesheets", true);
-  user_pref("browser.compactmode.show", true);
-
-  /** FULLSCREEN ***/
-  user_pref("full-screen-api.transition-duration.enter", "0 0");
-  user_pref("full-screen-api.transition-duration.leave", "0 0");
-  user_pref("full-screen-api.warning.delay", 0);
-  user_pref("full-screen-api.warning.timeout", 0);
-
-  /** URL BAR ***/
-  user_pref("browser.urlbar.suggest.engines", false);
-  user_pref("browser.urlbar.suggest.topsites", false);
-  user_pref("browser.urlbar.suggest.calculator", true);
-  user_pref("browser.urlbar.unitConversion.enabled", true);
-
-  /** AUTOPLAY ***/
-  // Default breaks some video players
-  user_pref("media.autoplay.blocking_policy", 0);
-
-  /** PASSWORDS ***/
-  user_pref("editor.truncate_user_pastes", false);
-
-  /** DOWNLOADS ***/
-  user_pref("browser.download.autohideButton", true);
-
-  /** PDF ***/
-  user_pref("browser.download.open_pdf_attachments_inline", true);
-
-  /** TAB BEHAVIOR ***/
-  user_pref("browser.tabs.loadBookmarksInTabs", true);
-  user_pref("browser.bookmarks.openInTabClosesMenu", false);
-  user_pref("findbar.highlightAll", true);
-#+end_src
 
 *** COMMENT brave
 - Embrace the brave world
@@ -3629,7 +3622,7 @@ Pipewire setup, just these lines enough to make sane default for it
   //}
 
   // startups
-  //spawn-at-startup "noctalia-shell"
+  spawn-at-startup "noctalia-shell"
   //spawn-at-startup "sh" "-c" "swayidle -w timeout 150 'brightnessctl -s set 5%' resume 'brightnessctl -r' timeout 180 'noctalia-shell ipc call lockScreen toggle' timeout 200 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' timeout 900 'systemctl suspend'"
 
   output "eDP-1" {
@@ -3733,7 +3726,8 @@ Pipewire setup, just these lines enough to make sane default for it
   window-rule {
   match title="^Picture-in-Picture$"
   match app-id="mpv"
-  max-width 400; max-height 300;
+  min-width 400; min-height 300;
+  max-width 800; max-height 600;
   open-floating true
   default-floating-position x=1020 y=550
   }
@@ -3941,16 +3935,983 @@ Pipewire setup, just these lines enough to make sane default for it
 
 #+end_src
 
-** COMMENT mangowc
+** mangowc
 
 #+begin_src nix
   inputs.mango.hmModules.mango
     {
       wayland.windowManager.mango = {
         enable = true;
+        systemd = {
+          enable = true;
+          xdgAutostart = true;
+        };
       };
     }
 #+end_src
+
+
+
+*** Mango config
+#+begin_src conf :noweb-ref mango :tangle ~/.config/mango/config.conf
+  # More option see https://github.com/DreamMaoMao/mango/wiki/
+
+  # exec-once=dbus-update-activation-environment --systemd WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP PATH
+  # exec-once=systemctl --user import-environment WAYLAND_DISPLAY DISPLAY XDG_CURRENT_DESKTOP PATH
+  # exec-once=systemctl --user start mango-session.target
+  exec-once=~/.config/mango/start.sh
+  exec-once=noctalia-shell
+  exec-once=vicinae server
+  exec-once=emacs --daemon
+
+  env = HYPRSHOT_DIR,/home/dev/media/pics/sshots
+  # env = XDG_SESSION_TYPE,wayland
+  # env = GDK_BACKEND,wayland
+  # env = SDL_VIDEODRIVER,wayland
+  # env = CLUTTER_BACKEND,wayland
+  # env = MOZ_ENABLE_WAYLAND,1
+  # env = OZONE_PLATFORM,wayland
+  # env = ELECTRON_OZONE_PLATFORM_HINT,auto
+  # env = QT_AUTO_SCREEN_SCALE_FACTOR,1
+
+  monitorrule=eDP-1,0.55,1,tile,0,1.25,0,0,1920,1200,60
+  monitorrule=HDMI-A-1,0.55,1,tile,0,1.5,1926,0,3840,2160,60
+
+  # Window effect
+  blur=1
+  blur_layer=1
+  blur_optimized=0
+  blur_params_num_passes = 3
+  blur_params_radius = 5
+  blur_params_noise = 0.02
+  blur_params_brightness = 0.9
+  blur_params_contrast = 0.9
+  blur_params_saturation = 1.2
+
+  shadows = 0
+  layer_shadows = 0
+  shadow_only_floating = 1
+  shadows_size = 10
+  shadows_blur = 15
+  shadows_position_x = 0
+  shadows_position_y = 0
+
+  focused_opacity=1.0
+  unfocused_opacity=0.9
+
+  # Animation Configuration(support type:zoom,slide,fade,none)
+  # tag_animation_direction: 0-horizontal,1-vertical
+  animations=1
+  layer_animations=1
+  animation_type_open=slide
+  animation_type_close=slide
+  layer_animation_type_open=zoom
+  layer_animation_type_close=zoom
+  animation_fade_in=1
+  animation_fade_out=1
+  tag_animation_direction=0
+  zoom_initial_ratio=0.3
+  zoom_end_ratio=0.8
+  fadein_begin_opacity=0.5
+  fadeout_begin_opacity=0.8
+  animation_duration_move=400
+  animation_duration_open=400
+  animation_duration_tag=400
+  animation_duration_close=500
+
+  animation_curve_open=0.46,1.0,0.29,1
+  animation_curve_move=0.46,1.0,0.29,1
+  animation_curve_tag=0.46,1.0,0.29,1
+  animation_curve_close=0.08,0.92,0,1
+  animation_curve_focus=0.46,1.0,0.29,1
+  animation_curve_opafadeout=0.5,0.5,0.5,0.5
+  animation_curve_opafadein=0.46,1.0,0.29,1
+
+  # Scroller Layout Setting
+  scroller_structs=20
+  scroller_default_proportion=0.8
+  scroller_focus_center=0
+  scroller_prefer_center=0
+  edge_scroller_pointer_focus=0
+  scroller_default_proportion_single=1.0
+  scroller_proportion_preset=0.5,0.8,1.0
+
+  # Master-Stack Layout
+  new_is_master=0                 # New windows become the master (left side)
+  default_mfact=0.55              # Default master area width percentage
+  default_nmaster=1               # Default number of windows in the master area
+  smartgaps=0                     # Hide gaps if only one window is visible
+
+  # Overview Setting
+  hotarea_size=40
+  enable_hotarea=0
+  ov_tab_mode=0
+  overviewgappi=5
+  overviewgappo=30
+
+  # Misc
+  no_border_when_single=0
+  axis_bind_apply_timeout=100
+  focus_on_activate=1
+  inhibit_regardless_of_visibility=0
+  sloppyfocus=1
+  warpcursor=0
+  focus_cross_monitor=1
+  exchange_cross_monitor=1
+  focus_cross_tag=0
+  scratchpad_cross_monitor=1
+  enable_floating_snap=1
+  view_current_to_back=0
+  snap_distance=30
+  cursor_size=32
+  cursor_hide_timeout=5
+  drag_tile_to_tile=1
+
+  # keyboard
+  repeat_rate=100
+  repeat_delay=600
+  numlockon=0
+  xkb_rules_layout=us
+  xkb_rules_options=ctrl:nocaps
+
+  # Trackpad
+  # need relogin to make it apply
+  disable_trackpad=0
+  tap_to_click=1
+  tap_and_drag=1
+  drag_lock=0
+  trackpad_natural_scrolling=1
+  disable_while_typing=1
+  left_handed=0
+  middle_button_emulation=0
+  swipe_min_threshold=20
+  accel_speed=0.4
+  drag_corner=4
+  drag_warp_cursor=0
+
+  # mouse
+  # need relogin to make it apply
+  mouse_natural_scrolling=0
+
+  # Appearance
+  gappih=5
+  gappiv=5
+  gappoh=4
+  gappov=4
+  scratchpad_width_ratio=0.7
+  scratchpad_height_ratio=0.8
+  borderpx=2
+  border_radius=16
+  no_radius_when_single=0
+
+  # layout support:
+  # tile,scroller,grid,deck,monocle,center_tile,vertical_tile,vertical_scroller
+  # switch layout
+  circle_layout=center_tile,scroller,vertical_scroller,tile
+  bind=SUPER,t,switch_layout
+  tagrule=id:1,layout_name:scroller,no_hide:1
+  tagrule=id:2,layout_name:tile
+  tagrule=id:3,layout_name:tile
+  tagrule=id:4,layout_name:scroller
+  tagrule=id:5,layout_name:scroller
+  tagrule=id:6,layout_name:vertical_scroller
+
+  windowrule=appid:emacs,isfullscreen:1,scroller_proportion:1.0,tags:1
+  windowrule=appid:glide-browser,scroller_proportion:1.0,tags:2
+  windowrule=appid:foot,tags:3
+  windowrule=appid:mpv,isfloating:1,noblur:1,isoverlay:1,offsetx:90,offsety:90,width:400,height:400,unfocused_opacity:1
+
+  # layerrule=noblur:1,layer_name:rofi,noanim:1
+  layerrule=noblur:1,layer_name:^(noctalia|selection).*,noanim:1,noshadow:1,animation_type_open:none,animation_type_close:none
+
+  # Key Bindings
+  # key name refer to `xev` or `wev` command output,
+  # mod keys name: super,ctrl,alt,shift,none
+
+  # reload config
+  bind=SUPER,r,reload_config
+
+  # menu and terminal
+  bind=SUPER,D,spawn,vicinae toggle
+  bind=SUPER+SHIFT,D,spawn,rofi -show drun
+  bind=SUPER,Return,spawn,foot
+
+  # exit
+  bind=SUPER+CTRL,E,quit
+  bind=SUPER+SHIFT,q,killclient,
+
+  # custom from niri
+  bind=SUPER,x,spawn,noctalia-shell ipc call sessionMenu toggle
+  bind=SUPER,y,spawn,vicinae vicinae://extensions/vicinae/clipboard/history
+  bind=SUPER,w,spawn,d-urls
+  bind=SUPER,F5,spawn,noctalia-shell ipc call wallpaper random
+  bind=SUPER,o,spawn,d-stuff
+  bind=SUPER,u,spawn,d-menu
+  bind=SUPER,b,spawn,noctalia-shell ipc call controlCenter toggle
+  bind=SUPER+Shift,W,spawn, d-passentry
+  bind=SUPER+Shift,Y,spawn, d-passentry
+  bind=SUPER+Shift,B,spawn, d-bookmark
+  bind=SUPER,Delete, spawn, noctalia-shell ipc call screenRecorder toggle
+  bind=SUPER+Shift,T, spawn, noctalia-shell ipc call notifications toggleHistory
+  bindls=SUPER+Ctrl,P, spawn, noctalia-shell ipc call sessionMenu lockAndSuspend
+  bindls=SUPER+Ctrl+Shift,L, spawn_shell, noctalia-shell ipc call lockScreen lock & mmsg -d toggle_monitor
+  switchbind=fold,spawn_shell, noctalia-shell ipc call lockScreen lock & mmsg -d disable_monitor
+  switchbind=unfold,spawn,mmsg -d enable_monitor
+
+  bindls=SUPER+ctrl,minus,spawn,wlr-randr --output eDP-1 --toggle
+  bindls=SUPER+ctrl,equal,spawn,mmsg -d enable_monitor
+
+  # Enter 'apps' mode
+  bind=SUPER,A,setkeymode,apps
+  keymode=apps
+  bind=NONE,E,spawn,emacsclient -c
+  bind=NONE,G,spawn,glide
+  bind=NONE,F,spawn,nautilus
+  bind=NONE,P,spawn,glide --private-window
+  bind=NONE,T,spawn,foot
+  bind=NONE,Escape,setkeymode,default
+  bind=Ctrl,G,setkeymode,default
+  keymode=default
+
+  bind=NONE,Print,spawn,hyprshot -m region --clipboard-only
+  bind=SUPER,Print,spawn,hyprshot -m region
+  bind=ALT,Print,spawn,hyprshot -m window -m active
+  bind=CTRL,Print,spawn,hyprshot -m output
+
+  # switch window focus
+  bind=SUPER,j,focusstack,next
+  bind=SUPER,k,focusstack,prev
+  bind=SUPER,h,focusdir,left
+  bind=SUPER,l,focusdir,right
+  # bind=SUPER,p,focusdir,up
+  # bind=SUPER,n,focusdir,down
+
+  # swap window
+  bind=SUPER+SHIFT,p,exchange_client,up
+  bind=SUPER+SHIFT,n,exchange_client,down
+  bind=SUPER+SHIFT,k,exchange_client,up
+  bind=SUPER+SHIFT,j,exchange_client,down
+  bind=SUPER+SHIFT,h,exchange_client,left
+  bind=SUPER+SHIFT,l,exchange_client,right
+
+  bind=super,bracketleft,scroller_stack,left
+  bind=super,bracketright,scroller_stack,right
+
+  # switch window status
+  bind=SUPER,g,toggleglobal,
+  bind=SUPER,Tab,spawn,vicinae vicinae://extensions/vicinae/wm/switch-windows
+  bind=SUPER+shift,Tab,toggleoverview,
+  bind=SUPER,space,togglefloating,
+  bind=SUPER,f,togglemaximizescreen,
+  bind=SUPER+SHIFT,f,togglefullscreen,
+  bind=SUPER,c,togglefakefullscreen,
+  bind=SUPER,i,minimized,
+  bind=SUPER+Shift,o,toggleoverlay,
+  bind=SUPER+SHIFT,I,restore_minimized,togglefloating
+  bind=SUPER,z,toggle_scratchpad
+
+  # scroller layout
+  bind=SUPER,e,set_proportion,1.0
+  bind=SUPER+SHIFT,e,switch_proportion_preset,
+
+  # tag switch
+  bind=SUPER,p,viewtoleft,0
+  bind=SUPER,n,viewtoright,0
+  # bind=SUPER+SHIFT,p,tagtoleft,0
+  # bind=SUPER+SHIFT,n,tagtoright,0
+
+  bind=SUPER,1,view,1,0
+  bind=SUPER,2,view,2,0
+  bind=SUPER,3,view,3,0
+  bind=SUPER,4,view,4,0
+  bind=SUPER,5,view,5,0
+  bind=SUPER,6,view,6,0
+  bind=SUPER,7,view,7,0
+  bind=SUPER,8,view,8,0
+  bind=SUPER,9,view,9,0
+
+  # tag: move client to the tag and focus it
+  # tagsilent: move client to the tag and not focus it
+  # bind=Alt,1,tagsilent,1
+  bind=SUPER+SHIFT,1,tag,1,0
+  bind=SUPER+SHIFT,2,tag,2,0
+  bind=SUPER+SHIFT,3,tag,3,0
+  bind=SUPER+SHIFT,4,tag,4,0
+  bind=SUPER+SHIFT,5,tag,5,0
+  bind=SUPER+SHIFT,6,tag,6,0
+  bind=SUPER+SHIFT,7,tag,7,0
+  bind=SUPER+SHIFT,8,tag,8,0
+  bind=SUPER+SHIFT,9,tag,9,0
+
+  bind=Super+ctrl,1,toggletag,1
+  bind=Super+ctrl,2,toggletag,2
+  bind=Super+ctrl,3,toggletag,3
+  bind=Super+ctrl,4,toggletag,4
+  bind=Super+ctrl,5,toggletag,5
+  bind=Super+ctrl,6,toggletag,6
+  bind=Super+ctrl,7,toggletag,7
+  bind=Super+ctrl,8,toggletag,8
+  bind=Super+ctrl,9,toggletag,9
+  bind=Super+ctrl,0,toggletag,0
+
+
+  # monitor switch
+  bind=SUPER+alt+shift,p,focusmon,left
+  bind=SUPER+alt+shift,n,focusmon,right
+  bind=SUPER+Alt,p,tagmon,left
+  bind=SUPER+Alt,n,tagmon,right
+
+  # gaps
+  bind=SUPER,equal,incgaps,1
+  bind=SUPER,minus,incgaps,-1
+  bind=SUPER+SHIFT,R,togglegaps
+
+  # movewin
+  # bind=CTRL+SHIFT,Up,movewin,+0,-50
+  # bind=CTRL+SHIFT,Down,movewin,+0,+50
+  # bind=CTRL+SHIFT,Left,movewin,-50,+0
+  # bind=CTRL+SHIFT,Right,movewin,+50,+0
+
+  # # resizewin
+  bind=CTRL+SUPER,k,resizewin,+0,-50
+  bind=CTRL+SUPER,j,resizewin,+0,+50
+  bind=CTRL+SUPER,h,resizewin,-50,+0
+  bind=CTRL+SUPER,l,resizewin,+50,+0
+
+  bind=SUPER+Ctrl,R,setkeymode,resize
+  keymode=resize
+  bind=NONE,k,resizewin,+0,-50
+  bind=NONE,j,resizewin,+0,+50
+  bind=NONE,h,resizewin,-50,+0
+  bind=NONE,l,resizewin,+50,+0
+  bind=NONE,Escape,setkeymode,default
+  bind=Ctrl,G,setkeymode,default
+  keymode=default
+
+
+  # Mouse Button Bindings
+  # NONE mode key only work in ov mode
+  mousebind=SUPER,btn_left,moveresize,curmove
+  mousebind=SUPER+alt,btn_left,moveresize,curresize
+  mousebind=NONE,btn_middle,togglemaxmizescreen,0
+  mousebind=SUPER,btn_right,moveresize,curresize
+  mousebind=NONE,btn_left,toggleoverview,-1
+  mousebind=NONE,btn_right,killclient,0
+
+  # Axis Bindings
+  axisbind=SUPER,UP,viewtoleft,
+  axisbind=SUPER,DOWN,viewtoright,
+
+  # Gestures
+  gesturebind=none,left,3,focusdir,right
+  gesturebind=none,right,3,focusdir,left
+  gesturebind=none,down,3,viewtoleft,0
+  gesturebind=none,up,3,viewtoright,0
+  gesturebind=none,up,4,toggleoverview
+  gesturebind=none,down,4,toggleoverview
+  gesturebind=none,right,4,focusmon,right
+  gesturebind=none,left,4,focusmon,left
+
+  bind=none,XF86AudioRaiseVolume,spawn,noctalia-shell ipc call volume increase
+  bind=none,XF86AudioLowerVolume,spawn,noctalia-shell ipc call volume decrease
+  bind=none,XF86AudioMute,spawn,noctalia-shell ipc call volume muteOutput
+  bind=none,XF86MonBrightnessUp,spawn,noctalia-shell ipc call brightness increase
+  bind=none,XF86MonBrightnessDown,spawn,noctalia-shell ipc call brightness decrease
+
+  # This sources the noctalia theme
+  source = /home/dev/.config/mango/noctalia.conf
+#+end_src
+
+** Noctalia settings
+- Quickshell to make WM as desktop environment
+
+#+begin_src json-ts :noweb-ref noctalia :tangle ~/.config/noctalia/settings.json 
+  {
+    "appLauncher": {
+      "autoPasteClipboard": false,
+      "clipboardWrapText": true,
+      "customLaunchPrefix": "",
+      "customLaunchPrefixEnabled": false,
+      "enableClipPreview": true,
+      "enableClipboardHistory": false,
+      "iconMode": "tabler",
+      "ignoreMouseInput": false,
+      "pinnedApps": [
+      ],
+      "position": "center",
+      "screenshotAnnotationTool": "",
+      "showCategories": true,
+      "showIconBackground": false,
+      "sortByMostUsed": true,
+      "terminalCommand": "foot -e",
+      "useApp2Unit": false,
+      "viewMode": "list"
+    },
+    "audio": {
+      "cavaFrameRate": 30,
+      "mprisBlacklist": [
+      ],
+      "preferredPlayer": "",
+      "visualizerType": "linear",
+      "volumeOverdrive": false,
+      "volumeStep": 5
+    },
+    "bar": {
+      "backgroundOpacity": 0.93,
+      "capsuleOpacity": 1,
+      "density": "default",
+      "exclusive": true,
+      "floating": true,
+      "marginHorizontal": 18,
+      "marginVertical": 2,
+      "monitors": [
+      ],
+      "outerCorners": true,
+      "position": "top",
+      "showCapsule": true,
+      "showOutline": false,
+      "useSeparateOpacity": false,
+      "widgets": {
+        "center": [
+          {
+            "customFont": "",
+            "formatHorizontal": "HH:mm ddd, MMM dd",
+            "formatVertical": "HH mm - dd MM",
+            "id": "Clock",
+            "tooltipFormat": "HH:mm ddd, MMM dd",
+            "useCustomFont": false,
+            "usePrimaryColor": false
+          },
+          {
+            "characterCount": 2,
+            "colorizeIcons": false,
+            "enableScrollWheel": true,
+            "followFocusedScreen": false,
+            "groupedBorderOpacity": 1,
+            "hideUnoccupied": false,
+            "iconScale": 0.8,
+            "id": "Workspace",
+            "labelMode": "none",
+            "showApplications": false,
+            "showLabelsOnlyWhenOccupied": true,
+            "unfocusedIconsOpacity": 1
+          },
+          {
+            "compactMode": false,
+            "compactShowAlbumArt": true,
+            "compactShowVisualizer": false,
+            "hideMode": "idle",
+            "hideWhenIdle": false,
+            "id": "MediaMini",
+            "maxWidth": 145,
+            "panelShowAlbumArt": true,
+            "panelShowVisualizer": true,
+            "scrollingMode": "hover",
+            "showAlbumArt": false,
+            "showArtistFirst": true,
+            "showProgressRing": true,
+            "showVisualizer": false,
+            "useFixedWidth": false,
+            "visualizerType": "linear"
+          }
+        ],
+        "left": [
+          {
+            "compactMode": false,
+            "diskPath": "/",
+            "id": "SystemMonitor",
+            "showCpuTemp": true,
+            "showCpuUsage": true,
+            "showDiskUsage": false,
+            "showGpuTemp": false,
+            "showLoadAverage": false,
+            "showMemoryAsPercent": false,
+            "showMemoryUsage": true,
+            "showNetworkStats": true,
+            "useMonospaceFont": true,
+            "usePrimaryColor": false
+          },
+          {
+            "colorizeIcons": false,
+            "hideMode": "hidden",
+            "id": "ActiveWindow",
+            "maxWidth": 145,
+            "scrollingMode": "hover",
+            "showIcon": true,
+            "useFixedWidth": false
+          }
+        ],
+        "right": [
+          {
+            "defaultSettings": {
+              "mode": "region"
+            },
+            "id": "plugin:screenshot"
+          },
+          {
+            "colorizeSystemIcon": "none",
+            "enableColorization": false,
+            "hideMode": "alwaysExpanded",
+            "icon": "camera-plus",
+            "id": "CustomButton",
+            "leftClickExec": "hyprshot -m region",
+            "leftClickUpdateText": false,
+            "maxTextLength": {
+              "horizontal": 10,
+              "vertical": 10
+            },
+            "middleClickExec": "",
+            "middleClickUpdateText": false,
+            "parseJson": false,
+            "rightClickExec": "hyprshot -m region --clipboard-only",
+            "rightClickUpdateText": false,
+            "showIcon": true,
+            "textCollapse": "",
+            "textCommand": "",
+            "textIntervalMs": 3000,
+            "textStream": false,
+            "wheelDownExec": "",
+            "wheelDownUpdateText": false,
+            "wheelExec": "",
+            "wheelMode": "unified",
+            "wheelUpExec": "",
+            "wheelUpUpdateText": false,
+            "wheelUpdateText": false
+          },
+          {
+            "defaultSettings": {
+              "audioCodec": "opus",
+              "audioSource": "default_output",
+              "colorRange": "limited",
+              "copyToClipboard": false,
+              "directory": "",
+              "filenamePattern": "recording_yyyyMMdd_HHmmss",
+              "frameRate": "60",
+              "quality": "very_high",
+              "resolution": "original",
+              "showCursor": true,
+              "videoCodec": "h264",
+              "videoSource": "portal"
+            },
+            "id": "plugin:screen-recorder"
+          },
+          {
+            "blacklist": [
+            ],
+            "colorizeIcons": false,
+            "drawerEnabled": true,
+            "hidePassive": false,
+            "id": "Tray",
+            "pinned": [
+            ]
+          },
+          {
+            "hideWhenZero": false,
+            "id": "NotificationHistory",
+            "showUnreadBadge": true
+          },
+          {
+            "displayMode": "onhover",
+            "id": "Network"
+          },
+          {
+            "deviceNativePath": "",
+            "displayMode": "alwaysShow",
+            "hideIfNotDetected": true,
+            "id": "Battery",
+            "showNoctaliaPerformance": true,
+            "showPowerProfiles": true,
+            "warningThreshold": 40
+          },
+          {
+            "displayMode": "onhover",
+            "id": "Volume",
+            "middleClickCommand": "pwvucontrol || pavucontrol"
+          },
+          {
+            "displayMode": "onhover",
+            "id": "Brightness"
+          },
+          {
+            "colorizeDistroLogo": false,
+            "colorizeSystemIcon": "primary",
+            "customIconPath": "",
+            "enableColorization": true,
+            "icon": "noctalia",
+            "id": "ControlCenter",
+            "useDistroLogo": true
+          }
+        ]
+      }
+    },
+    "brightness": {
+      "brightnessStep": 5,
+      "enableDdcSupport": true,
+      "enforceMinimum": true
+    },
+    "calendar": {
+      "cards": [
+        {
+          "enabled": true,
+          "id": "calendar-header-card"
+        },
+        {
+          "enabled": true,
+          "id": "calendar-month-card"
+        },
+        {
+          "enabled": true,
+          "id": "weather-card"
+        }
+      ]
+    },
+    "colorSchemes": {
+      "darkMode": true,
+      "manualSunrise": "06:30",
+      "manualSunset": "18:30",
+      "matugenSchemeType": "scheme-fruit-salad",
+      "predefinedScheme": "Kanagawa",
+      "schedulingMode": "off",
+      "useWallpaperColors": true
+    },
+    "controlCenter": {
+      "cards": [
+        {
+          "enabled": true,
+          "id": "profile-card"
+        },
+        {
+          "enabled": true,
+          "id": "shortcuts-card"
+        },
+        {
+          "enabled": true,
+          "id": "audio-card"
+        },
+        {
+          "enabled": false,
+          "id": "brightness-card"
+        },
+        {
+          "enabled": true,
+          "id": "weather-card"
+        },
+        {
+          "enabled": true,
+          "id": "media-sysmon-card"
+        }
+      ],
+      "diskPath": "/",
+      "position": "center",
+      "shortcuts": {
+        "left": [
+          {
+            "id": "Network"
+          },
+          {
+            "id": "Bluetooth"
+          },
+          {
+            "id": "WallpaperSelector"
+          }
+        ],
+        "right": [
+          {
+            "id": "Notifications"
+          },
+          {
+            "id": "PowerProfile"
+          },
+          {
+            "id": "KeepAwake"
+          },
+          {
+            "id": "NightLight"
+          }
+        ]
+      }
+    },
+    "desktopWidgets": {
+      "enabled": false,
+      "gridSnap": false,
+      "monitorWidgets": [
+      ]
+    },
+    "dock": {
+      "animationSpeed": 1,
+      "backgroundOpacity": 1,
+      "colorizeIcons": false,
+      "deadOpacity": 0.6,
+      "displayMode": "auto_hide",
+      "enabled": false,
+      "floatingRatio": 1,
+      "inactiveIndicators": false,
+      "monitors": [
+      ],
+      "onlySameOutput": true,
+      "pinnedApps": [
+      ],
+      "pinnedStatic": false,
+      "position": "bottom",
+      "size": 1
+    },
+    "general": {
+      "allowPanelsOnScreenWithoutBar": true,
+      "animationDisabled": false,
+      "animationSpeed": 1,
+      "avatarImage": "/home/dev/media/pics/wp6489081-anime-ps4-luffy-wallpapers.jpg",
+      "boxRadiusRatio": 1,
+      "compactLockScreen": false,
+      "dimmerOpacity": 0.7000000000000001,
+      "enableShadows": true,
+      "forceBlackScreenCorners": false,
+      "iRadiusRatio": 1,
+      "language": "",
+      "lockOnSuspend": true,
+      "radiusRatio": 1,
+      "scaleRatio": 1,
+      "screenRadiusRatio": 1,
+      "shadowDirection": "bottom_right",
+      "shadowOffsetX": 2,
+      "shadowOffsetY": 3,
+      "showChangelogOnStartup": true,
+      "showHibernateOnLockScreen": false,
+      "showScreenCorners": true,
+      "showSessionButtonsOnLockScreen": true
+    },
+    "hooks": {
+      "darkModeChange": "",
+      "enabled": false,
+      "performanceModeDisabled": "",
+      "performanceModeEnabled": "",
+      "screenLock": "",
+      "screenUnlock": "",
+      "wallpaperChange": ""
+    },
+    "location": {
+      "analogClockInCalendar": false,
+      "firstDayOfWeek": -1,
+      "hideWeatherCityName": false,
+      "hideWeatherTimezone": false,
+      "name": "Bengaluru",
+      "showCalendarEvents": true,
+      "showCalendarWeather": true,
+      "showWeekNumberInCalendar": false,
+      "use12hourFormat": false,
+      "useFahrenheit": false,
+      "weatherEnabled": true,
+      "weatherShowEffects": true
+    },
+    "network": {
+      "bluetoothDetailsViewMode": "grid",
+      "bluetoothHideUnnamedDevices": false,
+      "bluetoothRssiPollIntervalMs": 10000,
+      "bluetoothRssiPollingEnabled": false,
+      "wifiDetailsViewMode": "grid",
+      "wifiEnabled": true
+    },
+    "nightLight": {
+      "autoSchedule": true,
+      "dayTemp": "6500",
+      "enabled": true,
+      "forced": false,
+      "manualSunrise": "06:30",
+      "manualSunset": "18:30",
+      "nightTemp": "4000"
+    },
+    "notifications": {
+      "backgroundOpacity": 1,
+      "criticalUrgencyDuration": 100,
+      "enableKeyboardLayoutToast": true,
+      "enabled": true,
+      "location": "top_right",
+      "lowUrgencyDuration": 15,
+      "monitors": [
+      ],
+      "normalUrgencyDuration": 30,
+      "overlayLayer": true,
+      "respectExpireTimeout": false,
+      "saveToHistory": {
+        "critical": true,
+        "low": true,
+        "normal": true
+      },
+      "sounds": {
+        "criticalSoundFile": "",
+        "enabled": true,
+        "excludedApps": "discord,firefox,chrome,chromium,edge",
+        "lowSoundFile": "",
+        "normalSoundFile": "",
+        "separateSounds": true,
+        "volume": 0.5
+      }
+    },
+    "osd": {
+      "autoHideMs": 2000,
+      "backgroundOpacity": 1,
+      "enabled": true,
+      "enabledTypes": [
+        0,
+        1,
+        2,
+        null
+      ],
+      "location": "top_right",
+      "monitors": [
+      ],
+      "overlayLayer": true
+    },
+    "sessionMenu": {
+      "countdownDuration": 10000,
+      "enableCountdown": true,
+      "largeButtonsLayout": "grid",
+      "largeButtonsStyle": true,
+      "position": "center",
+      "powerOptions": [
+        {
+          "action": "lock",
+          "command": "",
+          "countdownEnabled": true,
+          "enabled": true
+        },
+        {
+          "action": "suspend",
+          "command": "",
+          "countdownEnabled": true,
+          "enabled": true
+        },
+        {
+          "action": "hibernate",
+          "command": "",
+          "countdownEnabled": true,
+          "enabled": true
+        },
+        {
+          "action": "reboot",
+          "command": "",
+          "countdownEnabled": true,
+          "enabled": true
+        },
+        {
+          "action": "logout",
+          "command": "",
+          "countdownEnabled": true,
+          "enabled": true
+        },
+        {
+          "action": "shutdown",
+          "command": "",
+          "countdownEnabled": true,
+          "enabled": true
+        }
+      ],
+      "showHeader": true,
+      "showNumberLabels": true
+    },
+    "settingsVersion": 39,
+    "systemMonitor": {
+      "cpuCriticalThreshold": 80,
+      "cpuPollingInterval": 3000,
+      "cpuWarningThreshold": 70,
+      "criticalColor": "",
+      "diskCriticalThreshold": 90,
+      "diskPollingInterval": 3000,
+      "diskWarningThreshold": 80,
+      "enableDgpuMonitoring": false,
+      "externalMonitor": "resources || missioncenter || jdsystemmonitor || corestats || system-monitoring-center || gnome-system-monitor || plasma-systemmonitor || mate-system-monitor || ukui-system-monitor || deepin-system-monitor || pantheon-system-monitor",
+      "gpuCriticalThreshold": 90,
+      "gpuPollingInterval": 3000,
+      "gpuWarningThreshold": 80,
+      "loadAvgPollingInterval": 3000,
+      "memCriticalThreshold": 90,
+      "memPollingInterval": 3000,
+      "memWarningThreshold": 70,
+      "networkPollingInterval": 3000,
+      "tempCriticalThreshold": 90,
+      "tempPollingInterval": 3000,
+      "tempWarningThreshold": 80,
+      "useCustomColors": false,
+      "warningColor": ""
+    },
+    "templates": {
+      "alacritty": false,
+      "cava": false,
+      "code": true,
+      "discord": false,
+      "emacs": false,
+      "enableUserTemplates": true,
+      "foot": false,
+      "fuzzel": false,
+      "ghostty": false,
+      "gtk": false,
+      "helix": false,
+      "hyprland": false,
+      "kcolorscheme": false,
+      "kitty": false,
+      "mango": true,
+      "niri": true,
+      "pywalfox": false,
+      "qt": true,
+      "spicetify": false,
+      "telegram": false,
+      "vicinae": true,
+      "walker": false,
+      "wezterm": false,
+      "yazi": false,
+      "zed": false,
+      "zenBrowser": false
+    },
+    "ui": {
+      "bluetoothDetailsViewMode": "grid",
+      "bluetoothHideUnnamedDevices": false,
+      "boxBorderEnabled": false,
+      "fontDefault": "Inter",
+      "fontDefaultScale": 1,
+      "fontFixed": "Maple Mono NF",
+      "fontFixedScale": 1,
+      "networkPanelView": "wifi",
+      "panelBackgroundOpacity": 0.92,
+      "panelsAttachedToBar": true,
+      "settingsPanelMode": "window",
+      "tooltipsEnabled": true,
+      "wifiDetailsViewMode": "grid"
+    },
+    "wallpaper": {
+      "directory": "/home/dev/d-git/d-wallpapers/walls",
+      "enableMultiMonitorDirectories": false,
+      "enabled": true,
+      "fillColor": "#000000",
+      "fillMode": "crop",
+      "hideWallpaperFilenames": false,
+      "monitorDirectories": [
+      ],
+      "overviewEnabled": false,
+      "panelPosition": "follow_bar",
+      "randomEnabled": true,
+      "randomIntervalSec": 1800,
+      "recursiveSearch": true,
+      "setWallpaperOnAllMonitors": true,
+      "solidColor": "#1a1a2e",
+      "transitionDuration": 1500,
+      "transitionEdgeSmoothness": 0.05,
+      "transitionType": "random",
+      "useSolidColor": false,
+      "useWallhaven": false,
+      "wallhavenApiKey": "",
+      "wallhavenCategories": "111",
+      "wallhavenOrder": "desc",
+      "wallhavenPurity": "100",
+      "wallhavenQuery": "",
+      "wallhavenRatios": "",
+      "wallhavenResolutionHeight": "",
+      "wallhavenResolutionMode": "atleast",
+      "wallhavenResolutionWidth": "",
+      "wallhavenSorting": "relevance",
+      "wallpaperChangeMode": "random"
+    }
+  }
+#+end_src
+
 
 ** wayland-packages
 
@@ -3958,18 +4919,19 @@ Pipewire setup, just these lines enough to make sane default for it
     {
       home.packages = with pkgs; [
         # screenshot
-        grim slurp nautilus
+        grim slurp
     	libreoffice-fresh
 
         libnotify libsixel
         brightnessctl
         wtype gtk3
-        swaybg swayimg swayidle wlsunset
+        swaybg swayimg wlsunset
+        hyprshot gpu-screen-recorder noctalia-shell vicinae
 
-        wl-screenrec wl-mirror
+        wl-screenrec wl-mirror wlr-randr
         wl-clipboard-rs xwayland-satellite
         mupdf poppler-utils ghostscript # for doc-view
-        uv prettier
+        uv prettier ruff
 
         pavucontrol pulsemixer playerctl
         transmission_4-gtk
@@ -3986,9 +4948,10 @@ Pipewire setup, just these lines enough to make sane default for it
     {
       services.hypridle = let
         hyprlock = lib.getExe pkgs.hyprlock;
-    	noctalia = lib.getExe inputs.noctalia.packages.x86_64-linux.default;
+    	noctalia = lib.getExe pkgs.noctalia-shell;
         brightness = lib.getExe pkgs.brightnessctl;
         niri = lib.getExe pkgs.niri;
+        mmsg = lib.getExe' inputs.mango.packages.x86_64-linux.mango "mmsg";
         timeout = 200; # base timer to act upon
         in {
         enable = true;
@@ -3996,7 +4959,6 @@ Pipewire setup, just these lines enough to make sane default for it
           general = {
             lock_cmd = "${noctalia} ipc call lockScreen lock";
             before_sleep_cmd = "${pkgs.systemd}/bin/loginctl lock-session";
-            unlock_cmd = "notify-send 'Welcome back!'";
           };
 
           listener = [
@@ -4011,8 +4973,8 @@ Pipewire setup, just these lines enough to make sane default for it
             }
             {
               timeout = timeout + 10;
-              on-timeout = "${niri} msg action power-off-monitors";
-              on-resume = "${niri} msg action power-on-monitors";
+              on-timeout = "${niri} msg action power-off-monitors || ${mmsg} -d disable_monitor";
+              on-resume = "${niri} msg action power-on-monitors || ${mmsg} -d enable_monitor";
             }
             {
               timeout = timeout * 5;
@@ -4043,7 +5005,7 @@ Pipewire setup, just these lines enough to make sane default for it
       stylix = {
         enable = true;
 
-        iconTheme = { # watch out soon stylix might implement this
+        icons = { # watch out soon stylix might implement this
           enable = true;
           dark = "Papirus-Dark";
           package = pkgs.papirus-icon-theme;
@@ -4064,37 +5026,75 @@ Pipewire setup, just these lines enough to make sane default for it
 ** Vicinae
 - The raycast for Linux
 
-  #+begin_src nix
-    {
-      programs.vicinae = {
-        enable = true;
-        systemd.enable = true;
-        settings = {
-          pop_to_root_on_close = false;
-          close_on_focus_loss = true;
-          font.normal.size = 12;
-          keybinding = "emacs";
-          keybinds = {
-            "action.open" = "alt+O";
-            "open-settings" = "control+;";
-            "toggle-action-panel" = "control+.";
-          };
-          theme.dark = {
-            "icon_theme" = "auto";
-            "name" = lib.mkForce "noctalia";
-          };
-          launcher_window = {
-            "client_side_decorations".enabled = true;
-            layer_shell.layer = "overlay";
-          };
-    	  favorites = [ "system:run" "clipboard:history"
-          "@destiner/662c8adc-5711-465d-89c0-3488c1dc6e59:view-icons"
-          "applications:emacsclient"
-          ];
-        };
-      };
+#+begin_src json-ts :noweb-ref vicinae :tangle ~/.config/vicinae/settings.json
+  {
+    "$schema": "https://vicinae.com/schemas/config.json",
+    "close_on_focus_loss": true,
+    "pop_to_root_on_close": true,
+    "keybinding": "emacs",
+    "font": {
+      "normal": {
+        "size": 12
+      }
+    },
+    "theme": {
+      "dark": {
+        "name": "noctalia",
+        "icon_theme": "auto"
+      }
+    },
+    "launcher_window": {
+      "client_side_decorations": {
+        "enabled": true
+      },
+      "layer_shell": {
+        "layer": "overlay"
+      }
+    },
+    "keybinds": {
+      "action.open": "alt+O",
+      "open-settings": "control+;",
+      "toggle-action-panel": "control+."
+    },
+    "favorites": [
+      "system:run",
+      "clipboard:history",
+      "@destiner/662c8adc-5711-465d-89c0-3488c1dc6e59:view-icons",
+      "applications:emacsclient"
+    ],
+    "providers": {
+      "applications": {
+        "preferences": {
+          "paths": [
+            "/home/dev/.local/share/applications",
+            "/nix/store/9811w5pyniyy5h1nypm6c9vbsx0wk3rn-vicinae-0.18.3/share/applications",
+            "/nix/store/mb21ms8w67f16j4nxdsrzk7ivf8d20yy-cups-2.4.16/share/applications",
+            "/etc/profiles/per-user/dev/share/applications",
+            "/run/current-system/sw/share/applications"
+          ]
+        }
+      },
+      "clipboard": {
+        "entrypoints": {
+          "history": {
+            "preferences": {
+              "defaultAction": "copy"
+            }
+          }
+        }
+      },
+      "system": {
+        "entrypoints": {
+          "run": {
+            "preferences": {
+              "default-action": "run"
+            }
+          }
+        }
+      }
     }
-  #+end_src
+  }
+#+end_src
 
 ** CLI
 - fast, robust cli tools.
@@ -4518,7 +5518,7 @@ Pipewire setup, just these lines enough to make sane default for it
 - Some programs and packages to be used often. Miscellaneous
 
   #+begin_src nix 
-    { home.packages = with pkgs; [ libnotify nemo pandoc groff mupdf keepassxc easyeffects jaq
+    { home.packages = with pkgs; [ libnotify nautilus pandoc groff mupdf keepassxc easyeffects jaq
       #libreoffice-fresh
     ]; }
   #+end_src
@@ -4683,7 +5683,18 @@ Pipewire setup, just these lines enough to make sane default for it
      standard-indent 4)
     (global-so-long-mode 1)
     (with-current-buffer "*scratch*" (emacs-lock-mode 'kill))
+    (modify-all-frames-parameters '((alpha-background . 90)))
 
+    (dolist (cmd '(narrow-to-region
+                   list-timers narrow-to-region narrow-to-page upcase-region downcase-region
+                   upcase-dwim
+                   downcase-dwim
+                   dired-find-alternate-file
+                   narrow-to-page
+                   set-goal-column
+                   scroll-left
+                   scroll-right))
+      (put cmd 'disabled nil))
   #+end_src
 
 *** Simple
@@ -5777,6 +6788,7 @@ to get bash alias to eshell way
       :custom
       (flycheck-check-syntax-automatically '(save idle-change mode-enabled))
       (flycheck-idle-change-delay 3)
+      (flycheck-checker-error-threshold 5000)
       (flycheck-emacs-lisp-load-path 'inherit)
       (flycheck-buffer-switch-check-intermediate-buffers t)
       (flycheck-display-errors-delay 0.25))
@@ -5823,7 +6835,6 @@ to get bash alias to eshell way
 - the lsp gifted in emacs
 
   #+begin_src emacs-lisp
-
     (use-package eglot :defer t :ensure nil :unless d/on-droid
       :custom
       (eglot-autoshutdown t)
@@ -5832,6 +6843,9 @@ to get bash alias to eshell way
       :config
       (fset #'jsonrpc--log-event #'ignore)
       (add-to-list 'eglot-server-programs '(nix-mode . ("nixd")))
+      (add-to-list 'eglot-server-programs '(markdown-mode . ("harper-ls" "--stdio")))
+      (add-to-list 'eglot-server-programs '(org-mode . ("harper-ls" "--stdio")))
+      (add-to-list 'eglot-server-programs '(text-mode . ("harper-ls" "--stdio")))
       ;;   (add-to-list 'eglot-server-programs '(bash-ts-mode . ("bash-language-server")))
       ;;   (add-to-list 'eglot-server-programs '(markdown-mode . ("marksman")))
       )
@@ -6670,6 +7684,36 @@ to get bash alias to eshell way
        (border-mode-line-inactive unspecified)
        ))
 
+    (defface d/org-agenda-foss-asap
+      '((t (:foreground "{{colors.secondary.default.hex}}"
+            :weight bold)))
+      "Urgent FOSS agenda items.")
+
+    (defface d/org-agenda-foss-work
+      '((t (:foreground "{{colors.tertiary.default.hex}}"
+            :weight semi-bold)))
+      "Regular FOSS work agenda items.")
+
+    (defface d/org-agenda-learning
+      '((t (:foreground "{{colors.on_secondary_container.default.hex}}")))
+      "Learning and study agenda items.")
+
+    (defface d/org-agenda-waiting
+      '((t (:foreground "{{colors.outline_variant.default.hex}}"
+            :slant italic)))
+      "Waiting or inactive agenda items.")
+
+    (defface d/org-super-agenda-header
+      '((t (:foreground "{{colors.on_surface.default.hex}}"
+                        :background "{{colors.surface_container_low.default.hex}}"
+                        :weight bold
+                        :height 1.2
+                        :box (:line-width 2
+                                          :color "{{colors.surface_container_high.default.hex}}"))))
+      "Face for org-super-agenda group headers.")
+
+
+
     (dolist (color matugen-color-palette)
       (let ((key (car color))
             (new-value (cdr color)))
@@ -6764,7 +7808,7 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
                    ))
 
       :custom
-      (org-ellipsis " ...")
+      (org-ellipsis " [...]")
       (org-use-sub-superscripts '{})
       (org-log-done 'note) (orgl-log-reschedule 'note)
       (org-log-into-drawer t)
@@ -6972,7 +8016,38 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
                    ("C-c q v" . org-ql-view))) )
 
     (use-package org-super-agenda :after org
-      :hook (org-agenda-mode . org-super-agenda-mode))
+      :hook (org-agenda-mode . org-super-agenda-mode)
+      :custom
+      (org-super-agenda-hide-empty-groups t)
+      (org-super-agenda-header-separator
+       (concat (make-string 120 ?─) "\n\n"))
+      (org-agenda-block-separator ?─)
+      (org-super-agenda-groups
+       '(
+         (:name "🚨 FOSS ASAP" :and (:todo ("TODO" "ONGO") :time-grid t :regexp "\\<foss@") :order 0)
+
+         (:name "💼 FOSS Work" :and (:todo ("TODO" "ONGO") :regexp "\\<foss@") :order 1)
+
+         (:name "📌 FOSS Meetings / Reports"
+                :tag ("foss@meeting" "foss@report"
+                      "foss@log" "foss@checkin"
+                      "foss@talk")
+                :order 2)
+
+         (:name "🚨 ASAP Tasks" :and (:todo ("TODO" "ONGO") :tag "t@asap") :order 3)
+
+         (:name "🎓 Learning Now" :and (:todo ("TODO" "ONGO") :tag ("l@" "msc@")) :order 4)
+
+         (:name "⏳ Waiting" :todo "WAIT" :order 20)
+
+         (:name "📖 Reading" :tag ("t@read" "r@article" "r@book" "b@article" "b@res") :order 5)
+
+         (:name "🏠 Personal & Home" :tag ("h@grocery" "h@bill" "h@plan" "w@birthday" "w@anniversary") :order 6)
+
+         (:name "💪 Health & Fitness" :tag ("g@workout" "g@food") :order 7)
+
+         (:name "💤 Someday / Skipped" :todo "SKIP" :order 21)
+         )))
   #+end_src
 
 **** org-super-links

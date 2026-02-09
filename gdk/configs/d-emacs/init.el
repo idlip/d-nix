@@ -38,6 +38,17 @@
 (with-current-buffer "*scratch*" (emacs-lock-mode 'kill))
 (modify-all-frames-parameters '((alpha-background . 90)))
 
+(dolist (cmd '(narrow-to-region
+               list-timers narrow-to-region narrow-to-page upcase-region downcase-region
+               upcase-dwim
+               downcase-dwim
+               dired-find-alternate-file
+               narrow-to-page
+               set-goal-column
+               scroll-left
+               scroll-right))
+  (put cmd 'disabled nil))
+
 (setopt
  kill-ring-max 30000
  kill-do-not-save-duplicates t

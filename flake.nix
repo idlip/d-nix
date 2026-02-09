@@ -36,6 +36,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    glide = {
+      url = "github:glide-browser/glide.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     dns-block = {
       url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/ultimate-compressed.txt";
       flake = false;
@@ -73,7 +78,7 @@
       {
         devShells.x86_64-linux.default = pkgs.mkShell {
           packages = with pkgs; [
-            statix nixfmt-rfc-style
+            statix nixfmt
             # nixd
           ];
           name = "dots";

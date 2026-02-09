@@ -93,6 +93,11 @@ Emacs configuration is crafted slowly by learning from all users in community. E
         inputs.nixpkgs.follows = "nixpkgs";
       };
 
+      glide = {
+        url = "github:glide-browser/glide.nix";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+
       dns-block = {
         url = "https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/ultimate-compressed.txt";
         flake = false;
@@ -130,7 +135,7 @@ Emacs configuration is crafted slowly by learning from all users in community. E
         {
           devShells.x86_64-linux.default = pkgs.mkShell {
             packages = with pkgs; [
-              statix nixfmt-rfc-style
+              statix nixfmt
               # nixd
             ];
             name = "dots";
@@ -1286,7 +1291,7 @@ Pipewire setup, just these lines enough to make sane default for it
             hide-when-typing = "yes";
           };
           colors = {
-            alpha = "0.9";
+            alpha = lib.mkForce "0.9";
           };
         };
       };
@@ -1437,148 +1442,7 @@ Pipewire setup, just these lines enough to make sane default for it
 :END:
 
 - The best of all worlds, keyboard driven, API to play with and firefox!
-  https://github.com/glide-browser/glide
-
-  #+begin_src nix :tangle foss/pkgs/glide.nix
-    { lib, stdenv, fetchurl,
-      adwaita-icon-theme, alsa-lib, autoPatchelfHook, copyDesktopItems, curl, dbus-glib, gtk3, hicolor-icon-theme,
-      libXtst, libva, mesa, makeBinaryWrapper, makeDesktopItem, patchelfUnstable, pciutils, pipewire, wrapGAppsHook3,
-      ffmpeg_7, libGL, libX11, libXScrnSaver, libpciaccess, libffi, libgcrypt, libxcomposite, libxdamage, libxrandr,
-      libXt, libevent, libGLU,
-    }:
-    stdenv.mkDerivation (finalAttrs: {
-      pname = "glide-browser";
-      version = "0.1.58a";
-
-      src = fetchurl {
-        url = "https://github.com/glide-browser/glide/releases/download/${finalAttrs.version}/glide.linux-x86_64.tar.xz";
-        hash = "sha256-BK0vB8B6DN3TXs7MweiOAycB7+6IaQPau/0HvNbNta0=";
-      };
-
-      nativeBuildInputs = [
-        autoPatchelfHook
-        copyDesktopItems
-        makeBinaryWrapper
-        patchelfUnstable
-        wrapGAppsHook3
-      ];
-
-      buildInputs = [
-        adwaita-icon-theme
-        alsa-lib
-        dbus-glib
-        gtk3
-        hicolor-icon-theme
-        libXtst
-        libGL
-        libX11
-        libXScrnSaver
-        libpciaccess
-        ffmpeg_7
-        libffi
-        libgcrypt
-        libxcomposite
-        libxdamage
-        libxrandr
-        libXt
-        alsa-lib
-        libevent
-        mesa
-        libGLU
-      ];
-
-      runtimeDependencies = [
-        curl
-        libva.out
-        mesa
-        pciutils
-        libGL
-      ];
-
-      appendRunpaths = [ "${pipewire}/lib" "${libGL}/lib" ];
-
-      patchelfFlags = [ "--no-clobber-old-sections" ];
-
-      preFixup = ''
-        gappsWrapperArgs+=(
-            --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ffmpeg_7]}"
-          )
-      '';
-
-      installPhase = ''
-        runHook preInstall
-
-        mkdir -p $out/bin $out/share/icons/hicolor/ $out/lib/glide-browser-bin-${finalAttrs.version}
-        cp -t $out/lib/glide-browser-bin-${finalAttrs.version} -r *
-        chmod +x $out/lib/glide-browser-bin-${finalAttrs.version}/glide
-        iconDir=$out/share/icons/hicolor
-        browserIcons=$out/lib/glide-browser-bin-${finalAttrs.version}/browser/chrome/icons/default
-
-        for i in 16 32 48 64 128; do
-          iconSizeDir="$iconDir/''${i}x$i/apps"
-          mkdir -p $iconSizeDir
-          cp $browserIcons/default$i.png $iconSizeDir/glide-browser.png
-        done
-
-        ln -s $out/lib/glide-browser-bin-${finalAttrs.version}/glide $out/bin/glide
-        ln -s $out/bin/glide $out/bin/glide-browser
-
-        runHook postInstall
-      '';
-
-      # WebGL/Graphics settings via environment variables
-      # shellHook = ''
-      #   export MOZ_DISABLE_RDD_SANDBOX=1  # Disable RDD sandbox to prevent WebGL issues
-      #   export MOZ_WEBRENDER=1  # Enable WebRender for GPU acceleration
-      #   export MOZ_ACCELERATED=1  # Enable hardware acceleration for WebGL
-      #   export WebglAllowWindowsNativeGl=true  # Allow native GL for WebGL
-      #   export AllowWebgl2=true  # Enable WebGL2 support
-      # '';
-
-      desktopItems = [
-        (makeDesktopItem {
-          name = "glide-browser-bin";
-          exec = "glide-browser --name glide-browser %U";
-          icon = "glide-browser";
-          desktopName = "Glide Browser";
-          genericName = "Web Browser";
-          terminal = false;
-          startupNotify = true;
-          startupWMClass = "glide-browser";
-          categories = [
-            "Network"
-            "WebBrowser"
-          ];
-          mimeTypes = ["text/html" "text/xml" "application/xhtml+xml" "application/vnd.mozilla.xul+xml" "x-scheme-handler/http" "x-scheme-handler/https"];
-          actions = {
-            new-window = {
-              name = "New Window";
-              exec = "glide-browser --new-window %U";
-            };
-            new-private-window = {
-              name = "New Private Window";
-              exec = "glide-browser --private-window %U";
-            };
-            profile-manager-window = {
-              name = "Profile Manager";
-              exec = "glide-browser --ProfileManager";
-            };
-          };
-        })
-      ];
-
-      meta = {
-        changelog = "https://glide-browser.app/changelog#${finalAttrs.version}";
-        description = "Extensible and keyboard-focused web browser, based on Firefox (binary package)";
-        homepage = "https://glide-browser.app/";
-        license = lib.licenses.mpl20;
-        sourceProvenance = [ lib.sourceTypes.binaryNativeCode ];
-        platforms = [ "x86_64-linux" ];
-        maintainers = with lib.maintainers; [ pyrox0 idlip ];
-        mainProgram = "glide-browser";
-      };
-    })
-  #+end_src
+  https://github.com/glide-browser/glide (.nix for pkg)
 
 **** Config
 
@@ -2585,7 +2449,7 @@ Pipewire setup, just these lines enough to make sane default for it
     const prefs: Record<string, any> = {
       "sidebar.animation.expand-on-hover.duration-ms": 10,
       "toolkit.legacyUserProfileCustomizations.stylesheets": true,
-      "font.name.monospace.x-western": "Ioskeley Mono",
+      "font.name.monospace.x-western": "Maple Mono NF",
       "font.name.sans-serif.x-western": "Inter",
       "font.name.serif.x-western": "Inter",
       "identity.fxaccounts.enabled": true,
@@ -2875,7 +2739,7 @@ Pipewire setup, just these lines enough to make sane default for it
 
   #+begin_src nix
     {
-      home.packages = [ (pkgs.callPackage ./pkgs/glide.nix {}) ];
+      home.packages = [ inputs.glide.packages.x86_64-linux.glide-browser ];
       programs.librewolf = {
         enable = true;
         profiles.ihome = {
@@ -3974,8 +3838,9 @@ Pipewire setup, just these lines enough to make sane default for it
   # env = ELECTRON_OZONE_PLATFORM_HINT,auto
   # env = QT_AUTO_SCREEN_SCALE_FACTOR,1
 
-  monitorrule=eDP-1,0.55,1,tile,0,1.25,0,0,1920,1200,60
-  monitorrule=HDMI-A-1,0.55,1,tile,0,1.5,1926,0,3840,2160,60
+  # monitorrule=name:Values,Parameter:Values,Parameter:Values
+  monitorrule=name:eDP-1,scale:1.25
+  monitorrule=name:HDMI-A-1,scale:1.5
 
   # Window effect
   blur=1
@@ -4014,18 +3879,18 @@ Pipewire setup, just these lines enough to make sane default for it
   zoom_end_ratio=0.8
   fadein_begin_opacity=0.5
   fadeout_begin_opacity=0.8
-  animation_duration_move=400
-  animation_duration_open=400
-  animation_duration_tag=400
-  animation_duration_close=500
 
-  animation_curve_open=0.46,1.0,0.29,1
-  animation_curve_move=0.46,1.0,0.29,1
-  animation_curve_tag=0.46,1.0,0.29,1
-  animation_curve_close=0.08,0.92,0,1
-  animation_curve_focus=0.46,1.0,0.29,1
-  animation_curve_opafadeout=0.5,0.5,0.5,0.5
-  animation_curve_opafadein=0.46,1.0,0.29,1
+  animation_duration_move=400
+  animation_duration_open=250
+  animation_duration_tag=400
+  animation_duration_close=250
+  animation_curve_move=0.16,1.0,0.3,1.0
+  animation_curve_open=0.16,1.0,0.3,1.0
+  animation_curve_tag=0.16,1.0,0.3,1.0
+  animation_curve_close=0.16,1.0,0.3,1.0
+  animation_curve_focus=0.16,1.0,0.3,1.0
+  animation_curve_opafadein=0.16,1.0,0.3,1.0
+  animation_curve_opafadeout=0.16,1.0,0.3,1.0
 
   # Scroller Layout Setting
   scroller_structs=20
@@ -4053,7 +3918,6 @@ Pipewire setup, just these lines enough to make sane default for it
   no_border_when_single=0
   axis_bind_apply_timeout=100
   focus_on_activate=1
-  inhibit_regardless_of_visibility=0
   sloppyfocus=1
   warpcursor=0
   focus_cross_monitor=1
@@ -4293,7 +4157,7 @@ Pipewire setup, just these lines enough to make sane default for it
   # NONE mode key only work in ov mode
   mousebind=SUPER,btn_left,moveresize,curmove
   mousebind=SUPER+alt,btn_left,moveresize,curresize
-  mousebind=NONE,btn_middle,togglemaxmizescreen,0
+  mousebind=NONE,btn_middle,togglemaximizescreen,0
   mousebind=SUPER,btn_right,moveresize,curresize
   mousebind=NONE,btn_left,toggleoverview,-1
   mousebind=NONE,btn_right,killclient,0
@@ -4442,12 +4306,6 @@ Pipewire setup, just these lines enough to make sane default for it
           }
         ],
         "right": [
-          {
-            "defaultSettings": {
-              "mode": "region"
-            },
-            "id": "plugin:screenshot"
-          },
           {
             "colorizeSystemIcon": "none",
             "enableColorization": false,

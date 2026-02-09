@@ -194,6 +194,26 @@
         "type": "github"
       }
     },
+    "glide": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1770545016,
+        "narHash": "sha256-CJp+OLEuYCiO4gJkPfGgOgMe//XM2ti+7yEANqVk5lQ=",
+        "owner": "glide-browser",
+        "repo": "glide.nix",
+        "rev": "f51cab253dac2c90ee219100feca12c0efd30750",
+        "type": "github"
+      },
+      "original": {
+        "owner": "glide-browser",
+        "repo": "glide.nix",
+        "type": "github"
+      }
+    },
     "gnome-shell": {
       "flake": false,
       "locked": {
@@ -369,6 +389,7 @@
         "dns-bpc": "dns-bpc",
         "dns-tif": "dns-tif",
         "emacs-overlay": "emacs-overlay",
+        "glide": "glide",
         "home-manager": "home-manager",
         "mango": "mango",
         "nix-index-database": "nix-index-database",

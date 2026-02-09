@@ -154,7 +154,7 @@
 	        hide-when-typing = "yes";
 	      };
 	      colors = {
-	        alpha = "0.9";
+	        alpha = lib.mkForce "0.9";
 	      };
 	    };
 	  };
@@ -275,7 +275,7 @@
 	  };
 	}
 	{
-	  home.packages = [ (pkgs.callPackage ./pkgs/glide.nix {}) ];
+	  home.packages = [ inputs.glide.packages.x86_64-linux.glide-browser ];
 	  programs.librewolf = {
 	    enable = true;
 	    profiles.ihome = {

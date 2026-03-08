@@ -4,7 +4,7 @@
 #+TITLE: Nix Organized with Emacs!
 #+AUTHOR: Dilip
 
-#+begin_html
+#+begin_export html
 <p align="center">
 <a href="https://github.com/nixos/nixpkgs"><img src="https://img.shields.io/badge/NixOS-25.05-royalblue.svg?style=for-the-badge&logo=nixos&labelColor=black"></a>
 
@@ -14,7 +14,7 @@
 </p>
 
 <h1 align="center">NixOrgMacs</h1>
-#+end_html
+#+end_export
 
 * Intro
 This is a literate configuration for NixOS with HomeManager configs, and consists of Emacs (elisp) configs in tandem with particular category.
@@ -24,7 +24,7 @@ The concept I have used is to write several chunk of src/code blocks in some big
   1. =nixos-core= - Goes for core nixos modules
   2. =hm-config= - Applies for Home modules/Configs (=dotfiles/.config=)
   3. =orgmacs= - To babel for Emacs.
-The idea was obtained from https://github.com/rasendubi/dotfiles, credits to him for creating elisp function for babeling repeating header names into a code block, with =noweb= support. Refer [[Orgmacs][Orgmacs-heading]] for elisp function for it.
+The idea was obtained from https://github.com/rasendubi/dotfiles, credits to him for creating elisp function for babeling repeating header names into a code block, with =noweb= support.
 
 +*Q*: Why not tangle src blocks?
 *→* Its a bit redundant to tangle each block, and also I found that org babel with =noweb= is pretty quicker than tangling 100++ +src blocks.+
@@ -110,7 +110,10 @@ Emacs configuration is crafted slowly by learning from all users in community. E
         url = "https://gitflic.ru/project/magnolia1234/bypass-paywalls-clean-filters/blob/raw?file=bpc-paywall-filter.txt";
         flake = false;
       };
-
+      ewm = {
+        url = "git+https://codeberg.org/ezemtsov/ewm";
+        flake = false;
+      };
     };
 
     outputs =
@@ -214,7 +217,7 @@ Emacs configuration is crafted slowly by learning from all users in community. E
     <<os-nixos>>
     <<os-foss-fs>>
     {
-  	stylix.base16Scheme = lib.mkForce "${pkgs.base16-schemes}/share/themes/kanagawa.yaml";
+  	stylix.base16Scheme = lib.mkForce "${pkgs.base16-schemes}/share/themes/bright.yaml";
     }
     {	
   	services.throttled.enable = true;
@@ -633,7 +636,7 @@ Emacs configuration is crafted slowly by learning from all users in community. E
 - laptop efficient power management
 **** power-profile
 - A ppd used by gnome and kde plasma
-- Commenting as on [2024-04-11], read that ppd is better recommended to AMD cpu, so switching to tlp.
+- Commenting as on [2024-04-11 Thu], read that ppd is better recommended to AMD cpu, so switching to tlp.
 - As on 2024-10-21, In matrix K900 suggested to go for PPD
 
   #+begin_src nix 
@@ -823,12 +826,12 @@ Pipewire setup, just these lines enough to make sane default for it
 *** bluetooth
 
   #+begin_src nix 
-  {
-    hardware.bluetooth = {
-      enable = true;
-    };
-    services.blueman.enable = true;
-  }
+    {
+      hardware.bluetooth = {
+        enable = true;
+      };
+      # services.blueman.enable = true;
+    }
   #+end_src
 
 ** Syncthing
@@ -939,6 +942,18 @@ Pipewire setup, just these lines enough to make sane default for it
 #+begin_src nix
   {
     programs.mango.enable = true;
+  }
+#+end_src
+
+*** Emacs Wayland compositor - ewm
+#+begin_src nix
+  (inputs.ewm.outPath + "/nix/service.nix")
+  {
+    programs.ewm = {
+      enable = true;
+      extraEmacsArgs = "";
+      emacsPackage = config.home-manager.users.dev.programs.emacs.finalPackage;
+    };
   }
 #+end_src
 
@@ -1323,7 +1338,7 @@ Pipewire setup, just these lines enough to make sane default for it
         extraPackages = (epkgs: (with epkgs; [
           treesit-grammars.with-all-grammars
           vundo undo-fu-session
-    	  rainbow-delimiters colorful-mode
+    	    rainbow-delimiters colorful-mode
           vertico orderless marginalia corfu cape
           consult embark olivetti
           # nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
@@ -1337,8 +1352,11 @@ Pipewire setup, just these lines enough to make sane default for it
           # toc-org
           org-ql ox-hugo markdown-mode typst-ts-mode
           flycheck consult-flycheck flycheck-eglot org-re-reveal
-    	  flycheck-vale
-    	  verb forge melpaPackages.mastodon melpaPackages.telega
+    	    flycheck-vale
+    	    verb forge melpaPackages.mastodon melpaPackages.telega
+          (pkgs.callPackage (inputs.ewm.outPath + "/nix/default.nix") {
+            withScreencastSupport = true;
+          })
           # dslide
 
           (melpaBuild {
@@ -1409,12 +1427,12 @@ Pipewire setup, just these lines enough to make sane default for it
         };
 
         config = {
-          "background_color" = "0.0 0.0 0.0";
-          "dark_mode_background_color" = "0.0 0.0 0.0";
-          "custom_background_color" = "0.9 0.8 0.7";
-          "custom_text_color" = "0.0 0.0 0.0";
-          "dark_mode_contrast" = "1.0";
-          "text_highlight_color" = "1.0 1.0 0.0";
+          # "background_color" = "0.0 0.0 0.0";
+          # "dark_mode_background_color" = "0.0 0.0 0.0";
+          # "custom_background_color" = "0.9 0.8 0.7";
+          # "custom_text_color" = "0.0 0.0 0.0";
+          # "dark_mode_contrast" = "1.0";
+          # "text_highlight_color" = "1.0 1.0 0.0";
           "search_url_s" = "https://scholar.google.com/scholar?q";
           "search_url_l" = "http://gen.lib.rus.ec/scimag/?q";
           "search_url_g" = "https://www.google.com/search?q";
@@ -2352,6 +2370,7 @@ Pipewire setup, just these lines enough to make sane default for it
     });
   }
 
+
   const REDIRECT_RULES: Record<string, string> = {
     "^https?://(?:www\\.|old\\.|new\\.|np\\.)?reddit\\.com(.*)$":
       "https://libreddit.kavin.rocks$1",
@@ -2478,8 +2497,8 @@ Pipewire setup, just these lines enough to make sane default for it
       "browser.tabs.loadBookmarksInTabs": true,
       "browser.bookmarks.openInTabClosesMenu": false,
       "findbar.highlightAll": true,
-      "toolkit.scrollbox.pagescroll.maxOverlapLines": 50,
-      "toolkit.scrollbox.pagescroll.maxOverlapPercent": 50,
+      // "toolkit.scrollbox.pagescroll.maxOverlapLines": 50, // we got scroll_half now
+      // "toolkit.scrollbox.pagescroll.maxOverlapPercent": 50,
     };
 
     for (const [key, value] of Object.entries(prefs)) {
@@ -2564,8 +2583,11 @@ Pipewire setup, just these lines enough to make sane default for it
     // Scrolling
     glide.keymaps.set("normal", "<A-[>", "scroll_top");
     glide.keymaps.set("normal", "<A-]>", "scroll_bottom");
-    glide.keymaps.set(["normal", "visual"], "<A-v>", "scroll_page_up");
-    glide.keymaps.set(["normal", "visual"], "<C-v>", "scroll_page_down");
+    glide.keymaps.set(["normal", "visual"], "<A-v>", "scroll_half_page_up");
+    glide.keymaps.set(["normal", "visual"], "<C-v>", "scroll_half_page_down");
+    glide.keymaps.set(["normal", "visual"], "^", "go_up");
+    glide.keymaps.set(["normal", "visual"], "]", "go_next");
+    glide.keymaps.set(["normal", "visual"], "[", "go_previous");
 
     // Paste
     glide.keymaps.set(["normal", "insert"], "<C-y>", () =>
@@ -2702,7 +2724,7 @@ Pipewire setup, just these lines enough to make sane default for it
       };
 
       glide.styles.add(
-        `#browser { border-bottom: 3px solid var(${mode_colors[args.new_mode] ?? fallback}) }`,
+        `#browser { border: 1px solid var(${mode_colors[args.new_mode] ?? fallback}) }`,
         { id: "glide-custom-mode-indicator", overwrite: true },
       );
     });
@@ -2735,7 +2757,7 @@ Pipewire setup, just these lines enough to make sane default for it
 #+end_src
 
 *** Librewolf
-- As of [2024-08-09], making some shift towards better firefox.
+- As of [2024-08-09 Fri], making some shift towards better firefox.
 
   #+begin_src nix
     {
@@ -3880,17 +3902,18 @@ Pipewire setup, just these lines enough to make sane default for it
   fadein_begin_opacity=0.5
   fadeout_begin_opacity=0.8
 
-  animation_duration_move=400
-  animation_duration_open=250
-  animation_duration_tag=400
-  animation_duration_close=250
-  animation_curve_move=0.16,1.0,0.3,1.0
-  animation_curve_open=0.16,1.0,0.3,1.0
-  animation_curve_tag=0.16,1.0,0.3,1.0
-  animation_curve_close=0.16,1.0,0.3,1.0
-  animation_curve_focus=0.16,1.0,0.3,1.0
-  animation_curve_opafadein=0.16,1.0,0.3,1.0
-  animation_curve_opafadeout=0.16,1.0,0.3,1.0
+  animation_duration_move=500
+  animation_duration_open=400
+  animation_duration_tag=350
+  animation_duration_close=300
+  animation_duration_focus=400
+  animation_curve_open=0.46,1.0,0.29,1.1
+  animation_curve_move=0.46,1.0,0.29,1
+  animation_curve_tag=0.46,1.0,0.29,1
+  animation_curve_close=0.08,0.92,0,1
+  animation_curve_focus=0.46,1.0,0.29,1
+  animation_curve_opafadeout=0.58,0.98,0.58,0.98
+  animation_curve_opafadein=0.46,1.0,0.29,1
 
   # Scroller Layout Setting
   scroller_structs=20
@@ -4015,7 +4038,7 @@ Pipewire setup, just these lines enough to make sane default for it
   bind=SUPER+Shift,W,spawn, d-passentry
   bind=SUPER+Shift,Y,spawn, d-passentry
   bind=SUPER+Shift,B,spawn, d-bookmark
-  bind=SUPER,Delete, spawn, noctalia-shell ipc call screenRecorder toggle
+  bind=SUPER,Delete, spawn, noctalia-shell ipc call plugin:screen-recorder toggle
   bind=SUPER+Shift,T, spawn, noctalia-shell ipc call notifications toggleHistory
   bindls=SUPER+Ctrl,P, spawn, noctalia-shell ipc call sessionMenu lockAndSuspend
   bindls=SUPER+Ctrl+Shift,L, spawn_shell, noctalia-shell ipc call lockScreen lock & mmsg -d toggle_monitor
@@ -4193,13 +4216,20 @@ Pipewire setup, just these lines enough to make sane default for it
   {
     "appLauncher": {
       "autoPasteClipboard": false,
+      "clipboardWatchImageCommand": "wl-paste --type image --watch cliphist store",
+      "clipboardWatchTextCommand": "wl-paste --type text --watch cliphist store",
       "clipboardWrapText": true,
       "customLaunchPrefix": "",
       "customLaunchPrefixEnabled": false,
+      "density": "default",
       "enableClipPreview": true,
       "enableClipboardHistory": false,
+      "enableSessionSearch": true,
+      "enableSettingsSearch": true,
+      "enableWindowsSearch": true,
       "iconMode": "tabler",
       "ignoreMouseInput": false,
+      "overviewLayer": false,
       "pinnedApps": [
       ],
       "position": "center",
@@ -4217,46 +4247,70 @@ Pipewire setup, just these lines enough to make sane default for it
       ],
       "preferredPlayer": "",
       "visualizerType": "linear",
+      "volumeFeedback": false,
       "volumeOverdrive": false,
       "volumeStep": 5
     },
     "bar": {
+      "autoHideDelay": 500,
+      "autoShowDelay": 150,
       "backgroundOpacity": 0.93,
+      "barType": "floating",
+      "capsuleColorKey": "none",
       "capsuleOpacity": 1,
       "density": "default",
-      "exclusive": true,
+      "displayMode": "always_visible",
       "floating": true,
+      "frameRadius": 12,
+      "frameThickness": 8,
+      "hideOnOverview": false,
       "marginHorizontal": 18,
       "marginVertical": 2,
       "monitors": [
       ],
       "outerCorners": true,
       "position": "top",
+      "screenOverrides": [
+      ],
       "showCapsule": true,
       "showOutline": false,
       "useSeparateOpacity": false,
       "widgets": {
         "center": [
           {
+            "defaultSettings": {
+              "compactMode": false,
+              "defaultDuration": 0,
+              "iconColor": "none",
+              "textColor": "none"
+            },
+            "id": "plugin:timer"
+          },
+          {
+            "clockColor": "none",
             "customFont": "",
             "formatHorizontal": "HH:mm ddd, MMM dd",
             "formatVertical": "HH mm - dd MM",
             "id": "Clock",
             "tooltipFormat": "HH:mm ddd, MMM dd",
-            "useCustomFont": false,
-            "usePrimaryColor": false
+            "useCustomFont": false
           },
           {
             "characterCount": 2,
             "colorizeIcons": false,
+            "emptyColor": "secondary",
             "enableScrollWheel": true,
+            "focusedColor": "primary",
             "followFocusedScreen": false,
             "groupedBorderOpacity": 1,
             "hideUnoccupied": false,
             "iconScale": 0.8,
             "id": "Workspace",
             "labelMode": "none",
+            "occupiedColor": "secondary",
+            "pillSize": 0.6,
             "showApplications": false,
+            "showBadge": true,
             "showLabelsOnlyWhenOccupied": true,
             "unfocusedIconsOpacity": 1
           },
@@ -4275,6 +4329,7 @@ Pipewire setup, just these lines enough to make sane default for it
             "showArtistFirst": true,
             "showProgressRing": true,
             "showVisualizer": false,
+            "textColor": "none",
             "useFixedWidth": false,
             "visualizerType": "linear"
           }
@@ -4283,17 +4338,23 @@ Pipewire setup, just these lines enough to make sane default for it
           {
             "compactMode": false,
             "diskPath": "/",
+            "iconColor": "none",
             "id": "SystemMonitor",
+            "showCpuFreq": false,
             "showCpuTemp": true,
             "showCpuUsage": true,
+            "showDiskAvailable": false,
             "showDiskUsage": false,
+            "showDiskUsageAsPercent": false,
             "showGpuTemp": false,
             "showLoadAverage": false,
             "showMemoryAsPercent": false,
             "showMemoryUsage": true,
             "showNetworkStats": true,
+            "showSwapUsage": false,
+            "textColor": "none",
             "useMonospaceFont": true,
-            "usePrimaryColor": false
+            "usePadding": false
           },
           {
             "colorizeIcons": false,
@@ -4302,16 +4363,28 @@ Pipewire setup, just these lines enough to make sane default for it
             "maxWidth": 145,
             "scrollingMode": "hover",
             "showIcon": true,
+            "textColor": "none",
             "useFixedWidth": false
           }
         ],
         "right": [
           {
+            "defaultSettings": {
+              "activeColor": "primary",
+              "hideInactive": false,
+              "inactiveColor": "none",
+              "removeMargins": false
+            },
+            "id": "plugin:privacy-indicator"
+          },
+          {
             "colorizeSystemIcon": "none",
             "enableColorization": false,
+            "generalTooltipText": "",
             "hideMode": "alwaysExpanded",
             "icon": "camera-plus",
             "id": "CustomButton",
+            "ipcIdentifier": "",
             "leftClickExec": "hyprshot -m region",
             "leftClickUpdateText": false,
             "maxTextLength": {
@@ -4323,7 +4396,9 @@ Pipewire setup, just these lines enough to make sane default for it
             "parseJson": false,
             "rightClickExec": "hyprshot -m region --clipboard-only",
             "rightClickUpdateText": false,
+            "showExecTooltip": true,
             "showIcon": true,
+            "showTextTooltip": true,
             "textCollapse": "",
             "textCommand": "",
             "textIntervalMs": 3000,
@@ -4356,6 +4431,7 @@ Pipewire setup, just these lines enough to make sane default for it
           {
             "blacklist": [
             ],
+            "chevronColor": "none",
             "colorizeIcons": false,
             "drawerEnabled": true,
             "hidePassive": false,
@@ -4365,30 +4441,40 @@ Pipewire setup, just these lines enough to make sane default for it
           },
           {
             "hideWhenZero": false,
+            "hideWhenZeroUnread": false,
+            "iconColor": "none",
             "id": "NotificationHistory",
-            "showUnreadBadge": true
+            "showUnreadBadge": true,
+            "unreadBadgeColor": "primary"
           },
           {
             "displayMode": "onhover",
-            "id": "Network"
+            "iconColor": "none",
+            "id": "Network",
+            "textColor": "none"
           },
           {
-            "deviceNativePath": "",
-            "displayMode": "alwaysShow",
+            "deviceNativePath": "BAT0",
+            "displayMode": "icon-always",
+            "hideIfIdle": false,
             "hideIfNotDetected": true,
             "id": "Battery",
             "showNoctaliaPerformance": true,
-            "showPowerProfiles": true,
-            "warningThreshold": 40
+            "showPowerProfiles": true
           },
           {
             "displayMode": "onhover",
+            "iconColor": "none",
             "id": "Volume",
-            "middleClickCommand": "pwvucontrol || pavucontrol"
+            "middleClickCommand": "pwvucontrol || pavucontrol",
+            "textColor": "none"
           },
           {
+            "applyToAllMonitors": false,
             "displayMode": "onhover",
-            "id": "Brightness"
+            "iconColor": "none",
+            "id": "Brightness",
+            "textColor": "none"
           },
           {
             "colorizeDistroLogo": false,
@@ -4425,9 +4511,10 @@ Pipewire setup, just these lines enough to make sane default for it
     },
     "colorSchemes": {
       "darkMode": true,
+      "generationMethod": "tonal-spot",
       "manualSunrise": "06:30",
       "manualSunset": "18:30",
-      "matugenSchemeType": "scheme-fruit-salad",
+      "monitorForColors": "",
       "predefinedScheme": "Kanagawa",
       "schedulingMode": "off",
       "useWallpaperColors": true
@@ -4471,6 +4558,25 @@ Pipewire setup, just these lines enough to make sane default for it
           },
           {
             "id": "WallpaperSelector"
+          },
+          {
+            "defaultSettings": {
+              "audioCodec": "opus",
+              "audioSource": "default_output",
+              "colorRange": "limited",
+              "copyToClipboard": false,
+              "directory": "",
+              "filenamePattern": "recording_yyyyMMdd_HHmmss",
+              "frameRate": "60",
+              "hideInactive": false,
+              "iconColor": "none",
+              "quality": "very_high",
+              "resolution": "original",
+              "showCursor": true,
+              "videoCodec": "h264",
+              "videoSource": "portal"
+            },
+            "id": "plugin:screen-recorder"
           }
         ],
         "right": [
@@ -4501,6 +4607,7 @@ Pipewire setup, just these lines enough to make sane default for it
       "colorizeIcons": false,
       "deadOpacity": 0.6,
       "displayMode": "auto_hide",
+      "dockType": "floating",
       "enabled": false,
       "floatingRatio": 1,
       "inactiveIndicators": false,
@@ -4511,22 +4618,59 @@ Pipewire setup, just these lines enough to make sane default for it
       ],
       "pinnedStatic": false,
       "position": "bottom",
+      "showFrameIndicator": true,
+      "sitOnFrame": false,
       "size": 1
     },
     "general": {
       "allowPanelsOnScreenWithoutBar": true,
+      "allowPasswordWithFprintd": false,
       "animationDisabled": false,
       "animationSpeed": 1,
+      "autoStartAuth": false,
       "avatarImage": "/home/dev/media/pics/wp6489081-anime-ps4-luffy-wallpapers.jpg",
       "boxRadiusRatio": 1,
+      "clockFormat": "hh\\nmm",
+      "clockStyle": "custom",
       "compactLockScreen": false,
       "dimmerOpacity": 0.7000000000000001,
+      "enableLockScreenCountdown": true,
       "enableShadows": true,
       "forceBlackScreenCorners": false,
       "iRadiusRatio": 1,
+      "keybinds": {
+        "keyDown": [
+          "Down"
+        ],
+        "keyEnter": [
+          "Return"
+        ],
+        "keyEscape": [
+          "Esc"
+        ],
+        "keyLeft": [
+          "Left"
+        ],
+        "keyRemove": [
+          "Del"
+        ],
+        "keyRight": [
+          "Right"
+        ],
+        "keyUp": [
+          "Up"
+        ]
+      },
       "language": "",
       "lockOnSuspend": true,
+      "lockScreenAnimations": false,
+      "lockScreenBlur": 0,
+      "lockScreenCountdownDuration": 10000,
+      "lockScreenMonitors": [
+      ],
+      "lockScreenTint": 0,
       "radiusRatio": 1,
+      "reverseScroll": false,
       "scaleRatio": 1,
       "screenRadiusRatio": 1,
       "shadowDirection": "bottom_right",
@@ -4535,7 +4679,8 @@ Pipewire setup, just these lines enough to make sane default for it
       "showChangelogOnStartup": true,
       "showHibernateOnLockScreen": false,
       "showScreenCorners": true,
-      "showSessionButtonsOnLockScreen": true
+      "showSessionButtonsOnLockScreen": true,
+      "telemetryEnabled": false
     },
     "hooks": {
       "darkModeChange": "",
@@ -4544,6 +4689,8 @@ Pipewire setup, just these lines enough to make sane default for it
       "performanceModeEnabled": "",
       "screenLock": "",
       "screenUnlock": "",
+      "session": "",
+      "startup": "",
       "wallpaperChange": ""
     },
     "location": {
@@ -4561,10 +4708,12 @@ Pipewire setup, just these lines enough to make sane default for it
       "weatherShowEffects": true
     },
     "network": {
+      "airplaneModeEnabled": false,
       "bluetoothDetailsViewMode": "grid",
       "bluetoothHideUnnamedDevices": false,
       "bluetoothRssiPollIntervalMs": 10000,
       "bluetoothRssiPollingEnabled": false,
+      "disableDiscoverability": false,
       "wifiDetailsViewMode": "grid",
       "wifiEnabled": true
     },
@@ -4579,8 +4728,13 @@ Pipewire setup, just these lines enough to make sane default for it
     },
     "notifications": {
       "backgroundOpacity": 1,
+      "clearDismissed": true,
       "criticalUrgencyDuration": 100,
+      "density": "default",
+      "enableBatteryToast": true,
       "enableKeyboardLayoutToast": true,
+      "enableMarkdown": false,
+      "enableMediaToast": false,
       "enabled": true,
       "location": "top_right",
       "lowUrgencyDuration": 15,
@@ -4619,6 +4773,9 @@ Pipewire setup, just these lines enough to make sane default for it
       ],
       "overlayLayer": true
     },
+    "plugins": {
+      "autoUpdate": false
+    },
     "sessionMenu": {
       "countdownDuration": 10000,
       "enableCountdown": true,
@@ -4630,94 +4787,96 @@ Pipewire setup, just these lines enough to make sane default for it
           "action": "lock",
           "command": "",
           "countdownEnabled": true,
-          "enabled": true
+          "enabled": true,
+          "keybind": "1"
         },
         {
           "action": "suspend",
           "command": "",
           "countdownEnabled": true,
-          "enabled": true
+          "enabled": true,
+          "keybind": "2"
         },
         {
           "action": "hibernate",
           "command": "",
           "countdownEnabled": true,
-          "enabled": true
+          "enabled": true,
+          "keybind": "3"
         },
         {
           "action": "reboot",
           "command": "",
           "countdownEnabled": true,
-          "enabled": true
+          "enabled": true,
+          "keybind": "4"
         },
         {
           "action": "logout",
           "command": "",
           "countdownEnabled": true,
-          "enabled": true
+          "enabled": true,
+          "keybind": "5"
         },
         {
           "action": "shutdown",
           "command": "",
           "countdownEnabled": true,
-          "enabled": true
+          "enabled": true,
+          "keybind": "6"
         }
       ],
       "showHeader": true,
-      "showNumberLabels": true
+      "showKeybinds": true
     },
-    "settingsVersion": 39,
+    "settingsVersion": 53,
     "systemMonitor": {
+      "batteryCriticalThreshold": 20,
+      "batteryWarningThreshold": 40,
       "cpuCriticalThreshold": 80,
-      "cpuPollingInterval": 3000,
       "cpuWarningThreshold": 70,
       "criticalColor": "",
+      "diskAvailCriticalThreshold": 10,
+      "diskAvailWarningThreshold": 20,
       "diskCriticalThreshold": 90,
-      "diskPollingInterval": 3000,
       "diskWarningThreshold": 80,
       "enableDgpuMonitoring": false,
       "externalMonitor": "resources || missioncenter || jdsystemmonitor || corestats || system-monitoring-center || gnome-system-monitor || plasma-systemmonitor || mate-system-monitor || ukui-system-monitor || deepin-system-monitor || pantheon-system-monitor",
       "gpuCriticalThreshold": 90,
-      "gpuPollingInterval": 3000,
       "gpuWarningThreshold": 80,
-      "loadAvgPollingInterval": 3000,
       "memCriticalThreshold": 90,
-      "memPollingInterval": 3000,
-      "memWarningThreshold": 70,
-      "networkPollingInterval": 3000,
+      "memWarningThreshold": 60,
+      "swapCriticalThreshold": 90,
+      "swapWarningThreshold": 80,
       "tempCriticalThreshold": 90,
-      "tempPollingInterval": 3000,
-      "tempWarningThreshold": 80,
+      "tempWarningThreshold": 70,
       "useCustomColors": false,
       "warningColor": ""
     },
     "templates": {
-      "alacritty": false,
-      "cava": false,
-      "code": true,
-      "discord": false,
-      "emacs": false,
-      "enableUserTemplates": true,
-      "foot": false,
-      "fuzzel": false,
-      "ghostty": false,
-      "gtk": false,
-      "helix": false,
-      "hyprland": false,
-      "kcolorscheme": false,
-      "kitty": false,
-      "mango": true,
-      "niri": true,
-      "pywalfox": false,
-      "qt": true,
-      "spicetify": false,
-      "telegram": false,
-      "vicinae": true,
-      "walker": false,
-      "wezterm": false,
-      "yazi": false,
-      "zed": false,
-      "zenBrowser": false
+      "activeTemplates": [
+        {
+          "enabled": true,
+          "id": "qt"
+        },
+        {
+          "enabled": true,
+          "id": "vicinae"
+        },
+        {
+          "enabled": true,
+          "id": "code"
+        },
+        {
+          "enabled": true,
+          "id": "niri"
+        },
+        {
+          "enabled": true,
+          "id": "mango"
+        }
+      ],
+      "enableUserTheming": true
     },
     "ui": {
       "bluetoothDetailsViewMode": "grid",
@@ -4735,26 +4894,33 @@ Pipewire setup, just these lines enough to make sane default for it
       "wifiDetailsViewMode": "grid"
     },
     "wallpaper": {
-      "directory": "/home/dev/d-git/d-wallpapers/walls",
+      "automationEnabled": true,
+      "directory": "/home/dev/d-git/d-wallpapers/walls/",
       "enableMultiMonitorDirectories": false,
       "enabled": true,
+      "favorites": [
+      ],
       "fillColor": "#000000",
       "fillMode": "crop",
       "hideWallpaperFilenames": false,
       "monitorDirectories": [
       ],
+      "overviewBlur": 0.4,
       "overviewEnabled": false,
+      "overviewTint": 0.6,
       "panelPosition": "follow_bar",
-      "randomEnabled": true,
       "randomIntervalSec": 1800,
-      "recursiveSearch": true,
       "setWallpaperOnAllMonitors": true,
+      "showHiddenFiles": false,
+      "skipStartupTransition": false,
       "solidColor": "#1a1a2e",
+      "sortOrder": "date_asc",
       "transitionDuration": 1500,
       "transitionEdgeSmoothness": 0.05,
       "transitionType": "random",
       "useSolidColor": false,
       "useWallhaven": false,
+      "viewMode": "browse",
       "wallhavenApiKey": "",
       "wallhavenCategories": "111",
       "wallhavenOrder": "desc",
@@ -4910,7 +5076,9 @@ Pipewire setup, just these lines enough to make sane default for it
       }
     },
     "keybinds": {
+      "action.new": "control+,",
       "action.open": "alt+O",
+      "open-search-filter": "alt+X",
       "open-settings": "control+;",
       "toggle-action-panel": "control+."
     },
@@ -4921,6 +5089,11 @@ Pipewire setup, just these lines enough to make sane default for it
       "applications:emacsclient"
     ],
     "providers": {
+      "@knoopx/store.vicinae.firefox": {
+        "preferences": {
+          "profile_dir": ".glide/glide"
+        }
+      },
       "applications": {
         "preferences": {
           "paths": [
@@ -5049,7 +5222,7 @@ Pipewire setup, just these lines enough to make sane default for it
         shellAliases = {
           cleanup = "doas nix-collect-garbage --delete-older-than 7d";
           bloat = "nix path-info -Sh /run/current-system";
-          ytmp3 = "yt-dlp -x --continue --add-metadata --embed-thumbnail --audio-format mp3 --audio-quality 0 --metadata-from-title = '%(artist)s - %(title)s' --prefer-ffmpeg -o '%(title)s.%(ext)s' ";
+          ytmp3 = "yt-dlp -x --continue --add-metadata --embed-thumbnail --audio-format mp3 --audio-quality 0 -o '%(title)s.%(ext)s' ";
           cat = "bat";
           grep = "rg";
           du = "dust";
@@ -5439,6 +5612,22 @@ Pipewire setup, just these lines enough to make sane default for it
 
   #+end_src
 
++ Avoid flashbang
+
+ #+name: early-init
+ #+begin_src emacs-lisp
+   (setq default-frame-alist
+         '((fullscreen . maximized)
+           (vertical-scroll-bars . nil)
+           (horizontal-scroll-bars . nil)
+           ;; Setting the face in here prevents flashes of
+           ;; color as the theme gets activated
+           (background-color . "#000000")
+           (foreground-color . "#ffffff")
+           (ns-appearance . dark)
+           (ns-transparent-titlebar . t)))
+ #+end_src
+
 + remove tool-bar, menu-bar, scroll-bar. Although menu-bar is very helpful.
 
   #+name: early-init
@@ -5451,7 +5640,7 @@ Pipewire setup, just these lines enough to make sane default for it
 
 + Constant variable to check if on Android.
 + Yes, Emacs official App works very well on android. I use it regularly, and this config is compatible with it.
-+ In some blocks I use ~if~ and ~unless~ condition for specific choices, for explicit andoid variables see [[android][Android]]
++ In some blocks I use ~if~ and ~unless~ condition for specific choices, for explicit andoid variables.
 + For un/Offical builds: [[https://sourceforge.net/projects/android-ports-for-gnu-emacs/]]
   #+name: early-init
   #+begin_src emacs-lisp
@@ -5528,10 +5717,11 @@ Pipewire setup, just these lines enough to make sane default for it
      history-delete-duplicates t
 
      sentence-end-double-space nil
-     sentence-end "[.?!,;-]"
+     sentence-end "[.?!]"
      read-process-output-max (* 1024 1024)
      initial-major-mode 'org-mode
      enable-recursive-minibuffers t
+     switch-to-buffer-obey-display-actions t
      )
 
     (delete-selection-mode 1)
@@ -5541,7 +5731,7 @@ Pipewire setup, just these lines enough to make sane default for it
      standard-indent 4)
     (global-so-long-mode 1)
     (with-current-buffer "*scratch*" (emacs-lock-mode 'kill))
-    (modify-all-frames-parameters '((alpha-background . 90)))
+    (modify-all-frames-parameters '((alpha-background . 99)))
 
     (dolist (cmd '(narrow-to-region
                    list-timers narrow-to-region narrow-to-page upcase-region downcase-region
@@ -5570,12 +5760,14 @@ Pipewire setup, just these lines enough to make sane default for it
    async-shell-command-display-buffer nil
    grep-use-headings t
    save-interprogram-paste-before-kill t
+   global-hl-line-sticky-flag 'window
    )
 
   (global-hl-line-mode 1)
   (save-place-mode 1)
   (column-number-mode)
   (global-visual-line-mode 1)
+  (global-visual-wrap-prefix-mode 1)
   (global-subword-mode 1)
 
   ;; credits oantolin's config
@@ -5651,7 +5843,9 @@ Pipewire setup, just these lines enough to make sane default for it
 - Revert files with changes, so I can work with sync.
 
   #+begin_src emacs-lisp
-    (setopt global-auto-revert-non-file-buffers t)
+    (setopt global-auto-revert-non-file-buffers t
+            auto-revert-check-vc-info t
+            auto-revert-avoid-polling t)
     (global-auto-revert-mode 1)
   #+end_src
 
@@ -5787,10 +5981,9 @@ Pipewire setup, just these lines enough to make sane default for it
       :custom
       (vertico-multiform-commands
        '((load-theme grid) (consult-theme grid)
-         (dired-goto-file flat)
-         (consult-recoll buffer) (consult-dff unobtrusive)
-         (embark-act grid)
-    	 (org-set-tags-command grid)
+         (dired-goto-file flat) (consult-recoll buffer)
+         (consult-dff unobtrusive) (d/insert-bookmark-link unobtrusive)
+         (embark-act grid) (org-set-tags-command grid)
          ))
 
       (vertico-multiform-categories
@@ -5844,6 +6037,10 @@ Pipewire setup, just these lines enough to make sane default for it
       (xref-show-xrefs-function #'consult-xref)
       (xref-show-definitions-function #'consult-xref)
       (imenu-max-item-length nil)
+      (consult-ripgrep-args
+       "rg --null --line-buffered --color=never --max-columns=1000 \
+          --path-separator / --smart-case --no-heading --with-filename \
+          --line-number --search-zip -U")
       )
   #+end_src
 
@@ -5854,6 +6051,7 @@ Pipewire setup, just these lines enough to make sane default for it
   #+begin_src emacs-lisp
     (setopt completion-styles '(orderless basic)
             completion-category-overrides '((file (styles basic partial-completion)))
+            completion-ignore-case t
             completion-pcm-leading-wildcard t
             completion-category-defaults nil)
   #+end_src
@@ -5891,6 +6089,10 @@ Pipewire setup, just these lines enough to make sane default for it
 
       :custom
       (prefix-help-command #'embark-prefix-help-command)
+      (embark-indicators
+       '(embark-minimal-indicator
+         embark-highlight-indicator
+         embark-isearch-highlight-indicator))
       (embark-confirm-act-all nil)
       )
     (add-to-list 'display-buffer-alist `("\\*\\(Embark\\|Completions\\).*\\*"
@@ -6171,223 +6373,23 @@ Pipewire setup, just these lines enough to make sane default for it
 ****** python-templates
 - Credits to jgarte (https://git.sr.ht/~whereiseveryone/dot/tree/master/item/snippets)
   #+begin_src emacs-lisp
-  python-ts-mode python-mode
+    python-ts-mode python-mode
 
-  (if "if " p ":" p % "else:" n> p)
+    (if "if " p ":" p % "else:" n> p)
 
-  ;; https://issues.genenetwork.org/topics/using-pdb-to-troubleshoot.html
-  (post-mortem "try:" n> "return " p n> "except Exception:" n> "import pdb; pdb.post_mortem()")
+    ;; pathlib
+    (pc "pathlib.Path.cwd()")
+    (ph "pathlib.Path.home() / 'python' / 'scripts' / 'test.py'")
 
-  ;; subprocess
-  ;; https://realpython.com/python-subprocess/
-  (subprocess-su "subprocess.run([\"ls\", \"-l\", \"/dev/null\"], capture_output=True)")
-  (subprocess-sl "subprocess.run([" p "])")
-  (subprocess-sc "completed_process = subprocess.run(" n> "[" p "]," n> "check=True" n ")")
-  (subprocess-so "subprocess.run(["python", "timer.py", "5"], timeout=1)")
-  (subprocess-st "subprocess.run([\"ls /usr/bin | grep pycode\"], shell=True)")
-
-  ;; json
-  (json-w "with open(\"data_file.json\", \"w\") as write_file:" n> "json.dump(data, write_file)")
-  (json-r "with open(\"data_file.json\", \"r\") as read_file:" n> "data = json.load(read_file)")
-  (json-get-loads "response = requests.get(\"https://jsonplaceholder.typicode.com/todos\")"
-      n
-      "todos = json.loads(response.text)")
-
-  ;; pathlib
-  (pc "pathlib.Path.cwd()")
-  (ph "pathlib.Path.home() / 'python' / 'scripts' / 'test.py'")
-
-  (type "type(" p ")")
-  (list "list(" p ")")
-  (len "len(" p ")")
-  (str "str(" p ")")
-  (dir "dir(" p ")")
-
-  ;; files
-  (withopen-read "with open('data.txt', 'r') as f:" n> "data = f.read()")
-  (withopen-write "with open('data.txt', 'w') as f:" n> "data = 'some data to be written to the file'" n> "f.write(data)")
-
-  (init "def __init__(self, " p "):")
-
-  (al "__all__ = [" n> p n "]")
-
-  (pa "parser.add_argument(")
-
-  ;; types
-  (typing-union " Union[" p ", " p "]:")
-  (typing-optional " -> Optional[" p "]:" n>)
-  (typing-sequence " Sequence[" p "]")
-  (typing-string " -> str:" n>)
-  (typing-int " -> int:" n>)
-  (typing-typevar "T = TypeVar('T')" n)
-
-  (asserts "assert " p)
-
-  (shebang "#!/usr/bin/env python")
-
-  (classmethod "@classmethod" n "def " p "(cls, " p "):" n>)
-
-  (class "class " p ":" n>)
-  (class-pass "class " p ":" n> "pass")
-  (class-employee "class Employee:" n> "def __init__(self, id, name):" n> "self.id = id" n> "self.name = name")
-  (class-rectangle "class Rectangle:" n>
-                   "def __init__(self, length, height):" n>
-                   "self._length = length" n> "self._height = height" n> n
-                   "@property" n>
-                   "def area(self):" n>
-                   "return self._length * self._height" n> n
-                   "def resize(self, new_length, new_height):" n>
-                   "self._length = new_length" n>
-                   "self._height = new_height" n>)
-
-
-  (dataclass "@dataclass" n> "class " p ":" n>)
-
-
-  (main "if __name__ == '__main__':" n> "main()")
-
-  (lambda "lambda " p ": "  p)
-
-  ;; comprehensions
-
-  (list-comprehension-fruits "fruits = []"
-      n
-      "newlist = [x for x in fruits if "a" in x]")
-
-  (list-comprehension-in "[ " p "for " p " in " p "]")
-  (list-comprehension-squares "squares = [i * i for i in range(" p ")]")
-  (list-comprehension-sentence "sentence = 'the rocket came back from mars'"
-      n
-      "vowels = [i for i in sentence if i in 'aeiou']")
-  (lp "original_prices = [1.25, -9.45, 10.22, 3.78, -5.92, 1.16]"
-      n
-      "prices = [i if i > 0 else 0 for i in original_prices]")
-
-  (ld "quote = 'life, uh, finds a way'"
-      n
-      "unique_vowels = {i for i in quote if i in 'aeiou'}")
-  (lds "squares = {i: i * i for i in range(10)}")
-
-  ;; debugging
-  (lo "logger = logging.getLogger(" p ")")
-  (b "breakpoint()")
-  (in "import code; code.interact(local=locals())")
-  (pu "from pudb import set_trace; set_trace()")
-
-  ;; is this one really useful?
-  (r "return " p)
-  (s "self." p)
-  (se "self." p " = " p)
-
-  ;; docstrings
-  (docstring-google "\"\"\"" p n "Args:" n> p "Returns:" n "\"\"\"")
-  (docstring-module "\"\"\"" p n "\"\"\"")
-
-  ;; regex
-  (regex-split-word "re.split(r'\W+', " p)
-  (regex-split-word-one "re.split(r'\W+', " p ", 1)")
-  (regex-split-ignorecase "re.split('[a-f]+', " p "flags=re.IGNORECASE)")
-
-  ;; isinstance
-  (isinstance-bytes "if isinstance(line, bytes):" n>)
-
-  ;; dicts
-  (dicts-print "dictionary = {\"raj\": 2, \"striver\": 3, \"vikram\": 4}"
-      n
-      "print(dictionary.values())")
-
-  ;; pytest
-  (pytest-fixture "@pytest.fixture(params=TERMS_LIST)" n
-       "def poly(request):" n>
-       "return Polynomial(request.param)")
-
-  ;; mocking
-  (mock-return "mock = Mock()" n "mock.__str__ = Mock(return_value='wheeeeee')")
-
-  ;; numpy
-
-  ;; csv
-
-  (csv "import csv" n
-       "with open('eggs.csv', newline='') as csvfile:" n>
-       "spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')" n>
-       "for row in spamreader:" n>
-       "print(', '.join(row))")
-
-  ;; sets
-
-  ;; scipy
-
-  ;; urllib
-  (ul "from urllib.request import urlopen" n
-      "with urlopen('http://worldtimeapi.org/api/timezone/etc/UTC.txt') as response:" n>
-      "for line in response:" n>
-      "line = line.decode()             # Convert bytes to a str" n>
-      "if line.startswith('datetime'):" n>
-      "print(line.rstrip()) ")
-
-  ;; datetime
-  (now "now = date.today()")
-  (nstf "now.strftime(\"%m-%d-%y. %d %b %Y is a %A on the %d day of %B.\")")
-
-  ;; sqlite
-  (sqlite-connect "con = sqlite3.connect('example.db')")
-  (sqlite-create "cur = con.cursor()" n
-       "cur.execute('''CREATE TABLE stocks (date text, trans text, symbol text, qty real, price real)''')" n
-       "cur.execute(\"INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14)\")" n
-       "con.commit()" n
-       "con.close()" n)
-
-
-  ;; tempfile
-  (tw "fp = tempfile.TemporaryFile()" n
-      "fp.write(b'Hello world!')" n
-      "fp.seek(0)" n
-      "fp.read()" n
-      "fp.close()")
-
-  (tc "with tempfile.TemporaryDirectory() as tmpdirname:" n>
-      "print('created temporary directory', tmpdirname)")
-
-  ;; https://docs.python.org/3/library/glob.html
-  (gr "glob.glob('**/*.txt', recursive=True)")
-
-  ;; time
-  (time "from time import gmtime, strftime" n
-        "strftime(\"%a, %d %b %Y %H:%M:%S +0000\", gmtime())")
-
-  ;; timeit
-  (teit "import timeit"
-       "timeit.timeit('\"-\".join(str(n) for n in range(100))', number=10000)")
-
-  ;; ast
-  (ast "print(ast.dump(ast.parse('123', mode='eval'), indent=4))")
-
-  ;; icecream
-  (icecream "ic(" p ")")
-  (icecream-install "from icecream import install" n "install()")
-  (icecream-import "from icecream import ic; ic(" p ")")
-
-  ;; sys
-  (sys-getsizeof "print(sys.getsizeof(" p "))")
-
-  ;; https://stackoverflow.com/questions/6579496/using-print-statements-only-to-debug
-  (logging "import logging, sys" n
-       "logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)" n
-       "logging.debug('A debug message!')" n
-       "logging.info('We processed %d records', len(processed_records))")
-
-  ;; https://github.com/AbhijithAJ/clrprint
-  (clrprint "from clrprint import *" n
-       "clrprint('ERROR:', information,clr=['r','y'], debug=True)")
-
-  ;; what am I doing with this?
-  (csl "clr = clr.strip().lower()")
-
-  (fixtures "@pytest.fixture" n
-            "def example_fixture():" n> "return 1" n n
-            "def test_with_fixture(example_fixture):" n>
-            "assert example_fixture == 1")
+    ;; frappe
+    (whitelist "@frappe.whitelist()" n> "def " (p "method_name") "(" (p "args") "):" n> "    " r>)
+    (getdoc "doc = frappe.get_doc(\"" (p "Doctype") "\", " (p "name") ")")
+    (newdoc "doc = frappe.new_doc(\"" (p "Doctype") "\")" n>
+            "doc." (p "field") " = " (p "value") n>
+            "doc.insert()" n>
+            "frappe.db.commit()")
+    (throw "frappe.throw(_(\"" (p "message") "\"))")
+    (getval "frappe.db.get_value(\"" (p "Doctype") "\", " (p "filters") ", \"" (p "field") "\")")
   #+end_src
 ****** bash-templates fundamental text
   #+begin_src emacs-lisp
@@ -6419,12 +6421,31 @@ Pipewire setup, just these lines enough to make sane default for it
 ****** html-templates
 - Css and html templates
 #+begin_src emacs-lisp
-  css-mode css-ts-mode html-mode html-ts-mode
+  css-mode css-ts-mode html-mode html-ts-mode mhtml-ts-mode js-ts-mode
 
   (var "var(--" p ")")
+  (tag "<" (p "tag" tg) ">" n> r> n> "</" (s tg) ">")
+  (div "<div class=\"" (p "class") "\">" n> r> n> "</div>")
+  (section "<section class=\"" (p "class") "\">" n> "<div class=\"container\">" n> r> n> "</div>" n> "</section>")
+  (a "<a href=\"" (p "url") "\" class=\"" (p "class") "\">" r> "</a>")
+  (img "<img src=\"" (p "src") "\" alt=\"" (p "alt") "\" class=\"" (p "class") "\">")
+  (card "<div class=\"v3-card\">" n>
+        "<div class=\"card-body\">" n>
+        "<h5 class=\"card-title\">" (p "Title") "</h5>" n>
+        "<p class=\"card-text\">" (p "Content") "</p>" n>
+        r> n> "</div>" n> "</div>")
+  (flex-center "display: flex;" n> "align-items: center;" n> "justify-content: center;")
 
-  (tag "<" (p "name" tg) ">" n>
-       r> n> "</" (s tg) ">")
+  ;; frappe jinja
+  (if "{% if " (p "condition") " %}" n> r> n> "{% endif %}")
+  (ifelse "{% if " (p "condition") " %}" n> r> n> "{% else %}" n> n> "{% endif %}")
+  (for "{% for " (p "item") " in " (p "list") " %}" n> r> n> "{% endfor %}")
+  (set "{% set " (p "name") " = " (p "value") " %}")
+  (include "{% include \"" (p "path") "\" %}")
+  (extends "{% extends \"" (p "base" "templates/web.html") "\" %}")
+  (block "{% block " (p "name") " %}" n> r> n> "{% endblock %}")
+  (__ "{{ _(\"" (p "text") "\") }}")
+  (url "{{ frappe.utils.get_url(\"" (p "path") "\") }}")
 #+end_src
 
 *** Enhancements
@@ -6458,7 +6479,7 @@ ibuffer to list and manage buffers
 **** winner-window
 To manage windows states
 #+begin_src emacs-lisp
-   (winner-mode 1)
+  (winner-mode 1)
 #+end_src
 
 **** pixel scroll - ultra scroll
@@ -6560,10 +6581,9 @@ To manage windows states
     (add-to-list
      'display-buffer-alist
      '("\\*\\(shell\\|term\\|.*eshell\\|.*eat\\|help\\|compilation\\|Async Shell Command\\|Occur\\|xref\\).*\\*"
-       (display-buffer-reuse-window display-buffer-in-side-window)
-       (side . bottom)
-       (slot . 0)
-       (post-command-select-window . t)
+       (display-buffer-at-bottom)
+       ;; (window-parameters (mode-line-format . none))
+       ;; (post-command-select-window . t)
        (window-height . 0.3)))
 
   #+end_src
@@ -6659,7 +6679,6 @@ to get bash alias to eshell way
     (use-package reformatter
       :hook
       (python-ts-mode . ruff-format-on-save-mode)
-      (nix-mode . alejandra-format-on-save-mode)
       (ess-r-mode . styler-format-on-save-mode)
       (bash-ts-mode . shell-format-on-save-mode)
       ;; (nix-ts-mode . nixfmt-rfc-format-on-save-mode)
@@ -6745,26 +6764,28 @@ to get bash alias to eshell way
 
   #+begin_src emacs-lisp
     (use-package treesit :ensure nil
-      :mode
-      (("\\.tsx\\'" . tsx-ts-mode)
-       ("\\.yaml\\'" . yaml-ts-mode) ("\\.toml\\'" . toml-ts-mode) ("\\.jsonrc\\'" . json-ts-mode)
-        ("\\.json\\'" .  json-ts-mode)
-       ("\\.jsx\\'" . tsx-ts-mode)
-       ("\\.Dockerfile\\'" . dockerfile-ts-mode)
-       ("\\.sh\\'" . bash-ts-mode))
+      ;; :mode
+      ;; (("\\.tsx\\'" . tsx-ts-mode)
+      ;;  ("\\.yaml\\'" . yaml-ts-mode) ("\\.toml\\'" . toml-ts-mode) ("\\.jsonrc\\'" . json-ts-mode)
+      ;;   ("\\.json\\'" .  json-ts-mode)
+      ;;  ("\\.jsx\\'" . tsx-ts-mode)
+      ;;  ("\\.Dockerfile\\'" . dockerfile-ts-mode)
+      ;;  ("\\.sh\\'" . bash-ts-mode))
 
       :custom
+      (treesit-enabled-modes t)
       (treesit-font-lock-level 4)
       (standard-indent 2)
-      (major-mode-remap-alist
-       '((c-mode . c-ts-mode) (c++-mode . c++-ts-mode) (nix-mode . nix-ts-mode)
-         (csharp-mode . csharp-ts-mode) (css-mode . css-ts-mode)
-         (java-mode . java-ts-mode) (js-mode . js-ts-mode) (html-mode . mhtml-ts-mode)
-         (js-json-mode . json-ts-mode) ;; (org-mode . org-ts-mode) ;; not mature yet
-         (python-mode . python-ts-mode) (julia-mode . ess-julia-mode)
-         (typescript-mode . typescript-ts-mode) (sh-mode . bash-ts-mode) (shell-script-mode . bash-ts-mode)
-         (ruby-mode . ruby-ts-mode) (rust-mode . rust-ts-mode)
-         (toml-mode . toml-ts-mode) (yaml-mode . yaml-ts-mode))))
+      ;; (major-mode-remap-alist
+      ;;  '((c-mode . c-ts-mode) (c++-mode . c++-ts-mode) (nix-mode . nix-ts-mode)
+      ;;    (csharp-mode . csharp-ts-mode) (css-mode . css-ts-mode)
+      ;;    (java-mode . java-ts-mode) (js-mode . js-ts-mode) (html-mode . mhtml-ts-mode)
+      ;;    (js-json-mode . json-ts-mode) ;; (org-mode . org-ts-mode) ;; not mature yet
+      ;;    (python-mode . python-ts-mode) (julia-mode . ess-julia-mode)
+      ;;    (typescript-mode . typescript-ts-mode) (sh-mode . bash-ts-mode) (shell-script-mode . bash-ts-mode)
+      ;;    (ruby-mode . ruby-ts-mode) (rust-mode . rust-ts-mode)
+      ;;    (toml-mode . toml-ts-mode) (yaml-mode . yaml-ts-mode)))
+      )
   #+end_src
 
 **** devdocs
@@ -6850,10 +6871,12 @@ to get bash alias to eshell way
 - try to escape the parenthesis
 
   #+begin_src emacs-lisp
-  (use-package paren :ensure nil
-    :hook (after-init . show-paren-mode)
-    :custom
-    (show-paren-highlight-openparen t) (show-paren-context-when-offscreen t))
+    (use-package paren :ensure nil
+      :hook (after-init . show-paren-mode)
+      :custom
+      (show-paren-highlight-openparen t) (show-paren-context-when-offscreen t)
+      (show-paren-delay 0) (show-paren-style 'parenthesis) (show-paren-context-when-offscreen 'overlay)
+      )
   #+end_src
 
 **** colorful-mode
@@ -7043,11 +7066,11 @@ to get bash alias to eshell way
     (doc-view-next-page) (doc-view-previous-page))
   #+end_src
 
-**** emacs reader
+**** COMMENT emacs reader
 - New package to replace 'em all.
   #+begin_src emacs-lisp
     (unless d/on-droid
-      (use-package reader :demand t
+      (use-package reader :disabled t
         :load-path "~/learn/emacs-reader"
         :config (reader-global-dark-mode 1)
         (require 'reader-saveplace)
@@ -7089,6 +7112,10 @@ to get bash alias to eshell way
       (gnus-article-save-directory (expand-file-name "saved" gnus-home-directory))
       (gnus-widen-article-window t)
       (gnus-completion-styles completion-styles)
+      (gnus-auto-expirable-newsgroups
+       "nnimap\\+.*:\\[Gmail\\]/\\(Trash\\|Spam\\)")
+      (gnus-expiry-wait 7)
+      (nnimap-expunge t)
 
       (gnus-select-method
        '(nnnil ""))
@@ -7222,8 +7249,16 @@ to get bash alias to eshell way
 - Credits to: https://www.vidal-rosset.net/gnus_emacs_as_email_client_in_imap_with_protonmail.html
 
 #+begin_src emacs-lisp
-  (setq fast-read-process-output nil)
-  (setq gnus-search-use-imap t)
+  (setopt
+   fast-read-process-output nil
+   gnus-search-use-imap t
+   ;; mail-user-agent 'gnus-user-agent ;; why open gnus?
+   ;; read-mail-command #'gnus
+   gnus-save-newsrc-file nil
+   gnus-read-newsrc-file nil
+   message-confirm-send t
+   message-forward-as-mime t
+   message-send-mail-function #'smtpmail-send-it)
 #+end_src
 
 - Send mail config
@@ -7261,7 +7296,6 @@ to get bash alias to eshell way
   #+begin_src emacs-lisp
     (use-package eww :ensure nil :demand t
       :hook
-      (eww-mode . variable-pitch-mode)
       (eww-after-render . (lambda () (d/eww-readable) (setq-local line-spacing '0.4)))
       :custom
       (eww-auto-rename-buffer 'title)
@@ -7301,10 +7335,9 @@ to get bash alias to eshell way
 - Browse-url with custom bash script, a link handler.
   #+begin_src emacs-lisp
     (use-package browse-url :ensure nil :unless d/on-droid
-      :config ;; browser script
-      (setopt browse-url-browser-function 'browse-url-generic
-              browse-url-generic-program "d-stuff"
-              browse-url-secondary-browser-function 'browse-url-default-browser))
+      :config
+      (setopt browse-url-browser-function 'ewm-handle-link
+              browse-url-secondary-browser-function 'ewm-handle-link))
   #+end_src
 
 **** ox-hugo
@@ -7483,7 +7516,7 @@ to get bash alias to eshell way
        (bg-mode-line-active bg-dim)
        (bg-line-number-active  bg-main) (bg-line-number-inactive  bg-main)
        (fg-line-number-active fg-dim) (fg-line-number-inactive border)
-       (border-mode-line-active unspecified) (border-mode-line-inactive unspecified)
+       (border-mode-line-active bg-completion) (border-mode-line-inactive unspecified)
        ))
 
     :config
@@ -7538,7 +7571,7 @@ to get bash alias to eshell way
        (fg-line-number-inactive  "{{colors.outline_variant.default.hex}}")
 
        ;; Borders
-       (border-mode-line-active   unspecified)
+       (border-mode-line-active   "{{colors.secondary.default.hex}}")
        (border-mode-line-inactive unspecified)
        ))
 
@@ -7569,8 +7602,6 @@ to get bash alias to eshell way
                         :box (:line-width 2
                                           :color "{{colors.surface_container_high.default.hex}}"))))
       "Face for org-super-agenda group headers.")
-
-
 
     (dolist (color matugen-color-palette)
       (let ((key (car color))
@@ -7607,8 +7638,8 @@ to get bash alias to eshell way
 
   #+begin_src emacs-lisp
     (use-package olivetti :defer t :custom (olivetti-body-width 100)
-      :hook (org-mode Info-mode help-mode gnus-group-mode eww-mode gnus-article-mode nov-mode markdown-mode))
-    (add-hook 'olivetti-mode-hook #'variable-pitch-mode)
+      :hook (org-mode Info-mode help-mode gnus-group-mode gnus-article-mode nov-mode markdown-mode))
+    ;; (add-hook 'olivetti-mode-hook #'variable-pitch-mode)
   #+end_src
 
 
@@ -7616,7 +7647,6 @@ to get bash alias to eshell way
 - Use tab bar, instead of frames.
 
   #+begin_src emacs-lisp
-    (tab-bar-mode 1) (tab-bar-history-mode 1)
     (setopt
      tab-bar-format
      '(tab-bar-format-menu-bar tab-bar-format-history
@@ -7625,6 +7655,7 @@ to get bash alias to eshell way
                                tab-bar-format-global ;; An issue when used in terminal+daemon (cursor wont move properly)
                                )
      tab-bar-close-button-show nil)
+    (tab-bar-mode t) (tab-bar-history-mode 1)
   #+end_src
 
 
@@ -7648,6 +7679,8 @@ Gist: *Capture/narrow -> Tags + ID + Link -> Note -> Export/Filter*
 
 A good explanation on task management can be found over this discussion.
 https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
+
+- My blog post on the same: https://idlip.in/posts/obtf-org-mode
 
 **** Org-init
   #+begin_src emacs-lisp
@@ -7714,8 +7747,30 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
           (org-export-to-buffer 'org (format "export %s.org" org-export-select-tags)))
         (org-mode) (delete-other-windows)
         ))
-
     (global-set-key (kbd "C-x C-a C-o") #'d/org-activity)
+
+    (defun d/insert-bookmark-link (&optional return)
+      "Select and insert a link from bookmarks.org."
+      (interactive)
+      (let* ((file "~/d-sync/notes/bookmarks.org")
+             (links (with-temp-buffer
+                      (insert-file-contents file)
+                      (goto-char (point-min))
+                      (let (result)
+                        ;; Match org-style [[url][title]]
+                        (while (re-search-forward org-link-bracket-re nil t)
+                          (push (cons (match-string 2) (match-string 1)) result))
+                        ;; Match bare https:// links
+                        (goto-char (point-min))
+                        (while (re-search-forward "https://[^\s\n]+" nil t)
+                          (let ((url (match-string 0)))
+                            (unless (assoc url result)
+                              (push (cons url url) result))))
+                        (nreverse result))))
+             (selected (completing-read "Link: " (mapcar #'car links)))
+             (url (if (equal selected "pass") (insert-file-contents "~/.local/bin/pass.txt")
+                    (cdr (assoc selected links)))))
+        (when url (if return url (insert url)))))
   #+end_src
 
 **** org-agenda
@@ -7740,7 +7795,7 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
       (org-agenda-files
        '("~/d-sync/notes/d-brain.org"
          "~/d-sync/notes/inbox.org" "~/d-sync/notes/foss.org"
-         "~/d-git/d-nix/d-setup.org"
+         ;; "~/d-git/d-nix/d-setup.org"
          ;; "~/d-git/d-site/README.org"
          )))
 
@@ -8048,9 +8103,18 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
 
   #+begin_src emacs-lisp
     (use-package telega :if d/on-foss
+      ;; :hook
+      ;; (telega-load . telega-notifications-mode)
+      ;; (telega-load . telega-appindicator-mode)
+      ;; (telega-root-mode . hl-line-mode)
       :custom-face
       (telega-msg-heading ((t :extend nil :background nil)))
-      (telega-msg-user-title ((t :extend nil :background "#111"))))
+      (telega-msg-user-title ((t :extend nil :background "#111")))
+      :config
+      (define-key global-map (kbd "C-c t") telega-prefix-map)
+      (setopt telega-chat-input-markups '("org")
+              )
+      )
   #+end_src
 
 - Maybe next will be ement (matrix) and mastodon?
@@ -8063,6 +8127,382 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
       :custom
       (mastodon-instance-url "https://fosstodon.org")
       (mastodon-active-user "idlip"))
+  #+end_src
+
+**** Irc-Erc
+- Chat like 90s or hacker?
+- Config taken from: [[https://codeberg.org/Icy-Thought/emacs.d/src/commit/ce1c77b67009df1f7ed22dd5fba162a4b0e7a2e9/modules/utils/communication/my-irc.el][Icy-Thought config]]  
+  
+#+begin_src emacs-lisp
+  (use-package erc
+    :config
+    (erc-services-mode) (erc-notifications-mode)
+    :custom
+    (erc-prompt-for-password nil) (erc-prompt-for-nickserv-password nil) (erc-server-reconnect-timeout 3)
+    (erc-autojoin-channels-alist '((Libera.Chat "#emacs" "#phi-mu-lambda" "#systemcrafters")))
+    (erc-hide-list '("JOIN" "PART" "QUIT"))
+    (erc-track-exclude-types
+     '("JOIN" "MODE" "NICK" "PART" "QUIT"
+       "324" "329" "332" "333" "353" "477"))
+    (erc-buffer-display 'buffer) (erc-interactive-display nil)
+    (erc-autojoin-timing 'ident) (erc-fill-static-center 0)
+    (erc-fill-function 'erc-fill-static)
+    (erc-fill-column (- fill-column 1))
+    (erc-interpret-mirc-color t)
+    (erc-kill-buffer-on-part t) (erc-kill-queries-on-quit t) (erc-kill-server-buffer-on-quit t)
+    (erc-nicks-colors 'all) (erc-nicks-track-faces t)
+    (erc-save-buffer-on-part t))
+#+end_src
+
+*** EWM Config
+- The End game is here, Emacs becomes wayland compository. Everything behaves like emacs now.
+
+- EWM Config
+  #+begin_src emacs-lisp
+    (use-package ewm :defer t
+      :hook
+      (emacs-startup . (lambda () (interactive) (ewm-launch "vicinae server")))
+      (emacs-startup . (lambda () (interactive) (ewm-launch "noctalia-shell")))
+      :custom
+      (ewm-output-config '(("eDP-1" :scale 1.25 :enabled t)
+                           ("HDMI-A-1" :scale 1.5)
+                           ))
+      (ewm-intercept-prefixes '("C-x" "C-u" "C-h" "M-x" "M-y" "M-S-;" "M-S-7" "M-S-3")) ;; (ewm--send-intercept-keys)
+      (ewm-input-config ;; (ewm--send-input-config)
+       '((touchpad :natural-scroll t :tap t :dwt t :accel-speed 0.5)
+         (mouse :accel-profile "flat" :accel-speed 0.6)
+          (keyboard :repeat-delay 500 :repeat-rate 100
+                    :xkb-layouts "us" :xkb-options "ctrl:nocaps")
+         (trackpoint :accel-speed 0.5)))
+      (ewm-idle 200)
+      :bind (:map ewm-mode-map
+                  ("s-<tab>" . tab-next) ("s-S-<tab>" . tab-previous)
+                  ("s-n" . tab-next) ("s-p" . tab-previous)
+                  ("s-j" . next-buffer) ("s-k" . previous-buffer)
+                  ("s-l" . ewm-next-surface-buffer) ("s-h" . ewm-prev-surface-buffer)
+                  ("s-Y" . ewm-commit-kill) ("C-x C-c" . nil) ("s-E" . nil)
+                  ("s-w" . d/insert-bookmark-link) ("s-W" . d/firefox-history-insert)
+                  ("s-i" . ewm-link-handler-unified) ("s-o" . ewm-handle-link)
+                  ("s-d" . ewm-launch))
+      :config
+      ;; (ewm-text-input--auto-enable)
+      )
+
+    (bind-keys ("C-x C-c" . nil) ("s-E" . nil) ("s-S-e" . nil))
+  #+end_src
+
+- Command to Launch apps and easy to bind keys
+  Parse desktop actions and show for completing read to run.
+
+#+begin_src emacs-lisp
+  ;;; Unified launcher with PATH executables + .desktop actions
+  (defvar ewm-launcher-cache nil "Cache of (display-string . command) pairs.")
+
+  (defun ewm-launcher--desktop-dirs ()
+    "Return desktop file directories from XDG_DATA_DIRS."
+    (let ((xdg-dirs (split-string (or (getenv "XDG_DATA_DIRS") "") ":" t)))
+      (seq-filter #'file-directory-p
+                  (mapcar (lambda (d) (expand-file-name "applications" d)) xdg-dirs))))
+
+  (defun ewm-launcher--parse-desktop-file (file)
+    "Extract main entry + Desktop Actions from FILE as (label . command) pairs."
+    (when (file-readable-p file)
+      (with-temp-buffer
+        (insert-file-contents file)
+        (goto-char (point-min))
+        (let (main-name main-exec actions)
+          ;; Parse main desktop entry
+          (when (re-search-forward "^\\[Desktop Entry\\]" nil t)
+            (let ((section-end (or (save-excursion (re-search-forward "^\\[" nil t))
+                                   (point-max))))
+              (when (re-search-forward "^Name=\\(.+\\)" section-end t)
+                (setq main-name (string-trim (match-string 1))))
+              (goto-char (point-min))
+              (when (re-search-forward "^Exec=\\(.+\\)" section-end t)
+                (setq main-exec (string-trim 
+                                 (replace-regexp-in-string " %[UuFfDdNnickvm].*$" "" (match-string 1)))))))
+          
+          ;; Parse Desktop Actions
+          (goto-char (point-min))
+          (while (re-search-forward "^\\[Desktop Action \\(.+?\\)\\]" nil t)
+            (let ((section-start (point))
+                  action-name action-exec)
+              (let ((section-end (or (save-excursion (re-search-forward "^\\[" nil t))
+                                     (point-max))))
+                (goto-char section-start)
+                (when (re-search-forward "^Name=\\(.+\\)" section-end t)
+                  (setq action-name (string-trim (match-string 1))))
+                (goto-char section-start)
+                (when (re-search-forward "^Exec=\\(.+\\)" section-end t)
+                  (setq action-exec (string-trim 
+                                     (replace-regexp-in-string " %[UuFfDdNnickvm].*$" "" (match-string 1)))))
+                (when (and action-name action-exec)
+                  (push (cons (format "%s: %s" main-name action-name) action-exec) actions)))))
+          
+          ;; Add main entry
+          (when (and main-name main-exec)
+            (push (cons main-name main-exec) actions))
+          
+          (nreverse actions)))))
+
+  (defun ewm-launcher--build-cache ()
+    "Build cache of executables + desktop actions."
+    (let (entries seen)
+      ;; Scan PATH executables
+      (dolist (dir (seq-filter #'file-directory-p exec-path))
+        (dolist (file (directory-files dir nil "^[^.]"))
+          (let ((full (expand-file-name file dir)))
+            (when (and (file-regular-p full)
+                       (file-executable-p full)
+                       (>= (length file) 3)
+                       (not (member file seen)))
+              (push file seen)
+              (push (cons file file) entries)))))
+      
+      ;; Scan .desktop files from XDG_DATA_DIRS
+      (dolist (dir (ewm-launcher--desktop-dirs))
+        (when (file-directory-p dir)
+          (dolist (file (directory-files dir t "\\.desktop$"))
+            (dolist (action (ewm-launcher--parse-desktop-file file))
+              (let ((label (car action)))
+                (unless (member label seen)
+                  (push label seen)
+                  (push action entries)))))))
+      
+      (nreverse entries)))
+
+  (defun ewm-launcher--execute (cmd method)
+    "Execute CMD using METHOD, respecting direnv if active."
+    (let ((default-directory (if (bound-and-true-p envrc-mode)
+                                 default-directory
+                               default-directory))
+          (process-environment (if (bound-and-true-p envrc-mode)
+                                   process-environment
+                                 process-environment)))
+      (pcase method
+        ('start-process
+         (start-process-shell-command cmd nil cmd))
+        
+        ('call-process
+         (call-process-shell-command cmd))
+        
+        ('async-shell-buffer
+         (async-shell-command cmd))
+        
+        ('output-echo
+         (message "%s" (string-trim (shell-command-to-string cmd))))
+        
+        ('output-buffer
+         (with-current-buffer (get-buffer-create "*ewm-output*")
+           (erase-buffer)
+           (insert (shell-command-to-string cmd))
+           (goto-char (point-min))
+           (display-buffer (current-buffer))))
+
+        ('insert-output
+         (insert (shell-command-to-string cmd)))
+        
+        ('compile-buffer
+         (compile cmd)))))
+
+  (defun ewm-launch (arg)
+    "Launch executable or desktop action.
+  With prefix ARG:
+    C-u     - prompt for execution method
+    C-u 1   - show output in buffer
+    C-u 2   - show output in echo area
+    C-u 3   - async shell buffer
+    C-u 4   - compile buffer
+    C-u 5   - call-process (synchronous)
+    none    - start-process (background)"
+    (interactive "P")
+    (unless ewm-launcher-cache
+      (setq ewm-launcher-cache (ewm-launcher--build-cache)))
+    
+    (let* ((input (completing-read "Run: " ewm-launcher-cache nil nil))
+           (cmd (or (cdr (assoc input ewm-launcher-cache)) input))
+           (method (cond
+                    ;; Universal arg - prompt for method
+                    ((equal arg '(4))
+                     (intern (completing-read
+                              "Execute as: "
+                              '("start-process"
+                                "call-process"
+                                "async-shell-buffer"
+                                "output-echo"
+                                "output-buffer"
+                                "compile-buffer"
+                                "insert-output"
+                                )
+                              nil t)))
+                    
+                    ;; Numeric args - direct mapping
+                    ((equal arg 1) 'output-buffer)
+                    ((equal arg 2) 'output-echo)
+                    ((equal arg 3) 'async-shell-buffer)
+                    ((equal arg 4) 'compile-buffer)
+                    ((equal arg 5) 'call-process)
+                    ((equal arg 6) 'insert-output)
+                    
+                    ;; Default - background process
+                    (t 'start-process))))
+      
+      (ewm-launcher--execute cmd method)))
+
+  (defun ewm-launcher-refresh ()
+    "Rebuild launcher cache."
+    (interactive)
+    (setq ewm-launcher-cache (ewm-launcher--build-cache))
+    (message "Launcher cache refreshed (%d entries)" (length ewm-launcher-cache)))
+#+end_src
+
+
+- Link handler to open in various forms
+#+begin_src emacs-lisp
+      ;;; Link handler
+
+      (defvar ewm-link-handlers
+        `(("Copy URL" . ,(lambda (url) (kill-new url)))
+          ("Open via GlideFox" . "glide")
+          ("Download Files via Aria2c" . "aria2c -j 6 -x 16 -c -d ~/Downloads")
+          ("Media YT Vid Download" . "yt-dlp --embed-metadata --embed-subs -f 'bestvideo[height<=1080]+bestaudio' -P ~/Videos")
+          ("Media Audio Music Download" . "yt-dlp -P ~/Music -icx --embed-metadata")
+          ("Podcast Listen Stream Song Music Mpd" . ,(lambda (url)
+                                                       (let ((choice (completing-read "Type: " '("Song" "Podcast"))))
+                                                         (if (string= choice "Podcast")
+                                                             (ewm-launcher--execute (format "mpv --ytdl-format=bestaudio --force-window --geometry=15%% --title=podcast --vid=1 '%s'" url) 'start-process)
+                                                           (ewm-launcher--execute (format "mpc add \"$(yt-dlp -f bestaudio -g '%s')\"" url) 'start-process)))))
+          ("View Image via swayimg" . ,(lambda (url)
+                                         (let ((tmp "/tmp/ewm-image"))
+                                           (url-copy-file url tmp t)
+                                           (ewm-launcher--execute (format "swayimg %s" tmp) 'start-process))))
+          ("Play Watch Stream HQ" . "mpv -quiet")
+          ("Misc Download" . "aria2c -j 6 -x 10 -c -d ~/Videos")
+          ("Bookmark Url with tags" . "d-bookmark")
+          ("Open via Brave" . "brave")
+          ("Open via Qutebrowser" . "qutebrowser --target=tab-silent")
+          ("Open via Chromium" . "chromium")
+          ("Torrent files via Aria" . ,(lambda (url)
+                                         (ewm-launcher--execute 
+                                          (format "curl http://localhost:6800/jsonrpc -d '{\"jsonrpc\":\"2.0\",\"id\":\"someID\",\"method\":\"aria2.addUri\",\"params\":[\"token:ariatest\",[\"%s\"]]}'" url) 'start-process)))
+          ("Youtube Search Play Music" . ,(lambda (url)
+                                            (ewm-launcher--execute (format "mpc add \"$(yt-dlp -g 'ytsearch:%s')\"" url) 'start-process)))
+          ("Open Search Engine" . "d-search")
+          ("Document Pdf/cbz Manga via Sioyek" . "sioyek")
+          ("Open via LibreWolf" . "librewolf")
+          ("Add Torrent via Transmission" . "transmission-remote -a")
+          ("Play Watch Stream LQ" . "mpv --ytdl-format=18 -quiet")
+          ("CLI Youtube DL with Format Options" . ,(lambda (url)
+                                                     (ewm-launcher--execute 
+                                                      (format "yt-dlp -F '%s' && read -p 'Choose format: ' fmt && yt-dlp -f $fmt '%s'" url url) 'async-shell-buffer)))
+          ("Get BibTex biblio reference" . "d-bibtex"))
+        "Alist of (label . command-or-function) for link handling.")
+
+      (defun ewm-handle-link (url)
+        "Handle URL with selected action."
+        (interactive
+         (list (or (current-kill 0)
+                   (read-string "URL: "))))
+        (let* ((choice (completing-read "Open with: " (mapcar #'car ewm-link-handlers)))
+               (handler (cdr (assoc choice ewm-link-handlers))))
+          (if (functionp handler)
+              (funcall handler url)
+            (ewm-launcher--execute (format "%s '%s'" handler url) 'start-process))))
+#+end_src
+  
+
+- Unify link handling and URL completions
+#+begin_src emacs-lisp
+  (defun ewm-link-handler-unified ()
+    "Select link from multiple sources and handle it."
+    (interactive)
+    (let* ((clip (current-kill 0))
+           (source (completing-read
+                    "Link source: "
+                    (list (format "Clipboard: %s" clip)
+                          "Firefox History"
+                          "Bookmarks"
+                          "Manual Entry")))
+           (url (cond
+                 ((string-prefix-p "Clipboard:" source) clip)
+                 ((string= source "Firefox History") (d/firefox-history-insert t))
+                 ((string= source "Bookmarks") (d/insert-bookmark-link t))
+                 ((string= source "Manual Entry") (read-string "URL: ")))))
+      (when url
+        (ewm-handle-link url))))
+#+end_src
+
+
+- Bind keybindings for EWM
+  #+begin_src emacs-lisp
+    ;; -*- lexical-binding: t; -*-
+    (with-eval-after-load 'ewm
+      (dolist (b '(
+                   ("s-x"  . "noctalia-shell ipc call sessionMenu toggle")
+                   ("s-y"  . "vicinae vicinae://extensions/vicinae/clipboard/history")
+                   ;; ("s-w"  . "d-urls")
+                   ;; ("s-o"  . "d-stuff")
+                   ("s-u"  . "d-menu")
+                   ("s-b"  . "noctalia-shell ipc call controlCenter toggle")
+                   ("s-D" . "vicinae toggle")
+                   ("s-b" . "noctalia-shell ipc call controlCenter toggle")
+                   ;; ("s-i" . "d-stuff")
+                   ("s-u" . "d-menu")
+                   ("s-<f5>" . "noctalia-shell ipc call wallpaper random")
+                   ;; ("s-W"  . "d-passentry")
+                   ;; ("s-Y"  . "d-passentry")
+                   ("s-B"  . "d-bookmark")
+                   ("s-<delete>" . "noctalia-shell ipc call plugin:screen-recorder toggle")
+                   ("s-T"  . "noctalia-shell ipc call notifications toggleHistory")
+                   ("C-s-p" . "noctalia-shell ipc call sessionMenu lockAndSuspend")
+                   ("C-S-s-l" . "noctalia-shell ipc call lockScreen lock")
+                   ("<print>" . "hyprshot -m region --clipboard-only")
+                   ("s-<print>" . "hyprshot -m region")
+                   ("M-<print>" . "hyprshot -m window -m active")
+                   ("C-<print>" . "hyprshot -m output")
+                   ("<AudioRaiseVolume>" . "noctalia-shell ipc call volume increase")
+                   ("<AudioLowerVolume>" . "noctalia-shell ipc call volume decrease")
+                   ("<AudioMute>" . "noctalia-shell ipc call volume muteOutput")
+                   ("<MonBrightnessUp>" . "noctalia-shell ipc call brightness increase")
+                   ("<MonBrightnessDown>" . "noctalia-shell ipc call brightness decrease")
+                   ))
+        (let ((cmd (cdr b)))
+          (define-key ewm-mode-map (kbd (car b))
+                      (lambda ()
+                        (interactive)
+                        (ewm-launcher--execute cmd 'start-process))))))
+  #+end_src
+
+**** Firefox history via emacs
+- Show firefox history in emacs to complete and insert (why not)
+
+  #+begin_src emacs-lisp
+    (defun d/firefox-history-insert (&optional return)
+      "Insert URL from Firefox history."
+      (interactive)
+      (require 'sqlite)
+      (let* ((cache "/tmp/glidemacs-history")
+             (db "~/.glide/glide/oollv4xx.default-glide/places.sqlite"))
+        ;; build cache if missing
+        (unless (file-exists-p cache)
+          (let ((tmp (make-temp-file "ffhist" nil ".sqlite")))
+            (copy-file db tmp t)
+            (let ((conn (sqlite-open tmp)))
+              (with-temp-file cache
+                (dolist (row (sqlite-select conn
+                                            "SELECT url,title FROM moz_places
+                              ORDER BY last_visit_date DESC LIMIT 7000"))
+                  (let ((url (nth 0 row))
+                        (title (or (nth 1 row) "")))
+                    (insert (format "%s — %s\n" title url)))))
+              (sqlite-close conn))))
+        (let* ((lines (with-temp-buffer
+                        (insert-file-contents cache)
+                        (split-string (buffer-string) "\n" t)))
+               (choice (completing-read "Firefox history: " lines))
+               (url (cadr (split-string choice " — "))))
+          (if return url (insert url))
+          )))
   #+end_src
 
 * Packages

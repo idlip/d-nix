@@ -10,6 +10,17 @@
 
 ;;; Code:
 
+(setq default-frame-alist
+      '((fullscreen . maximized)
+        (vertical-scroll-bars . nil)
+        (horizontal-scroll-bars . nil)
+        ;; Setting the face in here prevents flashes of
+        ;; color as the theme gets activated
+        (background-color . "#000000")
+        (foreground-color . "#ffffff")
+        (ns-appearance . dark)
+        (ns-transparent-titlebar . t)))
+
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (scroll-bar-mode -1)

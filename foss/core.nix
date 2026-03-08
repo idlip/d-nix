@@ -340,7 +340,7 @@
     hardware.bluetooth = {
       enable = true;
     };
-    services.blueman.enable = true;
+    # services.blueman.enable = true;
   }
   {
     services.syncthing = {
@@ -383,6 +383,14 @@
   }
   {
     programs.mango.enable = true;
+  }
+  (inputs.ewm.outPath + "/nix/service.nix")
+  {
+    programs.ewm = {
+      enable = true;
+      extraEmacsArgs = "";
+      emacsPackage = config.home-manager.users.dev.programs.emacs.finalPackage;
+    };
   }
   {
     fonts = {
@@ -456,7 +464,7 @@
     fileSystems."/boot" = { device = "/dev/disk/by-uuid/112B-98A0"; };
   }
   {
-	stylix.base16Scheme = lib.mkForce "${pkgs.base16-schemes}/share/themes/kanagawa.yaml";
+	stylix.base16Scheme = lib.mkForce "${pkgs.base16-schemes}/share/themes/bright.yaml";
   }
   {	
 	services.throttled.enable = true;

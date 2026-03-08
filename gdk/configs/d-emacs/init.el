@@ -23,10 +23,11 @@
  history-delete-duplicates t
 
  sentence-end-double-space nil
- sentence-end "[.?!,;-]"
+ sentence-end "[.?!]"
  read-process-output-max (* 1024 1024)
  initial-major-mode 'org-mode
  enable-recursive-minibuffers t
+ switch-to-buffer-obey-display-actions t
  )
 
 (delete-selection-mode 1)
@@ -36,7 +37,7 @@
  standard-indent 4)
 (global-so-long-mode 1)
 (with-current-buffer "*scratch*" (emacs-lock-mode 'kill))
-(modify-all-frames-parameters '((alpha-background . 90)))
+(modify-all-frames-parameters '((alpha-background . 99)))
 
 (dolist (cmd '(narrow-to-region
                list-timers narrow-to-region narrow-to-page upcase-region downcase-region
@@ -60,12 +61,14 @@
  async-shell-command-display-buffer nil
  grep-use-headings t
  save-interprogram-paste-before-kill t
+ global-hl-line-sticky-flag 'window
  )
 
 (global-hl-line-mode 1)
 (save-place-mode 1)
 (column-number-mode)
 (global-visual-line-mode 1)
+(global-visual-wrap-prefix-mode 1)
 (global-subword-mode 1)
 
 ;; credits oantolin's config
@@ -120,7 +123,9 @@
 ;;.If at garbage collection time the undo info for the current command exceeds this limit,Emacs
 ;;discards the info and displays a warning.This is a last ditch limit to prevent memory overflow.
 
-(setopt global-auto-revert-non-file-buffers t)
+(setopt global-auto-revert-non-file-buffers t
+        auto-revert-check-vc-info t
+        auto-revert-avoid-polling t)
 (global-auto-revert-mode 1)
 
 (setopt
@@ -173,10 +178,9 @@
   :custom
   (vertico-multiform-commands
    '((load-theme grid) (consult-theme grid)
-     (dired-goto-file flat)
-     (consult-recoll buffer) (consult-dff unobtrusive)
-     (embark-act grid)
-	 (org-set-tags-command grid)
+     (dired-goto-file flat) (consult-recoll buffer)
+     (consult-dff unobtrusive) (d/insert-bookmark-link unobtrusive)
+     (embark-act grid) (org-set-tags-command grid)
      ))
 
   (vertico-multiform-categories
@@ -224,10 +228,15 @@
   (xref-show-xrefs-function #'consult-xref)
   (xref-show-definitions-function #'consult-xref)
   (imenu-max-item-length nil)
+  (consult-ripgrep-args
+   "rg --null --line-buffered --color=never --max-columns=1000 \
+      --path-separator / --smart-case --no-heading --with-filename \
+      --line-number --search-zip -U")
   )
 
 (setopt completion-styles '(orderless basic)
         completion-category-overrides '((file (styles basic partial-completion)))
+        completion-ignore-case t
         completion-pcm-leading-wildcard t
         completion-category-defaults nil)
 
@@ -259,6 +268,10 @@
 
   :custom
   (prefix-help-command #'embark-prefix-help-command)
+  (embark-indicators
+   '(embark-minimal-indicator
+     embark-highlight-indicator
+     embark-isearch-highlight-indicator))
   (embark-confirm-act-all nil)
   )
 (add-to-list 'display-buffer-alist `("\\*\\(Embark\\|Completions\\).*\\*"
@@ -364,10 +377,9 @@
 (add-to-list
  'display-buffer-alist
  '("\\*\\(shell\\|term\\|.*eshell\\|.*eat\\|help\\|compilation\\|Async Shell Command\\|Occur\\|xref\\).*\\*"
-   (display-buffer-reuse-window display-buffer-in-side-window)
-   (side . bottom)
-   (slot . 0)
-   (post-command-select-window . t)
+   (display-buffer-at-bottom)
+   ;; (window-parameters (mode-line-format . none))
+   ;; (post-command-select-window . t)
    (window-height . 0.3)))
 
 (setq comint-pager "cat")
@@ -388,7 +400,6 @@
 (use-package reformatter
   :hook
   (python-ts-mode . ruff-format-on-save-mode)
-  (nix-mode . alejandra-format-on-save-mode)
   (ess-r-mode . styler-format-on-save-mode)
   (bash-ts-mode . shell-format-on-save-mode)
   ;; (nix-ts-mode . nixfmt-rfc-format-on-save-mode)
@@ -451,26 +462,28 @@
   (project-switch-use-entire-map t))
 
 (use-package treesit :ensure nil
-  :mode
-  (("\\.tsx\\'" . tsx-ts-mode)
-   ("\\.yaml\\'" . yaml-ts-mode) ("\\.toml\\'" . toml-ts-mode) ("\\.jsonrc\\'" . json-ts-mode)
-    ("\\.json\\'" .  json-ts-mode)
-   ("\\.jsx\\'" . tsx-ts-mode)
-   ("\\.Dockerfile\\'" . dockerfile-ts-mode)
-   ("\\.sh\\'" . bash-ts-mode))
+  ;; :mode
+  ;; (("\\.tsx\\'" . tsx-ts-mode)
+  ;;  ("\\.yaml\\'" . yaml-ts-mode) ("\\.toml\\'" . toml-ts-mode) ("\\.jsonrc\\'" . json-ts-mode)
+  ;;   ("\\.json\\'" .  json-ts-mode)
+  ;;  ("\\.jsx\\'" . tsx-ts-mode)
+  ;;  ("\\.Dockerfile\\'" . dockerfile-ts-mode)
+  ;;  ("\\.sh\\'" . bash-ts-mode))
 
   :custom
+  (treesit-enabled-modes t)
   (treesit-font-lock-level 4)
   (standard-indent 2)
-  (major-mode-remap-alist
-   '((c-mode . c-ts-mode) (c++-mode . c++-ts-mode) (nix-mode . nix-ts-mode)
-     (csharp-mode . csharp-ts-mode) (css-mode . css-ts-mode)
-     (java-mode . java-ts-mode) (js-mode . js-ts-mode) (html-mode . mhtml-ts-mode)
-     (js-json-mode . json-ts-mode) ;; (org-mode . org-ts-mode) ;; not mature yet
-     (python-mode . python-ts-mode) (julia-mode . ess-julia-mode)
-     (typescript-mode . typescript-ts-mode) (sh-mode . bash-ts-mode) (shell-script-mode . bash-ts-mode)
-     (ruby-mode . ruby-ts-mode) (rust-mode . rust-ts-mode)
-     (toml-mode . toml-ts-mode) (yaml-mode . yaml-ts-mode))))
+  ;; (major-mode-remap-alist
+  ;;  '((c-mode . c-ts-mode) (c++-mode . c++-ts-mode) (nix-mode . nix-ts-mode)
+  ;;    (csharp-mode . csharp-ts-mode) (css-mode . css-ts-mode)
+  ;;    (java-mode . java-ts-mode) (js-mode . js-ts-mode) (html-mode . mhtml-ts-mode)
+  ;;    (js-json-mode . json-ts-mode) ;; (org-mode . org-ts-mode) ;; not mature yet
+  ;;    (python-mode . python-ts-mode) (julia-mode . ess-julia-mode)
+  ;;    (typescript-mode . typescript-ts-mode) (sh-mode . bash-ts-mode) (shell-script-mode . bash-ts-mode)
+  ;;    (ruby-mode . ruby-ts-mode) (rust-mode . rust-ts-mode)
+  ;;    (toml-mode . toml-ts-mode) (yaml-mode . yaml-ts-mode)))
+  )
 
 (use-package devdocs-browser
   :bind ("C-c d v" . devdocs-browser-open-in)
@@ -533,7 +546,9 @@
 (use-package paren :ensure nil
   :hook (after-init . show-paren-mode)
   :custom
-  (show-paren-highlight-openparen t) (show-paren-context-when-offscreen t))
+  (show-paren-highlight-openparen t) (show-paren-context-when-offscreen t)
+  (show-paren-delay 0) (show-paren-style 'parenthesis) (show-paren-context-when-offscreen 'overlay)
+  )
 
 (use-package colorful-mode :unless d/on-droid
   :config (global-colorful-mode))
@@ -664,15 +679,6 @@
       (set-face-attribute 'doc-view-svg-face nil :background "#fefefe" :foreground "#000000"))))
   (doc-view-next-page) (doc-view-previous-page))
 
-(unless d/on-droid
-  (use-package reader :demand t
-    :load-path "~/learn/emacs-reader"
-    :config (reader-global-dark-mode 1)
-    (require 'reader-saveplace)
-    (require 'reader-bookmark)
-    (require 'reader-outline)
-    ))
-
 (use-package nov :mode ("\\.epub\\'" . nov-mode)
   :hook
   (nov-mode . nov-imenu-setup)
@@ -694,6 +700,10 @@
   (gnus-article-save-directory (expand-file-name "saved" gnus-home-directory))
   (gnus-widen-article-window t)
   (gnus-completion-styles completion-styles)
+  (gnus-auto-expirable-newsgroups
+   "nnimap\\+.*:\\[Gmail\\]/\\(Trash\\|Spam\\)")
+  (gnus-expiry-wait 7)
+  (nnimap-expunge t)
 
   (gnus-select-method
    '(nnnil ""))
@@ -821,8 +831,16 @@
   (:map gnus-server-mode-map
         ("q" . quit-window)))
 
-(setq fast-read-process-output nil)
-(setq gnus-search-use-imap t)
+(setopt
+ fast-read-process-output nil
+ gnus-search-use-imap t
+ ;; mail-user-agent 'gnus-user-agent ;; why open gnus?
+ ;; read-mail-command #'gnus
+ gnus-save-newsrc-file nil
+ gnus-read-newsrc-file nil
+ message-confirm-send t
+ message-forward-as-mime t
+ message-send-mail-function #'smtpmail-send-it)
 
 (use-package smtpmail :unless d/on-droid
   ;; :after gnus
@@ -843,7 +861,6 @@
 
 (use-package eww :ensure nil :demand t
   :hook
-  (eww-mode . variable-pitch-mode)
   (eww-after-render . (lambda () (d/eww-readable) (setq-local line-spacing '0.4)))
   :custom
   (eww-auto-rename-buffer 'title)
@@ -880,10 +897,9 @@ images."
   )
 
 (use-package browse-url :ensure nil :unless d/on-droid
-  :config ;; browser script
-  (setopt browse-url-browser-function 'browse-url-generic
-          browse-url-generic-program "d-stuff"
-          browse-url-secondary-browser-function 'browse-url-default-browser))
+  :config
+  (setopt browse-url-browser-function 'ewm-handle-link
+          browse-url-secondary-browser-function 'ewm-handle-link))
 
 (use-package ox-hugo :unless d/on-droid :after ox)
 
@@ -1001,7 +1017,7 @@ images."
      (bg-mode-line-active bg-dim)
      (bg-line-number-active  bg-main) (bg-line-number-inactive  bg-main)
      (fg-line-number-active fg-dim) (fg-line-number-inactive border)
-     (border-mode-line-active unspecified) (border-mode-line-inactive unspecified)
+     (border-mode-line-active bg-completion) (border-mode-line-inactive unspecified)
      ))
 
   :config
@@ -1026,10 +1042,9 @@ images."
 (global-set-key (kbd "<f9>") 'mode-line-invisible-mode)
 
 (use-package olivetti :defer t :custom (olivetti-body-width 100)
-  :hook (org-mode Info-mode help-mode gnus-group-mode eww-mode gnus-article-mode nov-mode markdown-mode))
-(add-hook 'olivetti-mode-hook #'variable-pitch-mode)
+  :hook (org-mode Info-mode help-mode gnus-group-mode gnus-article-mode nov-mode markdown-mode))
+;; (add-hook 'olivetti-mode-hook #'variable-pitch-mode)
 
-(tab-bar-mode 1) (tab-bar-history-mode 1)
 (setopt
  tab-bar-format
  '(tab-bar-format-menu-bar tab-bar-format-history
@@ -1038,6 +1053,7 @@ images."
                            tab-bar-format-global ;; An issue when used in terminal+daemon (cursor wont move properly)
                            )
  tab-bar-close-button-show nil)
+(tab-bar-mode t) (tab-bar-history-mode 1)
 
 (use-package org :ensure nil :defer t
   :hook
@@ -1097,8 +1113,30 @@ images."
       (org-export-to-buffer 'org (format "export %s.org" org-export-select-tags)))
     (org-mode) (delete-other-windows)
     ))
-
 (global-set-key (kbd "C-x C-a C-o") #'d/org-activity)
+
+(defun d/insert-bookmark-link (&optional return)
+  "Select and insert a link from bookmarks.org."
+  (interactive)
+  (let* ((file "~/d-sync/notes/bookmarks.org")
+         (links (with-temp-buffer
+                  (insert-file-contents file)
+                  (goto-char (point-min))
+                  (let (result)
+                    ;; Match org-style [[url][title]]
+                    (while (re-search-forward org-link-bracket-re nil t)
+                      (push (cons (match-string 2) (match-string 1)) result))
+                    ;; Match bare https:// links
+                    (goto-char (point-min))
+                    (while (re-search-forward "https://[^\s\n]+" nil t)
+                      (let ((url (match-string 0)))
+                        (unless (assoc url result)
+                          (push (cons url url) result))))
+                    (nreverse result))))
+         (selected (completing-read "Link: " (mapcar #'car links)))
+         (url (if (equal selected "pass") (insert-file-contents "~/.local/bin/pass.txt")
+                (cdr (assoc selected links)))))
+    (when url (if return url (insert url)))))
 
 (use-package org-agenda :ensure nil :demand t
   :init (org-agenda nil "a") ;; open agenda as dashboard
@@ -1118,7 +1156,7 @@ images."
   (org-agenda-files
    '("~/d-sync/notes/d-brain.org"
      "~/d-sync/notes/inbox.org" "~/d-sync/notes/foss.org"
-     "~/d-git/d-nix/d-setup.org"
+     ;; "~/d-git/d-nix/d-setup.org"
      ;; "~/d-git/d-site/README.org"
      )))
 
@@ -1343,11 +1381,362 @@ absolute path. Finally load eglot."
  (flycheck-vale-setup))
 
 (use-package telega :if d/on-foss
+  ;; :hook
+  ;; (telega-load . telega-notifications-mode)
+  ;; (telega-load . telega-appindicator-mode)
+  ;; (telega-root-mode . hl-line-mode)
   :custom-face
   (telega-msg-heading ((t :extend nil :background nil)))
-  (telega-msg-user-title ((t :extend nil :background "#111"))))
+  (telega-msg-user-title ((t :extend nil :background "#111")))
+  :config
+  (define-key global-map (kbd "C-c t") telega-prefix-map)
+  (setopt telega-chat-input-markups '("org")
+          )
+  )
 
 (use-package mastodon :if d/on-foss
   :custom
   (mastodon-instance-url "https://fosstodon.org")
   (mastodon-active-user "idlip"))
+
+(use-package erc
+  :config
+  (erc-services-mode) (erc-notifications-mode)
+  :custom
+  (erc-prompt-for-password nil) (erc-prompt-for-nickserv-password nil) (erc-server-reconnect-timeout 3)
+  (erc-autojoin-channels-alist '((Libera.Chat "#emacs" "#phi-mu-lambda" "#systemcrafters")))
+  (erc-hide-list '("JOIN" "PART" "QUIT"))
+  (erc-track-exclude-types
+   '("JOIN" "MODE" "NICK" "PART" "QUIT"
+     "324" "329" "332" "333" "353" "477"))
+  (erc-buffer-display 'buffer) (erc-interactive-display nil)
+  (erc-autojoin-timing 'ident) (erc-fill-static-center 0)
+  (erc-fill-function 'erc-fill-static)
+  (erc-fill-column (- fill-column 1))
+  (erc-interpret-mirc-color t)
+  (erc-kill-buffer-on-part t) (erc-kill-queries-on-quit t) (erc-kill-server-buffer-on-quit t)
+  (erc-nicks-colors 'all) (erc-nicks-track-faces t)
+  (erc-save-buffer-on-part t))
+
+(use-package ewm :defer t
+  :hook
+  (emacs-startup . (lambda () (interactive) (ewm-launch "vicinae server")))
+  (emacs-startup . (lambda () (interactive) (ewm-launch "noctalia-shell")))
+  :custom
+  (ewm-output-config '(("eDP-1" :scale 1.25 :enabled t)
+                       ("HDMI-A-1" :scale 1.5)
+                       ))
+  (ewm-intercept-prefixes '("C-x" "C-u" "C-h" "M-x" "M-y" "M-S-;" "M-S-7" "M-S-3")) ;; (ewm--send-intercept-keys)
+  (ewm-input-config ;; (ewm--send-input-config)
+   '((touchpad :natural-scroll t :tap t :dwt t :accel-speed 0.5)
+     (mouse :accel-profile "flat" :accel-speed 0.6)
+      (keyboard :repeat-delay 500 :repeat-rate 100
+                :xkb-layouts "us" :xkb-options "ctrl:nocaps")
+     (trackpoint :accel-speed 0.5)))
+  (ewm-idle 200)
+  :bind (:map ewm-mode-map
+              ("s-<tab>" . tab-next) ("s-S-<tab>" . tab-previous)
+              ("s-n" . tab-next) ("s-p" . tab-previous)
+              ("s-j" . next-buffer) ("s-k" . previous-buffer)
+              ("s-l" . ewm-next-surface-buffer) ("s-h" . ewm-prev-surface-buffer)
+              ("s-Y" . ewm-commit-kill) ("C-x C-c" . nil) ("s-E" . nil)
+              ("s-w" . d/insert-bookmark-link) ("s-W" . d/firefox-history-insert)
+              ("s-i" . ewm-link-handler-unified) ("s-o" . ewm-handle-link)
+              ("s-d" . ewm-launch))
+  :config
+  ;; (ewm-text-input--auto-enable)
+  )
+
+(bind-keys ("C-x C-c" . nil) ("s-E" . nil) ("s-S-e" . nil))
+
+;;; Unified launcher with PATH executables + .desktop actions
+(defvar ewm-launcher-cache nil "Cache of (display-string . command) pairs.")
+
+(defun ewm-launcher--desktop-dirs ()
+  "Return desktop file directories from XDG_DATA_DIRS."
+  (let ((xdg-dirs (split-string (or (getenv "XDG_DATA_DIRS") "") ":" t)))
+    (seq-filter #'file-directory-p
+                (mapcar (lambda (d) (expand-file-name "applications" d)) xdg-dirs))))
+
+(defun ewm-launcher--parse-desktop-file (file)
+  "Extract main entry + Desktop Actions from FILE as (label . command) pairs."
+  (when (file-readable-p file)
+    (with-temp-buffer
+      (insert-file-contents file)
+      (goto-char (point-min))
+      (let (main-name main-exec actions)
+        ;; Parse main desktop entry
+        (when (re-search-forward "^\\[Desktop Entry\\]" nil t)
+          (let ((section-end (or (save-excursion (re-search-forward "^\\[" nil t))
+                                 (point-max))))
+            (when (re-search-forward "^Name=\\(.+\\)" section-end t)
+              (setq main-name (string-trim (match-string 1))))
+            (goto-char (point-min))
+            (when (re-search-forward "^Exec=\\(.+\\)" section-end t)
+              (setq main-exec (string-trim 
+                               (replace-regexp-in-string " %[UuFfDdNnickvm].*$" "" (match-string 1)))))))
+        
+        ;; Parse Desktop Actions
+        (goto-char (point-min))
+        (while (re-search-forward "^\\[Desktop Action \\(.+?\\)\\]" nil t)
+          (let ((section-start (point))
+                action-name action-exec)
+            (let ((section-end (or (save-excursion (re-search-forward "^\\[" nil t))
+                                   (point-max))))
+              (goto-char section-start)
+              (when (re-search-forward "^Name=\\(.+\\)" section-end t)
+                (setq action-name (string-trim (match-string 1))))
+              (goto-char section-start)
+              (when (re-search-forward "^Exec=\\(.+\\)" section-end t)
+                (setq action-exec (string-trim 
+                                   (replace-regexp-in-string " %[UuFfDdNnickvm].*$" "" (match-string 1)))))
+              (when (and action-name action-exec)
+                (push (cons (format "%s: %s" main-name action-name) action-exec) actions)))))
+        
+        ;; Add main entry
+        (when (and main-name main-exec)
+          (push (cons main-name main-exec) actions))
+        
+        (nreverse actions)))))
+
+(defun ewm-launcher--build-cache ()
+  "Build cache of executables + desktop actions."
+  (let (entries seen)
+    ;; Scan PATH executables
+    (dolist (dir (seq-filter #'file-directory-p exec-path))
+      (dolist (file (directory-files dir nil "^[^.]"))
+        (let ((full (expand-file-name file dir)))
+          (when (and (file-regular-p full)
+                     (file-executable-p full)
+                     (>= (length file) 3)
+                     (not (member file seen)))
+            (push file seen)
+            (push (cons file file) entries)))))
+    
+    ;; Scan .desktop files from XDG_DATA_DIRS
+    (dolist (dir (ewm-launcher--desktop-dirs))
+      (when (file-directory-p dir)
+        (dolist (file (directory-files dir t "\\.desktop$"))
+          (dolist (action (ewm-launcher--parse-desktop-file file))
+            (let ((label (car action)))
+              (unless (member label seen)
+                (push label seen)
+                (push action entries)))))))
+    
+    (nreverse entries)))
+
+(defun ewm-launcher--execute (cmd method)
+  "Execute CMD using METHOD, respecting direnv if active."
+  (let ((default-directory (if (bound-and-true-p envrc-mode)
+                               default-directory
+                             default-directory))
+        (process-environment (if (bound-and-true-p envrc-mode)
+                                 process-environment
+                               process-environment)))
+    (pcase method
+      ('start-process
+       (start-process-shell-command cmd nil cmd))
+      
+      ('call-process
+       (call-process-shell-command cmd))
+      
+      ('async-shell-buffer
+       (async-shell-command cmd))
+      
+      ('output-echo
+       (message "%s" (string-trim (shell-command-to-string cmd))))
+      
+      ('output-buffer
+       (with-current-buffer (get-buffer-create "*ewm-output*")
+         (erase-buffer)
+         (insert (shell-command-to-string cmd))
+         (goto-char (point-min))
+         (display-buffer (current-buffer))))
+
+      ('insert-output
+       (insert (shell-command-to-string cmd)))
+      
+      ('compile-buffer
+       (compile cmd)))))
+
+(defun ewm-launch (arg)
+  "Launch executable or desktop action.
+With prefix ARG:
+  C-u     - prompt for execution method
+  C-u 1   - show output in buffer
+  C-u 2   - show output in echo area
+  C-u 3   - async shell buffer
+  C-u 4   - compile buffer
+  C-u 5   - call-process (synchronous)
+  none    - start-process (background)"
+  (interactive "P")
+  (unless ewm-launcher-cache
+    (setq ewm-launcher-cache (ewm-launcher--build-cache)))
+  
+  (let* ((input (completing-read "Run: " ewm-launcher-cache nil nil))
+         (cmd (or (cdr (assoc input ewm-launcher-cache)) input))
+         (method (cond
+                  ;; Universal arg - prompt for method
+                  ((equal arg '(4))
+                   (intern (completing-read
+                            "Execute as: "
+                            '("start-process"
+                              "call-process"
+                              "async-shell-buffer"
+                              "output-echo"
+                              "output-buffer"
+                              "compile-buffer"
+                              "insert-output"
+                              )
+                            nil t)))
+                  
+                  ;; Numeric args - direct mapping
+                  ((equal arg 1) 'output-buffer)
+                  ((equal arg 2) 'output-echo)
+                  ((equal arg 3) 'async-shell-buffer)
+                  ((equal arg 4) 'compile-buffer)
+                  ((equal arg 5) 'call-process)
+                  ((equal arg 6) 'insert-output)
+                  
+                  ;; Default - background process
+                  (t 'start-process))))
+    
+    (ewm-launcher--execute cmd method)))
+
+(defun ewm-launcher-refresh ()
+  "Rebuild launcher cache."
+  (interactive)
+  (setq ewm-launcher-cache (ewm-launcher--build-cache))
+  (message "Launcher cache refreshed (%d entries)" (length ewm-launcher-cache)))
+
+;;; Link handler
+
+(defvar ewm-link-handlers
+  `(("Copy URL" . ,(lambda (url) (kill-new url)))
+    ("Open via GlideFox" . "glide")
+    ("Download Files via Aria2c" . "aria2c -j 6 -x 16 -c -d ~/Downloads")
+    ("Media YT Vid Download" . "yt-dlp --embed-metadata --embed-subs -f 'bestvideo[height<=1080]+bestaudio' -P ~/Videos")
+    ("Media Audio Music Download" . "yt-dlp -P ~/Music -icx --embed-metadata")
+    ("Podcast Listen Stream Song Music Mpd" . ,(lambda (url)
+                                                 (let ((choice (completing-read "Type: " '("Song" "Podcast"))))
+                                                   (if (string= choice "Podcast")
+                                                       (ewm-launcher--execute (format "mpv --ytdl-format=bestaudio --force-window --geometry=15%% --title=podcast --vid=1 '%s'" url) 'start-process)
+                                                     (ewm-launcher--execute (format "mpc add \"$(yt-dlp -f bestaudio -g '%s')\"" url) 'start-process)))))
+    ("View Image via swayimg" . ,(lambda (url)
+                                   (let ((tmp "/tmp/ewm-image"))
+                                     (url-copy-file url tmp t)
+                                     (ewm-launcher--execute (format "swayimg %s" tmp) 'start-process))))
+    ("Play Watch Stream HQ" . "mpv -quiet")
+    ("Misc Download" . "aria2c -j 6 -x 10 -c -d ~/Videos")
+    ("Bookmark Url with tags" . "d-bookmark")
+    ("Open via Brave" . "brave")
+    ("Open via Qutebrowser" . "qutebrowser --target=tab-silent")
+    ("Open via Chromium" . "chromium")
+    ("Torrent files via Aria" . ,(lambda (url)
+                                   (ewm-launcher--execute 
+                                    (format "curl http://localhost:6800/jsonrpc -d '{\"jsonrpc\":\"2.0\",\"id\":\"someID\",\"method\":\"aria2.addUri\",\"params\":[\"token:ariatest\",[\"%s\"]]}'" url) 'start-process)))
+    ("Youtube Search Play Music" . ,(lambda (url)
+                                      (ewm-launcher--execute (format "mpc add \"$(yt-dlp -g 'ytsearch:%s')\"" url) 'start-process)))
+    ("Open Search Engine" . "d-search")
+    ("Document Pdf/cbz Manga via Sioyek" . "sioyek")
+    ("Open via LibreWolf" . "librewolf")
+    ("Add Torrent via Transmission" . "transmission-remote -a")
+    ("Play Watch Stream LQ" . "mpv --ytdl-format=18 -quiet")
+    ("CLI Youtube DL with Format Options" . ,(lambda (url)
+                                               (ewm-launcher--execute 
+                                                (format "yt-dlp -F '%s' && read -p 'Choose format: ' fmt && yt-dlp -f $fmt '%s'" url url) 'async-shell-buffer)))
+    ("Get BibTex biblio reference" . "d-bibtex"))
+  "Alist of (label . command-or-function) for link handling.")
+
+(defun ewm-handle-link (url)
+  "Handle URL with selected action."
+  (interactive
+   (list (or (current-kill 0)
+             (read-string "URL: "))))
+  (let* ((choice (completing-read "Open with: " (mapcar #'car ewm-link-handlers)))
+         (handler (cdr (assoc choice ewm-link-handlers))))
+    (if (functionp handler)
+        (funcall handler url)
+      (ewm-launcher--execute (format "%s '%s'" handler url) 'start-process))))
+
+(defun ewm-link-handler-unified ()
+  "Select link from multiple sources and handle it."
+  (interactive)
+  (let* ((clip (current-kill 0))
+         (source (completing-read
+                  "Link source: "
+                  (list (format "Clipboard: %s" clip)
+                        "Firefox History"
+                        "Bookmarks"
+                        "Manual Entry")))
+         (url (cond
+               ((string-prefix-p "Clipboard:" source) clip)
+               ((string= source "Firefox History") (d/firefox-history-insert t))
+               ((string= source "Bookmarks") (d/insert-bookmark-link t))
+               ((string= source "Manual Entry") (read-string "URL: ")))))
+    (when url
+      (ewm-handle-link url))))
+
+;; -*- lexical-binding: t; -*-
+(with-eval-after-load 'ewm
+  (dolist (b '(
+               ("s-x"  . "noctalia-shell ipc call sessionMenu toggle")
+               ("s-y"  . "vicinae vicinae://extensions/vicinae/clipboard/history")
+               ;; ("s-w"  . "d-urls")
+               ;; ("s-o"  . "d-stuff")
+               ("s-u"  . "d-menu")
+               ("s-b"  . "noctalia-shell ipc call controlCenter toggle")
+               ("s-D" . "vicinae toggle")
+               ("s-b" . "noctalia-shell ipc call controlCenter toggle")
+               ;; ("s-i" . "d-stuff")
+               ("s-u" . "d-menu")
+               ("s-<f5>" . "noctalia-shell ipc call wallpaper random")
+               ;; ("s-W"  . "d-passentry")
+               ;; ("s-Y"  . "d-passentry")
+               ("s-B"  . "d-bookmark")
+               ("s-<delete>" . "noctalia-shell ipc call plugin:screen-recorder toggle")
+               ("s-T"  . "noctalia-shell ipc call notifications toggleHistory")
+               ("C-s-p" . "noctalia-shell ipc call sessionMenu lockAndSuspend")
+               ("C-S-s-l" . "noctalia-shell ipc call lockScreen lock")
+               ("<print>" . "hyprshot -m region --clipboard-only")
+               ("s-<print>" . "hyprshot -m region")
+               ("M-<print>" . "hyprshot -m window -m active")
+               ("C-<print>" . "hyprshot -m output")
+               ("<AudioRaiseVolume>" . "noctalia-shell ipc call volume increase")
+               ("<AudioLowerVolume>" . "noctalia-shell ipc call volume decrease")
+               ("<AudioMute>" . "noctalia-shell ipc call volume muteOutput")
+               ("<MonBrightnessUp>" . "noctalia-shell ipc call brightness increase")
+               ("<MonBrightnessDown>" . "noctalia-shell ipc call brightness decrease")
+               ))
+    (let ((cmd (cdr b)))
+      (define-key ewm-mode-map (kbd (car b))
+                  (lambda ()
+                    (interactive)
+                    (ewm-launcher--execute cmd 'start-process))))))
+
+(defun d/firefox-history-insert (&optional return)
+  "Insert URL from Firefox history."
+  (interactive)
+  (require 'sqlite)
+  (let* ((cache "/tmp/glidemacs-history")
+         (db "~/.glide/glide/oollv4xx.default-glide/places.sqlite"))
+    ;; build cache if missing
+    (unless (file-exists-p cache)
+      (let ((tmp (make-temp-file "ffhist" nil ".sqlite")))
+        (copy-file db tmp t)
+        (let ((conn (sqlite-open tmp)))
+          (with-temp-file cache
+            (dolist (row (sqlite-select conn
+                                        "SELECT url,title FROM moz_places
+                          ORDER BY last_visit_date DESC LIMIT 7000"))
+              (let ((url (nth 0 row))
+                    (title (or (nth 1 row) "")))
+                (insert (format "%s — %s\n" title url)))))
+          (sqlite-close conn))))
+    (let* ((lines (with-temp-buffer
+                    (insert-file-contents cache)
+                    (split-string (buffer-string) "\n" t)))
+           (choice (completing-read "Firefox history: " lines))
+           (url (cadr (split-string choice " — "))))
+      (if return url (insert url))
+      )))

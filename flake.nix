@@ -53,7 +53,10 @@
       url = "https://gitflic.ru/project/magnolia1234/bypass-paywalls-clean-filters/blob/raw?file=bpc-paywall-filter.txt";
       flake = false;
     };
-
+    ewm = {
+      url = "git+https://codeberg.org/ezemtsov/ewm";
+      flake = false;
+    };
   };
 
   outputs =

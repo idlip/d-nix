@@ -173,7 +173,7 @@
 	    extraPackages = (epkgs: (with epkgs; [
 	      treesit-grammars.with-all-grammars
 	      vundo undo-fu-session
-		  rainbow-delimiters colorful-mode
+		    rainbow-delimiters colorful-mode
 	      vertico orderless marginalia corfu cape
 	      consult embark olivetti
 	      # nerd-icons nerd-icons-completion nerd-icons-corfu nerd-icons-dired
@@ -187,8 +187,11 @@
 	      # toc-org
 	      org-ql ox-hugo markdown-mode typst-ts-mode
 	      flycheck consult-flycheck flycheck-eglot org-re-reveal
-		  flycheck-vale
-		  verb forge melpaPackages.mastodon melpaPackages.telega
+		    flycheck-vale
+		    verb forge melpaPackages.mastodon melpaPackages.telega
+	      (pkgs.callPackage (inputs.ewm.outPath + "/nix/default.nix") {
+	        withScreencastSupport = true;
+	      })
 	      # dslide
 	
 	      (melpaBuild {
@@ -252,12 +255,12 @@
 	    };
 	
 	    config = {
-	      "background_color" = "0.0 0.0 0.0";
-	      "dark_mode_background_color" = "0.0 0.0 0.0";
-	      "custom_background_color" = "0.9 0.8 0.7";
-	      "custom_text_color" = "0.0 0.0 0.0";
-	      "dark_mode_contrast" = "1.0";
-	      "text_highlight_color" = "1.0 1.0 0.0";
+	      # "background_color" = "0.0 0.0 0.0";
+	      # "dark_mode_background_color" = "0.0 0.0 0.0";
+	      # "custom_background_color" = "0.9 0.8 0.7";
+	      # "custom_text_color" = "0.0 0.0 0.0";
+	      # "dark_mode_contrast" = "1.0";
+	      # "text_highlight_color" = "1.0 1.0 0.0";
 	      "search_url_s" = "https://scholar.google.com/scholar?q";
 	      "search_url_l" = "http://gen.lib.rus.ec/scimag/?q";
 	      "search_url_g" = "https://www.google.com/search?q";
@@ -594,7 +597,7 @@
 	    shellAliases = {
 	      cleanup = "doas nix-collect-garbage --delete-older-than 7d";
 	      bloat = "nix path-info -Sh /run/current-system";
-	      ytmp3 = "yt-dlp -x --continue --add-metadata --embed-thumbnail --audio-format mp3 --audio-quality 0 --metadata-from-title = '%(artist)s - %(title)s' --prefer-ffmpeg -o '%(title)s.%(ext)s' ";
+	      ytmp3 = "yt-dlp -x --continue --add-metadata --embed-thumbnail --audio-format mp3 --audio-quality 0 -o '%(title)s.%(ext)s' ";
 	      cat = "bat";
 	      grep = "rg";
 	      du = "dust";

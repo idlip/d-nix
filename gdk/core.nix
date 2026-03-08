@@ -346,7 +346,7 @@
     hardware.bluetooth = {
       enable = true;
     };
-    services.blueman.enable = true;
+    # services.blueman.enable = true;
   }
   {
     services.syncthing = {
@@ -389,6 +389,14 @@
   }
   {
     programs.mango.enable = true;
+  }
+  (inputs.ewm.outPath + "/nix/service.nix")
+  {
+    programs.ewm = {
+      enable = true;
+      extraEmacsArgs = "";
+      emacsPackage = config.home-manager.users.dev.programs.emacs.finalPackage;
+    };
   }
   {
     fonts = {

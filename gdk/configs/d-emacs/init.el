@@ -30,7 +30,7 @@
  switch-to-buffer-obey-display-actions t
  )
 
-(delete-selection-mode 1)
+(delete-selection-mode nil)
 (setq-default
  indent-tabs-mode nil
  tab-width 4
@@ -68,7 +68,7 @@
 (save-place-mode 1)
 (column-number-mode)
 (global-visual-line-mode 1)
-(global-visual-wrap-prefix-mode 1)
+;; (global-visual-wrap-prefix-mode 1)
 (global-subword-mode 1)
 
 ;; credits oantolin's config
@@ -114,12 +114,12 @@
   :custom
   (vundo-compact-display t) (vundo-glyph-alist vundo-unicode-symbols))
 
-(setopt undo-limit         (* 96 1024 1024)) ;  96 MiB. The change group at which this size is exceeded is the last one kept.
-(setopt undo-strong-limit (* 128 1024 1024)) ; 128 MiB
+(setopt undo-limit         (* 10 1024 1024)) ;  96 MiB. The change group at which this size is exceeded is the last one kept.
+(setopt undo-strong-limit (* 10 1024 1024)) ; 128 MiB
 ;; The change group at which this size is exceeded is discarded itself (along with all older change
 ;; groups).There is one exception: the very latest change group is only discarded if it exceeds
 ;; ‘undo-outer-limit’.
-(setopt undo-outer-limit (* 1024 1024 1024)) ;   1 GiB
+(setopt undo-outer-limit (* 30 1024 1024)) ;   1 GiB
 ;;.If at garbage collection time the undo info for the current command exceeds this limit,Emacs
 ;;discards the info and displays a warning.This is a last ditch limit to prevent memory overflow.
 
@@ -455,6 +455,7 @@
   :custom
   (shell-command-switch "-c") ;; -i
   (compilation-scroll-output t)
+  (compile-command nil)
   )
 
 (use-package project :ensure nil
@@ -898,8 +899,10 @@ images."
 
 (use-package browse-url :ensure nil :unless d/on-droid
   :config
-  (setopt browse-url-browser-function 'ewm-handle-link
-          browse-url-secondary-browser-function 'ewm-handle-link))
+  (setq browse-url-handlers '((".*" . ewm-handle-link))
+          browse-url-browser-function #'ewm-handle-link
+          browse-url-secondary-browser-function #'ewm-handle-link)
+          )
 
 (use-package ox-hugo :unless d/on-droid :after ox)
 
@@ -1026,11 +1029,8 @@ images."
 (setopt
  mode-line-format
  '("%e"
-   mode-line-front-space mode-line-modified
-   ;; mode-line-remote
-   mode-line-window-dedicated
-   "  "
-   mode-line-frame-identification mode-line-buffer-identification
+   "     "
+   mode-line-buffer-identification
    "    "
    mode-line-position mode-line-format-right-align
    (project-mode-line project-mode-line-format)
@@ -1042,7 +1042,7 @@ images."
 (global-set-key (kbd "<f9>") 'mode-line-invisible-mode)
 
 (use-package olivetti :defer t :custom (olivetti-body-width 100)
-  :hook (org-mode Info-mode help-mode gnus-group-mode gnus-article-mode nov-mode markdown-mode))
+  :hook (org-mode Info-mode help-mode gnus-group-mode gnus-article-mode nov-mode markdown-mode eww-mode))
 ;; (add-hook 'olivetti-mode-hook #'variable-pitch-mode)
 
 (setopt
@@ -1134,7 +1134,7 @@ images."
                           (push (cons url url) result))))
                     (nreverse result))))
          (selected (completing-read "Link: " (mapcar #'car links)))
-         (url (if (equal selected "pass") (insert-file-contents "~/.local/bin/pass.txt")
+         (url (if (equal selected "pass") (progn (sit-for 0.5) (insert-file-contents-literally "~/.local/bin/pass.txt"))
                 (cdr (assoc selected links)))))
     (when url (if return url (insert url)))))
 
@@ -1366,7 +1366,7 @@ absolute path. Finally load eglot."
 
 (use-package markdown-mode :defer t
   :mode "\\.md\\'" "\\.Rmd\\'"
-  :hook (markdown-mode . variable-pitch-mode))
+  :hook (markdown-ts-mode . variable-pitch-mode))
 
 (use-package ox-typst :unless d/on-droid 
   :vc (:url "https://github.com/jmpunkt/ox-typst")
@@ -1420,8 +1420,11 @@ absolute path. Finally load eglot."
 
 (use-package ewm :defer t
   :hook
-  (emacs-startup . (lambda () (interactive) (ewm-launch "vicinae server")))
-  (emacs-startup . (lambda () (interactive) (ewm-launch "noctalia-shell")))
+  (emacs-startup . (lambda () (interactive)
+                     (when ewm-mode
+                         (ewm-launcher--execute "noctalia-shell" 'start-process)
+                         (ewm-launcher--execute "vicinae server" 'start-process)
+                         )))
   :custom
   (ewm-output-config '(("eDP-1" :scale 1.25 :enabled t)
                        ("HDMI-A-1" :scale 1.5)
@@ -1445,9 +1448,8 @@ absolute path. Finally load eglot."
               ("s-d" . ewm-launch))
   :config
   ;; (ewm-text-input--auto-enable)
+  (bind-keys ("C-x C-c" . nil) ("s-E" . nil) ("s-S-e" . nil))
   )
-
-(bind-keys ("C-x C-c" . nil) ("s-E" . nil) ("s-S-e" . nil))
 
 ;;; Unified launcher with PATH executables + .desktop actions
 (defvar ewm-launcher-cache nil "Cache of (display-string . command) pairs.")
@@ -1559,7 +1561,7 @@ absolute path. Finally load eglot."
       ('compile-buffer
        (compile cmd)))))
 
-(defun ewm-launch (arg)
+(defun ewm-launch (arg &optional cmd)
   "Launch executable or desktop action.
 With prefix ARG:
   C-u     - prompt for execution method
@@ -1570,38 +1572,39 @@ With prefix ARG:
   C-u 5   - call-process (synchronous)
   none    - start-process (background)"
   (interactive "P")
-  (unless ewm-launcher-cache
-    (setq ewm-launcher-cache (ewm-launcher--build-cache)))
-  
-  (let* ((input (completing-read "Run: " ewm-launcher-cache nil nil))
-         (cmd (or (cdr (assoc input ewm-launcher-cache)) input))
-         (method (cond
-                  ;; Universal arg - prompt for method
-                  ((equal arg '(4))
-                   (intern (completing-read
-                            "Execute as: "
-                            '("start-process"
-                              "call-process"
-                              "async-shell-buffer"
-                              "output-echo"
-                              "output-buffer"
-                              "compile-buffer"
-                              "insert-output"
-                              )
-                            nil t)))
-                  
-                  ;; Numeric args - direct mapping
-                  ((equal arg 1) 'output-buffer)
-                  ((equal arg 2) 'output-echo)
-                  ((equal arg 3) 'async-shell-buffer)
-                  ((equal arg 4) 'compile-buffer)
-                  ((equal arg 5) 'call-process)
-                  ((equal arg 6) 'insert-output)
-                  
-                  ;; Default - background process
-                  (t 'start-process))))
+  (if cmd (ewm-launcher--execute cmd 'start-process)
+    (unless ewm-launcher-cache
+      (setq ewm-launcher-cache (ewm-launcher--build-cache)))
     
-    (ewm-launcher--execute cmd method)))
+    (let* ((input (completing-read "Run: " ewm-launcher-cache nil nil))
+           (cmd (or (cdr (assoc input ewm-launcher-cache)) input))
+           (method (cond
+                    ;; Universal arg - prompt for method
+                    ((equal arg '(4))
+                     (intern (completing-read
+                              "Execute as: "
+                              '("start-process"
+                                "call-process"
+                                "async-shell-buffer"
+                                "output-echo"
+                                "output-buffer"
+                                "compile-buffer"
+                                "insert-output"
+                                )
+                              nil t)))
+                    
+                    ;; Numeric args - direct mapping
+                    ((equal arg 1) 'output-buffer)
+                    ((equal arg 2) 'output-echo)
+                    ((equal arg 3) 'async-shell-buffer)
+                    ((equal arg 4) 'compile-buffer)
+                    ((equal arg 5) 'call-process)
+                    ((equal arg 6) 'insert-output)
+                    
+                    ;; Default - background process
+                    (t 'start-process))))
+      
+      (ewm-launcher--execute cmd method))))
 
 (defun ewm-launcher-refresh ()
   "Rebuild launcher cache."
@@ -1648,7 +1651,7 @@ With prefix ARG:
     ("Get BibTex biblio reference" . "d-bibtex"))
   "Alist of (label . command-or-function) for link handling.")
 
-(defun ewm-handle-link (url)
+(defun ewm-handle-link (url &rest _args)
   "Handle URL with selected action."
   (interactive
    (list (or (current-kill 0)

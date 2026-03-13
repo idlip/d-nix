@@ -115,7 +115,7 @@
 	      };
 	    };
 	
-	    ignores = ["*~" "*.swp" "*result*" ".direnv" "node_modules"];
+	    ignores = ["*~" "*.swp" ".direnv" "node_modules"];
 	
 	    signing = {
 	      key = "53F3BDB57ED8DC48";

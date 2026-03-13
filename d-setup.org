@@ -1256,7 +1256,7 @@ Pipewire setup, just these lines enough to make sane default for it
           };
         };
 
-        ignores = ["*~" "*.swp" "*result*" ".direnv" "node_modules"];
+        ignores = ["*~" "*.swp" ".direnv" "node_modules"];
 
         signing = {
           key = "53F3BDB57ED8DC48";
@@ -1464,7 +1464,7 @@ Pipewire setup, just these lines enough to make sane default for it
 
 **** Config
 
-#+begin_src typescript :tangle ~/.config/glide/glide.ts
+#+begin_src js :tangle ~/.config/glide/glide.ts
   // Config docs: https://glide-browser.app/config
   // API reference: ~/.config/glide/glide.d.ts
 
@@ -1482,117 +1482,28 @@ Pipewire setup, just these lines enough to make sane default for it
   ];
 
   const ALL_MODES: GlideModes[keyof GlideModes][] = [
-    "normal",
-    "insert",
-    "visual",
-    "ignore",
-    "command",
-    "op-pending",
+    "normal", "insert", "visual", "ignore", "command", "op-pending"
   ];
+
 
   // ============================================================================
   // UTILITIES
   // ============================================================================
 
-  /**
-   ,* Fuzzy matching score for search/filter
-   ,*/
-  function fuzzyScore(haystack: string, needle: string): number {
-    if (!needle) return 1;
-    const hay = haystack.toLowerCase();
-    const need = needle.toLowerCase();
-
-    if (hay === need) return 1000;
-    if (hay.startsWith(need)) return 500;
-    if (hay.includes(need)) return 100;
-
-    let score = 0;
-    let lastIndex = -1;
-    for (const char of need) {
-      const index = hay.indexOf(char, lastIndex + 1);
-      if (index === -1) return 0;
-      score += 1;
-      lastIndex = index;
-    }
-    return score;
-  }
-
-  // Add after the fuzzyScore function in UTILITIES section
-
-  /**
-   ,* Orderless matching: check if all words in needle appear in haystack (any order)
-   ,*/
   function orderlessMatch(haystack: string, needle: string): boolean {
     if (!needle.trim()) return true;
-
     const hay = haystack.toLowerCase();
     const words = needle.toLowerCase().trim().split(/\s+/);
-
-    return words.every((word) => hay.includes(word));
+    return words.every(word => hay.includes(word));
   }
 
-  /**
-   ,* Score for orderless matching (higher = better match)
-   ,*/
-  function orderlessScore(haystack: string, needle: string): number {
-    if (!needle.trim()) return 1;
-    if (!orderlessMatch(haystack, needle)) return 0;
-
-    const hay = haystack.toLowerCase();
-    const words = needle.toLowerCase().trim().split(/\s+/);
-
-    let score = 100;
-
-    // Bonus for matching at word start
-    words.forEach((word) => {
-      if (hay.startsWith(word)) score += 50;
-      else if (new RegExp(`\\b${word}`).test(hay)) score += 25;
-    });
-
-    // Penalty for distance between matched words
-    score -= words.length * 5;
-
-    return score;
+  async function getCurrentTab() {
+    const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+    return tabs[0];
   }
 
-  /**
-   ,* Create favicon + title + url display element as table row
-   ,*/
-  function createItemDisplay(item: {
-    url?: string;
-    title?: string;
-    visitCount?: number;
-  }): HTMLElement {
-    return DOM.create_element("tr", {
-      className: "TabCompletionOption gcl-option",
-      children: [
-        DOM.create_element("td", {
-          className: "icon",
-          children: [
-            DOM.create_element("img", {
-              src: `page-icon:${item.url}`,
-              alt: "icon",
-            }),
-          ],
-        }),
-        DOM.create_element("td", {
-          className: "label",
-          children: item.title || item.url || "",
-        }),
-        DOM.create_element("td", {
-          className: "url",
-          children: item.url || "",
-        }),
-      ],
-    });
-  }
-
-  /**
-   ,* Swap to existing tab or create new one
-   ,*/
   async function swapToTabIfExists(url: string): Promise<void> {
     const tab = await glide.tabs.get_first({ url });
-
     if (tab?.id && tab.windowId !== undefined) {
       await browser.windows.update(tab.windowId, { focused: true });
       await browser.tabs.update(tab.id, { active: true });
@@ -1601,489 +1512,218 @@ Pipewire setup, just these lines enough to make sane default for it
     }
   }
 
-  /**
-   ,* Get current active tab safely
-   ,*/
-  async function getCurrentTab() {
-    const tabs = await browser.tabs.query({ active: true, currentWindow: true });
-    return tabs[0];
-  }
-
   // ============================================================================
-  // HINT LABEL GENERATION (credits: @jyn514)
+  // TAB MANAGEMENT
   // ============================================================================
 
-  function shortenUniquePrefixes(haystack: string[]): string[] {
-    const seen = new Set();
-    const duplicates = new Set();
-    for (let t of haystack) {
-      if (seen.has(t)) {
-        duplicates.add(t);
-      } else {
-        seen.add(t);
-      }
-    }
+  async function showTabPicker(action: 'close' | 'discard', filterFn?: (tab: browser.tabs.Tab) => boolean) {
+    const tabs = await browser.tabs.query({ currentWindow: true });
+    const filtered = filterFn ? tabs.filter(filterFn) : tabs;
 
-    return haystack.map((needle, pos) => {
-      if (duplicates.has(needle)) return needle;
-      for (let i = 1; i <= needle.length; i++) {
-        const prefix = needle.slice(0, i);
-        const is_unique = haystack.every(
-          (w, j) => pos === j || !w.startsWith(prefix),
-        );
-        if (is_unique) return prefix;
-      }
-      return needle;
-    });
-  }
-
-  function stripText(text: string): string {
-    return text
-      .replace(/[0-9]+/g, "")
-      .replace(/[^a-zA-Z0-9-]/g, "")
-      .toLowerCase();
-  }
-
-  function generateLabels(texts: string[]): string[] {
-    const haystack = shortenUniquePrefixes(texts);
-    let nums_used = 0;
-    const result = new Array(haystack.length);
-    const used = new Set();
-
-    outer: for (const [index, prefix] of haystack.entries()) {
-      if (prefix === "") {
-        result[index] = String(nums_used++);
-      } else if (prefix.length > 3 || used.has(prefix)) {
-        const base = prefix.substring(0, 2);
-        for (const c of texts[index].substring(2)) {
-          const candidate = base + c;
-          if (!used.has(candidate)) {
-            result[index] = candidate;
-            used.add(candidate);
-            continue outer;
-          }
-        }
-        result[index] = String(nums_used++);
-      } else {
-        result[index] = prefix;
-        used.add(prefix);
-      }
-    }
-
-    return shortenUniquePrefixes(result);
-  }
-
-  // ============================================================================
-  // LINK PICKER SYSTEM
-  // ============================================================================
-
-  type ClickableAction = 'click' | 'open' | 'newtab' | 'background' | 'copy';
-
-  async function showClickablePicker(action: ClickableAction = 'click') {
-    const currentTab = await getCurrentTab();
-    if (!currentTab.id) return;
-
-    let clickables: Array<{
-      type: string;
-      text: string;
-      href?: string;
-      xpath: string;
-    }>;
-
-    try {
-      // Use a simpler, faster query - just get essential data
-      clickables = await glide.content.execute(() => {
-        const results: Array<{
-          type: string;
-          text: string;
-          href?: string;
-          xpath: string;
-        }> = [];
-
-        const MAX_ITEMS = 1000;
-        let count = 0;
-
-        // Fast xpath generator using element ID if available
-        const getXPath = (element: Element): string => {
-          if (element.id) {
-            return `//*[@id="${element.id}"]`;
-          }
-          let path = '';
-          let el: Element | null = element;
-          for (; el && el.nodeType === 1 && count < 5; el = el.parentElement) {
-            const tagName = el.tagName.toLowerCase();
-            path = '/' + tagName + path;
-            count++;
-          }
-          return path;
-        };
-
-        const getText = (el: Element): string => {
-          let text = el.textContent || '';
-          text = text.trim().replace(/\s+/g, ' ');
-          return text.length > 100 ? text.substring(0, 100) + '...' : text;
-        };
-
-        // Just links - fastest and most common use case
-        if (count < MAX_ITEMS) {
-          const links = document.querySelectorAll('a[href]');
-          const len = Math.min(links.length, MAX_ITEMS);
-          for (let i = 0; i < len; i++) {
-            const el = links[i] as HTMLAnchorElement;
-            const text = getText(el);
-            if (text.length > 2) {
-              results.push({
-                type: 'link',
-                text: text,
-                href: el.href,
-                xpath: getXPath(el)
-              });
-              count++;
-            }
-          }
-        }
-
-        // Buttons
-        if (count < MAX_ITEMS) {
-          const buttons = document.querySelectorAll('button');
-          const len = Math.min(buttons.length, MAX_ITEMS - count);
-          for (let i = 0; i < len; i++) {
-            const el = buttons[i];
-            const text = getText(el);
-            if (text) {
-              results.push({
-                type: 'button',
-                text: text,
-                xpath: getXPath(el)
-              });
-              count++;
-            }
-          }
-        }
-
-        return results;
-      }, { tab_id: currentTab.id });
-    } catch (error) {
-      console.error('Clickable picker error:', error);
-      glide.commandline.show({
-        title: "Error: Could not extract clickable elements",
-        options: []
-      });
-      return;
-    }
-
-    const actionTitles: Record<ClickableAction, string> = {
-      click: "Click Element",
-      open: "Open Link",
-      newtab: "Open in New Tab",
-      background: "Open in Background",
-      copy: "Copy Link"
-    };
+    const titles = { close: 'Kill Tab', discard: 'Discard Tab' };
 
     glide.commandline.show({
-      title: `${actionTitles[action]} (${clickables.length} found)`,
-      options: clickables.map((item) => ({
-        label: item.text,
-        description: item.href || item.type,
+      title: `${titles[action]} (${filtered.length})`,
+      options: filtered.map((tab) => ({
+        label: tab.title || tab.url || "Untitled",
+        description: tab.url,
         matches({ input }) {
-          const searchText = `${item.text} ${item.href}`.toLowerCase();
-          return orderlessMatch(searchText, input);
+          return orderlessMatch(`${tab.title} ${tab.url}`, input);
         },
         async execute() {
-          if (action === 'click' || (action === 'open' && !item.href)) {
-            await glide.content.execute((xpath: string) => {
-              const result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-              const target = result.singleNodeValue as HTMLElement;
-              if (target) target.click();
-            }, { tab_id: currentTab.id, args: [item.xpath] });
-          } else if (item.href) {
-            switch (action) {
-              case 'open':
-                await browser.tabs.update(currentTab.id, { url: item.href });
-                break;
-              case 'copy':
-                await navigator.clipboard.writeText(item.href);
-                break;
-              case 'newtab':
-                await browser.tabs.create({ url: item.href });
-                break;
-              case 'background':
-                await browser.tabs.create({ url: item.href, active: false });
-                break;
+          if (tab.id === undefined) return;
+
+          if (action === 'close') {
+            await browser.tabs.remove(tab.id);
+          } else {
+            const currentTab = await glide.tabs.active();
+            if (currentTab.id === tab.id) {
+              const allTabs = await browser.tabs.query({ currentWindow: true });
+              const idx = allTabs.findIndex(t => t.id === currentTab.id);
+              const next = allTabs[idx + 1] || allTabs[idx - 1];
+              if (next?.id) await browser.tabs.update(next.id, { active: true });
             }
+            await browser.tabs.discard(tab.id);
           }
         },
       })),
     });
   }
 
-  /**
-   ,* Show semantic element picker to jump to any important page element
-   ,*/
+  async function showSplitViewPicker(tab_id: number) {
+    const all_tabs = await glide.tabs.query({});
+
+    glide.commandline.show({
+      title: "Split with tab",
+      options: all_tabs.map((tab) => ({
+        label: tab.title || tab.url || "Untitled",
+        description: tab.url,
+        matches({ input }) {
+          return orderlessMatch(`${tab.title} ${tab.url}`, input);
+        },
+        async execute() {
+          if (tab.id === tab_id) {
+            glide.commandline.show({ title: "Cannot split with current tab" });
+            return;
+          }
+          await glide.unstable.split_views.create([tab_id, tab.id]);
+        },
+      })),
+    });
+  }
+
+
+  // ============================================================================
+  // HISTORY NAVIGATION
+  // ============================================================================
+
+  async function showHistoryPicker(currentSiteOnly: boolean = false) {
+    const maxResults = currentSiteOnly ? 500 : 1000;
+    const allHistory = await browser.history.search({ text: "", startTime: 0, maxResults });
+
+    let filtered = allHistory;
+    let title = `History (${allHistory.length})`;
+
+    if (currentSiteOnly) {
+      const activeTab = await glide.tabs.active();
+      if (!activeTab?.url) return;
+
+      const origin = (() => {
+        try { return new URL(activeTab.url).origin; }
+        catch { return null; }
+      })();
+      if (!origin) return;
+
+      filtered = allHistory.filter(item => {
+        try { return new URL(item.url).origin === origin; }
+        catch { return false; }
+      });
+
+      const seen = new Set<string>();
+      filtered = filtered.filter(item => {
+        const canonical = item.url.split("#")[0];
+        if (seen.has(canonical)) return false;
+        seen.add(canonical);
+        return true;
+      });
+
+      title = `History: ${origin}`;
+    }
+
+    glide.commandline.show({
+      title: `${title} (${Math.min(filtered.length, 500)})`,
+      options: filtered.slice(0, 500).map((item) => ({
+        label: item.title || item.url,
+        description: item.url,
+        matches({ input }) {
+          return orderlessMatch(`${item.title} ${item.url}`, input);
+        },
+        async execute() {
+          await swapToTabIfExists(item.url);
+        },
+      })),
+    });
+  }
+
+  // ============================================================================
+  // SPLIT VIEW
+  // ============================================================================
+
+
+  // ============================================================================
+  // LINK PICKER - Choose links on page
+  // ============================================================================
+
+  async function showLinkPicker(openInNewTab: boolean = false) {
+    const currentTab = await getCurrentTab();
+    if (!currentTab.id) return;
+
+    let links: Array<{ text: string; href: string; xpath: string }>;
+
+    try {
+      links = await glide.content.execute(() => {
+        const results: Array<{ text: string; href: string; xpath: string }> = [];
+        const MAX = 1000;
+
+        const getXPath = (el: Element): string => {
+          if (el.id) return `//*[@id="${el.id}"]`;
+          const tag = el.tagName.toLowerCase();
+          let idx = 0;
+          let sib = el.previousSibling;
+          while (sib) {
+            if (sib.nodeType === 1 && (sib as Element).tagName === el.tagName) idx++;
+            sib = sib.previousSibling;
+          }
+          return `/${tag}[${idx + 1}]`;
+        };
+
+        const links = document.querySelectorAll('a[href]');
+        for (let i = 0; i < Math.min(links.length, MAX); i++) {
+          const el = links[i] as HTMLAnchorElement;
+          const text = (el.textContent || '').trim().replace(/\s+/g, ' ');
+          if (text.length > 2) {
+            results.push({
+              text: text.length > 100 ? text.substring(0, 100) + '...' : text,
+              href: el.href,
+              xpath: getXPath(el)
+            });
+          }
+        }
+        return results;
+      }, { tab_id: currentTab.id });
+    } catch (error) {
+      console.error('Link picker error:', error);
+      return;
+    }
+
+    glide.commandline.show({
+      title: `${openInNewTab ? 'Open Link in New Tab' : 'Open Link'} (${links.length})`,
+      options: links.map((link) => ({
+        label: link.text,
+        description: link.href,
+        matches({ input }) {
+          return orderlessMatch(`${link.text} ${link.href}`, input);
+        },
+        async execute() {
+          if (openInNewTab) {
+            await browser.tabs.create({ url: link.href });
+          } else {
+            await browser.tabs.update(currentTab.id, { url: link.href });
+          }
+        },
+      })),
+    });
+  }
+
+  // ============================================================================
+  // PAGE NAVIGATOR - Navigate page structure and search text
+  // ============================================================================
+
   async function showPageNavigator() {
     const currentTab = await getCurrentTab();
     if (!currentTab.id) return;
 
-    const elements = await glide.content.execute(() => {
-      const results: Array<{
-        type: string;
-        tag: string;
-        text: string;
-        level?: number;
-        id?: string;
-        class?: string;
-        role?: string;
-        href?: string;
-        src?: string;
-        xpath: string;
-      }> = [];
-
-      // Helper to create xpath
-      const getXPath = (element: Element): string => {
-        let path = '';
-        let el: Element | null = element;
-        for (; el && el.nodeType === 1; el = el.parentElement) {
-          let index = 0;
-          for (let sibling = el.previousSibling; sibling; sibling = sibling.previousSibling) {
-            if (sibling.nodeType === Node.ELEMENT_NODE && (sibling as Element).tagName === el.tagName) {
-              index++;
-            }
-          }
-          const tagName = el.tagName.toLowerCase();
-          const pathIndex = '[' + (index + 1) + ']';
-          path = '/' + tagName + pathIndex + path;
-        }
-        return path;
-      };
-
-      // Helper to get text preview
-      const getTextPreview = (el: Element, maxLength: number = 80): string => {
-        const text = el.textContent?.trim() || '';
-        return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
-      };
-
-      // Headings (h1-h6)
-      document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
-        const level = parseInt(el.tagName.substring(1));
-        results.push({
-          type: 'heading',
-          tag: el.tagName.toLowerCase(),
-          level: level,
-          text: getTextPreview(el),
-          id: el.id || '',
-          xpath: getXPath(el)
-        });
-      });
-
-      // Semantic HTML5 elements
-      document.querySelectorAll('header, nav, main, article, section, aside, footer').forEach(el => {
-        results.push({
-          type: 'landmark',
-          tag: el.tagName.toLowerCase(),
-          text: getTextPreview(el, 60),
-          id: el.id || '',
-          class: el.className || '',
-          xpath: getXPath(el)
-        });
-      });
-
-      // Lists (only top-level ul/ol with multiple items)
-      document.querySelectorAll('ul, ol').forEach(el => {
-        if (el.parentElement?.closest('ul, ol')) return;
-
-        const items = el.querySelectorAll(':scope > li');
-        if (items.length > 0) {
-          results.push({
-            type: 'list',
-            tag: el.tagName.toLowerCase(),
-            text: `${items.length} items: ${getTextPreview(items[0], 50)}`,
-            id: el.id || '',
-            xpath: getXPath(el)
-          });
-        }
-      });
-
-      // Images with alt text or meaningful src
-      document.querySelectorAll('img').forEach(el => {
-        const img = el as HTMLImageElement;
-        if (img.alt || img.width > 100 || img.height > 100) {
-          results.push({
-            type: 'image',
-            tag: 'img',
-            text: img.alt || img.title || img.src.split('/').pop() || 'Image',
-            src: img.src,
-            xpath: getXPath(el)
-          });
-        }
-      });
-
-      // Links with aria-label or meaningful text
-      document.querySelectorAll('a[aria-label], a[role="button"]').forEach(el => {
-        const link = el as HTMLAnchorElement;
-        results.push({
-          type: 'link',
-          tag: 'a',
-          text: el.getAttribute('aria-label') || getTextPreview(el, 50),
-          href: link.href,
-          xpath: getXPath(el)
-        });
-      });
-
-      // Forms and inputs
-      document.querySelectorAll('form').forEach(el => {
-        const inputs = el.querySelectorAll('input, textarea, select');
-        results.push({
-          type: 'form',
-          tag: 'form',
-          text: `Form with ${inputs.length} fields`,
-          id: el.id || '',
-          name: (el as HTMLFormElement).name || '',
-          xpath: getXPath(el)
-        });
-      });
-
-      // Tables
-      document.querySelectorAll('table').forEach(el => {
-        const rows = el.querySelectorAll('tr').length;
-        const caption = el.querySelector('caption')?.textContent?.trim() || '';
-        results.push({
-          type: 'table',
-          tag: 'table',
-          text: caption || `Table with ${rows} rows`,
-          id: el.id || '',
-          xpath: getXPath(el)
-        });
-      });
-
-      // Buttons with text
-      document.querySelectorAll('button').forEach(el => {
-        const text = getTextPreview(el, 50);
-        if (text) {
-          results.push({
-            type: 'button',
-            tag: 'button',
-            text: text,
-            id: el.id || '',
-            xpath: getXPath(el)
-          });
-        }
-      });
-
-      // ARIA landmarks
-      document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"]').forEach(el => {
-        results.push({
-          type: 'aria',
-          tag: el.tagName.toLowerCase(),
-          role: el.getAttribute('role') || '',
-          text: el.getAttribute('aria-label') || getTextPreview(el, 60),
-          xpath: getXPath(el)
-        });
-      });
-
-      return results;
-    }, { tab_id: currentTab.id });
-
-    if (!elements || elements.length === 0) {
-      glide.commandline.show({
-        title: "No navigable elements found",
-        options: []
-      });
-      return;
-    }
-
-    // Group elements by type for better organization
-    const typeOrder = ['landmark', 'heading', 'aria', 'list', 'form', 'table', 'image', 'button', 'link'];
-    elements.sort((a, b) => {
-      const typeCompare = typeOrder.indexOf(a.type) - typeOrder.indexOf(b.type);
-      if (typeCompare !== 0) return typeCompare;
-      if (a.type === 'heading' && b.type === 'heading') {
-        return (a.level || 0) - (b.level || 0);
-      }
-      return 0;
-    });
-
-    const typeIcons: Record<string, string> = {
-      heading: '📝',
-      landmark: '🏛️',
-      list: '📋',
-      image: '🖼️',
-      link: '🔗',
-      form: '📝',
-      table: '📊',
-      button: '🔘',
-      aria: '♿'
-    };
-
-    glide.commandline.show({
-      title: `Navigate Page (${elements.length} elements)`,
-      options: elements.map((element) => {
-        const icon = typeIcons[element.type] || '•';
-        const indent = element.type === 'heading' && element.level
-          ? '  '.repeat(element.level - 1)
-          : '';
-
-        let label = '';
-        if (element.type === 'heading') {
-          label = `${indent}${element.tag.toUpperCase()}: ${element.text}`;
-        } else if (element.type === 'landmark') {
-          label = `${icon} <${element.tag}> ${element.text}`;
-        } else if (element.type === 'aria') {
-          label = `${icon} [${element.role}] ${element.text}`;
-        } else {
-          label = `${icon} ${element.text}`;
-        }
-
-        let description = '';
-        if (element.id) description = `#${element.id}`;
-        else if (element.class) description = `.${element.class.split(' ')[0]}`;
-        else if (element.href) description = element.href;
-        else if (element.src) description = element.src;
-
-        return {
-          label,
-          description,
-          matches({ input }) {
-            const searchText = `${element.type} ${element.tag} ${element.text} ${element.id || ''} ${element.role || ''}`.toLowerCase();
-            return orderlessMatch(searchText, input);
-          },
-          async execute() {
-            await glide.content.execute((xpath: string) => {
-              const getElementByXPath = (xp: string) => {
-                return document.evaluate(xp, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-              };
-
-              const target = getElementByXPath(xpath) as HTMLElement;
-              if (target) {
-                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                const originalOutline = target.style.outline;
-                target.style.outline = '3px solid orange';
-                setTimeout(() => { target.style.outline = originalOutline; }, 2000);
-              }
-            }, { tab_id: currentTab.id, args: [element.xpath] });
-          },
-        };
-      }),
-    });
-  }
-  async function showLineNavigator() {
-    const currentTab = await getCurrentTab();
-    if (!currentTab.id) return;
-
-    let lines: Array<{
+    let items: Array<{
+      type: string;
       text: string;
-      lineNumber: number;
+      detail?: string;
       xpath: string;
     }>;
 
     try {
-      lines = await glide.content.execute(() => {
+      items = await glide.content.execute(() => {
         const results: Array<{
+          type: string;
           text: string;
-          lineNumber: number;
+          detail?: string;
           xpath: string;
         }> = [];
 
+        const MAX = 500;
+
         const getXPath = (element: Element): string => {
+          if (element.id) return `//*[@id="${element.id}"]`;
+
           let path = '';
           let el: Element | null = element;
           for (; el && el.nodeType === 1; el = el.parentElement) {
@@ -2098,303 +1738,154 @@ Pipewire setup, just these lines enough to make sane default for it
             path = '/' + tagName + pathIndex + path;
           }
           return path;
+        };;
+
+        const clean = (text: string, max: number = 80): string => {
+          const t = text.trim().replace(/\s+/g, ' ');
+          return t.length > max ? t.substring(0, max) + '...' : t;
         };
 
-        // Get all text-containing elements
-        const walker = document.createTreeWalker(
-          document.body,
-          NodeFilter.SHOW_TEXT,
-          {
-            acceptNode: (node) => {
-              const text = node.textContent?.trim() || '';
-              // Skip empty, very short, or script/style content
-              if (text.length < 3) return NodeFilter.FILTER_REJECT;
-              const parent = node.parentElement;
-              if (!parent) return NodeFilter.FILTER_REJECT;
-              const tagName = parent.tagName.toLowerCase();
-              if (tagName === 'script' || tagName === 'style' || tagName === 'noscript') {
-                return NodeFilter.FILTER_REJECT;
-              }
-              return NodeFilter.FILTER_ACCEPT;
-            }
-          }
-        );
+        // Headings
+        document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
+          if (results.length >= MAX) return;
+          const level = el.tagName[1];
+          results.push({
+            type: 'heading',
+            text: `${'  '.repeat(Number(level) - 1)}${el.tagName}: ${clean(el.textContent || '')}`,
+            detail: el.id ? `#${el.id}` : '',
+            xpath: getXPath(el)
+          });
+        });
 
-        let lineNumber = 0;
-        let currentNode: Node | null;
+        // Landmarks
+        document.querySelectorAll('main, nav, header, footer, article, section').forEach(el => {
+          if (results.length >= MAX) return;
+          results.push({
+            type: 'landmark',
+            text: `<${el.tagName.toLowerCase()}> ${clean(el.textContent || '', 50)}`,
+            detail: el.id ? `#${el.id}` : '',
+            xpath: getXPath(el)
+          });
+        });
 
-        while (currentNode = walker.nextNode()) {
-          const text = (currentNode.textContent || '').trim();
-          if (text) {
-            // Split by line breaks if multi-line
-            const lines = text.split('\n').filter(line => line.trim().length > 3);
-            lines.forEach(line => {
-              lineNumber++;
-              const parent = currentNode!.parentElement;
-              if (parent) {
-                results.push({
-                  text: line.trim(),
-                  lineNumber: lineNumber,
-                  xpath: getXPath(parent)
-                });
-              }
+        // Text content (paragraphs, list items)
+        const textSelector = 'p, li, dt, dd, figcaption, blockquote';
+        document.querySelectorAll(textSelector).forEach(el => {
+          if (results.length >= MAX) return;
+          const text = clean(el.textContent || '', 120);
+          if (text.length > 5) {
+            results.push({
+              type: 'text',
+              text: text,
+              detail: '',
+              xpath: getXPath(el)
             });
           }
-        }
+        });
 
         return results;
       }, { tab_id: currentTab.id });
     } catch (error) {
-      console.error('Line navigator error:', error);
-      glide.commandline.show({
-        title: "Error: Could not extract text content",
-        options: []
-      });
+      console.error('Page navigator error:', error);
       return;
     }
 
     glide.commandline.show({
-      title: `Search Lines (${lines.length} found)`,
-      options: lines.map((line) => ({
-        label: `Line ${line.lineNumber}`,
-        description: line.text,
+      title: `Navigate Page (${items.length})`,
+      options: items.map((item) => ({
+        label: item.text,
+        description: item.detail,
         matches({ input }) {
-          return orderlessMatch(line.text, input);
+          return orderlessMatch(item.text, input);
         },
         async execute() {
           await glide.content.execute((xpath: string) => {
-            const getElementByXPath = (xp: string) => {
-              return document.evaluate(xp, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-            };
-            const target = getElementByXPath(xpath) as HTMLElement;
-            if (target) {
-              target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              const originalBg = target.style.backgroundColor;
-              target.style.backgroundColor = 'rgba(255, 165, 0, 0.3)';
-              setTimeout(() => { target.style.backgroundColor = originalBg; }, 2000);
+            const el = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue as HTMLElement;
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              const orig = el.style.outline;
+              el.style.outline = '3px solid orange';
+              setTimeout(() => { el.style.outline = orig; }, 2000);
             }
-          }, { tab_id: currentTab.id, args: [line.xpath] });
-        },
-      })),
-    });
-  }
-
-
-  // ============================================================================
-  // TAB MANAGEMENT
-  // ============================================================================
-
-  async function showTabPicker(
-    action: "close" | "discard",
-    filterFn?: (tab: browser.tabs.Tab) => boolean,
-  ) {
-    const tabs = await browser.tabs.query({ currentWindow: true });
-    const filtered = filterFn ? tabs.filter(filterFn) : tabs;
-
-    const actionTitles = {
-      close: "Kill Tab",
-      discard: "Discard Tab",
-    };
-
-    glide.commandline.show({
-      title: `${actionTitles[action]} (${filtered.length} tabs)`,
-      options: filtered.map((tab) => ({
-        label: tab.title || tab.url || "Untitled",
-        description: tab.url,
-        matches({ input }) {
-          const searchText = `${tab.title} ${tab.url}`.toLowerCase();
-          return orderlessMatch(searchText, input);
-        },
-        async execute() {
-          if (tab.id === undefined) return;
-
-          if (action === "close") {
-            await browser.tabs.remove(tab.id);
-          } else if (action === "discard") {
-            const currentTab = await glide.tabs.active();
-            if (currentTab.id === tab.id) {
-              const allTabs = await browser.tabs.query({ currentWindow: true });
-              const currentIndex = allTabs.findIndex(
-                (t) => t.id === currentTab.id,
-              );
-              const nextTab =
-                allTabs[currentIndex + 1] || allTabs[currentIndex - 1];
-              if (nextTab?.id) {
-                await browser.tabs.update(nextTab.id, { active: true });
-              }
-            }
-            await browser.tabs.discard(tab.id);
-          }
+          }, { tab_id: currentTab.id, args: [item.xpath] });
         },
       })),
     });
   }
 
   // ============================================================================
-  // HISTORY NAVIGATION
+  // URL RULES - Redirect & Block
   // ============================================================================
 
-  async function showHistoryPicker(currentSiteOnly: boolean = false) {
-    const allHistory = await browser.history.search({
-      text: "",
-      startTime: 0,
-      maxResults: currentSiteOnly ? 400 : 1000,
-    });
-
-    let filtered = allHistory;
-    let title = `All History (${allHistory.length} items)`;
-
-    if (currentSiteOnly) {
-      const activeTab = await glide.tabs.active();
-      if (!activeTab?.url) return;
-
-      const origin = (() => {
-        try {
-          return new URL(activeTab.url).origin;
-        } catch {
-          return null;
-        }
-      })();
-      if (!origin) return;
-
-      filtered = allHistory.filter((item) => {
-        try {
-          return new URL(item.url).origin === origin;
-        } catch {
-          return false;
-        }
-      });
-
-      filtered.sort((a, b) => (b.lastVisitTime || 0) - (a.lastVisitTime || 0));
-
-      // Deduplicate (strip fragments)
-      const seen = new Set<string>();
-      filtered = filtered.filter((item) => {
-        const canonical = item.url.split("#")[0];
-        if (seen.has(canonical)) return false;
-        seen.add(canonical);
-        return true;
-      });
-
-      title = `History for ${origin}`;
-    }
-
-    glide.commandline.show({
-      title,
-      options: filtered.slice(0, 4000).map((item) => ({
-        label: item.title || item.url,
-        description: item.url,
-        matches({ input }) {
-          const searchText = `${item.title} ${item.url}`.toLowerCase();
-          return orderlessMatch(searchText, input);
-        },
-        async execute() {
-          await swapToTabIfExists(item.url);
-        },
-      })),
-    });
+  interface URLRule {
+    domain: string;
+    action: 'redirect' | 'block';
+    to?: string;
+    paths?: string[];
   }
 
-  // ============================================================================
-  // SPLIT VIEW
-  // ============================================================================
+  const URL_RULES: URLRule[] = [
+    // Redirects
+    { domain: 'reddit.com', action: 'redirect', to: 'https://libreddit.kavin.rocks$1' },
+    { domain: 'twitter.com', action: 'redirect', to: 'https://nitter.net$1' },
+    { domain: 'medium.com', action: 'redirect', to: 'https://scribe.rip$1' },
+    { domain: 'youtube.com', action: 'redirect', to: 'https://yewtu.be$1' },
 
-  async function showSplitViewPicker(tab_id: number) {
-    const all_tabs = await glide.tabs.query({});
+    // Blocks
+    // { domain: 'youtube.com', action: 'block' },
 
-    glide.commandline.show({
-      title: "Select a tab to split with",
-      options: all_tabs.map((tab) => ({
-        label: tab.title || tab.url || "Untitled",
-        description: tab.url,
-        matches({ input }) {
-          const searchText = `${tab.title} ${tab.url}`.toLowerCase();
-          return orderlessMatch(searchText, input);
-        },
-        async execute() {
-          if (tab.id === tab_id) {
-            glide.commandline.show({
-              title: "You cannot split with the current tab.",
-            });
-            return;
-          }
-          await glide.unstable.split_views.create([tab_id, tab.id]);
-        },
-      })),
-    });
-  }
-
-  // ============================================================================
-  // CONTEXT MENU & REDIRECTS (credits: @poslat-pismo)
-  // ============================================================================
-
-  async function setupExtendedContextMenu() {
-    if (!glide.prefs.get("network.protocol-handler.external.mpv")) {
-      glide.prefs.set("network.protocol-handler.external.mpv", true);
-    }
-
-    browser.contextMenus.create({
-      id: "glide-mpv",
-      title: "🎬 Play in mpv",
-      contexts: ["link"],
-      onclick: (info) => {
-        const mpvUrl = `mpv://#${info.linkUrl}`;
-        browser.tabs.update({ url: mpvUrl });
-      },
-    });
-
-    browser.contextMenus.create({
-      id: "glide-lens",
-      title: "🔎 Search with Google Lens",
-      contexts: ["image"],
-      onclick: (info) => {
-        if (!info.srcUrl) return;
-        const encodedUrl = encodeURIComponent(info.srcUrl);
-        const googleLensUrl = `https://lens.google.com/uploadbyurl?url=${encodedUrl}`;
-        browser.tabs.create({ url: googleLensUrl });
-      },
-    });
-
-    browser.contextMenus.create({
-      id: "glide-tts",
-      title: "📢 Read with TTS",
-      contexts: ["selection"],
-      onclick: (info) => {
-        const selection = info.selectionText.trim();
-        browser.notifications.create("tts", {
-          type: "basic",
-          title: "glide-say-TTS",
-          message: selection,
-        });
-      },
-    });
-  }
+    // Path-specific blocks (uncomment to use)
+    // { domain: 'youtube.com', action: 'block', paths: ['/shorts/'] },
+  ];
 
 
-  const REDIRECT_RULES: Record<string, string> = {
-    "^https?://(?:www\\.|old\\.|new\\.|np\\.)?reddit\\.com(.*)$":
-      "https://libreddit.kavin.rocks$1",
-  };
-
-  async function handleBeforeRequest(
-    details: browser.webRequest.OnBeforeRequestDetailsType,
-  ): browser.webRequest.RedirectOption | browser.webRequest.CancelOption {
+  function handleURLRules(
+    details: browser.webRequest.OnBeforeRequestDetailsType
+  ): browser.webRequest.BlockingResponse {
     const url = details.url;
 
-    for (const [pattern, replacement] of Object.entries(REDIRECT_RULES)) {
-      const re = new RegExp(pattern);
-      const match = url.match(re);
-      if (!match) continue;
-
-      const newUrl = replacement.replace(/\$(\d+)/g, (full, groupIndexStr) => {
-        const idx = Number(groupIndexStr);
-        return match[idx] ?? full;
-      });
-
-      return { redirectUrl: newUrl };
+    try {
+      const urlObj = new URL(url);
+      const hostname = urlObj.hostname.replace(/^www\./, '');
+      for (const rule of URL_RULES) {
+        const domain = rule.domain.replace(/^www\./, '');
+        // Check if hostname matches domain
+        const matches = hostname === domain || hostname.endsWith('.' + domain);
+        if (!matches) continue;
+        // Check path if specified
+        if (rule.paths) {
+          const pathMatches = rule.paths.some(p => urlObj.pathname.includes(p));
+          if (!pathMatches) continue;
+        }
+        // Apply action
+        if (rule.action === 'block') {
+          console.log('BLOCKING:', url);
+          return { cancel: true };
+        }
+        if (rule.action === 'redirect' && rule.to) {
+          const path = urlObj.pathname + urlObj.search + urlObj.hash;
+          const newUrl = rule.to.replace('$1', path);
+          console.log('REDIRECTING:', url, '->', newUrl);
+          return { redirectUrl: newUrl };
+        }
+      }
+    } catch (e) {
+      console.error('URL rule error:', e);
     }
+    return {};
+  }
 
-    return { cancel: false };
+  function setupRedirects() {
+    // Remove existing listener if it exists
+    if (browser.webRequest.onBeforeRequest.hasListener(handleURLRules)) {
+      browser.webRequest.onBeforeRequest.removeListener(handleURLRules);
+    }
+    // Add new listener
+    browser.webRequest.onBeforeRequest.addListener(
+      handleURLRules,
+      { urls: ['<all_urls>'], types: ['main_frame'] },
+      ['blocking']
+    );
   }
 
   // ============================================================================
@@ -2451,17 +1942,6 @@ Pipewire setup, just these lines enough to make sane default for it
     glide.o.hint_chars = "asdfhjklnpw";
     glide.o.which_key_delay = 100;
     glide.o.mapping_timeout = 10000;
-
-    glide.o.hint_label_generator = async ({ content }) => {
-      const texts = await content.map((element) => [
-        element.textContent,
-        element.ariaLabel,
-      ]);
-      const haystack = texts.map(
-        ([text, label]) => stripText(text) || stripText(label || ""),
-      );
-      return generateLabels(haystack);
-    };
   }
 
   function setupPrefs() {
@@ -2665,12 +2145,10 @@ Pipewire setup, just these lines enough to make sane default for it
     );
 
     // Link pickers
-    glide.keymaps.set(ALL_MODES, "<C-.>", () => showClickablePicker("open"));
-    glide.keymaps.set("normal", "<A-y>", () => showClickablePicker("copy"));
-    glide.keymaps.set("normal", "<A-.>", () => showClickablePicker("newtab"));
-    glide.keymaps.set("normal", "<A-:>", () => showClickablePicker('click'));
+    glide.keymaps.set(ALL_MODES, "<C-.>", () => showLinkPicker(false));
+    glide.keymaps.set("normal", "<A-.>", () => showLinkPicker(true));
 
-    glide.keymaps.set("normal", "<A-s>", () => showLineNavigator());
+    glide.keymaps.set("normal", "<A-s>", () => showPageNavigator());
     glide.keymaps.set("normal", "<A-g>", () => showPageNavigator());
 
     // History pickers
@@ -2684,59 +2162,83 @@ Pipewire setup, just these lines enough to make sane default for it
 
   function setupExcmds() {
     glide.excmds.create(
-      {
-        name: "tab_discard",
-        description: "Discard (unload) a tab to free memory",
-      },
+      { name: "tab_discard", description: "Discard tab" },
       async ({ tab_id }) => {
-        const currentTab = await glide.tabs.active();
-        if (currentTab.id === tab_id) {
-          await browser.tabs.update(currentTab.id, { active: false });
-          const allTabs = await browser.tabs.query({ currentWindow: true });
-          const currentIndex = allTabs.findIndex((t) => t.id === currentTab.id);
-          const nextTab = allTabs[currentIndex + 1] || allTabs[currentIndex - 1];
-          if (nextTab?.id) {
-            await browser.tabs.update(nextTab.id, { active: true });
-          }
+        const current = await glide.tabs.active();
+        if (current.id === tab_id) {
+          const tabs = await browser.tabs.query({ currentWindow: true });
+          const idx = tabs.findIndex(t => t.id === current.id);
+          const next = tabs[idx + 1] || tabs[idx - 1];
+          if (next?.id) await browser.tabs.update(next.id, { active: true });
         }
         await browser.tabs.discard(tab_id);
-      },
+      }
     );
   }
 
   function setupAutocommands() {
-    // Extended context menu
-    glide.autocmds.create("ConfigLoaded", async () => {
-      await setupExtendedContextMenu();
-    });
-
-    // Mode indicator
     glide.autocmds.create("ModeChanged", "*", (args) => {
-      const fallback = "--glide-fallback-mode";
-      const mode_colors: Record<keyof GlideModes, string> = {
-        command: "--glide-mode-command",
-        hint: "--glide-mode-hint",
-        ignore: "--glide-mode-ignore",
-        insert: "--glide-mode-insert",
-        normal: "--glide-mode-normal",
+      const colors: Record<keyof GlideModes, string> = {
+        "normal": "--glide-mode-normal",
+        "insert": "--glide-mode-insert",
+        "visual": "--glide-mode-visual",
+        "command": "--glide-mode-command",
+        "hint": "--glide-mode-hint",
+        "ignore": "--glide-mode-ignore",
         "op-pending": "--glide-mode-op-pending",
-        visual: "--glide-mode-visual",
       };
-
       glide.styles.add(
-        `#browser { border: 1px solid var(${mode_colors[args.new_mode] ?? fallback}) }`,
-        { id: "glide-custom-mode-indicator", overwrite: true },
+        `#browser { border-bottom: 3px solid var(${colors[args.new_mode]}) }`,
+        { id: "mode-indicator", overwrite: true }
       );
     });
   }
 
-  function setupRedirects() {
-    browser.webRequest.onBeforeRequest.addListener(
-      handleBeforeRequest,
-      { urls: ["<all_urls>"] },
-      ["blocking"],
-    );
+  glide.keymaps.set("normal", "<C-h>k", () => showCommandPalette());
+
+  async function showCommandPalette() {
+    const allKeymaps = glide.keymaps.list();
+    
+    // Group by mode
+    const byMode: Record<string, typeof allKeymaps> = {};
+    allKeymaps.forEach(km => {
+      if (!byMode[km.mode]) byMode[km.mode] = [];
+      byMode[km.mode].push(km);
+    });
+
+    const commands = allKeymaps.map(km => {
+      const action = typeof km.rhs === 'string' ? km.rhs : '<function>';
+      return {
+        label: `[${km.mode}] ${km.lhs} → ${action}`,
+        description: km.description || '',
+        mode: km.mode,
+        lhs: km.lhs,
+        rhs: km.rhs,
+        action: action
+      };
+    });
+
+    glide.commandline.show({
+      title: `Command Palette (${commands.length} keymaps)`,
+      options: commands.map((cmd) => ({
+        label: cmd.label,
+        description: cmd.description,
+        matches({ input }) {
+          const searchText = `${cmd.mode} ${cmd.lhs} ${cmd.action} ${cmd.description}`.toLowerCase();
+          return orderlessMatch(searchText, input);
+        },
+        async execute() {
+          // Execute the command
+          if (typeof cmd.rhs === 'string') {
+            await glide.excmds.execute(cmd.rhs);
+          } else if (typeof cmd.rhs === 'function') {
+            await cmd.rhs({ tab_id: (await glide.tabs.active()).id });
+          }
+        },
+      })),
+    });
   }
+
 
   // ============================================================================
   // MAIN INITIALIZATION
@@ -4255,12 +3757,12 @@ Pipewire setup, just these lines enough to make sane default for it
       "autoHideDelay": 500,
       "autoShowDelay": 150,
       "backgroundOpacity": 0.93,
-      "barType": "floating",
+      "barType": "framed",
       "capsuleColorKey": "none",
       "capsuleOpacity": 1,
       "density": "default",
       "displayMode": "always_visible",
-      "floating": true,
+      "floating": false,
       "frameRadius": 12,
       "frameThickness": 8,
       "hideOnOverview": false,
@@ -4640,25 +4142,31 @@ Pipewire setup, just these lines enough to make sane default for it
       "iRadiusRatio": 1,
       "keybinds": {
         "keyDown": [
-          "Down"
+          "Down",
+          "Ctrl+N"
         ],
         "keyEnter": [
           "Return"
         ],
         "keyEscape": [
-          "Esc"
+          "Esc",
+          "Ctrl+G"
         ],
         "keyLeft": [
-          "Left"
+          "Left",
+          "Ctrl+B"
         ],
         "keyRemove": [
-          "Del"
+          "Del",
+          "Ctrl+D"
         ],
         "keyRight": [
-          "Right"
+          "Right",
+          "Ctrl+F"
         ],
         "keyUp": [
-          "Up"
+          "Up",
+          "Ctrl+P"
         ]
       },
       "language": "",
@@ -5724,7 +5232,7 @@ Pipewire setup, just these lines enough to make sane default for it
      switch-to-buffer-obey-display-actions t
      )
 
-    (delete-selection-mode 1)
+    (delete-selection-mode nil)
     (setq-default
      indent-tabs-mode nil
      tab-width 4
@@ -5767,7 +5275,7 @@ Pipewire setup, just these lines enough to make sane default for it
   (save-place-mode 1)
   (column-number-mode)
   (global-visual-line-mode 1)
-  (global-visual-wrap-prefix-mode 1)
+  ;; (global-visual-wrap-prefix-mode 1)
   (global-subword-mode 1)
 
   ;; credits oantolin's config
@@ -5829,12 +5337,12 @@ Pipewire setup, just these lines enough to make sane default for it
       :custom
       (vundo-compact-display t) (vundo-glyph-alist vundo-unicode-symbols))
 
-    (setopt undo-limit         (* 96 1024 1024)) ;  96 MiB. The change group at which this size is exceeded is the last one kept.
-    (setopt undo-strong-limit (* 128 1024 1024)) ; 128 MiB
+    (setopt undo-limit         (* 10 1024 1024)) ;  96 MiB. The change group at which this size is exceeded is the last one kept.
+    (setopt undo-strong-limit (* 10 1024 1024)) ; 128 MiB
     ;; The change group at which this size is exceeded is discarded itself (along with all older change
     ;; groups).There is one exception: the very latest change group is only discarded if it exceeds
     ;; ‘undo-outer-limit’.
-    (setopt undo-outer-limit (* 1024 1024 1024)) ;   1 GiB
+    (setopt undo-outer-limit (* 30 1024 1024)) ;   1 GiB
     ;;.If at garbage collection time the undo info for the current command exceeds this limit,Emacs
     ;;discards the info and displays a warning.This is a last ditch limit to prevent memory overflow.
   #+end_src
@@ -6749,6 +6257,7 @@ to get bash alias to eshell way
     :custom
     (shell-command-switch "-c") ;; -i
     (compilation-scroll-output t)
+    (compile-command nil)
     )
 #+end_src
 
@@ -7336,8 +6845,10 @@ to get bash alias to eshell way
   #+begin_src emacs-lisp
     (use-package browse-url :ensure nil :unless d/on-droid
       :config
-      (setopt browse-url-browser-function 'ewm-handle-link
-              browse-url-secondary-browser-function 'ewm-handle-link))
+      (setq browse-url-handlers '((".*" . ewm-handle-link))
+              browse-url-browser-function #'ewm-handle-link
+              browse-url-secondary-browser-function #'ewm-handle-link)
+              )
   #+end_src
 
 **** ox-hugo
@@ -7617,11 +7128,8 @@ to get bash alias to eshell way
   (setopt
    mode-line-format
    '("%e"
-     mode-line-front-space mode-line-modified
-     ;; mode-line-remote
-     mode-line-window-dedicated
-     "  "
-     mode-line-frame-identification mode-line-buffer-identification
+     "     "
+     mode-line-buffer-identification
      "    "
      mode-line-position mode-line-format-right-align
      (project-mode-line project-mode-line-format)
@@ -7638,7 +7146,7 @@ to get bash alias to eshell way
 
   #+begin_src emacs-lisp
     (use-package olivetti :defer t :custom (olivetti-body-width 100)
-      :hook (org-mode Info-mode help-mode gnus-group-mode gnus-article-mode nov-mode markdown-mode))
+      :hook (org-mode Info-mode help-mode gnus-group-mode gnus-article-mode nov-mode markdown-mode eww-mode))
     ;; (add-hook 'olivetti-mode-hook #'variable-pitch-mode)
   #+end_src
 
@@ -7768,7 +7276,7 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
                               (push (cons url url) result))))
                         (nreverse result))))
              (selected (completing-read "Link: " (mapcar #'car links)))
-             (url (if (equal selected "pass") (insert-file-contents "~/.local/bin/pass.txt")
+             (url (if (equal selected "pass") (progn (sit-for 0.5) (insert-file-contents-literally "~/.local/bin/pass.txt"))
                     (cdr (assoc selected links)))))
         (when url (if return url (insert url)))))
   #+end_src
@@ -8069,7 +7577,7 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
   #+begin_src emacs-lisp
     (use-package markdown-mode :defer t
       :mode "\\.md\\'" "\\.Rmd\\'"
-      :hook (markdown-mode . variable-pitch-mode))
+      :hook (markdown-ts-mode . variable-pitch-mode))
   #+end_src
 
 **** ox-typst
@@ -8161,8 +7669,11 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
   #+begin_src emacs-lisp
     (use-package ewm :defer t
       :hook
-      (emacs-startup . (lambda () (interactive) (ewm-launch "vicinae server")))
-      (emacs-startup . (lambda () (interactive) (ewm-launch "noctalia-shell")))
+      (emacs-startup . (lambda () (interactive)
+                         (when ewm-mode
+                             (ewm-launcher--execute "noctalia-shell" 'start-process)
+                             (ewm-launcher--execute "vicinae server" 'start-process)
+                             )))
       :custom
       (ewm-output-config '(("eDP-1" :scale 1.25 :enabled t)
                            ("HDMI-A-1" :scale 1.5)
@@ -8186,9 +7697,8 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
                   ("s-d" . ewm-launch))
       :config
       ;; (ewm-text-input--auto-enable)
+      (bind-keys ("C-x C-c" . nil) ("s-E" . nil) ("s-S-e" . nil))
       )
-
-    (bind-keys ("C-x C-c" . nil) ("s-E" . nil) ("s-S-e" . nil))
   #+end_src
 
 - Command to Launch apps and easy to bind keys
@@ -8305,7 +7815,7 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
         ('compile-buffer
          (compile cmd)))))
 
-  (defun ewm-launch (arg)
+  (defun ewm-launch (arg &optional cmd)
     "Launch executable or desktop action.
   With prefix ARG:
     C-u     - prompt for execution method
@@ -8316,38 +7826,39 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
     C-u 5   - call-process (synchronous)
     none    - start-process (background)"
     (interactive "P")
-    (unless ewm-launcher-cache
-      (setq ewm-launcher-cache (ewm-launcher--build-cache)))
-    
-    (let* ((input (completing-read "Run: " ewm-launcher-cache nil nil))
-           (cmd (or (cdr (assoc input ewm-launcher-cache)) input))
-           (method (cond
-                    ;; Universal arg - prompt for method
-                    ((equal arg '(4))
-                     (intern (completing-read
-                              "Execute as: "
-                              '("start-process"
-                                "call-process"
-                                "async-shell-buffer"
-                                "output-echo"
-                                "output-buffer"
-                                "compile-buffer"
-                                "insert-output"
-                                )
-                              nil t)))
-                    
-                    ;; Numeric args - direct mapping
-                    ((equal arg 1) 'output-buffer)
-                    ((equal arg 2) 'output-echo)
-                    ((equal arg 3) 'async-shell-buffer)
-                    ((equal arg 4) 'compile-buffer)
-                    ((equal arg 5) 'call-process)
-                    ((equal arg 6) 'insert-output)
-                    
-                    ;; Default - background process
-                    (t 'start-process))))
+    (if cmd (ewm-launcher--execute cmd 'start-process)
+      (unless ewm-launcher-cache
+        (setq ewm-launcher-cache (ewm-launcher--build-cache)))
       
-      (ewm-launcher--execute cmd method)))
+      (let* ((input (completing-read "Run: " ewm-launcher-cache nil nil))
+             (cmd (or (cdr (assoc input ewm-launcher-cache)) input))
+             (method (cond
+                      ;; Universal arg - prompt for method
+                      ((equal arg '(4))
+                       (intern (completing-read
+                                "Execute as: "
+                                '("start-process"
+                                  "call-process"
+                                  "async-shell-buffer"
+                                  "output-echo"
+                                  "output-buffer"
+                                  "compile-buffer"
+                                  "insert-output"
+                                  )
+                                nil t)))
+                      
+                      ;; Numeric args - direct mapping
+                      ((equal arg 1) 'output-buffer)
+                      ((equal arg 2) 'output-echo)
+                      ((equal arg 3) 'async-shell-buffer)
+                      ((equal arg 4) 'compile-buffer)
+                      ((equal arg 5) 'call-process)
+                      ((equal arg 6) 'insert-output)
+                      
+                      ;; Default - background process
+                      (t 'start-process))))
+        
+        (ewm-launcher--execute cmd method))))
 
   (defun ewm-launcher-refresh ()
     "Rebuild launcher cache."
@@ -8359,55 +7870,55 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
 
 - Link handler to open in various forms
 #+begin_src emacs-lisp
-      ;;; Link handler
+  ;;; Link handler
 
-      (defvar ewm-link-handlers
-        `(("Copy URL" . ,(lambda (url) (kill-new url)))
-          ("Open via GlideFox" . "glide")
-          ("Download Files via Aria2c" . "aria2c -j 6 -x 16 -c -d ~/Downloads")
-          ("Media YT Vid Download" . "yt-dlp --embed-metadata --embed-subs -f 'bestvideo[height<=1080]+bestaudio' -P ~/Videos")
-          ("Media Audio Music Download" . "yt-dlp -P ~/Music -icx --embed-metadata")
-          ("Podcast Listen Stream Song Music Mpd" . ,(lambda (url)
-                                                       (let ((choice (completing-read "Type: " '("Song" "Podcast"))))
-                                                         (if (string= choice "Podcast")
-                                                             (ewm-launcher--execute (format "mpv --ytdl-format=bestaudio --force-window --geometry=15%% --title=podcast --vid=1 '%s'" url) 'start-process)
-                                                           (ewm-launcher--execute (format "mpc add \"$(yt-dlp -f bestaudio -g '%s')\"" url) 'start-process)))))
-          ("View Image via swayimg" . ,(lambda (url)
-                                         (let ((tmp "/tmp/ewm-image"))
-                                           (url-copy-file url tmp t)
-                                           (ewm-launcher--execute (format "swayimg %s" tmp) 'start-process))))
-          ("Play Watch Stream HQ" . "mpv -quiet")
-          ("Misc Download" . "aria2c -j 6 -x 10 -c -d ~/Videos")
-          ("Bookmark Url with tags" . "d-bookmark")
-          ("Open via Brave" . "brave")
-          ("Open via Qutebrowser" . "qutebrowser --target=tab-silent")
-          ("Open via Chromium" . "chromium")
-          ("Torrent files via Aria" . ,(lambda (url)
-                                         (ewm-launcher--execute 
-                                          (format "curl http://localhost:6800/jsonrpc -d '{\"jsonrpc\":\"2.0\",\"id\":\"someID\",\"method\":\"aria2.addUri\",\"params\":[\"token:ariatest\",[\"%s\"]]}'" url) 'start-process)))
-          ("Youtube Search Play Music" . ,(lambda (url)
-                                            (ewm-launcher--execute (format "mpc add \"$(yt-dlp -g 'ytsearch:%s')\"" url) 'start-process)))
-          ("Open Search Engine" . "d-search")
-          ("Document Pdf/cbz Manga via Sioyek" . "sioyek")
-          ("Open via LibreWolf" . "librewolf")
-          ("Add Torrent via Transmission" . "transmission-remote -a")
-          ("Play Watch Stream LQ" . "mpv --ytdl-format=18 -quiet")
-          ("CLI Youtube DL with Format Options" . ,(lambda (url)
-                                                     (ewm-launcher--execute 
-                                                      (format "yt-dlp -F '%s' && read -p 'Choose format: ' fmt && yt-dlp -f $fmt '%s'" url url) 'async-shell-buffer)))
-          ("Get BibTex biblio reference" . "d-bibtex"))
-        "Alist of (label . command-or-function) for link handling.")
+  (defvar ewm-link-handlers
+    `(("Copy URL" . ,(lambda (url) (kill-new url)))
+      ("Open via GlideFox" . "glide")
+      ("Download Files via Aria2c" . "aria2c -j 6 -x 16 -c -d ~/Downloads")
+      ("Media YT Vid Download" . "yt-dlp --embed-metadata --embed-subs -f 'bestvideo[height<=1080]+bestaudio' -P ~/Videos")
+      ("Media Audio Music Download" . "yt-dlp -P ~/Music -icx --embed-metadata")
+      ("Podcast Listen Stream Song Music Mpd" . ,(lambda (url)
+                                                   (let ((choice (completing-read "Type: " '("Song" "Podcast"))))
+                                                     (if (string= choice "Podcast")
+                                                         (ewm-launcher--execute (format "mpv --ytdl-format=bestaudio --force-window --geometry=15%% --title=podcast --vid=1 '%s'" url) 'start-process)
+                                                       (ewm-launcher--execute (format "mpc add \"$(yt-dlp -f bestaudio -g '%s')\"" url) 'start-process)))))
+      ("View Image via swayimg" . ,(lambda (url)
+                                     (let ((tmp "/tmp/ewm-image"))
+                                       (url-copy-file url tmp t)
+                                       (ewm-launcher--execute (format "swayimg %s" tmp) 'start-process))))
+      ("Play Watch Stream HQ" . "mpv -quiet")
+      ("Misc Download" . "aria2c -j 6 -x 10 -c -d ~/Videos")
+      ("Bookmark Url with tags" . "d-bookmark")
+      ("Open via Brave" . "brave")
+      ("Open via Qutebrowser" . "qutebrowser --target=tab-silent")
+      ("Open via Chromium" . "chromium")
+      ("Torrent files via Aria" . ,(lambda (url)
+                                     (ewm-launcher--execute 
+                                      (format "curl http://localhost:6800/jsonrpc -d '{\"jsonrpc\":\"2.0\",\"id\":\"someID\",\"method\":\"aria2.addUri\",\"params\":[\"token:ariatest\",[\"%s\"]]}'" url) 'start-process)))
+      ("Youtube Search Play Music" . ,(lambda (url)
+                                        (ewm-launcher--execute (format "mpc add \"$(yt-dlp -g 'ytsearch:%s')\"" url) 'start-process)))
+      ("Open Search Engine" . "d-search")
+      ("Document Pdf/cbz Manga via Sioyek" . "sioyek")
+      ("Open via LibreWolf" . "librewolf")
+      ("Add Torrent via Transmission" . "transmission-remote -a")
+      ("Play Watch Stream LQ" . "mpv --ytdl-format=18 -quiet")
+      ("CLI Youtube DL with Format Options" . ,(lambda (url)
+                                                 (ewm-launcher--execute 
+                                                  (format "yt-dlp -F '%s' && read -p 'Choose format: ' fmt && yt-dlp -f $fmt '%s'" url url) 'async-shell-buffer)))
+      ("Get BibTex biblio reference" . "d-bibtex"))
+    "Alist of (label . command-or-function) for link handling.")
 
-      (defun ewm-handle-link (url)
-        "Handle URL with selected action."
-        (interactive
-         (list (or (current-kill 0)
-                   (read-string "URL: "))))
-        (let* ((choice (completing-read "Open with: " (mapcar #'car ewm-link-handlers)))
-               (handler (cdr (assoc choice ewm-link-handlers))))
-          (if (functionp handler)
-              (funcall handler url)
-            (ewm-launcher--execute (format "%s '%s'" handler url) 'start-process))))
+  (defun ewm-handle-link (url &rest _args)
+    "Handle URL with selected action."
+    (interactive
+     (list (or (current-kill 0)
+               (read-string "URL: "))))
+    (let* ((choice (completing-read "Open with: " (mapcar #'car ewm-link-handlers)))
+           (handler (cdr (assoc choice ewm-link-handlers))))
+      (if (functionp handler)
+          (funcall handler url)
+        (ewm-launcher--execute (format "%s '%s'" handler url) 'start-process))))
 #+end_src
   
 

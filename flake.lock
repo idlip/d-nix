@@ -126,11 +126,11 @@
     "ewm": {
       "flake": false,
       "locked": {
-        "lastModified": 1772730084,
-        "narHash": "sha256-6nucudi6VBtegJTsvu5gIcSTX2MsqvENHNAhq7ZWTIc=",
+        "lastModified": 1773085920,
+        "narHash": "sha256-EA/OJmM0ADrQS66ptz2issnOE4WSEtMEl3VTU9d1Wgs=",
         "ref": "refs/heads/master",
-        "rev": "bc52ede30f4db5af791c8791048f953d3ba00ef7",
-        "revCount": 371,
+        "rev": "ce39d62123d062394682bb8fe3ae3682c9798f82",
+        "revCount": 379,
         "type": "git",
         "url": "https://codeberg.org/ezemtsov/ewm"
       },

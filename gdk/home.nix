@@ -187,7 +187,7 @@
 	      # toc-org
 	      org-ql ox-hugo markdown-mode typst-ts-mode
 	      flycheck consult-flycheck flycheck-eglot org-re-reveal
-		    flycheck-vale
+		    flycheck-vale gptel
 		    verb forge melpaPackages.mastodon melpaPackages.telega
 	      (pkgs.callPackage (inputs.ewm.outPath + "/nix/default.nix") {
 	        withScreencastSupport = true;
@@ -214,6 +214,22 @@
 	          rev = "ce04bd04b20c498f6deb6338aff142f312144e3b";
 	          hash = "sha256-9SGb+imKyi6J+mpBtkheOLAIpmd0E55i0BOGBT617gE=";
 	        };
+	      })
+	
+	      (melpaBuild {
+	        pname = "claude-code-ide";
+	        version = "20260217";
+	        src = pkgs.fetchFromGitHub {
+	          owner = "manzaltu";
+	          repo = "claude-code-ide.el";
+	          rev = "5f12e60c6d2d1802c8c1b7944bbdf935d5db1364";
+	          sha256 = "sha256-tivRvgfI/8XBRImE3wuZ1UD0t2dNWYscv3Aa53BmHZE=";
+	        };
+	        packageRequires = with pkgs.emacsPackages; [
+	          web-server
+	          vterm
+	          transient
+	        ];
 	      })
 	
 	    ])

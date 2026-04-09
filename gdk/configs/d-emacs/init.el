@@ -24,7 +24,7 @@
 
  sentence-end-double-space nil
  sentence-end "[.?!]"
- read-process-output-max (* 1024 1024)
+ read-process-output-max (* 4 1024 1024)
  initial-major-mode 'org-mode
  enable-recursive-minibuffers t
  switch-to-buffer-obey-display-actions t
@@ -37,7 +37,8 @@
  standard-indent 4)
 (global-so-long-mode 1)
 (with-current-buffer "*scratch*" (emacs-lock-mode 'kill))
-(modify-all-frames-parameters '((alpha-background . 99)))
+(modify-all-frames-parameters '((alpha-background . 99) (window-right-divider-width . 10)))
+(window-divider-mode 1)
 
 (dolist (cmd '(narrow-to-region
                list-timers narrow-to-region narrow-to-page upcase-region downcase-region
@@ -128,6 +129,11 @@
         auto-revert-avoid-polling t)
 (global-auto-revert-mode 1)
 
+(add-hook 'savehist-save-hook
+          (lambda ()
+            (setq kill-ring
+                  (mapcar #'substring-no-properties
+                          (cl-remove-if-not #'stringp kill-ring)))))
 (setopt
  history-length 2000
  save-place-limit nil
@@ -232,6 +238,13 @@
    "rg --null --line-buffered --color=never --max-columns=1000 \
       --path-separator / --smart-case --no-heading --with-filename \
       --line-number --search-zip -U")
+  (consult-preview-excluded-buffers
+   (lambda (buf)
+     (seq-some (lambda (re)
+                 (string-match-p re (buffer-name buf)))
+               (append (mapcar #'car display-buffer-alist)
+                       '("ewm2"))
+               )))
   :config
   (delq 'consult-source-recent-file consult-buffer-sources)
   )
@@ -312,7 +325,7 @@
 (setopt isearch-lazy-count t
         search-whitespace-regexp ".*?")
 
-(context-menu-mode 1)
+(context-menu-mode -1)
 (setopt mouse-autoselect-window t)
 
 (winner-mode 1)
@@ -338,6 +351,13 @@
 (with-eval-after-load 'zone
   (zone-when-idle (* 60 5)))
 
+(setq-default cursor-in-non-selected-windows nil
+              bidi-paragraph-direction 'left-to-right)
+(setopt bidi-inhibit-bpa t
+        save-interprogram-paste-before-kill t
+        highlight-nonselected-windows nil
+        redisplay-skip-fontification-on-input t)
+
 (use-package info :ensure nil
   :config
   (add-to-list 'Info-additional-directory-list "~/learn/info-manuals/"))
@@ -350,7 +370,8 @@
   (magit-bury-buffer-function #'magit-restore-window-configuration))
 
 (use-package ediff :ensure nil
-  :custom (ediff-window-setup-function 'ediff-setup-windows-plain "Do actions from single frame"))
+  :custom (ediff-window-setup-function 'ediff-setup-windows-plain "Do actions from single frame")
+  (ediff-split-window-function 'split-window-horizontally))
 
 (use-package diff-mode :ensure nil
   :custom
@@ -381,7 +402,7 @@
  '("\\*\\(shell\\|term\\|.*eshell\\|.*eat\\|help\\|compilation\\|Async Shell Command\\|Occur\\|xref\\).*\\*"
    (display-buffer-at-bottom)
    ;; (window-parameters (mode-line-format . none))
-   ;; (post-command-select-window . t)
+   (post-command-select-window . t)
    (window-height . 0.3)))
 
 (setq comint-pager "cat")
@@ -653,8 +674,21 @@
 (use-package nov :mode ("\\.epub\\'" . nov-mode)
   :hook
   (nov-mode . nov-imenu-setup)
+  (nov-mode. d/reading-mode)
   :custom
   (nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title))))
+
+(define-minor-mode d/reading-mode
+  "Zen reading mode with no bars and bar cursor."
+  :init-value nil
+  (if d/reading-mode
+      (progn
+        (mode-line-invisible-mode 1) (hl-line-mode -1) (blink-cursor-mode -1)
+        (setq-local cursor-type 'bar))
+    (progn
+      (mode-line-invisible-mode -1) (hl-line-mode 11)
+      (setq-local cursor-type t))
+    ))
 
 (use-package gnus
   :hook
@@ -828,7 +862,8 @@
   :config (url-setup-privacy-info))
 
 (use-package shr :ensure nil :demand t
-  :custom (shr-bullet "⦿ ") (shr-width 100) (shr-max-image-proportion 0.5))
+  :custom (shr-bullet "⦿ ") (shr-width 100) (shr-max-image-proportion 0.5)
+  (shr-use-colors nil))
 
 (use-package eww :ensure nil :demand t
   :hook
@@ -917,6 +952,7 @@ images."
   :init (require-theme 'modus-themes)
   :custom-face
   (minibuffer-nonselected ((t (:inverse-video t))))
+  ;; (region ((t :extend nil)))
   :custom
   (modus-themes-italic-constructs t) (modus-themes-bold-constructs t)
   (modus-themes-mixed-fonts t)
@@ -949,8 +985,8 @@ images."
      ;; (cursor "#e0def4") (bg-completion "#44415a") (bg-hl-line "#2a273f") ;; Rose Pine
 
      (bg-region     bg-completion) (fg-region unspecified)
+     (bg-tab-bar bg-main) (bg-tab-current bg-inactive) (bg-tab-other bg-dim)
 
-     (bg-tab-bar bg-main) (bg-tab-current bg-active) (bg-tab-other bg-dim)
      (fringe unspecified)
      (bg-mode-line-active bg-dim)
      (bg-line-number-active  bg-main) (bg-line-number-inactive  bg-main)
@@ -985,11 +1021,10 @@ images."
  '(tab-bar-format-menu-bar tab-bar-format-history
                            tab-bar-format-tabs-groups tab-bar-separator
                            tab-bar-format-align-right
-                           tab-bar-format-global ;; An issue when used in terminal+daemon (cursor wont move properly)
                            )
  tab-bar-auto-width-max nil
  tab-bar-close-button-show nil)
-(tab-bar-mode t) (tab-bar-history-mode 1)
+(tab-bar-mode t) (tab-bar-history-mode 1) (global-tab-line-mode 1)
 
 (use-package org :ensure nil :defer t
   :hook
@@ -1044,7 +1079,7 @@ images."
 (defun d/org-activity()
   "Make temp activity buffer for org tags."
   (interactive)
-  (with-current-buffer "d-brain.org"
+  (with-current-buffer (completing-read "File: " '("foss.org" "d-brain.org"))
     (let ((org-export-select-tags (completing-read-multiple "tags: " (org-get-buffer-tags))))
       (org-export-to-buffer 'org (format "export %s.org" org-export-select-tags)))
     (org-mode) (delete-other-windows)
@@ -1336,11 +1371,20 @@ absolute path. Finally load eglot."
   (emacs-startup . (lambda () (interactive)
                      (when ewm-mode
                        (ewm-launcher--execute "noctalia-shell" 'start-process)
-                       (ewm-launcher--execute "vicinae server" 'start-process))))
+                       ;; (ewm-launcher--execute "vicinae server" 'start-process)
+                       )))
   :custom
   (ewm-output-config '(("eDP-1" :scale 1.25 :enabled t)
                        ("HDMI-A-1" :scale 1.5)))
-  (ewm-intercept-prefixes '("C-x" "C-u" "C-h" "M-x" "M-y" "M-S-;" "M-S-7" "M-S-3")) ;; (ewm--send-intercept-keys)
+  (ewm-intercept-prefixes
+   '("C-x" "C-u" "C-h" "M-x" "M-y" "M-:" "M-&" "M-#"
+     ("s-f" :fullscreen) ("s-l" :fullscreen) ("s-j" :fullscreen) ("s-k" :fullscreen) ("s-;" :fullscreen)
+     ("s-n" :fullscreen) ("s-p" :fullscreen)
+     ("<MonBrightnessUp>" :fullscreen) ("<MonBrightnessDown>" :fullscreen)
+     ("<AudioRaiseVolume>" :fullscreen) ("<AudioLowerVolume>" :fullscreen)
+     ("<AudioMute>" :fullscreen) ("<AudioMicMute>" :fullscreen)
+     ("<Print>" :fullscreen))
+   ) ;; (ewm--send-intercept-keys)
   (ewm-input-config ;; (ewm--send-input-config)
    '((touchpad :natural-scroll t :tap t :dwt t :accel-speed 0.5)
      (mouse :accel-profile "flat" :accel-speed 0.6)
@@ -1348,7 +1392,7 @@ absolute path. Finally load eglot."
                 :xkb-layouts "us" :xkb-options "ctrl:nocaps")
      (trackpoint :accel-speed 0.5)))
   (ewm-idle 200)
-  (ewm-mouse-follows-focus nil)
+  (focus-follows-mouse t) (mouse-autoselect-window t)
   :bind (:map ewm-mode-map
               ("s-<tab>" . tab-next) ("s-S-<tab>" . tab-previous)
               ("s-n" . tab-next) ("s-p" . tab-previous)
@@ -1548,7 +1592,7 @@ absolute path. Finally load eglot."
                    ("C-<print>"     . "hyprshot -m output")
                    ("<AudioRaiseVolume>"   . "noctalia-shell ipc call volume increase")
                    ("<AudioLowerVolume>"   . "noctalia-shell ipc call volume decrease")
-                   ("<AudioMute>"          . "noctalia-shell ipc call volume muteOutput")
+                   ("<AudioMute>"          . "noctalia-shell ipc call volume muteInput")
                    ("<MonBrightnessUp>"    . "noctalia-shell ipc call brightness increase")
                    ("<MonBrightnessDown>"  . "noctalia-shell ipc call brightness decrease")))
     (define-key ewm-mode-map (kbd key)

@@ -47,6 +47,10 @@
   
     boot.initrd.availableKernelModules = [ "xhci_pci" "thunderbolt" "vmd" "nvme" "usbhid" "usb_storage" "sd_mod" ];
     boot.kernelModules = [ "kvm-intel" "i2c-dev" "ddcci_backlight" ];
+    boot.extraModprobeConfig = ''
+      options iwlwifi power_save=0 uapsd_disable=1 amsdu_size=3
+      options iwlmvm power_scheme=1
+    '';
     boot.extraModulePackages = [ config.boot.kernelPackages.ddcci-driver ];
     boot.initrd.kernelModules = [ "dm-snapshot" ];
   
@@ -96,9 +100,9 @@
   }
   { zramSwap.enable = true; }
   {
-    systemd.sleep.extraConfig = ''
-     AllowSuspend=yes
-     '';
+    systemd.sleep.settings.Sleep = {
+     AllowSuspend = "yes";
+    };
     # Avoid long stop job (easyeffects)
     systemd.user.extraConfig = ''DefaultTimeoutStopSec=10s'';
     systemd.settings.Manager = {
@@ -127,12 +131,16 @@
         inputs.dns-bpc
       ];
   
-      nameservers = [ "9.9.9.9" "1.1.1.1" ];
+      # nameservers = [ "9.9.9.9" "1.1.1.1" ];
   
       networkmanager = {
         enable = true;
         unmanaged = ["docker0" "rndis0" "interface-name:ve-*" ];
-        wifi.macAddress = "random"; # randomness? whitelist?
+        wifi = {
+          macAddress = "stable"; # stable = consistent MAC per SSID, avoids router QoS resets
+          powersave = false; # Disable WiFi power saving — prevents speed throttling on laptops
+          scanRandMacAddress = false; # Disable MAC randomization during scanning — reduces reconnect churn
+        };
       };
   
       # Firewall uses iptables underthehood
@@ -299,7 +307,7 @@
       info.enable = true;
       man = {
         enable = true;
-        generateCaches = true; # will take little time
+        cache.enable = true; # will take little time
       };
       dev.enable = true;
     };

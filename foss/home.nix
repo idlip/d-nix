@@ -66,6 +66,21 @@
 	      };
 	    };
 	
+	    portal = {
+	      enable = true;
+	      extraPortals = [
+		        pkgs.xdg-desktop-portal-gnome
+		        pkgs.xdg-desktop-portal-gtk
+		    ];
+	      config = {
+	        ewm = {
+	          default = "gnome;gtk";
+	          "org.freedesktop.impl.portal.Access" = "gtk";
+	          "org.freedesktop.impl.portal.Notification" = "gtk";
+	          "org.freedesktop.impl.portal.Secret" = "gnome-keyring";
+	        };
+	      };
+	    };
 	  };
 	  xdg.dataFile."applications/d-stuff.desktop".text = ''
 	    [Desktop Entry]
@@ -192,7 +207,7 @@
 	      (pkgs.callPackage (inputs.ewm.outPath + "/nix/default.nix") {
 	        withScreencastSupport = true;
 	      })
-	      # dslide
+	      # # dslide
 	
 	      (melpaBuild {
 	        pname = "combobulate";
@@ -294,7 +309,7 @@
 	  };
 	}
 	{
-	  home.packages = [ inputs.glide.packages.x86_64-linux.glide-browser ];
+	  home.packages = [ inputs.glide.packages.x86_64-linux.default ];
 	  programs.librewolf = {
 	    enable = true;
 	    profiles.ihome = {

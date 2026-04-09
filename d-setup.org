@@ -345,6 +345,10 @@ Emacs configuration is crafted slowly by learning from all users in community. E
 
       boot.initrd.availableKernelModules = [ "xhci_pci" "thunderbolt" "vmd" "nvme" "usbhid" "usb_storage" "sd_mod" ];
       boot.kernelModules = [ "kvm-intel" "i2c-dev" "ddcci_backlight" ];
+      boot.extraModprobeConfig = ''
+        options iwlwifi power_save=0 uapsd_disable=1 amsdu_size=3
+        options iwlmvm power_scheme=1
+      '';
       boot.extraModulePackages = [ config.boot.kernelPackages.ddcci-driver ];
       boot.initrd.kernelModules = [ "dm-snapshot" ];
 
@@ -438,9 +442,9 @@ Emacs configuration is crafted slowly by learning from all users in community. E
 - Note: Hibernation wont be enabled with zramSwap.
   #+begin_src nix 
     {
-      systemd.sleep.extraConfig = ''
-       AllowSuspend=yes
-       '';
+      systemd.sleep.settings.Sleep = {
+       AllowSuspend = "yes";
+      };
       # Avoid long stop job (easyeffects)
       systemd.user.extraConfig = ''DefaultTimeoutStopSec=10s'';
       systemd.settings.Manager = {
@@ -482,12 +486,16 @@ Emacs configuration is crafted slowly by learning from all users in community. E
           inputs.dns-bpc
         ];
 
-        nameservers = [ "9.9.9.9" "1.1.1.1" ];
+        # nameservers = [ "9.9.9.9" "1.1.1.1" ];
 
         networkmanager = {
           enable = true;
           unmanaged = ["docker0" "rndis0" "interface-name:ve-*" ];
-          wifi.macAddress = "random"; # randomness? whitelist?
+          wifi = {
+            macAddress = "stable"; # stable = consistent MAC per SSID, avoids router QoS resets
+            powersave = false; # Disable WiFi power saving — prevents speed throttling on laptops
+            scanRandMacAddress = false; # Disable MAC randomization during scanning — reduces reconnect churn
+          };
         };
 
         # Firewall uses iptables underthehood
@@ -768,7 +776,7 @@ Emacs configuration is crafted slowly by learning from all users in community. E
         info.enable = true;
         man = {
           enable = true;
-          generateCaches = true; # will take little time
+          cache.enable = true; # will take little time
         };
         dev.enable = true;
       };
@@ -1193,6 +1201,21 @@ Pipewire setup, just these lines enough to make sane default for it
           };
         };
 
+        portal = {
+          enable = true;
+          extraPortals = [
+    	        pkgs.xdg-desktop-portal-gnome
+    	        pkgs.xdg-desktop-portal-gtk
+    	    ];
+          config = {
+            ewm = {
+              default = "gnome;gtk";
+              "org.freedesktop.impl.portal.Access" = "gtk";
+              "org.freedesktop.impl.portal.Notification" = "gtk";
+              "org.freedesktop.impl.portal.Secret" = "gnome-keyring";
+            };
+          };
+        };
       };
       xdg.dataFile."applications/d-stuff.desktop".text = ''
         <<conf-dstuff>>
@@ -1357,7 +1380,7 @@ Pipewire setup, just these lines enough to make sane default for it
           (pkgs.callPackage (inputs.ewm.outPath + "/nix/default.nix") {
             withScreencastSupport = true;
           })
-          # dslide
+          # # dslide
 
           (melpaBuild {
             pname = "combobulate";
@@ -1845,7 +1868,7 @@ Pipewire setup, just these lines enough to make sane default for it
     { domain: 'reddit.com', action: 'redirect', to: 'https://libreddit.kavin.rocks$1' },
     { domain: 'twitter.com', action: 'redirect', to: 'https://nitter.net$1' },
     { domain: 'medium.com', action: 'redirect', to: 'https://scribe.rip$1' },
-    { domain: 'youtube.com', action: 'redirect', to: 'https://yewtu.be$1' },
+    // { domain: 'youtube.com', action: 'redirect', to: 'https://yewtu.be$1' },
 
     // Blocks
     // { domain: 'youtube.com', action: 'block' },
@@ -2279,7 +2302,7 @@ Pipewire setup, just these lines enough to make sane default for it
 
   #+begin_src nix
     {
-      home.packages = [ inputs.glide.packages.x86_64-linux.glide-browser ];
+      home.packages = [ inputs.glide.packages.x86_64-linux.default ];
       programs.librewolf = {
         enable = true;
         profiles.ihome = {
@@ -3741,7 +3764,9 @@ Pipewire setup, just these lines enough to make sane default for it
       "customLaunchPrefixEnabled": false,
       "density": "default",
       "enableClipPreview": true,
+      "enableClipboardChips": true,
       "enableClipboardHistory": false,
+      "enableClipboardSmartIcons": true,
       "enableSessionSearch": true,
       "enableSettingsSearch": true,
       "enableWindowsSearch": true,
@@ -3756,17 +3781,18 @@ Pipewire setup, just these lines enough to make sane default for it
       "showIconBackground": false,
       "sortByMostUsed": true,
       "terminalCommand": "foot -e",
-      "useApp2Unit": false,
       "viewMode": "list"
     },
     "audio": {
-      "cavaFrameRate": 30,
       "mprisBlacklist": [
       ],
       "preferredPlayer": "",
+      "spectrumFrameRate": 30,
+      "spectrumMirrored": true,
       "visualizerType": "linear",
       "volumeFeedback": false,
-      "volumeOverdrive": false,
+      "volumeFeedbackSoundFile": "",
+      "volumeOverdrive": true,
       "volumeStep": 5
     },
     "bar": {
@@ -3776,23 +3802,36 @@ Pipewire setup, just these lines enough to make sane default for it
       "barType": "framed",
       "capsuleColorKey": "none",
       "capsuleOpacity": 1,
+      "contentPadding": 2,
       "density": "default",
       "displayMode": "always_visible",
-      "floating": false,
+      "enableExclusionZoneInset": true,
+      "fontScale": 1,
       "frameRadius": 12,
       "frameThickness": 8,
       "hideOnOverview": false,
       "marginHorizontal": 18,
       "marginVertical": 2,
+      "middleClickAction": "none",
+      "middleClickCommand": "",
+      "middleClickFollowMouse": false,
       "monitors": [
       ],
+      "mouseWheelAction": "none",
+      "mouseWheelWrap": true,
       "outerCorners": true,
       "position": "top",
+      "reverseScroll": false,
+      "rightClickAction": "controlCenter",
+      "rightClickCommand": "",
+      "rightClickFollowMouse": true,
       "screenOverrides": [
       ],
       "showCapsule": true,
+      "showOnWorkspaceSwitch": true,
       "showOutline": false,
       "useSeparateOpacity": false,
+      "widgetSpacing": 6,
       "widgets": {
         "center": [
           {
@@ -4007,6 +4046,8 @@ Pipewire setup, just these lines enough to make sane default for it
       }
     },
     "brightness": {
+      "backlightDeviceMappings": [
+      ],
       "brightnessStep": 5,
       "enableDdcSupport": true,
       "enforceMinimum": true
@@ -4035,6 +4076,7 @@ Pipewire setup, just these lines enough to make sane default for it
       "monitorForColors": "",
       "predefinedScheme": "Kanagawa",
       "schedulingMode": "off",
+      "syncGsettings": true,
       "useWallpaperColors": true
     },
     "controlCenter": {
@@ -4116,8 +4158,10 @@ Pipewire setup, just these lines enough to make sane default for it
     "desktopWidgets": {
       "enabled": false,
       "gridSnap": false,
+      "gridSnapScale": false,
       "monitorWidgets": [
-      ]
+      ],
+      "overviewEnabled": true
     },
     "dock": {
       "animationSpeed": 1,
@@ -4128,7 +4172,18 @@ Pipewire setup, just these lines enough to make sane default for it
       "dockType": "floating",
       "enabled": false,
       "floatingRatio": 1,
+      "groupApps": false,
+      "groupClickAction": "cycle",
+      "groupContextMenuMode": "extended",
+      "groupIndicatorStyle": "dots",
       "inactiveIndicators": false,
+      "indicatorColor": "primary",
+      "indicatorOpacity": 0.6,
+      "indicatorThickness": 3,
+      "launcherIcon": "",
+      "launcherIconColor": "none",
+      "launcherPosition": "end",
+      "launcherUseDistroLogo": false,
       "monitors": [
       ],
       "onlySameOutput": true,
@@ -4136,7 +4191,8 @@ Pipewire setup, just these lines enough to make sane default for it
       ],
       "pinnedStatic": false,
       "position": "bottom",
-      "showFrameIndicator": true,
+      "showDockIndicator": false,
+      "showLauncherIcon": false,
       "sitOnFrame": false,
       "size": 1
     },
@@ -4152,7 +4208,9 @@ Pipewire setup, just these lines enough to make sane default for it
       "clockStyle": "custom",
       "compactLockScreen": false,
       "dimmerOpacity": 0.7000000000000001,
+      "enableBlurBehind": true,
       "enableLockScreenCountdown": true,
+      "enableLockScreenMediaControls": false,
       "enableShadows": true,
       "forceBlackScreenCorners": false,
       "iRadiusRatio": 1,
@@ -4188,11 +4246,12 @@ Pipewire setup, just these lines enough to make sane default for it
       "language": "",
       "lockOnSuspend": true,
       "lockScreenAnimations": false,
-      "lockScreenBlur": 0,
+      "lockScreenBlur": 0.1,
       "lockScreenCountdownDuration": 10000,
       "lockScreenMonitors": [
       ],
       "lockScreenTint": 0,
+      "passwordChars": false,
       "radiusRatio": 1,
       "reverseScroll": false,
       "scaleRatio": 1,
@@ -4202,11 +4261,13 @@ Pipewire setup, just these lines enough to make sane default for it
       "shadowOffsetY": 3,
       "showChangelogOnStartup": true,
       "showHibernateOnLockScreen": false,
-      "showScreenCorners": true,
+      "showScreenCorners": false,
       "showSessionButtonsOnLockScreen": true,
+      "smoothScrollEnabled": true,
       "telemetryEnabled": false
     },
     "hooks": {
+      "colorGeneration": "",
       "darkModeChange": "",
       "enabled": false,
       "performanceModeDisabled": "",
@@ -4217,8 +4278,23 @@ Pipewire setup, just these lines enough to make sane default for it
       "startup": "",
       "wallpaperChange": ""
     },
+    "idle": {
+      "customCommands": "[]",
+      "enabled": true,
+      "fadeDuration": 5,
+      "lockCommand": "loginctl lock-session",
+      "lockTimeout": 200,
+      "resumeLockCommand": "",
+      "resumeScreenOffCommand": "brightnessctl -r",
+      "resumeSuspendCommand": "",
+      "screenOffCommand": "brightnessctl -s set 5%",
+      "screenOffTimeout": 150,
+      "suspendCommand": "systemctl suspend",
+      "suspendTimeout": 1000
+    },
     "location": {
       "analogClockInCalendar": false,
+      "autoLocate": false,
       "firstDayOfWeek": -1,
       "hideWeatherCityName": false,
       "hideWeatherTimezone": false,
@@ -4229,17 +4305,18 @@ Pipewire setup, just these lines enough to make sane default for it
       "use12hourFormat": false,
       "useFahrenheit": false,
       "weatherEnabled": true,
-      "weatherShowEffects": true
+      "weatherShowEffects": true,
+      "weatherTaliaMascotAlways": false
     },
     "network": {
-      "airplaneModeEnabled": false,
+      "bluetoothAutoConnect": true,
       "bluetoothDetailsViewMode": "grid",
       "bluetoothHideUnnamedDevices": false,
       "bluetoothRssiPollIntervalMs": 10000,
       "bluetoothRssiPollingEnabled": false,
       "disableDiscoverability": false,
-      "wifiDetailsViewMode": "grid",
-      "wifiEnabled": true
+      "networkPanelView": "wifi",
+      "wifiDetailsViewMode": "grid"
     },
     "nightLight": {
       "autoSchedule": true,
@@ -4250,6 +4327,10 @@ Pipewire setup, just these lines enough to make sane default for it
       "manualSunset": "18:30",
       "nightTemp": "4000"
     },
+    "noctaliaPerformance": {
+      "disableDesktopWidgets": true,
+      "disableWallpaper": true
+    },
     "notifications": {
       "backgroundOpacity": 1,
       "clearDismissed": true,
@@ -4257,8 +4338,8 @@ Pipewire setup, just these lines enough to make sane default for it
       "density": "default",
       "enableBatteryToast": true,
       "enableKeyboardLayoutToast": true,
-      "enableMarkdown": false,
-      "enableMediaToast": false,
+      "enableMarkdown": true,
+      "enableMediaToast": true,
       "enabled": true,
       "location": "top_right",
       "lowUrgencyDuration": 15,
@@ -4298,7 +4379,8 @@ Pipewire setup, just these lines enough to make sane default for it
       "overlayLayer": true
     },
     "plugins": {
-      "autoUpdate": false
+      "autoUpdate": false,
+      "notifyUpdates": true
     },
     "sessionMenu": {
       "countdownDuration": 10000,
@@ -4348,6 +4430,20 @@ Pipewire setup, just these lines enough to make sane default for it
           "countdownEnabled": true,
           "enabled": true,
           "keybind": "6"
+        },
+        {
+          "action": "userspaceReboot",
+          "command": "",
+          "countdownEnabled": true,
+          "enabled": false,
+          "keybind": ""
+        },
+        {
+          "action": "rebootToUefi",
+          "command": "",
+          "countdownEnabled": true,
+          "enabled": true,
+          "keybind": "7"
         }
       ],
       "showHeader": true,
@@ -4403,19 +4499,18 @@ Pipewire setup, just these lines enough to make sane default for it
       "enableUserTheming": true
     },
     "ui": {
-      "bluetoothDetailsViewMode": "grid",
-      "bluetoothHideUnnamedDevices": false,
       "boxBorderEnabled": false,
       "fontDefault": "Inter",
       "fontDefaultScale": 1,
       "fontFixed": "Maple Mono NF",
       "fontFixedScale": 1,
-      "networkPanelView": "wifi",
       "panelBackgroundOpacity": 0.92,
       "panelsAttachedToBar": true,
+      "scrollbarAlwaysVisible": true,
       "settingsPanelMode": "window",
+      "settingsPanelSideBarCardStyle": false,
       "tooltipsEnabled": true,
-      "wifiDetailsViewMode": "grid"
+      "translucentWidgets": false
     },
     "wallpaper": {
       "automationEnabled": true,
@@ -4427,6 +4522,7 @@ Pipewire setup, just these lines enough to make sane default for it
       "fillColor": "#000000",
       "fillMode": "crop",
       "hideWallpaperFilenames": false,
+      "linkLightAndDarkWallpapers": true,
       "monitorDirectories": [
       ],
       "overviewBlur": 0.4,
@@ -4441,7 +4537,10 @@ Pipewire setup, just these lines enough to make sane default for it
       "sortOrder": "date_asc",
       "transitionDuration": 1500,
       "transitionEdgeSmoothness": 0.05,
-      "transitionType": "random",
+      "transitionType": [
+        "random"
+      ],
+      "useOriginalImages": false,
       "useSolidColor": false,
       "useWallhaven": false,
       "viewMode": "browse",
@@ -4489,8 +4588,9 @@ Pipewire setup, just these lines enough to make sane default for it
     }
   #+end_src
 
-*** hypridle
+*** COMMENT hypridle
 - Idle manager made for/with hyprland
+- [2026-04-09 Thu] As on update, Noctalia has idle manager built-in ! Although EWM also has primitive one.
 
   #+begin_src nix 
     {
@@ -5242,7 +5342,7 @@ Pipewire setup, just these lines enough to make sane default for it
 
      sentence-end-double-space nil
      sentence-end "[.?!]"
-     read-process-output-max (* 1024 1024)
+     read-process-output-max (* 4 1024 1024)
      initial-major-mode 'org-mode
      enable-recursive-minibuffers t
      switch-to-buffer-obey-display-actions t
@@ -5255,7 +5355,8 @@ Pipewire setup, just these lines enough to make sane default for it
      standard-indent 4)
     (global-so-long-mode 1)
     (with-current-buffer "*scratch*" (emacs-lock-mode 'kill))
-    (modify-all-frames-parameters '((alpha-background . 99)))
+    (modify-all-frames-parameters '((alpha-background . 99) (window-right-divider-width . 10)))
+    (window-divider-mode 1)
 
     (dolist (cmd '(narrow-to-region
                    list-timers narrow-to-region narrow-to-page upcase-region downcase-region
@@ -5377,6 +5478,11 @@ Pipewire setup, just these lines enough to make sane default for it
 - savehist of minibuffer candidates
 
   #+begin_src emacs-lisp
+    (add-hook 'savehist-save-hook
+              (lambda ()
+                (setq kill-ring
+                      (mapcar #'substring-no-properties
+                              (cl-remove-if-not #'stringp kill-ring)))))
     (setopt
      history-length 2000
      save-place-limit nil
@@ -5565,6 +5671,13 @@ Pipewire setup, just these lines enough to make sane default for it
        "rg --null --line-buffered --color=never --max-columns=1000 \
           --path-separator / --smart-case --no-heading --with-filename \
           --line-number --search-zip -U")
+      (consult-preview-excluded-buffers
+       (lambda (buf)
+         (seq-some (lambda (re)
+                     (string-match-p re (buffer-name buf)))
+                   (append (mapcar #'car display-buffer-alist)
+                           '("ewm2"))
+                   )))
       :config
       (delq 'consult-source-recent-file consult-buffer-sources)
       )
@@ -5998,7 +6111,7 @@ ibuffer to list and manage buffers
 
 **** Mouse
   #+begin_src emacs-lisp
-    (context-menu-mode 1)
+    (context-menu-mode -1)
     (setopt mouse-autoselect-window t)
   #+end_src
 
@@ -6040,6 +6153,19 @@ To manage windows states
     (zone-when-idle (* 60 5)))
 #+end_src
 
+**** Performance tweaks
+- https://emacsredux.com/blog/2026/04/07/stealing-from-the-best-emacs-configs/
+- [[https://codeberg.org/ashton314/emacs-bedrock/commit/88a60f3b5c5566c62b704bd0bf183125bd74c747][Bedrocks config]]
+  
+#+begin_src emacs-lisp
+  (setq-default cursor-in-non-selected-windows nil
+                bidi-paragraph-direction 'left-to-right)
+  (setopt bidi-inhibit-bpa t
+          save-interprogram-paste-before-kill t
+          highlight-nonselected-windows nil
+          redisplay-skip-fontification-on-input t)
+#+end_src
+
 *** DevMacs
 **** Emacs info mode
 - To add local info files, so easy to search via =consult-info=.
@@ -6063,7 +6189,8 @@ To manage windows states
 - Emacs way to diff thing
 #+begin_src emacs-lisp
   (use-package ediff :ensure nil
-    :custom (ediff-window-setup-function 'ediff-setup-windows-plain "Do actions from single frame"))
+    :custom (ediff-window-setup-function 'ediff-setup-windows-plain "Do actions from single frame")
+    (ediff-split-window-function 'split-window-horizontally))
 
   (use-package diff-mode :ensure nil
     :custom
@@ -6109,9 +6236,8 @@ To manage windows states
      '("\\*\\(shell\\|term\\|.*eshell\\|.*eat\\|help\\|compilation\\|Async Shell Command\\|Occur\\|xref\\).*\\*"
        (display-buffer-at-bottom)
        ;; (window-parameters (mode-line-format . none))
-       ;; (post-command-select-window . t)
+       (post-command-select-window . t)
        (window-height . 0.3)))
-
   #+end_src
 
 - Eshell alias
@@ -6614,9 +6740,25 @@ to get bash alias to eshell way
     (use-package nov :mode ("\\.epub\\'" . nov-mode)
       :hook
       (nov-mode . nov-imenu-setup)
+      (nov-mode. d/reading-mode)
       :custom
       (nov-shr-rendering-functions '((img . nov-render-img) (title . nov-render-title))))
   #+end_src
+
+- Function to have pleasant reading mode
+#+begin_src emacs-lisp
+  (define-minor-mode d/reading-mode
+    "Zen reading mode with no bars and bar cursor."
+    :init-value nil
+    (if d/reading-mode
+        (progn
+          (mode-line-invisible-mode 1) (hl-line-mode -1) (blink-cursor-mode -1)
+          (setq-local cursor-type 'bar))
+      (progn
+        (mode-line-invisible-mode -1) (hl-line-mode 11)
+        (setq-local cursor-type t))
+      ))
+#+end_src
 
 *** gnus
 - First time using a newsgroup or usenet or NNTP.
@@ -6814,7 +6956,8 @@ to get bash alias to eshell way
       :config (url-setup-privacy-info))
 
     (use-package shr :ensure nil :demand t
-      :custom (shr-bullet "⦿ ") (shr-width 100) (shr-max-image-proportion 0.5))
+      :custom (shr-bullet "⦿ ") (shr-width 100) (shr-max-image-proportion 0.5)
+      (shr-use-colors nil))
   #+end_src
 
 **** Eww
@@ -7007,6 +7150,7 @@ to get bash alias to eshell way
     :init (require-theme 'modus-themes)
     :custom-face
     (minibuffer-nonselected ((t (:inverse-video t))))
+    ;; (region ((t :extend nil)))
     :custom
     (modus-themes-italic-constructs t) (modus-themes-bold-constructs t)
     (modus-themes-mixed-fonts t)
@@ -7039,8 +7183,8 @@ to get bash alias to eshell way
        ;; (cursor "#e0def4") (bg-completion "#44415a") (bg-hl-line "#2a273f") ;; Rose Pine
 
        (bg-region     bg-completion) (fg-region unspecified)
+       (bg-tab-bar bg-main) (bg-tab-current bg-inactive) (bg-tab-other bg-dim)
 
-       (bg-tab-bar bg-main) (bg-tab-current bg-active) (bg-tab-other bg-dim)
        (fringe unspecified)
        (bg-mode-line-active bg-dim)
        (bg-line-number-active  bg-main) (bg-line-number-inactive  bg-main)
@@ -7050,7 +7194,6 @@ to get bash alias to eshell way
 
     :config
     (load-theme 'modus-vivendi t))
-
 #+end_src
 
 - Matugen theme palette via noctalia shell
@@ -7178,11 +7321,10 @@ to get bash alias to eshell way
      '(tab-bar-format-menu-bar tab-bar-format-history
                                tab-bar-format-tabs-groups tab-bar-separator
                                tab-bar-format-align-right
-                               tab-bar-format-global ;; An issue when used in terminal+daemon (cursor wont move properly)
                                )
      tab-bar-auto-width-max nil
      tab-bar-close-button-show nil)
-    (tab-bar-mode t) (tab-bar-history-mode 1)
+    (tab-bar-mode t) (tab-bar-history-mode 1) (global-tab-line-mode 1)
   #+end_src
 
 
@@ -7269,7 +7411,7 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
     (defun d/org-activity()
       "Make temp activity buffer for org tags."
       (interactive)
-      (with-current-buffer "d-brain.org"
+      (with-current-buffer (completing-read "File: " '("foss.org" "d-brain.org"))
         (let ((org-export-select-tags (completing-read-multiple "tags: " (org-get-buffer-tags))))
           (org-export-to-buffer 'org (format "export %s.org" org-export-select-tags)))
         (org-mode) (delete-other-windows)
@@ -7668,11 +7810,20 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
       (emacs-startup . (lambda () (interactive)
                          (when ewm-mode
                            (ewm-launcher--execute "noctalia-shell" 'start-process)
-                           (ewm-launcher--execute "vicinae server" 'start-process))))
+                           ;; (ewm-launcher--execute "vicinae server" 'start-process)
+                           )))
       :custom
       (ewm-output-config '(("eDP-1" :scale 1.25 :enabled t)
                            ("HDMI-A-1" :scale 1.5)))
-      (ewm-intercept-prefixes '("C-x" "C-u" "C-h" "M-x" "M-y" "M-S-;" "M-S-7" "M-S-3")) ;; (ewm--send-intercept-keys)
+      (ewm-intercept-prefixes
+       '("C-x" "C-u" "C-h" "M-x" "M-y" "M-:" "M-&" "M-#"
+         ("s-f" :fullscreen) ("s-l" :fullscreen) ("s-j" :fullscreen) ("s-k" :fullscreen) ("s-;" :fullscreen)
+         ("s-n" :fullscreen) ("s-p" :fullscreen)
+         ("<MonBrightnessUp>" :fullscreen) ("<MonBrightnessDown>" :fullscreen)
+         ("<AudioRaiseVolume>" :fullscreen) ("<AudioLowerVolume>" :fullscreen)
+         ("<AudioMute>" :fullscreen) ("<AudioMicMute>" :fullscreen)
+         ("<Print>" :fullscreen))
+       ) ;; (ewm--send-intercept-keys)
       (ewm-input-config ;; (ewm--send-input-config)
        '((touchpad :natural-scroll t :tap t :dwt t :accel-speed 0.5)
          (mouse :accel-profile "flat" :accel-speed 0.6)
@@ -7680,7 +7831,7 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
                     :xkb-layouts "us" :xkb-options "ctrl:nocaps")
          (trackpoint :accel-speed 0.5)))
       (ewm-idle 200)
-      (ewm-mouse-follows-focus nil)
+      (focus-follows-mouse t) (mouse-autoselect-window t)
       :bind (:map ewm-mode-map
                   ("s-<tab>" . tab-next) ("s-S-<tab>" . tab-previous)
                   ("s-n" . tab-next) ("s-p" . tab-previous)
@@ -7897,7 +8048,7 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
                        ("C-<print>"     . "hyprshot -m output")
                        ("<AudioRaiseVolume>"   . "noctalia-shell ipc call volume increase")
                        ("<AudioLowerVolume>"   . "noctalia-shell ipc call volume decrease")
-                       ("<AudioMute>"          . "noctalia-shell ipc call volume muteOutput")
+                       ("<AudioMute>"          . "noctalia-shell ipc call volume muteInput")
                        ("<MonBrightnessUp>"    . "noctalia-shell ipc call brightness increase")
                        ("<MonBrightnessDown>"  . "noctalia-shell ipc call brightness decrease")))
         (define-key ewm-mode-map (kbd key)

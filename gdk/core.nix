@@ -54,8 +54,8 @@
     boot.initrd.availableKernelModules = [ "xhci_pci" "thunderbolt" "vmd" "nvme" "usbhid" "usb_storage" "sd_mod" ];
     boot.kernelModules = [ "kvm-intel" "i2c-dev" "ddcci_backlight" ];
     boot.extraModprobeConfig = ''
-      options iwlwifi power_save=0 uapsd_disable=1 amsdu_size=3
-      options iwlmvm power_scheme=1
+      options iwlwifi power_save=0
+      options iwlwifi uapsd_disable=1
     '';
     boot.extraModulePackages = [ config.boot.kernelPackages.ddcci-driver ];
     boot.initrd.kernelModules = [ "dm-snapshot" ];

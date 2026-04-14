@@ -202,7 +202,7 @@
 	      # toc-org
 	      org-ql ox-hugo markdown-mode typst-ts-mode
 	      flycheck consult-flycheck flycheck-eglot org-re-reveal
-		    flycheck-vale gptel
+		    flycheck-vale
 		    verb forge melpaPackages.mastodon melpaPackages.telega
 	      (pkgs.callPackage (inputs.ewm.outPath + "/nix/default.nix") {
 	        withScreencastSupport = true;
@@ -229,22 +229,6 @@
 	          rev = "ce04bd04b20c498f6deb6338aff142f312144e3b";
 	          hash = "sha256-9SGb+imKyi6J+mpBtkheOLAIpmd0E55i0BOGBT617gE=";
 	        };
-	      })
-	
-	      (melpaBuild {
-	        pname = "claude-code-ide";
-	        version = "20260217";
-	        src = pkgs.fetchFromGitHub {
-	          owner = "manzaltu";
-	          repo = "claude-code-ide.el";
-	          rev = "5f12e60c6d2d1802c8c1b7944bbdf935d5db1364";
-	          sha256 = "sha256-tivRvgfI/8XBRImE3wuZ1UD0t2dNWYscv3Aa53BmHZE=";
-	        };
-	        packageRequires = with pkgs.emacsPackages; [
-	          web-server
-	          vterm
-	          transient
-	        ];
 	      })
 	
 	    ])
@@ -485,45 +469,6 @@
 	
 	    mpc ani-cli
 	  ];
-	}
-	{
-	  services.hypridle = let
-	    hyprlock = lib.getExe pkgs.hyprlock;
-		noctalia = lib.getExe pkgs.noctalia-shell;
-	    brightness = lib.getExe pkgs.brightnessctl;
-	    niri = lib.getExe pkgs.niri;
-	    mmsg = lib.getExe' inputs.mango.packages.x86_64-linux.mango "mmsg";
-	    timeout = 200; # base timer to act upon
-	    in {
-	    enable = true;
-	    settings ={
-	      general = {
-	        lock_cmd = "${noctalia} ipc call lockScreen lock";
-	        before_sleep_cmd = "${pkgs.systemd}/bin/loginctl lock-session";
-	      };
-	
-	      listener = [
-	        {
-	          timeout = timeout - 50;
-	          on-timeout = "${brightness} -s set 5%";
-	          on-resume = "${brightness} -r";
-	        }
-	        {
-	          timeout = timeout;
-	          on-timeout = "loginctl lock-session";
-	        }
-	        {
-	          timeout = timeout + 10;
-	          on-timeout = "${niri} msg action power-off-monitors || ${mmsg} -d disable_monitor";
-	          on-resume = "${niri} msg action power-on-monitors || ${mmsg} -d enable_monitor";
-	        }
-	        {
-	          timeout = timeout * 5;
-	          on-timeout = "systemctl suspend";
-	        }
-	      ];
-	    };
-	  };
 	}
 	{
 	  stylix = {

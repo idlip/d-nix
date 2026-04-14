@@ -346,8 +346,8 @@ Emacs configuration is crafted slowly by learning from all users in community. E
       boot.initrd.availableKernelModules = [ "xhci_pci" "thunderbolt" "vmd" "nvme" "usbhid" "usb_storage" "sd_mod" ];
       boot.kernelModules = [ "kvm-intel" "i2c-dev" "ddcci_backlight" ];
       boot.extraModprobeConfig = ''
-        options iwlwifi power_save=0 uapsd_disable=1 amsdu_size=3
-        options iwlmvm power_scheme=1
+        options iwlwifi power_save=0
+        options iwlwifi uapsd_disable=1
       '';
       boot.extraModulePackages = [ config.boot.kernelPackages.ddcci-driver ];
       boot.initrd.kernelModules = [ "dm-snapshot" ];
@@ -1375,7 +1375,7 @@ Pipewire setup, just these lines enough to make sane default for it
           # toc-org
           org-ql ox-hugo markdown-mode typst-ts-mode
           flycheck consult-flycheck flycheck-eglot org-re-reveal
-    	    flycheck-vale gptel
+    	    flycheck-vale
     	    verb forge melpaPackages.mastodon melpaPackages.telega
           (pkgs.callPackage (inputs.ewm.outPath + "/nix/default.nix") {
             withScreencastSupport = true;
@@ -1402,22 +1402,6 @@ Pipewire setup, just these lines enough to make sane default for it
               rev = "ce04bd04b20c498f6deb6338aff142f312144e3b";
               hash = "sha256-9SGb+imKyi6J+mpBtkheOLAIpmd0E55i0BOGBT617gE=";
             };
-          })
-
-          (melpaBuild {
-            pname = "claude-code-ide";
-            version = "20260217";
-            src = pkgs.fetchFromGitHub {
-              owner = "manzaltu";
-              repo = "claude-code-ide.el";
-              rev = "5f12e60c6d2d1802c8c1b7944bbdf935d5db1364";
-              sha256 = "sha256-tivRvgfI/8XBRImE3wuZ1UD0t2dNWYscv3Aa53BmHZE=";
-            };
-            packageRequires = with pkgs.emacsPackages; [
-              web-server
-              vterm
-              transient
-            ];
           })
 
         ])
@@ -3808,7 +3792,7 @@ Pipewire setup, just these lines enough to make sane default for it
       "enableExclusionZoneInset": true,
       "fontScale": 1,
       "frameRadius": 12,
-      "frameThickness": 8,
+      "frameThickness": 4,
       "hideOnOverview": false,
       "marginHorizontal": 18,
       "marginVertical": 2,
@@ -3859,6 +3843,7 @@ Pipewire setup, just these lines enough to make sane default for it
             "enableScrollWheel": true,
             "focusedColor": "primary",
             "followFocusedScreen": false,
+            "fontWeight": "bold",
             "groupedBorderOpacity": 1,
             "hideUnoccupied": false,
             "iconScale": 0.8,
@@ -3867,20 +3852,18 @@ Pipewire setup, just these lines enough to make sane default for it
             "occupiedColor": "secondary",
             "pillSize": 0.6,
             "showApplications": false,
+            "showApplicationsHover": false,
             "showBadge": true,
             "showLabelsOnlyWhenOccupied": true,
             "unfocusedIconsOpacity": 1
           },
           {
             "compactMode": false,
-            "compactShowAlbumArt": true,
-            "compactShowVisualizer": false,
             "hideMode": "idle",
             "hideWhenIdle": false,
             "id": "MediaMini",
             "maxWidth": 145,
             "panelShowAlbumArt": true,
-            "panelShowVisualizer": true,
             "scrollingMode": "hover",
             "showAlbumArt": false,
             "showArtistFirst": true,
@@ -3897,6 +3880,7 @@ Pipewire setup, just these lines enough to make sane default for it
             "diskPath": "/",
             "iconColor": "none",
             "id": "SystemMonitor",
+            "showCpuCores": false,
             "showCpuFreq": false,
             "showCpuTemp": true,
             "showCpuUsage": true,
@@ -3920,6 +3904,7 @@ Pipewire setup, just these lines enough to make sane default for it
             "maxWidth": 145,
             "scrollingMode": "hover",
             "showIcon": true,
+            "showText": true,
             "textColor": "none",
             "useFixedWidth": false
           }
@@ -4220,7 +4205,8 @@ Pipewire setup, just these lines enough to make sane default for it
           "Ctrl+N"
         ],
         "keyEnter": [
-          "Return"
+          "Return",
+          "Enter"
         ],
         "keyEscape": [
           "Esc",
@@ -4339,7 +4325,7 @@ Pipewire setup, just these lines enough to make sane default for it
       "enableBatteryToast": true,
       "enableKeyboardLayoutToast": true,
       "enableMarkdown": true,
-      "enableMediaToast": true,
+      "enableMediaToast": false,
       "enabled": true,
       "location": "top_right",
       "lowUrgencyDuration": 15,
@@ -4449,7 +4435,7 @@ Pipewire setup, just these lines enough to make sane default for it
       "showHeader": true,
       "showKeybinds": true
     },
-    "settingsVersion": 53,
+    "settingsVersion": 59,
     "systemMonitor": {
       "batteryCriticalThreshold": 20,
       "batteryWarningThreshold": 40,
@@ -5514,7 +5500,7 @@ Pipewire setup, just these lines enough to make sane default for it
     (add-hook 'dired-mode-hook #'dired-omit-mode)
 
     (setopt
-     dired-listing-switches "-agho --group-directories-first"
+     dired-listing-switches "-agho --group-directories-first -S"
      dired-omit-files "\\`[.]?#\\|\\`[.][.]?\\'\\|^\\..*$"
      delete-by-moving-to-trash t
      dired-dwim-target t
@@ -6578,16 +6564,6 @@ to get bash alias to eshell way
       :custom
       ;; (python-forward-sexp-function nil)
       (python-indent-guess-indent-offset-verbose nil))
-
-    ;; hacky way to run python tools in any dir without envrc or anything
-    (defun d/dev-uvx-command ()
-      "Prompt for package and command, to run dev environment."
-      (interactive)
-      (let ((pkg (read-string "Enter package: "))
-            (cmd (read-string "Enter Command Args: ")))
-        (setq d/dev-uvx-command
-              (append '("uvx" "--from") (list pkg) (split-string cmd)))
-        (message "Set d/dev-uvx-command to: %S" d/dev-uvx-command)))
   #+end_src
 
 **** COMMENT R-stats
@@ -6646,7 +6622,7 @@ to get bash alias to eshell way
       :config (define-key org-mode-map (kbd "C-c C-r") verb-command-map))
   #+end_src
 
-**** science
+**** COMMENT science
   #+begin_src emacs-lisp
   (use-package ess-julia :unless d/on-droid
     :hook (ess-julia-mode . (lambda () (setq-local devdocs-browser-active-docs '("Julia"))))
@@ -6755,7 +6731,7 @@ to get bash alias to eshell way
           (mode-line-invisible-mode 1) (hl-line-mode -1) (blink-cursor-mode -1)
           (setq-local cursor-type 'bar))
       (progn
-        (mode-line-invisible-mode -1) (hl-line-mode 11)
+        (mode-line-invisible-mode -1) (hl-line-mode 1)
         (setq-local cursor-type t))
       ))
 #+end_src
@@ -7183,13 +7159,13 @@ to get bash alias to eshell way
        ;; (cursor "#e0def4") (bg-completion "#44415a") (bg-hl-line "#2a273f") ;; Rose Pine
 
        (bg-region     bg-completion) (fg-region unspecified)
-       (bg-tab-bar bg-main) (bg-tab-current bg-inactive) (bg-tab-other bg-dim)
+       (bg-tab-bar bg-main) (bg-tab-current bg-region) (bg-tab-other bg-dim)
 
        (fringe unspecified)
        (bg-mode-line-active bg-dim)
        (bg-line-number-active  bg-main) (bg-line-number-inactive  bg-main)
        (fg-line-number-active fg-dim) (fg-line-number-inactive border)
-       (border-mode-line-active bg-completion) (border-mode-line-inactive unspecified)
+       (border-mode-line-active fg-heading-1) (border-mode-line-inactive unspecified)
        ))
 
     :config
@@ -7227,24 +7203,9 @@ to get bash alias to eshell way
        (bg-region      "{{colors.primary_container.default.hex}}")
        (fg-region      unspecified)
 
-       ;; Tab bar
-       (bg-tab-bar     "{{colors.surface.default.hex}}")
-       (bg-tab-current "{{colors.surface_container_low.default.hex}}")
-       (bg-tab-other   "{{colors.surface_dim.default.hex}}")
-
        ;; UI elements
        (fringe         unspecified)
        (bg-mode-line-active "{{colors.surface_dim.default.hex}}")
-
-       ;; Line numbers
-       (bg-line-number-active    "{{colors.surface.default.hex}}")
-       (bg-line-number-inactive  "{{colors.surface.default.hex}}")
-       (fg-line-number-active    "{{colors.on_surface_variant.default.hex}}")
-       (fg-line-number-inactive  "{{colors.outline_variant.default.hex}}")
-
-       ;; Borders
-       (border-mode-line-active   "{{colors.secondary.default.hex}}")
-       (border-mode-line-inactive unspecified)
        ))
 
     (defface d/org-agenda-foss-asap
@@ -7279,7 +7240,7 @@ to get bash alias to eshell way
       (let ((key (car color))
             (new-value (cdr color)))
         (setf (cdr (assoc key modus-vivendi-palette-overrides)) new-value)))
-    (load-theme 'modus-vivendi t)
+    (load-theme 'modus-vivendi 'no-confirm 'no-enable)
   #+end_src
 
 *** Status bar/Mode-line
@@ -7715,7 +7676,8 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
   #+begin_src emacs-lisp
     (use-package markdown-mode :defer t
       :mode "\\.md\\'" "\\.Rmd\\'"
-      :hook (markdown-ts-mode . variable-pitch-mode))
+      :hook (markdown-ts-mode . markdown-mode)
+      :custom (markdown-fontify-code-blocks-natively t))
   #+end_src
 
 **** ox-typst

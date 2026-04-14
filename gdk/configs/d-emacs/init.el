@@ -156,7 +156,7 @@
 (add-hook 'dired-mode-hook #'dired-omit-mode)
 
 (setopt
- dired-listing-switches "-agho --group-directories-first"
+ dired-listing-switches "-agho --group-directories-first -S"
  dired-omit-files "\\`[.]?#\\|\\`[.][.]?\\'\\|^\\..*$"
  delete-by-moving-to-trash t
  dired-dwim-target t
@@ -600,16 +600,6 @@
   ;; (python-forward-sexp-function nil)
   (python-indent-guess-indent-offset-verbose nil))
 
-;; hacky way to run python tools in any dir without envrc or anything
-(defun d/dev-uvx-command ()
-  "Prompt for package and command, to run dev environment."
-  (interactive)
-  (let ((pkg (read-string "Enter package: "))
-        (cmd (read-string "Enter Command Args: ")))
-    (setq d/dev-uvx-command
-          (append '("uvx" "--from") (list pkg) (split-string cmd)))
-    (message "Set d/dev-uvx-command to: %S" d/dev-uvx-command)))
-
 (unless d/on-droid (use-package nix-ts-mode) )
 
 (use-package js :ensure nil :mode ("\\.jsx\\'" . js-jsx-mode)
@@ -617,11 +607,6 @@
 
 (use-package verb :after org
   :config (define-key org-mode-map (kbd "C-c C-r") verb-command-map))
-
-(use-package ess-julia :unless d/on-droid
-  :hook (ess-julia-mode . (lambda () (setq-local devdocs-browser-active-docs '("Julia"))))
-  :bind (:map ess-julia-mode-map ("C-c C-d" . devdocs-browser-open))
-  :custom (inferior-julia-args "--color=yes" "You get color in julia inferior process"))
 
 ;; access phone storage as default
 ;; Better is to symlink file to ~/ itself
@@ -686,7 +671,7 @@
         (mode-line-invisible-mode 1) (hl-line-mode -1) (blink-cursor-mode -1)
         (setq-local cursor-type 'bar))
     (progn
-      (mode-line-invisible-mode -1) (hl-line-mode 11)
+      (mode-line-invisible-mode -1) (hl-line-mode 1)
       (setq-local cursor-type t))
     ))
 
@@ -985,13 +970,13 @@ images."
      ;; (cursor "#e0def4") (bg-completion "#44415a") (bg-hl-line "#2a273f") ;; Rose Pine
 
      (bg-region     bg-completion) (fg-region unspecified)
-     (bg-tab-bar bg-main) (bg-tab-current bg-inactive) (bg-tab-other bg-dim)
+     (bg-tab-bar bg-main) (bg-tab-current bg-region) (bg-tab-other bg-dim)
 
      (fringe unspecified)
      (bg-mode-line-active bg-dim)
      (bg-line-number-active  bg-main) (bg-line-number-inactive  bg-main)
      (fg-line-number-active fg-dim) (fg-line-number-inactive border)
-     (border-mode-line-active bg-completion) (border-mode-line-inactive unspecified)
+     (border-mode-line-active fg-heading-1) (border-mode-line-inactive unspecified)
      ))
 
   :config
@@ -1314,7 +1299,8 @@ absolute path. Finally load eglot."
 
 (use-package markdown-mode :defer t
   :mode "\\.md\\'" "\\.Rmd\\'"
-  :hook (markdown-ts-mode . variable-pitch-mode))
+  :hook (markdown-ts-mode . markdown-mode)
+  :custom (markdown-fontify-code-blocks-natively t))
 
 (use-package ox-typst :unless d/on-droid 
   :vc (:url "https://github.com/jmpunkt/ox-typst")

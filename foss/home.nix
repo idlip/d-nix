@@ -235,9 +235,9 @@
 	    );
 	  };
 	
-	  xdg.configFile."emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/d-emacs/init.el";
+	  xdg.configFile."emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/foss/configs/d-emacs/init.el";
 	
-	  xdg.configFile."emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/gdk/configs/d-emacs/early-init.el";
+	  xdg.configFile."emacs/early-init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/foss/configs/d-emacs/early-init.el";
 	
 	}
 	{

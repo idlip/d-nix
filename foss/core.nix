@@ -52,37 +52,12 @@
       options iwlwifi uapsd_disable=1
     '';
     boot.extraModulePackages = [ config.boot.kernelPackages.ddcci-driver ];
-    boot.initrd.kernelModules = [ "dm-snapshot" ];
-  
-    fileSystems."/" = {
-        fsType = "btrfs";
-        options = [ "subvol=root" "compress=zstd" ];
-      };
-  
-    fileSystems."/home" = { 
-        fsType = "btrfs";
-        options = [ "subvol=home" "compress=zstd" ];
-      };
-  
-    fileSystems."/nix" = { 
-        fsType = "btrfs";
-        options = [ "subvol=nix" "compress=zstd" "noatime" ];
-      };
-  
-    fileSystems."/boot" = { 
-        fsType = "vfat";
-        options = [ "fmask=0022" "dmask=0022" ];
-      };
+    # Intel Arc GPU (Xe) + LUKS dm-snapshot
+    boot.initrd.kernelModules = [ "xe" "dm-snapshot" ];
   
     swapDevices = [ ];
   
-    # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
-    # (the default) this is the recommended approach. When using systemd-networkd it's
-    # still possible to use this option, but it's recommended to use it in conjunction
-    # with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
     networking.useDHCP = lib.mkDefault true;
-    # networking.interfaces.wlp0s20f3.useDHCP = lib.mkDefault true;
-  
     nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
     hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
   }
@@ -397,7 +372,7 @@
     programs.ewm = {
       enable = true;
       extraEmacsArgs = "";
-      emacsPackage = config.home-manager.users.dev.programs.emacs.finalPackage;
+      emacsPackage = config.home-manager.users.${vars.username}.programs.emacs.finalPackage;
     };
   }
   {
@@ -466,13 +441,26 @@
   }
   {
     boot.initrd.luks.devices.cryptroot.device = "/dev/disk/by-uuid/ad2f4bf9-01eb-4c84-9a94-ba122aee88df";
-    fileSystems."/" = { device = "/dev/disk/by-uuid/a367f747-513c-4bc9-a389-36ffbc182f7e"; };
-    fileSystems."/home" = { device = "/dev/disk/by-uuid/a367f747-513c-4bc9-a389-36ffbc182f7e"; };
-    fileSystems."/nix" = { device = "/dev/disk/by-uuid/a367f747-513c-4bc9-a389-36ffbc182f7e"; };
-    fileSystems."/boot" = { device = "/dev/disk/by-uuid/112B-98A0"; };
-  }
-  {
-	stylix.base16Scheme = lib.mkForce "${pkgs.base16-schemes}/share/themes/bright.yaml";
+    fileSystems."/" = {
+      device = "/dev/disk/by-uuid/a367f747-513c-4bc9-a389-36ffbc182f7e";
+      fsType = "btrfs";
+      options = [ "subvol=root" "compress=zstd" ];
+    };
+    fileSystems."/home" = {
+      device = "/dev/disk/by-uuid/a367f747-513c-4bc9-a389-36ffbc182f7e";
+      fsType = "btrfs";
+      options = [ "subvol=home" "compress=zstd" ];
+    };
+    fileSystems."/nix" = {
+      device = "/dev/disk/by-uuid/a367f747-513c-4bc9-a389-36ffbc182f7e";
+      fsType = "btrfs";
+      options = [ "subvol=nix" "compress=zstd" "noatime" ];
+    };
+    fileSystems."/boot" = {
+      device = "/dev/disk/by-uuid/112B-98A0";
+      fsType = "vfat";
+      options = [ "fmask=0022" "dmask=0022" ];
+    };
   }
   {	
 	services.throttled.enable = true;

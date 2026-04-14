@@ -66,11 +66,6 @@
       pkgs = nixpkgs.legacyPackages.x86_64-linux;
 
 	  hostVars = {
-        gdk = {
-		  host = "gdk";
-          username = "idlip";
-          editor = "emacs";
-        };
         foss = {
 		  host = "foss";
           username = "dev";
@@ -81,7 +76,7 @@
       {
         devShells.x86_64-linux.default = pkgs.mkShell {
           packages = with pkgs; [
-            statix nixfmt
+            statix nixfmt-rfc-style
             # nixd
           ];
           name = "dots";
@@ -89,20 +84,6 @@
         };
 
         nixosConfigurations = {
-          ${hostVars.gdk.host} = nixpkgs.lib.nixosSystem {
-            system = system;
-            modules = [
-              ./${hostVars.gdk.host}/core.nix
-              inputs.home-manager.nixosModules.home-manager
-              nix-index-database.nixosModules.nix-index
-		      stylix.nixosModules.stylix
-            ];
-            specialArgs = {
-			  inherit inputs system;
-              vars = hostVars.gdk;
-            };
-          };
-
 		  ${hostVars.foss.host} = nixpkgs.lib.nixosSystem {
 			system = system;
 			modules = [

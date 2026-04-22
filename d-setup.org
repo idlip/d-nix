@@ -908,7 +908,7 @@ Pipewire setup, just these lines enough to make sane default for it
         image = ./configs/chinese-dragon.jpg;
         polarity = "dark";
 
-        base16Scheme = "${pkgs.base16-schemes}/share/themes/bright.yaml";
+        base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
 
         cursor = {
           package = pkgs.maplestory-cursor;
@@ -921,24 +921,23 @@ Pipewire setup, just these lines enough to make sane default for it
 
           plexpkg = pkgs.ibm-plex;
           ipkg = pkgs.inter;
-
           mpkg = pkgs.maple-mono.NF;
           apkg = pkgs.aporetic-bin;
 
         in {
           serif = {
             package = plexpkg;
-            name = "IBM Plex Serif";
+            name = "Iosevka Etoile";
           };
 
           sansSerif = {
             package = ipkg;
-            name = "Inter";
+            name = "Iosevka Aile";
           };
 
           monospace = {
             package = mpkg;
-            name = "Maple Mono NF";
+            name = "Iosevka";
           };
 
           emoji = {
@@ -1890,9 +1889,9 @@ Pipewire setup, just these lines enough to make sane default for it
     const prefs: Record<string, any> = {
       "sidebar.animation.expand-on-hover.duration-ms": 10,
       "toolkit.legacyUserProfileCustomizations.stylesheets": true,
-      "font.name.monospace.x-western": "Maple Mono NF",
-      "font.name.sans-serif.x-western": "Inter",
-      "font.name.serif.x-western": "Inter",
+      "font.name.monospace.x-western": "Iosevka",
+      "font.name.sans-serif.x-western": "Iosevka Aile",
+      "font.name.serif.x-western": "Iosevka Etoile",
       "identity.fxaccounts.enabled": true,
       "svg.context-properties.content.enabled": true,
       "layout.css.has-selector.enabled": true,

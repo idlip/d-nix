@@ -1525,6 +1525,16 @@ Pipewire setup, just these lines enough to make sane default for it
     let filtered = allHistory;
     let title = `History (${allHistory.length})`;
 
+    if (!currentSiteOnly) {
+      const seen = new Set<string>();
+      filtered = filtered.filter(item => {
+        const canonical = item.url.split("#")[0];
+        if (seen.has(canonical)) return false;
+        seen.add(canonical);
+        return true;
+      });
+    }
+
     if (currentSiteOnly) {
       const activeTab = await glide.tabs.active();
       if (!activeTab?.url) return;
@@ -1567,6 +1577,148 @@ Pipewire setup, just these lines enough to make sane default for it
   }
 
   // ============================================================================
+  // RECENTLY CLOSED
+  // ============================================================================
+
+  async function showRecentlyClosedPicker() {
+    const sessions = await browser.sessions.getRecentlyClosed({ maxResults: 25 });
+    const tabs = sessions.flatMap((s: any) => s.tab ? [s.tab] : []);
+
+    glide.commandline.show({
+      title: `Recently Closed (${tabs.length})`,
+      options: tabs.map((tab: any) => ({
+        label: tab.title || tab.url || 'Untitled',
+        description: tab.url,
+        matches({ input }: { input: string }) {
+          return orderlessMatch(`${tab.title} ${tab.url}`, input);
+        },
+        async execute() {
+          await (browser.sessions as any).restore(tab.sessionId);
+        },
+      })),
+    });
+  }
+
+  // ============================================================================
+  // UNIVERSAL OPEN — tabs + history + web search, with optional container
+  // ============================================================================
+
+  async function openUrl(url: string, openInNewTab: boolean, cookieStoreId?: string) {
+    if (cookieStoreId) {
+      await browser.tabs.create({ url, cookieStoreId } as any);
+    } else if (openInNewTab) {
+      await browser.tabs.create({ url, active: true });
+    } else {
+      const tab = await glide.tabs.active();
+      await browser.tabs.update(tab.id, { url });
+    }
+  }
+
+  async function showUniversalOpen(openInNewTab = false, cookieStoreId?: string, onSelect?: (url: string) => Promise<void>) {
+    const [history, allTabs] = await Promise.all([
+      browser.history.search({ text: '', startTime: 0, maxResults: 500 }),
+      browser.tabs.query({}),
+    ]);
+
+    const seen = new Set<string>();
+    const options: any[] = [];
+
+    const go = async (url: string, input?: string) => {
+      if (onSelect) return onSelect(url);
+      await openUrl(url, openInNewTab, cookieStoreId);
+    };
+
+    // Always-visible search fallback — executes on current input
+    options.push({
+      label: 'Search…',
+      description: 'type query and press enter',
+      matches() { return true; },
+      async execute({ input }: { input: string }) {
+        const url = `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
+        await go(url, input);
+      },
+    });
+
+    // Open tabs — switch if same-tab open, else navigate/container
+    for (const tab of allTabs) {
+      if (!tab.url || seen.has(tab.url)) continue;
+      seen.add(tab.url);
+      options.push({
+        label: tab.title || tab.url,
+        description: `[open]  ${tab.url}`,
+        matches({ input }: { input: string }) {
+          return orderlessMatch(`${tab.title} ${tab.url}`, input);
+        },
+        async execute() {
+          if (onSelect) return onSelect(tab.url!);
+          if (cookieStoreId || openInNewTab) {
+            await openUrl(tab.url!, openInNewTab, cookieStoreId);
+          } else {
+            await swapToTabIfExists(tab.url!);
+          }
+        },
+      });
+    }
+
+    // History
+    for (const item of history) {
+      const canonical = (item.url || '').split('#')[0];
+      if (!item.url || seen.has(canonical)) continue;
+      seen.add(canonical);
+      options.push({
+        label: item.title || item.url,
+        description: item.url,
+        matches({ input }: { input: string }) {
+          return orderlessMatch(`${item.title} ${item.url}`, input);
+        },
+        async execute() {
+          await go(item.url);
+        },
+      });
+    }
+
+    const containerLabel = cookieStoreId ? ' [container]' : '';
+    const mode = openInNewTab ? 'New Tab' : 'Open';
+    glide.commandline.show({
+      title: `${mode}${containerLabel} (${options.length - 1})`,
+      options,
+    });
+  }
+
+  async function showContainerOpen() {
+    await showUniversalOpen(false, undefined, async (url) => {
+      const ci = (browser as any).contextualIdentities;
+      const win = await browser.windows.getCurrent();
+
+      // Private window or no API — open directly, skip container picker
+      if (win.incognito || !ci) {
+        await browser.tabs.create({ url, active: true });
+        return;
+      }
+
+      const containers = await ci.query({});
+      const wins = await browser.windows.getAll({ windowTypes: ['normal'] });
+      const normalWindowId = wins.find(w => !w.incognito)?.id;
+      const createIn = (csId?: string) =>
+        (browser.tabs.create as any)({ url, active: true, windowId: normalWindowId, ...(csId && { cookieStoreId: csId }) });
+
+      glide.commandline.show({
+        title: `Container for: ${url.length > 50 ? url.slice(0, 50) + '…' : url}`,
+        options: [
+          { label: 'Default', description: 'no container',
+            matches({ input }: any) { return orderlessMatch('default', input); },
+            async execute() { await createIn(); } },
+          ...containers.map((c: any) => ({
+            label: c.name, description: c.color,
+            matches({ input }: any) { return orderlessMatch(c.name, input); },
+            async execute() { await createIn(c.cookieStoreId); },
+          })),
+        ],
+      });
+    });
+  }
+
+  // ============================================================================
   // SPLIT VIEW
   // ============================================================================
 
@@ -1575,41 +1727,76 @@ Pipewire setup, just these lines enough to make sane default for it
   // LINK PICKER - Choose links on page
   // ============================================================================
 
-  async function showLinkPicker(openInNewTab: boolean = false) {
+  async function showLinkPicker(openInNewTab: boolean = false, yank: boolean = false) {
     const currentTab = await getCurrentTab();
     if (!currentTab.id) return;
 
-    let links: Array<{ text: string; href: string; xpath: string }>;
+    let links: Array<{ text: string; href: string; context: string }>;
 
     try {
       links = await glide.content.execute(() => {
-        const results: Array<{ text: string; href: string; xpath: string }> = [];
+        const seen = new Set<string>();
+        const results: Array<{ text: string; href: string; context: string }> = [];
         const MAX = 1000;
 
-        const getXPath = (el: Element): string => {
-          if (el.id) return `//*[@id="${el.id}"]`;
-          const tag = el.tagName.toLowerCase();
-          let idx = 0;
-          let sib = el.previousSibling;
-          while (sib) {
-            if (sib.nodeType === 1 && (sib as Element).tagName === el.tagName) idx++;
-            sib = sib.previousSibling;
+        const clean = (s: string) => s.trim().replace(/\s+/g, ' ');
+        const truncate = (s: string, max: number) => s.length > max ? s.slice(0, max) + '…' : s;
+
+        const BLOCK_TAGS = new Set(['LI', 'TR', 'TD', 'TH', 'ARTICLE', 'SECTION', 'MAIN', 'HEADER', 'FOOTER', 'BODY']);
+
+        // Walk ancestors, subtract link text → get surrounding context only
+        const getContext = (el: Element): string => {
+          const linkText = clean(el.textContent || '');
+          let node: Element | null = el.parentElement;
+          for (let i = 0; i < 5 && node; i++) {
+            const ctx = clean(node.textContent || '').replace(linkText, '').trim();
+            if (ctx.length > 2) return truncate(ctx, 60);
+            if (BLOCK_TAGS.has(node.tagName)) break;
+            node = node.parentElement;
           }
-          return `/${tag}[${idx + 1}]`;
+          return '';
         };
 
-        const links = document.querySelectorAll('a[href]');
-        for (let i = 0; i < Math.min(links.length, MAX); i++) {
-          const el = links[i] as HTMLAnchorElement;
-          const text = (el.textContent || '').trim().replace(/\s+/g, ' ');
-          if (text.length > 2) {
-            results.push({
-              text: text.length > 100 ? text.substring(0, 100) + '...' : text,
-              href: el.href,
-              xpath: getXPath(el)
-            });
+        // Anchor links — deduplicated by href, aria-label/title fallback for icon-only links
+        for (const el of document.querySelectorAll('a[href]')) {
+          if (results.length >= MAX) break;
+          const a = el as HTMLAnchorElement;
+          if (!a.href || seen.has(a.href)) continue;
+          seen.add(a.href);
+          const text = truncate(clean(
+            a.textContent ||
+            a.getAttribute('aria-label') ||
+            a.getAttribute('title') ||
+            ''
+          ), 100);
+          if (text.length < 2) continue;
+          results.push({ text, href: a.href, context: getContext(a) });
+        }
+
+        // Plain text URLs in text nodes (capped to avoid slowdowns on large pages)
+        const urlRe = /https?:\/\/[^\s<>"'{}|\\^`[\]]+/g;
+        const skipTags = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT']);
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+          acceptNode(node) {
+            const parent = node.parentElement;
+            return parent && skipTags.has(parent.tagName)
+              ? NodeFilter.FILTER_REJECT
+              : NodeFilter.FILTER_ACCEPT;
+          }
+        });
+        let scanned = 0;
+        let node: Node | null;
+        while ((node = walker.nextNode()) && scanned < 500 && results.length < MAX) {
+          scanned++;
+          for (const match of (node.textContent || '').matchAll(urlRe)) {
+            const url = match[0].replace(/[.,;:!?)\]>]+$/, '');
+            if (url && !seen.has(url)) {
+              seen.add(url);
+              results.push({ text: url, href: url, context: '' });
+            }
           }
         }
+
         return results;
       }, { tab_id: currentTab.id });
     } catch (error) {
@@ -1617,16 +1804,22 @@ Pipewire setup, just these lines enough to make sane default for it
       return;
     }
 
+    const title = yank ? 'Yank Link' : openInNewTab ? 'Open Link in New Tab' : 'Open Link';
     glide.commandline.show({
-      title: `${openInNewTab ? 'Open Link in New Tab' : 'Open Link'} (${links.length})`,
+      title: `${title} (${links.length})`,
       options: links.map((link) => ({
         label: link.text,
-        description: link.href,
+        description: link.context ? `${link.context}  •  ${link.href}` : link.href,
         matches({ input }) {
-          return orderlessMatch(`${link.text} ${link.href}`, input);
+          return orderlessMatch(`${link.text} ${link.context} ${link.href}`, input);
         },
         async execute() {
-          if (openInNewTab) {
+          if (yank) {
+            await glide.content.execute(
+              (href: string) => navigator.clipboard.writeText(href),
+              { tab_id: currentTab.id, args: [link.href] }
+            );
+          } else if (openInNewTab) {
             await browser.tabs.create({ url: link.href });
           } else {
             await browser.tabs.update(currentTab.id, { url: link.href });
@@ -1679,7 +1872,7 @@ Pipewire setup, just these lines enough to make sane default for it
             path = '/' + tagName + pathIndex + path;
           }
           return path;
-        };;
+        };
 
         const clean = (text: string, max: number = 80): string => {
           const t = text.trim().replace(/\s+/g, ' ');
@@ -1731,6 +1924,11 @@ Pipewire setup, just these lines enough to make sane default for it
       return;
     }
 
+    if (items.length === 0) {
+      await showLinkPicker(false);
+      return;
+    }
+
     glide.commandline.show({
       title: `Navigate Page (${items.length})`,
       options: items.map((item) => ({
@@ -1766,8 +1964,8 @@ Pipewire setup, just these lines enough to make sane default for it
   }
 
   const URL_RULES: URLRule[] = [
-    // Redirects
-    { domain: 'reddit.com', action: 'redirect', to: 'https://libreddit.kavin.rocks$1' },
+    // Redirects — replace $1 with full path+search+hash
+    { domain: 'reddit.com', action: 'redirect', to: 'https://redlib.catsarch.com$1' },
     { domain: 'twitter.com', action: 'redirect', to: 'https://nitter.net$1' },
     { domain: 'medium.com', action: 'redirect', to: 'https://scribe.rip$1' },
     // { domain: 'youtube.com', action: 'redirect', to: 'https://yewtu.be$1' },
@@ -1775,39 +1973,52 @@ Pipewire setup, just these lines enough to make sane default for it
     // Blocks
     // { domain: 'youtube.com', action: 'block' },
 
-    // Path-specific blocks (uncomment to use)
+    // Path-specific blocks
     // { domain: 'youtube.com', action: 'block', paths: ['/shorts/'] },
   ];
 
+  // Version stamp — written to env on each config load.
+  // Old listeners from previous reloads read a stale version and become no-ops,
+  // since hasListener() can't find old function refs across sandbox re-evaluations.
+  const _RULES_VER = String(Date.now());
+  const _RULES_VER_KEY = 'GLIDE_URL_RULES_VER';
 
   function handleURLRules(
     details: browser.webRequest.OnBeforeRequestDetailsType
   ): browser.webRequest.BlockingResponse {
-    const url = details.url;
+    // Stale listener from a previous config reload — skip
+    if (glide.env.get(_RULES_VER_KEY) !== _RULES_VER) return {};
 
+    const url = details.url;
     try {
       const urlObj = new URL(url);
       const hostname = urlObj.hostname.replace(/^www\./, '');
+
       for (const rule of URL_RULES) {
         const domain = rule.domain.replace(/^www\./, '');
-        // Check if hostname matches domain
-        const matches = hostname === domain || hostname.endsWith('.' + domain);
-        if (!matches) continue;
-        // Check path if specified
+        if (hostname !== domain && !hostname.endsWith('.' + domain)) continue;
+
         if (rule.paths) {
           const pathMatches = rule.paths.some(p => urlObj.pathname.includes(p));
           if (!pathMatches) continue;
         }
-        // Apply action
+
         if (rule.action === 'block') {
-          console.log('BLOCKING:', url);
-          return { cancel: true };
+          // Redirect to blank rather than cancel — avoids Firefox showing
+          // a network error page that offers "try original URL" fallback.
+          return { redirectUrl: 'about:blank' };
         }
+
         if (rule.action === 'redirect' && rule.to) {
+          // Loop guard: if we're already on the redirect target host, skip.
+          try {
+            const targetUrl = new URL(rule.to.replace('$1', '/'));
+            const targetHost = targetUrl.hostname.replace(/^www\./, '');
+            if (hostname === targetHost || hostname.endsWith('.' + targetHost)) continue;
+          } catch {}
+
           const path = urlObj.pathname + urlObj.search + urlObj.hash;
-          const newUrl = rule.to.replace('$1', path);
-          console.log('REDIRECTING:', url, '->', newUrl);
-          return { redirectUrl: newUrl };
+          return { redirectUrl: rule.to.replace('$1', path) };
         }
       }
     } catch (e) {
@@ -1817,11 +2028,10 @@ Pipewire setup, just these lines enough to make sane default for it
   }
 
   function setupRedirects() {
-    // Remove existing listener if it exists
-    if (browser.webRequest.onBeforeRequest.hasListener(handleURLRules)) {
-      browser.webRequest.onBeforeRequest.removeListener(handleURLRules);
-    }
-    // Add new listener
+    // Stamp this version so old listeners from prior reloads neutralize themselves.
+    glide.env.set(_RULES_VER_KEY, _RULES_VER);
+    // removeListener is safe even if fn not registered (different ref = no-op).
+    browser.webRequest.onBeforeRequest.removeListener(handleURLRules);
     browser.webRequest.onBeforeRequest.addListener(
       handleURLRules,
       { urls: ['<all_urls>'], types: ['main_frame'] },
@@ -1848,7 +2058,6 @@ Pipewire setup, just these lines enough to make sane default for it
         --glide-mode-hint: #03a9f4;
         --glide-mode-ignore: #9e9e9e;
         --glide-mode-op-pending: #f44336;
-        --option-height: 300px;
       }
 
       #glide-hints-container * {
@@ -1860,7 +2069,7 @@ Pipewire setup, just these lines enough to make sane default for it
         background: rgba(77, 217, 229, var(--completion-opacity));
       }
       [anonid="glide-commandline-completions"] {
-        max-height: 300px;
+        max-height: 40vh;
         overflow-y: auto;
       }
       [anonid="glide-commandline-completions"] .focused {
@@ -1875,6 +2084,9 @@ Pipewire setup, just these lines enough to make sane default for it
       .CustomCompletionOption.focused td.description {
         background: transparent;
       }
+      /* widen label column, dim description when not focused */
+      .CustomCompletionOption td.label { width: 50%; }
+      .CustomCompletionOption:not(.focused) td.description { opacity: 0.6; }
     `);
   }
 
@@ -2066,14 +2278,6 @@ Pipewire setup, just these lines enough to make sane default for it
     glide.keymaps.set("normal", "a", "mode_change insert");
     glide.keymaps.set("normal", "A", "mode_change insert --automove=endline");
 
-    // Visual mode
-    glide.keymaps.set(["normal", "insert"], "<C-Space>", "motion v");
-    glide.keymaps.set("visual", "<C-b>", "motion vh");
-    glide.keymaps.set("visual", "<C-f>", "motion vl");
-    glide.keymaps.set("visual", "d", "motion vd");
-    glide.keymaps.set("visual", "c", "motion vc");
-    glide.keymaps.set("visual", "<A-w>", "visual_selection_copy");
-
     // Jumplist
     // glide.keymaps.set(["normal", "insert"], "<C-o>", "jumplist_back");
     // glide.keymaps.set(["normal", "insert"], "<C-i>", "jumplist_forward");
@@ -2088,6 +2292,8 @@ Pipewire setup, just these lines enough to make sane default for it
     // Link pickers
     glide.keymaps.set(ALL_MODES, "<C-.>", () => showLinkPicker(false));
     glide.keymaps.set("normal", "<A-.>", () => showLinkPicker(true));
+    glide.keymaps.set("normal", "<leader>y", () => showLinkPicker(false, true));
+    glide.keymaps.set(ALL_MODES, "<A-y>", () => showLinkPicker(false, true));
 
     glide.keymaps.set("normal", "<A-s>", () => showPageNavigator());
     glide.keymaps.set("normal", "<A-g>", () => showPageNavigator());
@@ -2096,9 +2302,13 @@ Pipewire setup, just these lines enough to make sane default for it
     glide.keymaps.set(["normal", "insert"], "<C-x><C-v>", () =>
       showHistoryPicker(true),
     );
-    glide.keymaps.set(["normal", "insert"], "<A-o>", () =>
-      showHistoryPicker(false),
-    );
+
+    // Universal open: URL first, then optionally pick container
+    glide.keymaps.set(["normal", "insert"], "<A-o>", () => showContainerOpen());
+    glide.keymaps.set(["normal", "insert"], "<A-O>", () => showUniversalOpen(true));
+
+    // Recently closed tabs
+    glide.keymaps.set(["normal", "insert"], "<A-r>", () => showRecentlyClosedPicker());
   }
 
   function setupExcmds() {
@@ -2139,14 +2349,6 @@ Pipewire setup, just these lines enough to make sane default for it
 
   async function showCommandPalette() {
     const allKeymaps = glide.keymaps.list();
-    
-    // Group by mode
-    const byMode: Record<string, typeof allKeymaps> = {};
-    allKeymaps.forEach(km => {
-      if (!byMode[km.mode]) byMode[km.mode] = [];
-      byMode[km.mode].push(km);
-    });
-
     const commands = allKeymaps.map(km => {
       const action = typeof km.rhs === 'string' ? km.rhs : '<function>';
       return {
@@ -2192,7 +2394,7 @@ Pipewire setup, just these lines enough to make sane default for it
     setupExcmds();
     setupKeymaps();
     setupAutocommands();
-    setupRedirects();
+    glide.autocmds.create("ConfigLoaded", setupRedirects);  
   }
 
   // Run initialization

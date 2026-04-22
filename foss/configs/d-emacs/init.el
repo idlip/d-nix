@@ -325,6 +325,7 @@
 (setopt isearch-lazy-count t
         search-whitespace-regexp ".*?")
 
+(tooltip-mode -1)
 (context-menu-mode -1)
 (setopt mouse-autoselect-window t)
 
@@ -399,9 +400,20 @@
 
 (add-to-list
  'display-buffer-alist
- '("\\*\\(shell\\|term\\|.*eshell\\|.*eat\\|help\\|compilation\\|Async Shell Command\\|Occur\\|xref\\).*\\*"
+ `(,(rx "*"
+        (or "shell"
+            "term"
+            (seq (* nonl) "eshell")
+            (seq (* nonl) "eat")
+            "help"
+            "compilation"
+            "Async Shell Command"
+            "Occur"
+            "xref")
+        (* nonl) "*")
    (display-buffer-at-bottom)
-   ;; (window-parameters (mode-line-format . none))
+   (slot . 1)
+   (window-parameters (mode-line-format . none))
    (post-command-select-window . t)
    (window-height . 0.3)))
 
@@ -913,16 +925,16 @@ images."
     (next-line)
     ))
 
-(defcustom d/font-size (if d/on-droid 170 130)
+(defcustom d/font-size (if d/on-droid 170 140)
   "Default font size based on the system.")
 
 ;; Dont worry about the font name, I use fork of Iosevka font
 
 ;; Set reusable font name variables
-(defcustom d/fixed-pitch-font (if d/on-droid "Maple Mono NF" "Maple Mono NF")
+(defcustom d/fixed-pitch-font (if d/on-droid "Maple Mono NF" "Iosevka")
   "The font to use for monospaced (fixed width) text.")
 
-(defcustom d/variable-pitch-font (if d/on-droid "Inter" "Inter")
+(defcustom d/variable-pitch-font (if d/on-droid "Inter" "Iosevka Aile")
   "The font to use for variable-pitch (documents) text.")
 
 (use-package faces :ensure nil
@@ -1134,7 +1146,45 @@ images."
       (file "inbox.org")
       "** %?  :z@seed:\n %U\n %i %a\n - ")
 
+     ("b" "Blog Post" plain
+      (file (lambda ()
+              (setq d/capture-blog-title (read-string "Post title: "))
+              (expand-file-name
+               (concat (d/blog-slugify d/capture-blog-title) ".org")
+               "~/d-git/d-site/content/posts/")))
+      "#+title: %(identity d/capture-blog-title)
+#+date: %<%Y-%m-%d>
+#+tags[]: %^{Tags (space separated)}
+#+draft: true
+
+%?"
+      :jump-to-captured t
+      :empty-lines-after 1)
+
+     ("B" "Blog Idea / Seed" entry
+      (file+headline "~/d-git/d-site/README.org" "Ideas")
+      "** %^{Idea title}
+:PROPERTIES:
+:DATE: %U
+:SOURCE: %a
+:END:
+%?"
+      :empty-lines 1)
+
+     ("p" "Blog Task" checkitem
+      (file+headline "~/d-git/d-site/README.org" "Tasks")
+      "[ ] %? %U")
+
      )))
+
+(defvar d/capture-blog-title "")
+(defun d/blog-slugify (title)
+  "Kebab-case slug from TITLE for Hugo post filenames."
+  (thread-last title
+    downcase
+    (replace-regexp-in-string "[^a-z0-9 -]" "")
+    (replace-regexp-in-string " +" "-")
+    (replace-regexp-in-string "-+" "-")))
 
 (use-package org-src :ensure nil :after org
     :bind ((:map org-mode-map ("C-c ;" . d/org-babel-edit)))
@@ -1201,8 +1251,6 @@ absolute path. Finally load eglot."
   (org-super-agenda-groups
    '(
      (:name "🚨 FOSS ASAP" :and (:todo ("TODO" "ONGO") :time-grid t :regexp "\\<foss@") :order 0)
-
-     (:name "💼 FOSS Work" :and (:todo ("TODO" "ONGO") :regexp "\\<foss@") :order 1)
 
      (:name "📌 FOSS Meetings / Reports"
             :tag ("foss@meeting" "foss@report"
@@ -1391,6 +1439,12 @@ absolute path. Finally load eglot."
   :config
   ;; (ewm-text-input--auto-enable)
   (bind-keys ("C-x C-c" . nil) ("s-E" . nil) ("s-S-e" . nil))
+  (add-to-list 'display-buffer-alist
+               `(,(rx bos "*ewm:" (or "mpv" "glide") ":" (* nonl) eos)
+                 (display-buffer-in-side-window)
+                 (side . bottom)
+                 (slot . 1)          ; rightmost slot at bottom
+                 (window-height . 0.3)))
   )
 
 ;;; Unified launcher with PATH executables + .desktop actions
@@ -1578,7 +1632,7 @@ absolute path. Finally load eglot."
                    ("C-<print>"     . "hyprshot -m output")
                    ("<AudioRaiseVolume>"   . "noctalia-shell ipc call volume increase")
                    ("<AudioLowerVolume>"   . "noctalia-shell ipc call volume decrease")
-                   ("<AudioMute>"          . "noctalia-shell ipc call volume muteInput")
+                   ("<AudioMute>"          . "noctalia-shell ipc call volume muteOutput")
                    ("<MonBrightnessUp>"    . "noctalia-shell ipc call brightness increase")
                    ("<MonBrightnessDown>"  . "noctalia-shell ipc call brightness decrease")))
     (define-key ewm-mode-map (kbd key)

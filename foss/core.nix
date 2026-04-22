@@ -390,7 +390,7 @@
       image = ./configs/chinese-dragon.jpg;
       polarity = "dark";
   
-      base16Scheme = "${pkgs.base16-schemes}/share/themes/bright.yaml";
+      base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
   
       cursor = {
         package = pkgs.maplestory-cursor;
@@ -403,24 +403,23 @@
   
         plexpkg = pkgs.ibm-plex;
         ipkg = pkgs.inter;
-  
         mpkg = pkgs.maple-mono.NF;
         apkg = pkgs.aporetic-bin;
   
       in {
         serif = {
           package = plexpkg;
-          name = "IBM Plex Serif";
+          name = "Iosevka Etoile";
         };
   
         sansSerif = {
           package = ipkg;
-          name = "Inter";
+          name = "Iosevka Aile";
         };
   
         monospace = {
           package = mpkg;
-          name = "Maple Mono NF";
+          name = "Iosevka";
         };
   
         emoji = {

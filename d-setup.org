@@ -111,8 +111,7 @@ Emacs configuration is crafted slowly by learning from all users in community. E
         flake = false;
       };
       ewm = {
-        url = "git+https://codeberg.org/ezemtsov/ewm";
-        flake = false;
+        url = "https://codeberg.org/ezemtsov/ewm/archive/feat/workspace-animations.tar.gz";
       };
     };
 
@@ -141,19 +140,20 @@ Emacs configuration is crafted slowly by learning from all users in community. E
           };
 
           nixosConfigurations = {
-  		  ${hostVars.foss.host} = nixpkgs.lib.nixosSystem {
-  			system = system;
-  			modules = [
+  		      ${hostVars.foss.host} = nixpkgs.lib.nixosSystem {
+  			      system = system;
+  			      modules = [
                 ./${hostVars.foss.host}/core.nix
                 inputs.home-manager.nixosModules.home-manager
                 nix-index-database.nixosModules.nix-index
                 stylix.nixosModules.stylix
                 inputs.mango.nixosModules.mango
-  			];
-  			specialArgs = {
+                inputs.ewm.nixosModules.default
+  			      ];
+  			      specialArgs = {
                 inherit inputs system;
                 vars = hostVars.foss;
-  			};
+  			      };
             };
           };
         };
@@ -616,7 +616,7 @@ Emacs configuration is crafted slowly by learning from all users in community. E
   #+begin_src nix 
     {
       nixpkgs = {
-    	overlays = [ (import inputs.emacs-overlay) ];
+        overlays = [ (import inputs.emacs-overlay) ];
       };
       nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
         "steam-unwrapped"
@@ -874,7 +874,6 @@ Pipewire setup, just these lines enough to make sane default for it
 
 *** Emacs Wayland compositor - ewm
 #+begin_src nix
-  (inputs.ewm.outPath + "/nix/service.nix")
   {
     programs.ewm = {
       enable = true;
@@ -1297,6 +1296,7 @@ Pipewire setup, just these lines enough to make sane default for it
     	    verb forge melpaPackages.mastodon melpaPackages.telega
           (pkgs.callPackage (inputs.ewm.outPath + "/nix/default.nix") {
             withScreencastSupport = true;
+            emacsPackage = pkgs.emacs-git-pgtk;
           })
           # # dslide
 
@@ -1322,8 +1322,7 @@ Pipewire setup, just these lines enough to make sane default for it
             };
           })
 
-        ])
-        );
+        ]));
       };
 
       xdg.configFile."emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/foss/configs/d-emacs/init.el";
@@ -4607,9 +4606,9 @@ Pipewire setup, just these lines enough to make sane default for it
     },
     "ui": {
       "boxBorderEnabled": false,
-      "fontDefault": "Inter",
+      "fontDefault": "Iosevka Aile",
       "fontDefaultScale": 1,
-      "fontFixed": "Maple Mono NF",
+      "fontFixed": "Iosevka",
       "fontFixedScale": 1,
       "panelBackgroundOpacity": 0.92,
       "panelsAttachedToBar": true,
@@ -5225,18 +5224,18 @@ Pipewire setup, just these lines enough to make sane default for it
 #+end_src
 
 *** Launcher
-**** rofi
+**** COMMENT rofi
 - Simple and focused menu launcher by dnkl (foot author)
 
 #+begin_src nix 
   {
     programs.rofi = {
       enable = true;
-  	plugins = with pkgs; [ rofi-nerdy rofi-calc rofi-emoji ];
-  	modes = [ "drun" "run" "window" "calc" "nerdy" "emoji" ];
+  	  plugins = with pkgs; [ rofi-nerdy rofi-calc rofi-emoji ];
+  	  modes = [ "drun" "run" "window" "calc" "nerdy" "emoji" ];
       extraConfig = {
         modi = "drun,run,window,combi";
-  	  combi-modes = [ "window" "drun" "run" "nerdy" "emoji" ];
+  	    combi-modes = [ "window" "drun" "run" "nerdy" "emoji" ];
         show-icons = true;
         hide-scrollbar = true;
         display-drun = " Apps ";
@@ -5245,9 +5244,9 @@ Pipewire setup, just these lines enough to make sane default for it
         sidebar-mode = true;
         drun-show-actions = true;
       };
-  	theme = {
-  	  "@import" = "dmenu";
-  	};
+  	  theme = {
+  	    "@import" = "dmenu";
+  	  };
     };
   }
 #+end_src
@@ -5453,6 +5452,7 @@ Pipewire setup, just these lines enough to make sane default for it
      initial-major-mode 'org-mode
      enable-recursive-minibuffers t
      switch-to-buffer-obey-display-actions t
+     recenter-positions '(top middle bottom)
      )
 
     (delete-selection-mode nil)

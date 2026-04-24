@@ -206,6 +206,7 @@
 		    verb forge melpaPackages.mastodon melpaPackages.telega
 	      (pkgs.callPackage (inputs.ewm.outPath + "/nix/default.nix") {
 	        withScreencastSupport = true;
+	        emacsPackage = pkgs.emacs-git-pgtk;
 	      })
 	      # # dslide
 	
@@ -231,8 +232,7 @@
 	        };
 	      })
 	
-	    ])
-	    );
+	    ]));
 	  };
 	
 	  xdg.configFile."emacs/init.el".source = config.lib.file.mkOutOfStoreSymlink "/home/${vars.username}/d-git/d-nix/foss/configs/d-emacs/init.el";
@@ -691,27 +691,6 @@
 	      continue = "true";
 	      rpc-save-upload-metadata = "false";
 	    };
-	  };
-	}
-	{
-	  programs.rofi = {
-	    enable = true;
-		plugins = with pkgs; [ rofi-nerdy rofi-calc rofi-emoji ];
-		modes = [ "drun" "run" "window" "calc" "nerdy" "emoji" ];
-	    extraConfig = {
-	      modi = "drun,run,window,combi";
-		  combi-modes = [ "window" "drun" "run" "nerdy" "emoji" ];
-	      show-icons = true;
-	      hide-scrollbar = true;
-	      display-drun = " Apps ";
-	      display-run = "  Run ";
-	      display-window = "󰍲   Window ";
-	      sidebar-mode = true;
-	      drun-show-actions = true;
-	    };
-		theme = {
-		  "@import" = "dmenu";
-		};
 	  };
 	}
 	{ home.packages = with pkgs; [ libnotify nautilus pandoc groff mupdf keepassxc easyeffects jaq

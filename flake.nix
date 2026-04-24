@@ -54,8 +54,7 @@
       flake = false;
     };
     ewm = {
-      url = "git+https://codeberg.org/ezemtsov/ewm";
-      flake = false;
+      url = "https://codeberg.org/ezemtsov/ewm/archive/feat/workspace-animations.tar.gz";
     };
   };
 
@@ -84,19 +83,20 @@
         };
 
         nixosConfigurations = {
-		  ${hostVars.foss.host} = nixpkgs.lib.nixosSystem {
-			system = system;
-			modules = [
+		      ${hostVars.foss.host} = nixpkgs.lib.nixosSystem {
+			      system = system;
+			      modules = [
               ./${hostVars.foss.host}/core.nix
               inputs.home-manager.nixosModules.home-manager
               nix-index-database.nixosModules.nix-index
               stylix.nixosModules.stylix
               inputs.mango.nixosModules.mango
-			];
-			specialArgs = {
+              inputs.ewm.nixosModules.default
+			      ];
+			      specialArgs = {
               inherit inputs system;
               vars = hostVars.foss;
-			};
+			      };
           };
         };
       };

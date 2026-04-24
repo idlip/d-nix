@@ -28,6 +28,7 @@
  initial-major-mode 'org-mode
  enable-recursive-minibuffers t
  switch-to-buffer-obey-display-actions t
+ recenter-positions '(top middle bottom)
  )
 
 (delete-selection-mode nil)

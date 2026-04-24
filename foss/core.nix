@@ -234,7 +234,7 @@
   }
   {
     nixpkgs = {
-  	overlays = [ (import inputs.emacs-overlay) ];
+      overlays = [ (import inputs.emacs-overlay) ];
     };
     nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
       "steam-unwrapped"
@@ -367,7 +367,6 @@
   {
     programs.mango.enable = true;
   }
-  (inputs.ewm.outPath + "/nix/service.nix")
   {
     programs.ewm = {
       enable = true;

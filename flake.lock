@@ -128,15 +128,17 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1776936575,
-        "narHash": "sha256-vfpE9AueXvR60qdRSEJTb2PlCwmuoFimrjLwdqhGzVc=",
-        "rev": "c43d4a6b2570976ba272a1c00312da499515d7fd",
-        "type": "tarball",
-        "url": "https://codeberg.org/api/v1/repos/ezemtsov/ewm/archive/c43d4a6b2570976ba272a1c00312da499515d7fd.tar.gz"
+        "lastModified": 1777060860,
+        "narHash": "sha256-ESYi5UoHJACw1w6EWnetTykDtAqYpEEVBq/jvlbsHpM=",
+        "ref": "refs/heads/master",
+        "rev": "8524705fdcd863d3272c0a89ab91f2664e452b0f",
+        "revCount": 440,
+        "type": "git",
+        "url": "https://codeberg.org/ezemtsov/ewm"
       },
       "original": {
-        "type": "tarball",
-        "url": "https://codeberg.org/ezemtsov/ewm/archive/feat/workspace-animations.tar.gz"
+        "type": "git",
+        "url": "https://codeberg.org/ezemtsov/ewm"
       }
     },
     "firefox-gnome-theme": {

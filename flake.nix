@@ -54,7 +54,7 @@
       flake = false;
     };
     ewm = {
-      url = "https://codeberg.org/ezemtsov/ewm/archive/feat/workspace-animations.tar.gz";
+      url = "git+https://codeberg.org/ezemtsov/ewm";
     };
   };
 

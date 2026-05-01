@@ -13,7 +13,7 @@
 <h1 align="center">NixOrgMacs</h1>
 #+end_html
 
-- Management of NixOS and Emacs configs in literate org file - [[file:d-setup.org][d-setup.org]].
+- Management of NixOS and Emacs config in literate org file - [[file:d-setup.org][d-setup.org]].
 - Files are tangled to =gdk/= directory, thus making the repo look clean and minimal.
 - [[file:.dir-locals.el][.dir-locals.el]] - Helps to set local variable in emacs session for org-mode buffer.
 - [[file:.envrc][.envrc]] - For direnv, shell environment based on flake or bash.
@@ -26,24 +26,27 @@
 
 - Snap of Desktop using [[https://github.com/yalTeR/niri][niri]], themed by [[https://github.com/danth/stylix/][Stylix]]
 
-* 🌟 Utilities that are Best!
+[2026-05-01 Fri] This has become outdated screenshot. As on this day, I use [[https://codeberg.org/ezemtsov/ewm/][EWM (emacs wayland manager)]] (primary), [[https://github.com/mangowm/mango/][mangowm]] & [[https://github.com/yalTeR/niri][Niri]] sometimes, all 3 are used with [[https://noctalia.dev/][Noctalia shell]] and [[https://github.com/glide-browser/glide/][Glide browser]] at its core.
+
+* 🌟 Utilities that are Best (I use)!
 --------------
 
 |---------------------------+----------------------|
 | Class                     | Name                 |
 |---------------------------+----------------------|
-| 🌸 Window Manager         | [[https://github.com/yalTeR/niri][Niri]]                 |
+| 🌸 Window Manager         | [[https://codeberg.org/ezemtsov/ewm/][EWM]], [[https://github.com/yalTeR/niri][Niri]], [[https://github.com/mangowm/mango/][Mango]]     |
 | 💜 Text Editor            | [[https://www.gnu.org/software/emacs/][Emacs]]                |
 | 🎨 Gtk Theme              | [[https://github.com/danth/stylix/][Stylix]]               |
-|   Font                   | [[https://github.com/subframe7536/maple-font][Maple Mono]]           |
+| 🐧 Desktop Shell          | [[https://noctalia.dev/][Noctalia Shell]]       |
+|   Font                  | [[https://github.com/subframe7536/maple-font][Maple Mono]], Iosevka  |
 | 📔 Pdf Reader             | [[https://github.com/ahrm/sioyek][Sioyek]]               |
 | 🎬 Media Player           | [[https://mpv.io][mpv]]                  |
 | 🖼️ Image Viewer           | [[https://github.com/artemsen/swayimg][Swayimg]]              |
 | 📰 RSS Reader             | [[://www.gnu.org/software/emacs/][emacs]]                |
 | 🎶 Music Player           | [[https://www.musicpd.org/][mpd+mpc]]              |
-|   Terminal               | [[https://codeberg.org/dnkl/foot][Foot]] or emacs eshell |
-| 🚀 Menu/Launcher          | [[https://codeberg.org/dnkl/fuzzel][Fuzzel]]               |
-| 🛎️ Notification           | [[https://codeberg.org/dnkl/fnott][Fnott]]                |
+|   Terminal              | [[https://codeberg.org/dnkl/foot][Foot]] or emacs eshell |
+| 🚀 Menu/Launcher          | Emacs or [[https://github.com/vicinaehq/vicinae/][Vicinae]]     |
+| 🛎️ Notification           | [[https://noctalia.dev/][Noctalia Shell]]       |
 | 🔰 Shell                  | [[https://fishshell.com/][Fish]]                 |
 | 🫰 Favorite Color-Schemes | [[https://github.com/idlip/haki][Haki]] via [[https://github.com/danth/stylix/][Stylix]]      |
 |---------------------------+----------------------|
@@ -95,5 +98,5 @@ I thank them sincerely.
 ------------------------------------------------------------------------------------------
 
 #+begin_center
-If you have reached here, I think you'd like to read more. I have made a static website, you can catch on some stuffs here ==> [[https://idlip.github.io]]
+If you have reached here, I think you'd like to read more. I have made a static website, you can catch on some stuffs here ==> [[https://idlip.in]]
 #+end_center

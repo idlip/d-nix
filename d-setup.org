@@ -2208,7 +2208,6 @@ Pipewire setup, just these lines enough to make sane default for it
 
 - Call everything as =M-x= callable commands (excmds)
 #+begin_src js :tangle ~/.config/glide/glide.ts
-
   function setup_excmds() {
       glide.excmds.create(
           { name: "tab_discard", description: "Discard current tab" },
@@ -2221,6 +2220,14 @@ Pipewire setup, just these lines enough to make sane default for it
                   if (next?.id) await browser.tabs.update(next.id, { active: true });
               }
               await browser.tabs.discard(tab_id);
+          }
+      );
+      glide.excmds.create(
+          { name: "toggle_document_fonts", description: "Toggle page fonts vs user fonts" },
+          async () => {
+              const current = glide.prefs.get("browser.display.use_document_fonts");
+              const next = current === 0 ? 1 : 0;
+              glide.prefs.set("browser.display.use_document_fonts", next);
           }
       );
       glide.excmds.create(
@@ -2415,6 +2422,7 @@ Pipewire setup, just these lines enough to make sane default for it
       // Split views
       // glide.keymaps.set(["normal", "insert"], "<C-o>", "jumplist_back");
       // glide.keymaps.set(["normal", "insert"], "<C-i>", "jumplist_forward");
+      glide.keymaps.set("normal", "<C-i>", "toggle_document_fonts");
       glide.keymaps.set("normal", "<C-x>2", "split_view_picker");
       glide.keymaps.set("normal", "<C-x>1", ({ tab_id }) =>
           glide.unstable.split_views.separate(tab_id),
@@ -2445,29 +2453,6 @@ Pipewire setup, just these lines enough to make sane default for it
 
 - Initiate glide auto commands
 #+begin_src js :tangle ~/.config/glide/glide.ts
-
-  function setup_autocommands() {
-      glide.autocmds.create("ModeChanged", "*", (args) => {
-          if (args.new_mode === "visual") {
-              glide.excmds.execute("mode_change normal");
-              return;
-          }
-          const colors: Record<keyof GlideModes, string> = {
-              "normal": "--glide-mode-normal",
-              "insert": "--glide-mode-insert",
-              "visual": "--glide-mode-visual",
-              "command": "--glide-mode-command",
-              "hint": "--glide-mode-hint",
-              "ignore": "--glide-mode-ignore",
-              "op-pending": "--glide-mode-op-pending",
-          };
-          glide.styles.add(
-              `#browser { border-bottom: 3px solid var(${colors[args.new_mode]}) }`,
-              { id: "mode-indicator", overwrite: true }
-          );
-      });
-  }
-
   // ============================================================================
   // MAIN
   // ============================================================================
@@ -2478,7 +2463,6 @@ Pipewire setup, just these lines enough to make sane default for it
       setup_prefs();
       setup_excmds();
       setup_keymaps();
-      setup_autocommands();
       glide.autocmds.create("ConfigLoaded", setup_redirects);
   }
 
@@ -5495,6 +5479,23 @@ Pipewire setup, just these lines enough to make sane default for it
 
 - To initialize the environment.
 
+*** Initiate Package contents
+- If melpa is required
+  #+begin_src emacs-lisp
+    ;; -*- lexical-binding: t; -*-
+
+    (use-package package :ensure nil
+      :config
+      (setq package-archives
+            '(("gnu-elpa" . "https://elpa.gnu.org/packages/")
+              ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+              ("melpa" . "https://melpa.org/packages/")))
+      (setq package-archive-priorities
+            '(("gnu-elpa" . 3)
+              ("nongnu" . 2)
+              ("melpa" . 1))))
+  #+end_src
+
 *** Display info
 - display time in mode-line
   #+begin_src emacs-lisp
@@ -5517,8 +5518,35 @@ Pipewire setup, just these lines enough to make sane default for it
 + Sane default, to make vanilla experience suitable for me, for betterment.
 + Some of the tweak should be self-explanatory, or else just hop on it and do =C-h o=.
 
+#+begin_src emacs-lisp
+  ;; credits :: https://protesilaos.com/codelog/2026-04-30-emacs-decent-default-sacha-chua/
+  (defun d/keyboard-quit-dwim ()
+    "Do-What-I-Mean behaviour for a general `keyboard-quit'.
+
+  The generic `keyboard-quit' does not do the expected thing when
+  the minibuffer is open.  Whereas we want it to close the
+  minibuffer, even without explicitly focusing it.
+
+  The DWIM behaviour of this command is as follows:
+
+  - When the region is active, disable it.
+  - When a minibuffer is open, but not focused, close the minibuffer.
+  - When the Completions buffer is selected, close it.
+  - In every other case use the regular `keyboard-quit'."
+    (interactive)
+    (cond
+     ((region-active-p)
+      (keyboard-quit))
+     ((derived-mode-p 'completion-list-mode)
+      (delete-completion-window))
+     ((> (minibuffer-depth) 0)
+      (abort-recursive-edit))
+     (t
+      (keyboard-quit))))
+#+end_src
+
   #+begin_src emacs-lisp
-    (bind-keys ("C-z") ("C-x C-z") ("M-o" . other-window) ("M-j" . duplicate-dwim) )
+    (bind-keys ("C-z") ("C-x C-z") ("M-o" . other-window) ("M-j" . duplicate-dwim) ("C-g" . d/keyboard-quit-dwim))
 
     (setopt
      inhibit-startup-screen t
@@ -5530,6 +5558,8 @@ Pipewire setup, just these lines enough to make sane default for it
 
      window-combination-resize t
      history-delete-duplicates t
+     help-window-select t
+     help-window-keep-selected t
 
      sentence-end-double-space nil
      sentence-end "[.?!]"
@@ -5710,7 +5740,10 @@ Pipewire setup, just these lines enough to make sane default for it
      dired-omit-files "\\`[.]?#\\|\\`[.][.]?\\'\\|^\\..*$"
      delete-by-moving-to-trash t
      dired-dwim-target t
-     dired-kill-when-opening-new-dired-buffer nil
+     dired-kill-when-opening-new-dired-buffer nil ;; for single dired
+     dired-auto-revert-buffer #'dired-directory-changed-p
+     dired-create-destination-dirs 'ask
+     dired-create-destination-dirs-on-trailing-dirsep t
      )
   #+end_src
 
@@ -5865,11 +5898,10 @@ Pipewire setup, just these lines enough to make sane default for it
           --line-number --search-zip -U")
       (consult-preview-excluded-buffers
        (lambda (buf)
-         (seq-some (lambda (re)
-                     (string-match-p re (buffer-name buf)))
-                   (append (mapcar #'car display-buffer-alist)
-                           '("ewm2"))
-                   )))
+         (or (string-match-p "ewm2" (buffer-name buf))
+             (seq-some (lambda (entry)
+                         (ignore-errors (buffer-match-p (car entry) buf)))
+                       display-buffer-alist))))
       :config
       (delq 'consult-source-recent-file consult-buffer-sources)
       )
@@ -6295,6 +6327,22 @@ ibuffer to list and manage buffers
   (setopt uniquify-buffer-name-style 'forward)
 #+end_src
 
+**** Display buffer alist
+- Rules to set windows in specific place
+  #+begin_src emacs-lisp
+    (add-to-list 'display-buffer-alist
+                 '((or (derived-mode . occur-mode) (derived-mode . eshell-mode)
+                       (derived-mode . eat-mode) (derived-mode . help-mode)
+                       (derived-mode . term-mode) (derived-mode . compilation-mode)
+                       (derived-mode . shell-mode) (derived-mode . grep-mode) (derived-mode . shell-command-mode)
+                       (derived-mode . Buffer-menu-mode) (derived-mode . log-view-mode))
+                   (display-buffer-reuse-mode-window display-buffer-at-bottom)
+                   (dedicated . t)
+                   (window-height . 0.3)
+                   (window-parameters . ((mode-line-format . none)))
+                   (post-command-select-window . t)))
+  #+end_src
+
 **** isearch
 #+begin_src emacs-lisp
   (setopt isearch-lazy-count t
@@ -6419,29 +6467,6 @@ To manage windows states
                  ("M-s s" . consult-history)))
     :custom
     (eshell-buffer-maximum-lines 10000) (eshell-history-size 10000))
-  #+end_src
-
-- buffer window rule to appear as popup terminal
-
-  #+begin_src emacs-lisp
-    (add-to-list
-     'display-buffer-alist
-     `(,(rx "*"
-            (or "shell"
-                "term"
-                (seq (* nonl) "eshell")
-                (seq (* nonl) "eat")
-                "help"
-                "compilation"
-                "Async Shell Command"
-                "Occur"
-                "xref")
-            (* nonl) "*")
-       (display-buffer-at-bottom)
-       (slot . 1)
-       (window-parameters (mode-line-format . none))
-       (post-command-select-window . t)
-       (window-height . 0.3)))
   #+end_src
 
 - Eshell alias
@@ -7151,7 +7176,7 @@ to get bash alias to eshell way
 
     (use-package shr :ensure nil :demand t
       :custom (shr-bullet "⦿ ") (shr-width 100) (shr-max-image-proportion 0.5)
-      (shr-use-colors nil))
+      (shr-use-colors nil) (shr-use-fonts nil))
   #+end_src
 
 **** Eww
@@ -7276,30 +7301,17 @@ to get bash alias to eshell way
 
 *** set-face
 - Set fonts for emacs.
-- Defining some variables for adjusting size and font name.
-
+ 
   #+begin_src emacs-lisp
-    (defcustom d/font-size (if d/on-droid 170 140)
-      "Default font size based on the system.")
-
-    ;; Dont worry about the font name, I use fork of Iosevka font
-
-    ;; Set reusable font name variables
-    (defcustom d/fixed-pitch-font (if d/on-droid "Maple Mono NF" "Iosevka")
-      "The font to use for monospaced (fixed width) text.")
-
-    (defcustom d/variable-pitch-font (if d/on-droid "Inter" "Iosevka Aile")
-      "The font to use for variable-pitch (documents) text.")
-  #+end_src
-
-- Invoking fonts.
-
-  #+begin_src emacs-lisp
-    (use-package faces :ensure nil
-      :custom-face
-      (variable-pitch ((t (:family ,d/variable-pitch-font :height 1.1 :weight normal))))
-      (fixed-pitch ((t (:family ,d/fixed-pitch-font :weight normal))))
-      (default ((t (:family ,d/fixed-pitch-font :height ,d/font-size :weight normal)))))
+    (set-face-attribute
+     'default nil
+     :family (if d/on-droid "Maple Mono NF" "Iosevka")
+     :height (if d/on-droid 170 140))
+    (set-face-attribute
+     'variable-pitch nil
+     :family (if d/on-droid "Inter" "Iosevka Aile")
+     :height 1.1)
+    (set-face-attribute 'fixed-pitch nil :family (if d/on-droid "Maple Mono NF" "Iosevka"))
   #+end_src
 
 - font-lock
@@ -7380,7 +7392,7 @@ to get bash alias to eshell way
        (bg-tab-bar bg-main) (bg-tab-current bg-region) (bg-tab-other bg-dim)
 
        (fringe unspecified)
-       (bg-mode-line-active bg-dim)
+       (bg-mode-line-active bg-inactive)
        (bg-line-number-active  bg-main) (bg-line-number-inactive  bg-main)
        (fg-line-number-active fg-dim) (fg-line-number-inactive border)
        (border-mode-line-active fg-heading-1) (border-mode-line-inactive unspecified)
@@ -7423,7 +7435,7 @@ to get bash alias to eshell way
 
        ;; UI elements
        (fringe         unspecified)
-       (bg-mode-line-active "{{colors.surface_dim.default.hex}}")
+       (bg-mode-line-active "{{colors.surface_container.default.hex}}")
        ))
 
     (defface d/org-agenda-foss-asap
@@ -7468,17 +7480,35 @@ to get bash alias to eshell way
   (setopt
    mode-line-format
    '("%e"
-     "     "
-     mode-line-buffer-identification
-     "    "
-     mode-line-position mode-line-format-right-align
-     (project-mode-line project-mode-line-format)
-     (vc-mode vc-mode)
-     "  " mode-line-modes
-     mode-line-misc-info)
+     "%+   "
+     (:eval (truncate-string-to-width (buffer-name) 50 nil nil "…"))
+     "   %o   %l:%c  "
+     mode-line-format-right-align
+     (:eval (when vc-mode
+              (string-trim (substring-no-properties vc-mode))))
+     "  "
+     (:eval (format-mode-line mode-name))
+     "  ")
+   ;; '("%e"
+   ;;   "     "
+   ;;   mode-line-buffer-identification
+   ;;   "    "
+   ;;   mode-line-position mode-line-format-right-align
+   ;;   (project-mode-line project-mode-line-format)
+   ;;   (vc-mode vc-mode)
+   ;;   "  " mode-line-modes
+   ;;   mode-line-misc-info)
 
    mode-line-collapse-minor-modes t)
   (global-set-key (kbd "<f9>") 'mode-line-invisible-mode)
+
+  (modus-themes-with-colors
+    (custom-set-faces
+     ;; Add "padding" to the mode lines
+     `(tab-bar  ((,c :height 0.75)))
+     `(mode-line ((,c :height 0.9  :box (:line-width 5 :color ,bg-mode-line-active))))
+     `(mode-line-active ((,c :height 0.9 :box (:line-width 5 :color ,bg-mode-line-active))))
+     `(mode-line-inactive ((,c :height 0.9 :box (:line-width 5 :color ,bg-mode-line-inactive))))))
 #+end_src
 
 **** olivetti center mode
@@ -7503,7 +7533,8 @@ to get bash alias to eshell way
                                )
      tab-bar-auto-width-max nil
      tab-bar-close-button-show nil)
-    (tab-bar-mode t) (tab-bar-history-mode 1) (global-tab-line-mode 1)
+    (tab-bar-mode t) (tab-bar-history-mode 1)
+    ;; (global-tab-line-mode 1)
   #+end_src
 
 
@@ -8028,13 +8059,15 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
                            (ewm-launcher--execute "noctalia-shell" 'start-process)
                            ;; (ewm-launcher--execute "vicinae server" 'start-process)
                            )))
+      (ewm-surface-mode . mode-line-invisible-mode)
       :custom
+      (ewm-animations-enabled nil)
       (ewm-output-config '(("eDP-1" :scale 1.25 :enabled t)
                            ("HDMI-A-1" :scale 1.5)))
       (ewm-intercept-prefixes
        '("C-x" "C-u" "C-h" "M-x" "M-y" "M-:" "M-&" "M-#"
          ("s-f" :fullscreen) ("s-l" :fullscreen) ("s-j" :fullscreen) ("s-k" :fullscreen) ("s-;" :fullscreen)
-         ("s-n" :fullscreen) ("s-p" :fullscreen)
+         ("s-n" :fullscreen) ("s-p" :fullscreen) ("s-<tab>" :fullscreen)
          ("<MonBrightnessUp>" :fullscreen) ("<MonBrightnessDown>" :fullscreen)
          ("<AudioRaiseVolume>" :fullscreen) ("<AudioLowerVolume>" :fullscreen)
          ("<AudioMute>" :fullscreen) ("<AudioMicMute>" :fullscreen)
@@ -8061,11 +8094,15 @@ https://list.orgmode.org/8734e756bn.fsf@gnu.org/T/#u
       ;; (ewm-text-input--auto-enable)
       (bind-keys ("C-x C-c" . nil) ("s-E" . nil) ("s-S-e" . nil))
       (add-to-list 'display-buffer-alist
-                   `(,(rx bos "*ewm:" (or "mpv" "glide") ":" (* nonl) eos)
-                     (display-buffer-in-side-window)
-                     (side . bottom)
-                     (slot . 1)          ; rightmost slot at bottom
-                     (window-height . 0.3)))
+                   '((lambda (buf _)
+                       (with-current-buffer buf
+                         (and (bound-and-true-p ewm-surface-app)
+                              (member ewm-surface-app '("foot" "mpv")))))
+                     (display-buffer-reuse-mode-window display-buffer-at-bottom)
+                     (dedicated . t)
+                     (window-height . 0.3)
+                     (window-parameters . ((mode-line-format . none)))
+                     (post-command-select-window . t)))
       )
   #+end_src
 

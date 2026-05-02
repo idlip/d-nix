@@ -1,5 +1,18 @@
 ;; -*- lexical-binding: t; -*-
 
+(use-package package :ensure nil
+  :config
+  (setq package-archives
+        '(("gnu-elpa" . "https://elpa.gnu.org/packages/")
+          ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+          ("melpa" . "https://melpa.org/packages/")))
+  (setq package-archive-priorities
+        '(("gnu-elpa" . 3)
+          ("nongnu" . 2)
+          ("melpa" . 1))))
+
+;; -*- lexical-binding: t; -*-
+
 (setopt
  display-time-24hr-format t
  display-time-default-load-average nil
@@ -9,7 +22,32 @@
 (setopt battery-load-low '40 battery-load-critical '29)
 (display-battery-mode 1)
 
-(bind-keys ("C-z") ("C-x C-z") ("M-o" . other-window) ("M-j" . duplicate-dwim) )
+;; credits :: https://protesilaos.com/codelog/2026-04-30-emacs-decent-default-sacha-chua/
+(defun d/keyboard-quit-dwim ()
+  "Do-What-I-Mean behaviour for a general `keyboard-quit'.
+
+The generic `keyboard-quit' does not do the expected thing when
+the minibuffer is open.  Whereas we want it to close the
+minibuffer, even without explicitly focusing it.
+
+The DWIM behaviour of this command is as follows:
+
+- When the region is active, disable it.
+- When a minibuffer is open, but not focused, close the minibuffer.
+- When the Completions buffer is selected, close it.
+- In every other case use the regular `keyboard-quit'."
+  (interactive)
+  (cond
+   ((region-active-p)
+    (keyboard-quit))
+   ((derived-mode-p 'completion-list-mode)
+    (delete-completion-window))
+   ((> (minibuffer-depth) 0)
+    (abort-recursive-edit))
+   (t
+    (keyboard-quit))))
+
+(bind-keys ("C-z") ("C-x C-z") ("M-o" . other-window) ("M-j" . duplicate-dwim) ("C-g" . d/keyboard-quit-dwim))
 
 (setopt
  inhibit-startup-screen t
@@ -21,6 +59,8 @@
 
  window-combination-resize t
  history-delete-duplicates t
+ help-window-select t
+ help-window-keep-selected t
 
  sentence-end-double-space nil
  sentence-end "[.?!]"
@@ -161,7 +201,10 @@
  dired-omit-files "\\`[.]?#\\|\\`[.][.]?\\'\\|^\\..*$"
  delete-by-moving-to-trash t
  dired-dwim-target t
- dired-kill-when-opening-new-dired-buffer nil
+ dired-kill-when-opening-new-dired-buffer nil ;; for single dired
+ dired-auto-revert-buffer #'dired-directory-changed-p
+ dired-create-destination-dirs 'ask
+ dired-create-destination-dirs-on-trailing-dirsep t
  )
 
 (setopt wdired-allow-to-change-permissions t
@@ -241,11 +284,10 @@
       --line-number --search-zip -U")
   (consult-preview-excluded-buffers
    (lambda (buf)
-     (seq-some (lambda (re)
-                 (string-match-p re (buffer-name buf)))
-               (append (mapcar #'car display-buffer-alist)
-                       '("ewm2"))
-               )))
+     (or (string-match-p "ewm2" (buffer-name buf))
+         (seq-some (lambda (entry)
+                     (ignore-errors (buffer-match-p (car entry) buf)))
+                   display-buffer-alist))))
   :config
   (delq 'consult-source-recent-file consult-buffer-sources)
   )
@@ -323,6 +365,18 @@
 
 (setopt uniquify-buffer-name-style 'forward)
 
+(add-to-list 'display-buffer-alist
+             '((or (derived-mode . occur-mode) (derived-mode . eshell-mode)
+                   (derived-mode . eat-mode) (derived-mode . help-mode)
+                   (derived-mode . term-mode) (derived-mode . compilation-mode)
+                   (derived-mode . shell-mode) (derived-mode . grep-mode) (derived-mode . shell-command-mode)
+                   (derived-mode . Buffer-menu-mode) (derived-mode . log-view-mode))
+               (display-buffer-reuse-mode-window display-buffer-at-bottom)
+               (dedicated . t)
+               (window-height . 0.3)
+               (window-parameters . ((mode-line-format . none)))
+               (post-command-select-window . t)))
+
 (setopt isearch-lazy-count t
         search-whitespace-regexp ".*?")
 
@@ -398,25 +452,6 @@
                ("M-s s" . consult-history)))
   :custom
   (eshell-buffer-maximum-lines 10000) (eshell-history-size 10000))
-
-(add-to-list
- 'display-buffer-alist
- `(,(rx "*"
-        (or "shell"
-            "term"
-            (seq (* nonl) "eshell")
-            (seq (* nonl) "eat")
-            "help"
-            "compilation"
-            "Async Shell Command"
-            "Occur"
-            "xref")
-        (* nonl) "*")
-   (display-buffer-at-bottom)
-   (slot . 1)
-   (window-parameters (mode-line-format . none))
-   (post-command-select-window . t)
-   (window-height . 0.3)))
 
 (setq comint-pager "cat")
 (setenv "MANPAGER" "cat") ;; or mxp script
@@ -861,7 +896,7 @@
 
 (use-package shr :ensure nil :demand t
   :custom (shr-bullet "⦿ ") (shr-width 100) (shr-max-image-proportion 0.5)
-  (shr-use-colors nil))
+  (shr-use-colors nil) (shr-use-fonts nil))
 
 (use-package eww :ensure nil :demand t
   :hook
@@ -926,23 +961,15 @@ images."
     (next-line)
     ))
 
-(defcustom d/font-size (if d/on-droid 170 140)
-  "Default font size based on the system.")
-
-;; Dont worry about the font name, I use fork of Iosevka font
-
-;; Set reusable font name variables
-(defcustom d/fixed-pitch-font (if d/on-droid "Maple Mono NF" "Iosevka")
-  "The font to use for monospaced (fixed width) text.")
-
-(defcustom d/variable-pitch-font (if d/on-droid "Inter" "Iosevka Aile")
-  "The font to use for variable-pitch (documents) text.")
-
-(use-package faces :ensure nil
-  :custom-face
-  (variable-pitch ((t (:family ,d/variable-pitch-font :height 1.1 :weight normal))))
-  (fixed-pitch ((t (:family ,d/fixed-pitch-font :weight normal))))
-  (default ((t (:family ,d/fixed-pitch-font :height ,d/font-size :weight normal)))))
+(set-face-attribute
+ 'default nil
+ :family (if d/on-droid "Maple Mono NF" "Iosevka")
+ :height (if d/on-droid 170 140))
+(set-face-attribute
+ 'variable-pitch nil
+ :family (if d/on-droid "Inter" "Iosevka Aile")
+ :height 1.1)
+(set-face-attribute 'fixed-pitch nil :family (if d/on-droid "Maple Mono NF" "Iosevka"))
 
 (global-font-lock-mode 1)
 
@@ -986,7 +1013,7 @@ images."
      (bg-tab-bar bg-main) (bg-tab-current bg-region) (bg-tab-other bg-dim)
 
      (fringe unspecified)
-     (bg-mode-line-active bg-dim)
+     (bg-mode-line-active bg-inactive)
      (bg-line-number-active  bg-main) (bg-line-number-inactive  bg-main)
      (fg-line-number-active fg-dim) (fg-line-number-inactive border)
      (border-mode-line-active fg-heading-1) (border-mode-line-inactive unspecified)
@@ -998,17 +1025,35 @@ images."
 (setopt
  mode-line-format
  '("%e"
-   "     "
-   mode-line-buffer-identification
-   "    "
-   mode-line-position mode-line-format-right-align
-   (project-mode-line project-mode-line-format)
-   (vc-mode vc-mode)
-   "  " mode-line-modes
-   mode-line-misc-info)
+   "%+   "
+   (:eval (truncate-string-to-width (buffer-name) 50 nil nil "…"))
+   "   %o   %l:%c  "
+   mode-line-format-right-align
+   (:eval (when vc-mode
+            (string-trim (substring-no-properties vc-mode))))
+   "  "
+   (:eval (format-mode-line mode-name))
+   "  ")
+ ;; '("%e"
+ ;;   "     "
+ ;;   mode-line-buffer-identification
+ ;;   "    "
+ ;;   mode-line-position mode-line-format-right-align
+ ;;   (project-mode-line project-mode-line-format)
+ ;;   (vc-mode vc-mode)
+ ;;   "  " mode-line-modes
+ ;;   mode-line-misc-info)
 
  mode-line-collapse-minor-modes t)
 (global-set-key (kbd "<f9>") 'mode-line-invisible-mode)
+
+(modus-themes-with-colors
+  (custom-set-faces
+   ;; Add "padding" to the mode lines
+   `(tab-bar  ((,c :height 0.75)))
+   `(mode-line ((,c :height 0.9  :box (:line-width 5 :color ,bg-mode-line-active))))
+   `(mode-line-active ((,c :height 0.9 :box (:line-width 5 :color ,bg-mode-line-active))))
+   `(mode-line-inactive ((,c :height 0.9 :box (:line-width 5 :color ,bg-mode-line-inactive))))))
 
 (use-package olivetti :defer t :custom (olivetti-body-width 100)
   :hook (org-mode Info-mode help-mode gnus-group-mode gnus-article-mode nov-mode markdown-mode eww-mode))
@@ -1022,7 +1067,8 @@ images."
                            )
  tab-bar-auto-width-max nil
  tab-bar-close-button-show nil)
-(tab-bar-mode t) (tab-bar-history-mode 1) (global-tab-line-mode 1)
+(tab-bar-mode t) (tab-bar-history-mode 1)
+;; (global-tab-line-mode 1)
 
 (use-package org :ensure nil :defer t
   :hook
@@ -1408,13 +1454,15 @@ absolute path. Finally load eglot."
                        (ewm-launcher--execute "noctalia-shell" 'start-process)
                        ;; (ewm-launcher--execute "vicinae server" 'start-process)
                        )))
+  (ewm-surface-mode . mode-line-invisible-mode)
   :custom
+  (ewm-animations-enabled nil)
   (ewm-output-config '(("eDP-1" :scale 1.25 :enabled t)
                        ("HDMI-A-1" :scale 1.5)))
   (ewm-intercept-prefixes
    '("C-x" "C-u" "C-h" "M-x" "M-y" "M-:" "M-&" "M-#"
      ("s-f" :fullscreen) ("s-l" :fullscreen) ("s-j" :fullscreen) ("s-k" :fullscreen) ("s-;" :fullscreen)
-     ("s-n" :fullscreen) ("s-p" :fullscreen)
+     ("s-n" :fullscreen) ("s-p" :fullscreen) ("s-<tab>" :fullscreen)
      ("<MonBrightnessUp>" :fullscreen) ("<MonBrightnessDown>" :fullscreen)
      ("<AudioRaiseVolume>" :fullscreen) ("<AudioLowerVolume>" :fullscreen)
      ("<AudioMute>" :fullscreen) ("<AudioMicMute>" :fullscreen)
@@ -1441,11 +1489,15 @@ absolute path. Finally load eglot."
   ;; (ewm-text-input--auto-enable)
   (bind-keys ("C-x C-c" . nil) ("s-E" . nil) ("s-S-e" . nil))
   (add-to-list 'display-buffer-alist
-               `(,(rx bos "*ewm:" (or "mpv" "glide") ":" (* nonl) eos)
-                 (display-buffer-in-side-window)
-                 (side . bottom)
-                 (slot . 1)          ; rightmost slot at bottom
-                 (window-height . 0.3)))
+               '((lambda (buf _)
+                   (with-current-buffer buf
+                     (and (bound-and-true-p ewm-surface-app)
+                          (member ewm-surface-app '("foot" "mpv")))))
+                 (display-buffer-reuse-mode-window display-buffer-at-bottom)
+                 (dedicated . t)
+                 (window-height . 0.3)
+                 (window-parameters . ((mode-line-format . none)))
+                 (post-command-select-window . t)))
   )
 
 ;;; Unified launcher with PATH executables + .desktop actions

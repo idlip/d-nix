@@ -963,13 +963,13 @@ images."
 
 (set-face-attribute
  'default nil
- :family (if d/on-droid "Maple Mono NF" "Iosevka")
+ :family (if d/on-droid "Maple Mono NF" "Aporetic Sans Mono")
  :height (if d/on-droid 170 140))
 (set-face-attribute
  'variable-pitch nil
- :family (if d/on-droid "Inter" "Iosevka Aile")
+ :family (if d/on-droid "Inter" "Aporetic Sans")
  :height 1.1)
-(set-face-attribute 'fixed-pitch nil :family (if d/on-droid "Maple Mono NF" "Iosevka"))
+(set-face-attribute 'fixed-pitch nil :family (if d/on-droid "Maple Mono NF" "Aporetic Sans Mono"))
 
 (global-font-lock-mode 1)
 
@@ -1486,7 +1486,7 @@ absolute path. Finally load eglot."
               ("s-i" . ewm-link-handler-unified) ("s-o" . ewm-handle-link)
               ("s-d" . ewm-launch))
   :config
-  ;; (ewm-text-input--auto-enable)
+  (ewm-text-input--auto-disable) (ewm-text-input-mode -1)
   (bind-keys ("C-x C-c" . nil) ("s-E" . nil) ("s-S-e" . nil))
   (add-to-list 'display-buffer-alist
                '((lambda (buf _)
